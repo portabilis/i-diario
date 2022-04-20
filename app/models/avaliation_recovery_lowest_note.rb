@@ -3,6 +3,8 @@ class AvaliationRecoveryLowestNote < ActiveRecord::Base
   include Stepable
   include Filterable
 
+  acts_as_copy_target
+
   audited
   has_associated_audits
 
@@ -24,5 +26,27 @@ class AvaliationRecoveryLowestNote < ActiveRecord::Base
   scope :by_created_at, lambda { |created_at| where(created_at: created_at) }
   scope :ordered, -> { order(arel_table[:recorded_at].desc) }
 
+  before_validation :set_recorded_at, on: [:create, :update]
 
+  validate :unique_by_step_and_classroom
+
+  def set_recorded_at
+    return if recovery_diary_record.blank?
+
+    self.recovery_diary_record.recorded_at = recorded_at
+  end
+
+  def unique_by_step_and_classroom
+    return if recovery_diary_record.blank? || step.blank?
+
+    relation = AvaliationRecoveryLowestNote.by_classroom_id(classroom_id)
+                                           .by_discipline_id(discipline_id)
+                                           .by_step_id(classroom, step_id)
+
+    relation = relation.where.not(id: id) if persisted?
+
+    if relation.any?
+      errors.add(:step_id, :unique_by_step_and_classroom)
+    end
+  end
 end
