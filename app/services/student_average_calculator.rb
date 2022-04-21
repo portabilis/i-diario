@@ -9,6 +9,7 @@ class StudentAverageCalculator
       student_notes_query.previous_enrollments_daily_note_students
     test_setting = test_setting(classroom, step)
 
+    @recovery_lowest_note_in_step = student_notes_query.recovery_lowest_note_in_step(step)
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
     return if daily_note_students.blank? && recovery_diary_records.blank?
@@ -30,7 +31,7 @@ class StudentAverageCalculator
 
   private
 
-  attr_accessor :student, :daily_note_students, :recovery_diary_records
+  attr_accessor :student, :daily_note_students, :recovery_diary_records, :recovery_lowest_note_in_step
 
   def weight_sum
     avaliations = []
@@ -85,6 +86,20 @@ class StudentAverageCalculator
       end
       values << value
     end
+
+    unless recovery_lowest_note_in_step.nil?
+      lowest_note = 0
+      index_lowest_note = 0
+
+      values.each_with_index do |value, index|
+        if value < lowest_note
+          index_lowest_note = index
+        end
+      end
+
+      values[index_lowest_note] = recovery_lowest_note_in_step.score
+    end
+
     values
   end
 
