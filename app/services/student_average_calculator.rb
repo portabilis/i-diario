@@ -48,7 +48,7 @@ class StudentAverageCalculator
       avaliations << { value: recovery_diary_record.avaliation_recovery_diary_record.avaliation.weight, avaliation_id: recovery_diary_record.avaliation_recovery_diary_record.avaliation.id }
     end
 
-    weights = extract_note_avaliation(avaliations)
+    weights = extract_weight_avaliations(avaliations)
 
     weights.reduce(:+)
   end
@@ -70,22 +70,17 @@ class StudentAverageCalculator
       avaliations << { value: score, avaliation_id: recovery_diary_record.avaliation_recovery_diary_record.avaliation.id }
     end
 
-    @scores = extract_note_avaliation(avaliations)
+    @scores = extract_note_avaliations(avaliations)
 
     @scores.reduce(:+)
   end
 
-  def extract_note_avaliation(avaliations)
-    values = []
-    avaliations.uniq.group_by { |k, v| k[:avaliation_id] }.each do |avaliation|
-      value = 0
-      if avaliation.last.count > 1
-        avaliation.last.each { |array| value = array[:value] if value < array[:value] }
-      else
-        value = avaliation.last.last[:value]
-      end
-      values << value
-    end
+  def extract_weight_avaliations(avaliations)
+    use_unique_avaliations(avaliations)
+  end
+
+  def extract_note_avaliations(avaliations)
+    values = use_unique_avaliations(avaliations)
 
     unless recovery_lowest_note_in_step.nil?
       lowest_note = nil
@@ -100,6 +95,24 @@ class StudentAverageCalculator
       end
 
       values[index_lowest_note] = recovery_lowest_note_in_step.score
+    end
+
+    values
+  end
+
+  def use_unique_avaliations(avaliations)
+    values = []
+
+    avaliations.uniq.group_by { |k, v| k[:avaliation_id] }.each do |avaliation|
+      value = 0
+
+      if avaliation.last.count > 1
+        avaliation.last.each { |array| value = array[:value] if value < array[:value] }
+      else
+        value = avaliation.last.last[:value]
+      end
+
+      values << value
     end
 
     values
