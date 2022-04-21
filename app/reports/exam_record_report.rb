@@ -244,7 +244,7 @@ class ExamRecordReport < BaseReport
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
 
-      if @recovery_lowest_notes.exists?
+      if @recovery_lowest_notes
         lowest_note_header = make_cell(content: "Rec. geral", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
         first_headers_and_cells << lowest_note_header
       end
@@ -266,11 +266,11 @@ class ExamRecordReport < BaseReport
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
-        if @recovery_lowest_notes.exists?
+        if @recovery_lowest_notes
           student_cells << make_cell(content: "#{recovery_lowest_note[key]}", align: :center)
         end
 
-        number_colums = @recovery_lowest_notes.exists? ? 11 : 10
+        number_colums = @recovery_lowest_notes ? 11 : 10
 
         (number_colums - data_column_count).times { student_cells << nil }
 
