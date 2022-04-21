@@ -1,8 +1,3 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/avaliation_recovery_lowest_notes/form' %>
-  <%= javascript_include_tag 'fetch_students_in_recovery' %>
-<% end %>
-
 <%= simple_form_for @lowest_note_recovery, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
