@@ -25,6 +25,15 @@ class ExamRecordReportForm
                             .order_by_avaliation_test_date
   end
 
+  def recovery_lowest_notes?
+    classroom = Classroom.find(classroom_id)
+    @recovery_lowest_notes = AvaliationRecoveryLowestNote.by_unity_id(unity_id)
+                                                         .by_classroom_id(classroom_id)
+                                                         .by_discipline_id(discipline_id)
+                                                         .by_step_id(classroom, step.id)
+                                                         .exists?
+  end
+
   def daily_notes_classroom_steps
     return unless classroom_step
 
