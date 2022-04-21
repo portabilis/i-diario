@@ -48,7 +48,8 @@ class Features < EnumerateIt::Base
                    :users,
                    :translations,
                    :lessons_boards,
-                   :daily_frequencies_in_batchs
+                   :daily_frequencies_in_batchs,
+                   :avaliation_recovery_lowest_notes
 
 
   sort_by :translation
