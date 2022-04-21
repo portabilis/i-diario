@@ -12,7 +12,7 @@
   </td>
 
   <td>
-    <span class="current-average" data-inputmask="'digits': <%= decimal_places %>">
+    <span class="current-lowest-note" data-inputmask="'digits': <%= decimal_places %>">
       <%= StudentNotesInStepFetcher.new(f.object.student)
                                    .lowest_note_in_step(@lowest_note_recovery.recovery_diary_record.classroom,
                                                         @lowest_note_recovery.recovery_diary_record.discipline,
