@@ -1,0 +1,8 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_recovery_lowest_notes/form' %>
+  <%= javascript_include_tag 'fetch_students_in_recovery' %>
+<% end %>
+
+<div class="widget-body no-padding">
+  <%= render 'form' %>
+</div>

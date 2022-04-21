@@ -1,0 +1,35 @@
+<tr class="nested-fields" id="<%= id %>">
+  <td>
+    <div class="control-group hidden avaliation_recovery_lowest_note_recovery_diary_record_students_student_id">
+      <div class="controls input">
+        <input class="hidden" type="hidden" name="avaliation_recovery_lowest_note[recovery_diary_record_attributes][students_attributes][<%= element_id %>][student_id]" id="avaliation_recovery_lowest_note_recovery_diary_record_attributes_students_attributes_<%= element_id %>_student_id" value=<%= id %>>
+      </div>
+    </div>
+
+    <% if(exempted_from_discipline) { %>
+      <span class="exempted-student-from-discipline">****<%= name %></span>
+    <% } else { %>
+      <span class="multiline"><%= name %></span>
+    <% } %>
+  </td>
+
+  <td>
+    <span class="current-lowest-note">
+      <%= lowest_note_in_step %>
+    </span>
+  </td>
+
+  <td>
+    <div class="control-group decimal optional school_term_recovery_diary_record_recovery_diary_record_students_score">
+      <label class="decimal optional control-label hidden" for="avaliation_recovery_lowest_note_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">
+        Nota
+      </label>
+      <div class="controls input">
+        <input class="string decimal form-control decimal form-control decimal optional" type="decimal"
+          name="avaliation_recovery_lowest_note[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]"
+          id="avaliation_recovery_lowest_note_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score"
+          <% if(exempted_from_discipline) { %> readonly <% } %>>
+      </div>
+    </div>
+  </td>
+</tr>

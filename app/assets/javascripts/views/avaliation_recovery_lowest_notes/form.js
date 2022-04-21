@@ -3,11 +3,11 @@ $(function () {
 
   let flashMessages = new FlashMessages();
   let examRule = null;
-  let $unity = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_unity_id');
-  let $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
-  let $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
-  let $step = $('#school_term_recovery_diary_record_step_id');
-  let $recorded_at = $('#school_term_recovery_diary_record_recorded_at');
+  let $unity = $('#avaliation_recovery_lowest_note_recovery_diary_record_attributes_unity_id');
+  let $classroom = $('#avaliation_recovery_lowest_note_recovery_diary_record_attributes_classroom_id');
+  let $discipline = $('#avaliation_recovery_lowest_note_recovery_diary_record_attributes_discipline_id');
+  let $step = $('#avaliation_recovery_lowest_note_step_id');
+  let $recorded_at = $('#avaliation_recovery_lowest_note_recorded_at');
   let $submitButton = $('input[type=submit]');
 
   function fetchExamRule() {
@@ -67,60 +67,25 @@ $(function () {
       flashMessages.pop('');
       let step_id = $step.select2('val');
       let recorded_at = $recorded_at.val();
-      fetchStudentsInRecovery($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at, studentInStepRecovery);
+      fetchStudentsInRecovery($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at, studentInLowestNoteRecovery);
     }
   }
 
-  function studentInStepRecovery(data) {
+  function studentInLowestNoteRecovery(data) {
     let students = data.students;
 
     if (!_.isEmpty(students)) {
       let element_counter = 0;
-      let existing_ids = [];
-      let fetched_ids = [];
-
       hideNoItemMessage();
 
-      $('#recovery-diary-record-students').children('tr').each(function () {
-        if (!$(this).hasClass('destroy')){
-          existing_ids.push(parseInt(this.id));
-        }
+      $('#recovery-diary-record-students').empty();
+
+      _.each(students, function(student) {
+        let element_id = new Date().getTime() + element_counter++;
+        buildStudentField(element_id, student);
       });
-      existing_ids.shift();
 
-      if (_.isEmpty(existing_ids)){
-        _.each(students, function(student) {
-          let element_id = new Date().getTime() + element_counter++;
-
-          buildStudentField(element_id, student);
-        });
-        loadDecimalMasks();
-      } else {
-        $.each(students, function(index, student) {
-          let fetched_id = student.id;
-
-          fetched_ids.push(fetched_id);
-
-          if ($.inArray(fetched_id, existing_ids) == -1) {
-            if($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
-              restoreStudent(fetched_id);
-            } else {
-              let element_id = new Date().getTime() + element_counter++;
-
-              buildStudentField(element_id, student, index);
-            }
-            existing_ids.push(fetched_id);
-          }
-        });
-
-        loadDecimalMasks();
-
-        _.each(existing_ids, function (existing_id) {
-          if ($.inArray(existing_id, fetched_ids) == -1) {
-            removeStudent(existing_id);
-          }
-        });
-      }
+      loadDecimalMasks();
     } else {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -128,10 +93,10 @@ $(function () {
     }
 
     function buildStudentField(element_id, student, index = null){
-      let html = JST['templates/school_term_recovery_diary_records/student_fields']({
+      let html = JST['templates/avaliation_recovery_lowest_notes/student_fields']({
         id: student.id,
         name: student.name,
-        average: student.average,
+        lowest_note_in_step: student.lowest_note_in_step,
         scale: 2,
         element_id: element_id,
         exempted_from_discipline: student.exempted_from_discipline
@@ -145,37 +110,10 @@ $(function () {
         $tbody.append(html);
       }
     }
-
-    function removeStudent(id){
-      $('#' + id).hide();
-      $('#' + id).addClass('destroy');
-      $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
-    }
-
-    function restoreStudent(id) {
-      $('#' + id).show();
-      $('#' + id).removeClass('destroy');
-      $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
-    }
   }
 
   function handleFetchCheckPersistedDailyNoteError() {
     flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
-  }
-
-  function hideNoItemMessage() {
-    $('.no_item_found').hide();
-  }
-
-  function showNoItemMessage() {
-    if (!$('.nested-fields').is(":visible")) {
-      $('.no_item_found').show();
-    }
-  }
-
-  function loadDecimalMasks() {
-    let numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
-    $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
   $step.on('change', function() {

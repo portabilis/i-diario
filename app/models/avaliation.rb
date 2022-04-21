@@ -71,6 +71,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
+  scope :by_step, lambda { |classroom_id, step_id| by_step_id(classroom_id, step_id)   }
   scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_id, lambda { |id| where(id: id)   }
   scope :by_test_date_after, lambda { |date| where("test_date >= ?", date) }
