@@ -88,10 +88,12 @@ class StudentAverageCalculator
     end
 
     unless recovery_lowest_note_in_step.nil?
-      lowest_note = 0
+      lowest_note = nil
       index_lowest_note = 0
 
       values.each_with_index do |value, index|
+        lowest_note = value if lowest_note.nil?
+
         if value < lowest_note
           index_lowest_note = index
         end
