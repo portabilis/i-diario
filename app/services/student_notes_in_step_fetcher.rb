@@ -1,11 +1,7 @@
 class StudentNotesInStepFetcher
   include I18n::Alchemy
 
-  def initialize(student)
-    @student = student
-  end
-
-  def lowest_note_in_step(classroom_id, discipline_id, step_id)
+  def lowest_note_in_step(student_id, classroom_id, discipline_id, step_id)
     classroom = Classroom.find(classroom_id)
     avaliations = Avaliation.by_classroom_id(classroom_id)
                             .by_discipline_id(discipline_id)
@@ -15,7 +11,7 @@ class StudentNotesInStepFetcher
     lowest_note = nil
 
     avaliations.each do |avaliation|
-      score = DailyNoteStudent.by_student_id(student.id)
+      score = DailyNoteStudent.by_student_id(student_id)
                               .by_avaliation(avaliation.id)
                               .first
                               .try(:recovered_note)
@@ -37,6 +33,4 @@ class StudentNotesInStepFetcher
   def numeric_parser
     @numeric_parser ||= I18n::Alchemy::NumericParser
   end
-
-  attr_accessor :student, :school_calendar_step_id, :classroom_id, :discipline_id
 end
