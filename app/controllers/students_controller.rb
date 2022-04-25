@@ -52,13 +52,12 @@ class StudentsController < ApplicationController
 
   def in_recovery
     @students = StudentsInRecoveryFetcher.new(
-        configuration,
-        params[:classroom_id],
-        params[:discipline_id],
-        params[:step_id],
-        params[:date].to_date.to_s
-      )
-      .fetch
+      configuration,
+      params[:classroom_id],
+      params[:discipline_id],
+      params[:step_id],
+      params[:date].to_date.to_s
+    ).fetch
 
     render(
       json: @students,
