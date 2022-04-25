@@ -36,6 +36,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @lowest_note_recovery = AvaliationRecoveryLowestNote.new.localized
     @lowest_note_recovery.build_recovery_diary_record
     @lowest_note_recovery.recovery_diary_record.unity = current_unity
+    @students_lowest_note = StudentNotesInStepFetcher.new
 
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
@@ -69,6 +70,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id]).localized
     step_number = @lowest_note_recovery.step_number
     @lowest_note_recovery.step_id = steps_fetcher.step(step_number).try(:id)
+    @students_lowest_note = StudentNotesInStepFetcher.new
 
     if @lowest_note_recovery.step_id.blank?
       recorded_at = @lowest_note_recovery.recorded_at
