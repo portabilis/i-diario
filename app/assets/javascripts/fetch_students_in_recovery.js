@@ -1,5 +1,5 @@
 function fetchStudentsInRecovery(classroom, discipline, exam_rule, step_id, recorded_at, success_callback) {
-  if (_.isEmpty(step_id) || _.isEmpty(moment(recorded_at)._i) || exam_rule.recovery_type === 0) {
+  if (_.isEmpty(step_id) || _.isEmpty(moment(recorded_at, 'MM-DD-YYYY')._i) || exam_rule.recovery_type === 0) {
     return;
   }
 
