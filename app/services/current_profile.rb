@@ -98,10 +98,17 @@ class CurrentProfile
   def teachers
     cache ['teachers', unity&.id, classroom&.id, school_year, user_role&.role&.teacher?, user.teacher_id] do
       return Teacher.none if unity.blank? || classroom.blank?
-      return Teacher.where(id: user.teacher_id) if user_role&.role&.teacher?
 
-      teachers = Teacher.by_unity_id(unity).by_classroom(classroom).order_by_name
-      teachers = teachers.by_year(school_year) if school_year
+      teachers_collection = TeacherDisciplineClassroom.where(classroom_id: classroom.id).uniq
+
+      if user_role&.role&.teacher?
+        teachers_ids = teachers_collection.where(teacher_id: user.teacher_id)
+
+        return Teacher.where(id: teachers_ids)
+      end
+
+      teachers_ids = teachers_collection.pluck(:teacher_id)
+      teachers = Teacher.where(id: teachers_ids).uniq.order_by_name
       teachers.to_a
     end
   end
