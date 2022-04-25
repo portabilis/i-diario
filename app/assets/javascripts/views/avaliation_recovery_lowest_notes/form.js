@@ -112,7 +112,39 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
   }
 
-  $step.on('change', checkPersistedDailyNote);
+  function checkExistsRecoveryLowestNoteOnStep() {
+    let step_id = $step.select2('val');
+    let classroom_id = $classroom.select2('val');
+
+    if (_.isEmpty(step_id)) {
+    } else {
+      $.ajax({
+        url: Routes.exists_recovery_on_step_avaliation_recovery_lowest_notes_pt_br_path({
+          format: 'json',
+          classroom_id: classroom_id,
+          step_id: step_id
+        }),
+        success: handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess,
+        error: handleFetchCheckExistsRecoveryLowestNoteOnStepError
+      });
+    }
+  }
+
+  function handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess(data) {
+    if (data === true) {
+      flashMessages.error('A turma selecionada já possui uma Recuperação de menor nota nesta etapa.');
+    } else {
+      checkPersistedDailyNote();
+    }
+  }
+
+  function handleFetchCheckExistsRecoveryLowestNoteOnStepError() {
+    flashMessages.error('Ocorreu um erro ao buscar as recuperações de menor nota da etapa');
+  }
+
+  $step.on('change', function() {
+    checkExistsRecoveryLowestNoteOnStep();
+  });
 
   $recorded_at.on('change', checkPersistedDailyNote);
 
