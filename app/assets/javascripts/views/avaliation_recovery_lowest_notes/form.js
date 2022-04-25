@@ -26,12 +26,6 @@ $(function () {
 
   function handleFetchExamRuleSuccess(data) {
     examRule = data.exam_rule;
-
-    if ($.isEmptyObject(examRule) && examRule.recovery_type !== 0) {
-      flashMessages.pop('');
-    } else {
-      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
-    }
   }
 
   function handleFetchExamRuleError() {
