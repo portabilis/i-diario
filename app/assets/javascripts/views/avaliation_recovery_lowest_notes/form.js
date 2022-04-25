@@ -118,6 +118,7 @@ $(function () {
     let classroom_id = $classroom.select2('val');
 
     if (_.isEmpty(step_id)) {
+      flashMessages.error('É necessário selecionar uma etapa.');
     } else {
       $.ajax({
         url: Routes.exists_recovery_on_step_avaliation_recovery_lowest_notes_pt_br_path({
