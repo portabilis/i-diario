@@ -13,7 +13,9 @@ $(function () {
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
 
-    if (!_.isEmpty(classroom_id)) {
+    if (_.isEmpty(classroom_id)) {
+      flashMessages.error('É necessário selecionar uma turma.');
+    } else {
       $.ajax({
         url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
         success: handleFetchExamRuleSuccess,
@@ -25,10 +27,10 @@ $(function () {
   function handleFetchExamRuleSuccess(data) {
     examRule = data.exam_rule;
 
-    if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
-      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
-    } else {
+    if ($.isEmptyObject(examRule) && examRule.recovery_type !== 0) {
       flashMessages.pop('');
+    } else {
+      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
     }
   }
 
