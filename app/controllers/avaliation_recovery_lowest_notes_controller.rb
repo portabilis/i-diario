@@ -243,4 +243,12 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
                      .by_date(recovery_diary_record.recorded_at)
                      .any?
   end
+
+  def exists_recovery_on_step
+    return if params[:classroom_id].blank? || params[:step_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    render json: AvaliationRecoveryLowestNote.by_step_id(classroom, params[:step_id]).exists?
+  end
 end
