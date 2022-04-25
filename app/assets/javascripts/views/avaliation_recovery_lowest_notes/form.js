@@ -48,6 +48,7 @@ $(function () {
     };
 
     if (!_.isEmpty(step_id)) {
+      console.log('passei aq');
       $.ajax({
         url: Routes.search_daily_notes_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchCheckPersistedDailyNoteSuccess,
@@ -133,8 +134,6 @@ $(function () {
   function handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess(data) {
     if (data === true) {
       flashMessages.error('A turma selecionada já possui uma Recuperação de menor nota nesta etapa.');
-    } else {
-      checkPersistedDailyNote();
     }
   }
 
@@ -142,9 +141,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as recuperações de menor nota da etapa');
   }
 
-  $step.on('change', function() {
-    checkExistsRecoveryLowestNoteOnStep();
-  });
+  $step.on('change', checkExistsRecoveryLowestNoteOnStep);
 
   $recorded_at.on('change', checkPersistedDailyNote);
 
@@ -154,5 +151,4 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
-  checkPersistedDailyNote();
 });
