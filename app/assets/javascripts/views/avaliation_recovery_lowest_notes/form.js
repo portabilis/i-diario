@@ -116,13 +116,9 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
   }
 
-  $step.on('change', function() {
-    checkPersistedDailyNote();
-  });
+  $step.on('change', checkPersistedDailyNote);
 
-  $recorded_at.on('change', function() {
-    checkPersistedDailyNote();
-  });
+  $recorded_at.on('change', checkPersistedDailyNote);
 
   $submitButton.on('click', function() {
     $recorded_at.unbind();
