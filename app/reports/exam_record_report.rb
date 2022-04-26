@@ -9,11 +9,11 @@ class ExamRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 3
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -25,6 +25,7 @@ class ExamRecordReport < BaseReport
     @school_term_recoveries = school_term_recoveries
     @recovery_lowest_notes = recovery_lowest_notes
     @active_search = false
+    @lowest_notes = lowest_notes
 
     header
     content
@@ -118,18 +119,17 @@ class ExamRecordReport < BaseReport
         @school_calendar_step
       )
 
-      recovery_lowest_note[student_enrollment.student_id] = begin
-        RecoveryDiaryRecordStudent.by_student_id(student_enrollment.student_id)
-                                  .joins(:recovery_diary_record)
-                                  .merge(RecoveryDiaryRecord.by_discipline_id(discipline.id)
-                                                            .by_classroom_id(classroom.id)
-                                                            .joins(:students, :avaliation_recovery_lowest_note)
-                                                            .merge(
-                                                              AvaliationRecoveryLowestNote
-                                                                .by_step_id(classroom, @school_calendar_step.id)
-                                                            )
-                                  )&.first&.score
+      lowest_note = nil
+
+      @lowest_notes.each do |lowest|
+        if student_enrollment.student_id == lowest.student_id
+          lowest_note = lowest.score
         end
+      end
+
+      if lowest_note.present?
+        recovery_lowest_note[student_enrollment.student_id] = lowest_note
+      end
     end
 
     exams = []
