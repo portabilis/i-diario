@@ -48,7 +48,6 @@ $(function () {
     };
 
     if (!_.isEmpty(step_id)) {
-      console.log('passei aq');
       $.ajax({
         url: Routes.search_daily_notes_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchCheckPersistedDailyNoteSuccess,
