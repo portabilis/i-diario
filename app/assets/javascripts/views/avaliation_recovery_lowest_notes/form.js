@@ -135,6 +135,8 @@ $(function () {
   function handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess(data) {
     if (data === true) {
       flashMessages.error('A turma selecionada já possui uma Recuperação de menor nota nesta etapa.');
+    } else {
+      flashMessages.pop('');
     }
   }
 
