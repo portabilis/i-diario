@@ -143,9 +143,39 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as recuperações de menor nota da etapa');
   }
 
+  function validDateOnStep() {
+    let recorded_at = $recorded_at.val();
+    let step_id = $step.select2('val');
+    let classroom_id = $classroom.select2('val');
+
+    $.ajax({
+      url: Routes.recorded_at_in_selected_step_avaliation_recovery_lowest_notes_pt_br_path({
+        format: 'json',
+        classroom_id: classroom_id,
+        step_id: step_id,
+        recorded_at: recorded_at
+      }),
+      success: handleFetchRecordedAtOnStepSuccess,
+      error: handleFetchRecordedAtOnStepError
+    });
+  }
+
+  function handleFetchRecordedAtOnStepSuccess(data) {
+    if (data === true) {
+      flashMessages.pop('');
+      checkPersistedDailyNote();
+    } else {
+      flashMessages.error('Data deve estar dentro da etapa selecionada');
+    }
+  }
+
+  function handleFetchRecordedAtOnStepError() {
+    flashMessages.error('Ocorreu um erro ao validar a data');
+  }
+
   $step.on('change', checkExistsRecoveryLowestNoteOnStep);
 
-  $recorded_at.on('change', checkPersistedDailyNote);
+  $recorded_at.on('change', validDateOnStep);
 
   $submitButton.on('click', function() {
     $recorded_at.unbind();
