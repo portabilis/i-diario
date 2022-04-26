@@ -14,7 +14,7 @@
       <td><%= @daily_frequencies.first.classroom.unity %></td>
       <td><%= @daily_frequencies.first.classroom %></td>
       <td><%= @daily_frequencies.first.discipline || 'Todas' %></td>
-      <td><%= @daily_frequencies.first.frequency_date %></td>
+      <td><%= l(@daily_frequencies.first.frequency_date) %></td>
     </tbody>
   </table>
 
