@@ -34,6 +34,22 @@ class ExamRecordReportForm
                                                          .exists?
   end
 
+  def lowest_notes
+    classroom = Classroom.find(classroom_id)
+
+    RecoveryDiaryRecordStudent.by_student_id(students_enrollments.map(&:student_id))
+                              .joins(:recovery_diary_record)
+                              .merge(
+                                RecoveryDiaryRecord.by_discipline_id(discipline_id)
+                                                   .by_classroom_id(classroom_id)
+                                                   .joins(:students, :avaliation_recovery_lowest_note)
+                                                   .merge(
+                                                     AvaliationRecoveryLowestNote
+                                                       .by_step_id(classroom, step.id)
+                                                   )
+                              )
+  end
+
   def daily_notes_classroom_steps
     return unless classroom_step
 
