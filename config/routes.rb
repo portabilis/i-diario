@@ -275,7 +275,11 @@ Rails.application.routes.draw do
     end
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
-    resources :avaliation_recovery_lowest_notes, concerns: :history
+    resources :avaliation_recovery_lowest_notes, concerns: :history do
+      collection do
+        get :exists_recovery_on_step
+      end
+    end
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines

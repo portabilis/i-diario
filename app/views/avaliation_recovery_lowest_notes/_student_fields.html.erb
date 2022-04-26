@@ -13,12 +13,12 @@
 
   <td>
     <span class="current-lowest-note" data-inputmask="'digits': <%= decimal_places %>">
-      <%= StudentNotesInStepFetcher.new(f.object.student)
-                                   .lowest_note_in_step(
-                                     @lowest_note_recovery.recovery_diary_record.classroom,
-                                     @lowest_note_recovery.recovery_diary_record.discipline,
-                                     @lowest_note_recovery.step.id
-                                   )
+      <%= @students_lowest_note.lowest_note_in_step(
+            f.object.student.id,
+            @lowest_note_recovery.recovery_diary_record.classroom,
+            @lowest_note_recovery.recovery_diary_record.discipline,
+            @lowest_note_recovery.step.id
+          )
       %>
     </span>
   </td>

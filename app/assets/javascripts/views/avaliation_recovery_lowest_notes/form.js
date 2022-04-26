@@ -13,7 +13,9 @@ $(function () {
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
 
-    if (!_.isEmpty(classroom_id)) {
+    if (_.isEmpty(classroom_id)) {
+      flashMessages.error('É necessário selecionar uma turma.');
+    } else {
       $.ajax({
         url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
         success: handleFetchExamRuleSuccess,
@@ -24,12 +26,6 @@ $(function () {
 
   function handleFetchExamRuleSuccess(data) {
     examRule = data.exam_rule;
-
-    if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
-      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
-    } else {
-      flashMessages.pop('');
-    }
   }
 
   function handleFetchExamRuleError() {
@@ -52,6 +48,7 @@ $(function () {
     };
 
     if (!_.isEmpty(step_id)) {
+      console.log('passei aq');
       $.ajax({
         url: Routes.search_daily_notes_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchCheckPersistedDailyNoteSuccess,
@@ -116,13 +113,38 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
   }
 
-  $step.on('change', function() {
-    checkPersistedDailyNote();
-  });
+  function checkExistsRecoveryLowestNoteOnStep() {
+    let step_id = $step.select2('val');
+    let classroom_id = $classroom.select2('val');
 
-  $recorded_at.on('change', function() {
-    checkPersistedDailyNote();
-  });
+    if (_.isEmpty(step_id)) {
+      flashMessages.error('É necessário selecionar uma etapa.');
+    } else {
+      $.ajax({
+        url: Routes.exists_recovery_on_step_avaliation_recovery_lowest_notes_pt_br_path({
+          format: 'json',
+          classroom_id: classroom_id,
+          step_id: step_id
+        }),
+        success: handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess,
+        error: handleFetchCheckExistsRecoveryLowestNoteOnStepError
+      });
+    }
+  }
+
+  function handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess(data) {
+    if (data === true) {
+      flashMessages.error('A turma selecionada já possui uma Recuperação de menor nota nesta etapa.');
+    }
+  }
+
+  function handleFetchCheckExistsRecoveryLowestNoteOnStepError() {
+    flashMessages.error('Ocorreu um erro ao buscar as recuperações de menor nota da etapa');
+  }
+
+  $step.on('change', checkExistsRecoveryLowestNoteOnStep);
+
+  $recorded_at.on('change', checkPersistedDailyNote);
 
   $submitButton.on('click', function() {
     $recorded_at.unbind();
@@ -130,5 +152,4 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
-  checkPersistedDailyNote();
 });
