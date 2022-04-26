@@ -62,9 +62,10 @@
               <%= t('.no_item_found') %>
             </td>
           </tr>
-
-          <%= recovery_diary_record.fields_for :students, @students do |student| %>
-            <%= render 'student_fields', f: student %>
+          <% if @students != nil %>
+            <%= recovery_diary_record.fields_for :students, @students do |student| %>
+              <%= render 'student_fields', f: student %>
+            <% end %>
           <% end %>
         </tbody>
 
