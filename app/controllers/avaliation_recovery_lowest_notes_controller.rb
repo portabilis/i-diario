@@ -247,4 +247,13 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     render json: AvaliationRecoveryLowestNote.by_step_id(classroom, params[:step_id]).exists?
   end
+
+  def recorded_at_in_selected_step
+    return if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    steps_fetcher = StepsFetcher.new(classroom)
+
+    render json: steps_fetcher.step_belongs_to_date?(params[:step_id], params[:recorded_at])
+  end
 end
