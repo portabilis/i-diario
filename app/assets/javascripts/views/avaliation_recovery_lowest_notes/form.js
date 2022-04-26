@@ -63,8 +63,30 @@ $(function () {
       flashMessages.pop('');
       let step_id = $step.select2('val');
       let recorded_at = $recorded_at.val();
-      fetchStudentsInRecovery($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at, studentInLowestNoteRecovery);
+      fetchStudents($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at);
     }
+  }
+
+  function fetchStudents(classroom, discipline, exam_rule, step_id, recorded_at) {
+    if (_.isEmpty(step_id) || _.isEmpty(moment(recorded_at, 'MM-DD-YYYY')._i) || exam_rule.recovery_type === 0) {
+      return;
+    }
+
+    $.ajax({
+      url: Routes.recovery_lowest_note_students_pt_br_path({
+        classroom_id: classroom,
+        discipline_id: discipline,
+        step_id: step_id,
+        date: recorded_at,
+        format: 'json'
+      }),
+      success: studentInLowestNoteRecovery,
+      error: handleFetchStudentsError
+    });
+  }
+
+  function handleFetchStudentsError() {
+    flashMessages.error('Ocorreu um erro ao buscar os alunos.');
   }
 
   function studentInLowestNoteRecovery(data) {
