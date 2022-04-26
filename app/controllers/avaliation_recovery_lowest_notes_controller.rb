@@ -132,10 +132,9 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     reload_students_list
 
-    students_in_recovery = fetch_students_in_recovery
-    mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    mark_exempted_disciplines(students_in_recovery)
-    add_missing_students(students_in_recovery)
+    students = fetch_students
+    mark_exempted_disciplines(students)
+    add_missing_students(students)
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
@@ -153,26 +152,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     test_setting.number_of_decimal_places
   end
   helper_method :decimal_places
-
-  def fetch_students_in_recovery
-    StudentsInRecoveryFetcher.new(
-      api_configuration,
-      @lowest_note_recovery.recovery_diary_record.classroom_id,
-      @lowest_note_recovery.recovery_diary_record.discipline_id,
-      @lowest_note_recovery.step_id,
-      @lowest_note_recovery.recorded_at
-    ).fetch
-  end
-
-  def mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    @students.each do |student|
-      is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-        student.student.id == student_in_recovery.id
-      end
-
-      student.mark_for_destruction unless is_student_in_recovery
-    end
-  end
 
   def mark_exempted_disciplines(students_in_recovery)
     @students.each do |student|
@@ -205,7 +184,20 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     IeducarApiConfiguration.current
   end
 
-  def fetch_student_enrollments
+  def fetch_students
+    recovery_diary_record = @lowest_note_recovery.recovery_diary_record
+    return unless recovery_diary_record.recorded_at
+
+    StudentEnrollmentsList.new(
+      classroom: recovery_diary_record.classroom,
+      discipline: recovery_diary_record.discipline,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      date: recovery_diary_record.recorded_at,
+      search_type: :by_date
+    ).student_enrollments.map(&:student)
+  end
+
+  def fetch_students_enrollments
     recovery_diary_record = @lowest_note_recovery.recovery_diary_record
     return unless recovery_diary_record.recorded_at
 
@@ -219,7 +211,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def reload_students_list
-    return unless (student_enrollments = fetch_student_enrollments)
+    return unless (student_enrollments = fetch_students_enrollments)
 
     recovery_diary_record = @lowest_note_recovery.recovery_diary_record
 
