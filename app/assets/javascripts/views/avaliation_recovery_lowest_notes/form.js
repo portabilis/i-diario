@@ -48,7 +48,6 @@ $(function () {
     };
 
     if (!_.isEmpty(step_id)) {
-      console.log('passei aq');
       $.ajax({
         url: Routes.search_daily_notes_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchCheckPersistedDailyNoteSuccess,
@@ -64,8 +63,30 @@ $(function () {
       flashMessages.pop('');
       let step_id = $step.select2('val');
       let recorded_at = $recorded_at.val();
-      fetchStudentsInRecovery($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at, studentInLowestNoteRecovery);
+      fetchStudents($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at);
     }
+  }
+
+  function fetchStudents(classroom, discipline, exam_rule, step_id, recorded_at) {
+    if (_.isEmpty(step_id) || _.isEmpty(moment(recorded_at, 'MM-DD-YYYY')._i) || exam_rule.recovery_type === 0) {
+      return;
+    }
+
+    $.ajax({
+      url: Routes.recovery_lowest_note_students_pt_br_path({
+        classroom_id: classroom,
+        discipline_id: discipline,
+        step_id: step_id,
+        date: recorded_at,
+        format: 'json'
+      }),
+      success: studentInLowestNoteRecovery,
+      error: handleFetchStudentsError
+    });
+  }
+
+  function handleFetchStudentsError() {
+    flashMessages.error('Ocorreu um erro ao buscar os alunos.');
   }
 
   function studentInLowestNoteRecovery(data) {
@@ -135,6 +156,8 @@ $(function () {
   function handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess(data) {
     if (data === true) {
       flashMessages.error('A turma selecionada já possui uma Recuperação de menor nota nesta etapa.');
+    } else {
+      flashMessages.pop('');
     }
   }
 
@@ -142,9 +165,39 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as recuperações de menor nota da etapa');
   }
 
+  function validDateOnStep() {
+    let recorded_at = $recorded_at.val();
+    let step_id = $step.select2('val');
+    let classroom_id = $classroom.select2('val');
+
+    $.ajax({
+      url: Routes.recorded_at_in_selected_step_avaliation_recovery_lowest_notes_pt_br_path({
+        format: 'json',
+        classroom_id: classroom_id,
+        step_id: step_id,
+        recorded_at: recorded_at
+      }),
+      success: handleFetchRecordedAtOnStepSuccess,
+      error: handleFetchRecordedAtOnStepError
+    });
+  }
+
+  function handleFetchRecordedAtOnStepSuccess(data) {
+    if (data === true) {
+      flashMessages.pop('');
+      checkPersistedDailyNote();
+    } else {
+      flashMessages.error('Data deve estar dentro da etapa selecionada');
+    }
+  }
+
+  function handleFetchRecordedAtOnStepError() {
+    flashMessages.error('Ocorreu um erro ao validar a data');
+  }
+
   $step.on('change', checkExistsRecoveryLowestNoteOnStep);
 
-  $recorded_at.on('change', checkPersistedDailyNote);
+  $recorded_at.on('change', validDateOnStep);
 
   $submitButton.on('click', function() {
     $recorded_at.unbind();

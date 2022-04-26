@@ -70,7 +70,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id]).localized
     step_number = @lowest_note_recovery.step_number
     @lowest_note_recovery.step_id = steps_fetcher.step(step_number).try(:id)
-    @students_lowest_note = StudentNotesInStepFetcher.new
 
     if @lowest_note_recovery.step_id.blank?
       recorded_at = @lowest_note_recovery.recorded_at
@@ -80,16 +79,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     end
 
     authorize @lowest_note_recovery
-
-    reload_students_list
-
-    students_in_recovery = fetch_students_in_recovery
-    mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    mark_exempted_disciplines(students_in_recovery)
-    add_missing_students(students_in_recovery)
-
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    fetch_data
   end
 
   def update
@@ -137,6 +127,19 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     )
   end
 
+  def fetch_data
+    @students_lowest_note = StudentNotesInStepFetcher.new
+
+    reload_students_list
+
+    students = fetch_students
+    mark_exempted_disciplines(students)
+    add_missing_students(students)
+
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+  end
+
   def steps_fetcher
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
@@ -149,26 +152,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     test_setting.number_of_decimal_places
   end
   helper_method :decimal_places
-
-  def fetch_students_in_recovery
-    StudentsInRecoveryFetcher.new(
-      api_configuration,
-      @lowest_note_recovery.recovery_diary_record.classroom_id,
-      @lowest_note_recovery.recovery_diary_record.discipline_id,
-      @lowest_note_recovery.step_id,
-      @lowest_note_recovery.recorded_at
-    ).fetch
-  end
-
-  def mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    @students.each do |student|
-      is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-        student.student.id == student_in_recovery.id
-      end
-
-      student.mark_for_destruction unless is_student_in_recovery
-    end
-  end
 
   def mark_exempted_disciplines(students_in_recovery)
     @students.each do |student|
@@ -201,7 +184,20 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     IeducarApiConfiguration.current
   end
 
-  def fetch_student_enrollments
+  def fetch_students
+    recovery_diary_record = @lowest_note_recovery.recovery_diary_record
+    return unless recovery_diary_record.recorded_at
+
+    StudentEnrollmentsList.new(
+      classroom: recovery_diary_record.classroom,
+      discipline: recovery_diary_record.discipline,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      date: recovery_diary_record.recorded_at,
+      search_type: :by_date
+    ).student_enrollments.map(&:student)
+  end
+
+  def fetch_students_enrollments
     recovery_diary_record = @lowest_note_recovery.recovery_diary_record
     return unless recovery_diary_record.recorded_at
 
@@ -215,7 +211,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def reload_students_list
-    return unless (student_enrollments = fetch_student_enrollments)
+    return unless (student_enrollments = fetch_students_enrollments)
 
     recovery_diary_record = @lowest_note_recovery.recovery_diary_record
 
@@ -250,5 +246,14 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
 
     render json: AvaliationRecoveryLowestNote.by_step_id(classroom, params[:step_id]).exists?
+  end
+
+  def recorded_at_in_selected_step
+    return if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    steps_fetcher = StepsFetcher.new(classroom)
+
+    render json: steps_fetcher.step_belongs_to_date?(params[:step_id], params[:recorded_at])
   end
 end
