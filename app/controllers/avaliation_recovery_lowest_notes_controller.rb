@@ -70,7 +70,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id]).localized
     step_number = @lowest_note_recovery.step_number
     @lowest_note_recovery.step_id = steps_fetcher.step(step_number).try(:id)
-    @students_lowest_note = StudentNotesInStepFetcher.new
 
     if @lowest_note_recovery.step_id.blank?
       recorded_at = @lowest_note_recovery.recorded_at
@@ -80,16 +79,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     end
 
     authorize @lowest_note_recovery
-
-    reload_students_list
-
-    students_in_recovery = fetch_students_in_recovery
-    mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    mark_exempted_disciplines(students_in_recovery)
-    add_missing_students(students_in_recovery)
-
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    fetch_data
   end
 
   def update
@@ -135,6 +125,20 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
         ]
       ]
     )
+  end
+
+  def fetch_data
+    @students_lowest_note = StudentNotesInStepFetcher.new
+
+    reload_students_list
+
+    students_in_recovery = fetch_students_in_recovery
+    mark_students_not_in_recovery_for_destruction(students_in_recovery)
+    mark_exempted_disciplines(students_in_recovery)
+    add_missing_students(students_in_recovery)
+
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
   def steps_fetcher
