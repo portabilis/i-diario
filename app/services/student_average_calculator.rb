@@ -94,7 +94,9 @@ class StudentAverageCalculator
         end
       end
 
-      values[index_lowest_note] = recovery_lowest_note_in_step.score
+      if recovery_lowest_note_in_step.score != nil
+        values[index_lowest_note] = recovery_lowest_note_in_step.score
+      end
     end
 
     values
