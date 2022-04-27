@@ -119,13 +119,7 @@ class ExamRecordReport < BaseReport
         @school_calendar_step
       )
 
-      lowest_note = nil
-
-      @lowest_notes.each do |lowest|
-        if student_enrollment.student_id == lowest.student_id
-          lowest_note = lowest.score
-        end
-      end
+      lowest_note = @lowest_notes[student_enrollment.student_id].to_s
 
       if lowest_note.present?
         recovery_lowest_note[student_enrollment.student_id] = lowest_note
