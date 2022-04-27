@@ -1,18 +1,32 @@
 class ObservationRecordReportQuery
-  def initialize(teacher_id, classroom_id, discipline_id, start_at, end_at)
+  def initialize(unity_id, teacher_id, classroom_id, discipline_id, start_at, end_at, current_user_id)
+    @unity_id = unity_id
     @teacher_id = teacher_id
     @classroom_id = classroom_id
     @discipline_id = discipline_id
     @start_at = start_at.to_date
     @end_at = end_at.to_date
+    @current_user_id = current_user_id
   end
 
   def observation_diary_records
+    if @classroom_id.eql?('all')
+      user = User.find(current_user_id)
+      @classroom_id = if user.teacher?
+                        Classroom.by_unity_and_teacher(unity_id, user.teacher_id).pluck(:id)
+                      else
+                        Classroom.by_unity(unity_id).pluck(:id)
+                      end
+    end
+
     relation = ObservationDiaryRecord.includes(notes: :students)
-      .by_teacher(teacher_id)
-      .by_classroom(classroom_id)
-      .where(date: start_at..end_at)
-      .order(:date)
+                                     .by_classroom(classroom_id)
+                                     .where(date: start_at..end_at)
+                                     .order(:date)
+
+    if @discipline_id.eql?('all')
+      @discipline_id = Discipline.by_classroom_id(classroom_id).pluck(:id)
+    end
 
     relation = relation.by_discipline(discipline_id) if discipline_id.present?
 
@@ -21,5 +35,5 @@ class ObservationRecordReportQuery
 
   private
 
-  attr_accessor :teacher_id, :classroom_id, :discipline_id, :start_at, :end_at
+  attr_accessor :unity_id, :teacher_id, :classroom_id, :discipline_id, :start_at, :end_at, :current_user_id
 end

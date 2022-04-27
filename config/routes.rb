@@ -225,6 +225,7 @@ Rails.application.routes.draw do
     end
     resources :classrooms, only: [:index, :show] do
       collection do
+        get :by_unity
         get :multi_grade
       end
       resources :students, only: [:index]
@@ -234,6 +235,7 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :search_grouped_by_knowledge_area
+        get :by_classroom
       end
     end
     resources :knowledge_areas, only: [:index]
