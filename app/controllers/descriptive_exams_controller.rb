@@ -64,7 +64,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find
-    return if params[:step_id].blank? || params[:opinion_type].blank?
+    return render json: nil if params[:step_id].blank? || params[:opinion_type].blank?
 
     discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
     step_id = opinion_type_by_year?(params[:opinion_type].to_i) ? nil : params[:step_id].to_i
@@ -216,7 +216,7 @@ class DescriptiveExamsController < ApplicationController
     differentiated_opinion_type = exam_rules.find { |exam_rule|
       exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
         exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
-    }&.opinion_type
+    }&.differentiated_exam_rule&.opinion_type
 
     if differentiated_opinion_type.present?
       @opinion_types << OpenStruct.new(

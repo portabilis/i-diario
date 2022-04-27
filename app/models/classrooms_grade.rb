@@ -9,6 +9,7 @@ class ClassroomsGrade < ActiveRecord::Base
 
   has_many :student_enrollment_classrooms
   has_many :student_enrollments, through: :student_enrollment_classrooms
+  has_one :lessons_board
 
   default_scope -> { kept }
 
@@ -26,9 +27,11 @@ class ClassroomsGrade < ActiveRecord::Base
 
   after_discard do
     student_enrollment_classrooms.discard_all
+    lessons_board&.discard
   end
 
   after_undiscard do
     student_enrollment_classrooms.undiscard_all
+    lessons_board&.undiscard
   end
 end

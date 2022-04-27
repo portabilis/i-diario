@@ -240,6 +240,8 @@ class Avaliation < ActiveRecord::Base
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
+                            .uniq
+
     avaliations = avaliations.where.not(id: id) if persisted?
 
     total_weight_of_existing_avaliations = avaliations.any? ? avaliations.inject(0) { |sum, avaliation| avaliation.weight ? sum + avaliation.weight : 0 } : 0

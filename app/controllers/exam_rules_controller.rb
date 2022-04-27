@@ -3,17 +3,17 @@ class ExamRulesController < ApplicationController
     classroom = Classroom.find_by(id: params[:classroom_id])
     student = Student.find_by(id: params[:student_id])
 
-    return if classroom.blank?
+    return render json: nil if classroom.blank?
 
-    classroom_grades = ClassroomsGrade.by_classroom_id(classroom.id)
+    classroom_grades = classroom.classrooms_grades
     classroom_grades = classroom_grades.by_student_id(student.id) if student.present?
     classroom_grade = classroom_grades&.first
 
-    return if classroom_grade.blank?
+    return render json: nil if classroom_grade.blank?
 
     @exam_rule = classroom_grade&.exam_rule
 
-    return if @exam_rule.blank?
+    return render json: nil if @exam_rule.blank?
 
     @exam_rule = @exam_rule.differentiated_exam_rule || @exam_rule if student.try(:uses_differentiated_exam_rule)
 

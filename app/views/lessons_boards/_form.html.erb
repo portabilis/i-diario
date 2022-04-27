@@ -19,7 +19,7 @@
         <% if action_name == "new" %>
           <%= f.input :grade, as: :select2, elements: [], label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: false, required: true %>
         <% else %>
-          <%= f.input :grade, label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: true, input_html: { value: f.object.classrooms_grade.grade_id }, required: true  %>
+          <%= f.input :grade, label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: true, input_html: { value: f.object.classrooms_grade.grade.description }, required: true  %>
         <% end %>
       </div>
 

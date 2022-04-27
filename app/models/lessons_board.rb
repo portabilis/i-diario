@@ -9,13 +9,13 @@ class LessonsBoard < ActiveRecord::Base
   validates :classrooms_grade_id, presence: true, uniqueness: { scope: :period }
 
   belongs_to :classrooms_grade
-  has_many :lessons_board_lessons, dependent: :destroy
+  has_many :lessons_board_lessons
 
   attr_accessor :unity, :grade, :lessons_number, :classroom_id
 
   accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: true
 
-  delegate :classroom, to: :classrooms_grade
+  delegate :classroom, :classroom_id, to: :classrooms_grade, allow_nil: true
 
   default_scope -> { kept }
 
@@ -29,4 +29,12 @@ class LessonsBoard < ActiveRecord::Base
   scope :by_discipline, ->(discipline_id) { joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
                                             .where(teacher_discipline_classrooms:  { discipline_id: discipline_id }) }
   scope :ordered, -> { order(created_at: :desc) }
+
+  after_discard do
+    lessons_board_lessons.discard_all
+  end
+
+  after_undiscard do
+    lessons_board_lessons.undiscard_all
+  end
 end

@@ -95,9 +95,8 @@ class DailyNoteStudentsController < ApplicationController
           in_active_search: ActiveSearch.new.in_active_search?(student_enrollment.id, daily_note.avaliation.test_date)
         }
       end
-
-      respond_with @students and return
     end
+    respond_with @students
   end
 
   private

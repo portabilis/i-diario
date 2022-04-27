@@ -23,6 +23,7 @@ class Classroom < ActiveRecord::Base
   has_many :labels, through: :classroom_labels
   has_many :classrooms_grades, dependent: :destroy
   has_many :grades, through: :classrooms_grades
+  has_many :student_enrollment_classrooms, through: :classrooms_grades
 
   before_create :set_label_color
 

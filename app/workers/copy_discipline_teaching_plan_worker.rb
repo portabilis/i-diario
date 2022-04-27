@@ -32,7 +32,7 @@ class CopyDisciplineTeachingPlanWorker
 
       unities_ids.each do |unity_id|
         grades_ids.each do |grade_id|
-          classrooms_in_grade = Classroom.where(unity_id: unity_id, grade_id: grade_id).pluck(:id)
+          classrooms_in_grade = Classroom.by_unity(unity_id).by_grade(grade_id).pluck(:id)
           teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
             year: year,
             discipline_id: discipline_id,

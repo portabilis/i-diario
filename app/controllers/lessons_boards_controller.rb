@@ -57,7 +57,7 @@ class LessonsBoardsController < ApplicationController
   def destroy
     authorize resource
 
-    resource.destroy
+    resource.discard
 
     respond_with resource, location: lessons_boards_path
   end
@@ -260,10 +260,10 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
-            teacher_discipline_classroom.discipline,
-          text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
-            teacher_discipline_classroom.discipline
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     else
@@ -273,8 +273,10 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: discipline_teacher_name(teacher_discipline_classroom.discipline, teacher_discipline_classroom.teacher.name.try(:strip)),
-          text: discipline_teacher_name(teacher_discipline_classroom.discipline, teacher_discipline_classroom.teacher.name.try(:strip))
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     end

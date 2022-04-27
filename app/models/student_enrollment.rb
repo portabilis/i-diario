@@ -101,25 +101,30 @@ class StudentEnrollment < ActiveRecord::Base
   def self.by_opinion_type_query(opinion_type, classroom_id)
     return where(nil) unless opinion_type.present? && classroom_id.present?
 
-    classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id).by_opinion_type(opinion_type)
-    exam_rules = classrooms_grades.map(&:exam_rule)
+    classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id)
+                                       .includes(student_enrollment_classrooms: [student_enrollment: :student])
+                                       .includes(exam_rule: :differentiated_exam_rule)
+    students_by_opinion_type = []
 
-    return where(nil) if exam_rules.blank?
+    classrooms_grades.each do |classroom_grade|
+      exam_rule = classroom_grade.exam_rule.opinion_type.eql?(opinion_type)
+      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule&.opinion_type.eql?(opinion_type) ||
+                                   exam_rule
 
-    differentiated_exam_rules = exam_rules.map(&:differentiated_exam_rule).compact.presence || exam_rules
+      classroom_grade.student_enrollment_classrooms.each do |student_enrollment_classroom|
+        differentiated = student_enrollment_classroom.student_enrollment
+                                                     .student
+                                                     .uses_differentiated_exam_rule
+        if differentiated && differentiated_exam_rule
+          students_by_opinion_type << student_enrollment_classroom.id
+        elsif exam_rule && !differentiated
+          students_by_opinion_type << student_enrollment_classroom.id
+        end
+      end
+    end
 
-    exam_rule_included = exam_rules.any? { |exam_rule| exam_rule.opinion_type == opinion_type }
-    differentiated_exam_rule_included = differentiated_exam_rules.any? { |differentiated_exam_rule|
-      differentiated_exam_rule.opinion_type == opinion_type
-    }
-
-    scoped = joins(:student_enrollment_classrooms)
-             .where(student_enrollment_classrooms: { classrooms_grade_id: classrooms_grades.pluck(:id) })
-
-    return scoped.where(nil) if exam_rule_included && differentiated_exam_rule_included
-    return none unless exam_rule_included || differentiated_exam_rule_included
-
-    scoped.joins(:student).where(students: { uses_differentiated_exam_rule: differentiated_exam_rule_included })
+    joins(:student_enrollment_classrooms)
+      .where(student_enrollment_classrooms: { id: students_by_opinion_type })
   end
 
   def self.exclude_exempted_disciplines(discipline_id, step_number)
