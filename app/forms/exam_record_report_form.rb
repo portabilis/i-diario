@@ -37,6 +37,8 @@ class ExamRecordReportForm
   def lowest_notes
     classroom = Classroom.find(classroom_id)
 
+    lowest_notes = {}
+
     RecoveryDiaryRecordStudent.by_student_id(students_enrollments.map(&:student_id))
                               .joins(:recovery_diary_record)
                               .merge(
@@ -47,7 +49,12 @@ class ExamRecordReportForm
                                                      AvaliationRecoveryLowestNote
                                                        .by_step_id(classroom, step.id)
                                                    )
-                              )
+                              ).each do |recovery_diary_record|
+      student_data = {recovery_diary_record.student_id => recovery_diary_record.score}
+      lowest_notes = lowest_notes.merge(student_data)
+    end
+
+    lowest_notes
   end
 
   def daily_notes_classroom_steps
