@@ -7,15 +7,6 @@ class StudentInRecoverySerializer < StudentSerializer
     "%.#{@serialization_options[:number_of_decimal_places]}f" % student_recovery_average
   end
 
-  def lowest_note_in_step
-    StudentNotesInStepFetcher.new.lowest_note_in_step(
-      object,
-      @serialization_options[:classroom],
-      @serialization_options[:discipline],
-      @serialization_options[:step]
-    )
-  end
-
   private
 
   def student_recovery_average
