@@ -31,7 +31,7 @@ class AvaliationRecoveryLowestNote < ActiveRecord::Base
   validate :unique_by_step_and_classroom
 
   def ignore_date_validates
-    !(new_record? || recorded_at != recorded_at_was)
+    new_record? && recorded_at != recorded_at_was
   end
 
   def set_recorded_at
