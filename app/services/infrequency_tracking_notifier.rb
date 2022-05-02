@@ -45,10 +45,11 @@ class InfrequencyTrackingNotifier
 
     UniqueDailyFrequencyStudent.frequency_date_between(start_at, end_at)
                                .where(present: false)
+                               .includes(:classroom)
   end
 
   def classrooms_with_absences
-    students_with_absences_query.map(&:classroom).uniq
+    students_with_absences_query.map(&:classroom).compact.uniq
   end
 
   def students_with_absences(classroom_id, start_at)
