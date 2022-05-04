@@ -57,7 +57,7 @@ class TestSettingFetcher
   def general_by_school_test_setting
     TestSetting.where(year: @year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                .by_unities(@classroom.unity)
-               .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", @classroom.grade)
+               .where("grades && ARRAY[?]::integer[] OR grades = '{}'", @classroom.grade_ids)
                .first
   end
 

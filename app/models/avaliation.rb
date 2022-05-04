@@ -17,6 +17,7 @@ class Avaliation < ActiveRecord::Base
   before_destroy :try_destroy, if: :valid_for_destruction?
 
   belongs_to :classroom
+  has_and_belongs_to_many :grades
   belongs_to :discipline
   belongs_to :school_calendar
   belongs_to :test_setting
@@ -40,6 +41,7 @@ class Avaliation < ActiveRecord::Base
   validates :test_setting_test, presence: true, if: :sum_calculation_type?
   validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
   validates :weight,            presence: true, if: :should_validate_weight?
+  validates :grade_ids,         presence: true
 
   validate :uniqueness_of_avaliation
   validate :unique_test_setting_test_per_step,    if: -> { sum_calculation_type? && !allow_break_up? }
@@ -47,11 +49,16 @@ class Avaliation < ActiveRecord::Base
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
   validate :is_school_term_day?
   validate :weight_not_greater_than_test_setting_maximum_score, if: :arithmetic_and_sum_calculation_type?
+  validate :grades_belongs_to_test_setting
+  validate :discipline_in_grade?
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_grade_id, lambda { |grade_id|
+    joins(:avaliations_grades).where(avaliations_grades: { grade_id: grade_id })
+  }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :exclude_discipline_ids, lambda { |discipline_ids| where.not(discipline_id: discipline_ids) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date.try(:to_date)) }
@@ -147,6 +154,12 @@ class Avaliation < ActiveRecord::Base
     allow_break_up? || arithmetic_and_sum_calculation_type?
   end
 
+  def classroom_description
+    return classroom if grades.count == 1
+
+    "#{classroom} - #{grades.pluck(:description).join(', ')}"
+  end
+
   private
 
   def steps_fetcher
@@ -179,11 +192,14 @@ class Avaliation < ActiveRecord::Base
   end
 
   def classroom_score_type_must_be_numeric
-    return if classroom.exam_rule.nil?
+    exam_rules = classroom.classrooms_grades.map(&:exam_rule)
+    return if exam_rules.blank?
+
     right_score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
-    unless right_score_types.include? classroom.exam_rule.score_type
-      errors.add(:classroom, :classroom_score_type_must_be_numeric)
-    end
+
+    no_score_type_included = exam_rules.none? { |exam_rule| right_score_types.include?(exam_rule.score_type) }
+
+    errors.add(:classroom, :classroom_score_type_must_be_numeric) if no_score_type_included
   end
 
   def step
@@ -194,6 +210,7 @@ class Avaliation < ActiveRecord::Base
 
   def uniqueness_of_avaliation
     avaliations = Avaliation.by_classroom_id(classroom_id)
+                            .by_grade_id(grade_ids)
                             .by_discipline_id(discipline)
                             .by_test_date(test_date)
                             .by_classes(classes)
@@ -206,6 +223,7 @@ class Avaliation < ActiveRecord::Base
     return unless step
 
     avaliations = Avaliation.by_classroom_id(classroom_id)
+                            .by_grade_id(grade_ids)
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
@@ -218,6 +236,7 @@ class Avaliation < ActiveRecord::Base
     return unless step && weight
 
     avaliations = Avaliation.by_classroom_id(classroom_id)
+                            .by_grade_id(grade_ids)
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
@@ -255,5 +274,22 @@ class Avaliation < ActiveRecord::Base
     if weight > test_setting.maximum_score
       errors.add(:weight, :cant_be_greater_than, value: test_setting.maximum_score)
     end
+  end
+
+  def grades_belongs_to_test_setting
+    return unless test_setting.general_by_school?
+    return if (grade_ids - test_setting.grades).empty?
+
+    errors.add(:grades, :should_be_in_test_setting)
+  end
+
+  def discipline_in_grade?
+    return if SchoolCalendarDisciplineGrade.exists?(
+      school_calendar_id: school_calendar_id,
+      discipline_id: discipline_id,
+      grade_id: grade_ids
+    )
+
+    errors.add(:grades, :discipline_not_in_grades)
   end
 end

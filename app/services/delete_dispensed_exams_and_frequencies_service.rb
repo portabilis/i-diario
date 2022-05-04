@@ -15,7 +15,7 @@ class DeleteDispensedExamsAndFrequenciesService
 
   def remove_dispensed_exams_and_frequencies(student_enrollment)
     student_enrollment.student_enrollment_classrooms.each do |student_enrollment_classroom|
-      classroom = student_enrollment_classroom.classroom
+      classroom = student_enrollment_classroom.classrooms_grade.classroom
 
       next if classroom.blank?
 

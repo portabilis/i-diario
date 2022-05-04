@@ -8,7 +8,8 @@ $(function () {
       $stepContainer = $('[data-descriptive-exam-step-container]'),
       should_clear_discipline = true,
       should_clear_step = true,
-      discipline_id = $discipline.val();
+      discipline_id = $discipline.val(),
+      view_btn = $('#view-btn');
 
   if ($opinionType.data('elements').length === 2) {
    $opinionType.attr('readonly', true)
@@ -53,4 +54,30 @@ $(function () {
   });
 
   setFields();
+
+  $step.on('change', function() {
+    let step_id = $step.val(),
+        discipline_id = $discipline.val(),
+        opinion_type = $('#descriptive_exam_opinion_type').val();
+
+    $.ajax({
+      url: Routes.find_descriptive_exams_pt_br_path({
+        discipline_id: discipline_id,
+        step_id: step_id,
+        opinion_type: opinion_type,
+        format: 'json'
+      }),
+      success: function(descriptive_exam_id) {
+        if (descriptive_exam_id === null || !$.isNumeric(descriptive_exam_id)) {
+          view_btn.addClass('disabled');
+          view_btn.attr('href', '');
+
+          return;
+        }
+
+        view_btn.removeClass('disabled');
+        view_btn.attr('href', Routes.descriptive_exam_pt_br_path(descriptive_exam_id))
+      }
+    });
+  })
 });

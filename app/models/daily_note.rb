@@ -65,7 +65,7 @@ class DailyNote < ActiveRecord::Base
     joins(:avaliation).merge(Avaliation.by_step_id(classroom, step_id))
   }
   scope :by_active_student_enrollment_classroom, lambda { |classroom_id|
-    joins(students: [student: :student_enrollments]).merge(
+    joins(students: [student: [student_enrollments: [:student_enrollment_classrooms]]]).merge(
       StudentEnrollment.by_classroom(classroom_id).active
     )
   }

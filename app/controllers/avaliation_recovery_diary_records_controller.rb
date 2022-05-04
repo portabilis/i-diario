@@ -2,7 +2,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -206,6 +206,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
 
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
+                               grade: @avaliation_recovery_diary_record.avaliation.grade_ids,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
                                date: @avaliation_recovery_diary_record.recovery_diary_record.recorded_at,

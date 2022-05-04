@@ -4,12 +4,9 @@ if (student_id) {
   $('#exempt_student_check_' + student_id).removeAttr('disabled');
 
   var studentName = $('#student_name_' + student_id);
-  studentName.text(studentName.text().replace('**', ''));
   studentName.removeClass('exempted-student');
 
   var noteInput = $("#tr_student_" + student_id + " input[id ^='daily_note_students_attributes'][id $='note']")[0];
-  $(noteInput).removeAttr('readonly');
-  $(noteInput).removeAttr('placeholder');
   $(noteInput).removeClass('exempted-student');
 
   var undo_exemption_button = $('#do_undo_exemption_' + student_id);
@@ -22,4 +19,10 @@ if (student_id) {
   undo_exemption_button.removeAttr('data-method');
   undo_exemption_button.attr('href', '#');
   undo_exemption_button.attr('title', 'Dispensar');
+
+  if (!studentName.hasClass('in-active-search')) {
+    studentName.text(studentName.text().replace('**', ''));
+    $(noteInput).removeAttr('readonly');
+    $(noteInput).removeAttr('placeholder');
+  }
 }

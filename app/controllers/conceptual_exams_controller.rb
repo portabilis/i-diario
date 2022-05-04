@@ -2,10 +2,11 @@ class ConceptualExamsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :adjusted_period
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :view_data, only: [:edit, :show]
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -31,7 +32,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def new
-    discipline_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+    discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
     not_concept_score = discipline_score_types.none? { |discipline_score_type|
       discipline_score_type == ScoreTypes::CONCEPT
@@ -93,21 +94,6 @@ class ConceptualExamsController < ApplicationController
     render :new
   end
 
-  def edit
-    @conceptual_exam = ConceptualExam.find(params[:id]).localized
-    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
-    @conceptual_exam.step_id = find_step_id
-
-    authorize @conceptual_exam
-
-    fetch_collections
-
-    add_missing_disciplines
-    mark_not_assigned_disciplines_for_destruction
-    mark_not_existing_disciplines_as_invisible
-    mark_exempted_disciplines
-  end
-
   def update
     @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes(resource_params)
@@ -136,11 +122,9 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     if @conceptual_exam.valid?
-      current_teacher_disciplines = Discipline.by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
-      values_to_destroy = ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id)
-                                             .by_discipline_id(current_teacher_disciplines)
+      ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id)
+                         .destroy_all
 
-      values_to_destroy.each(&:destroy)
       @conceptual_exam.destroy unless ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id).any?
     end
 
@@ -176,6 +160,20 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
+
+  def view_data
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @conceptual_exam.step_id = find_step_id
+
+    authorize @conceptual_exam
+
+    fetch_collections
+    add_missing_disciplines
+    mark_not_assigned_disciplines_for_destruction
+    mark_not_existing_disciplines_as_invisible
+    mark_exempted_disciplines
+  end
 
   def resource_params
     params.require(:conceptual_exam).permit(

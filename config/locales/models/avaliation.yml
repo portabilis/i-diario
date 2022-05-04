@@ -25,6 +25,8 @@ pt-BR:
         test_setting_test: "Tipo de avaliação"
         weight: "Peso"
         observations: "Observações"
+        grades: "Séries"
+        grade: "Série"
 
     errors:
       models:
@@ -43,6 +45,9 @@ pt-BR:
                   other: "já existe uma avaliação para uma das aulas informadas"
               weight:
                 cant_be_greater_than: "não pode ser maior que %{value}"
+              grades:
+                should_be_in_test_setting: 'devem estar na configuração de avaliação'
+                discipline_not_in_grades: 'não tem essa disciplina nessas series'
 
   errors:
     avaliations:

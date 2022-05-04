@@ -21,8 +21,10 @@ class DeleteInvalidPresenceRecordService
         SELECT 1
           FROM student_enrollments
           JOIN student_enrollment_classrooms
-            ON student_enrollment_classrooms.classroom_id = daily_frequencies.classroom_id
-           AND student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
+            ON student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
+          JOIN classrooms_grades
+            ON classrooms_grades.classroom_id = daily_frequencies.classroom_id
+           AND student_enrollment_classrooms.classrooms_grade_id = classrooms_grades.id
          WHERE student_enrollments.student_id = #{@student_id}
            AND daily_frequencies.frequency_date >= CAST(student_enrollment_classrooms.joined_at AS DATE)
            AND (

@@ -33,6 +33,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_start_at_in_course
   validate :uniqueness_of_end_at_in_course
   validate :uniqueness_of_start_at_and_end_at
+  validate :start_at_and_end_at_in_step
 
   scope :ordered, -> { order(arel_table[:start_date]) }
   scope :school_event, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
@@ -110,8 +111,8 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   def self.all_events_for_classroom(classroom)
     where('? = ANY (periods) OR classroom_id = ?', classroom.period, classroom.id).
-    where('grade_id IS NULL OR grade_id = ?', classroom.grade.id).
-    where('course_id IS NULL OR course_id = ?', classroom.grade.course_id)
+    where('grade_id IS NULL OR grade_id IN (?)', classroom.grade_ids).
+    where('course_id IS NULL OR course_id IN (?)', classroom.courses.map(&:id))
     where(' "school_calendar_events"."id" in (
             SELECT id
             FROM school_calendar_events sce
@@ -119,10 +120,10 @@ class SchoolCalendarEvent < ActiveRecord::Base
             AND sce.end_date <= "school_calendar_events"."end_date"
             AND sce.school_calendar_id = "school_calendar_events"."school_calendar_id"
             AND ((? = ANY (periods) AND classroom_id IS NULL) OR classroom_id = ?)
-            AND (grade_id IS NULL OR grade_id = ?)
-            AND (course_id iS NULL or course_id = ?)
+            AND (grade_id IS NULL OR grade_id IN (?))
+            AND (course_id iS NULL or course_id IN (?))
             ORDER BY COALESCE(classroom_id, 0) DESC, COALESCE(grade_id,0) DESC
-            )', classroom.period, classroom.id, classroom.grade.id, classroom.grade.course_id)
+            )', classroom.period, classroom.id, classroom.grade_ids, classroom.courses.map(&:id))
   end
 
   def should_validate_grade?
@@ -220,6 +221,25 @@ class SchoolCalendarEvent < ActiveRecord::Base
       errors.add(:start_date, 'deve ser menor que a data final')
       errors.add(:end_date, 'deve ser maior ou igual a data inicial')
     end
+  end
+
+  def start_at_and_end_at_in_step
+    return if school_calendar.nil?
+
+    start_date_in_any_step = false
+    end_date_in_any_step = false
+
+    school_calendar.steps.each do |step|
+        start_date_in_step = start_date.between?(step.start_at, step.end_at)
+        end_date_in_step = end_date.between?(step.start_at, step.end_at)
+        start_date_in_any_step = true if start_date_in_step
+        end_date_in_any_step = true if end_date_in_step
+
+        break if start_date_in_step && end_date_in_step
+    end
+
+    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_any_step
+    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date_in_any_step
   end
 
   def uniqueness_of_start_at_and_end_at

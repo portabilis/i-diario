@@ -36,7 +36,7 @@
                         classroom_id: discipline_lesson_plan.classroom.id,
                         grade_id: (
                           unless GeneralConfiguration.current.allows_copy_lesson_plans_to_other_grades
-                            discipline_lesson_plan.classroom.grade_id
+                            discipline_lesson_plan.classroom.grade_ids
                           end
                         )
                       }) %>

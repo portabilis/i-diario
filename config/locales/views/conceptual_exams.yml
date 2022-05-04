@@ -11,3 +11,6 @@ pt-BR:
       save_and_go_to_the_next: 'Salvar e ir para o próximo'
       no_item_found: 'Nenhuma disciplina'
       exempted_students_from_discipline_legend: '**** Disciplina dispensada para o aluno'
+      show: 'Visualizar'
+      edit: 'Editar'
+      destroy: 'Excluir'

@@ -41,7 +41,7 @@
                         classroom_id: knowledge_area_lesson_plan.classroom.id,
                         grade_id: (
                           unless GeneralConfiguration.current.allows_copy_lesson_plans_to_other_grades
-                            knowledge_area_lesson_plan.classroom.grade_id
+                            knowledge_area_lesson_plan.classroom.grade_ids
                           end
                         )
                       }) %>

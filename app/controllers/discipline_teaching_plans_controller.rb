@@ -6,6 +6,7 @@ class DisciplineTeachingPlansController < ApplicationController
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
   before_action :yearly_term_type_id, only: [:show, :edit, :new]
+  before_action :require_current_classroom, only: [:index]
 
   def index
     params[:filter] ||= {}
@@ -20,7 +21,7 @@ class DisciplineTeachingPlansController < ApplicationController
     )
 
     unless current_user_is_employee_or_administrator?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))
+      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
                                                              .by_discipline(current_user_discipline)
     end
 

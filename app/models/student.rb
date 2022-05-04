@@ -44,15 +44,6 @@ class Student < ActiveRecord::Base
       "ts_rank_cd(students.name_tokens, plainto_tsquery('portuguese', '#{name}')) desc"
     )
   }
-  scope :order_by_sequence, lambda { |classroom_id, start_date, end_date|
-    joins(:student_enrollments)
-      .merge(
-        StudentEnrollment.by_classroom(classroom_id)
-                         .by_date_range(start_date, end_date)
-                         .active
-                         .ordered
-      )
-  }
 
   def self.search(value)
     relation = all
@@ -85,11 +76,11 @@ class Student < ActiveRecord::Base
   end
 
   def classrooms
-    Classroom.joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
+    Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
   end
 
   def current_classrooms
-    Classroom.joins(:student_enrollment_classrooms).merge(
+    Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(
       StudentEnrollmentClassroom.by_student(id)
                                 .by_date(Date.current)
     ).uniq

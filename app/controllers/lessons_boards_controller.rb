@@ -4,15 +4,15 @@ class LessonsBoardsController < ApplicationController
 
   def index
     @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
-    @lessons_boards =  apply_scopes(@lessons_boards).filter(filtering_params(params[:search]))
+    @lessons_boards = apply_scopes(@lessons_boards).filter(filtering_params(params[:search]))
     authorize @lessons_boards
   end
 
   def show
     @lessons_board = resource
     ActiveRecord::Associations::Preloader.new.preload(@lessons_board, [lessons_board_lessons: [:lessons_board_lesson_weekdays]])
-    @teachers = teachers_to_select2(resource.classroom_id, resource.period)
-    @classrooms = classrooms_to_select2(resource.classroom&.grade&.id, resource.classroom&.unity&.id)
+    @teachers = teachers_to_select2(resource.classroom.id, resource.period)
+    @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classroom.unity&.id)
 
     authorize @lessons_board
   end
@@ -36,7 +36,7 @@ class LessonsBoardsController < ApplicationController
 
   def edit
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom_id, resource.period)
+    @teachers = teachers_to_select2(resource.classroom.id, resource.period)
     @classrooms = Classroom.where(unity_id: resource.classroom&.unity&.id)
 
     authorize @lessons_board
@@ -57,7 +57,7 @@ class LessonsBoardsController < ApplicationController
   def destroy
     authorize resource
 
-    resource.destroy
+    resource.discard
 
     respond_with resource, location: lessons_boards_path
   end
@@ -104,7 +104,7 @@ class LessonsBoardsController < ApplicationController
 
   def lesson_grades
     lessons_grades = []
-    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classroom.grade_id }
+    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classrooms_grade.grade_id }
     Grade.find(lessons_grades)
   end
   helper_method :lesson_grades
@@ -126,13 +126,19 @@ class LessonsBoardsController < ApplicationController
   end
 
   def resource_params
-    params.require(:lessons_board).permit(:classroom_id, :period,
+    params.require(:lessons_board).permit(:classrooms_grade_id, :period,
                                           lessons_board_lessons_attributes: [
                                             :id, :lesson_number, :_destroy,
                                             lessons_board_lesson_weekdays_attributes: [
                                               :id, :weekday, :teacher_discipline_classroom_id, :_destroy
                                             ]
                                           ])
+  end
+
+  def classroom_grade
+    return if params[:grade_id].blank? && params[:classroom_id].blank?
+
+    render json: ClassroomsGrade.find_by(grade_id: params[:grade_id], classroom_id: params[:classroom_id])&.id
   end
 
   def period
@@ -174,13 +180,13 @@ class LessonsBoardsController < ApplicationController
   def not_exists_by_classroom
     return if params[:classroom_id].blank?
 
-    render json: LessonsBoard.find_by(classroom_id: params[:classroom_id]).nil?
+    render json: LessonsBoard.by_classroom(params[:classroom_id]).empty?
   end
 
   def not_exists_by_classroom_and_period
     return if params[:classroom_id].blank?
 
-    render json: LessonsBoard.find_by(classroom_id: params[:classroom_id], period: params[:period]).nil?
+    render json: LessonsBoard.by_classroom(params[:classroom_id]).by_period(period: params[:period]).empty?
   end
 
   def teacher_in_other_classroom
@@ -205,14 +211,17 @@ class LessonsBoardsController < ApplicationController
 
     teacher_lessons_board_weekdays = LessonsBoardLessonWeekday.includes(teacher_discipline_classroom:
                                                                           [:teacher, classroom: [:unity]])
-                                       .where(weekday: weekday)
-                                       .joins(lessons_board_lesson: [:lessons_board],
-                                              teacher_discipline_classroom: [:classroom, :teacher])
-                                       .where(teachers: { id: teacher_id })
-                                       .where(classrooms: { year: year, period: period })
-                                       .where(lessons_board_lessons: {lesson_number: lesson_number})
-                                       .where.not(lessons_boards: { classroom_id: classroom.to_i })
-                                       .first
+                                                              .where(weekday: weekday)
+                                                              .joins(lessons_board_lesson: [:lessons_board],
+                                                                     teacher_discipline_classroom: [:teacher,
+                                                                                                    classroom: [:classrooms_grades]])
+                                                              .where(teachers: { id: teacher_id })
+                                                              .where(classrooms: { year: year, period: period })
+                                                              .where(lessons_board_lessons: { lesson_number:
+                                                                                              lesson_number })
+                                                              .where.not(classrooms_grades: { classroom_id:
+                                                                                             classroom.to_i })
+                                                              .first
 
 
     return false if teacher_lessons_board_weekdays.nil?
@@ -251,10 +260,10 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
-            teacher_discipline_classroom.discipline.description.try(:strip),
-          text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
-            teacher_discipline_classroom.discipline.description.try(:strip)
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     else
@@ -264,8 +273,10 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: discipline_teacher_name(teacher_discipline_classroom.discipline.description.try(:strip), teacher_discipline_classroom.teacher.name.try(:strip)),
-          text: discipline_teacher_name(teacher_discipline_classroom.discipline.description.try(:strip), teacher_discipline_classroom.teacher.name.try(:strip))
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     end
@@ -276,7 +287,16 @@ class LessonsBoardsController < ApplicationController
   end
 
   def discipline_teacher_name(discipline, teacher)
-    "#{teacher} - <b>#{discipline}</b>"
+    "<div class='flex-between'>
+       <div class='flex-teacher'>
+          <div>
+            #{teacher.upcase}
+          </div>
+       </div>
+       <div class='flex-discipline'>
+         <span class='flex-discipline-span' style='background-color: #{discipline.label_color};'>#{discipline.description.try(:strip)}</span>
+       </div>
+     </div>"
   end
 
   def classrooms_to_select2(grade_id, unity_id)

@@ -1,11 +1,19 @@
 class Discipline < ActiveRecord::Base
   acts_as_copy_target
 
+  LABEL_COLORS = YAML.safe_load(
+    File.open(Rails.root.join('config', 'label_colors.yml'))
+  ).with_indifferent_access[:label_colors].freeze
+
   audited
 
   belongs_to :knowledge_area
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_and_belongs_to_many :absence_justifications
+  has_many :unity_discipline_grades
+  has_many :grades, through: :unity_discipline_grades
+
+  before_create :set_label_color
 
   validates :description, :api_code, :knowledge_area_id, presence: true
   validates :api_code, uniqueness: true
@@ -17,9 +25,10 @@ class Discipline < ActiveRecord::Base
   # teacher_discipline_classrooms. Using scopes like by_teacher_id or
   # by_classroom for example.
   scope :by_score_type, lambda { |score_type, student_id = nil|
-    scoped = joins(teacher_discipline_classrooms: { classroom: :exam_rule })
+    scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
+
     if student_id && Student.find(student_id).try(:uses_differentiated_exam_rule)
-      exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms')
+      exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms_grades')
 
       differentiated_exam_rules = ExamRule.arel_table.alias('differentiated_exam_rules')
         scoped.joins(
@@ -106,17 +115,9 @@ class Discipline < ActiveRecord::Base
       .uniq
   end
 
-  def self.by_grade(grade)
-    joins(:teacher_discipline_classrooms).joins(
-        arel_table.join(Classroom.arel_table)
-          .on(
-            Classroom.arel_table[:id]
-              .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-          )
-          .join_sources
-      )
-      .where(classrooms: { grade_id: grade })
-      .uniq
+  def self.by_grade(grade_id)
+    joins(teacher_discipline_classrooms: [classroom: :classrooms_grades])
+      .where(classrooms_grades: { grade_id: grade_id }).uniq
   end
 
   def self.by_classroom(classroom)
@@ -124,5 +125,11 @@ class Discipline < ActiveRecord::Base
         teacher_discipline_classrooms: { classroom_id: classroom }
       )
       .uniq
+  end
+
+  private
+
+  def set_label_color
+    self.label_color = LABEL_COLORS.sample
   end
 end

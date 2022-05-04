@@ -18,5 +18,5 @@ end
 
 json.knowledge_areas knowledge_areas
 json.discipline_id discipline_id
-json.grade_id @content_record.grade_id
+json.grade_id @content_record.first_grade.id
 json.record_date @content_record.record_date

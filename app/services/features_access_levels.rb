@@ -43,7 +43,8 @@ class FeaturesAccessLevels
       :complementary_exams,
       :ieducar_api_exam_posting_without_restrictions,
       :change_school_year,
-      :daily_frequencies_in_batchs
+      :daily_frequencies_in_batchs,
+      :learning_objectives_and_skills
     ]
   end
 
@@ -73,8 +74,7 @@ class FeaturesAccessLevels
       :roles,
       :unities,
       :terms_dictionaries,
-      :translations,
-      :learning_objectives_and_skills
+      :translations
     ]
   end
 end

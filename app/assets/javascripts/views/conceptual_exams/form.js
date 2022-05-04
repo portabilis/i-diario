@@ -83,7 +83,7 @@ $(function() {
             show_inactive: false,
             date: recorded_at
           };
-  
+
           if (!_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
             $.ajax({
               url: Routes.by_date_student_enrollments_lists_pt_br_path({
@@ -310,6 +310,18 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas dispensadas.');
   };
 
+  function exists_conceptual_exam(conceptual_exam_id) {
+    removeDisciplines();
+    let text_step = $step.closest('div').find('#s2id_conceptual_exam_step_id').find('.select2-choice').text().trim();
+    let student_name = $student.closest('div').find('#s2id_conceptual_exam_student_id').find('.select2-choice').text().trim();
+    let redirect_link = Routes.edit_conceptual_exam_pt_br_path(conceptual_exam_id);
+    let message = `O(a) aluno(a) ${student_name} já possui uma avaliação conceitual na etapa ${text_step}, para modificar a mesma clique aqui <a href="${redirect_link}" style="color: white"><b>Avaliação</b></a>.`;
+    $('#btn-save').attr('disabled', true);
+    $('#btn-save-and-next').attr('disabled', true);
+
+    flashMessages.error(message);
+  }
+
   $student.on('change', function(){
     $.get(
       Routes.find_conceptual_exam_by_student_conceptual_exams_pt_br_path(
@@ -323,9 +335,12 @@ $(function() {
         }
       )
     ).done(function(conceptual_exam_id) {
+      flashMessages.pop('');
       if (conceptual_exam_id) {
-        window.location.href = Routes.edit_conceptual_exam_pt_br_path(conceptual_exam_id);
+        exists_conceptual_exam(conceptual_exam_id);
       } else {
+        $('#btn-save').attr('disabled', false);
+        $('#btn-save-and-next').attr('disabled', false);
         fetchExamRule();
         removeDisciplines();
         fetchDisciplines();

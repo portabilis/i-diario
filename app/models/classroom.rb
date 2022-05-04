@@ -12,23 +12,24 @@ class Classroom < ActiveRecord::Base
   has_enumeration_for :period, with: Periods
 
   belongs_to :unity
-  belongs_to :exam_rule
-  belongs_to :grade
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_many :disciplines, through: :teacher_discipline_classrooms
   has_one :calendar, class_name: 'SchoolCalendarClassroom'
   has_many :users, foreign_key: :current_classroom_id, dependent: :nullify
-  has_many :student_enrollment_classrooms
-  has_many :student_enrollments, through: :student_enrollment_classrooms
   has_many :conceptual_exams, dependent: :restrict_with_error
   has_many :infrequency_trackings, dependent: :restrict_with_error
   has_many :students, through: :student_enrollments
+  has_many :classroom_labels, dependent: :destroy
+  has_many :labels, through: :classroom_labels
+  has_many :classrooms_grades, dependent: :destroy
+  has_many :grades, through: :classrooms_grades
+  has_many :student_enrollment_classrooms, through: :classrooms_grades
 
   before_create :set_label_color
 
-  delegate :course_id, :course, to: :grade, prefix: false
+  delegate :course_id, :course, to: :first_grade, prefix: false
 
-  validates :description, :api_code, :unity_code, :year, :grade, presence: true
+  validates :description, :api_code, :unity_code, :year, presence: true
   validates :api_code, uniqueness: true
 
   default_scope -> { kept }
@@ -40,9 +41,9 @@ class Classroom < ActiveRecord::Base
   }
 
   scope :by_unity, ->(unity) { where(unity: unity) }
-  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id, grade_id: grade_id).uniq }
+  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id).by_grade(grade_id).uniq }
   scope :different_than, ->(classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
-  scope :by_grade, ->(grade_id) { where(grade_id: grade_id) }
+  scope :by_grade, ->(grade_id) { joins(:classrooms_grades).merge(ClassroomsGrade.by_grade_id(grade_id)) }
   scope :by_year, ->(year) { where(year: year) }
   scope :by_period, ->(period) { where(period: period) }
 
@@ -52,7 +53,9 @@ class Classroom < ActiveRecord::Base
       .uniq
   }
 
-  scope :by_score_type, ->(score_type) { where('exam_rules.score_type' => score_type).includes(:exam_rule) }
+  scope :by_score_type, lambda { |score_type|
+    joins(:classrooms_grades).merge(ClassroomsGrade.by_score_type(score_type))
+  }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :by_api_code, ->(api_code) { where(api_code: api_code) }
 
@@ -64,14 +67,16 @@ class Classroom < ActiveRecord::Base
 
   scope :by_api_code, ->(api_code) { where(api_code: api_code) }
   scope :by_id, ->(id) { where(id: id) }
-  scope :with_grade, -> { where.not(grade: nil) }
+  scope :with_grade, -> { joins(:classrooms_grades).where.not(classrooms_grades: { grade: nil }) }
 
   after_discard do
     teacher_discipline_classrooms.discard_all
+    classrooms_grades.discard_all
   end
 
   after_undiscard do
     teacher_discipline_classrooms.undiscard_all
+    classrooms_grades.undiscard_all
   end
 
   def to_s
@@ -83,9 +88,29 @@ class Classroom < ActiveRecord::Base
   end
 
   def has_differentiated_students?
-    student_enrollment_classrooms.joins(student_enrollment: :student )
-                                 .where(students: { uses_differentiated_exam_rule: true } )
-                                 .exists?
+    classrooms_grades.joins(student_enrollment_classrooms: [student_enrollment: :student])
+                     .where(students: { uses_differentiated_exam_rule: true })
+                     .exists?
+  end
+
+  def multi_grade?
+    grades.count > 1
+  end
+
+  def first_exam_rule
+    classrooms_grades.first.exam_rule
+  end
+
+  def first_grade
+    classrooms_grades.first.grade
+  end
+
+  def first_classroom_grade
+    classrooms_grades.first
+  end
+
+  def courses
+    grades.map(&:course)
   end
 
   def number_of_classes

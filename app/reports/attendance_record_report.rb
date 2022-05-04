@@ -410,7 +410,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def classroom_has_general_absence?
-    classroom.exam_rule.try(:frequency_type) == FrequencyTypes::GENERAL
+    classroom.first_exam_rule.frequency_type == FrequencyTypes::GENERAL
   end
 
   def teacher_allow_absence_by_discipline?

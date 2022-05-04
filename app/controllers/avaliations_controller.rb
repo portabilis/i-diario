@@ -4,7 +4,7 @@ class AvaliationsController < ApplicationController
 
   respond_to :html, :js, :json
 
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_current_teacher, except: [:search]
   before_action :set_number_of_classes, only: [
     :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
@@ -44,6 +44,7 @@ class AvaliationsController < ApplicationController
   def new
     return if test_settings_redirect
     return if score_types_redirect
+    return if not_allow_numerical_exam
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -55,6 +56,7 @@ class AvaliationsController < ApplicationController
   def multiple_classrooms
     return if test_settings_redirect
     return if score_types_redirect
+    return if not_allow_numerical_exam
 
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
@@ -115,6 +117,15 @@ class AvaliationsController < ApplicationController
     @avaliation.current_user = current_user
 
     authorize @avaliation
+
+    if resource.grade_ids.empty?
+      flash[:error] = 'Série não pode ficar em branco'
+      test_settings
+
+      return render :edit
+    else
+      flash.clear
+    end
 
     if resource.save
       respond_to_save
@@ -202,15 +213,22 @@ class AvaliationsController < ApplicationController
   end
 
   def resource_params
-    params.require(:avaliation).permit(:test_setting_id,
-                                       :classroom_id,
-                                       :discipline_id,
-                                       :test_date,
-                                       :classes,
-                                       :description,
-                                       :test_setting_test_id,
-                                       :weight,
-                                       :observations)
+    parameters = params.require(:avaliation).permit(
+      :test_setting_id,
+      :classroom_id,
+      :discipline_id,
+      :test_date,
+      :classes,
+      :description,
+      :test_setting_test_id,
+      :weight,
+      :observations,
+      :grade_ids
+    )
+
+    parameters[:grade_ids] = parameters[:grade_ids].split(',')
+
+    parameters
   end
 
   def interpolation_options
@@ -261,7 +279,10 @@ class AvaliationsController < ApplicationController
   def general_by_school_test_setting(year_test_setting)
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                      .by_unities(current_user_classroom.unity)
-                     .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", current_user_classroom.grade)
+                     .where(
+                       "grades && ARRAY[?]::integer[] OR grades = '{}'",
+                       current_user_classroom.grade_ids
+                     )
                      .presence
   end
 
@@ -276,10 +297,23 @@ class AvaliationsController < ApplicationController
   end
 
   def score_types_redirect
-    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+    available_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
     return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
 
     redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
   end
+
+  def not_allow_numerical_exam
+    grades_by_numerical_exam = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+
+    return if grades_by_numerical_exam.present?
+
+    redirect_to avaliations_path, alert: t('avaliation.grades_not_allow_numeric_exam')
+  end
+
+  def grades
+    @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+  end
+  helper_method :grades
 end

@@ -28,6 +28,8 @@
   text-overflow: clip !important;
   overflow-y: hidden;
   padding-right: 15px;
+  padding-bottom: 4px;
+  padding-top: 4px;
 }
 
 .select2-result-label {
@@ -36,20 +38,73 @@
 
 
 @media screen and (max-width: 768px) {
-.table_lessons {
-  overflow-x: auto;
+  .table_lessons {
+    overflow-x: auto;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  .table_lessons_td {
+    width: 60%;
+    table-layout: fixed;
+  }
+
+  .table_lessons_td_select {
+    min-width: 160px
+  }
+}
+
+.flex-between {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
   width: 100%;
-  table-layout: auto;
 }
 
-.table_lessons_td {
-  width: 60%;
-  table-layout: fixed;
+.flex-teacher {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
 }
 
-.table_lessons_td_select {
-  min-width: 160px
+.flex-teacher > div {
+  font-size: 11px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
 }
+
+.flex-discipline {
+  display:flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-discipline-span {
+  color: white;
+  padding: 3px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 1366px) {
+  .flex-between {
+    flex-direction: column;
+  }
+
+  .flex-discipline {
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .flex-discipline-span {
+    white-space: normal;
+  }
 }
 
 

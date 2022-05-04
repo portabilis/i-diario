@@ -87,12 +87,14 @@ module ExamPoster
     def teacher_discipline_classrooms
       teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
         can_post?(teacher_discipline_classroom.classroom) &&
-          valid_score_type?(teacher_discipline_classroom.classroom.exam_rule.score_type)
+          valid_score_type?(teacher_discipline_classroom.classroom)
       end
     end
 
-    def valid_score_type?(score_type)
-      [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT].include?(score_type)
+    def valid_score_type?(classroom)
+      classroom.classrooms_grades.any? { |classroom_grade|
+        [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT].include?(classroom_grade.exam_rule.score_type)
+      }
     end
   end
 end

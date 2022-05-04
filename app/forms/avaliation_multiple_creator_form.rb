@@ -36,21 +36,25 @@ class AvaliationMultipleCreatorForm
 
   def test_setting
     return if test_setting_id.blank?
+
     @test_setting ||= TestSetting.find(test_setting_id)
   end
 
   def unity
     return if unity_id.blank?
+
     @unity ||= Unity.find(unity_id)
   end
 
   def discipline
     return if discipline_id.blank?
+
     @discipline ||= Discipline.find(discipline_id)
   end
 
   def test_setting_test
     return if test_setting_test_id.blank?
+
     @test_setting_test ||= TestSettingTest.find(test_setting_test_id)
   end
 
@@ -58,15 +62,18 @@ class AvaliationMultipleCreatorForm
     SchoolCalendar.find_by(id: school_calendar_id)
   end
 
-  def avaliations_attributes=(value)
-    return unless value.present?
+  def avaliations_attributes=(avaliations)
+    return unless avaliations.present?
 
     @avaliations = []
-    value.each do |avaliation_attributes|
+
+    avaliations.each do |avaliation_attributes|
+      classroom_id = avaliation_attributes.last['classroom_id'].to_i
       avaliation = Avaliation.new.localized
+
       avaliation.assign_attributes(
-        include: avaliation_attributes.last['include'] == "1",
-        classroom_id: avaliation_attributes.last['classroom_id'],
+        include: avaliation_attributes.last['include'] == '1',
+        classroom_id: classroom_id,
         test_date: avaliation_attributes.last['test_date'],
         classes: avaliation_attributes.last['classes'],
         test_setting_id: self.test_setting_id,
@@ -76,25 +83,26 @@ class AvaliationMultipleCreatorForm
         weight: self.weight,
         observations: self.observations,
         school_calendar_id: self.school_calendar_id,
-        teacher_id: teacher_id
+        teacher_id: teacher_id,
+        grade_ids: avaliation_attributes.last['grade_ids'].split(',')
       )
+
       @avaliations << avaliation
     end
   end
 
   def load_avaliations!(teacher_id, school_calendar_year)
     return unless discipline_id.present? && teacher_id.present?
-    classrooms = Classroom
-      .by_unity_and_teacher(unity_id, teacher_id)
-      .by_teacher_discipline(discipline_id)
-      .by_year(school_calendar_year)
-      .ordered
+
+    classrooms = Classroom.by_unity_and_teacher(unity_id, teacher_id)
+                          .by_teacher_discipline(discipline_id)
+                          .by_year(school_calendar_year)
+                          .ordered
 
     @avaliations = []
+
     classrooms.each do |classroom|
-      @avaliations << Avaliation.new(
-        classroom_id: classroom.id
-      )
+      @avaliations << Avaliation.new(classroom_id: classroom.id)
     end
   end
 
@@ -105,20 +113,21 @@ class AvaliationMultipleCreatorForm
   end
 
   def allow_break_up?
-    test_setting_test && test_setting_test.allow_break_up
+    test_setting_test&.allow_break_up
   end
 
   def average_calculation_type
-    return "" if test_setting.nil?
+    return '' if test_setting.nil?
+
     test_setting.average_calculation_type
   end
 
   def sum_calculation_type?
-    average_calculation_type == "sum"
+    average_calculation_type == 'sum'
   end
 
   def arithmetic_and_sum_calculation_type?
-    average_calculation_type == "arithmetic_and_sum"
+    average_calculation_type == 'arithmetic_and_sum'
   end
 
   def should_validate_weight?
@@ -127,14 +136,35 @@ class AvaliationMultipleCreatorForm
 
   def add_avaliations_errors_to_classrooms
     valid = true
+
     avaliations.select(&:include).each do |avaliation|
-      if !avaliation.valid?
-        msg = avaliation.errors.full_messages.reject{|msg| msg.include?("Data da avaliação") || msg.include?("Aulas") || msg.include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))}.first
-        errors.add(:base, msg) if msg
-        avaliation.errors.add(:classroom, msg)
-        valid = false
+      grade_present = avaliation.grade_ids.present?
+
+      next if grade_present && avaliation.valid?
+
+      error_message = avaliation_error(avaliation)
+
+      unless grade_present
+        avaliation.errors.add(:grade_ids, I18n.t('errors.messages.blank'))
       end
+
+      if error_message
+        errors.add(:base, error_message)
+        avaliation.errors.add(:classroom, error_message)
+      end
+
+      valid = false
     end
+
     valid
+  end
+
+  private
+
+  def avaliation_error(avaliation)
+    avaliation.errors.full_messages.reject { |msg|
+      msg.include?('Data da avaliação') || msg.include?('Aulas') ||
+        msg.include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    }.first
   end
 end

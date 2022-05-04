@@ -2,42 +2,35 @@ class StudentsController < ApplicationController
   skip_before_action :authenticate_user!, only: :search_api
 
   def index
-    if params[:classroom_id].present?
-      date = params[:date] || Date.current
-      start_date = params[:start_date]
-      end_date = params[:end_date]
-      step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
+    return render json: nil if params[:classroom_id].blank?
 
-      if step_id.present?
-        step = steps_fetcher.steps.find(step_id)
-        start_date ||= step.start_at
-        end_date ||= step.end_at
-      end
+    date = params[:date] || Date.current
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+    step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
 
-      include_date_range = start_date.present? && end_date.present?
-
-      student_enrollments_list = StudentEnrollmentsList.new(
-        classroom: params[:classroom_id],
-        discipline: params[:discipline_id],
-        date: date,
-        search_type: :by_date,
-        include_date_range: include_date_range,
-        start_at: start_date,
-        end_at: end_date,
-        score_type: params[:score_type]
-      )
-
-      student_enrollments = student_enrollments_list.student_enrollments
-      student_ids = student_enrollments.collect(&:student_id)
-      @students = Student.where(id: student_ids)
-      @students = @students.order_by_sequence(@classroom, start_date, end_date) if include_date_range
-
-      render json: @students
-    else
-      @students = apply_scopes(Student).ordered
-
-      respond_with @students
+    if step_id.present?
+      step = steps_fetcher.steps.find(step_id)
+      start_date ||= step.start_at
+      end_date ||= step.end_at
     end
+
+    include_date_range = start_date.present? && end_date.present?
+
+    student_enrollments = StudentEnrollmentsList.new(
+      classroom: params[:classroom_id],
+      discipline: params[:discipline_id],
+      date: date,
+      search_type: :by_date,
+      include_date_range: include_date_range,
+      start_at: start_date,
+      end_at: end_date,
+      score_type: params[:score_type]
+    ).student_enrollments
+
+    students = student_enrollments.map(&:student)
+
+    render json: students
   end
 
   def select2_remote

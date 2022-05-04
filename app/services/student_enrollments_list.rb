@@ -5,6 +5,7 @@ class StudentEnrollmentsList
 
   def initialize(params)
     @classroom = params.fetch(:classroom)
+    @grade = params.fetch(:grade, nil)
     @discipline = params.fetch(:discipline)
     @date = params.fetch(:date, nil)
     @start_at = params.fetch(:start_at, nil)
@@ -35,7 +36,7 @@ class StudentEnrollmentsList
 
   attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
                 :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
-                :include_date_range, :period
+                :include_date_range, :period, :grade
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -53,6 +54,8 @@ class StudentEnrollmentsList
                                               .includes(:student)
                                               .includes(:dependences)
                                               .active
+
+    students_enrollments = students_enrollments.by_grade(grade) if grade
 
     if include_date_range
       students_enrollments = students_enrollments.includes(:student_enrollment_classrooms)

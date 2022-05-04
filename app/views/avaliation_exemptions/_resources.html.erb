@@ -7,7 +7,7 @@
     <% @avaliation_exemptions.map { |avaliation_exemption| avaliation_exemption.localized }.each do |avaliation_exemption| %>
       <tr>
         <td><%= avaliation_exemption.avaliation.unity.name %></td>
-        <td><%= avaliation_exemption.avaliation.classroom.grade.description %></td>
+        <td><%= avaliation_exemption.avaliation.grades.map(&:description).join(', ') %></td>
         <td><%= avaliation_exemption.avaliation.classroom.description %></td>
         <td><span class="multiline"><%= avaliation_exemption.student.to_s %></span/></td>
         <td><%= "#{avaliation_exemption.avaliation.description} (#{avaliation_exemption.avaliation.discipline.description})" %></td>

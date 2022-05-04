@@ -46,11 +46,11 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
 
     return false unless step_from_date.eql?(self)
 
-    school_calendar.school_day?(date, classroom.grade, classroom)
+    school_calendar.school_day?(date, classroom.grade_ids, classroom)
   end
 
   def first_school_calendar_date
-    school_calendar.school_day_checker(start_at, classroom.grade_id, classroom_id).next_school_day
+    school_calendar.school_day_checker(start_at, classroom.grade_ids, classroom_id).next_school_day
   end
 
   def school_calendar

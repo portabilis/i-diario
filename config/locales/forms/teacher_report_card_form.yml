@@ -4,5 +4,6 @@ pt-BR:
       teacher_report_card_form:
         unity_id: "Escola"
         classroom_id: "Turma"
+        grade_id: "Série"
         discipline_id: "Disciplina"
         status: "Situação"

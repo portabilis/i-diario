@@ -55,7 +55,8 @@ synchronizers:
     by_unity: false
     dependents: [
       StudentsSynchronizer,
-      CoursesSynchronizer
+      CoursesSynchronizer,
+      SchoolCalendarDisciplineGradesSynchronizer
     ]
     dependencies: [
       TeachersSynchronizer,
@@ -204,6 +205,13 @@ synchronizers:
     by_unity: true
     dependencies: [
       ClassroomsSynchronizer
+    ]
+  -
+    klass: SchoolCalendarDisciplineGradesSynchronizer
+    by_year: false
+    by_unity: true
+    dependencies: [
+      DisciplinesSynchronizer
     ]
   -
     klass: ActiveSearchesSynchronizer

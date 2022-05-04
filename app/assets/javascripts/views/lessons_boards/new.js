@@ -46,7 +46,27 @@ $(function () {
     }
 
     period_div.show();
+
+    populateClassroomGradeId();
   })
+
+  function populateClassroomGradeId() {
+    let grade_id = $('#lessons_board_grade').select2('val');
+    let classroom_id = $('#lessons_board_classroom_id').select2('val');
+
+    $.ajax({
+      url: Routes.classroom_grade_lessons_boards_pt_br_path({
+        grade_id: grade_id,
+        classroom_id: classroom_id,
+      }),
+      success: function(data) {
+        $('#lessons_board_classrooms_grade_id').val(data)
+      },
+      error: function() {
+        flashMessages.error('Ocorreu um erro ao buscar a série vinculada a turma.');
+      }
+    });
+  }
 
   $('#lessons_board_period').on('change', function() {
     errors = {};
@@ -295,9 +315,17 @@ $(function () {
       });
 
       $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teachers) {
-        $(teachers).select2({ data: teachers_to_select, escapeMarkup: function(data) { return data; }})
+        $(teachers).select2({ data: teachers_to_select, escapeMarkup, formatResult })
       })
     }
+  }
+
+  function escapeMarkup(data) {
+    return data;
+  }
+
+  function formatResult(state) {
+    return state.name;
   }
 
   function handleFetchTeachersFromTheClassroomError() {

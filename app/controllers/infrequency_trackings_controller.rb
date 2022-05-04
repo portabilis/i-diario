@@ -7,11 +7,11 @@ class InfrequencyTrackingsController < ApplicationController
       InfrequencyTracking.includes(
         :mvw_infrequency_tracking_classroom,
         :student,
-        classroom: [:unity, :grade]
+        classroom: [:unity, classrooms_grades: :grade]
       ).joins(
         :mvw_infrequency_tracking_classroom,
         :student,
-        classroom: [:unity, :grade]
+        classroom: [:unity, classrooms_grades: :grade]
       ).merge(classrooms).ordered
     )
 

@@ -64,8 +64,6 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year,
-      teacher_id: teacher_id,
-      teacher_api_code: teacher_discipline_classroom_record.servidor_id,
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code
     )
@@ -107,12 +105,16 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
   def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
-      api_code: teacher_discipline_classroom_record.id
+      api_code: teacher_discipline_classroom_record.id,
+      year: year
     )
+
+    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes)
+                                         .pluck(:id)
 
     return teacher_discipline_classrooms if teacher_discipline_classroom_record.deleted_at.present?
 
-    teacher_discipline_classrooms.where.not(discipline_api_code: existing_discipline_api_codes)
+    teacher_discipline_classrooms.where.not(discipline_id: existing_disciplines_ids)
   end
 
   def create_empty_conceptual_exam_value(teacher_discipline_classroom_record)

@@ -1,8 +1,9 @@
 class DescriptiveExamsController < ApplicationController
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_teacher
   before_action :adjusted_period, only: [:edit, :update]
   before_action :require_allow_to_modify_prev_years, only: :update
+  before_action :view_data, only: [:edit, :show]
 
   def new
     @descriptive_exam = DescriptiveExam.new
@@ -29,14 +30,6 @@ class DescriptiveExamsController < ApplicationController
 
       render :new
     end
-  end
-
-  def edit
-    @descriptive_exam = DescriptiveExam.find(params[:id]).localized
-
-    authorize @descriptive_exam
-
-    fetch_students
   end
 
   def update
@@ -68,6 +61,23 @@ class DescriptiveExamsController < ApplicationController
     set_opinion_types(Classroom.find(params[:classroom_id]))
 
     render json: @opinion_types.to_json
+  end
+
+  def find
+    return render json: nil if params[:step_id].blank? || params[:opinion_type].blank?
+
+    discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
+    step_id = opinion_type_by_year?(params[:opinion_type].to_i) ? nil : params[:step_id].to_i
+
+    set_opinion_types
+
+    descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
+                                         .by_discipline_id(discipline_id)
+                                         .by_step_id(current_user_classroom, step_id)
+                                         .first
+                                         &.id
+
+    render json: descriptive_exam_id
   end
 
   protected
@@ -124,8 +134,8 @@ class DescriptiveExamsController < ApplicationController
     descriptive_exam
   end
 
-  def opinion_type_by_year?
-    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@descriptive_exam.opinion_type)
+  def opinion_type_by_year?(opinion_type = nil)
+    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type || @descriptive_exam.opinion_type)
   end
 
   def recorded_at_by_step
@@ -185,7 +195,9 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def set_opinion_types
-    if current_user_classroom.exam_rule.blank?
+    exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+
+    if exam_rules.blank?
       redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
 
       return
@@ -193,17 +205,22 @@ class DescriptiveExamsController < ApplicationController
 
     @opinion_types = []
 
-    if current_user_classroom.exam_rule.allow_descriptive_exam?
-      @opinion_types << OpenStruct.new(id: current_user_classroom.exam_rule.opinion_type,
+    descriptive_exam_opinion_type = exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
+
+    if descriptive_exam_opinion_type.present?
+      @opinion_types << OpenStruct.new(id: descriptive_exam_opinion_type,
                                        text: 'Avaliação padrão (regular)',
                                        name: 'Avaliação padrão (regular)')
     end
 
-    if current_user_classroom.exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
-       current_user_classroom.exam_rule.opinion_type != current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type
+    differentiated_opinion_type = exam_rules.find { |exam_rule|
+      exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
+        exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
+    }&.differentiated_exam_rule&.opinion_type
 
+    if differentiated_opinion_type.present?
       @opinion_types << OpenStruct.new(
-        id: current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type,
+        id: differentiated_opinion_type,
         text: 'Avaliação inclusiva (alunos com deficiência)',
         name: 'Avaliação inclusiva (alunos com deficiência)'
       )
@@ -257,5 +274,15 @@ class DescriptiveExamsController < ApplicationController
     flash[:alert] = message
 
     redirect_to root_path
+  end
+
+  private
+
+  def view_data
+    @descriptive_exam = DescriptiveExam.find(params[:id]).localized
+
+    authorize @descriptive_exam
+
+    fetch_students
   end
 end

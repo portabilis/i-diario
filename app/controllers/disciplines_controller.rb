@@ -14,13 +14,26 @@ class DisciplinesController < ApplicationController
     step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
 
     classroom = Classroom.find(params[:classroom_id])
-    step_number = StepsFetcher.new(classroom).step_by_id(step_id).try(:step_number)
+    step_fetcher = StepsFetcher.new(classroom)
+    step_number = step_fetcher.step_by_id(step_id).try(:step_number)
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step_number)
 
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence
 
     if params[:conceptual]
+      school_calendar = step_fetcher.school_calendar
+      student_grade_id = ClassroomsGrade.by_student_id(params[:student_id])
+                                        .by_classroom_id(classroom.id)
+                                        .first
+                                        .grade_id
+      disciplines_in_grade_ids = SchoolCalendarDisciplineGrade.where(
+        school_calendar_id: school_calendar.id,
+        grade_id: student_grade_id
+      ).pluck(:discipline_id)
+
       @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, params[:student_id])
+                                 .where(id: disciplines_in_grade_ids)
+
     end
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?

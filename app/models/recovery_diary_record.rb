@@ -12,7 +12,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :unity
-  belongs_to :classroom, -> { includes(:exam_rule) }
+  belongs_to :classroom, -> { includes(:classrooms_grades) }
   belongs_to :discipline
 
   has_many :students, -> { includes(:student).ordered },

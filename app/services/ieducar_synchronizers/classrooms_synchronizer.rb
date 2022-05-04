@@ -22,7 +22,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
       next if unity.blank?
 
-      grade = grade(classroom_record.serie_id)
+      grades = []
+      classroom_record.series_regras.select { |serie| grades << serie.serie_id }
+      grade = grade(grades.compact.first)
 
       next if grade.blank?
 
@@ -35,15 +37,31 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.unity = unity
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
-        classroom.grade = grade
         classroom.year = classroom_record.ano
-        classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
 
         if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
           update_period_dependents(classroom.id, classroom.period_was, classroom.period)
         end
 
-        classroom.save! if classroom.changed?
+        classroom.save!
+
+        grades_ids = []
+
+        classroom_record.series_regras.each do |grade_exam_rule|
+          grade = grade(grade_exam_rule.serie_id)
+          exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
+
+          next if grade.blank? || exam_rule.blank?
+
+          grades_ids << grade.id
+
+          ClassroomsGrade.with_discarded.find_or_initialize_by(classroom_id: classroom.id, grade_id: grade.id).tap do |classroom_grade|
+            classroom_grade.exam_rule_id = exam_rule.id
+            classroom_grade.save!
+          end
+        end
+
+        destroy_old_grades(grades_ids, classroom.classrooms_grades)
 
         update_label(classroom.id, new_name) if old_name != new_name
 
@@ -52,6 +70,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
         remove_current_classroom_id_in_user_selectors(classroom.id) if classroom_record.deleted_at.present?
       end
     end
+  end
+
+  def destroy_old_grades(grades_ids, classroom_grades)
+    classroom_grades.where.not(grade_id: grades_ids).destroy_all
   end
 
   def remove_current_classroom_id_in_user_selectors(classroom_id)

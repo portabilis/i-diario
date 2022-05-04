@@ -8,12 +8,12 @@
     <tr>
       <td><%= lesson_board.classroom.year %></td>
       <td><%= lesson_board.classroom.unity.name %></td>
-      <td><%= lesson_board.classroom.grade.description %></td>
+      <td><%= lesson_board.classrooms_grade.grade.description %></td>
       <td><%= lesson_board.classroom.description %></td>
       <td><%= Periods.translate(Periods.key_for(lesson_board.period.to_s)) %></td>
       <td class="actions" style="width: 120px">
         <%= link_to t('helpers.links.show_html'), lessons_board_path(lesson_board),
-                    class: "btn btn-primary apply_tooltip apply_tooltip", style: "width: 32%;",
+                    class: "btn btn-info apply_tooltip apply_tooltip", style: "width: 32%;",
                     data: { original_title: t('views.index.tooltips.show') } %>
         <%= link_to t('helpers.links.edit_html'), edit_lessons_board_path(lesson_board),
                     class: "btn btn-success apply_tooltip", style: "width: 32%;",

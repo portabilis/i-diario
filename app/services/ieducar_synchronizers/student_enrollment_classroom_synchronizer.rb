@@ -23,20 +23,33 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
 
     student_enrollment_classrooms.each do |student_enrollment_classroom_record|
       classroom_id = classroom(student_enrollment_classroom_record.turma_id).try(:id)
+      grade_id = grade(student_enrollment_classroom_record.serie_id).try(:id)
       student_enrollment = student_enrollment(student_enrollment_classroom_record.matricula_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.find_by(
+        api_code: student_enrollment_classroom_record.id
+      )
 
-      next if student_enrollment.blank?
+      if student_enrollment.blank?
+        student_enrollment_classroom.discard if student_enrollment_classroom
+
+        next
+      end
 
       StudentEnrollmentClassroom.with_discarded.find_or_initialize_by(
         api_code: student_enrollment_classroom_record.id
       ).tap do |student_enrollment_classroom|
         student_enrollment_classroom.student_enrollment = student_enrollment
-        student_enrollment_classroom.classroom_id = classroom_id
+        student_enrollment_classroom.classrooms_grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id,
+                                                                                   grade_id: grade_id).try(:id)
         student_enrollment_classroom.classroom_code = student_enrollment_classroom_record.turma_id
         student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
         student_enrollment_classroom.left_at = student_enrollment_classroom_record.data_saida
         student_enrollment_classroom.changed_at = student_enrollment_classroom_record.updated_at
-        student_enrollment_classroom.sequence = student_enrollment_classroom_record.sequencial_fechamento
+
+        if student_enrollment_classroom_record.deleted_at.nil?
+          student_enrollment_classroom.sequence = business.generate_sequence(student_enrollment, student_enrollment_classroom, student_enrollment_classroom_record)
+        end
+
         student_enrollment_classroom.index = student_enrollment_classroom_record.sequencial
         student_enrollment_classroom.show_as_inactive_when_not_in_date =
           student_enrollment_classroom_record.apresentar_fora_da_data
@@ -54,6 +67,10 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     end
 
     delete_invalid_presence_records(changed_student_enrollment_classrooms)
+  end
+
+  def business
+    @object ||= StudentEnrollmentClassroomBusinesses.new
   end
 
   def delete_invalid_presence_records(changed_student_enrollment_classrooms)

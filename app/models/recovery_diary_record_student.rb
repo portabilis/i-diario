@@ -43,11 +43,12 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   private
 
   def maximum_score_for_school_term_recovery
-    if recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::SPECIFIC
-      recovery_exam_rule = recovery_diary_record.classroom
-        .exam_rule
-        .recovery_exam_rules
-        .find do |recovery_exam_rule|
+    if recovery_diary_record.classroom.first_exam_rule.recovery_type == RecoveryTypes::SPECIFIC
+      recovery_exam_rule = recovery_diary_record
+                           .classroom
+                           .first_exam_rule
+                           .recovery_exam_rules
+                           .find do |recovery_exam_rule|
           recovery_exam_rule.steps.last.eql?(
             recovery_diary_record.school_term_recovery_diary_record
               .step
@@ -65,7 +66,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   end
 
   def maximum_score_for_final_recovery
-    recovery_diary_record.classroom.exam_rule.final_recovery_maximum_score
+    recovery_diary_record.classroom.first_exam_rule.final_recovery_maximum_score
   end
 
   def maximum_score_for_avaliation_recovery

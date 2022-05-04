@@ -45,8 +45,24 @@ $(function() {
   };
 
   $grade.on('change', function() {
-    fetchDisciplines();
+    validateMulti();
   });
+
+  function validateMulti() {
+    $.ajax({
+      url: Routes.multi_grade_classrooms_pt_br_path({ format: 'json' }),
+      success: function(classroom_multi) {
+        if (classroom_multi) {
+          return
+        }
+
+        fetchDisciplines();
+      },
+      error: function() {
+        flashMessages.error('Ocorreu um erro ao validar se a turma é multisseriada');
+      }
+    });
+  }
 
   $schoolTermType.on('change', function() {
     updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);

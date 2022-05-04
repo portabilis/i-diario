@@ -48,6 +48,14 @@
       <div class="col col-sm-4">
         <%= f.input :weight, required: true, label_html: show_avaliation_weight, input_html: show_avaliation_weight.merge({ data: { inputmask: "'digits': #{@avaliation.test_setting&.number_of_decimal_places || 0}" } }) %>
       </div>
+
+      <div class="col col-sm-4">
+           <%= f.association :grades, as: :select2, elements: grades, multiple: true, required: true,
+               input_html: {
+                 value: f.object.grade_ids.join(',').presence || grades.first.id,
+                 data: { without_json_parser: true }
+            }%>
+      </div>
     </div>
 
     <div class="row">

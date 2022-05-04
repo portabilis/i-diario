@@ -48,7 +48,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   validate :ensure_is_school_day
 
   delegate :contents, :record_date, :classroom, to: :content_record
-  delegate :grade, to: :classroom
+  delegate :grades, to: :classroom
 
   private
 
@@ -87,9 +87,11 @@ class DisciplineContentRecord < ActiveRecord::Base
                   content_record.school_calendar.present? &&
                   record_date.present?
 
-    unless content_record.school_calendar.school_day?(record_date, grade, classroom, discipline)
-      errors.add(:base, "")
-      content_record.errors.add(:record_date, :not_school_calendar_day)
+    grades.each do |grade|
+      unless content_record.school_calendar.school_day?(record_date, grade, classroom, discipline)
+        errors.add(:base, "")
+        content_record.errors.add(:record_date, :not_school_calendar_day)
+      end
     end
   end
 end

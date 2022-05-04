@@ -224,6 +224,9 @@ Rails.application.routes.draw do
       end
     end
     resources :classrooms, only: [:index, :show] do
+      collection do
+        get :multi_grade
+      end
       resources :students, only: [:index]
     end
     resources :contents, only: :index
@@ -279,8 +282,9 @@ Rails.application.routes.draw do
       end
     end
     resources :old_steps_conceptual_values, except: [:only]
-    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history do
+    resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
+        get :find
         get :opinion_types
       end
     end
@@ -337,6 +341,7 @@ Rails.application.routes.draw do
         get :not_exists_by_classroom
         get :not_exists_by_classroom_and_period
         get :teacher_in_other_classroom
+        get :classroom_grade
       end
     end
 
