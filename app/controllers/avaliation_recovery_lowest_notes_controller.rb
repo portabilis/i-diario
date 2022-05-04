@@ -245,7 +245,9 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     classroom = Classroom.find(params[:classroom_id])
 
-    render json: AvaliationRecoveryLowestNote.by_step_id(classroom, params[:step_id]).exists?
+    render json: AvaliationRecoveryLowestNote.by_step_id(classroom, params[:step_id])
+                                             .by_classroom_id(classroom.id)
+                                             .exists?
   end
 
   def recorded_at_in_selected_step
