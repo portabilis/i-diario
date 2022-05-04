@@ -120,9 +120,7 @@ class CurrentProfile
     Rails.cache.fetch("last_teacher_discipline_classroom-#{classroom&.id}-#{teacher&.id}", expires_in: 1.day) do
       return TeacherDisciplineClassroom.none unless classroom && teacher
 
-      TeacherDisciplineClassroom.where(classroom_id: classroom.id, teacher_id: teacher.id)
-                                .last
-                                .cache_key
+      TeacherDisciplineClassroom.where(classroom_id: classroom.id, teacher_id: teacher.id).last&.cache_key
     end
   end
 
