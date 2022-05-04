@@ -15,8 +15,7 @@ class StudentNotesInStepFetcher
                               .by_avaliation(avaliation.id)
                               .first
                               .try(:recovered_note)
-
-      next if score.nil?
+                              .to_f
 
       lowest_note = score if lowest_note.nil?
 
