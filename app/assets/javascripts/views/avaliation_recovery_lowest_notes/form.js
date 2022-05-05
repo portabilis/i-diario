@@ -137,6 +137,7 @@ $(function () {
   function checkExistsRecoveryLowestNoteOnStep() {
     let step_id = $step.select2('val');
     let classroom_id = $classroom.select2('val');
+    let discipline_id = $discipline.select2('val');
 
     if (_.isEmpty(step_id)) {
       flashMessages.error('É necessário selecionar uma etapa.');
@@ -145,7 +146,8 @@ $(function () {
         url: Routes.exists_recovery_on_step_avaliation_recovery_lowest_notes_pt_br_path({
           format: 'json',
           classroom_id: classroom_id,
-          step_id: step_id
+          step_id: step_id,
+          discipline_id: discipline_id
         }),
         success: handleFetchCheckExistsRecoveryLowestNoteOnStepSuccess,
         error: handleFetchCheckExistsRecoveryLowestNoteOnStepError
