@@ -241,12 +241,13 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def exists_recovery_on_step
-    return if params[:classroom_id].blank? || params[:step_id].blank?
+    return if params[:classroom_id].blank? || params[:step_id].blank? || params[:discipline_id].blank?
 
     classroom = Classroom.find(params[:classroom_id])
 
     render json: AvaliationRecoveryLowestNote.by_step_id(classroom, params[:step_id])
                                              .by_classroom_id(classroom.id)
+                                             .by_discipline_id(params[:discipline_id])
                                              .exists?
   end
 
