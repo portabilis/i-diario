@@ -11,11 +11,14 @@ class StudentNotesInStepFetcher
     lowest_note = nil
 
     avaliations.each do |avaliation|
-      score = DailyNoteStudent.by_student_id(student_id)
-                              .by_avaliation(avaliation.id)
-                              .first
-                              .try(:recovered_note)
-                              .to_f
+      daily_note_student = DailyNoteStudent.by_student_id(student_id)
+                                           .by_avaliation(avaliation.id)
+                                           .first
+
+      next if daily_note_student.nil?
+      next if daily_note_student.exempted?
+
+      score = daily_note_student.recovered_note.to_f
 
       lowest_note = score if lowest_note.nil?
 
