@@ -1,5 +1,5 @@
 class StudentInRecoverySerializer < StudentSerializer
-  attributes :average, :exempted_from_discipline
+  attributes :average, :exempted_from_discipline, :lowest_note_in_step
 
   def average
     return if student_recovery_average.blank?

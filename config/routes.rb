@@ -64,6 +64,7 @@ Rails.application.routes.draw do
 
     resources :students do
       collection do
+        get :recovery_lowest_note
         get :search_api
         get :in_recovery
         get :select2_remote
@@ -277,6 +278,12 @@ Rails.application.routes.draw do
     end
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
+    resources :avaliation_recovery_lowest_notes, concerns: :history do
+      collection do
+        get :exists_recovery_on_step
+        get :recorded_at_in_selected_step
+      end
+    end
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines

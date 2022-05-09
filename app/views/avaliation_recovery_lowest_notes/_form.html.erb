@@ -1,12 +1,7 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
-  <%= javascript_include_tag 'fetch_students_in_recovery' %>
-<% end %>
-
-<%= simple_form_for @school_term_recovery_diary_record, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @lowest_note_recovery, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
-  <%= f.simple_fields_for :recovery_diary_record, @school_term_recovery_diary_record.recovery_diary_record.localized do |recovery_diary_record| %>
+  <%= f.simple_fields_for :recovery_diary_record, @lowest_note_recovery.recovery_diary_record.localized do |recovery_diary_record| %>
     <%= recovery_diary_record.hidden_field :id %>
 
     <fieldset>
@@ -25,14 +20,14 @@
               as: :select2_discipline,
               user: current_user,
               record: f.object,
-              classroom_id: @school_term_recovery_diary_record.recovery_diary_record.classroom_id %>
+              classroom_id: @lowest_note_recovery.recovery_diary_record.classroom_id %>
         </div>
       </div>
 
       <div class="row">
         <div class="col col-sm-4">
           <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
-            readonly: @school_term_recovery_diary_record.persisted?, required: true %>
+            readonly: @lowest_note_recovery.persisted?, required: true %>
         </div>
 
         <div class="col col-sm-4">
@@ -55,7 +50,7 @@
         <thead>
           <tr>
             <th><%= RecoveryDiaryRecordStudent.human_attribute_name :student %></th>
-            <th width="20%"><%= t('.current_average') %></th>
+            <th width="20%"><%= t('.current_lowest_note') %></th>
             <th width="20%"><%= RecoveryDiaryRecordStudent.human_attribute_name :score %></th>
           </tr>
         </thead>
@@ -67,9 +62,10 @@
               <%= t('.no_item_found') %>
             </td>
           </tr>
-
-          <%= recovery_diary_record.fields_for :students, @students do |student| %>
-            <%= render 'student_fields', f: student %>
+          <% if @students != nil %>
+            <%= recovery_diary_record.fields_for :students, @students do |student| %>
+              <%= render 'student_fields', f: student %>
+            <% end %>
           <% end %>
         </tbody>
 
@@ -87,11 +83,11 @@
   <% end %>
 
   <footer>
-    <%= link_to t('views.form.back'), school_term_recovery_diary_records_path, class: 'btn btn-default' %>
+    <%= link_to t('views.form.back'), avaliation_recovery_lowest_notes_path, class: 'btn btn-default' %>
 
-    <% if @school_term_recovery_diary_record.persisted? %>
+    <% if @lowest_note_recovery.persisted? %>
       <%= link_to t('views.form.history'),
-        history_school_term_recovery_diary_record_path(@school_term_recovery_diary_record),
+        history_avaliation_recovery_lowest_note_path(@lowest_note_recovery),
         class: 'btn btn-info' %>
     <% end %>
 

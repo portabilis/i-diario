@@ -25,6 +25,38 @@ class ExamRecordReportForm
                             .order_by_avaliation_test_date
   end
 
+  def recovery_lowest_notes?
+    classroom = Classroom.find(classroom_id)
+    @recovery_lowest_notes = AvaliationRecoveryLowestNote.by_unity_id(unity_id)
+                                                         .by_classroom_id(classroom_id)
+                                                         .by_discipline_id(discipline_id)
+                                                         .by_step_id(classroom, step.id)
+                                                         .exists?
+  end
+
+  def lowest_notes
+    classroom = Classroom.find(classroom_id)
+
+    lowest_notes = {}
+
+    RecoveryDiaryRecordStudent.by_student_id(students_enrollments.map(&:student_id))
+                              .joins(:recovery_diary_record)
+                              .merge(
+                                RecoveryDiaryRecord.by_discipline_id(discipline_id)
+                                                   .by_classroom_id(classroom_id)
+                                                   .joins(:students, :avaliation_recovery_lowest_note)
+                                                   .merge(
+                                                     AvaliationRecoveryLowestNote
+                                                       .by_step_id(classroom, step.id)
+                                                   )
+                              ).each do |recovery_diary_record|
+      student_data = {recovery_diary_record.student_id => recovery_diary_record.score}
+      lowest_notes = lowest_notes.merge(student_data)
+    end
+
+    lowest_notes
+  end
+
   def daily_notes_classroom_steps
     return unless classroom_step
 
