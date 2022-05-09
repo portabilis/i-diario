@@ -264,7 +264,7 @@ class ExamRecordReport < BaseReport
           student_cells << make_cell(content: "#{recovery_lowest_note[key]}", align: :center)
         end
 
-        number_colums = @recovery_lowest_notes ? 11 : 10
+        number_colums = 10
 
         (number_colums - data_column_count).times { student_cells << nil }
 
