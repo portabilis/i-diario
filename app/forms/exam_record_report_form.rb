@@ -26,6 +26,8 @@ class ExamRecordReportForm
   end
 
   def recovery_lowest_notes?
+    return unless step
+
     classroom = Classroom.find(classroom_id)
     @recovery_lowest_notes = AvaliationRecoveryLowestNote.by_unity_id(unity_id)
                                                          .by_classroom_id(classroom_id)
