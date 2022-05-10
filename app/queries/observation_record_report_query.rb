@@ -24,11 +24,10 @@ class ObservationRecordReportQuery
                                      .where(date: start_at..end_at)
                                      .order(:date)
 
-    if @discipline_id.eql?('all')
+    unless @discipline_id.eql?('all')
       @discipline_id = Discipline.by_classroom_id(classroom_id).pluck(:id)
+      relation = relation.by_discipline(discipline_id)
     end
-
-    relation = relation.by_discipline(discipline_id) if discipline_id.present?
 
     relation
   end
