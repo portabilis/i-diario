@@ -36,7 +36,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
     elsif recovery_diary_record.avaliation_recovery_diary_record.present?
       maximum_score_for_avaliation_recovery
     else
-      maximum_score_for_final_recovery
+      maximum_score_for_avaliation_recovery
     end
   end
 
