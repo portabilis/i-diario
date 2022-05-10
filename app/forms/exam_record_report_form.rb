@@ -37,6 +37,8 @@ class ExamRecordReportForm
   end
 
   def lowest_notes
+    return unless step
+
     classroom = Classroom.find(classroom_id)
 
     lowest_notes = {}
