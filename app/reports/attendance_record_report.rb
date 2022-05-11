@@ -65,6 +65,9 @@ class AttendanceRecordReport < BaseReport
 
     self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
 
+    @general_configuration = GeneralConfiguration.first
+    @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
+
     header
     content
     footer
@@ -220,11 +223,21 @@ class AttendanceRecordReport < BaseReport
       day_header = make_cell(content: 'Dia', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
       month_header = make_cell(content: 'Mês', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
       absences_header = make_cell(content: 'Faltas', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
+
+      if @show_percentage_on_attendance
+        percentage_absences_header = make_cell(content: 'Freq.', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
+      end
+
       first_headers_and_class_numbers_cells = [sequential_number_header, student_name_header, class_number_header].concat(class_numbers)
 
       (40 - class_numbers.count).times { first_headers_and_class_numbers_cells << make_cell(content: '', background_color: 'FFFFFF') }
 
       first_headers_and_class_numbers_cells << absences_header
+
+      if @show_percentage_on_attendance
+        first_headers_and_class_numbers_cells << percentage_absences_header
+      end
+
       days_header_and_cells = [day_header].concat(days)
 
       (40 - days.count).times { days_header_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
