@@ -31,12 +31,7 @@ class ContentsRecordFetcher
   end
 
   def other_teacher_teaching_plans
-    step_teaching_plans = teaching_plans.by_school_term_type_step_id(school_term_type_steps_ids)
-
-    other_theachers_plans = step_teaching_plans.by_other_teacher_id(@teacher.id)
-    return other_theachers_plans if other_theachers_plans.present?
-
-    step_teaching_plans.by_secretary
+    teaching_plans.by_other_teacher_id(@teacher.id)
   end
 
   def steps_fetcher
