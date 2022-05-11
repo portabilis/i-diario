@@ -252,7 +252,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def recorded_at_in_selected_step
-    return json: nil if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
+    return render json: nil if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
 
     classroom = Classroom.find(params[:classroom_id])
     steps_fetcher = StepsFetcher.new(classroom)
