@@ -119,10 +119,12 @@ class ExamRecordReport < BaseReport
         @school_calendar_step
       )
 
-      lowest_note = @lowest_notes[student_enrollment.student_id].to_s
+      if @lowest_notes
+        lowest_note = @lowest_notes[student_enrollment.student_id].to_s
 
-      if lowest_note.present?
-        recovery_lowest_note[student_enrollment.student_id] = lowest_note
+        if lowest_note.present?
+          recovery_lowest_note[student_enrollment.student_id] = lowest_note
+        end
       end
     end
 
