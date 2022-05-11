@@ -31,7 +31,11 @@ class ContentsRecordFetcher
   end
 
   def other_teacher_teaching_plans
-    teaching_plans.by_other_teacher_id(@teacher.id)
+    other_teachers_plans = teaching_plans.by_other_teacher_id(@teacher.id)
+
+    return other_teachers_plans if other_teachers_plans.present?
+
+    teaching_plans.by_secretary
   end
 
   def steps_fetcher
