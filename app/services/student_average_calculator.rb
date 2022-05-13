@@ -91,6 +91,7 @@ class StudentAverageCalculator
 
         if value < lowest_note
           index_lowest_note = index
+          lowest_note = value
         end
       end
 
