@@ -23,8 +23,7 @@ class InfrequencyTrackingsController < ApplicationController
   def unities
     @unities ||= begin
       unities = Unity.all if current_user.has_administrator_access_level?
-      unities ||= Unity.by_user_id(current_user.id)
-      unities = unities.by_infrequency_tracking_permission
+      unities ||= Unity.by_user_id(current_user.id).by_infrequency_tracking_permission
       unities.by_year(current_school_year)
     end
   end
