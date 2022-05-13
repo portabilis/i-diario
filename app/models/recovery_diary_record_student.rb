@@ -70,10 +70,8 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   end
 
   def maximum_score_for_avaliation_recovery
-    test_setting ||= TestSettingFetcher.current(
+    TestSettingFetcher.current(
       recovery_diary_record.classroom
     ).maximum_score
-
-    test_setting
   end
 end
