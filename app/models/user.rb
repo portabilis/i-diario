@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   after_save :update_fullname_tokens
+  before_save :remove_spaces_from_name
 
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
@@ -492,5 +493,10 @@ class User < ActiveRecord::Base
                             .any?
       errors.add(:email, :invalid_email)
     end
+  end
+
+  def remove_spaces_from_name
+    write_attribute(:first_name, first_name.strip) if first_name.present?
+    write_attribute(:last_name, last_name.strip) if last_name.present?
   end
 end
