@@ -12,6 +12,8 @@ class InfrequencyTrackingNotifier
 
       students_with_absences(classroom.id, start_at).each do |student_id|
         InfrequencyTrackingTypes.list.each do |type|
+          next if school_dates.empty?
+
           start_at = school_dates.first
           last_notification_date = last_notification_date(classroom.id, student_id, type) || start_at
           start_at = last_notification_date < start_at ? start_at : last_notification_date
