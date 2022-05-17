@@ -31,8 +31,6 @@ class UsersController < ApplicationController
 
     params[:user].delete :password if password.blank?
 
-    params[:user][:first_name] = params[:user][:first_name].strip
-
     if weak_password?(password)
       flash.now[:error] = t('errors.general.weak_password')
       render :edit
