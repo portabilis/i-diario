@@ -216,9 +216,11 @@ class AttendanceRecordReport < BaseReport
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:absences] ||= 0
             students[student_id][:social_name] = student.social_name
+
             if @show_percentage_on_attendance
               students[student_id][:absences_percentage] = @students_frequency_percentage[student_id]
             end
+
             (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event[:legend]}", align: :center)
           end
         end
