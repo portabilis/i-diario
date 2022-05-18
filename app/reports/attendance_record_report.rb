@@ -16,7 +16,8 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    display_knowledge_area_as_discipline
+    display_knowledge_area_as_discipline,
+    students_frequencies_percentage
   )
     new(:landscape)
       .build(entity_configuration,
@@ -29,7 +30,8 @@ class AttendanceRecordReport < BaseReport
              events,
              school_calendar,
              second_teacher_signature,
-             display_knowledge_area_as_discipline)
+             display_knowledge_area_as_discipline,
+             students_frequencies_percentage)
   end
 
   def build(
@@ -43,7 +45,8 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    display_knowledge_area_as_discipline
+    display_knowledge_area_as_discipline,
+    students_frequencies_percentage
   )
     @entity_configuration = entity_configuration
     @teacher = teacher
@@ -62,6 +65,7 @@ class AttendanceRecordReport < BaseReport
     @show_legend_remote = false
     @exists_legend_hybrid = false
     @exists_legend_remote = false
+    @students_frequency_percentage = students_frequencies_percentage
 
     self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
 
@@ -212,6 +216,9 @@ class AttendanceRecordReport < BaseReport
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:absences] ||= 0
             students[student_id][:social_name] = student.social_name
+            if @show_percentage_on_attendance
+              students[student_id][:absences_percentage] = @students_frequency_percentage[student_id]
+            end
             (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event[:legend]}", align: :center)
           end
         end
@@ -223,10 +230,7 @@ class AttendanceRecordReport < BaseReport
       day_header = make_cell(content: 'Dia', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
       month_header = make_cell(content: 'Mês', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
       absences_header = make_cell(content: 'Faltas', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
-
-      if @show_percentage_on_attendance
-        percentage_absences_header = make_cell(content: 'Freq.', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
-      end
+      percentage_absences_header = make_cell(content: 'Freq.', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
 
       first_headers_and_class_numbers_cells = [sequential_number_header, student_name_header, class_number_header].concat(class_numbers)
 
@@ -263,6 +267,11 @@ class AttendanceRecordReport < BaseReport
         (40 - value[:attendances].count).times { student_cells << nil }
 
         student_cells << make_cell(content: value[:absences].to_s, align: :center)
+
+        if @show_percentage_on_attendance
+          student_cells << make_cell(content: value[:absences_percentage] || '100%', align: :center)
+        end
+
         students_cells << student_cells
         sequence += 1
       end
