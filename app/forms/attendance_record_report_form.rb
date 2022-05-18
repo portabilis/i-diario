@@ -94,6 +94,18 @@ class AttendanceRecordReportForm
     ).student_enrollments
   end
 
+  def students_frequencies_percentage
+    percentage_by_student = {}
+    frequency_days = daily_frequencies.size
+
+    absences_students.each do |student_id, absences_student|
+      percentage = calculate_percentage(frequency_days, absences_student)
+      percentage_by_student = percentage_by_student.merge({ student_id => percentage })
+    end
+
+    percentage_by_student
+  end
+
   private
 
   def remove_duplicated_enrollments(students_enrollments)
@@ -129,5 +141,29 @@ class AttendanceRecordReportForm
 
   def teacher
     Teacher.find(@current_teacher_id)
+  end
+
+  def absences_students
+    absences_by_student = {}
+
+    daily_frequencies.each do |daily_frequency|
+      daily_frequency.students.each do |daily_frequency_student|
+        unless daily_frequency_student.present
+          if absences_by_student[daily_frequency_student.student_id]
+            absences_by_student[daily_frequency_student.student_id] += 1
+          else
+            absences_by_student = absences_by_student.merge({ daily_frequency_student.student_id => 1 })
+          end
+        end
+      end
+    end
+
+    absences_by_student
+  end
+
+  def calculate_percentage(frequency_days, absences_student)
+    total_percentage = 100
+    multiplication = absences_student * total_percentage
+    (total_percentage - multiplication / frequency_days).to_s + '%'
   end
 end
