@@ -289,8 +289,9 @@ class AttendanceRecordReport < BaseReport
         ]
 
         if slice_index == sliced_students_cells.count - 1 && index == sliced_frequencies_and_events.count - 1
+          columns = @show_percentage_on_attendance ? 45 : 44
           students_cells_slice <<
-            [{ content: "Aulas dadas: #{daily_frequencies.count}", colspan: 44, align: :center }]
+            [{ content: "Aulas dadas: #{daily_frequencies.count}", colspan: columns, align: :center }]
         end
 
         data.concat(students_cells_slice)
