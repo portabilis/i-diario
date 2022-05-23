@@ -13,6 +13,7 @@ pt-BR:
     errors:
       models:
         avaliation_recovery_lowest_note:
+          test_setting_without_arithmetic_calculation_type: 'Não é possível utilizar o recurso com uma Configuração de avaliação com o Cálculo de média diferente de Aritmética'
           attributes:
             step_id:
               unique_by_step_and_classroom: 'já existe um lançamento de recuperação da menor nota para a etapa informada'
