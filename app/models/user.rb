@@ -85,7 +85,7 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name)}%") }
+  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name.squish)}%") }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :by_cpf, lambda { |cpf|
@@ -496,7 +496,7 @@ class User < ActiveRecord::Base
   end
 
   def remove_spaces_from_name
-    write_attribute(:first_name, first_name.strip) if first_name.present?
-    write_attribute(:last_name, last_name.strip) if last_name.present?
+    write_attribute(:first_name, first_name.squish) if first_name.present?
+    write_attribute(:last_name, last_name.squish) if last_name.present?
   end
 end
