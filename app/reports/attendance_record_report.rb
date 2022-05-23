@@ -177,6 +177,10 @@ class AttendanceRecordReport < BaseReport
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_id][:dependence]
             students[student_id][:absences] ||= 0
 
+            if @show_percentage_on_attendance
+              students[student_id][:absences_percentage] = @students_frequency_percentage[student_id]
+            end
+
             if !student_frequency.present
               students[student_id][:absences] = students[student_id][:absences] + 1
             end
