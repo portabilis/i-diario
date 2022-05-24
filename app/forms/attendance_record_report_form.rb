@@ -164,6 +164,6 @@ class AttendanceRecordReportForm
   def calculate_percentage(frequency_days, absences_student)
     total_percentage = 100
     multiplication = absences_student * total_percentage
-    (total_percentage - multiplication / frequency_days).to_s + '%'
+    (total_percentage - (multiplication / frequency_days)).to_s + '%'
   end
 end
