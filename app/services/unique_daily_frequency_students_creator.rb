@@ -51,9 +51,15 @@ class UniqueDailyFrequencyStudentsCreator
     ].max
   end
 
+  def teacher_lesson_on_classroom?(teacher_id, classroom_id)
+    TeacherDisciplineClassroom.where(teacher_id: teacher_id, classroom_id: classroom_id).exists?
+  end
+
   def create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
     daily_frequency_students.each do |student_id, frequency_data|
       begin
+        next unless teacher_lesson_on_classroom?(teacher_id, frequency_data[:classroom_id])
+
         UniqueDailyFrequencyStudent.find_or_initialize_by(
           student_id: student_id,
           classroom_id: frequency_data[:classroom_id],
