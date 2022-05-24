@@ -96,10 +96,9 @@ class AttendanceRecordReportForm
 
   def students_frequencies_percentage
     percentage_by_student = {}
-    frequency_days = daily_frequencies.size
 
     absences_students.each do |student_id, absences_student|
-      percentage = calculate_percentage(frequency_days, absences_student)
+      percentage = calculate_percentage(absences_student[:count_days], absences_student[:absences])
       percentage_by_student = percentage_by_student.merge({ student_id => percentage })
     end
 
@@ -145,15 +144,29 @@ class AttendanceRecordReportForm
 
   def absences_students
     absences_by_student = {}
+    count_days = {}
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
+        student_id = daily_frequency_student.student_id
+
+        if count_days[student_id]
+          count_days[student_id] += 1
+        else
+          count_days = count_days.merge( { student_id => 1 } )
+        end
+
         unless daily_frequency_student.present
-          if absences_by_student[daily_frequency_student.student_id]
-            absences_by_student[daily_frequency_student.student_id] += 1
+          if absences_by_student[student_id]
+            absences_by_student[student_id][:absences] += 1
           else
-            absences_by_student = absences_by_student.merge({ daily_frequency_student.student_id => 1 })
+            absences_by_student = absences_by_student.merge({ student_id => { :absences => 1, :count_days => 0 } })
           end
+        end
+
+
+        if absences_by_student.present? && absences_by_student[student_id]
+          absences_by_student[student_id][:count_days] = count_days[student_id]
         end
       end
     end
