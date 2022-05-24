@@ -265,7 +265,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
-      redirect_to(root_path)
+      redirect_to root_path
     end
 
     return if current_test_setting.arithmetic_calculation_type?
