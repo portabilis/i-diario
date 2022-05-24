@@ -4,23 +4,25 @@ bundle check || BUNDLE_JOBS=4 bundle install
 
 yarn install
 
-echo -e "
-development:
-  secret_key_base: `bundle exec rake secret`
-  redis_url: redis://redis-idiario
-  " > config/secrets.yml
+if ! test -f ".setup"; then
+  echo -e "
+  development:
+    secret_key_base: `bundle exec rake secret`
+    redis_url: redis://redis-idiario
+    " > config/secrets.yml
 
-cp config/database.sample.yml config/database.yml
+  cp config/database.sample.yml config/database.yml
 
-bundle exec rake db:create
-bundle exec rake db:migrate
-bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=idiario
-bundle exec rake entity:admin:create NAME=prefeitura ADMIN_PASSWORD=A123456789$
+  bundle exec rake db:create
+  bundle exec rake db:migrate
+  bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=idiario
+  bundle exec rake entity:admin:create NAME=prefeitura ADMIN_PASSWORD=A123456789$
 
-cp public/404.html.sample public/404.html
-cp public/500.html.sample public/500.html
+  cp public/404.html.sample public/404.html
+  cp public/500.html.sample public/500.html
 
-touch .setup
+  touch .setup
+fi
 
 rm -f /app/tmp/pids/server.pid
 
