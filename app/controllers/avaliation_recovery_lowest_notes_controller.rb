@@ -5,6 +5,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :arithmetic_test_setting
 
   def index
     step_id = (params[:filter] || []).delete(:by_step_id)
@@ -258,5 +259,19 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     steps_fetcher = StepsFetcher.new(classroom)
 
     render json: steps_fetcher.step_belongs_to_date?(params[:step_id], params[:recorded_at])
+  end
+
+  def arithmetic_test_setting
+    if current_test_setting.blank?
+      flash[:error] = t('errors.avaliations.require_setting')
+
+      redirect_to root_path
+    end
+
+    return if current_test_setting.arithmetic_calculation_type?
+
+    flash[:alert] = t('activerecord.errors.models.avaliation_recovery_lowest_note.test_setting_without_arithmetic_calculation_type')
+
+    redirect_to root_path
   end
 end
