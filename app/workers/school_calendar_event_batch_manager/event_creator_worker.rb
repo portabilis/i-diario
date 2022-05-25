@@ -27,7 +27,7 @@ module SchoolCalendarEventBatchManager
             rescue ActiveRecord::RecordInvalid
               unity_name = Unity.find_by(id: school_calendar.unity_id)&.name
 
-              school_calendar.steps.flatten.map do |step|
+              school_calendar.steps.each do |step|
                 if school_calendar_event_batch.start_date.between?(step.start_at, step.end_at) &&
                    school_calendar_event_batch.end_date.between?(step.start_at, step.end_at)
 
