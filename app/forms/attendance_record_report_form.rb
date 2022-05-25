@@ -150,20 +150,13 @@ class AttendanceRecordReportForm
       daily_frequency.students.each do |daily_frequency_student|
         student_id = daily_frequency_student.student_id
 
-        if count_days[student_id]
-          count_days[student_id] += 1
-        else
-          count_days = count_days.merge( { student_id => 1 } )
-        end
+        count_days[student_id] ||= 0
+        count_days[student_id] += 1
 
         unless daily_frequency_student.present
-          if absences_by_student[student_id]
-            absences_by_student[student_id][:absences] += 1
-          else
-            absences_by_student = absences_by_student.merge({ student_id => { :absences => 1, :count_days => 0 } })
-          end
+          absences_by_student[student_id] ||= { :absences => 1, :count_days => 0 }
+          absences_by_student[student_id][:absences] += 1
         end
-
 
         if absences_by_student.present? && absences_by_student[student_id]
           absences_by_student[student_id][:count_days] = count_days[student_id]
