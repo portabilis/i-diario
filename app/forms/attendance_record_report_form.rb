@@ -151,7 +151,7 @@ class AttendanceRecordReportForm
         student_id = daily_frequency_student.student_id
 
         count_days[student_id] ||= 0
-        count_days[student_id] += 1
+        count_days[student_id] += 1 if count_day?(daily_frequency, student_id)
 
         unless daily_frequency_student.present
           absences_by_student[student_id] ||= { :absences => 0, :count_days => 0 }
@@ -171,5 +171,47 @@ class AttendanceRecordReportForm
     total_percentage = 100
     multiplication = absences_student * total_percentage
     (total_percentage - (multiplication / frequency_days)).to_s + '%'
+  end
+
+  def count_day?(daily_frequency, student_id)
+    student_enrollment = StudentEnrollment.by_classroom(daily_frequency.classroom_id)
+                                          .by_student(student_id)
+                                          .by_year(daily_frequency.classroom.year)
+                                          .first
+    frequency_date = daily_frequency.frequency_date
+
+    return false if in_active_search?(student_enrollment, frequency_date) ||
+      inactive_on_date?(daily_frequency, student_enrollment) ||
+      exempted_from_discipline?(daily_frequency, student_enrollment)
+
+    true
+  end
+
+  def active_search
+    @active_search ||= ActiveSearch.new
+  end
+
+  def in_active_search?(student_enrollment, frequency_date)
+    active_search.in_active_search?(student_enrollment.id, frequency_date)
+  end
+
+  def inactive_on_date?(daily_frequency, student_enrollment)
+    StudentEnrollment.where(id: student_enrollment)
+                     .by_classroom(daily_frequency.classroom)
+                     .by_date(daily_frequency.frequency_date)
+                     .empty?
+  end
+
+  def exempted_from_discipline?(daily_frequency, student_enrollment)
+    return false if daily_frequency.discipline_id.blank?
+
+    frequency_date = daily_frequency.frequency_date
+    discipline_id = daily_frequency.discipline.id
+    step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
+
+    student_enrollment.exempted_disciplines
+                      .by_discipline(discipline_id)
+                      .by_step_number(step_number)
+                      .any?
   end
 end
