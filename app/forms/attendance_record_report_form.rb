@@ -151,9 +151,10 @@ class AttendanceRecordReportForm
         student_id = daily_frequency_student.student_id
 
         count_days[student_id] ||= 0
-        count_days[student_id] += 1 if count_day?(daily_frequency, student_id)
+        count_day = count_day?(daily_frequency, student_id)
+        count_days[student_id] += 1 if count_day
 
-        unless daily_frequency_student.present
+        unless daily_frequency_student.present && count_day
           absences_by_student[student_id] ||= { :absences => 0, :count_days => 0 }
           absences_by_student[student_id][:absences] += 1
         end
