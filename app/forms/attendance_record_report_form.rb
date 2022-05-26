@@ -33,25 +33,25 @@ class AttendanceRecordReportForm
 
   def daily_frequencies
     if global_absence?
-      DailyFrequency.by_classroom_id(classroom_id)
-                    .by_period(period)
-                    .by_frequency_date_between(start_at, end_at)
-                    .general_frequency
-                    .includes(students: :student)
-                    .order_by_frequency_date
-                    .order_by_class_number
-                    .order_by_student_name
+      @daily_frequencies ||= DailyFrequency.by_classroom_id(classroom_id)
+                                           .by_period(period)
+                                           .by_frequency_date_between(start_at, end_at)
+                                           .general_frequency
+                                           .includes(students: :student)
+                                           .order_by_frequency_date
+                                           .order_by_class_number
+                                           .order_by_student_name
 
     else
-      DailyFrequency.by_classroom_id(classroom_id)
-                    .by_period(period)
-                    .by_discipline_id(discipline_id)
-                    .by_class_number(class_numbers.split(','))
-                    .by_frequency_date_between(start_at, end_at)
-                    .includes(students: :student)
-                    .order_by_frequency_date
-                    .order_by_class_number
-                    .order_by_student_name
+      @daily_frequencies ||= DailyFrequency.by_classroom_id(classroom_id)
+                                           .by_period(period)
+                                           .by_discipline_id(discipline_id)
+                                           .by_class_number(class_numbers.split(','))
+                                           .by_frequency_date_between(start_at, end_at)
+                                           .includes(students: :student)
+                                           .order_by_frequency_date
+                                           .order_by_class_number
+                                           .order_by_student_name
     end
   end
 
@@ -83,7 +83,7 @@ class AttendanceRecordReportForm
   def students_enrollments
     adjusted_period = period != Periods::FULL ? period : nil
 
-    StudentEnrollmentsList.new(
+    @students ||= StudentEnrollmentsList.new(
       classroom: classroom_id,
       discipline: discipline_id,
       start_at: start_at,
@@ -183,7 +183,7 @@ class AttendanceRecordReportForm
     frequency_date = daily_frequency.frequency_date
 
     return false if in_active_search?(student_enrollment, frequency_date) ||
-      inactive_on_date?(daily_frequency, student_enrollment) ||
+      inactive_on_date?(daily_frequency, student_id) ||
       exempted_from_discipline?(daily_frequency, student_enrollment)
 
     true
@@ -197,11 +197,38 @@ class AttendanceRecordReportForm
     active_search.in_active_search?(student_enrollment.id, frequency_date)
   end
 
-  def inactive_on_date?(daily_frequency, student_enrollment)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(daily_frequency.classroom)
-                     .by_date(daily_frequency.frequency_date)
-                     .empty?
+  def inactive_on_date?(daily_frequency, student_id)
+    return false unless inactives[student_id]
+
+    unique_dates_for_student = inactives[student_id].uniq
+
+    unique_dates_for_student.include?(daily_frequency.frequency_date)
+  end
+
+  def inactives
+    @inactives ||= inactives_on_dates
+  end
+
+  def inactives_on_dates
+    inactives_on_dates = {}
+
+    daily_frequencies.each do |daily_frequency|
+      enrollments_ids = students_enrollments.map(&:id)
+      enrollments_on_date = StudentEnrollment.where(id: enrollments_ids)
+                                             .by_date(daily_frequency.frequency_date)
+      enrollments_on_date_ids = enrollments_on_date.pluck(:id)
+      not_enrrolled_on_the_date = enrollments_ids - enrollments_on_date_ids
+
+      next if not_enrrolled_on_the_date.empty?
+
+      not_enrrolled_on_the_date.each do |not_enrolled|
+        enrollment = students_enrollments.select { |student_enrollment| student_enrollment.id == not_enrolled }.first
+        inactives_on_dates[enrollment.student_id] ||= [daily_frequency.frequency_date]
+        inactives_on_dates[enrollment.student_id] << daily_frequency.frequency_date
+      end
+    end
+
+    inactives_on_dates
   end
 
   def exempted_from_discipline?(daily_frequency, student_enrollment)
