@@ -65,7 +65,7 @@ idiario     | Use Ctrl-C to stop
 ```
 
 Você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com o login `admin` e a senha
-`123456789`.
+`A123456789$`.
 
 #### Personalizando a instalação via Docker
 
