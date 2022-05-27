@@ -25,8 +25,7 @@ class ObservationRecordReportQuery
                                      .order(:date)
 
     unless @discipline_id.eql?('all')
-      @discipline_id = Discipline.by_classroom_id(classroom_id).pluck(:id)
-      relation = relation.by_discipline(discipline_id)
+      relation = relation.by_discipline(@discipline_id)
     end
 
     relation
