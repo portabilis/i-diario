@@ -53,7 +53,8 @@ class GeneralConfigurationsController < ApplicationController
       :types_of_teaching,
       :days_to_expire_password,
       :days_to_disable_access,
-      :show_inactive_enrollments
+      :show_inactive_enrollments,
+      :show_percentage_on_attendance_record_report
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')
