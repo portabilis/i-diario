@@ -176,14 +176,10 @@ class AttendanceRecordReportForm
   end
 
   def count_day?(daily_frequency, student_id)
-    student_enrollment = StudentEnrollment.by_classroom(daily_frequency.classroom_id)
-                                          .by_student(student_id)
-                                          .by_year(daily_frequency.classroom.year)
-                                          .first
     frequency_date = daily_frequency.frequency_date
 
     return false if in_active_search?(student_id, frequency_date) ||
-      inactive_on_date?(daily_frequency, student_id) ||
+      inactive_on_date?(frequency_date, student_id) ||
       exempted_from_discipline?(daily_frequency, student_id)
 
     true
@@ -219,12 +215,12 @@ class AttendanceRecordReportForm
     active_searches
   end
 
-  def inactive_on_date?(daily_frequency, student_id)
+  def inactive_on_date?(frequency_date, student_id)
     return false unless inactives[student_id]
 
     unique_dates_for_student = inactives[student_id].uniq
 
-    unique_dates_for_student.include?(daily_frequency.frequency_date)
+    unique_dates_for_student.include?(frequency_date)
   end
 
   def inactives
