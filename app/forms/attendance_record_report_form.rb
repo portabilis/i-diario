@@ -182,19 +182,41 @@ class AttendanceRecordReportForm
                                           .first
     frequency_date = daily_frequency.frequency_date
 
-    return false if in_active_search?(student_enrollment, frequency_date) ||
+    return false if in_active_search?(student_id, frequency_date) ||
       inactive_on_date?(daily_frequency, student_id) ||
       exempted_from_discipline?(daily_frequency, student_enrollment)
 
     true
   end
 
-  def active_search
-    @active_search ||= ActiveSearch.new
+  def in_active_search?(student_id, frequency_date)
+    return false unless active_searches[student_id]
+
+    unique_dates_for_student = active_searches[student_id].uniq
+
+    unique_dates_for_student.include?(frequency_date)
   end
 
-  def in_active_search?(student_enrollment, frequency_date)
-    active_search.in_active_search?(student_enrollment.id, frequency_date)
+  def active_searches
+    @active_searches ||= in_active_searches
+  end
+
+  def in_active_searches
+    students_enrollments_ids = students_enrollments.map(&:id)
+    dates = daily_frequencies.pluck(:frequency_date).uniq
+
+    active_searches = {}
+
+    ActiveSearch.new.in_active_search_in_range(students_enrollments_ids, dates).each do |active_search|
+      next if active_search[:student_ids].blank?
+
+      active_search[:student_ids].each do |student_id|
+        active_searches[student_id] ||= [active_search[:date]]
+        active_searches[student_id] << active_search[:date]
+      end
+    end
+
+    active_searches
   end
 
   def inactive_on_date?(daily_frequency, student_id)
