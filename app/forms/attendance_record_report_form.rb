@@ -184,7 +184,7 @@ class AttendanceRecordReportForm
 
     return false if in_active_search?(student_id, frequency_date) ||
       inactive_on_date?(daily_frequency, student_id) ||
-      exempted_from_discipline?(daily_frequency, student_enrollment)
+      exempted_from_discipline?(daily_frequency, student_id)
 
     true
   end
@@ -253,16 +253,42 @@ class AttendanceRecordReportForm
     inactives_on_dates
   end
 
-  def exempted_from_discipline?(daily_frequency, student_enrollment)
-    return false if daily_frequency.discipline_id.blank?
+  def exempted_from_discipline?(daily_frequency, student_id)
+    step = daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
 
-    frequency_date = daily_frequency.frequency_date
-    discipline_id = daily_frequency.discipline.id
-    step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
+    return false if exempts[student_id].nil?
 
-    student_enrollment.exempted_disciplines
-                      .by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
+    exempts[student_id].include?(step)
+  end
+
+  def exempts
+    @exempts ||= exempts_data
+  end
+
+  def exempts_data
+    return false if daily_frequencies.first.discipline_id.blank?
+
+    discipline_id = daily_frequencies.first.discipline_id
+    enrollments_ids = students_enrollments.map(&:id)
+    exempteds_from_discipline = {}
+
+    steps = daily_frequencies.map { |daily_frequency|
+      daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
+    }
+
+    unique_steps = steps.uniq
+
+    unique_steps.each do |step_number|
+      StudentEnrollmentExemptedDiscipline.by_discipline(discipline_id)
+                                         .by_step_number(step_number)
+                                         .by_student_enrollment(enrollments_ids)
+                                         .includes(student_enrollment: [:student])
+                                         .each do |student_exempted|
+        exempteds_from_discipline[student_exempted.student_enrollment.student_id] ||= [step_number]
+        exempteds_from_discipline[student_exempted.student_enrollment.student_id] << step_number
+      end
+    end
+
+    exempteds_from_discipline
   end
 end
