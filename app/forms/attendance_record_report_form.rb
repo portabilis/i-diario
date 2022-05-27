@@ -211,7 +211,7 @@ class AttendanceRecordReportForm
       next if active_search[:student_ids].blank?
 
       active_search[:student_ids].each do |student_id|
-        active_searches[student_id] ||= [active_search[:date]]
+        active_searches[student_id] ||= []
         active_searches[student_id] << active_search[:date]
       end
     end
@@ -245,7 +245,7 @@ class AttendanceRecordReportForm
 
       not_enrrolled_on_the_date.each do |not_enrolled|
         enrollment = students_enrollments.select { |student_enrollment| student_enrollment.id == not_enrolled }.first
-        inactives_on_dates[enrollment.student_id] ||= [daily_frequency.frequency_date]
+        inactives_on_dates[enrollment.student_id] ||= []
         inactives_on_dates[enrollment.student_id] << daily_frequency.frequency_date
       end
     end
@@ -284,7 +284,7 @@ class AttendanceRecordReportForm
                                          .by_student_enrollment(enrollments_ids)
                                          .includes(student_enrollment: [:student])
                                          .each do |student_exempted|
-        exempteds_from_discipline[student_exempted.student_enrollment.student_id] ||= [step_number]
+        exempteds_from_discipline[student_exempted.student_enrollment.student_id] ||= []
         exempteds_from_discipline[student_exempted.student_enrollment.student_id] << step_number
       end
     end
