@@ -252,7 +252,7 @@ class AttendanceRecordReportForm
   def exempted_from_discipline?(daily_frequency, student_id)
     step = daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
 
-    return false if exempts[student_id].nil?
+    return false if exempts.eql?(false) || exempts[student_id].nil?
 
     exempts[student_id].include?(step)
   end

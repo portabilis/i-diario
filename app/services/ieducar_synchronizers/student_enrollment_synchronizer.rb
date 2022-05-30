@@ -19,7 +19,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def update_student_enrollments(student_enrollments)
     return if student_enrollments.blank?
 
-    student_enrollments.each do |student_enrollment_record|
+    student_enrollments.each do |student_enrollment_recorattendanced|
       student_id = student(student_enrollment_record.aluno_id).try(:id)
 
       next if student_id.blank?
