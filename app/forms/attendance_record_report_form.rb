@@ -250,6 +250,8 @@ class AttendanceRecordReportForm
   end
 
   def exempted_from_discipline?(daily_frequency, student_id)
+    return false if exempts.empty?
+
     step = daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
 
     return false if exempts[student_id].nil?
@@ -262,7 +264,7 @@ class AttendanceRecordReportForm
   end
 
   def exempts_data
-    return false if daily_frequencies.first.discipline_id.blank?
+    return {} if daily_frequencies.first.discipline_id.blank?
 
     discipline_id = daily_frequencies.first.discipline_id
     enrollments_ids = students_enrollments.map(&:id)
