@@ -212,7 +212,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                 .by_classroom(@classroom.id)
                                                 .by_teacher(current_teacher_id)
                                                 .by_weekday(date.strftime("%A").downcase)
-                                                .by_period(@period)
                                                 .order('lessons_board_lessons.lesson_number')
       else
         allocations =  LessonsBoardLessonWeekday.includes(:lessons_board_lesson)
@@ -220,9 +219,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                 .by_teacher(current_teacher_id)
                                                 .by_discipline(@discipline.id)
                                                 .by_weekday(date.strftime("%A").downcase)
-                                                .by_period(@period)
                                                 .order('lessons_board_lessons.lesson_number')
       end
+
+      allocations.by_period(@period) if @period.present?
 
       valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).school_day?
 
