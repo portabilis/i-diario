@@ -32,7 +32,9 @@ class ExamRecordReportController < ApplicationController
       @exam_record_report_form.daily_notes,
       @exam_record_report_form.students_enrollments,
       @exam_record_report_form.complementary_exams,
-      @exam_record_report_form.school_term_recoveries
+      @exam_record_report_form.school_term_recoveries,
+      @exam_record_report_form.recovery_lowest_notes?,
+      @exam_record_report_form.lowest_notes
     )
   end
 
@@ -46,7 +48,9 @@ class ExamRecordReportController < ApplicationController
       @exam_record_report_form.daily_notes_classroom_steps,
       @exam_record_report_form.students_enrollments,
       @exam_record_report_form.complementary_exams,
-      @exam_record_report_form.school_term_recoveries
+      @exam_record_report_form.school_term_recoveries,
+      @exam_record_report_form.recovery_lowest_notes?,
+      @exam_record_report_form.lowest_notes
     )
   end
 

@@ -78,7 +78,7 @@ class ScoreRounder
   def truncate_score(score)
     parts = score.to_s.split('.')
     integer_part = parts[0]
-    decimal_part = parts[1][0]
+    decimal_part = parts[1]
 
     "#{integer_part}.#{decimal_part}".to_f
   end

@@ -100,8 +100,8 @@ class CurrentProfile
       return Teacher.none if unity.blank? || classroom.blank?
       return Teacher.where(id: user.teacher_id) if user_role&.role&.teacher?
 
-      teachers = Teacher.by_unity_id(unity).by_classroom(classroom).order_by_name
-      teachers = teachers.by_year(school_year) if school_year
+      teachers_ids = TeacherDisciplineClassroom.where(classroom_id: classroom.id).uniq.pluck(:teacher_id)
+      teachers = Teacher.where(id: teachers_ids).uniq.order_by_name
       teachers.to_a
     end
   end
@@ -116,8 +116,16 @@ class CurrentProfile
     disciplines.as_json
   end
 
+  def last_allocation
+    Rails.cache.fetch("last_teacher_discipline_classroom-#{classroom&.id}-#{teacher&.id}", expires_in: 1.day) do
+      return TeacherDisciplineClassroom.none unless classroom && teacher
+
+      TeacherDisciplineClassroom.where(classroom_id: classroom.id, teacher_id: teacher.id).last&.cache_key
+    end
+  end
+
   def disciplines
-    cache ['disciplines', classroom&.id, teacher&.id] do
+    cache ['disciplines', classroom&.id, teacher&.id, last_allocation] do
       return Discipline.none unless classroom && teacher
 
       Discipline.by_teacher_and_classroom(teacher.id, classroom.id)

@@ -50,15 +50,37 @@ class StudentsController < ApplicationController
     end
   end
 
+  def recovery_lowest_note
+    return render json: nil if params[:classroom_id].blank? || params[:date].blank?
+
+
+    @students = StudentEnrollmentsList.new(
+      classroom: params[:classroom_id],
+      discipline: params[:discipline_id],
+      search_type: :by_date,
+      date: params[:date],
+      score_type: params[:score_type]
+    ).student_enrollments.map(&:student)
+
+
+    render(
+      json: @students,
+      each_serializer: StudentLowestNoteSerializer,
+      discipline: discipline,
+      classroom: classroom,
+      step: step,
+      number_of_decimal_places: test_setting(classroom, step).number_of_decimal_places
+    )
+  end
+
   def in_recovery
     @students = StudentsInRecoveryFetcher.new(
-        configuration,
-        params[:classroom_id],
-        params[:discipline_id],
-        params[:step_id],
-        params[:date].to_date.to_s
-      )
-      .fetch
+      configuration,
+      params[:classroom_id],
+      params[:discipline_id],
+      params[:step_id],
+      params[:date].to_date.to_s
+    ).fetch
 
     render(
       json: @students,
