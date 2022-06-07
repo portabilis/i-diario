@@ -6,6 +6,9 @@ class SchoolDaysCounterWorker
   def perform(entity_id, school_calendar_id)
     Entity.find(entity_id).using_connection do
       school_calendar = SchoolCalendar.find(school_calendar_id)
+
+      return if school_calendar.steps.empty?
+
       start_date = school_calendar.steps.min_by(&:step_number).start_at
       end_date = school_calendar.steps.max_by(&:step_number).end_at
 
