@@ -280,7 +280,7 @@ class ExamRecordReport < BaseReport
           averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
                                       .round(recovery_average)
 
-          average = localize_score(averages[key])
+          average = averages[key]
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
