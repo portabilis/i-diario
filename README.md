@@ -1,5 +1,4 @@
 [![Latest Release](https://img.shields.io/github/release/portabilis/i-diario.svg?label=latest%20release)](https://github.com/portabilis/i-diario/releases)
-[![Maintainability](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/maintainability)](https://codeclimate.com/github/portabilis/i-diario/maintainability)
 
 # i-Diário
 
@@ -100,6 +99,12 @@ gem install bundler -v '1.17.3'
 
 ```bash
 bundle install
+```
+
+- Instale as dependencias do projeto
+
+```bash
+yarn install
 ```
 
 - Crie e configure o arquivo `config/secrets.yml` conforme o exemplo:

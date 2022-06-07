@@ -25,6 +25,11 @@ class StudentEnrollmentsList
       @year = classroom.year
     end
 
+    if show_inactive_enrollments
+      @show_inactive = true
+      @show_inactive_outside_step = true
+    end
+
     adjust_date_range_by_year if opinion_type_by_year?
   end
 
@@ -115,12 +120,18 @@ class StudentEnrollmentsList
   end
 
   def student_displayable_as_inactive?(student_enrollment)
+    return true if show_inactive_enrollments
+
     StudentEnrollment.where(id: student_enrollment)
                      .by_classroom(classroom)
                      .by_discipline(discipline)
                      .active
                      .show_as_inactive
                      .any?
+  end
+
+  def show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
 
   def remove_not_displayable_students(students_enrollments)
@@ -153,14 +164,17 @@ class StudentEnrollmentsList
                                    .by_classroom(@classroom)
 
     enrollments = enrollments.by_period(period) if period
-    enrollments = if search_type != :by_year
-                    start_at = @start_at || @date
-                    end_at = @end_at || @date
 
-                    enrollments.by_date_range(start_at, end_at)
-                  else
-                    enrollments.by_year(year)
-                  end
+    unless show_inactive_enrollments
+      enrollments = if search_type != :by_year
+                      start_at = @start_at || @date
+                      end_at = @end_at || @date
+
+                      enrollments.by_date_range(start_at, end_at)
+                    else
+                      enrollments.by_year(year)
+                    end
+    end
 
     enrollments.active
                .ordered

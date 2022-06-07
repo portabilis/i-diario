@@ -14,21 +14,22 @@
     <% end %>
 
     <%= f.hidden_field :teacher_id %>
+    <%= f.hidden_field :current_user_id, value: current_user.id %>
 
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+          <%= f.input :unity_id, as: :select2, elements: unities, readonly: !current_user.admin?,
+                      input_html: { value: @observation_record_report_form.unity_id }   %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
+          <%= f.input :classroom_id, as: :select2, elements: [],
                 input_html: { value: @observation_record_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-                classroom_id: @observation_record_report_form.classroom_id,
-                required: true, input_html: { value: @observation_record_report_form.discipline_id } %>
+          <%= f.input :discipline_id, as: :select2, elements: [],
+                      input_html: { value: @observation_record_report_form.discipline_id } %>
         </div>
       </div>
 
@@ -44,7 +45,7 @@
     </fieldset>
 
     <footer>
-      <%= f.submit t('.print'), class: 'btn btn-primary' %>
+      <%= f.submit t('.print'), class: 'btn btn-primary', id: 'btn-submit' %>
     </footer>
   <% end %>
 </div>

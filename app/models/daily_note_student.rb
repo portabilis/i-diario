@@ -20,7 +20,7 @@ class DailyNoteStudent < ActiveRecord::Base
 
   validates :student,    presence: true
   validates :daily_note, presence: true
-  validates :note, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: lambda { |daily_note_student| daily_note_student.maximum_score } }, allow_blank: true
+  validates :note, numericality: { greater_than_or_equal_to: :minimum_score, less_than_or_equal_to: lambda { |daily_note_student| daily_note_student.maximum_score } }, allow_blank: true
 
   default_scope -> { kept }
 
@@ -45,6 +45,10 @@ class DailyNoteStudent < ActiveRecord::Base
 
   def recovered_note
     recovery_note.to_f > note.to_f ? recovery_note : note
+  end
+
+  def minimum_score
+    daily_note.avaliation.test_setting.minimum_score
   end
 
   def recovery_note

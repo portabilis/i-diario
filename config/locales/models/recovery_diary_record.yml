@@ -23,3 +23,4 @@ pt-BR:
               recorded_at_must_be_less_than_or_equal_to_today: "deve ser menor ou igual a data de hoje"
               recorded_at_must_be_in_last_school_calendar_step: "deve ser um dia letivo da última etapa do calendário letivo"
               recovery_date_should_be_greater_or_equal_avaliation_date: "a recuperação deve ocorrer na mesma data ou após a avaliação"
+              uniqueness_of_recorded_at: "já existe uma recuperação de avaliação e/ou etapa para a data informada"

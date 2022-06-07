@@ -18,7 +18,7 @@ class StudentEnrollmentClassroomBusinesses
       student_enrollment_classroom&.classrooms_grade&.classroom_id
     }
 
-    if same_enrollment_classroom?(classroom_ids) || student_enrollment_classroom
+    if same_enrollment_classroom?(classroom_ids) && student_enrollment_classroom
       student_enrollment_classroom.sequence
     else
       sequencial_fechamento
@@ -30,6 +30,10 @@ class StudentEnrollmentClassroomBusinesses
   end
 
   def student_enrollment_last(student_enrollment)
-    StudentEnrollment.active.by_year(year).by_student(student_enrollment.student.try(:id)).last
+    enrollments_in_year = StudentEnrollment.active.by_year(year).by_student(student_enrollment.student.try(:id)).uniq
+
+    if enrollments_in_year.size > 1
+      enrollments_in_year.last
+    end
   end
 end

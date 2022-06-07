@@ -9,11 +9,11 @@ class ExamRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 3
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -23,7 +23,9 @@ class ExamRecordReport < BaseReport
     @students_enrollments = students_enrollments
     @complementary_exams = complementary_exams
     @school_term_recoveries = school_term_recoveries
+    @recovery_lowest_notes = recovery_lowest_notes
     @active_search = false
+    @lowest_notes = lowest_notes
 
     header
     content
@@ -104,6 +106,7 @@ class ExamRecordReport < BaseReport
 
   def daily_notes_table
     averages = {}
+    recovery_lowest_note = {}
     school_term_recovery_scores = {}
     self.any_student_with_dependence = false
 
@@ -115,6 +118,14 @@ class ExamRecordReport < BaseReport
         discipline,
         @school_calendar_step
       )
+
+      if @lowest_notes
+        lowest_note = @lowest_notes[student_enrollment.student_id].to_s
+
+        if lowest_note.present?
+          recovery_lowest_note[student_enrollment.student_id] = lowest_note
+        end
+      end
     end
 
     exams = []
@@ -228,6 +239,12 @@ class ExamRecordReport < BaseReport
       average_header = make_cell(content: "Média", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
+
+      if @recovery_lowest_notes
+        lowest_note_header = make_cell(content: "Rec. geral", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
+        first_headers_and_cells << lowest_note_header
+      end
+
       (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 55) }
       first_headers_and_cells << average_header
 
@@ -245,7 +262,13 @@ class ExamRecordReport < BaseReport
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
-        (10 - data_column_count).times { student_cells << nil }
+        if @recovery_lowest_notes
+          student_cells << make_cell(content: "#{recovery_lowest_note[key]}", align: :center)
+        end
+
+        number_colums = 10
+
+        (number_colums - data_column_count).times { student_cells << nil }
 
         if daily_notes_slice == sliced_exams.last
           recovery_score = if school_term_recovery_scores[key]
