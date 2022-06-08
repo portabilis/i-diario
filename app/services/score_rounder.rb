@@ -86,6 +86,8 @@ class ScoreRounder
   end
 
   def decimal_parts(part)
+    return if part.nil?
+
     decimal_places = number_of_decimal_places - 1
 
     decimal_part = part[0..decimal_places]
