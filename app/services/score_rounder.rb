@@ -82,7 +82,7 @@ class ScoreRounder
     integer_part = parts[0]
     decimal_part = decimal_parts(parts[1])
 
-    "#{integer_part}.#{decimal_part}"
+    "#{integer_part}.#{decimal_part}".to_f
   end
 
   def decimal_parts(part)
