@@ -55,14 +55,19 @@ class BackupFile
     'BackupFile::TransferNotes',
     'BackupFile::Unities',
     'BackupFile::UnityEquipments',
+    'BackupFile::UniqueSchoolDays',
     'BackupFile::UserRoles',
     'BackupFile::Users'
   ]
 
   def self.process_by_type!(type)
-    return new.process_full_backup! if type == BackupTypes::FULL_SYSTEM_BACKUP
-
-    new.process_school_calendar_backup!
+    if type == BackupTypes::FULL_SYSTEM_BACKUP
+      new.process_full_backup!
+    elsif type == BackupTypes::SCHOOL_CALENDAR_BACKUP
+      new.process_school_calendar_backup!
+    else
+      new.process_unique_school_days_backup!
+    end
   end
 
   def process_full_backup!
@@ -137,6 +142,26 @@ class BackupFile
     tempfile
   end
 
+  def process_unique_school_days_backup!
+    csv = CSV.generate_line(
+      %w[
+        Escola
+        Dias
+      ]
+    )
+
+    unique_daily_frequency_items.each do |school_day|
+      csv << CSV.generate_line([ school_day.unity.name, school_day.school_day.strftime('%d/%m/%Y') ])
+    end
+
+    Zip::OutputStream.open(tempfile.path) do |zip|
+      zip.put_next_entry 'unity_school_day.csv'
+      zip.print csv
+    end
+
+    tempfile
+  end
+
   protected
 
   def tempfile
@@ -154,5 +179,14 @@ class BackupFile
   def school_calendar_items
     connection = ActiveRecord::Base.connection
     connection.select_rows(SchoolCalendarQuery.school_calendars_with_data_count)
+  end
+
+  def unique_daily_frequency_items
+    year = DateTime.now.year
+    unities_ids = Unity.all.pluck(:id)
+
+    UnitySchoolDay.includes(:unity)
+                  .where(unity_id: unities_ids)
+                  .where('extract(year from school_day) = ?', year)
   end
 end
