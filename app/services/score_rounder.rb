@@ -58,7 +58,7 @@ class ScoreRounder
 
   def decimal_part(value)
     parts = value.to_s.split('.')
-    decimal_parts(parts[1])
+    parts.count > 1 ? parts[1][0].to_s : 0
   end
 
   def round_to_exact_decimal(score, exact_decimal_place)
@@ -82,7 +82,7 @@ class ScoreRounder
     integer_part = parts[0]
     decimal_part = decimal_parts(parts[1])
 
-    "#{integer_part}.#{decimal_part}"
+    "#{integer_part}.#{decimal_part}".to_f
   end
 
   def decimal_parts(part)
