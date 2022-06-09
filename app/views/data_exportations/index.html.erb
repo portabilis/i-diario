@@ -63,6 +63,31 @@
                 <% end %>
               </td>
             </tr>
+            <tr>
+              <td>Acompanhamento pedagógico</td>
+              <td>
+                Exporta dias letivos do acompanhamento pedagógico
+              </td>
+              <td>
+                <% if @last_unique_school_days_backup.completed? %>
+                  <%= link_to @last_unique_school_days_backup.created_at,
+                              @last_unique_school_days_backup.backup_file_url %>
+                <% elsif @last_unique_school_days_backup.error? %>
+                  Erro: <%= @last_unique_school_days_backup.error_message %>
+                <% end %>
+              </td>
+              <td>
+                <% if @last_unique_school_days_backup.started? %>
+                  <%= link_to '#', class: 'btn bg-color-red txt-color-white' do %>
+                    <i class="fa fa-cog fa-spin"></i>
+                    Exportando...
+                  <% end %>
+                <% else %>
+                  <%= f.submit 'Exportar', name: "backup_type[unique_school_days_backup]",
+                               class: 'btn bg-color-red txt-color-white' %>
+                <% end %>
+              </td>
+            </tr>
           </tbody>
         </table>
       <% end %>

@@ -2,6 +2,8 @@ class DataExportationsController < ApplicationController
   def index
     @last_full_system_backup = DataExportation.last_by_type(BackupTypes::FULL_SYSTEM_BACKUP)
     @last_school_calendar_backup = DataExportation.last_by_type(BackupTypes::SCHOOL_CALENDAR_BACKUP)
+    @last_unique_school_days_backup = DataExportation.last_by_type(BackupTypes::UNIQUE_SCHOOL_DAYS_BACKUP)
+
 
     authorize DataExportation
   end
