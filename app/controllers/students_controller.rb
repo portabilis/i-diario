@@ -29,9 +29,7 @@ class StudentsController < ApplicationController
       score_type: params[:score_type]
     ).student_enrollments
 
-    if transferred
-      student_enrollments = transfer_notes_students(student_enrollments)
-    end
+    student_enrollments = transfer_notes_students(student_enrollments) if transferred
 
     students = student_enrollments.map(&:student)
 
