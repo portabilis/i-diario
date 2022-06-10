@@ -192,6 +192,6 @@ class BackupFile
     UnitySchoolDay.includes(:unity)
                   .where(unity_id: unities_ids)
                   .where('extract(year from school_day) = ?', year)
-                  .order_by('unity_id asc')
+                  .order(unity_id: :asc, school_day: :asc)
   end
 end
