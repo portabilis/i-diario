@@ -152,10 +152,7 @@ class BackupFile
 
 
     unique_daily_frequency_items.each do |school_day|
-      if school_day.unity.id != school_day.unity.id
         csv << CSV.generate_row([ school_day.unity.name, school_day.school_day.strftime('%d/%m/%Y') ])
-      end
-      csv << CSV.generate_line([ school_day.unity.name, school_day.school_day.strftime('%d/%m/%Y') ])
     end
 
     Zip::OutputStream.open(tempfile.path) do |zip|
