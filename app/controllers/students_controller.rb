@@ -8,6 +8,7 @@ class StudentsController < ApplicationController
     start_date = params[:start_date]
     end_date = params[:end_date]
     step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
+    transferred = params[:transferred] || false
 
     if step_id.present?
       step = steps_fetcher.steps.find(step_id)
@@ -27,6 +28,13 @@ class StudentsController < ApplicationController
       end_at: end_date,
       score_type: params[:score_type]
     ).student_enrollments
+
+    if transferred
+      student_enrollments = student_enrollments.select do |student_enrollment|
+        student_enrollment.status.eql?(StudentEnrollmentStatus::TRANSFERRED) ||
+          student_enrollment.status.eql?(StudentEnrollmentStatus::RECLASSIFIED)
+      end
+    end
 
     students = student_enrollments.map(&:student)
 
