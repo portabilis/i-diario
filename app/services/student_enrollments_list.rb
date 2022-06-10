@@ -159,7 +159,7 @@ class StudentEnrollmentsList
   end
 
   def order_by_sequence_and_name(students_enrollments)
-    ids = students_enrollments.map(&:id)
+    ids = students_enrollments.compact.map(&:id)
     enrollments = StudentEnrollment.where(id: ids)
                                    .by_classroom(@classroom)
 
