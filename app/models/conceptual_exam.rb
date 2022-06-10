@@ -112,6 +112,20 @@ class ConceptualExam < ActiveRecord::Base
     ConceptualExamStatus::COMPLETE
   end
 
+  def status_by_discipline(discipline_id)
+    conceptual_exam_value = ConceptualExamValue.find_by(
+      conceptual_exam_id: id,
+      exempted_discipline: false,
+      discipline_id: discipline_id
+    )
+
+    if conceptual_exam_value.blank? || conceptual_exam_value.value.nil?
+      return ConceptualExamStatus::INCOMPLETE
+    end
+
+    ConceptualExamStatus::COMPLETE
+  end
+
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
