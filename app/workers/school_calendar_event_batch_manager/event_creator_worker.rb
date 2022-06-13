@@ -18,7 +18,7 @@ module SchoolCalendarEventBatchManager
                 event.start_date = school_calendar_event_batch.start_date
                 event.end_date = school_calendar_event_batch.end_date
                 event.event_type = school_calendar_event_batch.event_type
-                event.periods = school_calendar_event_batch.periods
+                event.periods = event.periods - event.periods + school_calendar_event_batch.periods
                 event.legend = school_calendar_event_batch.legend
                 event.show_in_frequency_record = school_calendar_event_batch.show_in_frequency_record
                 event.save! if event.changed?
