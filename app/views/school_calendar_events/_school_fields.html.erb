@@ -1,10 +1,10 @@
 <div class="row">
   <div class="col col-sm-4">
-    <%= f.input :start_date.strftime("%d/%m/%Y") %>
+    <%= f.input :start_date, as: :date %>
   </div>
 
   <div class="col col-sm-4">
-    <%= f.input :end_date.strftime("%d/%m/%Y")%>
+    <%= f.input :end_date, as: :date%>
   </div>
   <div class="col col-sm-4">
     <%= f.input :description %>
