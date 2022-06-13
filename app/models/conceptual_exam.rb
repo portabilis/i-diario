@@ -118,7 +118,7 @@ class ConceptualExam < ActiveRecord::Base
 
     frequency_type_definer.define!
 
-    if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    if frequency_type_definer.frequency_type.eql?(FrequencyTypes::BY_DISCIPLINE)
       FrequencyTypes::BY_DISCIPLINE
     else
       FrequencyTypes::GENERAL
