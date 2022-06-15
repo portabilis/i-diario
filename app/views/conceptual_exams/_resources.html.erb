@@ -12,8 +12,8 @@
         <td><%= conceptual_exam.step %></td>
         <td>
           <% conceptual_exam.teacher_id = current_teacher_id %>
-          <span class='<%= conceptual_exam_label(conceptual_exam.status_by_discipline(current_user_discipline.id)) %>'>
-            <%= ConceptualExamStatus.t(conceptual_exam.status_by_discipline(current_user_discipline.id)) %>
+          <span class='<%= conceptual_exam_label(conceptual_exam.status_by_discipline(current_user_discipline.id, current_teacher_id )) %>'>
+            <%= ConceptualExamStatus.t(conceptual_exam.status_by_discipline(current_user_discipline.id, current_teacher_id)) %>
           </span>
         </td>
         <td class='actions'>
