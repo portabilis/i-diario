@@ -94,7 +94,7 @@ class ConceptualExam < ActiveRecord::Base
     end
   end
 
-  def status
+  def status(teacher_id)
     discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)
                                                .pluck(:discipline_id)
     values = ConceptualExamValue.where(
@@ -125,7 +125,7 @@ class ConceptualExam < ActiveRecord::Base
     end
   end
 
-  def status_by_discipline(discipline_id)
+  def status_by_discipline(discipline_id, teacher_id)
     if frequency_type.eql?(FrequencyTypes::BY_DISCIPLINE)
       conceptual_exam_value = ConceptualExamValue.find_by(
         conceptual_exam_id: id,
@@ -139,7 +139,7 @@ class ConceptualExam < ActiveRecord::Base
 
       ConceptualExamStatus::COMPLETE
     else
-      status
+      status(teacher_id)
     end
   end
 
