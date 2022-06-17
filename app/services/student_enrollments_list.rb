@@ -190,7 +190,7 @@ class StudentEnrollmentsList
     student_ids = fetch_student_enrollments.map(&:student_id)
 
     StudentEnrollment
-      .by_date(@date)
+      .by_date_range(start_at, end_at)
       .where(
         student_id: student_ids,
         status: (StudentEnrollmentStatus::TRANSFERRED || StudentEnrollmentStatus::RECLASSIFIED)
