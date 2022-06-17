@@ -27,9 +27,7 @@ class StudentsController < ApplicationController
       start_at: start_date,
       end_at: end_date,
       score_type: params[:score_type]
-    ).student_enrollments
-
-    student_enrollments = transfer_notes_students(student_enrollments) if transferred
+    ).students_transfer_notes
 
     students = student_enrollments.map(&:student)
 
@@ -132,12 +130,5 @@ class StudentsController < ApplicationController
 
   def discipline
     @discipline ||= Discipline.find(params[:discipline_id])
-  end
-
-  def transfer_notes_students(student_enrollments)
-    student_enrollments.select do |student_enrollment|
-      student_enrollment.status.eql?(StudentEnrollmentStatus::TRANSFERRED) ||
-        student_enrollment.status.eql?(StudentEnrollmentStatus::RECLASSIFIED)
-    end
   end
 end
