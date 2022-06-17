@@ -18,7 +18,7 @@ class StudentsController < ApplicationController
 
     include_date_range = start_date.present? && end_date.present?
 
-    student_enrollments = StudentEnrollmentsList.new(
+    student_enrollment_list = StudentEnrollmentsList.new(
       classroom: params[:classroom_id],
       discipline: params[:discipline_id],
       date: date,
@@ -27,7 +27,13 @@ class StudentsController < ApplicationController
       start_at: start_date,
       end_at: end_date,
       score_type: params[:score_type]
-    ).students_transfer_notes
+    )
+
+    if transferred
+      student_enrollments = student_enrollment_list.students_transfer_notes
+    else
+      student_enrollments = student_enrollment_list.student_enrollments
+    end
 
     students = student_enrollments.map(&:student)
 
