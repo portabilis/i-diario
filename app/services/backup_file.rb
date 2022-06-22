@@ -143,21 +143,23 @@ class BackupFile
 
   def process_unique_school_days_backup!
     unities_ids = unique_daily_frequency_items.pluck(:unity_id).uniq
+    unity_data = {}
+
+    unities_ids.each do |unity_id|
+      csv = []
+
+      unique_daily_frequency_items.where(unity_id: unity_id).each do |school_day|
+        unity_name = school_day.unity.name
+        csv << CSV.generate_line([unity_name, school_day.school_day.strftime('%d/%m/%Y')])
+
+        unity_data[unity_id] = { data: csv, unity_name: unity_name }
+      end
+    end
 
     Zip::OutputStream.open(tempfile.path) do |zip|
-      unities_ids.each do |unity|
-        unity_data = {}
-        csv = []
-
-        unique_daily_frequency_items.where(unity_id: unity).each do |school_day|
-          unity_name = school_day.unity.name
-          csv << CSV.generate_line([ unity_name, school_day.school_day.strftime('%d/%m/%Y') ])
-
-          unity_data[unity] = { unity_name: unity_name}
-        end
-
-        zip.put_next_entry unity_data[unity][:unity_name]+'.csv'
-        zip.print csv
+      unities_ids.each do |unity_id|
+        zip.put_next_entry unity_data[unity_id][:unity_name] + '.csv'
+        zip.print unity_data[unity_id][:data]
       end
     end
 
