@@ -153,11 +153,11 @@ class BackupFile
           unity_name = school_day.unity.name
           csv << CSV.generate_line([ unity_name, school_day.school_day.strftime('%d/%m/%Y') ])
 
-          unity_data[unity] = { data: csv, unity_name: unity_name}
+          unity_data[unity] = { unity_name: unity_name}
         end
 
-        zip.put_next_entry unity_data[unity][:unity_name]
-        zip.print unity_data[unity][:data]
+        zip.put_next_entry unity_data[unity][:unity_name]+'.csv'
+        zip.print csv
       end
     end
 
