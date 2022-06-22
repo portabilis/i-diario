@@ -55,7 +55,6 @@ class BackupFile
     'BackupFile::TransferNotes',
     'BackupFile::Unities',
     'BackupFile::UnityEquipments',
-    'BackupFile::UniqueSchoolDays',
     'BackupFile::UserRoles',
     'BackupFile::Users'
   ]
@@ -143,21 +142,23 @@ class BackupFile
   end
 
   def process_unique_school_days_backup!
-    csv = CSV.generate_line(
-      %w[
-        Escola
-        Dias
-      ]
-    )
-
-
-    unique_daily_frequency_items.each do |school_day|
-        csv << CSV.generate_line([ school_day.unity.name, school_day.school_day.strftime('%d/%m/%Y') ])
-    end
+    unities_ids = unique_daily_frequency_items.pluck(:unity_id).uniq
 
     Zip::OutputStream.open(tempfile.path) do |zip|
-      zip.put_next_entry 'unity_school_day.csv'
-      zip.print csv
+      unities_ids.each do |unity|
+        unity_data = {}
+        csv = []
+
+        unique_daily_frequency_items.where(unity_id: unity).each do |school_day|
+          unity_name = school_day.unity.name
+          csv << CSV.generate_line([ unity_name, school_day.school_day.strftime('%d/%m/%Y') ])
+
+          unity_data[unity] = { data: csv, unity_name: unity_name}
+        end
+
+        zip.put_next_entry unity_data[unity][:unity_name]
+        zip.print unity_data[unity][:data]
+      end
     end
 
     tempfile
@@ -166,7 +167,7 @@ class BackupFile
   protected
 
   def tempfile
-    @tempfile ||= Tempfile.new([filename, ".zip"])
+    @tempfile ||= Tempfile.new([filename, '.zip'])
   end
 
   def filename
