@@ -109,6 +109,7 @@ module ExamPoster
 
         exams.each do |exam|
           next if exam.student.nil?
+          next unless not_posted?({ classroom: classroom, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_STEP, classroom.first_exam_rule
@@ -132,6 +133,7 @@ module ExamPoster
 
         exams.each do |exam|
           next if exam.student.nil?
+          next unless not_posted?({ classroom: classroom, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_YEAR, classroom.first_exam_rule
@@ -161,6 +163,7 @@ module ExamPoster
         exams = DescriptiveExamStudent.joins(:student).by_classroom_and_discipline(classroom, discipline).ordered
         exams.each do |exam|
           next if exam.student.nil?
+          next unless not_posted?({ classroom: classroom, discipline: discipline, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_YEAR_AND_DISCIPLINE,
@@ -199,6 +202,7 @@ module ExamPoster
 
         exams.each do |exam|
           next if exam.student.nil?
+          next unless not_posted?({ classroom: classroom, discipline: discipline, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_STEP_AND_DISCIPLINE,

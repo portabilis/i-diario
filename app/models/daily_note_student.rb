@@ -34,6 +34,7 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :active, -> { where(active: true) }
   scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
   scope :order_by_discipline_and_date, -> { joins(daily_note: [avaliation: :discipline]).order('disciplines.description, avaliations.test_date') }
+  scope :by_not_poster, ->(poster_sent) { where("daily_note_students.updated_at > ?", poster_sent) }
 
   def dependence?
     self.dependence

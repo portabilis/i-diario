@@ -15,6 +15,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
 
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_recovery_diary_record_id, lambda { |recovery_diary_record_id| where(recovery_diary_record_id: recovery_diary_record_id) }
+  scope :by_not_poster, ->(poster_sent) { where("recovery_diary_record_students.updated_at > ?", poster_sent) }
 
   scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
 
