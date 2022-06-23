@@ -45,6 +45,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                                 daily_frequency_data[:discipline_id],
                                                                 daily_frequency_data[:period])
 
+
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
           daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
@@ -54,8 +55,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
           daily_frequency_student.save!
         end
+
         daily_frequency.save!
-        end
+      end
     end
     flash[:success] = t('.daily_frequency_success')
 
