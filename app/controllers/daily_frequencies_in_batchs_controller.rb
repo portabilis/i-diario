@@ -32,6 +32,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
         daily_frequency_data = daily_frequency_attributes
         daily_frequency_data[:frequency_date] = daily_frequency_students_params[:date]
         daily_frequency_data[:class_number] = daily_frequency_students_params[:class_number]
+        receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+          daily_frequency_data[:frequency_in_batch_form][:receive_email_confirmation]
+        )
 
         if daily_frequency_attributes[:frequency_type] == FrequencyTypes::GENERAL
           daily_frequency_data[:class_number] = nil
@@ -56,7 +59,17 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.save!
         end
 
-        daily_frequency.save!
+        if daily_frequency.save!
+          if receive_email_confirmation
+            ReceiptMailer.delay.notify_daily_frequency_success(
+              current_user,
+              "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
+              daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y'),
+              daily_frequency.classroom.description,
+              daily_frequency.unity.name
+            )
+          end
+        end
       end
     end
     flash[:success] = t('.daily_frequency_success')
@@ -113,8 +126,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
-
     params['dates'] = allocation_dates(@dates)
+    @frequency_form = FrequencyInBatchForm.new
+
 
     @students = []
 
@@ -279,7 +293,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def daily_frequency_in_batchs_params
-    params.permit(:unity_id, :classroom_id, :discipline_id, :frequency_type, :period)
+    params.permit(
+      :unity_id,
+      :classroom_id,
+      :discipline_id,
+      :frequency_type,
+      :period,
+      frequency_in_batch_form: [
+        :receive_email_confirmation
+      ]
+    )
   end
 
   def daily_frequencies_in_batch_params
