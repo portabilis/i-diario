@@ -60,6 +60,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
 
         if daily_frequency.save!
+          UniqueDailyFrequencyStudentsCreator.call_worker(
+            current_entity.id,
+            daily_frequency.classroom_id,
+            daily_frequency.frequency_date,
+            current_teacher_id
+          )
+
           if receive_email_confirmation
             ReceiptMailer.delay.notify_daily_frequency_success(
               current_user,
