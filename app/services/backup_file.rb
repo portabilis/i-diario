@@ -60,9 +60,13 @@ class BackupFile
   ]
 
   def self.process_by_type!(type)
-    return new.process_full_backup! if type == BackupTypes::FULL_SYSTEM_BACKUP
-
-    new.process_school_calendar_backup!
+    if type == BackupTypes::FULL_SYSTEM_BACKUP
+      new.process_full_backup!
+    elsif type == BackupTypes::SCHOOL_CALENDAR_BACKUP
+      new.process_school_calendar_backup!
+    else
+      new.process_unique_school_days_backup!
+    end
   end
 
   def process_full_backup!
@@ -137,10 +141,35 @@ class BackupFile
     tempfile
   end
 
+  def process_unique_school_days_backup!
+    unities_ids = unique_daily_frequency_items.pluck(:unity_id).uniq
+    unity_data = {}
+
+    unities_ids.each do |unity_id|
+      csv = []
+
+      unique_daily_frequency_items.where(unity_id: unity_id).each do |school_day|
+        unity_name = school_day.unity.name
+        csv << CSV.generate_line([unity_name, school_day.school_day.strftime('%d/%m/%Y')])
+
+        unity_data[unity_id] = { data: csv, unity_name: unity_name }
+      end
+    end
+
+    Zip::OutputStream.open(tempfile.path) do |zip|
+      unities_ids.each do |unity_id|
+        zip.put_next_entry unity_data[unity_id][:unity_name] + '.csv'
+        zip.print unity_data[unity_id][:data]
+      end
+    end
+
+    tempfile
+  end
+
   protected
 
   def tempfile
-    @tempfile ||= Tempfile.new([filename, ".zip"])
+    @tempfile ||= Tempfile.new([filename, '.zip'])
   end
 
   def filename
@@ -154,5 +183,15 @@ class BackupFile
   def school_calendar_items
     connection = ActiveRecord::Base.connection
     connection.select_rows(SchoolCalendarQuery.school_calendars_with_data_count)
+  end
+
+  def unique_daily_frequency_items
+    year = DateTime.now.year
+    unities_ids = Unity.all.pluck(:id)
+
+    UnitySchoolDay.includes(:unity)
+                  .where(unity_id: unities_ids)
+                  .where('extract(year from school_day) = ?', year)
+                  .order(unity_id: :asc, school_day: :asc)
   end
 end
