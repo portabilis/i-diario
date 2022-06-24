@@ -15,27 +15,21 @@ module ConceptualExamHelper
   end
 
   def ordered_conceptual_exam_values
-    exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
-      @conceptual_exam.classroom.id,
-      @conceptual_exam.step_number
-    )
-    
-    conceptual_exam_values = @conceptual_exam.conceptual_exam_values.where.not(discipline_id: exempted_discipline_ids)
-    
-    conceptual_exam_values.sort_by { |conceptual_exam_value|
-                            [
-                              conceptual_exam_value.discipline.sequence.to_i,
-                              conceptual_exam_value.discipline.description
-                            ]
-                          }
-                          .group_by { |conceptual_exam_value|
-                            conceptual_exam_value.discipline.knowledge_area
-                          }
-                          .sort_by { |knowledge_area, conceptual_exam_values|
-                            [
-                              knowledge_area.sequence.to_i,
-                              knowledge_area.description
-                            ]
-                          }
+    @conceptual_exam.conceptual_exam_values
+                    .sort_by { |conceptual_exam_value|
+                      [
+                        conceptual_exam_value.discipline.sequence.to_i,
+                        conceptual_exam_value.discipline.description
+                      ]
+                    }
+                    .group_by { |conceptual_exam_value|
+                      conceptual_exam_value.discipline.knowledge_area
+                    }
+                    .sort_by { |knowledge_area, conceptual_exam_values|
+                      [
+                        knowledge_area.sequence.to_i,
+                        knowledge_area.description
+                      ]
+                    }
   end
 end
