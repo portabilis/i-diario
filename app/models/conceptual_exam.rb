@@ -95,6 +95,9 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
+    discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)
+                                               .pluck(:discipline_id)
+
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
       classroom.id,
       step_number
@@ -103,6 +106,7 @@ class ConceptualExam < ActiveRecord::Base
     values = ConceptualExamValue.where(
       conceptual_exam_id: id,
       exempted_discipline: false,
+      discipline_id: discipline_ids
     ).where.not(discipline_id: exempted_discipline_ids)
 
     return ConceptualExamStatus::INCOMPLETE if values.blank?
