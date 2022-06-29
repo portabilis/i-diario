@@ -4,27 +4,30 @@
 <div class="row">
   <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
   <%= simple_form_for :search, { url: pedagogical_trackings_path, method: :get, html: { class: 'filter_tracking_search_form' } } do |f| %>
-  <div class="col col-sm-3">
-    <%= f.input :unity_id, as: :select2, elements: employee_unities || all_unities, label: false, placeholder: t('.filter_unities') %>
-  </div>
-  <div class="col col-sm-3">
-    <%= f.input :start_date, as: :date, label: false, placeholder: t('.from') %>
-  </div>
-  <div class="col col-sm-3">
-    <%= f.input :end_date, as: :date, label: false, placeholder: t('.to')%>
-  </div>
-  <div class="col col-sm-3" style="padding-top: 12px;">
-    <input type='hidden' id='school_days' value= "<%= @school_days %>"/>
-    <span><%= @updated_at ? "#{t('.last_update') }: #{ @updated_at } às #{ @updated_at_hour }h" : t('.empty') %></span>
-  </div>
+    <div class="col col-sm-3">
+      <%= f.input :unity_id, as: :select2, elements: employee_unities || all_unities, label: false, placeholder: t('.filter_unities') %>
+    </div>
+    <div class="col col-sm-2">
+      <%= f.input :start_date, as: :date, label: false, placeholder: t('.from') %>
+    </div>
+    <div class="col col-sm-2">
+      <%= f.input :end_date, as: :date, label: false, placeholder: t('.to')%>
+    </div>
+    <div class="col col-sm-2">
+      <%= f.submit(t('.filter_days'), class: 'btn btn-info') %>
+    </div>
+    <div class="col col-sm-3" style="padding-top: 12px;">
+      <input type='hidden' id='school_days' value= "<%= @school_days %>"/>
+      <span><%= @updated_at ? "#{t('.last_update') }: #{ @updated_at } às #{ @updated_at_hour }h" : t('.empty') %></span>
+    </div>
   <% end %>
 </div>
-    <div class="row" style="width:170px">
-      <%= link_to(t('.recalculate_school_days'), recalculate_pedagogical_trackings_path,
-                  id: 'recalculate',
-                  class: 'btn bg-color-blue txt-color-white pull-right',
-                  style: 'margin-top: 10px; margin-left: 10px;') %>
-    </div>
+<div class="row" style="width:170px">
+  <%= link_to(t('.recalculate_school_days'), recalculate_pedagogical_trackings_path,
+              id: 'recalculate',
+              class: 'btn bg-color-blue txt-color-white pull-right',
+              style: 'margin-top: 10px; margin-left: 10px;') %>
+</div>
 <div class="row" style=" margin-bottom: 20px;width:80%">
   <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage %>
   <%= hidden_field_tag 'done_content_records_percentage', @school_content_record_done_percentage %>
