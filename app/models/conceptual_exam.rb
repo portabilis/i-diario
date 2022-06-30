@@ -118,37 +118,6 @@ class ConceptualExam < ActiveRecord::Base
     ConceptualExamStatus::COMPLETE
   end
 
-  def frequency_type
-    teacher = Teacher.find(teacher_id)
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
-
-    frequency_type_definer.define!
-
-    if frequency_type_definer.frequency_type.eql?(FrequencyTypes::BY_DISCIPLINE)
-      FrequencyTypes::BY_DISCIPLINE
-    else
-      FrequencyTypes::GENERAL
-    end
-  end
-
-  def status_by_discipline(discipline_id)
-    if frequency_type.eql?(FrequencyTypes::BY_DISCIPLINE)
-      conceptual_exam_value = ConceptualExamValue.find_by(
-        conceptual_exam_id: id,
-        exempted_discipline: false,
-        discipline_id: discipline_id
-      )
-
-      if conceptual_exam_value.blank? || conceptual_exam_value.value.nil?
-        return ConceptualExamStatus::INCOMPLETE
-      end
-
-      ConceptualExamStatus::COMPLETE
-    else
-      status
-    end
-  end
-
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
