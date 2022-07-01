@@ -27,14 +27,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def create_or_update_multiple
     daily_frequency_attributes = daily_frequency_in_batchs_params
     daily_frequencies_attributes = daily_frequencies_in_batch_params
+    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      daily_frequency_attributes[:frequency_in_batch_form][:receive_email_confirmation]
+    )
+    dates = []
+
     ActiveRecord::Base.transaction do
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
         daily_frequency_data = daily_frequency_attributes
         daily_frequency_data[:frequency_date] = daily_frequency_students_params[:date]
         daily_frequency_data[:class_number] = daily_frequency_students_params[:class_number]
-        receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
-          daily_frequency_data[:frequency_in_batch_form][:receive_email_confirmation]
-        )
 
         if daily_frequency_attributes[:frequency_type] == FrequencyTypes::GENERAL
           daily_frequency_data[:class_number] = nil
@@ -67,18 +69,21 @@ class DailyFrequenciesInBatchsController < ApplicationController
             current_teacher_id
           )
 
-          if receive_email_confirmation
-            ReceiptMailer.delay.notify_daily_frequency_success(
-              current_user,
-              "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
-              daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y'),
-              daily_frequency.classroom.description,
-              daily_frequency.unity.name
-            )
-          end
+          dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
         end
       end
     end
+
+    if receive_email_confirmation
+      ReceiptMailer.delay.notify_daily_frequency_in_batch_success(
+        current_user,
+        "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
+        dates,
+        Classroom.find(daily_frequency_attributes[:classroom_id].to_i).description,
+        Unity.find(daily_frequency_attributes[:unity_id].to_i).name
+      )
+    end
+
     flash[:success] = t('.daily_frequency_success')
 
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
