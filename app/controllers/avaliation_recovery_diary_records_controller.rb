@@ -52,12 +52,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if @avaliation_recovery_diary_record.save
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
-      @school_calendar_steps = current_school_calendar.steps
-      @student_notes = fetch_student_notes
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list if daily_note_students.present?
 
       render :new
     end
