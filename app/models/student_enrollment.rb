@@ -112,7 +112,6 @@ class StudentEnrollment < ActiveRecord::Base
                                    exam_rule
 
       classroom_grade.student_enrollment_classrooms.each do |student_enrollment_classroom|
-        
         differentiated = student_enrollment_classroom.student_enrollment
                                                      .student
                                                      .uses_differentiated_exam_rule
