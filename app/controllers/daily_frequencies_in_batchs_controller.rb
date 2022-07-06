@@ -27,6 +27,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def create_or_update_multiple
     daily_frequency_attributes = daily_frequency_in_batchs_params
     daily_frequencies_attributes = daily_frequencies_in_batch_params
+    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      daily_frequency_attributes[:frequency_in_batch_form][:receive_email_confirmation]
+    )
+    dates = []
+
     ActiveRecord::Base.transaction do
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
         daily_frequency_data = daily_frequency_attributes
@@ -45,6 +50,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                                 daily_frequency_data[:discipline_id],
                                                                 daily_frequency_data[:period])
 
+
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
           daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
@@ -54,9 +60,30 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
           daily_frequency_student.save!
         end
-        daily_frequency.save!
+
+        if daily_frequency.save!
+          UniqueDailyFrequencyStudentsCreator.call_worker(
+            current_entity.id,
+            daily_frequency.classroom_id,
+            daily_frequency.frequency_date,
+            current_teacher_id
+          )
+
+          dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
         end
+      end
     end
+
+    if receive_email_confirmation
+      ReceiptMailer.delay.notify_daily_frequency_in_batch_success(
+        current_user,
+        "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
+        dates,
+        Classroom.find(daily_frequency_attributes[:classroom_id].to_i).description,
+        Unity.find(daily_frequency_attributes[:unity_id].to_i).name
+      )
+    end
+
     flash[:success] = t('.daily_frequency_success')
 
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
@@ -111,8 +138,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
-
     params['dates'] = allocation_dates(@dates)
+    @frequency_form = FrequencyInBatchForm.new
+
 
     @students = []
 
@@ -277,7 +305,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def daily_frequency_in_batchs_params
-    params.permit(:unity_id, :classroom_id, :discipline_id, :frequency_type, :period)
+    params.permit(
+      :unity_id,
+      :classroom_id,
+      :discipline_id,
+      :frequency_type,
+      :period,
+      frequency_in_batch_form: [
+        :receive_email_confirmation
+      ]
+    )
   end
 
   def daily_frequencies_in_batch_params
