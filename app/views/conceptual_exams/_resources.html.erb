@@ -13,7 +13,7 @@
         <td>
           <% conceptual_exam.teacher_id = current_teacher_id %>
           <span class='<%= conceptual_exam_label(conceptual_exam.status) %>'>
-            <%= conceptual_exam.status_humanize %>
+            <%= ConceptualExamStatus.t(conceptual_exam.status) %>
           </span>
         </td>
         <td class='actions'>
