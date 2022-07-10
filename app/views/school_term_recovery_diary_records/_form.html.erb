@@ -1,5 +1,6 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
+  <%= javascript_include_tag 'fetch_students_in_recovery' %>
 <% end %>
 
 <%= simple_form_for @school_term_recovery_diary_record, html: { class: 'smart-form' } do |f| %>

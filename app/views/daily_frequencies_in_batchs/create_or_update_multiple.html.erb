@@ -32,7 +32,7 @@
     </div>
   </table>
 
-  <%= simple_form_for :frequency_in_batch_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
+  <%= simple_form_for @frequency_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
                       html: { class: 'smart-form daily_frequency' } do |f| %>
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
@@ -135,6 +135,9 @@
       </div>
       <div class="pull-right">
         <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
+      </div>
+      <div class="pull-right" style="margin-right: 10px;">
+        <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
       </div>
     </footer>
   <% end %>

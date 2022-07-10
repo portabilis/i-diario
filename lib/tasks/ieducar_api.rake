@@ -9,7 +9,11 @@ namespace :ieducar_api do
     full_synchronization = ActiveRecord::Type::Boolean.new.type_cast_from_user(args.full_synchronization)
     current_years = ActiveRecord::Type::Boolean.new.type_cast_from_user(args.current_years)
 
-    IeducarSynchronizerWorker.perform_async(nil, nil, full_synchronization, current_years)
+    Entity.enable_to_sync.each do |entity|
+      entity.using_connection do
+        IeducarSynchronizerWorker.perform_async(entity.id, nil, full_synchronization, current_years)
+      end
+    end
   end
 
   desc 'Cancela envio de notas travados há 1 dia ou mais'

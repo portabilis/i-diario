@@ -44,7 +44,8 @@ class FeaturesAccessLevels
       :ieducar_api_exam_posting_without_restrictions,
       :change_school_year,
       :daily_frequencies_in_batchs,
-      :learning_objectives_and_skills
+      :learning_objectives_and_skills,
+      :avaliation_recovery_lowest_notes
     ]
   end
 
