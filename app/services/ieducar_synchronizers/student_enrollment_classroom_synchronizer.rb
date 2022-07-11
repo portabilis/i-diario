@@ -29,8 +29,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         api_code: student_enrollment_classroom_record.id
       )
 
-      if student_enrollment.blank?
-        student_enrollment_classroom.discard if student_enrollment_classroom
+      if student_enrollment.nil? || student_enrollment.discarded?
+        student_enrollment_classroom&.discard
 
         next
       end
