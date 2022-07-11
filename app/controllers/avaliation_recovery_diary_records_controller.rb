@@ -53,6 +53,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      reload_students_list if daily_note_students.present?
 
       render :new
     end
@@ -89,6 +90,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      reload_students_list if daily_note_students.present?
 
       render :edit
     end
@@ -211,17 +213,26 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
 
     @students = []
+    recovery_students = []
+    recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
+
+    recovery_diary_record.students.each do |recovery_student|
+      recovery_students << recovery_student
+    end
 
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
-        recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
-        note_student = (recovery_diary_record.students.where(student_id: student.id).first || recovery_diary_record.students.build(student_id: student.id, student: student))
+        recovery_student = recovery_students.select { |student_recovery|
+          student_recovery.student_id == student.id
+        }.first
+        note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record)
         @students << note_student
       end
     end
+
 
     @normal_students = []
     @dependence_students = []
