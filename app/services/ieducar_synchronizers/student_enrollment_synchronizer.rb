@@ -23,7 +23,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       student = student(student_enrollment_record.aluno_id)
 
       if student.id.blank? || student.discarded?
-        StudentEnrollment.find_by(api_code: student_enrollment_record.matricula_id)&.discard_all
+        StudentEnrollment.find_by(api_code: student_enrollment_record.matricula_id)&.discard
 
         next
       end
