@@ -8,7 +8,6 @@ class StudentsController < ApplicationController
     start_date = params[:start_date]
     end_date = params[:end_date]
     step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
-    transferred = params[:transferred] || false
 
     if step_id.present?
       step = steps_fetcher.steps.find(step_id)
@@ -19,7 +18,7 @@ class StudentsController < ApplicationController
     include_date_range = start_date.present? && end_date.present? && !transferred
     search_type = transferred ? :by_year : :by_date
 
-    student_enrollment_list = StudentEnrollmentsList.new(
+    student_enrollments = StudentEnrollmentsList.new(
       classroom: params[:classroom_id],
       discipline: params[:discipline_id],
       date: date,
@@ -28,13 +27,7 @@ class StudentsController < ApplicationController
       start_at: start_date,
       end_at: end_date,
       score_type: params[:score_type]
-    )
-
-    if transferred
-      student_enrollments = student_enrollment_list.students_transfer_notes
-    else
-      student_enrollments = student_enrollment_list.student_enrollments
-    end
+    ).student_enrollments
 
     students = student_enrollments.map(&:student)
 

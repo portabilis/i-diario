@@ -37,10 +37,6 @@ class StudentEnrollmentsList
     fetch_student_enrollments
   end
 
-  def students_transfer_notes
-    fetch_transfer_notes_students
-  end
-
   private
 
   attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
@@ -184,17 +180,5 @@ class StudentEnrollmentsList
                .ordered
                .to_a
                .uniq
-  end
-
-  def fetch_transfer_notes_students
-    student_ids = fetch_student_enrollments.map(&:student_id)
-
-    StudentEnrollment
-      .by_year(year)
-      .where(
-        student_id: student_ids,
-        status: (StudentEnrollmentStatus::TRANSFERRED || StudentEnrollmentStatus::RECLASSIFIED)
-      )
-      .uniq
   end
 end
