@@ -20,10 +20,10 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     return if student_enrollments.blank?
 
     student_enrollments.each do |student_enrollment_record|
-      student_id = student(student_enrollment_record.aluno_id).try(:id)
+      student = student(student_enrollment_record.aluno_id)
 
-      if student_id.blank?
-        StudentEnrollment.with_discarded.find_by(api_code: student_enrollment_record.matricula_id)&.discard
+      if student.id.blank? || student.discarded?
+        StudentEnrollment.find_by(api_code: student_enrollment_record.matricula_id)&.discard_all
 
         next
       end
@@ -33,7 +33,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         api_code: student_enrollment_record.matricula_id
       ).tap do |student_enrollment|
         student_enrollment.status = student_enrollment_record.situacao
-        student_enrollment.student_id = student_id
+        student_enrollment.student_id = student.id
         student_enrollment.student_code = student_enrollment_record.aluno_id
         student_enrollment.changed_at = student_enrollment_record.updated_at
         student_enrollment.active = student_enrollment_record.ativo
