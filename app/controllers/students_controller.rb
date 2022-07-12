@@ -15,14 +15,13 @@ class StudentsController < ApplicationController
       end_date ||= step.end_at
     end
 
-    include_date_range = start_date.present? && end_date.present? && !transferred
-    search_type = transferred ? :by_year : :by_date
+    include_date_range = start_date.present? && end_date.present?
 
     student_enrollments = StudentEnrollmentsList.new(
       classroom: params[:classroom_id],
       discipline: params[:discipline_id],
       date: date,
-      search_type: search_type,
+      search_type: :by_date,
       include_date_range: include_date_range,
       start_at: start_date,
       end_at: end_date,
