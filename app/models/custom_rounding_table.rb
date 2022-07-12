@@ -36,15 +36,9 @@ class CustomRoundingTable < ActiveRecord::Base
   end
 
   def check_custom_rounding_table_values
-    custom_rounding_table_values = []
+    actions = values.reject { |custom_rounding_table_value| custom_rounding_table_value.action.zero? }
 
-    values.each do |value|
-      custom_rounding_table_values << value
-    end
-
-    actions = custom_rounding_table_values.select { |custom_rounding_table_value| custom_rounding_table_value.action != 0 }
-
-    return true if actions.empty? || actions.size.eql?(10)
+    return if actions.empty? || actions.size.eql?(10)
 
     errors.add(:invalid_actions, 'O tipo de ação "Não utilizar arredondamento para esta casa decimal" não pode ser selecionado quando outras ações de arredondamento estiverem previstas.')
   end
