@@ -230,16 +230,11 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     return unless recovery_diary_record.recorded_at
 
     @students = []
-    recovery_students = []
-
-    recovery_diary_record.students.each do |recovery_student|
-      recovery_students << recovery_student
-    end
 
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by(id: student_enrollment.student_id))
 
-      recovery_student = recovery_students.select { |student_recovery|
+      recovery_student = recovery_diary_record.students.select { |student_recovery|
         student_recovery.student_id == student.id
       }.first
       note_student = recovery_student ||
