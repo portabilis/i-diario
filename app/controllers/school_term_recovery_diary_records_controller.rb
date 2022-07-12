@@ -60,7 +60,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-
+      reload_students_list
       render :new
     end
   end
@@ -102,7 +102,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-
+      reload_students_list
       render :edit
     end
   end
@@ -230,11 +230,19 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     return unless recovery_diary_record.recorded_at
 
     @students = []
+    recovery_students = []
+
+    recovery_diary_record.students.each do |recovery_student|
+      recovery_students << recovery_student
+    end
 
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by(id: student_enrollment.student_id))
 
-      note_student = recovery_diary_record.students.find_by(student_id: student.id) ||
+      recovery_student = recovery_students.select { |student_recovery|
+        student_recovery.student_id == student.id
+      }.first
+      note_student = recovery_student ||
                      recovery_diary_record.students.build(student: student)
 
       note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
