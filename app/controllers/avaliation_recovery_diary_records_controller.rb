@@ -207,22 +207,17 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def reload_students_list
-    student_enrollments = fetch_student_enrollments
+    return unless (student_enrollments = fetch_student_enrollments)
 
-    return unless fetch_student_enrollments
-    return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
-
-    @students = []
-    recovery_students = []
     recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
 
-    recovery_diary_record.students.each do |recovery_student|
-      recovery_students << recovery_student
-    end
+    return unless recovery_diary_record.recorded_at
+
+    @students = []
 
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
-        recovery_student = recovery_students.select { |student_recovery|
+        recovery_student = recovery_diary_record.students.select { |student_recovery|
           student_recovery.student_id == student.id
         }.first
         note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
@@ -232,7 +227,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         @students << note_student
       end
     end
-
 
     @normal_students = []
     @dependence_students = []
