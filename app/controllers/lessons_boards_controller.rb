@@ -11,8 +11,8 @@ class LessonsBoardsController < ApplicationController
   def show
     @lessons_board = resource
     ActiveRecord::Associations::Preloader.new.preload(@lessons_board, [lessons_board_lessons: [:lessons_board_lesson_weekdays]])
-    @teachers = teachers_to_select2(resource.classroom.id, resource.period)
-    @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classroom.unity&.id)
+    @teachers = teachers_to_select2(resource.classrooms_grade.classroom.id, resource.period)
+    @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classrooms_grade.classroom.unity&.id)
 
     authorize @lessons_board
   end
@@ -36,8 +36,8 @@ class LessonsBoardsController < ApplicationController
 
   def edit
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom.id, resource.period)
-    @classrooms = Classroom.where(unity_id: resource.classroom&.unity&.id)
+    @teachers = teachers_to_select2(resource.classrooms_grade.classroom.id, resource.period)
+    @classrooms = Classroom.where(unity_id: resource.classrooms_grade.classroom&.unity&.id)
 
     authorize @lessons_board
   end
@@ -74,12 +74,12 @@ class LessonsBoardsController < ApplicationController
     lessons_unities = []
 
     if current_user.current_user_role.try(:role_administrator?)
-      LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_unities << lesson_board.classrooms_grade.classroom.unity.id }
       Unity.where(id: lessons_unities).ordered
     elsif current_user.employee?
       roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
       unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
-      LessonsBoard.by_unity(unities_user).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      LessonsBoard.by_unity(unities_user).each { |lesson_board| lessons_unities << lesson_board.classrooms_grade.classroom.unity.id }
       Unity.where(id: lessons_unities).ordered
     end
   end
@@ -111,7 +111,7 @@ class LessonsBoardsController < ApplicationController
 
   def lesson_classrooms
     lessons_classrooms = []
-    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classroom.id }
+    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classrooms_grade.classroom.id }
     Classroom.find(lessons_classrooms)
   end
   helper_method :lesson_classrooms
