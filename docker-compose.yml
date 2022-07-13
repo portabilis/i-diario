@@ -28,6 +28,8 @@ services:
       - box:/box
     ports:
       - 3000:3000
+    environment:
+      - DATABASE_HOST=postgres
     depends_on:
       - postgres
       - redis
