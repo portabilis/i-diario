@@ -6,7 +6,7 @@ services:
     image: postgres:12-alpine
     container_name: postgres-idiario
     ports:
-      - 5432:5432
+      - 5432
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
@@ -27,7 +27,7 @@ services:
       - .:/app
       - box:/box
     ports:
-      - 3000:3000
+      - 3000
     environment:
       - DATABASE_HOST=postgres
     depends_on:
