@@ -64,12 +64,15 @@ idiario     | * Listening on tcp://0.0.0.0:3000
 idiario     | Use Ctrl-C to stop
 ```
 
-* Use o comando `docker ps` para verificar a porta de acesso da aplicação.
+Após finalizada a instalação, descubra em qual endereço o i-diario está rodando, basta executar o comando:
 
-Você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com o login `admin` e a senha
-`123456789`.
+```
+docker-compose port app 3000
+```
 
-> NOTA: Para acessar utilizando a porta `3000` é necessário fazer o mapeamento personalizado.
+Acesse o endereço que será exibido após rodar o comando acima.
+
+O usuário padrão é: `admin` / A senha padrão é: `123456789`
 
 #### Personalizando a instalação via Docker
 
