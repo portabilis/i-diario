@@ -64,7 +64,7 @@ idiario     | * Listening on tcp://0.0.0.0:3000
 idiario     | Use Ctrl-C to stop
 ```
 
-Após finalizada a instalação, descubra em qual endereço o i-diario está rodando, basta executar o comando:
+Após finalizada a instalação, descubra em qual endereço o i-Diário está rodando, basta executar o comando:
 
 ```
 docker-compose port app 3000
