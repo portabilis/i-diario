@@ -22,7 +22,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     student_enrollments.each do |student_enrollment_record|
       student = student(student_enrollment_record.aluno_id)
 
-      if student.id.blank? || student.discarded?
+      if student.nil? || student.id.blank? || student.discarded?
         StudentEnrollment.find_by(api_code: student_enrollment_record.matricula_id)&.discard
 
         next
