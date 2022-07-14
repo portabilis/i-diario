@@ -6,7 +6,7 @@ class LessonsBoard < ActiveRecord::Base
   audited
 
   validates :period, presence: true
-  validates :classrooms_grade_id, presence: true, uniqueness: { scope: :period }
+  validates :classrooms_grade_id, presence: true
 
   belongs_to :classrooms_grade
   has_many :lessons_board_lessons
@@ -15,7 +15,7 @@ class LessonsBoard < ActiveRecord::Base
 
   accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: true
 
-  delegate :classroom, :classroom_id, to: :classrooms_grade
+  delegate :classroom, :classroom_id, to: :classrooms_grade, allow_nil: true
 
   default_scope -> { kept }
 

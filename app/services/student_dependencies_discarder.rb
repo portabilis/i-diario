@@ -1,5 +1,7 @@
 class StudentDependenciesDiscarder
   def self.discard(entity_id, student_id)
+    entity_id = Entity.current&.id if entity_id.nil?
+
     AvaliationExemptionsDiscardWorker.perform_async(entity_id, student_id)
     ObservationDiaryRecordsDiscardWorker.perform_async(entity_id, student_id)
     ConceptualExamsDiscardWorker.perform_async(entity_id, student_id)
@@ -8,6 +10,8 @@ class StudentDependenciesDiscarder
   end
 
   def self.undiscard(entity_id, student_id)
+    entity_id = Entity.current&.id if entity_id.nil?
+
     AvaliationExemptionsUndiscardWorker.perform_async(entity_id, student_id)
     ObservationDiaryRecordsUndiscardWorker.perform_async(entity_id, student_id)
     ConceptualExamsUndiscardWorker.perform_async(entity_id, student_id)

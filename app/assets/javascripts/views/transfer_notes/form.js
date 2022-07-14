@@ -25,7 +25,8 @@ $(function () {
           date: recorded_at,
           score_type: 'numeric',
           discipline_id: $discipline.select2('val'),
-          step_id: step_id
+          step_id: step_id,
+          transferred: true
         },
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError

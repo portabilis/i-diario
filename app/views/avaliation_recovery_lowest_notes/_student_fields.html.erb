@@ -1,0 +1,30 @@
+<tr class="nested-fields" style="<%= 'display: none;' if f.object.marked_for_destruction? %>" id="<%= f.object.student_id %>">
+  <td>
+    <% if f.object.persisted? %>
+      <%= f.hidden_field :id %>
+      <%= f.hidden_field :_destroy %>
+    <% end %>
+
+    <% present(f.object) do |student| %>
+      <%= f.input :student_id, as: :hidden %>
+      <span class="<%= student.student_name_class %>"><%= student.student_name %></span>
+    <% end %>
+  </td>
+
+  <td>
+    <span class="current-lowest-note" data-inputmask="'digits': <%= decimal_places %>">
+      <%= @students_lowest_note.lowest_note_in_step(
+            f.object.student.id,
+            @lowest_note_recovery.recovery_diary_record.classroom,
+            @lowest_note_recovery.recovery_diary_record.discipline,
+            @lowest_note_recovery.step.id
+          )
+      %>
+    </span>
+  </td>
+
+  <td>
+    <%= f.input :score, label: false, input_html: decimal_input_mask(decimal_places),
+        readonly: !f.object.active || f.object.exempted_from_discipline %>
+  </td>
+</tr>

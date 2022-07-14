@@ -29,6 +29,8 @@ pt-BR:
         days_to_expire_password: "Quantidade de dias para expirar automaticamente as senhas dos usuários ativos"
         days_to_expire_password_label_hint: "A contagem será efetuada em dias corridos. Se o valor preenchido for zero (0) ou nenhum, não ocorrerá automatização"
         days_to_disable_access: "Quantidade de dias permitidos sem acessar o sistema para inativação automática de usuário"
+        show_inactive_enrollments: "Apresentar enturmações inativas de alunos(as) nas telas de lançamento e relatórios (avaliação e frequência)"
+        show_percentage_on_attendance_record_report: "Exibir frequência em porcentagem no Registro de frequência"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."

@@ -25,11 +25,20 @@ class StudentEnrollmentsList
       @year = classroom.year
     end
 
+    if show_inactive_enrollments
+      @show_inactive = true
+      @show_inactive_outside_step = true
+    end
+
     adjust_date_range_by_year if opinion_type_by_year?
   end
 
   def student_enrollments
     fetch_student_enrollments
+  end
+
+  def students_transfer_notes
+    fetch_transfer_notes_students
   end
 
   private
@@ -115,12 +124,18 @@ class StudentEnrollmentsList
   end
 
   def student_displayable_as_inactive?(student_enrollment)
+    return true if show_inactive_enrollments
+
     StudentEnrollment.where(id: student_enrollment)
                      .by_classroom(classroom)
                      .by_discipline(discipline)
                      .active
                      .show_as_inactive
                      .any?
+  end
+
+  def show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
 
   def remove_not_displayable_students(students_enrollments)
@@ -148,23 +163,38 @@ class StudentEnrollmentsList
   end
 
   def order_by_sequence_and_name(students_enrollments)
-    ids = students_enrollments.map(&:id)
+    ids = students_enrollments.compact.map(&:id)
     enrollments = StudentEnrollment.where(id: ids)
                                    .by_classroom(@classroom)
 
     enrollments = enrollments.by_period(period) if period
-    enrollments = if search_type != :by_year
-                    start_at = @start_at || @date
-                    end_at = @end_at || @date
 
-                    enrollments.by_date_range(start_at, end_at)
-                  else
-                    enrollments.by_year(year)
-                  end
+    unless show_inactive_enrollments
+      enrollments = if search_type != :by_year
+                      start_at = @start_at || @date
+                      end_at = @end_at || @date
+
+                      enrollments.by_date_range(start_at, end_at)
+                    else
+                      enrollments.by_year(year)
+                    end
+    end
 
     enrollments.active
                .ordered
                .to_a
                .uniq
+  end
+
+  def fetch_transfer_notes_students
+    student_ids = fetch_student_enrollments.map(&:student_id)
+
+    StudentEnrollment
+      .by_year(year)
+      .where(
+        student_id: student_ids,
+        status: (StudentEnrollmentStatus::TRANSFERRED || StudentEnrollmentStatus::RECLASSIFIED)
+      )
+      .uniq
   end
 end

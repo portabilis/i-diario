@@ -11,14 +11,14 @@ class ObservationRecordReportForm
     :classroom_id,
     :discipline_id,
     :start_at,
-    :end_at
+    :end_at,
+    :current_user_id
   )
 
   validates :teacher_id, presence: true
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
-  validates :discipline_id, presence: true, if: :require_discipline?
-  validates :discipline_id, absence: true, unless: :require_discipline?
+  validates :discipline_id, presence: true
   validates :start_at, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :end_at, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
   validates :end_at, presence: true, date: true, not_in_future: true, timeliness: { on_or_after: :start_at, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :observation_diary_records, presence: true, if: :require_observation_diary_records?
@@ -59,21 +59,14 @@ class ObservationRecordReportForm
 
   def query
     @query ||= ObservationRecordReportQuery.new(
+      unity_id,
       teacher_id,
       classroom_id,
       discipline_id,
       start_at,
-      end_at
+      end_at,
+      current_user_id
     )
-  end
-
-  def require_discipline?
-    return unless classroom_id.present? && teacher_id.present?
-
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
-    frequency_type_definer.define!
-
-    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
 
   def require_observation_diary_records?
