@@ -170,7 +170,7 @@ class SchoolDayChecker
   end
 
   def course_id
-    return grade.course_id if grade.is_a?(Grade)
+    return [grade.course_id] if grade.is_a?(Grade)
 
     courses_ids = []
 
