@@ -104,8 +104,8 @@ class SchoolDayChecker
 
       return false if any_grade_event?(events_by_date_no_school.by_period(classroom.period), @grade_id)
       return true if any_grade_event?(events_by_date_school.by_period(classroom.period), @grade_id)
-      return false if any_course_event?(events_by_date_no_school.by_period(classroom.period), grade.course_id)
-      return true if any_course_event?(events_by_date_school.by_period(classroom.period), grade.course_id)
+      return false if any_course_event?(events_by_date_no_school.by_period(classroom.period), course_id)
+      return true if any_course_event?(events_by_date_school.by_period(classroom.period), course_id)
 
       return false if any_global_event?(events_by_date_no_school.by_period(classroom.period))
       return true if any_global_event?(events_by_date_school.by_period(classroom.period))
@@ -167,6 +167,16 @@ class SchoolDayChecker
 
   def grade
     @grade ||= Grade.find(@grade_id)
+  end
+
+  def course_id
+    return grade.course_id if grade.is_a?(Grade)
+
+    courses_ids = []
+
+    grade.each { |grade| courses_ids << grade.course_id }
+
+    courses_ids
   end
 
   def limit_of_dates_to_check(number_of_days)
