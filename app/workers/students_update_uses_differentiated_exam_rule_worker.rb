@@ -33,7 +33,7 @@ class StudentsUpdateUsesDifferentiatedExamRuleWorker
   end
 
   def uses_differentiated_exam_rule(student, unity_id)
-    return if student.nil? || unity_id.nil?
+    return if student.nil?
 
     student.deficiencies.where(
       deficiencies: { disconsider_differentiated_exam_rule: false }
