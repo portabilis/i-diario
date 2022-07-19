@@ -36,7 +36,6 @@ class StudentsUpdateUsesDifferentiatedExamRuleWorker
     return if student.nil? || unity_id.nil?
 
     student.deficiencies.where(
-      deficiency_students: { unity_id: unity_id },
       deficiencies: { disconsider_differentiated_exam_rule: false }
     ).exists?
   end
