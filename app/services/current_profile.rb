@@ -109,7 +109,16 @@ class CurrentProfile
   def discipline_as_json
     return unless discipline
 
-    { id: discipline.id, discipline_id: discipline.id, description: discipline.to_s }
+    if discipline.knowledge_area.group_descriptors
+      discipline_id = Discipline.find_by(
+        knowledge_area: discipline.knowledge_area_id,
+        grouper: true
+      )&.id
+    else
+      discipline_id = discipline.id
+    end
+
+    { id: discipline_id, discipline_id: discipline_id, description: discipline.to_s }
   end
 
   def disciplines_as_json
