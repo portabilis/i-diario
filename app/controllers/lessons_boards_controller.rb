@@ -254,9 +254,11 @@ class LessonsBoardsController < ApplicationController
       if period != 3
         period = Array([period.to_i, nil])
       end
+
       TeacherDisciplineClassroom.where(classroom_id: classroom_id, period: period)
-                                .joins(:teacher, :discipline)
+                                .joins(:teacher, discipline: :knowledge_area)
                                 .order('teachers.name')
+                                .grouped_by_knowledge_area
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
@@ -268,8 +270,9 @@ class LessonsBoardsController < ApplicationController
       end
     else
       TeacherDisciplineClassroom.where(classroom_id: classroom_id)
-                                .includes(:teacher, :discipline)
+                                .includes(:teacher, discipline: :knowledge_area)
                                 .order('teachers.name')
+                                .grouped_by_knowledge_area
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
@@ -294,7 +297,7 @@ class LessonsBoardsController < ApplicationController
           </div>
        </div>
        <div class='flex-discipline'>
-         <span class='flex-discipline-span' style='background-color: #{discipline.label_color};'>#{discipline.description.try(:strip)}</span>
+         <span class='flex-discipline-span' style='background-color: #{discipline.label_color};'>#{discipline.to_s.try(:strip)}</span>
        </div>
      </div>"
   end
