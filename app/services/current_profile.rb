@@ -122,7 +122,13 @@ class CurrentProfile
   end
 
   def disciplines_as_json
-    disciplines.as_json
+    disciplines.map do |discipline|
+      next unless discipline.knowledge_area.group_descriptors
+
+      Discipline
+        .select(:id, 'id AS discipline_id', :description, :knowledge_area_id)
+        .find_by(knowledge_area: discipline.knowledge_area_id, grouper: true)
+    end.as_json
   end
 
   def last_allocation
