@@ -26,17 +26,18 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
         if knowledge_area.group_descriptors
           Discipline.find_or_initialize_by(
             knowledge_area_id: knowledge_area.id,
-            grouper: true
+            grouper: true,
+            api_code: '0'
           ).tap do |grouper_discipline|
             grouper_discipline.description = knowledge_area.description
-            grouper_discipline.grouper = true
 
             grouper_discipline.save! if grouper_discipline.changed?
           end
         else
           Discipline.find_by(
             knowledge_area_id: knowledge_area.id,
-            grouper: true
+            grouper: true,
+            api_code: '0'
           )&.destroy
         end
 
