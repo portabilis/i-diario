@@ -27,7 +27,7 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
           Discipline.find_or_initialize_by(
             knowledge_area_id: knowledge_area.id,
             grouper: true,
-            api_code: '0'
+            api_code: '0' * knowledge_area.id
           ).tap do |grouper_discipline|
             grouper_discipline.description = knowledge_area.description
 
