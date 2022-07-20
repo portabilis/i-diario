@@ -170,7 +170,15 @@ class CurrentProfile
     current_method_for_user = "current_#{underscored_model}"
 
     value = options[underscored_model]
-    value ||= model.find(options[underscored_model_id]) if options[underscored_model_id]
+
+    if options[underscored_model_id]
+      if model.to_s.eql?('Discipline')
+        value ||= model.find(options[underscored_model_id])
+      else
+        value ||= model.find(options[underscored_model_id])
+      end
+    end
+
     value || user.send(current_method_for_user)
   end
 
@@ -182,5 +190,9 @@ class CurrentProfile
 
   def cache_key_to_user
     ['CurrentProfile', Entity.current.id, user.id]
+  end
+
+  def find_discipline_id
+
   end
 end

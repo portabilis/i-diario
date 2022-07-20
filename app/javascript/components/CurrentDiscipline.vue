@@ -104,7 +104,7 @@ export default {
             this.options = data.disciplines
 
             if (this.options.length === 1) {
-              this.selected = this.options[0]
+              this.selected = this.options[1]
             }
           })
       }
