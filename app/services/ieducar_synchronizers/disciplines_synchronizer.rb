@@ -16,9 +16,15 @@ class DisciplinesSynchronizer < BaseSynchronizer
   def update_records(disciplines)
     disciplines.each do |discipline_record|
       Discipline.find_or_initialize_by(api_code: discipline_record.id).tap do |discipline|
+        knowledge_area = knowledge_area(discipline_record.area_conhecimento_id)
         discipline.description = discipline_record.nome
         discipline.sequence = discipline_record.ordenamento
-        discipline.knowledge_area = knowledge_area(discipline_record.area_conhecimento_id)
+        discipline.knowledge_area = knowledge_area
+
+        if knowledge_area.group_descriptors
+          discipline.descriptor = true
+        end
+
         discipline.save! if discipline.changed?
       end
     end
