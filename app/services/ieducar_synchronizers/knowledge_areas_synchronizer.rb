@@ -28,6 +28,10 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
             knowledge_area_id: knowledge_area.id,
             grouper: true,
             api_code: '0' * knowledge_area.id
+          # api_code tem indice de unicidade, então não consigo deixar fixo o 0
+          # pois dá problema de duplicidade, desta forma que eu fiz, ele sempre multiplica os zeros pelo id, ou seja,
+          # id 1 tem 0, id 2 tem 00 e por aí vai, desta forma nunca havera duplicidade.
+          # (talvez pensar alguma maneira melhor de fazer isso, o comentário irei remover antes do PR subir)
           ).tap do |grouper_discipline|
             grouper_discipline.description = knowledge_area.description
 
