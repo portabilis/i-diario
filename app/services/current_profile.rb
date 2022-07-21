@@ -126,6 +126,7 @@ class CurrentProfile
       next unless discipline.knowledge_area.group_descriptors
 
       Discipline
+        .unscoped
         .select(:id, 'id AS discipline_id', :description, :knowledge_area_id)
         .find_by(knowledge_area: discipline.knowledge_area_id, grouper: true)
     end.as_json
@@ -143,7 +144,8 @@ class CurrentProfile
     cache ['disciplines', classroom&.id, teacher&.id, last_allocation] do
       return Discipline.none unless classroom && teacher
 
-      Discipline.by_teacher_and_classroom(teacher.id, classroom.id)
+      Discipline.unscoped
+                .by_teacher_and_classroom(teacher.id, classroom.id)
                 .grouped_by_knowledge_area.to_a
     end
   end
