@@ -11,7 +11,7 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
     return unless valid?
 
     begin
-      copy_attachments_data = {}
+      copy_attachments_data = []
       ActiveRecord::Base.transaction do
         @classrooms = Classroom.where(id: discipline_lesson_plan_item_cloner_form.map(&:classroom_id).uniq)
         discipline_lesson_plan_item_cloner_form.each_with_index do |item, index|
