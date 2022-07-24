@@ -18,7 +18,7 @@ class CurrentProfile
     self.unity = initial_value(options, Unity)
     self.classroom = initial_value(options, Classroom)
     self.teacher = initial_value(options, Teacher)
-    self.discipline = initial_value(options, Discipline)
+    self.discipline = initial_discipline_value
   end
 
   def user_role_as_json
@@ -183,6 +183,10 @@ class CurrentProfile
     value = options[underscored_model]
     value ||= model.find(options[underscored_model_id]) if options[underscored_model_id]
     value || user.send(current_method_for_user)
+  end
+
+  def initial_discipline_value
+    Discipline.unscoped.find(user.current_discipline_id)
   end
 
   def cache(key_complements)
