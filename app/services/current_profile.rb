@@ -110,7 +110,7 @@ class CurrentProfile
     return unless discipline
 
     if discipline.knowledge_area.group_descriptors
-      discipline_id = Discipline.find_by(
+      discipline_id = Discipline.unscoped.find_by(
         knowledge_area: discipline.knowledge_area_id,
         grouper: true
       )&.id
