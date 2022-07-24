@@ -65,6 +65,10 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_discipline
   helper_method :can_change_school_year?
 
+  def current_user_discipline
+    current_user.current_discipline || Discipline.unscoped.find(current_user.current_discipline_id)
+  end
+
   def page
     params[:page] || 1
   end
