@@ -84,6 +84,8 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 - Instale o Ruby 2.4.10 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
  ou [Rvm](https://rvm.io/))
 - Instale o Postgres e faça a configuração em `database.yml`
+- Instale o Node.js 12.22.1
+- Instale o gerenciador de pacotes [Yarn](https://yarnpkg.com/))
 - Instale a biblioteca `libpq-dev`
 
 ```bash
