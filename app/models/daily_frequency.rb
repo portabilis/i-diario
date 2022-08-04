@@ -133,8 +133,8 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   def frequency_must_be_global_or_discipline
-    if discipline && !class_number ||
-       !discipline && class_number
+    if current_discipline && !class_number ||
+       !current_discipline && class_number
       errors.add(:base, :frequency_type_must_be_valid)
     end
   end
@@ -144,5 +144,9 @@ class DailyFrequency < ActiveRecord::Base
 
     step = StepsFetcher.new(classroom).step_by_date(frequency_date)
     errors.add(:frequency_date, I18n.t('errors.messages.is_not_between_steps')) if step.blank?
+  end
+
+  def current_discipline
+    discipline || Discipline.unscoped.find(self.discipline_id)
   end
 end
