@@ -17,14 +17,12 @@ class SchoolDayChecker
     if event.present?
       return if event.coverage != "by_unity"
 
-      school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]
+      school_type = [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]
       dates = [*event.start_date..event.end_date]
 
-      dates.each do |date|
-        UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: date) if school_type.include?(event.event_type) && [0, 6].include?(@date.wday)
-      end
+      UnitySchoolDay.find_or_create_by(unity_id: @unities_ids, school_day: dates) if school_type.include?(event.event_type) && [0, 6].include?(@date.wday)
     else
-      UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: @date)
+      UnitySchoolDay.find_or_create_by(unity_id: @unities_ids, school_day: @date)
     end
   end
 
@@ -35,11 +33,9 @@ class SchoolDayChecker
       no_school_event_type = [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL]
       dates = [*event.start_date..event.end_date]
 
-      dates.each do |date|
-        UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: date).destroy_all if no_school_event_type.include?(event.event_type) && ![0, 6].include?(@date.wday) || !no_school_event_type.include?(event.event_type) && [0,6].include?(@date.wday)
-      end
+      UnitySchoolDay.where(unity_id: @unities_ids, school_day: dates).destroy_all if no_school_event_type.include?(event.event_type) && ![0, 6].include?(@date.wday) || !no_school_event_type.include?(event.event_type) && [0,6].include?(@date.wday)
     else
-      UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all
+      UnitySchoolDay.where(unity_id: @unities_ids, school_day: @date).destroy_all
     end
   end
 
@@ -169,6 +165,9 @@ class SchoolDayChecker
     @grade_course_ids ||= Grade.where(id: @grade_id).pluck(:course_id)
   end
 
+  def unities_ids
+    @unities_ids ||= @school_calendar.map(&:unity_id)
+  end
 
   def limit_of_dates_to_check(number_of_days)
     number_of_days * 2
