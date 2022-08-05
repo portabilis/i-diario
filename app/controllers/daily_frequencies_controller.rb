@@ -363,7 +363,7 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def student_exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false if discipline.id
+    return false if daily_frequency.discipline_id.blank?
 
     frequency_date = daily_frequency.frequency_date
     step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
@@ -414,6 +414,10 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def discipline
-    @daily_frequency.discipline || Discipline.unscoped.find(@daily_frequency.discipline_id)
+    if @daily_frequency.discipline_id.present?
+      @daily_frequency.discipline || Discipline.unscoped.find(@daily_frequency.discipline_id)
+    else
+      @daily_frequency.discipline
+    end
   end
 end

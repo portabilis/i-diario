@@ -147,6 +147,10 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   def current_discipline
-    discipline || Discipline.unscoped.find(self.discipline_id)
+    if self.discipline_id.present?
+      discipline || Discipline.unscoped.find(self.discipline_id)
+    else
+      discipline
+    end
   end
 end
