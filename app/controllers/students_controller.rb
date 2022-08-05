@@ -39,6 +39,12 @@ class StudentsController < ApplicationController
     render json: students
   end
 
+  def search_autocomplete
+    # Default parameter for an autocomplete input is named 'q'
+    students = StudentDecorator.data_for_search_autocomplete(params[:q])
+    render json: students
+  end
+
   def search_api
     begin
       api = IeducarApi::Students.new(configuration.to_api)

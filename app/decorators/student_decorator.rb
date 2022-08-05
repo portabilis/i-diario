@@ -9,4 +9,12 @@ class StudentDecorator
 
     students.to_json
   end
+
+  def self.data_for_search_autocomplete(keyword)
+    students = Student.search(keyword).ordered.map { |student|
+      { id: student.id, value: student.to_s }
+    }
+
+    students.to_json
+  end
 end
