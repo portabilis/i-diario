@@ -68,6 +68,7 @@ Rails.application.routes.draw do
         get :search_api
         get :in_recovery
         get :select2_remote
+        get :search_autocomplete
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end
