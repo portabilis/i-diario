@@ -225,12 +225,12 @@ class ExamRecordReport < BaseReport
 
           self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
 
-          (students[student_id] ||= {})[:name] = student.to_s
+          (students[student_enrollment.id] ||= {})[:name] = student.to_s
 
-          students[student_id] = {} if students[student_id].nil?
-          students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
-          (students[student_id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
-          students[student_id][:social_name] = student.social_name
+          students[student_enrollment.id] = {} if students[student_enrollment.id].nil?
+          students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
+          (students[student_enrollment.id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
+          students[student_enrollment.id][:social_name] = student.social_name
         end
       end
 
