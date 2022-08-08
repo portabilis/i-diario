@@ -40,8 +40,9 @@ class StudentsController < ApplicationController
   end
 
   def search_autocomplete
-    students = StudentDecorator.data_for_search_autocomplete(params[:q])
-    render json: students
+    students = Student.search(params[:q]).ordered
+    structured_students = StudentDecorator.data_for_search_autocomplete(students)
+    render json: structured_students
   end
 
   def search_api
