@@ -1,6 +1,4 @@
 class SchoolCalendarEventBatchesController < ApplicationController
-  after_action :school_calendars_days, only: [:create, :update, :create_or_update_batch, :destroy]
-  before_action :school_calendars, only: [:destroy, :destroy_batch]
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -82,17 +80,6 @@ class SchoolCalendarEventBatchesController < ApplicationController
 
   private
 
-  def school_calendars_days
-    SchoolCalendarEventDays.new(school_calendars, school_calendar_event_batch.school_calendar_events, action_name)
-                           .update_school_days(school_calendar_event_batch.start_date, school_calendar_event_batch.end_date)
-  end
-
-  def school_calendars
-    school_calendars_ids = school_calendar_event_batch.school_calendar_events.map(&:school_calendar_id)
-
-    SchoolCalendar.includes(:events).where(id: school_calendars_ids)
-  end
-
   def resource_params
     parameters = params.require(:school_calendar_event_batch).permit(
       :year, :periods, :description, :start_date, :end_date, :event_type, :legend, :show_in_frequency_record
@@ -107,7 +94,8 @@ class SchoolCalendarEventBatchesController < ApplicationController
       1.second,
       current_entity.id,
       school_calendar_event_batch_id,
-      current_user.id
+      current_user.id,
+      action_name
     )
   end
 
@@ -116,7 +104,8 @@ class SchoolCalendarEventBatchesController < ApplicationController
       1.second,
       current_entity.id,
       school_calendar_event_batch_id,
-      current_user.id
+      current_user.id,
+      action_name
     )
   end
 
