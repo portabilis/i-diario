@@ -111,7 +111,7 @@ class ExamRecordReport < BaseReport
     self.any_student_with_dependence = false
 
     @students_enrollments.each do |student_enrollment|
-      averages[student_enrollment.student_id] = StudentAverageCalculator.new(
+      averages[student_enrollment.id] = StudentAverageCalculator.new(
         student_enrollment.student
       ).calculate(
         classroom,
@@ -120,10 +120,10 @@ class ExamRecordReport < BaseReport
       )
 
       if @lowest_notes
-        lowest_note = @lowest_notes[student_enrollment.student_id].to_s
+        lowest_note = @lowest_notes[student_enrollment.id].to_s
 
         if lowest_note.present?
-          recovery_lowest_note[student_enrollment.student_id] = lowest_note
+          recovery_lowest_note[student_enrollment.id] = lowest_note
         end
       end
     end
@@ -192,7 +192,7 @@ class ExamRecordReport < BaseReport
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
-            averages[student_enrollment.student_id] = "D" if exempted_from_discipline
+            averages[student_enrollment.id] = "D" if exempted_from_discipline
           elsif in_active_search
             @active_search = true
 
@@ -205,7 +205,7 @@ class ExamRecordReport < BaseReport
           score = nil
 
           if exempted_from_discipline || avaliation_id.present?
-            averages[student_enrollment.student_id] = nil if exempted_from_discipline
+            averages[student_enrollment.id] = nil if exempted_from_discipline
 
             recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student_id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
@@ -218,7 +218,7 @@ class ExamRecordReport < BaseReport
 
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
 
-            school_term_recovery_scores[student_enrollment.student_id] = recovery_student.try(:score)
+            school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
 
           student = Student.find(student_id)
