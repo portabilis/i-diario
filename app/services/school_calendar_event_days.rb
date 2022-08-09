@@ -42,12 +42,12 @@ class SchoolCalendarEventDays
       school_days.each do |school_day|
         events_by_date = school_calendar.events.by_date(school_day)
         next if events_by_date.where.not(coverage: "by_unity").exists?
-        next if !SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+        next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
 
         days_to_destroy << school_day
         unities_ids << school_calendar.unity_id
 
-        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil,).create(@event)
+        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).create(@event)
       end
     end
 
@@ -57,9 +57,9 @@ class SchoolCalendarEventDays
   def destroy_school_days(school_days)
     @school_calendars.each do |school_calendar|
       school_days.each do |school_day|
-        next if !SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+        next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
 
-        SchoolDayChecker.new(school_calendar, school_day, nil ,nil ,nil).destroy(@event)
+        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@event)
       end
     end
   end
