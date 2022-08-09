@@ -414,10 +414,8 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def discipline
-    if @daily_frequency.discipline_id.present?
-      @daily_frequency.discipline || Discipline.unscoped.find(@daily_frequency.discipline_id)
-    else
-      @daily_frequency.discipline
-    end
+    return @daily_frequency.discipline if @daily_frequency.discipline_id.blank?
+
+    @daily_frequency.discipline || Discipline.unscoped.find(@daily_frequency.discipline_id)
   end
 end
