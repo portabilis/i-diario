@@ -114,6 +114,14 @@ class DailyFrequency < ActiveRecord::Base
     true
   end
 
+  def current_discipline
+    if self.discipline_id.present?
+      discipline || Discipline.unscoped.find(self.discipline_id)
+    else
+      discipline
+    end
+  end
+
   private
 
   def valid_for_destruction?
@@ -144,13 +152,5 @@ class DailyFrequency < ActiveRecord::Base
 
     step = StepsFetcher.new(classroom).step_by_date(frequency_date)
     errors.add(:frequency_date, I18n.t('errors.messages.is_not_between_steps')) if step.blank?
-  end
-
-  def current_discipline
-    if self.discipline_id.present?
-      discipline || Discipline.unscoped.find(self.discipline_id)
-    else
-      discipline
-    end
   end
 end
