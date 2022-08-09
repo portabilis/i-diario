@@ -10,12 +10,12 @@ class StudentsInRecoveryFetcher
   def fetch
     @students = []
 
-    if (classroom.first_exam_rule.differentiated_exam_rule.blank? ||
-        classroom.first_exam_rule.differentiated_exam_rule.recovery_type == classroom.first_exam_rule.recovery_type)
-      @students += fetch_by_recovery_type(classroom.first_exam_rule.recovery_type)
+    if (classroom_grades_with_recovery_rule.exam_rule.differentiated_exam_rule.blank? ||
+      classroom_grades_with_recovery_rule.exam_rule.differentiated_exam_rule.recovery_type == classroom_grades_with_recovery_rule.exam_rule.recovery_type)
+      @students += fetch_by_recovery_type(classroom_grades_with_recovery_rule.exam_rule.recovery_type)
     else
-      @students += fetch_by_recovery_type(classroom.first_exam_rule.recovery_type, false)
-      @students += fetch_by_recovery_type(classroom.first_exam_rule.differentiated_exam_rule.recovery_type, true)
+      @students += fetch_by_recovery_type(classroom_grades_with_recovery_rule.exam_rule.recovery_type, false)
+      @students += fetch_by_recovery_type(classroom_grades_with_recovery_rule.exam_rule.differentiated_exam_rule.recovery_type, true)
     end
 
     @students.uniq!
@@ -40,6 +40,16 @@ class StudentsInRecoveryFetcher
 
   def classroom
     @classroom ||= Classroom.find(@classroom_id)
+  end
+
+  def classroom_grades_with_recovery_rule
+    classroom_grades&.each { |classroom_grade| @classroom_grade = classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
+
+    @classroom_grade
+  end
+
+  def classroom_grades
+    classroom.classrooms_grades.includes(:exam_rule)
   end
 
   def discipline
