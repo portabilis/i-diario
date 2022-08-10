@@ -15,7 +15,6 @@ class SchoolDayChecker
 
   def create(event = nil)
     if event.present?
-      return if event.coverage != "by_unity"
 
       school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]
       without_frequency = [EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY, EventTypes::NO_SCHOOL]
