@@ -38,8 +38,9 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam.step_id = find_step_id unless opinion_type_by_year?
     @descriptive_exam.teacher_id = current_teacher_id
 
+    regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
-      exam_student.value.gsub!('contenteditable="false"', '') if exam_student.value.present?
+      exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
     end
 
     authorize @descriptive_exam
@@ -177,7 +178,8 @@ class DescriptiveExamsController < ApplicationController
         exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
         exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
         exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment)
-        exam_student.value = exam_student.value.gsub('contenteditable="false"', '') if exam_student.value.present?
+        regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
+        exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
         @students << exam_student
       end
     end
