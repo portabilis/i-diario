@@ -33,6 +33,11 @@ class UsersController < ApplicationController
 
     params[:user].delete :password if password.blank?
 
+    unless allow_admin?
+      flash.now[:error] = t('users.not_allow_admin')
+      render :edit and return
+    end
+
     if weak_password?(password)
       flash.now[:error] = t('errors.general.weak_password')
       render :edit
@@ -117,8 +122,7 @@ class UsersController < ApplicationController
   def user_params
     params.require(:user).permit(
       :first_name, :last_name, :phone, :email, :cpf, :login, :status,
-      :authorize_email_and_sms, :student_id, :teacher_id, :password,
-      :expiration_date,
+      :authorize_email_and_sms, :student_id, :teacher_id, :password, :expiration_date, :admin,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
       ]
@@ -131,5 +135,15 @@ class UsersController < ApplicationController
     else
       {}
     end
+  end
+
+  def allow_admin?
+    return true if user_params[:admin] == "0"
+
+    role_ids = user_params[:user_roles_attributes].values.map do |user_role|
+      user_role[:role_id] if user_role[:_destroy] == "false"
+    end
+
+    Role.where(id: role_ids).pluck(:access_level).include?("administrator")
   end
 end
