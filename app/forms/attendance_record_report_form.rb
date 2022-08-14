@@ -97,9 +97,9 @@ class AttendanceRecordReportForm
   def students_frequencies_percentage
     percentage_by_student = {}
 
-    absences_students.each do |student_id, absences_student|
+    absences_students.each do |student_enrollment_id, absences_student|
       percentage = calculate_percentage(absences_student[:count_days], absences_student[:absences])
-      percentage_by_student = percentage_by_student.merge({ student_id => percentage })
+      percentage_by_student = percentage_by_student.merge({ student_enrollment_id => percentage })
     end
 
     percentage_by_student
@@ -145,23 +145,28 @@ class AttendanceRecordReportForm
   def absences_students
     absences_by_student = {}
     count_days = {}
+    enrollment_from_student ||= EnrollmentFromStudentFetcher.new
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
-        student_id = daily_frequency_student.student_id
+        student = daily_frequency_student.student
 
-        count_days[student_id] ||= 0
-        count_day = count_day?(daily_frequency, student_id)
-        count_days[student_id] += 1 if count_day
+        student_enrollment_id = enrollment_from_student.current_enrollment(
+          student, classroom, daily_frequency.frequency_date
+        ).id
+
+        count_days[student.id] ||= 0
+        count_day = count_day?(daily_frequency, student.id)
+        count_days[student.id] += 1 if count_day
         absence = !daily_frequency_student.present
 
         if absence && count_day
-          absences_by_student[student_id] ||= { :absences => 0, :count_days => 0 }
-          absences_by_student[student_id][:absences] += 1
+          absences_by_student[student_enrollment_id] ||= { :absences => 0, :count_days => 0 }
+          absences_by_student[student_enrollment_id][:absences] += 1
         end
 
-        if absences_by_student.present? && absences_by_student[student_id]
-          absences_by_student[student_id][:count_days] = count_days[student_id]
+        if absences_by_student.present? && absences_by_student[student_enrollment_id]
+          absences_by_student[student_enrollment_id][:count_days] = count_days[student.id]
         end
       end
     end
