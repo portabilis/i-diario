@@ -29,19 +29,9 @@ class UsersController < ApplicationController
 
     authorize @user
 
-    password = params[:user][:password]
+    return render :edit unless valid_update
 
-    params[:user].delete :password if password.blank?
-
-    unless allow_admin?
-      flash.now[:error] = t('users.not_allow_admin')
-      render :edit and return
-    end
-
-    if weak_password?(password)
-      flash.now[:error] = t('errors.general.weak_password')
-      render :edit
-    elsif @user.update(user_params)
+    if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
       respond_with @user, location: users_path
@@ -137,13 +127,25 @@ class UsersController < ApplicationController
     end
   end
 
-  def allow_admin?
-    return true if user_params[:admin] == "0"
+  def not_allow_admin?
+    return false if user_params[:admin] == "0"
 
     role_ids = user_params[:user_roles_attributes].values.map do |user_role|
       user_role[:role_id] if user_role[:_destroy] == "false"
     end
 
-    Role.where(id: role_ids).pluck(:access_level).include?("administrator")
+    Role.where(id: role_ids).pluck(:access_level).exclude?("administrator")
+  end
+
+  def valid_update
+    password = params[:user][:password]
+    params[:user].delete :password if password.blank?
+
+    return true unless not_allow_admin? || weak_password?(password)
+
+    flash.now[:error] = t('users.not_allow_admin') if not_allow_admin?
+    flash.now[:error] = t('errors.general.weak_password') if weak_password?(password)
+
+    false
   end
 end
