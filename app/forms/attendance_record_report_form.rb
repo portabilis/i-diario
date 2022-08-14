@@ -37,7 +37,7 @@ class AttendanceRecordReportForm
                                            .by_period(period)
                                            .by_frequency_date_between(start_at, end_at)
                                            .general_frequency
-                                           .includes(students: :student)
+                                           .includes([students: :student], :school_calendar, :discipline)
                                            .order_by_frequency_date
                                            .order_by_class_number
                                            .order_by_student_name
@@ -48,7 +48,7 @@ class AttendanceRecordReportForm
                                            .by_discipline_id(discipline_id)
                                            .by_class_number(class_numbers.split(','))
                                            .by_frequency_date_between(start_at, end_at)
-                                           .includes(students: :student)
+                                           .includes([students: :student], :school_calendar, :discipline)
                                            .order_by_frequency_date
                                            .order_by_class_number
                                            .order_by_student_name
