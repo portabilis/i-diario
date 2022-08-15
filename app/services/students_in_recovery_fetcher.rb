@@ -85,10 +85,10 @@ class StudentsInRecoveryFetcher
   def fetch_students_in_parallel_recovery(differentiated = nil)
     students = filter_students_in_recovery
 
-    if classroom_grades_with_recovery_rule.first.parallel_recovery_average
+    if classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
       students = students.select { |student|
         if (average = student.average(classroom, discipline, step))
-          average < classroom_grades_with_recovery_rule.first.parallel_recovery_average
+          average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
         end
       }
     end
