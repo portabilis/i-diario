@@ -8,7 +8,11 @@ class ExamRulesController < ApplicationController
     classroom_grades = classroom.classrooms_grades.includes(:exam_rule)
     classroom_grades = classroom_grades.by_student_id(student.id) if student.present?
     classroom_grades&.each { |classroom_grade| @classroom_grade = classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
-    classroom_grade = classroom.classrooms_grades.first unless @classroom_grade
+    classroom_grade = if @classroom_grade.nil?
+                        classroom.classrooms_grades.first
+                      else
+                        @classroom_grade
+                      end
 
     return render json: nil if classroom_grade.blank?
 

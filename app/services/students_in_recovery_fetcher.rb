@@ -49,7 +49,11 @@ class StudentsInRecoveryFetcher
 
     classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
 
-    @classroom_grade
+    if @classroom_grade.empty?
+      classroom_grades.first
+    else
+      @classroom_grade
+    end
   end
 
   def classroom_grades
