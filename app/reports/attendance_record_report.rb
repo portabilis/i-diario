@@ -165,14 +165,14 @@ class AttendanceRecordReport < BaseReport
               @show_legend_active_search = true
               student_frequency = ActiveSearchFrequencyStudent.new
             elsif @show_inactive_enrollments
-              frequency_date = daily_frequency.frequency_date
-              if frequency_date.to_date >= joined_at && frequency_date.to_date < left_at
-                student_frequency = daily_frequency.students.select{ |student| student.student_id == student_id && student.active == true }.first
+              frequency_date = daily_frequency.frequency_date.to_date
+              if frequency_date >= joined_at && frequency_date < left_at
+                student_frequency = daily_frequency.students.select{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }.first
               else 
                 student_frequency ||= NullDailyFrequencyStudent.new
               end
             else
-              student_frequency = daily_frequency.students.select{ |student| student.student_id == student_id && student.active == true }.first
+              student_frequency = daily_frequency.students.select{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }.first
               student_frequency ||= NullDailyFrequencyStudent.new
             end
 
@@ -192,7 +192,7 @@ class AttendanceRecordReport < BaseReport
               students[student_enrollment.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
             end
 
-            if !student_frequency.present?
+            unless student_frequency.present?
               students[student_enrollment.id][:absences] = students[student_enrollment.id][:absences] + 1
             end
 
