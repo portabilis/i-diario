@@ -71,7 +71,7 @@ class AttendanceRecordReport < BaseReport
 
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
-    @show_as_inactive_enrollments = @general_configuration.show_inactive_enrollments
+    @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
 
     header
     content
@@ -164,7 +164,7 @@ class AttendanceRecordReport < BaseReport
             elsif ActiveSearch.new.in_active_search?(student_enrollment.id, daily_frequency.frequency_date)
               @show_legend_active_search = true
               student_frequency = ActiveSearchFrequencyStudent.new
-            elsif @show_as_inactive_enrollments
+            elsif @show_inactive_enrollments
               frequency_date = daily_frequency.frequency_date
               if frequency_date.to_date >= joined_at && frequency_date.to_date < left_at
                 student_frequency = daily_frequency.students.select{ |student| student.student_id == student_id && student.active == true }.first
