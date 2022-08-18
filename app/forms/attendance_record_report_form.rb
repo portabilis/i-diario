@@ -153,7 +153,9 @@ class AttendanceRecordReportForm
 
         student_enrollment_id = enrollment_from_student.current_enrollment(
           student, classroom, daily_frequency.frequency_date
-        ).id
+        )&.id
+
+        next if student_enrollment_id.nil?
 
         count_days[student.id] ||= 0
         count_day = count_day?(daily_frequency, student.id)
