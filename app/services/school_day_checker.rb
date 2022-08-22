@@ -13,7 +13,7 @@ class SchoolDayChecker
     date_is_school_day?(@date)
   end
 
-  def create(events = nil)
+  def create(events)
     [events].flatten.each do |event|
       return if event.coverage != "by_unity"
 
@@ -33,7 +33,7 @@ class SchoolDayChecker
     end
   end
 
-  def destroy(events = nil)
+  def destroy(events)
     [events].flatten.each do |event|
       return if event.coverage != "by_unity"
 
