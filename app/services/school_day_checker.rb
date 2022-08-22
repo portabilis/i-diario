@@ -13,8 +13,8 @@ class SchoolDayChecker
     date_is_school_day?(@date)
   end
 
-  def create(event = nil)
-    if event.present?
+  def create(events = nil)
+    [events].flatten.each do |event|
       return if event.coverage != "by_unity"
 
       school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]
@@ -23,7 +23,9 @@ class SchoolDayChecker
 
       dates.each do |date|
         if school_type.include?(event.event_type) && [0, 6].include?(@date.wday)
-          UnitySchoolDay.find_or_create_by(unity_id: unities_ids, school_day: date)
+          unities_ids.each do |unity_id|
+            UnitySchoolDay.find_or_create_by(unity_id: unity_id, school_day: date)
+          end
         elsif without_frequency.include?(event.event_type)
           UnitySchoolDay.where(unity_id: unities_ids, school_day: date).destroy_all
         end
@@ -31,8 +33,8 @@ class SchoolDayChecker
     end
   end
 
-  def destroy(event = nil)
-    if event.present?
+  def destroy(events = nil)
+    [events].flatten.each do |event|
       return if event.coverage != "by_unity"
 
       dates = [*event.start_date..event.end_date]
@@ -172,7 +174,7 @@ class SchoolDayChecker
   end
 
   def unities_ids
-    @unities_ids ||= [@school_calendar].map(&:unity_id)
+    @unities_ids = [@school_calendar].flatten.map(&:unity_id)
   end
 
   def limit_of_dates_to_check(number_of_days)
