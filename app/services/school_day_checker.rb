@@ -174,7 +174,7 @@ class SchoolDayChecker
   end
 
   def unities_ids
-    @unities_ids = [@school_calendar].flatten.map(&:unity_id)
+    @unities_ids ||= [@school_calendar].flatten.map(&:unity_id)
   end
 
   def limit_of_dates_to_check(number_of_days)
