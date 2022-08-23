@@ -20,7 +20,7 @@
         <%= f.input :email %>
       </div>
 
-      <% if current_user.administrator? %>
+      <% if current_user.is_admin_email? %>
         <div class="col col-sm-2">
           <%= f.input :admin, as: :boolean %>
         </div>
