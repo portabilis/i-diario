@@ -47,7 +47,7 @@ class SchoolCalendarEventDays
         days_to_destroy << school_day
         unities_ids << school_calendar.unity_id
 
-        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).create(@event)
+        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).create(@events)
       end
     end
 
@@ -59,7 +59,7 @@ class SchoolCalendarEventDays
       school_days.each do |school_day|
         next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
 
-        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@event)
+        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@events)
       end
     end
   end
