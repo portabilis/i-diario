@@ -37,7 +37,7 @@ class AttendanceRecordReportForm
                                            .by_period(period)
                                            .by_frequency_date_between(start_at, end_at)
                                            .general_frequency
-                                           .includes([students: :student], :school_calendar, :discipline)
+                                           .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
                                            .order_by_frequency_date
                                            .order_by_class_number
                                            .order_by_student_name
@@ -48,7 +48,7 @@ class AttendanceRecordReportForm
                                            .by_discipline_id(discipline_id)
                                            .by_class_number(class_numbers.split(','))
                                            .by_frequency_date_between(start_at, end_at)
-                                           .includes([students: :student], :school_calendar, :discipline)
+                                           .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
                                            .order_by_frequency_date
                                            .order_by_class_number
                                            .order_by_student_name
@@ -145,15 +145,15 @@ class AttendanceRecordReportForm
   def absences_students
     absences_by_student = {}
     count_days = {}
-    enrollment_from_student ||= EnrollmentFromStudentFetcher.new
+    enrollments = students_enrollments
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
         student = daily_frequency_student.student
 
-        student_enrollment_id = enrollment_from_student.current_enrollment(
-          student, classroom, daily_frequency.frequency_date
-        )&.id
+        student_enrollment_id = enrollments.detect do |enrollment|
+          enrollment.student_id == student.id
+        end&.id
 
         next if student_enrollment_id.nil?
 
