@@ -120,7 +120,7 @@ class ExamRecordReport < BaseReport
       )
 
       if @lowest_notes
-        lowest_note = @lowest_notes[student_enrollment.id].to_s
+        lowest_note = @lowest_notes[student_enrollment.student_id].to_s
 
         if lowest_note.present?
           recovery_lowest_note[student_enrollment.id] = lowest_note
