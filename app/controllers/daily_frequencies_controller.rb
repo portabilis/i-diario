@@ -57,7 +57,7 @@ class DailyFrequenciesController < ApplicationController
 
       next if student.blank?
 
-      dependence = student_has_dependence?(student_enrollment, discipline)
+      dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
       in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
@@ -331,7 +331,7 @@ class DailyFrequenciesController < ApplicationController
     StudentEnrollmentsList.new(
       classroom: @daily_frequency.classroom,
       grade: discipline_classroom_grade_ids,
-      discipline: discipline,
+      discipline: @daily_frequency.discipline,
       date: @daily_frequency.frequency_date,
       search_type: :by_date,
       period: @period
@@ -365,11 +365,12 @@ class DailyFrequenciesController < ApplicationController
   def student_exempted_from_discipline?(student_enrollment, daily_frequency)
     return false if daily_frequency.discipline_id.blank?
 
+    discipline_id = daily_frequency.discipline.id
     frequency_date = daily_frequency.frequency_date
     step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
 
     student_enrollment.exempted_disciplines
-                      .by_discipline(discipline.id)
+                      .by_discipline(discipline_id)
                       .by_step_number(step_number)
                       .any?
   end
@@ -403,7 +404,7 @@ class DailyFrequenciesController < ApplicationController
       SchoolCalendarDisciplineGrade.where(
         grade_id: classroom_grade_ids,
         school_calendar_id: school_calendar.id,
-        discipline_id: discipline.id
+        discipline_id: @daily_frequency.id
       ).pluck(:grade_id)
     else
       SchoolCalendarDisciplineGrade.where(
@@ -411,11 +412,5 @@ class DailyFrequenciesController < ApplicationController
         school_calendar_id: school_calendar.id,
       ).pluck(:grade_id)
     end
-  end
-
-  def discipline
-    return @daily_frequency.discipline if @daily_frequency.discipline_id.blank?
-
-    @daily_frequency.discipline || Discipline.unscoped.find(@daily_frequency.discipline_id)
   end
 end
