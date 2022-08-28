@@ -114,14 +114,6 @@ class DailyFrequency < ActiveRecord::Base
     true
   end
 
-  def current_discipline
-    if self.discipline_id.present?
-      discipline || Discipline.unscoped.find(self.discipline_id)
-    else
-      discipline
-    end
-  end
-
   private
 
   def valid_for_destruction?
@@ -141,8 +133,8 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   def frequency_must_be_global_or_discipline
-    if current_discipline && !class_number ||
-       !current_discipline && class_number
+    if discipline && !class_number ||
+       !discipline && class_number
       errors.add(:base, :frequency_type_must_be_valid)
     end
   end
