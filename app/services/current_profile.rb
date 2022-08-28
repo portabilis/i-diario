@@ -18,7 +18,7 @@ class CurrentProfile
     self.unity = initial_value(options, Unity)
     self.classroom = initial_value(options, Classroom)
     self.teacher = initial_value(options, Teacher)
-    self.discipline = initial_discipline_value
+    self.discipline = initial_value(options, Discipline)
   end
 
   def user_role_as_json
@@ -109,16 +109,7 @@ class CurrentProfile
   def discipline_as_json
     return unless discipline
 
-    if discipline.knowledge_area.group_descriptors
-      discipline_id = Discipline.unscoped.find_by(
-        knowledge_area: discipline.knowledge_area_id,
-        grouper: true
-      )&.id
-    else
-      discipline_id = discipline.id
-    end
-
-    { id: discipline_id, discipline_id: discipline_id, description: discipline.to_s }
+    { id: discipline.id, discipline_id: discipline.id, description: discipline.to_s }
   end
 
   def disciplines_as_json
@@ -137,10 +128,9 @@ class CurrentProfile
     cache ['disciplines', classroom&.id, teacher&.id, last_allocation] do
       return Discipline.none unless classroom && teacher
 
-      Discipline.unscoped
-                .by_teacher_and_classroom(teacher.id, classroom.id)
-                .where(descriptor: false)
-                .grouped_by_knowledge_area.to_a
+      Discipline.by_teacher_and_classroom(teacher.id, classroom.id)
+                .grouped_by_knowledge_area
+                .to_a
     end
   end
 
@@ -183,10 +173,6 @@ class CurrentProfile
     value = options[underscored_model]
     value ||= model.find(options[underscored_model_id]) if options[underscored_model_id]
     value || user.send(current_method_for_user)
-  end
-
-  def initial_discipline_value
-    Discipline.unscoped.find(user.current_discipline_id)
   end
 
   def cache(key_complements)
