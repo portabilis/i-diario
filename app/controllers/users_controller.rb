@@ -128,7 +128,7 @@ class UsersController < ApplicationController
   end
 
   def not_allow_admin?
-    return false if user_params[:admin] == "0"
+    return false if user_params[:admin] == "0" || !current_user.is_admin_email?
 
     role_ids = user_params[:user_roles_attributes].values.map do |user_role|
       user_role[:role_id] if user_role[:_destroy] == "false"
