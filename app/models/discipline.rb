@@ -71,8 +71,6 @@ class Discipline < ActiveRecord::Base
       SQL
   }
 
-  default_scope { where(grouper: false) }
-
   def to_s
     if knowledge_area.group_descriptors
       knowledge_area.description
