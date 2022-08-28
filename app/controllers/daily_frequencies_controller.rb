@@ -404,7 +404,7 @@ class DailyFrequenciesController < ApplicationController
       SchoolCalendarDisciplineGrade.where(
         grade_id: classroom_grade_ids,
         school_calendar_id: school_calendar.id,
-        discipline_id: @daily_frequency.id
+        discipline_id: @daily_frequency.discipline.id
       ).pluck(:grade_id)
     else
       SchoolCalendarDisciplineGrade.where(
