@@ -1,10 +1,12 @@
 class EnrollmentFromStudentFetcher
-  def current_enrollment(student, classroom, date)
-    StudentEnrollment.by_student(student)
-                     .by_classroom(classroom)
-                     .by_date(date)
-                     .active
-                     .ordered
-                     .last
+  def current_enrollments(student, classroom, date)
+    aux = StudentEnrollment.by_student(student)
+                           .by_date(date[0])
+                           .active
+                           .ordered
+    puts aux.as_json(include: {
+      student_enrollment_classrooms
+    })
+    aux
   end
 end

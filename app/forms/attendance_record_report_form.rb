@@ -107,6 +107,13 @@ class AttendanceRecordReportForm
 
   private
 
+  def days_enrollment
+    days = daily_frequencies.pluck(:frequency_date)
+    students = daily_frequencies.joins(:students).pluck(:student_id)
+
+    EnrollmentFromStudentFetcher.new.current_enrollments(students, classroom_id, days)
+  end
+
   def remove_duplicated_enrollments(students_enrollments)
     students_enrollments = students_enrollments.select do |student_enrollment|
       enrollments_for_student = StudentEnrollment.by_student(student_enrollment.student_id)
@@ -145,16 +152,17 @@ class AttendanceRecordReportForm
   def absences_students
     absences_by_student = {}
     count_days = {}
-    enrollments = students_enrollments
+    # enrollment_from_student ||= EnrollmentFromStudentFetcher.new
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
         student = daily_frequency_student.student
 
-        student_enrollment_id = enrollments.detect do |enrollment|
-          enrollment.student_id == student.id
-        end&.id
-
+        # student_enrollment_id = days_enrollment.detect do |enrollment|
+        #   enrollment.student_id == student.id && daily_frequency.frequency_date ==
+        # end&.id
+        student_enrollment_id = days_enrollment[student.id][daily_frequency.frequency_date]
+        puts student_enrollment_id
         next if student_enrollment_id.nil?
 
         count_days[student.id] ||= 0
