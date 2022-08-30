@@ -16,9 +16,15 @@
         <%= f.input :last_name %>
       </div>
 
-      <div class="col col-sm-6">
+      <div class="col col-sm-4">
         <%= f.input :email %>
       </div>
+
+      <% if current_user.is_admin_email? %>
+        <div class="col col-sm-2">
+          <%= f.input :admin, as: :boolean %>
+        </div>
+      <% end %>
     </div>
 
     <div class="row">
