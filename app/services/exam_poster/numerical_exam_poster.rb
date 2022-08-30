@@ -64,7 +64,15 @@ module ExamPoster
           )
           teacher_score_fetcher.fetch!
 
-          student_scores = teacher_score_fetcher.scores
+          teacher_recovery_score_fetcher = StudentOnlyWithRecoveryFetcher.new(
+            teacher,
+            classroom,
+            discipline,
+            get_step(classroom)
+          )
+          teacher_recovery_score_fetcher.fetch!
+
+          student_scores = teacher_score_fetcher.scores + teacher_recovery_score_fetcher.scores
 
           student_scores.each do |student_score|
             exam_rule = exam_rule_definer(classroom, student_score)
