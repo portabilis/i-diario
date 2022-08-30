@@ -156,18 +156,22 @@ class AttendanceRecordReportForm
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
-        student = daily_frequency_student.student
+        student_id = daily_frequency_student.student.id
 
-        # student_enrollment_id = days_enrollment.detect do |enrollment|
-        #   enrollment.student_id == student.id && daily_frequency.frequency_date ==
-        # end&.id
-        student_enrollment_id = days_enrollment[student.id][daily_frequency.frequency_date]
+        puts daily_frequency.frequency_date.to_date
+
+        student_enrollment_id = days_enrollment.detect do |enrollment|
+          enrollment[:student_id] == student_id &&
+            (daily_frequency.frequency_date.to_date >= enrollment[:joined_at].to_date) &&
+            (!enrollment[:left_at].to_date || daily_frequency.frequency_date.to_date < enrollment[:left_at].to_date)
+        end[:id]
+        #student_enrollment_id = days_enrollment[student.id][daily_frequency.frequency_date]
         puts student_enrollment_id
         next if student_enrollment_id.nil?
 
-        count_days[student.id] ||= 0
-        count_day = count_day?(daily_frequency, student.id)
-        count_days[student.id] += 1 if count_day
+        count_days[student_id] ||= 0
+        count_day = true
+        count_days[student_id] += 1 if count_day
         absence = !daily_frequency_student.present
 
         if absence && count_day
@@ -176,7 +180,7 @@ class AttendanceRecordReportForm
         end
 
         if absences_by_student.present? && absences_by_student[student_enrollment_id]
-          absences_by_student[student_enrollment_id][:count_days] = count_days[student.id]
+          absences_by_student[student_enrollment_id][:count_days] = count_days[student_id]
         end
       end
     end

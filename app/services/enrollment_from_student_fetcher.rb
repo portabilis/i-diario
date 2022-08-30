@@ -1,12 +1,13 @@
 class EnrollmentFromStudentFetcher
   def current_enrollments(student, classroom, date)
-    aux = StudentEnrollment.by_student(student)
-                           .by_date(date[0])
-                           .active
-                           .ordered
-    puts aux.as_json(include: {
-      student_enrollment_classrooms
-    })
-    aux
+    aux = StudentEnrollmentClassroom.by_classroom(classroom)
+                                    .by_student(student)
+                                    .includes(:student_enrollment)
+                                    .active
+                                    .ordered
+    aa = aux.map { |b|
+      { id: b.student_enrollment_id, student_id: b.student_id, joined_at: b.joined_at, left_at: b.left_at }
+    }
+    aa
   end
 end
