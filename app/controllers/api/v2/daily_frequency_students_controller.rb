@@ -27,7 +27,7 @@ module Api
         if daily_frequency
           daily_frequency_student = begin
                                       ActiveRecord::Base.transaction do
-                                        DailyFrequencyStudent.lock.find_or_create_by(
+                                        DailyFrequencyStudent.find_or_create_by(
                                           daily_frequency_id: daily_frequency.id,
                                           student_id: params[:student_id],
                                           active: true
