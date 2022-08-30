@@ -23,30 +23,8 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
         knowledge_area.group_descriptors = knowledge_area_record.agrupar_descritores
         knowledge_area.save! if knowledge_area.changed?
 
-        create_or_destroy_grouper_disciplines(knowledge_area)
-
         knowledge_area.discard_or_undiscard(knowledge_area_record.deleted_at.present?)
       end
-    end
-  end
-
-  def create_or_destroy_grouper_disciplines(knowledge_area)
-    if knowledge_area.group_descriptors
-      Discipline.unscoped.find_or_initialize_by(
-        knowledge_area_id: knowledge_area.id,
-        grouper: true,
-        api_code: "grouper:#{knowledge_area.id}"
-      ).tap do |grouper_discipline|
-        grouper_discipline.description = knowledge_area.description
-
-        grouper_discipline.save!
-      end
-    else
-      Discipline.unscoped.find_by(
-        knowledge_area_id: knowledge_area.id,
-        grouper: true,
-        api_code: "grouper:#{knowledge_area.id}"
-      )&.destroy
     end
   end
 end
