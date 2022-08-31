@@ -52,7 +52,7 @@ class DailyFrequenciesCreator
 
   def find_or_create_daily_frequency_students
     @daily_frequencies.each do |daily_frequency|
-      student_ids = daily_frequency.students.map(&:student_id).uniq
+      student_ids = daily_frequency.students.map(&:student_id)
 
       student_enrollments(student_ids).each do |student_enrollment|
         ActiveRecord::Base.transaction do
