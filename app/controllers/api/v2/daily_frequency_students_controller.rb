@@ -29,15 +29,14 @@ module Api
                                       ActiveRecord::Base.transaction do
                                         DailyFrequencyStudent.find_or_create_by(
                                           daily_frequency_id: daily_frequency.id,
-                                          student_id: params[:student_id],
-                                          active: true
+                                          student_id: params[:student_id]
                                         )
                                       end
                                     rescue ActiveRecord::RecordNotUnique
                                       retry
                                     end
 
-          daily_frequency_student.update(present: params[:present])
+          daily_frequency_student.update(present: params[:present], active: true)
 
           UniqueDailyFrequencyStudentsCreator.call_worker(
             current_entity.id,
