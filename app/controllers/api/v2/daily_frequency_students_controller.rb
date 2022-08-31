@@ -26,15 +26,12 @@ module Api
 
         if daily_frequency
           begin
-            daily_frequency_student = {}
-            ActiveRecord::Base.transaction do
-              daily_frequency_student = DailyFrequencyStudent.find_or_initialize_by(
-                daily_frequency_id: daily_frequency.id,
-                student_id: params[:student_id]
-              )
-              daily_frequency_student.assign_attributes(present: params[:present], active: true)
-              daily_frequency_student.save
-            end
+            daily_frequency_student = DailyFrequencyStudent.find_or_initialize_by(
+              daily_frequency_id: daily_frequency.id,
+              student_id: params[:student_id]
+            )
+            daily_frequency_student.assign_attributes(present: params[:present], active: true)
+            daily_frequency_student.save
           rescue ActiveRecord::RecordNotUnique
             retry
           end
