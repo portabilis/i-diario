@@ -1,4 +1,4 @@
-class StudentEnrollmentStatus < EnumerateIt::Base´
+class StudentEnrollmentStatus < EnumerateIt::Base
   associate_values approved: 1,
                    repproved: 2,
                    studying: 3,
