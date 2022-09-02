@@ -92,6 +92,8 @@ class AttendanceRecordReportForm
       show_inactive: false,
       period: adjusted_period
     ).student_enrollments
+    @students_enrollments_array ||= @students.to_a
+    @students
   end
 
   def students_frequencies_percentage
@@ -116,20 +118,6 @@ class AttendanceRecordReportForm
     EnrollmentFromStudentFetcher.new.current_enrollments(students_ids, classroom_id, days)
   end
 
-  def remove_duplicated_enrollments(students_enrollments)
-    students_enrollments = students_enrollments.select do |student_enrollment|
-      enrollments_for_student = StudentEnrollment.by_student(student_enrollment.student_id)
-                                                 .by_classroom(classroom_id)
-
-      if enrollments_for_student.count > 1
-        enrollments_for_student.last != student_enrollment
-      else
-        true
-      end
-    end
-
-    students_enrollments
-  end
 
   def global_absence?
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
@@ -211,7 +199,7 @@ class AttendanceRecordReportForm
   end
 
   def in_active_searches
-    students_enrollments_ids = students_enrollments.map(&:id)
+    students_enrollments_ids = @students_enrollments_array.map(&:id)
     dates = daily_frequencies.pluck(:frequency_date).uniq
 
     active_searches = {}
@@ -244,7 +232,7 @@ class AttendanceRecordReportForm
     inactives_on_dates = {}
 
     daily_frequencies.each do |daily_frequency|
-      enrollments_ids = students_enrollments.map(&:id)
+      enrollments_ids = @students_enrollments_array.map(&:id)
       enrollments_on_date = StudentEnrollment.where(id: enrollments_ids)
                                              .by_date(daily_frequency.frequency_date)
       enrollments_on_date_ids = enrollments_on_date.pluck(:id)
@@ -253,7 +241,7 @@ class AttendanceRecordReportForm
       next if not_enrrolled_on_the_date.empty?
 
       not_enrrolled_on_the_date.each do |not_enrolled|
-        enrollment = students_enrollments.select { |student_enrollment| student_enrollment.id == not_enrolled }.first
+        enrollment = @students_enrollments_array.select { |student_enrollment| student_enrollment.id == not_enrolled }.first
         inactives_on_dates[enrollment.student_id] ||= []
         inactives_on_dates[enrollment.student_id] << daily_frequency.frequency_date
       end
@@ -280,7 +268,7 @@ class AttendanceRecordReportForm
     return {} if daily_frequencies.first.discipline_id.blank?
 
     discipline_id = daily_frequencies.first.discipline_id
-    enrollments_ids = students_enrollments.map(&:id)
+    enrollments_ids = @students_enrollments_array.map(&:id)
     exempteds_from_discipline = {}
 
     steps = daily_frequencies.map { |daily_frequency|

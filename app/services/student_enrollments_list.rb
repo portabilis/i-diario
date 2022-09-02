@@ -58,6 +58,7 @@ class StudentEnrollmentsList
                                               .joins(:student)
                                               .includes(:student)
                                               .includes(:dependences)
+                                              .includes(:student_enrollment_classrooms)
                                               .active
 
     students_enrollments = students_enrollments.by_grade(grade) if grade
@@ -178,7 +179,5 @@ class StudentEnrollmentsList
 
     enrollments.active
                .ordered
-               .to_a
-               .uniq
   end
 end
