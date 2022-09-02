@@ -91,7 +91,7 @@ class AttendanceRecordReportForm
       search_type: :by_date_range,
       show_inactive: false,
       period: adjusted_period
-    ).student_enrollments
+    ).student_enrollments(true)
     @students_enrollments_array ||= @students.to_a
     @students
   end
