@@ -37,7 +37,7 @@ class AttendanceRecordReportForm
                                            .by_period(period)
                                            .by_frequency_date_between(start_at, end_at)
                                            .general_frequency
-                                           .includes([students: :student], :school_calendar, :discipline)
+                                           .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
                                            .order_by_frequency_date
                                            .order_by_class_number
                                            .order_by_student_name
@@ -48,7 +48,7 @@ class AttendanceRecordReportForm
                                            .by_discipline_id(discipline_id)
                                            .by_class_number(class_numbers.split(','))
                                            .by_frequency_date_between(start_at, end_at)
-                                           .includes([students: :student], :school_calendar, :discipline)
+                                           .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
                                            .order_by_frequency_date
                                            .order_by_class_number
                                            .order_by_student_name
@@ -107,6 +107,15 @@ class AttendanceRecordReportForm
 
   private
 
+  def days_enrollment
+    days = daily_frequencies.pluck(:frequency_date)
+    students_ids = daily_frequencies.map do |daily_frequency|
+      daily_frequency.students.map(&:student_id)
+    end.flatten.uniq
+
+    EnrollmentFromStudentFetcher.new.current_enrollments(students_ids, classroom_id, days)
+  end
+
   def remove_duplicated_enrollments(students_enrollments)
     students_enrollments = students_enrollments.select do |student_enrollment|
       enrollments_for_student = StudentEnrollment.by_student(student_enrollment.student_id)
@@ -145,21 +154,18 @@ class AttendanceRecordReportForm
   def absences_students
     absences_by_student = {}
     count_days = {}
-    enrollment_from_student ||= EnrollmentFromStudentFetcher.new
+    enrollments = days_enrollment
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
-        student = daily_frequency_student.student
-
-        student_enrollment_id = enrollment_from_student.current_enrollment(
-          student, classroom, daily_frequency.frequency_date
-        )&.id
+        student_id = daily_frequency_student.student.id
+        student_enrollment_id = enrollments[student_id][daily_frequency.frequency_date] if enrollments[student_id]
 
         next if student_enrollment_id.nil?
 
-        count_days[student.id] ||= 0
-        count_day = count_day?(daily_frequency, student.id)
-        count_days[student.id] += 1 if count_day
+        count_days[student_id] ||= 0
+        count_day = count_day?(daily_frequency, student_id)
+        count_days[student_id] += 1 if count_day
         absence = !daily_frequency_student.present
 
         if absence && count_day
@@ -168,7 +174,7 @@ class AttendanceRecordReportForm
         end
 
         if absences_by_student.present? && absences_by_student[student_enrollment_id]
-          absences_by_student[student_enrollment_id][:count_days] = count_days[student.id]
+          absences_by_student[student_enrollment_id][:count_days] = count_days[student_id]
         end
       end
     end
