@@ -101,6 +101,12 @@ gem install bundler -v '1.17.3'
 bundle install
 ```
 
+- Instale as dependencias do projeto
+
+```bash
+yarn install
+```
+
 - Crie e configure o arquivo `config/secrets.yml` conforme o exemplo:
 
 ```yaml

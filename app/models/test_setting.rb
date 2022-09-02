@@ -20,10 +20,21 @@ class TestSetting < ActiveRecord::Base
   scope :by_unities, ->(unities) { where('unities @> ARRAY[?]::integer[]', unities) }
   scope :by_grades, ->(grades) { where('grades @> ARRAY[?]::integer[]', grades) }
 
+  validates :minimum_score, :maximum_score, presence: true
+  validate :check_minimum_score
   validate :can_update_test_setting?, on: :update
 
   def to_s
     school_term_type_step ? school_term_humanize : year.to_s
+  end
+
+  def check_minimum_score
+    return false if minimum_score.nil? || maximum_score.nil?
+
+    return true if maximum_score > minimum_score
+
+    errors.add(:base, :check_minimum_score)
+    false
   end
 
   def school_term_humanize

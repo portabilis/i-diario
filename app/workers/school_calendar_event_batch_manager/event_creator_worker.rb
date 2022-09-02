@@ -18,6 +18,7 @@ module SchoolCalendarEventBatchManager
                 event.start_date = school_calendar_event_batch.start_date
                 event.end_date = school_calendar_event_batch.end_date
                 event.event_type = school_calendar_event_batch.event_type
+                event.periods = school_calendar_event_batch.periods
                 event.legend = school_calendar_event_batch.legend
                 event.show_in_frequency_record = school_calendar_event_batch.show_in_frequency_record
                 event.save! if event.changed?
@@ -26,13 +27,26 @@ module SchoolCalendarEventBatchManager
               end
             rescue ActiveRecord::RecordInvalid
               unity_name = Unity.find_by(id: school_calendar.unity_id)&.name
-              notify(
-                school_calendar_event_batch,
-                "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
-                #{unity_name} pois a mesma já possui um evento na data #{school_calendar_event_batch.start_date}.",
-                user_id
-              )
 
+              school_calendar.steps.each do |step|
+                if school_calendar_event_batch.start_date.between?(step.start_at, step.end_at) &&
+                   school_calendar_event_batch.end_date.between?(step.start_at, step.end_at)
+
+                  notify(
+                    school_calendar_event_batch,
+                    "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
+                    #{unity_name} pois a mesma já possui um evento na data #{school_calendar_event_batch.start_date.strftime('%d/%m/%Y')}.",
+                    user_id
+                  )
+                else
+                  notify(
+                    school_calendar_event_batch,
+                    "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
+                    #{unity_name} pois a data #{school_calendar_event_batch.start_date.strftime('%d/%m/%Y')} não está dentro do período letivo.",
+                    user_id
+                  )
+                end
+              end
               next
             end
           end
