@@ -130,17 +130,19 @@ class AttendanceRecordReport < BaseReport
 
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
-    @daily_frequency_students = DailyFrequencyStudent.joins(:daily_frequency).where(daily_frequency_id: @daily_frequencies.ids.to_a).to_a
+
+    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
+
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
 
-    dates = daily_frequencies.map(&:frequency_date)
-    students_enrollment_ids = @students_enrollments.to_a.map{ |a| a.id }
-
-    active_searches = ActiveSearch.new.in_active_search_in_range(students_enrollment_ids, dates)
+    active_searches = active_searches_by_range(daily_frequencies)
 
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
+
+    students_enrollments = @students_enrollments.includes(:student)
+                                                .includes(:student_enrollment_classrooms)
 
     sliced_frequencies_and_events.each_with_index do |frequencies_and_events_slice, index|
       class_numbers = []
@@ -161,7 +163,7 @@ class AttendanceRecordReport < BaseReport
           student_dependances = @students_enrollments.pluck(:id)
           all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_dependances).to_a
 
-          @students_enrollments.includes(:student).includes(:student_enrollment_classrooms).each do |student_enrollment|
+          students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
             student_enrollment_classroom = student_enrollment.student_enrollment_classrooms.first
             joined_at = student_enrollment_classroom.joined_at.to_date
@@ -232,7 +234,7 @@ class AttendanceRecordReport < BaseReport
           days << make_cell(content: "#{school_calendar_event[:date].day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{school_calendar_event[:date].month}", background_color: 'FFFFFF', align: :center)
 
-          @students_enrollments.each do |student_enrollment|
+          students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
             student = student_enrollment.student
             (students[student_enrollment.id] ||= {})[:name] = student.to_s
@@ -467,6 +469,13 @@ class AttendanceRecordReport < BaseReport
                                                                        .by_discipline_id(discipline.id)
                                                                        .first
                                                                        .try(:allow_absence_by_discipline)
+  end
+
+  def active_searches_by_range(daily_frequencies)
+    dates = daily_frequencies.map(&:frequency_date)
+    students_enrollment_ids = @students_enrollments.to_a.map{ |a| a.id }
+
+    ActiveSearch.new.in_active_search_in_range(students_enrollment_ids, dates)
   end
 
   def general_frequency?
