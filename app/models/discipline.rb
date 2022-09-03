@@ -62,6 +62,7 @@ class Discipline < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_sequence, -> { order(arel_table[:sequence].asc) }
   scope :not_grouper, -> { where(grouper: false) }
+  scope :grouper, -> { where(grouper: true) }
   scope :not_descriptor, -> { where(descriptor: false) }
   scope :by_description, lambda { |description|
     joins(:knowledge_area)

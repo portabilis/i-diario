@@ -128,7 +128,8 @@ class CurrentProfile
     cache ['disciplines', classroom&.id, teacher&.id, last_allocation] do
       return Discipline.none unless classroom && teacher
 
-      Discipline.by_teacher_and_classroom(teacher.id, classroom.id)
+      Discipline.not_descriptor
+                .by_teacher_and_classroom(teacher.id, classroom.id)
                 .grouped_by_knowledge_area
                 .to_a
     end
