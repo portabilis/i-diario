@@ -9,7 +9,11 @@ module Api
 
         return unless classroom_id && teacher_id
 
-        @disciplines = Discipline.by_teacher_and_classroom(teacher_id, classroom_id).ordered.uniq
+        @disciplines = Discipline
+                         .not_descriptor
+                         .by_teacher_and_classroom(teacher_id, classroom_id)
+                         .ordered
+                         .uniq
       end
     end
   end
