@@ -257,6 +257,7 @@ class LessonsBoardsController < ApplicationController
 
       TeacherDisciplineClassroom.where(classroom_id: classroom_id, period: period)
                                 .joins(:teacher, discipline: :knowledge_area)
+                                .where(disciplines: { descriptor: false })
                                 .order('teachers.name')
                                 .grouped_by_knowledge_area
                                 .each do |teacher_discipline_classroom|
@@ -271,6 +272,7 @@ class LessonsBoardsController < ApplicationController
     else
       TeacherDisciplineClassroom.where(classroom_id: classroom_id)
                                 .includes(:teacher, discipline: :knowledge_area)
+                                .where(disciplines: { descriptor: false })
                                 .order('teachers.name')
                                 .grouped_by_knowledge_area
                                 .each do |teacher_discipline_classroom|
