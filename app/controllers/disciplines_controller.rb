@@ -31,7 +31,8 @@ class DisciplinesController < ApplicationController
         grade_id: student_grade_id
       ).pluck(:discipline_id)
 
-      @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, params[:student_id])
+      @disciplines = @disciplines.not_grouper
+                                 .by_score_type(ScoreTypes::CONCEPT, params[:student_id])
                                  .where(id: disciplines_in_grade_ids)
 
     end
