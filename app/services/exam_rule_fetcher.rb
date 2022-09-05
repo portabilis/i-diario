@@ -11,13 +11,26 @@ class ExamRuleFetcher
   def fetch
     return if @classroom.classrooms_grades.none? { |classroom_grade| classroom_grade.exam_rule.present? }
 
-    student_enrrollment_classroom = StudentEnrollmentClassroom.by_student(@student)
+    student_enrollment_classroom = StudentEnrollmentClassroom.by_student(@student)
                                                               .by_classroom(@classroom)
                                                               .by_date(Date.current)
                                                               &.first
-    return if student_enrrollment_classroom.blank?
+    if student_enrollment_classroom.blank?
+      student_enrollment = StudentEnrollment.by_student(@student)
+                                            .by_classroom(@classroom)
+                                            .active
+                                            &.last
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_student_enrollment(student_enrollment)&.first
+    end
 
-    grade_id = student_enrrollment_classroom.classrooms_grade.grade_id
+    uses_differentiated_exam_rule(student_enrollment_classroom)
+
+  end
+
+  private
+
+  def uses_differentiated_exam_rule(student_enrollment_classroom)
+    grade_id = student_enrollment_classroom.classrooms_grade.grade_id
     classroom_grade = @classroom.classrooms_grades.find_by(grade_id: grade_id)
 
     if @student.uses_differentiated_exam_rule
