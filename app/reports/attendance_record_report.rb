@@ -171,7 +171,7 @@ class AttendanceRecordReport < BaseReport
 
             if exempted_from_discipline?(student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
-            elsif active_searches.detect{ |a| a[:date] == daily_frequency.frequency_date && a[:student_ids].include?(student_id) }
+            elsif in_active_search?(student_id, active_searches, daily_frequency)
               @show_legend_active_search = true
               student_frequency = ActiveSearchFrequencyStudent.new
             elsif @show_inactive_enrollments
@@ -194,7 +194,7 @@ class AttendanceRecordReport < BaseReport
             student = student_enrollment.student
             (students[student_enrollment.id] ||= {})[:name] = student.to_s
             students[student_enrollment.id] = {} if students[student_enrollment.id].nil?
-            students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || all_dependances.detect{ student_enrollment_id == student_enrollment.id && discipline_id == daily_frequency.discipline_id }
+            students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment.id][:dependence]
             students[student_enrollment.id][:absences] ||= 0
 
@@ -403,8 +403,10 @@ class AttendanceRecordReport < BaseReport
     record.is_a? DailyFrequency
   end
 
-  def student_has_dependence?(student_enrollment, discipline_id)
-    student_enrollment.dependences.any? { |dependence| dependence.discipline_id == discipline_id  }
+  def student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
+    all_dependances.detect do
+      student_enrollment_id.eql?(student_enrollment.id) && discipline_id.eql?(daily_frequency.discipline_id)
+    end
   end
 
   def exempted_from_discipline?(student_enrollment, daily_frequency)
@@ -476,6 +478,12 @@ class AttendanceRecordReport < BaseReport
     students_enrollment_ids = @students_enrollments.to_a.map{ |a| a.id }
 
     ActiveSearch.new.in_active_search_in_range(students_enrollment_ids, dates)
+  end
+
+  def in_active_search?(student_id, active_searches, daily_frequency)
+    active_searches.detect do |active_searche|
+      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id) 
+    end
   end
 
   def general_frequency?
