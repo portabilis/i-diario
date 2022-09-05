@@ -475,7 +475,7 @@ class AttendanceRecordReport < BaseReport
 
   def active_searches_by_range(daily_frequencies)
     dates = daily_frequencies.map(&:frequency_date)
-    students_enrollment_ids = @students_enrollments.to_a.map{ |a| a.id }
+    students_enrollment_ids = @students_enrollments.to_a.map{ |student_enrollment| student_enrollment.id }
 
     ActiveSearch.new.in_active_search_in_range(students_enrollment_ids, dates)
   end
@@ -537,7 +537,10 @@ class AttendanceRecordReport < BaseReport
   end
 
   def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-    student_frequency = @daily_frequency_students.detect{ |a| a.student_id == student_enrollment.student_id }
+    student_frequency = @daily_frequency_students.detect do |student_frequency|
+      student_frequency.student_id.eql?(student_enrollment.student_id)
+    end
+
     return if student_frequency.blank?
     return if student_frequency.type_of_teaching == TypesOfTeaching::PRESENTIAL
 
