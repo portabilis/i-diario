@@ -12,15 +12,14 @@ class ExamRuleFetcher
     return if @classroom.classrooms_grades.none? { |classroom_grade| classroom_grade.exam_rule.present? }
 
     student_enrollment_classroom = StudentEnrollmentClassroom.by_student(@student)
-                                                              .by_classroom(@classroom)
-                                                              .by_date(Date.current)
-                                                              &.first
+                                                             .by_classroom(@classroom)
+                                                             .by_date(Date.current)
+                                                             &.first
     if student_enrollment_classroom.blank?
-      student_enrollment = StudentEnrollment.by_student(@student)
-                                            .by_classroom(@classroom)
-                                            .active
-                                            &.last
-      student_enrollment_classroom = StudentEnrollmentClassroom.by_student_enrollment(student_enrollment)&.first
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_student(@student)
+                                                               .by_classroom(@classroom)
+                                                               .active
+                                                               &.last
     end
 
     uses_differentiated_exam_rule(student_enrollment_classroom)
