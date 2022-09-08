@@ -25,17 +25,16 @@ module Api
         daily_frequency = creator.daily_frequencies[0]
 
         if daily_frequency
-          daily_frequency_student = begin
-                                      DailyFrequencyStudent.find_or_create_by(
-                                        daily_frequency_id: daily_frequency.id,
-                                        student_id: params[:student_id],
-                                        active: true
-                                      )
-                                    rescue ActiveRecord::RecordNotUnique
-                                      retry
-                                    end
-
-          daily_frequency_student.update(present: params[:present])
+          begin
+            daily_frequency_student = DailyFrequencyStudent.find_or_initialize_by(
+              daily_frequency_id: daily_frequency.id,
+              student_id: params[:student_id]
+            )
+            daily_frequency_student.assign_attributes(present: params[:present], active: true)
+            daily_frequency_student.save
+          rescue ActiveRecord::RecordNotUnique
+            retry
+          end
 
           UniqueDailyFrequencyStudentsCreator.call_worker(
             current_entity.id,

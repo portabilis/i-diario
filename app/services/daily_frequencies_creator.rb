@@ -55,7 +55,9 @@ class DailyFrequenciesCreator
       student_ids = daily_frequency.students.map(&:student_id)
 
       student_enrollments(student_ids).each do |student_enrollment|
-        find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+        ActiveRecord::Base.transaction do
+          find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+        end
       end
     end
   end
