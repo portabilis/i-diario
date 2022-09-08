@@ -13,7 +13,6 @@ class DailyFrequency < ActiveRecord::Base
     if valid_for_destruction?
       Student.unscoped do
         DailyFrequencyStudent.with_discarded
-                             .joins(:student)
                              .by_daily_frequency_id(id)
                              .delete_all
       end
