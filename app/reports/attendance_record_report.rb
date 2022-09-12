@@ -12,7 +12,7 @@ class AttendanceRecordReport < BaseReport
     start_at,
     end_at,
     daily_frequencies,
-    student_enrollments,
+    student_enrollment_list,
     events,
     school_calendar,
     second_teacher_signature,
@@ -26,7 +26,7 @@ class AttendanceRecordReport < BaseReport
              start_at,
              end_at,
              daily_frequencies,
-             student_enrollments,
+             student_enrollment_list,
              events,
              school_calendar,
              second_teacher_signature,
@@ -41,7 +41,7 @@ class AttendanceRecordReport < BaseReport
     start_at,
     end_at,
     daily_frequencies,
-    student_enrollments,
+    student_enrollment_list,
     events,
     school_calendar,
     second_teacher_signature,
@@ -54,7 +54,7 @@ class AttendanceRecordReport < BaseReport
     @start_at = start_at
     @end_at = end_at
     @daily_frequencies = daily_frequencies
-    @students_enrollments = student_enrollments
+    @students_enrollments = student_enrollment_list
     @events = events
     @school_calendar = school_calendar
     @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
