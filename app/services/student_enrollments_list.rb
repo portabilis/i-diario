@@ -71,7 +71,7 @@ class StudentEnrollmentsList
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
-    students_enrollments = reject_duplicated_students(students_enrollments)
+    students_enrollments = reject_duplicated_students(students_enrollments) unless show_inactive
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
 
@@ -159,7 +159,7 @@ class StudentEnrollmentsList
   end
 
   def order_by_sequence_and_name(students_enrollments)
-    ids = students_enrollments.map(&:id)
+    ids = students_enrollments.compact.map(&:id)
     enrollments = StudentEnrollment.where(id: ids)
                                    .by_classroom(@classroom)
 

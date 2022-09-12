@@ -11,14 +11,16 @@ class IeducarApiExamPostingsController < ApplicationController
   def create
     authorize(IeducarApiExamPosting.new)
 
-    ieducar_api_exam_posting = IeducarApiExamPosting.new(permitted_attributes)
-    ieducar_api_exam_posting.author = current_user
-    ieducar_api_exam_posting.teacher = current_user.current_teacher
-    ieducar_api_exam_posting.status = ApiSynchronizationStatus::STARTED
-    ieducar_api_exam_posting.ieducar_api_configuration = IeducarApiConfiguration.current
-    ieducar_api_exam_posting.save!
+    new_permitted_attributes = permitted_attributes.merge!({ author: current_user })
+    new_permitted_attributes = new_permitted_attributes.merge!({ teacher: current_user.current_teacher })
+    new_permitted_attributes = new_permitted_attributes.merge!({ ieducar_api_configuration: IeducarApiConfiguration.current })
+    new_permitted_attributes = new_permitted_attributes.merge!({ status: ApiSynchronizationStatus::STARTED })
 
-    jid = IeducarExamPostingWorker.perform_in(5.seconds, current_entity.id, ieducar_api_exam_posting.id)
+    ieducar_api_exam_posting = IeducarApiExamPosting.create!(new_permitted_attributes)
+
+    ieducar_api_exam_posting_last = IeducarApiExamPosting.where(new_permitted_attributes.merge({status: ApiSynchronizationStatus::COMPLETED })).last
+
+    jid = IeducarExamPostingWorker.perform_in(5.seconds, current_entity.id, ieducar_api_exam_posting.id, ieducar_api_exam_posting_last.try(:id))
 
     WorkerBatch.create!(
       main_job_class: 'IeducarExamPostingWorker',

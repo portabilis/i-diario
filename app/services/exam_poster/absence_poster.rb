@@ -62,15 +62,14 @@ module ExamPoster
         end_date = step_end_at(classroom)
 
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
-                                          .by_frequency_date_between(
-                                            start_date,
-                                            end_date
-                                          )
+                                          .by_frequency_date_between(start_date,end_date)
                                           .general_frequency
 
         students = fetch_students(daily_frequencies)
 
         students.each do |student|
+          next unless not_posted?({ classroom: classroom, student: student })[:absence]
+
           value = AbsenceCountService.new(student, classroom, start_date, end_date).count
 
           absences[classroom.api_code][student.api_code]['valor'] = value
@@ -106,6 +105,8 @@ module ExamPoster
           students = fetch_students(daily_frequencies)
 
           students.each do |student|
+            next unless not_posted?({ classroom: classroom, discipline: discipline, student: student })[:absence]
+
             value = AbsenceCountService.new(student, classroom, start_date, end_date, discipline).count
 
             absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
@@ -169,7 +170,9 @@ module ExamPoster
 
     def fetch_students(daily_frequencies)
       students_ids = []
-      daily_frequencies.each { |d| students_ids << d.students.map(&:student_id) }
+      daily_frequencies.each do |d|
+        students_ids << d.students.map(&:student_id)
+      end
       students_ids.flatten!.uniq! if students_ids.any?
       Student.find(students_ids)
     end

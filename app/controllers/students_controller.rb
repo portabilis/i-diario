@@ -39,6 +39,12 @@ class StudentsController < ApplicationController
     render json: students
   end
 
+  def search_autocomplete
+    students = Student.search(params[:q]).ordered
+    structured_students = StudentDecorator.data_for_search_autocomplete(students)
+    render json: structured_students
+  end
+
   def search_api
     begin
       api = IeducarApi::Students.new(configuration.to_api)

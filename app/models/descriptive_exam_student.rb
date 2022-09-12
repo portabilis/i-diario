@@ -24,6 +24,8 @@ class DescriptiveExamStudent < ActiveRecord::Base
     )
   }
   scope :ordered, -> { order(:updated_at) }
+  scope :by_not_poster, ->(poster_sent) { where("descriptive_exam_students.updated_at > ?", poster_sent) }
+
 
   validates :descriptive_exam, :student, presence: true
 end
