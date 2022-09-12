@@ -155,7 +155,7 @@ class AttendanceRecordReport < BaseReport
 
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
-            student_enrollment_classroom = enrollment_by_classroom(student_enrollment)
+            student_enrollment_classroom = student_enrollment_classroom_by_enrollment(student_enrollment)
             joined_at = student_enrollment_classroom.joined_at.to_date
             left_at = student_enrollment_classroom.left_at.empty? ? Date.current.end_of_year : student_enrollment_classroom.left_at.to_date
 
@@ -477,7 +477,7 @@ class AttendanceRecordReport < BaseReport
     @classroom ||= @daily_frequencies.first.classroom
   end
 
-  def enrollment_by_classroom(enrollment)
+  def student_enrollment_classroom_by_enrollment(enrollment)
     if classroom.present?
       enrollment.student_enrollment_classrooms.find_by(classroom_code: classroom.api_code)
     else
