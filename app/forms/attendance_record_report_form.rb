@@ -80,7 +80,7 @@ class AttendanceRecordReportForm
     events_by_day
   end
 
-  def students_enrollments
+  def student_enrollment_list
     adjusted_period = period != Periods::FULL ? period : nil
 
     @students ||= StudentEnrollmentsList.new(
@@ -91,8 +91,8 @@ class AttendanceRecordReportForm
       search_type: :by_date_range,
       show_inactive: false,
       period: adjusted_period
-    ).student_enrollments(true)
-    @students_enrollments_array ||= @students.to_a
+    ).student_enrollments(as_relation: true)
+    @students_enrollments_array = @students.to_a
     @students
   end
 
@@ -110,7 +110,7 @@ class AttendanceRecordReportForm
   private
 
   def days_enrollment
-    days = daily_frequencies.pluck(:frequency_date)
+    days = daily_frequencies.map(&:frequency_date)
     students_ids = daily_frequencies.map do |daily_frequency|
       daily_frequency.students.map(&:student_id)
     end.flatten.uniq
