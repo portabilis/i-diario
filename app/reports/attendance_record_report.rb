@@ -155,7 +155,7 @@ class AttendanceRecordReport < BaseReport
 
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
-            student_enrollment_classroom = student_enrollment.student_enrollment_classrooms.first
+            student_enrollment_classroom = enrollment_by_classroom(student_enrollment)
             joined_at = student_enrollment_classroom.joined_at.to_date
             left_at = student_enrollment_classroom.left_at.empty? ? Date.current.end_of_year : student_enrollment_classroom.left_at.to_date
 
@@ -168,7 +168,7 @@ class AttendanceRecordReport < BaseReport
               frequency_date = daily_frequency.frequency_date.to_date
               if frequency_date >= joined_at && frequency_date < left_at
                 student_frequency = daily_frequency.students.select{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }.first
-              else 
+              else
                 student_frequency ||= NullDailyFrequencyStudent.new
               end
             else
@@ -475,6 +475,14 @@ class AttendanceRecordReport < BaseReport
 
   def classroom
     @classroom ||= @daily_frequencies.first.classroom
+  end
+
+  def enrollment_by_classroom(enrollment)
+    if classroom.present?
+      enrollment.student_enrollment_classrooms.find_by(classroom_code: classroom.api_code)
+    else
+      enrollment.student_enrollment_classrooms.first
+    end
   end
 
   def extra_school_events
