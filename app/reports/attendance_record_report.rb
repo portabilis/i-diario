@@ -479,7 +479,7 @@ class AttendanceRecordReport < BaseReport
 
   def student_enrollment_classroom_by_enrollment(enrollment)
     if classroom.present?
-      enrollment.student_enrollment_classrooms.find_by(classroom_code: classroom.api_code)
+      enrollment.student_enrollment_classrooms.by_classroom(classroom.id).first
     else
       enrollment.student_enrollment_classrooms.first
     end
