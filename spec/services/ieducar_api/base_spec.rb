@@ -93,7 +93,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       it 'has the staging access key assigned' do
         expect(subject.access_key).to eq(staging_access_key)
       end
-      
+
       it 'has the staging secret key assigned' do
         expect(subject.secret_key).to eq(staging_secret_key)
       end
@@ -115,7 +115,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       it 'does not have the staging access key assigned' do
         expect(subject.access_key).to eq(nil)
       end
-      
+
       it 'does not have the staging secret key assigned' do
         expect(subject.secret_key).to eq(nil)
       end
@@ -172,7 +172,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       VCR.use_cassette('wrong_client_url') do
         expect {
           subject.fetch(path: path, resource: resource)
-        }.to raise_error('Chave de acesso inválida!')
+        }.to raise_error(IeducarApi::Base::NetworkException)
       end
     end
 
@@ -269,7 +269,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       it 'access_key is the nil' do
         expect(subject.access_key).to eq(nil)
       end
-      
+
       it 'secret_key is the nil' do
         expect(subject.secret_key).to eq(nil)
       end
@@ -314,7 +314,7 @@ RSpec.describe IeducarApi::Base, type: :service do
 
       expect {
         subject.send_post(params)
-      }.to raise_error('URL do i-Educar informada não é válida.')
+      }.to raise_error(IeducarApi::Base::NetworkException)
     end
 
     it 'returns an error when providing an invalid client url' do
