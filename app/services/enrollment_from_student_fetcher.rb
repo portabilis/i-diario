@@ -12,7 +12,6 @@ class EnrollmentFromStudentFetcher
         joined_at = enrollment_classroom.joined_at.to_date
         left_at = enrollment_classroom.left_at.to_date
 
-        next if joined_at.nil?
         next unless between_dates(date, joined_at, left_at)
 
         student_id = enrollment_classroom.student_enrollment.student_id
