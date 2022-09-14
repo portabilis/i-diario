@@ -51,9 +51,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAx2MsQ2AMAwEVwmuYQEGYAmEkBVMGsCRPxQIZXccutedfS9p
-        FqORsqJQTybQ26I42fkojCGJ8eHmRAKN89uG2+m3ob3x5iPqGXBHAbTz6/Lk
-        1nDSENWlJ76eVczU1r/geUj9AIxIu+SAAAAA
+        H4sIAAAAAAAAAx2MsQ2AMAwEVwmuYQEGYAmEkBVMGsCRPxQIZXccutedfS9pFqORsqJQTybQ26I42fkojCGJ8eHmRAKN89uG2+m3ob3x5iPqGXBHAbTz6/Lk1nDSENWlJ76eVczU1r/geUj9AIxIu+SAAAAA
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:01:30 GMT
 - request:
@@ -107,9 +105,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7x
-        TpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6
-        xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
     http_version: 
   recorded_at: Wed, 01 Mar 2017 05:18:08 GMT
 - request:
@@ -163,9 +159,325 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7x
-        TpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6
-        xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:00:36 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 19:20:38 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=5NgOHjkcSgnjJwcRBlouSySVL0EdQaVXrgwyMUx0; expires=Mon, 27-Jun-2022
+        21:20:38 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:01:42 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 19:25:07 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=YhlcEkgk5xaPzX4O84bwEPUnB3iZMzx12KGzI0Di; expires=Mon, 27-Jun-2022
+        21:25:07 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:03:17 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 19:27:57 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=Vfa8slyTzy84wpKrcf7CYDFI7M2NMnw8vAJP4eps; expires=Mon, 27-Jun-2022
+        21:27:57 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAy2NwQqDQAxEfyXN2YO9+h89aZHgDiropiS7goj/rl28zTyGNwevPjo37fEP3PDHc5frGm+blQI2EDyJ0aKjBCXNJDRMcvMAkgHuz8xhhLjNEuTFFaf9h1sHMzU+vxVL3PvS+nKULOO8ABBmG49+AAAA
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:07 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 19:28:04 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=DZdUjqfb2g0WlY6mQxOZVxjzgmkG5dWUHmX29Jf7; expires=Mon, 27-Jun-2022
+        21:28:04 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAy2NwQqDQAxEfyXN2YO9+h89aZHgDiropiS7goj/rl28zTyGNwevPjo37fEP3PDHc5frGm+blQI2EDyJ0aKjBCXNJDRMcvMAkgHuz8xhhLjNEuTFFaf9h1sHMzU+vxVL3PvS+nKULOO8ABBmG49+AAAA
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:14 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 19:28:23 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=rSALGCsNUqcyJUrl8AUy2hY6DbLFFlgIGLiVDLav; expires=Mon, 27-Jun-2022
+        21:28:23 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA6tWyi1OL1ayiq4GMZSslJwzEstSFVJSFRKTU4uL8xUy88piSg0MUg1zMlMSFZV0lEoqC1KB6lKLivKLlGpjdZQS8yrjwbx4sAklRaWptQDBtKVAVwAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:33 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 19:49:33 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=dtCoW5JOja022tbbzEbNYPO2R8tclp4gWQ0YXGgg; expires=Mon, 27-Jun-2022
+        21:49:33 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:27:44 GMT
 recorded_with: VCR 3.0.0

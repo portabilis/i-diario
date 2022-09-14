@@ -96,7 +96,6 @@ RSpec.describe ScoreRounder, type: :service do
       context 'when number is nil' do
         let(:action) { RoundingTableAction::ABOVE }
         it 'should return zero' do
-          skip
 
           expect(subject.round(nil)).to be(0.0)
         end

@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::KnowledgeAreas, type: :service do
 
   describe '#fetch' do
     it 'returns all knowledge areas' do
-      skip
 
       VCR.use_cassette('all_knowledge_areas') do
         result = subject.fetch

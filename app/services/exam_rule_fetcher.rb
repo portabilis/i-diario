@@ -15,6 +15,7 @@ class ExamRuleFetcher
                                                              .by_classroom(@classroom)
                                                              .by_date(Date.current)
                                                              &.first
+
     if student_enrollment_classroom.blank?
       student_enrollment_classroom = StudentEnrollmentClassroom.by_student(@student)
                                                                .by_classroom(@classroom)

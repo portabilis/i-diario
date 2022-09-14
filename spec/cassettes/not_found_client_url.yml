@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/request-invalid/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 25 Jun 2022 06:25:38 GMT
+      Content-Type:
+      - text/html
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAEA7PJKMnNsePlsslITUyxsynJLMlJtTMxMFHwyy9RcMsvzUux0YcI2uiDlQCVJuWnVIK0JKfmlaQW2dlkGKLrAIrY6EOlQWYDFUF5eemZeRXIcvow0/ShLgEAC9lhM5IAAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:00:54 GMT
+recorded_with: VCR 3.0.0
