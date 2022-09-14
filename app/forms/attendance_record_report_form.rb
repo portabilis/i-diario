@@ -23,8 +23,8 @@ class AttendanceRecordReportForm
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
   validates :period, presence: true
-  validates :discipline_id, presence: true, unless: :global_absence?
-  validates :class_numbers, presence: true, unless: :global_absence?
+  validates :discipline_id, presence: true, unless: :global_absence
+  validates :class_numbers, presence: true, unless: :global_absence
   validates :start_at, presence: true
   validates :end_at, presence: true
   validates :school_calendar_year, presence: true
@@ -32,27 +32,7 @@ class AttendanceRecordReportForm
   validate :must_have_daily_frequencies
 
   def daily_frequencies
-    if global_absence?
-      @daily_frequencies ||= DailyFrequency.by_classroom_id(classroom_id)
-                                           .by_period(period)
-                                           .by_frequency_date_between(start_at, end_at)
-                                           .general_frequency
-                                           .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
-                                           .order_by_frequency_date
-                                           .order_by_class_number
-                                           .order_by_student_name
-
-    else
-      @daily_frequencies ||= DailyFrequency.by_classroom_id(classroom_id)
-                                           .by_period(period)
-                                           .by_discipline_id(discipline_id)
-                                           .by_class_number(class_numbers.split(','))
-                                           .by_frequency_date_between(start_at, end_at)
-                                           .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
-                                           .order_by_frequency_date
-                                           .order_by_class_number
-                                           .order_by_student_name
-    end
+    @daily_frequencies ||= DailyFrequencyQuery.call(global_absence, discipline_id, classroom_id, period, class_numbers, start_at, end_at)
   end
 
   def school_calendar_events
@@ -119,7 +99,7 @@ class AttendanceRecordReportForm
   end
 
 
-  def global_absence?
+  def global_absence
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
