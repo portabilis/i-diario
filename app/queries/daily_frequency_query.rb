@@ -1,33 +1,46 @@
 class DailyFrequencyQuery
-  class << self
-    def call(global_absence, discipline_id, classroom_id, period, class_numbers, start_at, end_at)
-      daily_frequency = DailyFrequency.by_classroom_id(classroom_id)
-                                      .by_period(period)
-                                      .by_frequency_date_between(start_at, end_at)
-                                      .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
-                                      .order_by_frequency_date
-                                      .order_by_class_number
-                                      .order_by_student_name
+  def self.call(filters = {})
+    DailyFrequency.all.extending(Scopes)
+      .by_classroom_id(filters[:classroom_id])
+      .by_period(filters[:period])
+      .by_frequency_date_between(filters[:frequency_date])
+      .by_discipline_id(filters[:discipline_id])
+      .by_class_number(filters[:class_numbers])
+      .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
+      .order_by_frequency_date
+      .order_by_class_number
+      .order_by_student_name
+  end
 
-      daily_frequency = by_general_frequency(daily_frequency, daily_frequency)
-      daily_frequency = attendance_by_discipline(daily_frequency, global_absence, discipline_id, class_numbers)
-      
-      daily_frequency
+  module Scopes
+    def by_classroom_id(classroom_id)
+      return self if classroom_id.blank?
+
+      where(classroom_id: classroom_id)
     end
 
-    private 
+    def by_period(period)
+      return self if period.blank?
 
-    def by_general_frequency(daily_frequency, global_absence)
-      return daily_frequency unless global_absence
+      where(period: period)
+    end
+   
+    def by_frequency_date_between(frequency_date)
+      return self if frequency_date.blank?
 
-      daily_frequency.general_frequency
+      where(frequency_date: frequency_date) 
     end
 
-    def attendance_by_discipline(daily_frequency, global_absence, discipline_id, class_numbers)
-      return daily_frequency if global_absence.present?
+    def by_discipline_id(discipline_id)
+      return self if discipline_id.blank?
 
-      daily_frequency.by_discipline_id(discipline_id)
-                    .by_class_number(class_numbers.split(','))
+      where(discipline_id: discipline_id)
+    end
+
+    def by_class_number(class_number)
+      return self if class_number.blank?
+
+      where(class_number: class_number)
     end
   end
 end
