@@ -14,22 +14,23 @@ FactoryGirl.define do
       student nil
       student_enrollment nil
       school_calendar nil
+      exam_rule { create(:exam_rule) }
     end
 
     trait :score_type_numeric_and_concept do
-      association classrooms_grades: :exam_rule, factory: [:exam_rule, :score_type_numeric_and_concept]
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_numeric_and_concept, exam_rule: exam_rule) }
     end
 
     trait :score_type_numeric do
-      association classrooms_grades: :exam_rule, factory: :exam_rule
+      classrooms_grades { create_list(:classrooms_grade, 2, exam_rule: exam_rule) }
     end
 
     trait :score_type_concept do
-      association classrooms_grades: :exam_rule, factory: [:exam_rule, :score_type_concept]
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_concept, exam_rule: exam_rule) }
     end
 
     trait :by_discipline do
-      association classrooms_grades: :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
+      classrooms_grades { create_list(:classrooms_grade, 2, :frequency_type_by_discipline, exam_rule: exam_rule) }
     end
 
     trait :with_teacher_discipline_classroom do
@@ -65,10 +66,10 @@ FactoryGirl.define do
       after(:create) do |classroom, evaluator|
         student_enrollment = evaluator.student_enrollment
         student_enrollment ||= create(:student_enrollment, student: evaluator.student || create(:student))
-
+        classrooms_grade = create(:classrooms_grade, classroom: classroom)
         create(
           :student_enrollment_classroom,
-          classroom: classroom,
+          classrooms_grade: classrooms_grade,
           student_enrollment: student_enrollment
         )
       end
