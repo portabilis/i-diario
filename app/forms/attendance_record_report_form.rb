@@ -37,7 +37,7 @@ class AttendanceRecordReportForm
       period: period,
       frequency_date: start_at..end_at,
       discipline_id: !global_absence? && discipline_id,
-      class_number: !global_absence? && class_number
+      class_number: !global_absence? && class_numbers
     )
   end
 
