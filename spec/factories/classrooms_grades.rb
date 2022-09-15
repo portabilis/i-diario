@@ -16,7 +16,7 @@ FactoryGirl.define do
       association :exam_rule, factory: [:exam_rule, :score_type_concept]
     end
 
-    trait :by_discipline do
+    trait :frequency_type_by_discipline do
       association :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
     end
   end
