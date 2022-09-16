@@ -33,6 +33,10 @@ FactoryGirl.define do
       classrooms_grades { create_list(:classrooms_grade, 2, :frequency_type_by_discipline, exam_rule: exam_rule) }
     end
 
+    trait :score_type_numeric_and_concept_create_rule do
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_numeric_and_concept) }
+    end
+
     trait :with_teacher_discipline_classroom do
       after(:create) do |classroom, evaluator|
         discipline = evaluator.discipline || create(:discipline)
