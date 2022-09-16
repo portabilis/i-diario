@@ -8,7 +8,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       :classroom,
       :with_classroom_semester_steps,
       :with_student_enrollment_classroom,
-      :score_type_numeric
+      :score_type_numeric_and_concept_create_rule
     )
   }
   let!(:teacher_discipline_classroom) {
@@ -26,11 +26,13 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       teacher: teacher_discipline_classroom.teacher
     )
   }
+  let!(:grade) { create(:grade) }
   let!(:school_calendar_discipline_grade) {
     create(
       :school_calendar_discipline_grade,
       school_calendar: classroom.calendar.school_calendar,
-      discipline: discipline
+      discipline: discipline,
+      grade: grade
     )
   }
   let!(:avaliation) {
@@ -39,7 +41,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       teacher_id: teacher_discipline_classroom.teacher.id,
       classroom: classroom,
       discipline: discipline,
-      grade_ids: [school_calendar_discipline_grade.grade.id]
+      grade_ids: [grade.id]
     )
   }
   let!(:daily_note) { create(:daily_note, avaliation: avaliation) }
@@ -55,7 +57,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     create(
       :complementary_exam_setting,
       :with_teacher_discipline_classroom,
-      grades: [school_calendar_discipline_grade.grade.id],
+      grades: [grade],
       calculation_type: CalculationTypes::SUM
     )
   }
