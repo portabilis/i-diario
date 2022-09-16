@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :conceptual_exam do
     student
 
-    association :classroom, factory: [:classroom, :score_type_concept, :with_classroom_semester_steps]
+    association :classroom, factory: [:classroom, :score_type_concept_create_rule, :with_classroom_semester_steps]
 
     unity_id { classroom.unity_id }
 

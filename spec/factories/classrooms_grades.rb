@@ -23,5 +23,9 @@ FactoryGirl.define do
     trait :with_classroom_trimester_steps do
       association :classroom, factory: [:classroom, :with_classroom_trimester_steps]
     end
+
+    trait :with_classroom_semester_steps do
+      association :classroom, factory: [:classroom, :with_classroom_semester_steps]
+    end
   end
 end
