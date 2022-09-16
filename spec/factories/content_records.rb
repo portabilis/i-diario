@@ -10,6 +10,7 @@ FactoryGirl.define do
     before(:create) do |content_record|
       classroom = content_record.classroom || create(
         :classroom,
+        :score_type_numeric,
         :with_classroom_semester_steps
       )
 
