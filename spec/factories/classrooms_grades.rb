@@ -19,5 +19,9 @@ FactoryGirl.define do
     trait :frequency_type_by_discipline do
       association :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
     end
+
+    trait :with_classroom_trimester_steps do
+      association :classroom, factory: [:classroom, :with_classroom_trimester_steps]
+    end
   end
 end
