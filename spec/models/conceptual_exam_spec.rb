@@ -29,6 +29,35 @@ RSpec.describe ConceptualExam, type: :model do
     it { expect(subject).to validate_not_in_future_of(:recorded_at) }
     it { expect(subject).to validate_school_term_day_of(:recorded_at) }
 
+    it 'should require student to have conceptual exam score type' do
+      invalid_score_types = [ScoreTypes::DONT_USE, ScoreTypes::NUMERIC]
+      expected_message = I18n.t(
+        '.activerecord.errors.models.conceptual_exam.attributes.student' \
+        '.classroom_must_have_conceptual_exam_score_type'
+      )
+
+      student = create(:student)
+      student_enrollment = create(:student_enrollment, student: student)
+      classrooms_grade = create(:classrooms_grade, :score_type_numeric)
+      create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grade,
+        student_enrollment: student_enrollment
+      )
+      conceptual_exam = build(
+        :conceptual_exam,
+        :with_teacher_discipline_classroom,
+        classroom: classrooms_grade.classroom,
+        student: student
+      )
+
+      conceptual_exam.student.uses_differentiated_exam_rule = false
+
+      conceptual_exam.valid?
+
+      expect(conceptual_exam.errors[:student]).to include(expected_message)
+    end
+
     context 'recorded_at validations' do
       context 'creating a new conceptual_exam' do
         subject do
