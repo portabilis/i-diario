@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :conceptual_exam do
     student
 
-    association :classroom, factory: [:classroom, :score_type_concept, :with_classroom_semester_steps]
+    association :classroom, factory: [:classroom, :score_type_concept_create_rule, :with_classroom_semester_steps]
 
     unity_id { classroom.unity_id }
 
@@ -45,10 +45,10 @@ FactoryGirl.define do
       after(:build) do |conceptual_exam, evaluator|
         student_enrollment = evaluator.student_enrollment
         student_enrollment ||= create(:student_enrollment, student: conceptual_exam.student)
-
+        classrooms_grade = create(:classrooms_grade, :score_type_concept, classroom: conceptual_exam.classroom)
         create(
           :student_enrollment_classroom,
-          classroom: conceptual_exam.classroom,
+          classrooms_grade: classrooms_grade,
           student_enrollment: student_enrollment
         )
       end

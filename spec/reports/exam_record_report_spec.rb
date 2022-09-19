@@ -12,7 +12,7 @@ RSpec.describe ExamRecordReport, type: :report do
       discipline: discipline
     )
     school_calendar = classroom.calendar.school_calendar
-    student = classroom.student_enrollments.first.student
+    student = classroom.student_enrollment_classrooms.first.student_enrollment.student
     avaliation = create(
       :avaliation,
       school_calendar: school_calendar,
@@ -38,7 +38,9 @@ RSpec.describe ExamRecordReport, type: :report do
       daily_notes,
       students,
       [],
-      []
+      [],
+      [],
+      false,
     ).render
 
     expect(subject).to be_truthy
