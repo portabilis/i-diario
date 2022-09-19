@@ -40,8 +40,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :teacher, presence: true
   validates :classroom, presence: true
-  validates :discipline, presence: true, if: :require_discipline?
-  validates :discipline, absence: true, unless: :require_discipline?
+  validates :discipline, presence: true, on: :create
   validates(
     :date,
     presence: true,

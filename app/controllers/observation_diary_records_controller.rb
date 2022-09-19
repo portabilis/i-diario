@@ -12,7 +12,7 @@ class ObservationDiaryRecordsController < ApplicationController
     @observation_diary_records = apply_scopes(ObservationDiaryRecord)
       .includes(:discipline, classroom: :unity)
       .by_classroom(current_user_classroom)
-      .by_discipline(current_discipline)
+      .by_discipline([current_discipline.id, nil])
       .ordered
   end
 
@@ -21,6 +21,7 @@ class ObservationDiaryRecordsController < ApplicationController
     @observation_diary_record.school_calendar_id = current_school_calendar.id
     @observation_diary_record.teacher = current_teacher
     @observation_diary_record.date = Time.zone.today
+    @allow_discipline_edit = false
   end
 
   def create
@@ -43,7 +44,8 @@ class ObservationDiaryRecordsController < ApplicationController
 
   def edit
     @observation_diary_record = ObservationDiaryRecord.find(params[:id]).localized
-
+    puts @observation_diary_record.as_json
+    @allow_discipline_edit = @observation_diary_record.discipline.blank?
     authorize @observation_diary_record
   end
 
@@ -132,10 +134,6 @@ class ObservationDiaryRecordsController < ApplicationController
     )
     frequency_type_definer.define!
 
-    if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
-      current_user_discipline
-    else
-      nil
-    end
+    current_user_discipline
   end
 end

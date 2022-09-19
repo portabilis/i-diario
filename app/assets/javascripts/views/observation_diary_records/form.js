@@ -4,6 +4,7 @@ $(function () {
   var flashMessages = new FlashMessages();
   var $classroom = $('#observation_diary_record_classroom_id');
   var $discipline = $('#observation_diary_record_discipline_id');
+  var $disciplineDiv = $("[data-discipline]");
   var $disciplineContainer = $('.observation_diary_record_discipline');
   var $date = $('#observation_diary_record_date');
   var $observationDiaryRecordNotesContainer = $('#observation-diary-record-notes');
@@ -35,7 +36,6 @@ $(function () {
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
 
-    $discipline.select2('val', '');
     $discipline.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id)) {
@@ -116,7 +116,6 @@ $(function () {
   $classroom.on('change', function() {
     fetchDisciplines();
     fetchStudents();
-    fetchExamRule();
   });
 
   $date.on('valid-date', function() {
@@ -131,7 +130,6 @@ $(function () {
   });
 
   // On load
-
-  fetchExamRule();
+  fetchDisciplines();
   fetchStudents();
 });
