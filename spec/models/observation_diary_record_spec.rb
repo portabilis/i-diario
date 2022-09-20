@@ -40,7 +40,15 @@ RSpec.describe ObservationDiaryRecord do
     it { expect(subject).to validate_not_in_future_of(:date) }
     it { expect(subject).to validate_school_calendar_day_of(:date) }
     it { expect(subject).to validate_presence_of(:notes) }
-    it { expect(subject).to validate_presence_of(:discipline) }
+    it {
+      new_record = build(
+        :observation_diary_record,
+        :with_teacher_discipline_classroom,
+        :with_notes,
+        classroom: classroom
+      )
+      expect(new_record).to validate_presence_of(:discipline)
+    }
 
     it 'should require unique value for date scoped to school_calendar_id, ' \
        'teacher_id, classroom_id, discipline_id' do
