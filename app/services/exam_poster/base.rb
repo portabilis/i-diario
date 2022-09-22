@@ -4,7 +4,7 @@ module ExamPoster
 
     attr_accessor :warning_messages, :requests
 
-    def initialize(post_data, entity_id, post_data_last = nil, queue = nil)
+    def initialize(post_data, entity_id, post_data_last = nil, queue = nil, force_posting)
       @post_data = post_data
       @post_data_last = post_data_last
       @entity_id = entity_id
@@ -12,10 +12,11 @@ module ExamPoster
       @warning_messages = []
       @requests = []
       @queue = queue || 'critical'
+      @force_posting = force_posting
     end
 
-    def self.post!(post_data, entity_id, post_data_last = nil, queue = nil)
-      new(post_data, entity_id, post_data_last, queue).post!
+    def self.post!(post_data, entity_id, post_data_last = nil, queue = nil, force_posting)
+      new(post_data, entity_id, post_data_last, queue, force_posting).post!
     end
 
     def post!
@@ -126,7 +127,7 @@ module ExamPoster
                                                         .by_not_poster(@post_data_last.try(:created_at))
       end
 
-      not_posted[:absence] = daily_frequency_students.try(:any?)
+      not_posted[:absence] = daily_frequency_students.try(:any?) || @force_posting
     end
 
     def exist_numerical_exam?(api_posting_type, not_posted, options)
@@ -141,7 +142,7 @@ module ExamPoster
                                            .by_test_date_between(get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
                                            .by_not_poster(@post_data_last.try(:created_at))
 
-      not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?)
+      not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?) || @force_posting
     end
 
     def exist_school_term_recovery?(api_posting_type, not_posted, options)
@@ -167,7 +168,7 @@ module ExamPoster
 
       student_recoveries.reject! { |c| c.empty? }
 
-      not_posted[:school_term_recovery] = student_recoveries.try(:any?)
+      not_posted[:school_term_recovery] = student_recoveries.try(:any?) || @force_posting
     end
 
     def exist_descriptive_exam?(api_posting_type, not_posted, options)
@@ -177,7 +178,7 @@ module ExamPoster
                                                         .by_student_id(options[:student])
                                                         .by_not_poster(@post_data_last.try(:created_at))
 
-      not_posted[:descriptive_exam] = descriptive_exam_students.try(:any?)
+      not_posted[:descriptive_exam] = descriptive_exam_students.try(:any?) || @force_posting
     end
 
     def exist_conceptual_exam?(api_posting_type, not_posted, options)
@@ -197,7 +198,7 @@ module ExamPoster
 
       conceptual_exam_values.reject! { |c| c.empty? }
 
-      not_posted[:conceptual_exam] = conceptual_exam_values.try(:any?)
+      not_posted[:conceptual_exam] = conceptual_exam_values.try(:any?) || @force_posting
     end
 
     def exist_final_recovery?(api_posting_type, not_posted, options)
@@ -214,7 +215,7 @@ module ExamPoster
                                                        final_recovery_diary_record.recovery_diary_record_id
                                                      ).by_not_poster(@post_data_last.try(:created_at))
 
-      not_posted[:final_recovery] = student_recoveries.try(:any?)
+      not_posted[:final_recovery] = student_recoveries.try(:any?) || @force_posting
     end
   end
 end
