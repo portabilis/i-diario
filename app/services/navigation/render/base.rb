@@ -20,9 +20,12 @@ module Navigation
       delegate :raw, :content_tag, :link_to, :to => :helpers
 
       def can_show?(feature)
+        # rubocop:todo Entender como melhorar esta questão das entidades nos testes
+        domain = Rails.env.test? ? 'localhost' : Entity.current.id
+
         cache_key = [
           'MenuRender#can_show?',
-          Entity.current.id,
+          domain,
           current_user.admin?,
           current_user.current_user_role&.role&.cache_key || current_user.cache_key,
           feature
