@@ -1,5 +1,9 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/ieducar_api_exam_posting/force_posting' %>
+<% end %>
+
 <tbody>
-  <% ApiPostingTypes.to_a.each do |value| %>
+  <% ApiPostingTypes.to_a.each_with_index do |value, index| %>
     <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != @steps.to_a.last %>
 
     <tr>
@@ -57,6 +61,22 @@
         <% else %>
           <i>O envio das informações ainda não foi realizado</i>
         <% end %>
+      </td>
+
+      <td class='<%= 'hidden' unless current_user.admin? || current_user.employee? %>'>
+                    <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
+                                 id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
+                                 method: 'post',
+                                 onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
+                                 class: 'btn',
+                                 style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
+                     <div style="display: flex; justify-content: space-between; gap: 1rem">
+                       <%= image_tag '0913_IDIARIO_NOVOICONE.svg', "data-svg-fallback" => asset_path('0913_IDIARIO_NOVOICONE.svg') %>
+
+                       Repetir envio
+                     </div>
+
+          <% end %>
       </td>
 
       <td>
