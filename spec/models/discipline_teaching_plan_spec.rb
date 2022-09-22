@@ -3,8 +3,6 @@ require 'rails_helper'
 RSpec.describe DisciplineTeachingPlan, type: :model do
   subject { build(:discipline_teaching_plan, :with_teacher_discipline_classroom) }
 
-  before(:all) { skip }
-
   describe 'associations' do
     it { expect(subject).to belong_to(:teaching_plan).dependent(:destroy) }
     it { expect(subject).to belong_to(:discipline) }
