@@ -9,7 +9,7 @@ require 'webmock/rspec'
 Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
 RSpec.configure do |config|
-  config.include Devise::Test::ControllerHelpers
+  config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Rails.application.routes.url_helpers
   config.mock_with :rspec do |c|
     c.syntax = [:should, :expect]
