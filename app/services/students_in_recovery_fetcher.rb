@@ -91,9 +91,8 @@ class StudentsInRecoveryFetcher
 
     if classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
       students = students.select { |student|
-        if (average = student.average(classroom, discipline, step))
-          average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
-        end
+        average = student.average(classroom, discipline, step) || 0
+        average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
       }
     end
 
