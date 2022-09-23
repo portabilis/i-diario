@@ -44,7 +44,6 @@ class ObservationDiaryRecordsController < ApplicationController
 
   def edit
     @observation_diary_record = ObservationDiaryRecord.find(params[:id]).localized
-    puts @observation_diary_record.as_json
     @allow_discipline_edit = @observation_diary_record.discipline.blank?
     authorize @observation_diary_record
   end
