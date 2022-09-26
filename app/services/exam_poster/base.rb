@@ -104,7 +104,7 @@ module ExamPoster
     end
 
     def not_posted?(options = { classroom: nil, discipline: nil, student: nil })
-      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true, conceptual_exam: true, final_recovery: true } if @post_data_last.nil?
+      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true, conceptual_exam: true, final_recovery: true } if @post_data_last.nil? || @force_posting
 
       not_posted = { absence: false, numerical_exam: false }
       exist_absence?(@post_data.post_type, not_posted, options)
@@ -127,7 +127,7 @@ module ExamPoster
                                                         .by_not_poster(@post_data_last.try(:created_at))
       end
 
-      not_posted[:absence] = daily_frequency_students.try(:any?) || @force_posting
+      not_posted[:absence] = daily_frequency_students.try(:any?)
     end
 
     def exist_numerical_exam?(api_posting_type, not_posted, options)
@@ -142,7 +142,7 @@ module ExamPoster
                                            .by_test_date_between(get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
                                            .by_not_poster(@post_data_last.try(:created_at))
 
-      not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?) || @force_posting
+      not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?)
     end
 
     def exist_school_term_recovery?(api_posting_type, not_posted, options)
@@ -168,7 +168,7 @@ module ExamPoster
 
       student_recoveries.reject! { |c| c.empty? }
 
-      not_posted[:school_term_recovery] = student_recoveries.try(:any?) || @force_posting
+      not_posted[:school_term_recovery] = student_recoveries.try(:any?)
     end
 
     def exist_descriptive_exam?(api_posting_type, not_posted, options)
@@ -178,7 +178,7 @@ module ExamPoster
                                                         .by_student_id(options[:student])
                                                         .by_not_poster(@post_data_last.try(:created_at))
 
-      not_posted[:descriptive_exam] = descriptive_exam_students.try(:any?) || @force_posting
+      not_posted[:descriptive_exam] = descriptive_exam_students.try(:any?)
     end
 
     def exist_conceptual_exam?(api_posting_type, not_posted, options)
@@ -198,7 +198,7 @@ module ExamPoster
 
       conceptual_exam_values.reject! { |c| c.empty? }
 
-      not_posted[:conceptual_exam] = conceptual_exam_values.try(:any?) || @force_posting
+      not_posted[:conceptual_exam] = conceptual_exam_values.try(:any?)
     end
 
     def exist_final_recovery?(api_posting_type, not_posted, options)
@@ -215,7 +215,7 @@ module ExamPoster
                                                        final_recovery_diary_record.recovery_diary_record_id
                                                      ).by_not_poster(@post_data_last.try(:created_at))
 
-      not_posted[:final_recovery] = student_recoveries.try(:any?) || @force_posting
+      not_posted[:final_recovery] = student_recoveries.try(:any?)
     end
   end
 end
