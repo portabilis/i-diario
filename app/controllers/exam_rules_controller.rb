@@ -33,20 +33,17 @@ class ExamRulesController < ApplicationController
   def for_school_term_type_recovery
     classroom = Classroom.find_by(id: params[:classroom_id])
     classroom_grades = classroom.classrooms_grades.includes(:exam_rule)
-    classroom_grades&.each do |classroom_grade|
-      @classroom_grade = classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0)
-    end
-    classroom_grade = @classroom_grade
 
-    return render json: nil if classroom_grade.blank?
+    classroom_grade = classroom_grades.detect do |classroom_grade|
+      classroom_grade.exam_rule.recovery_type != (RecoveryTypes::DONT_USE)
+    end
+
+    return render json: nil if classroom_grade.nil?
 
     @exam_rule = classroom_grade.exam_rule
-
-    return render json: nil if @exam_rule.blank?
-
     absence_type_definer = FrequencyTypeDefiner.new(classroom, current_teacher, @exam_rule, year: classroom.year)
     absence_type_definer.define!
-    @exam_rule&.allow_frequency_by_discipline = (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE)
+    @exam_rule.allow_frequency_by_discipline = (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE)
 
     render json: @exam_rule
   end
