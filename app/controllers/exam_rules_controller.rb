@@ -32,6 +32,9 @@ class ExamRulesController < ApplicationController
 
   def for_school_term_type_recovery
     classroom = Classroom.find_by(id: params[:classroom_id])
+
+    return render json: nil if classroom.nil?
+
     classroom_grades = classroom.classrooms_grades.includes(:exam_rule)
 
     classroom_grade = classroom_grades.detect do |classroom_grade|
