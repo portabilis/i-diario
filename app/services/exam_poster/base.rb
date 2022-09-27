@@ -4,7 +4,7 @@ module ExamPoster
 
     attr_accessor :warning_messages, :requests
 
-    def initialize(post_data, entity_id, post_data_last = nil, queue = nil, force_posting)
+    def initialize(post_data, entity_id, post_data_last = nil, queue = nil, force_posting = nil)
       @post_data = post_data
       @post_data_last = post_data_last
       @entity_id = entity_id
