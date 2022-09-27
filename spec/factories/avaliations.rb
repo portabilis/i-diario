@@ -10,6 +10,12 @@ FactoryGirl.define do
     classes { rand(1..5).to_s }
     description { Faker::Lorem.unique.sentence }
 
+    grade_ids { [create(
+      :school_calendar_discipline_grade,
+      school_calendar: school_calendar,
+      discipline: discipline
+    ).grade.id] }
+
     transient do
       teacher nil
     end

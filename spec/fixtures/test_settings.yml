@@ -10,3 +10,9 @@ test_setting_b:
   maximum_score: 10
   number_of_decimal_places: 2
   average_calculation_type: "arithmetic"
+test_setting_c:
+  exam_setting_type: 'general'
+  year: 2017
+  maximum_score: 10
+  number_of_decimal_places: 1
+  average_calculation_type: "arithmetic"

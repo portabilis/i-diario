@@ -97,7 +97,7 @@ group :test do
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
   gem 'webdrivers', '3.6.0'
-  gem 'webmock', '1.24.6'
+  gem 'webmock', '3.14.0'
 end
 
 group :test, :development do

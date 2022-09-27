@@ -4,6 +4,7 @@ require 'rspec/rails'
 require 'rspec/retry'
 require 'sidekiq/testing'
 require 'vcr'
+require 'webmock/rspec'
 
 Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
