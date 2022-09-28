@@ -84,33 +84,6 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os alunos da turma selecionada.');
   }
 
-  function fetchExamRule() {
-    $disciplineContainer.hide();
-    var classroom_id = $classroom.select2('val');
-
-    if (!_.isEmpty(classroom_id)) {
-      $.ajax({
-        url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
-        success: handleFetchExamRuleSuccess,
-        error: handleFetchExamRuleError
-      });
-    }
-  };
-
-  function handleFetchExamRuleSuccess(data) {
-    var examRule = data.exam_rule
-    if (!$.isEmptyObject(examRule) && (examRule.frequency_type == '2' || examRule.allow_frequency_by_discipline)) {
-      $disciplineContainer.show();
-    } else {
-      $disciplineContainer.hide();
-      $discipline.select2('val', '');
-    }
-  };
-
-  function handleFetchExamRuleError() {
-    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
-  };
-
   // On change
 
   $classroom.on('change', function() {
