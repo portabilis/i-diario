@@ -67,15 +67,6 @@ class ObservationDiaryRecord < ActiveRecord::Base
     notes.each { |note| note.observation_diary_record = self }
   end
 
-  def require_discipline?
-    return unless classroom && teacher
-
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
-    frequency_type_definer.define!
-
-    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
-  end
-
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
