@@ -11,7 +11,6 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
   let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
-  let(:another_discipline) { create(:discipline) }
   let(:school_calendar) {
     create(
       :school_calendar,
@@ -62,8 +61,9 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
       :with_notes,
       teacher: current_teacher,
       classroom: classroom,
-      discipline: another_discipline,
-      school_calendar: school_calendar
+      discipline: discipline,
+      school_calendar: school_calendar,
+      date: Date.current - 1.week
     )
   }
 
@@ -113,6 +113,19 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
 
         it 'lists the records by discipline' do
           expect(assigns(:observation_diary_records)).to eq([observation_diary_record])
+        end
+      end
+
+      context 'without discipline' do
+        let(:nil_discipline) { nil }
+
+        before do
+          get :index, locale: 'pt-BR', filter: { by_discipline: nil_discipline }
+        end
+
+        it 'lists all records' do
+          expect(assigns(:observation_diary_records))
+            .to include(observation_diary_record, another_observation_diary_record)
         end
       end
     end
