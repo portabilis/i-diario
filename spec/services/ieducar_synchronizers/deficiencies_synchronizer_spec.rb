@@ -63,75 +63,71 @@ RSpec.describe DeficienciesSynchronizer do
 
     context 'when student is not informed anymore in deficiency' do
 
-      context 'when unity is valid' do
-        it 'deletes deficiency' do
-          create(
-            :deficiency_student,
-            deficiency: deficiency,
-            unity_id: unity.id
+      it 'deletes deficiency when unity is valid' do
+        create(
+          :deficiency_student,
+          deficiency: deficiency,
+          unity_id: unity.id
+        )
+        expect(DeficiencyStudent.count).to eq 1
+        VCR.use_cassette('all_deficiencies') do
+          described_class.synchronize!(
+            synchronization: synchronization,
+            worker_batch: worker_batch,
+            worker_state_id: worker_state.id,
+            year: Date.current.year,
+            unity_api_code: unity_id,
+            entity_id: Entity.first.id
           )
-          expect(DeficiencyStudent.count).to eq 1
-          VCR.use_cassette('all_deficiencies') do
-            described_class.synchronize!(
-              synchronization: synchronization,
-              worker_batch: worker_batch,
-              worker_state_id: worker_state.id,
-              year: Date.current.year,
-              unity_api_code: unity_id,
-              entity_id: Entity.first.id
-            )
-            expect(DeficiencyStudent.count).to eq 0
-          end
+          expect(DeficiencyStudent.count).to eq 0
         end
       end
 
-      context 'when unity is invalid' do
-        it 'deletes deficiency when unity is invalid' do
-          create(
-            :deficiency_student,
-            deficiency: deficiency,
-            unity_id: nil
+      it 'deletes deficiency when unity is invalid' do
+        create(
+          :deficiency_student,
+          deficiency: deficiency,
+          unity_id: nil
+        )
+        expect(DeficiencyStudent.count).to eq 1
+        VCR.use_cassette('all_deficiencies') do
+          described_class.synchronize!(
+            synchronization: synchronization,
+            worker_batch: worker_batch,
+            worker_state_id: worker_state.id,
+            year: Date.current.year,
+            unity_api_code: unity_id,
+            entity_id: Entity.first.id
+          )
+          expect(DeficiencyStudent.count).to eq 0
+        end
+      end
+
+      it 'deletes deficiency only from invalid unity' do
+        another_unity = create(:unity)
+        create(
+          :deficiency_student,
+          deficiency: deficiency,
+          student: student,
+          unity_id: another_unity.id
+        )
+        create(
+          :deficiency_student,
+          deficiency: deficiency,
+          student: student,
+          unity_id: nil
+        )
+        expect(DeficiencyStudent.count).to eq 2
+        VCR.use_cassette('all_deficiencies') do
+          described_class.synchronize!(
+            synchronization: synchronization,
+            worker_batch: worker_batch,
+            worker_state_id: worker_state.id,
+            year: Date.current.year,
+            unity_api_code: unity_id,
+            entity_id: Entity.first.id
           )
           expect(DeficiencyStudent.count).to eq 1
-          VCR.use_cassette('all_deficiencies') do
-            described_class.synchronize!(
-              synchronization: synchronization,
-              worker_batch: worker_batch,
-              worker_state_id: worker_state.id,
-              year: Date.current.year,
-              unity_api_code: unity_id,
-              entity_id: Entity.first.id
-            )
-            expect(DeficiencyStudent.count).to eq 0
-          end
-        end
-
-        it 'deletes deficiency only from invalid unity' do
-          another_unity = create(:unity)
-          create(
-            :deficiency_student,
-            deficiency: deficiency,
-            student: student,
-            unity_id: another_unity.id
-          )
-          create(
-            :deficiency_student,
-            deficiency: deficiency,
-            student: student,
-            unity_id: nil
-          )
-          expect(DeficiencyStudent.count).to eq 2
-          VCR.use_cassette('all_deficiencies') do
-            described_class.synchronize!(
-              synchronization: synchronization,
-              worker_batch: worker_batch,
-              worker_state_id: worker_state.id,
-              year: Date.current.year,
-              unity_api_code: unity_id,
-              entity_id: Entity.first.id
-            )
-            expect(DeficiencyStudent.count).to eq 1
-          end
         end
       end
 
