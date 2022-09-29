@@ -241,7 +241,11 @@ Rails.application.routes.draw do
       end
     end
     resources :knowledge_areas, only: [:index]
-    resources :exam_rules, only: [:index]
+    resources :exam_rules, only: [:index] do
+      collection do
+        get :for_school_term_type_recovery
+      end
+    end
     resources :avaliations, concerns: :history do
       collection do
         get :search
