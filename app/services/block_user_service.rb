@@ -30,13 +30,11 @@ class BlockUserService
   end
 
   def block_users_by_entity(entity)
-    ActiveRecord::Base.transaction do
-      @users.each do |email|
-        user = User.find_by(email: email)
-        if user.present?
-          user.update_status(UserStatus::PENDING)
-          puts 'Usuário ' + email + ' bloqueado em ' + entity.name
-        end
+    @users.each do |email|
+      user = User.find_by(email: email)
+      if user.present?
+        user.update_status(UserStatus::PENDING)
+        puts 'Usuário ' + email + ' bloqueado em ' + entity.name
       end
     end
   end
