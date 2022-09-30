@@ -93,6 +93,7 @@ class PartialScoreRecordReportForm
   def student_enrollment_ids(student_id)
     StudentEnrollment.by_student(student_id)
                      .by_date_range(step.start_at, step.end_at)
+                     .by_year(classroom.year)
                      .joins(:exempted_disciplines)
                      .pluck(:id)
   end
