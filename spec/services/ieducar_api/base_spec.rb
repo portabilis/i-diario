@@ -238,8 +238,6 @@ RSpec.describe IeducarApi::Base, type: :service do
       end
 
       it 'secret_key is the staging secret_key' do
-        puts subject.access_key
-        puts staging_access_key
         expect(subject.secret_key).to eq(staging_secret_key)
       end
     end
