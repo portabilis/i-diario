@@ -47,12 +47,10 @@ class UserByCsvCreator
           password = new_user[4] || SecureRandom.hex(8)
           user.login = new_user[3]
           user.email = new_user[2]
-          if new_user[4]
-            user.encrypted_password = password
-          else
-            user.password = password
-            user.password_confirmation = password
-          end
+
+          user.password = password
+          user.password_confirmation = password
+
           user.status = 'active'
           user.kind = 'employee'
           user.admin = true
