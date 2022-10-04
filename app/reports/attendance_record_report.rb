@@ -12,7 +12,7 @@ class AttendanceRecordReport < BaseReport
     start_at,
     end_at,
     daily_frequencies,
-    student_enrollments,
+    student_enrollment_list,
     events,
     school_calendar,
     second_teacher_signature,
@@ -26,7 +26,7 @@ class AttendanceRecordReport < BaseReport
              start_at,
              end_at,
              daily_frequencies,
-             student_enrollments,
+             student_enrollment_list,
              events,
              school_calendar,
              second_teacher_signature,
@@ -41,7 +41,7 @@ class AttendanceRecordReport < BaseReport
     start_at,
     end_at,
     daily_frequencies,
-    student_enrollments,
+    student_enrollment_list,
     events,
     school_calendar,
     second_teacher_signature,
@@ -54,7 +54,7 @@ class AttendanceRecordReport < BaseReport
     @start_at = start_at
     @end_at = end_at
     @daily_frequencies = daily_frequencies
-    @students_enrollments = student_enrollments
+    @students_enrollments = student_enrollment_list
     @events = events
     @school_calendar = school_calendar
     @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
@@ -131,11 +131,18 @@ class AttendanceRecordReport < BaseReport
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
+    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
+
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
 
+    active_searches = active_searches_by_range(daily_frequencies)
+
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
+
+    students_enrollments = @students_enrollments.includes(:student)
+                                                .includes(:student_enrollment_classrooms)
 
     sliced_frequencies_and_events.each_with_index do |frequencies_and_events_slice, index|
       class_numbers = []
@@ -153,7 +160,10 @@ class AttendanceRecordReport < BaseReport
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
 
-          @students_enrollments.each do |student_enrollment|
+          student_dependances = @students_enrollments.pluck(:id)
+          all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_dependances).to_a
+
+          students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
             student_enrollment_classroom = student_enrollment_classroom_by_enrollment(student_enrollment)
             joined_at = student_enrollment_classroom.joined_at.to_date
@@ -161,18 +171,18 @@ class AttendanceRecordReport < BaseReport
 
             if exempted_from_discipline?(student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
-            elsif ActiveSearch.new.in_active_search?(student_enrollment.id, daily_frequency.frequency_date)
+            elsif in_active_search?(student_id, active_searches, daily_frequency)
               @show_legend_active_search = true
               student_frequency = ActiveSearchFrequencyStudent.new
             elsif @show_inactive_enrollments
               frequency_date = daily_frequency.frequency_date.to_date
               if frequency_date >= joined_at && frequency_date < left_at
-                student_frequency = daily_frequency.students.select{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }.first
+                student_frequency = daily_frequency.students.detect{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }
               else
                 student_frequency ||= NullDailyFrequencyStudent.new
               end
             else
-              student_frequency = daily_frequency.students.select{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }.first
+              student_frequency = daily_frequency.students.detect{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }
               student_frequency ||= NullDailyFrequencyStudent.new
             end
 
@@ -184,7 +194,7 @@ class AttendanceRecordReport < BaseReport
             student = student_enrollment.student
             (students[student_enrollment.id] ||= {})[:name] = student.to_s
             students[student_enrollment.id] = {} if students[student_enrollment.id].nil?
-            students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
+            students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment.id][:dependence]
             students[student_enrollment.id][:absences] ||= 0
 
@@ -224,7 +234,7 @@ class AttendanceRecordReport < BaseReport
           days << make_cell(content: "#{school_calendar_event[:date].day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{school_calendar_event[:date].month}", background_color: 'FFFFFF', align: :center)
 
-          @students_enrollments.each do |student_enrollment|
+          students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
             student = student_enrollment.student
             (students[student_enrollment.id] ||= {})[:name] = student.to_s
@@ -393,8 +403,10 @@ class AttendanceRecordReport < BaseReport
     record.is_a? DailyFrequency
   end
 
-  def student_has_dependence?(student_enrollment, discipline_id)
-    student_enrollment.dependences.any? { |dependence| dependence.discipline_id == discipline_id  }
+  def student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
+    all_dependances.detect do
+      student_enrollment_id.eql?(student_enrollment.id) && discipline_id.eql?(daily_frequency.discipline_id)
+    end
   end
 
   def exempted_from_discipline?(student_enrollment, daily_frequency)
@@ -461,6 +473,19 @@ class AttendanceRecordReport < BaseReport
                                                                        .try(:allow_absence_by_discipline)
   end
 
+  def active_searches_by_range(daily_frequencies)
+    dates = daily_frequencies.map(&:frequency_date)
+    students_enrollment_ids = @students_enrollments.to_a.map{ |student_enrollment| student_enrollment.id }
+
+    ActiveSearch.new.in_active_search_in_range(students_enrollment_ids, dates)
+  end
+
+  def in_active_search?(student_id, active_searches, daily_frequency)
+    active_searches.detect do |active_searche|
+      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id) 
+    end
+  end
+
   def general_frequency?
     discipline.blank?
   end
@@ -520,7 +545,10 @@ class AttendanceRecordReport < BaseReport
   end
 
   def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-    student_frequency = daily_frequency.students.by_student_id(student_enrollment.student_id).try(:first)
+    student_frequency = @daily_frequency_students.detect do |student_frequency|
+      student_frequency.student_id.eql?(student_enrollment.student_id)
+    end
+
     return if student_frequency.blank?
     return if student_frequency.type_of_teaching == TypesOfTeaching::PRESENTIAL
 
