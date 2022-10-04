@@ -9,6 +9,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       :classroom,
       :with_classroom_semester_steps,
       :with_teacher_discipline_classroom,
+      :by_discipline,
       exam_rule: exam_rule,
       discipline: discipline,
       teacher: teacher
@@ -19,6 +20,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       :classroom,
       :with_classroom_semester_steps,
       :with_teacher_discipline_classroom,
+      :by_discipline,
       exam_rule: exam_rule,
       discipline: discipline,
       teacher: teacher
@@ -29,16 +31,19 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
 
   subject do
     ObservationRecordReportQuery.new(
+      classroom_one.unity.id,
       teacher.id,
       classroom_one.id,
       discipline.id,
       start_at,
-      end_at
+      end_at,
+      1
     )
   end
 
   describe '#observation_diary_records' do
     it 'should filter by teacher_id' do
+      skip "Teacher id is not used anymore, it uses current user teacher id"
       observation_diary_record_one = create_observation_diary_record
       observation_diary_record_two = create_observation_diary_record_with_different(:teacher)
 
@@ -79,7 +84,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
     attributes = {
       teacher: teacher,
       classroom: classroom_one,
-      discipline: discipline
+      discipline: classroom_one.disciplines.first
     }
 
     attributes.delete(attribute) unless attribute == :nothing

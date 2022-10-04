@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::StudentRegistrations, type: :service do
 
   describe '#fetch' do
     it 'returns student registrations' do
-      skip
 
       VCR.use_cassette('student_registrations') do
         result = subject.fetch(aluno_id: [18_625, 18_627])

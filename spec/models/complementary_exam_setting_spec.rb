@@ -5,13 +5,14 @@ RSpec.describe ComplementaryExamSetting, type: :model do
   let(:complementary_exam_setting_with_two_grades) {
     create(:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom)
   }
-  let(:classroom) {
+  let(:classrooms_grade) {
     create(
-      :classroom,
-      :with_classroom_semester_steps,
+      :classrooms_grade,
+      :with_classroom_trimester_steps,
       grade: complementary_exam_setting_with_two_grades.grades.first
     )
   }
+  let(:classroom) { classrooms_grade.classroom }
   let(:step) { classroom.calendar.classroom_steps.first }
   let(:complementary_exam) {
     create(
@@ -104,7 +105,9 @@ RSpec.describe ComplementaryExamSetting, type: :model do
 
       context 'grade that has a classroom in complementary exam is removed' do
         subject do
-          complementary_exam_setting_with_two_grades.grade_ids = complementary_exam_setting_with_two_grades.grade_ids - [complementary_exam.classroom.grade_id]
+          complementary_exam_setting_with_two_grades.grade_ids =
+            complementary_exam_setting_with_two_grades.grade_ids -
+            [complementary_exam.classroom.classrooms_grades.first.grade_id]
           complementary_exam_setting_with_two_grades
         end
 
@@ -117,7 +120,7 @@ RSpec.describe ComplementaryExamSetting, type: :model do
       context 'grade that hasnt a classroom in complementary exam is removed' do
 
         subject do
-          complementary_exam_setting_with_two_grades.grade_ids = [complementary_exam.classroom.grade_id]
+          complementary_exam_setting_with_two_grades.grade_ids = [classrooms_grade.grade_id]
           complementary_exam_setting_with_two_grades
         end
 

@@ -8,7 +8,7 @@ FactoryGirl.define do
     classroom_api_code { classroom.api_code }
     teacher_api_code { teacher.api_code }
     discipline_api_code { discipline.api_code }
-    allow_absence_by_discipline 0
+    allow_absence_by_discipline 1
 
     trait :with_classroom_semester_steps do
       association :classroom, factory: [:classroom, :with_classroom_semester_steps]

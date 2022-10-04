@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::Teachers, type: :service do
 
   describe '#fetch' do
     it 'returns all teachers' do
-      skip
 
       VCR.use_cassette('all_teachers') do
         result = subject.fetch

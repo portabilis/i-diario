@@ -418,6 +418,10 @@ class User < ActiveRecord::Base
     @access_levels ||= roles.map(&:access_level).uniq
   end
 
+  def is_admin_email?
+    email.eql?(Rails.application.secrets.admin_email)
+  end
+
   protected
 
   def teacher_access_level?

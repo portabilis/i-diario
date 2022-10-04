@@ -236,6 +236,7 @@ class PartialScoreRecordReport < BaseReport
   def student_enrollment(student_id)
     @student_enrollment ||= StudentEnrollment.by_student(student_id)
                                              .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
+                                             .by_year(@classroom.year)
                                              .first
   end
 

@@ -90,11 +90,10 @@ class StudentsInRecoveryFetcher
     students = filter_students_in_recovery
 
     if classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
-      students = students.select { |student|
-        if (average = student.average(classroom, discipline, step))
-          average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
-        end
-      }
+      students = students.select do |student|
+        average = student.average(classroom, discipline, step) || 0
+        average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
+      end
     end
 
     filter_differentiated_students(students, differentiated)

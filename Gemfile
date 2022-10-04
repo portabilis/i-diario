@@ -24,7 +24,6 @@ gem 'discard', '1.0.0'
 gem 'ejs', '1.1.1'
 gem 'enumerate_it', '1.3.1'
 gem 'foreigner', '1.6.1'
-gem 'elastic-apm', '4.5.1'
 gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.5.1'
 gem 'honeybadger', '4.5.6'
@@ -98,7 +97,7 @@ group :test do
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
   gem 'webdrivers', '3.6.0'
-  gem 'webmock', '1.24.6'
+  gem 'webmock', '3.14.0'
 end
 
 group :test, :development do
