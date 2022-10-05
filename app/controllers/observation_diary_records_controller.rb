@@ -8,11 +8,13 @@ class ObservationDiaryRecordsController < ApplicationController
 
   def index
     current_discipline = fetch_current_discipline
+    teachers_by_discipline = fetch_teachers_by_discipline(current_discipline)
 
     @observation_diary_records = apply_scopes(ObservationDiaryRecord)
       .includes(:discipline, classroom: :unity)
       .by_classroom(current_user_classroom)
-      .by_discipline(current_discipline.id)
+      .by_teacher(teachers_by_discipline)
+      .by_discipline([current_discipline.id, nil])
       .ordered
   end
 
@@ -137,5 +139,13 @@ class ObservationDiaryRecordsController < ApplicationController
     frequency_type_definer.define!
 
     current_user_discipline
+  end
+
+  def fetch_teachers_by_discipline(discipline)
+    discipline_teachers_fetcher = DisciplineTeachersFetcher.new(
+      discipline,
+      current_user_classroom
+    )
+    discipline_teachers_fetcher.teachers_by_classroom
   end
 end
