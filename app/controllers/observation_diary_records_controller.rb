@@ -12,7 +12,7 @@ class ObservationDiaryRecordsController < ApplicationController
     @observation_diary_records = apply_scopes(ObservationDiaryRecord)
       .includes(:discipline, classroom: :unity)
       .by_classroom(current_user_classroom)
-      .by_discipline([current_discipline.id, nil])
+      .by_discipline(current_discipline.id)
       .ordered
   end
 
@@ -58,6 +58,9 @@ class ObservationDiaryRecordsController < ApplicationController
     if @observation_diary_record.save
       respond_with @observation_diary_record, location: observation_diary_records_path
     else
+      has_discipline_error = @observation_diary_record.errors[:discipline_id].present?
+      discipline_blank = @observation_diary_record.discipline.blank?
+      @allow_discipline_edit = has_discipline_error || discipline_blank
       render :edit
     end
   end
