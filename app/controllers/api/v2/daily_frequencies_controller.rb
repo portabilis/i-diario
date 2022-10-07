@@ -61,7 +61,7 @@ module Api
           class_numbers: @class_numbers,
           school_calendar: current_school_calendar,
           period: period,
-          owner_teacher_id: params[:teacher_id]
+          owner_teacher_id: params[:teacher_id] || teacher_regent.try(:id)
         }
       end
 
@@ -95,6 +95,13 @@ module Api
           params['classroom_id'],
           params['discipline_id']
         ).teacher_period
+      end
+
+      def teacher_regent
+        TeacherRegentFetcher.new(
+          classroom.id,
+          classroom.year
+        ).teacher_regent
       end
     end
   end
