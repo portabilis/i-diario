@@ -63,7 +63,7 @@ class DailyFrequency < ActiveRecord::Base
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
             .uniq
         }
-
+  scope :by_owner_teacher_id, lambda { |teacher_id| where(owner_teacher_id: teacher_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_period, ->(period) { where(period: period) }
