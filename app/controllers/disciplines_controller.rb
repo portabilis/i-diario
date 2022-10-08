@@ -44,7 +44,7 @@ class DisciplinesController < ApplicationController
 
   def search
     params[:filter][:by_teacher_id] = current_user.teacher_id if params[:use_user_teacher]
-    @disciplines = apply_scopes(Discipline).ordered
+    @disciplines = apply_scopes(Discipline.where(grouper: true)).ordered
 
     render json: @disciplines
   end
@@ -63,7 +63,7 @@ class DisciplinesController < ApplicationController
   end
 
   def disciplines_to_select2(classroom_id)
-    disciplines = Discipline.by_classroom_id(classroom_id)
+    disciplines = Discipline.where(grouper: true).by_classroom_id(classroom_id)
 
     if current_user.teacher?
       disciplines.by_teacher_id(current_teacher.id)
