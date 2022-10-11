@@ -259,7 +259,6 @@ class LessonsBoardsController < ApplicationController
                                 .joins(:teacher, discipline: :knowledge_area)
                                 .where(disciplines: { descriptor: false })
                                 .order('teachers.name')
-                                .grouped_by_knowledge_area
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
@@ -274,7 +273,6 @@ class LessonsBoardsController < ApplicationController
                                 .includes(:teacher, discipline: :knowledge_area)
                                 .where(disciplines: { descriptor: false })
                                 .order('teachers.name')
-                                .grouped_by_knowledge_area
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
