@@ -151,79 +151,82 @@ class AttendanceRecordReport < BaseReport
       students = {}
 
       frequencies_and_events_slice.each do |daily_frequency_or_event|
+
         if daily_frequency?(daily_frequency_or_event)
           daily_frequency = daily_frequency_or_event
+          aux = SchoolDayChecker.new(@school_calendar, daily_frequency.frequency_date, daily_frequency.classroom.grades.ids, daily_frequency.classroom.id, nil)
+          if aux.school_day?
+            next unless frequency_in_period(daily_frequency)
 
-          next unless frequency_in_period(daily_frequency)
+            class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
+            days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
+            months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
 
-          class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
-          days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
-          months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+            student_dependances = @students_enrollments.pluck(:id)
+            all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_dependances).to_a
 
-          student_dependances = @students_enrollments.pluck(:id)
-          all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_dependances).to_a
+            students_enrollments.each do |student_enrollment|
+              student_id = student_enrollment.student_id
+              student_enrollment_classroom = student_enrollment_classroom_by_enrollment(student_enrollment)
+              joined_at = student_enrollment_classroom.joined_at.to_date
+              left_at = student_enrollment_classroom.left_at.empty? ? Date.current.end_of_year : student_enrollment_classroom.left_at.to_date
 
-          students_enrollments.each do |student_enrollment|
-            student_id = student_enrollment.student_id
-            student_enrollment_classroom = student_enrollment_classroom_by_enrollment(student_enrollment)
-            joined_at = student_enrollment_classroom.joined_at.to_date
-            left_at = student_enrollment_classroom.left_at.empty? ? Date.current.end_of_year : student_enrollment_classroom.left_at.to_date
-
-            if exempted_from_discipline?(student_enrollment, daily_frequency)
-              student_frequency = ExemptedDailyFrequencyStudent.new
-            elsif in_active_search?(student_id, active_searches, daily_frequency)
-              @show_legend_active_search = true
-              student_frequency = ActiveSearchFrequencyStudent.new
-            elsif @show_inactive_enrollments
-              frequency_date = daily_frequency.frequency_date.to_date
-              if frequency_date >= joined_at && frequency_date < left_at
-                student_frequency = daily_frequency.students.detect{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }
+              if exempted_from_discipline?(student_enrollment, daily_frequency)
+                student_frequency = ExemptedDailyFrequencyStudent.new
+              elsif in_active_search?(student_id, active_searches, daily_frequency)
+                @show_legend_active_search = true
+                student_frequency = ActiveSearchFrequencyStudent.new
+              elsif @show_inactive_enrollments
+                frequency_date = daily_frequency.frequency_date.to_date
+                if frequency_date >= joined_at && frequency_date < left_at
+                  student_frequency = daily_frequency.students.detect{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }
+                else
+                  student_frequency ||= NullDailyFrequencyStudent.new
+                end
               else
+                student_frequency = daily_frequency.students.detect{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }
                 student_frequency ||= NullDailyFrequencyStudent.new
               end
-            else
-              student_frequency = daily_frequency.students.detect{ |student| student.student_id.eql?(student_id) && student.active.eql?(true) }
-              student_frequency ||= NullDailyFrequencyStudent.new
+
+              if @show_legend_active_search && !@exists_active_search
+                @exists_active_search = true
+                self.legend += ', B - Busca ativa'
+              end
+
+              student = student_enrollment.student
+              (students[student_enrollment.id] ||= {})[:name] = student.to_s
+              students[student_enrollment.id] = {} if students[student_enrollment.id].nil?
+              students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
+              self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment.id][:dependence]
+              students[student_enrollment.id][:absences] ||= 0
+
+              if @show_percentage_on_attendance
+                students[student_enrollment.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
+              end
+
+              unless student_frequency.present?
+                students[student_enrollment.id][:absences] = students[student_enrollment.id][:absences] + 1
+              end
+
+              hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+
+              if hybrid_or_remote
+                student_frequency = hybrid_or_remote
+              else
+                student_frequency
+              end
+
+              if @show_legend_hybrid && !@exists_legend_hybrid
+                @exists_legend_hybrid = true
+                self.legend += ', S - Modalidade semipresencial'
+              elsif @show_legend_remote && !@exists_legend_remote
+                @exists_legend_remote = true
+                self.legend += ', R - Modalidade remota'
+              end
+
+              (students[student_enrollment.id][:attendances] ||= []) <<
+                make_cell(content: student_frequency.to_s, align: :center)
             end
-
-            if @show_legend_active_search && !@exists_active_search
-              @exists_active_search = true
-              self.legend += ', B - Busca ativa'
-            end
-
-            student = student_enrollment.student
-            (students[student_enrollment.id] ||= {})[:name] = student.to_s
-            students[student_enrollment.id] = {} if students[student_enrollment.id].nil?
-            students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
-            self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment.id][:dependence]
-            students[student_enrollment.id][:absences] ||= 0
-
-            if @show_percentage_on_attendance
-              students[student_enrollment.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
-            end
-
-            unless student_frequency.present?
-              students[student_enrollment.id][:absences] = students[student_enrollment.id][:absences] + 1
-            end
-
-            hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-
-            if hybrid_or_remote
-              student_frequency = hybrid_or_remote
-            else
-              student_frequency
-            end
-
-            if @show_legend_hybrid && !@exists_legend_hybrid
-              @exists_legend_hybrid = true
-              self.legend += ', S - Modalidade semipresencial'
-            elsif @show_legend_remote && !@exists_legend_remote
-              @exists_legend_remote = true
-              self.legend += ', R - Modalidade remota'
-            end
-
-            (students[student_enrollment.id][:attendances] ||= []) <<
-              make_cell(content: student_frequency.to_s, align: :center)
           end
         else
           school_calendar_event = daily_frequency_or_event
@@ -482,7 +485,7 @@ class AttendanceRecordReport < BaseReport
 
   def in_active_search?(student_id, active_searches, daily_frequency)
     active_searches.detect do |active_searche|
-      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id) 
+      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id)
     end
   end
 
