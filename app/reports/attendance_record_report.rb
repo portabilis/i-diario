@@ -151,11 +151,9 @@ class AttendanceRecordReport < BaseReport
       students = {}
 
       frequencies_and_events_slice.each do |daily_frequency_or_event|
-
         if daily_frequency?(daily_frequency_or_event)
           daily_frequency = daily_frequency_or_event
-          aux = SchoolDayChecker.new(@school_calendar, daily_frequency.frequency_date, daily_frequency.classroom.grades.ids, daily_frequency.classroom.id, nil)
-          if aux.school_day?
+          if is_school_day?(daily_frequency.frequency_date)
             next unless frequency_in_period(daily_frequency)
 
             class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
@@ -562,5 +560,12 @@ class AttendanceRecordReport < BaseReport
       @show_legend_remote = true
       'R'
     end
+  end
+
+  def is_school_day?(date)
+    return true if @events.blank?
+    return false if date.blank?
+
+    @events.detect { |event| event[:date].eql?(date) }.blank?
   end
 end
