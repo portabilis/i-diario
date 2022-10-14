@@ -44,6 +44,8 @@ jobs:
           ruby-version: '2.4.10'
           bundler: '1.17.3'
           bundler-cache: true
+        env:          
+          ImageOS: ubuntu20
 
       - name: Configure database
         run: cp config/database.sample.yml config/database.yml
