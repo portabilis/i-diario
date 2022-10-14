@@ -561,8 +561,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def is_school_day?(date)
-    return true if @events.blank?
-    return false if date.blank?
+    return true if @events.empty?
 
     @events.detect { |event| event[:date].eql?(date) && event[:type].eql?(EventTypes::NO_SCHOOL) }.blank?
   end
