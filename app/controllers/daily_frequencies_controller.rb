@@ -30,9 +30,9 @@ class DailyFrequenciesController < ApplicationController
       return if @frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
       redirect_to edit_multiple_daily_frequencies_path(
-        daily_frequency: daily_frequency_params,
-        class_numbers: @class_numbers
-      )
+                    daily_frequency: daily_frequency_params,
+                    class_numbers: @class_numbers
+                  )
     else
       render :new
     end
@@ -56,6 +56,7 @@ class DailyFrequenciesController < ApplicationController
     student_enrollment_ids = fetch_student_enrollments.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
+
     dependencies = student_has_dependence?(student_enrollment_ids, @daily_frequency.discipline)
     exempt = student_has_exempt_from_discipline?(@daily_frequency, student_enrollment_ids)
     active = active_student_on_date?(@daily_frequency.frequency_date, student_enrollment_ids)
@@ -68,8 +69,6 @@ class DailyFrequenciesController < ApplicationController
       has_exempted = exempt[student_enrollment[:student_enrollment_id]] ? true : false
       in_active_search = active_search[student_enrollment[:student_enrollment_id]] ? true : false
       sequence = student_enrollment[:sequence]
-
-      next if student.blank?
 
       @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
@@ -464,7 +463,7 @@ class DailyFrequenciesController < ApplicationController
     else
       SchoolCalendarDisciplineGrade.where(
         grade_id: classroom_grade_ids,
-        school_calendar_id: school_calendar.id,
+        school_calendar_id: school_calendar.id
       ).pluck(:grade_id)
     end
   end
