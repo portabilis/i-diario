@@ -59,13 +59,13 @@ class DailyFrequenciesController < ApplicationController
     dependencies = student_has_dependence?(student_enrollment_ids, @daily_frequency.discipline)
     exempt = student_has_exempt_from_discipline?(@daily_frequency, student_enrollment_ids)
     active = active_student_on_date?(@daily_frequency.frequency_date, student_enrollment_ids)
+    active_search = student_in_active_search?(student_enrollment_ids, @daily_frequency.frequency_date)
 
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
 
       next if student.blank?
 
-      in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
       @any_in_active_search ||= in_active_search
       @any_inactive_student ||= !active
@@ -368,6 +368,21 @@ class DailyFrequenciesController < ApplicationController
 
     flash[:alert] = t('errors.daily_frequencies.require_teacher')
     redirect_to root_path
+  end
+
+  def student_in_active_search?(student_enrollment_ids, frequency_date)
+    active_searches = {}
+
+    ActiveSearch.new.enrollments_in_active_search?(student_enrollment_ids, frequency_date).each do |active_search|
+      next if active_search[:student_enrollment_ids].blank?
+
+      active_search[:student_enrollment_ids].each do |student_enrollment_id|
+        active_searches[student_enrollment_id] ||= []
+        active_searches[student_enrollment_id] << active_search[:frequency_date]
+      end
+      active_searches
+    end
+    return {} unless active_searches.any?
   end
 
   def student_has_dependence?(student_enrollments, discipline)
