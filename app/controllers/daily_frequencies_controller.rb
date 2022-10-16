@@ -57,13 +57,13 @@ class DailyFrequenciesController < ApplicationController
       student_enrollment[:student_enrollment_id]
     }
     dependencies = student_has_dependence?(student_enrollment_ids, @daily_frequency.discipline)
+    exempt = student_has_exempt_from_discipline?(@daily_frequency, student_enrollment_ids)
 
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
 
       next if student.blank?
 
-      exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
       in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
       active = student_active_on_date?(student_enrollment)
@@ -380,17 +380,23 @@ class DailyFrequenciesController < ApplicationController
     end
   end
 
-  def student_exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false if daily_frequency.discipline_id.blank?
+  def student_has_exempt_from_discipline?(daily_frequency, student_enrollments)
+    return {} if daily_frequency.discipline_id.blank?
 
-    discipline_id = daily_frequency.discipline.id
-    frequency_date = daily_frequency.frequency_date
-    step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
+    discipline_id = daily_frequency.discipline_id
+    exempts_from_discipline = {}
 
-    student_enrollment.exempted_disciplines
-                      .by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
+    step = daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
+
+    StudentEnrollmentExemptedDiscipline.by_discipline(discipline_id)
+                                       .by_step_number(step.step_number)
+                                       .by_student_enrollment(student_enrollments)
+                                       .includes(student_enrollment: [:student])
+                                       .each do |student_exempted|
+      exempts_from_discipline[student_exempted.student_enrollment_id] ||= step.step_number
+    end
+
+    exempts_from_discipline
   end
 
   def class_numbers_from_params
