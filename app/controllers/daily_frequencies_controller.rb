@@ -62,20 +62,26 @@ class DailyFrequenciesController < ApplicationController
     active_search = student_in_active_search?(student_enrollment_ids, @daily_frequency.frequency_date)
 
     fetch_student_enrollments.each do |student_enrollment|
-      student = Student.find_by(id: student_enrollment.student_id)
+      student = student_enrollment[:student]
+      activated_student = active.include?(student_enrollment[:student_enrollment_classroom_id])
+      has_dependence = dependencies[student_enrollment[:student_enrollment_id]] ? true : false
+      has_exempted = exempt[student_enrollment[:student_enrollment_id]] ? true : false
+      in_active_search = active_search[student_enrollment[:student_enrollment_id]] ? true : false
+      sequence = student_enrollment[:sequence]
 
       next if student.blank?
 
-      @any_exempted_from_discipline ||= exempted_from_discipline
+      @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
-      @any_inactive_student ||= !active
+      @any_inactive_student ||= !activated_student
 
       @students << {
         student: student,
-        dependence: dependence,
-        active: active,
-        exempted_from_discipline: exempted_from_discipline,
-        in_active_search: in_active_search
+        dependence: has_dependence,
+        active: activated_student,
+        exempted_from_discipline: has_exempted,
+        in_active_search: in_active_search,
+        sequence: sequence
       }
     end
 
