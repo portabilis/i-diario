@@ -52,6 +52,11 @@ class DailyFrequenciesController < ApplicationController
     @any_inactive_student = false
     @any_in_active_search = false
 
+    fetch_student_enrollments = fetch_student_enrollment_classrooms
+    student_enrollment_ids = fetch_student_enrollments.map { |student_enrollment|
+      student_enrollment[:student_enrollment_id]
+    }
+
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
 
@@ -327,7 +332,7 @@ class DailyFrequenciesController < ApplicationController
     end
   end
 
-  def fetch_student_enrollments
+  def fetch_student_enrollment_classrooms
     StudentEnrollmentsList.new(
       classroom: @daily_frequency.classroom,
       grade: discipline_classroom_grade_ids,
@@ -335,7 +340,7 @@ class DailyFrequenciesController < ApplicationController
       date: @daily_frequency.frequency_date,
       search_type: :by_date,
       period: @period
-    ).student_enrollments
+    ).student_enrollment_classrooms
   end
 
   def student_active_on_date?(student_enrollment)
