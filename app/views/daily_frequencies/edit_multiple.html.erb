@@ -43,22 +43,18 @@
         <%= f.hidden_field :frequency_date %>
         <%= f.hidden_field :discipline_id %>
         <%= f.hidden_field :period %>
-        <% sequence = 0 %>
         <% @normal_students.each do |normal_student| %>
-          <% sequence += 1 %>
           <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline],
-            student: normal_student[:student], sequence: sequence, dependence: false,
+            student: normal_student[:student], sequence: normal_student[:sequence], dependence: false,
             active: normal_student[:active],
             in_active_search: normal_student[:in_active_search]
           %>
         <% end %>
 
-        <% sequence = 0 %>
         <% if @dependence_students.any? %>
           <% @dependence_students.each do |dependence_student| %>
-            <% sequence += 1 %>
             <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline],
-              student: dependence_student[:student], sequence: sequence, dependence: true,
+              student: dependence_student[:student], sequence: dependence_student[:sequence], dependence: true,
               active: dependence_student[:active],
               in_active_search: dependence_student[:in_active_search]
             %>

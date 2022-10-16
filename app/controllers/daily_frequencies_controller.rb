@@ -97,6 +97,7 @@ class DailyFrequenciesController < ApplicationController
     mark_for_destruction_not_existing_students
 
     @normal_students = @students.reject { |student| student[:dependence] }
+    @normal_students = @normal_students.sort_by { |student| student[:sequence] }
     @dependence_students = @students.select { |student| student[:dependence] }
   end
 
