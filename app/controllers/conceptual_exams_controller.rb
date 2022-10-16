@@ -319,7 +319,7 @@ class ConceptualExamsController < ApplicationController
       @conceptual_exam.step_number
     )
 
-    @disciplines = @disciplines.where(grouper: false).where.not(id: exempted_discipline_ids)
+    @disciplines = @disciplines.grouper.where.not(id: exempted_discipline_ids)
   end
 
   def steps_fetcher
