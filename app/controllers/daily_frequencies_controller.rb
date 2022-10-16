@@ -56,13 +56,13 @@ class DailyFrequenciesController < ApplicationController
     student_enrollment_ids = fetch_student_enrollments.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
+    dependencies = student_has_dependence?(student_enrollment_ids, @daily_frequency.discipline)
 
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
 
       next if student.blank?
 
-      dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
       in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
@@ -361,10 +361,23 @@ class DailyFrequenciesController < ApplicationController
     redirect_to root_path
   end
 
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
-                               .by_discipline(discipline)
-                               .any?
+  def student_has_dependence?(student_enrollments, discipline)
+    return {} unless discipline
+
+    student_enrollment_dependencies = StudentEnrollmentDependence.where(
+      student_enrollment_id: student_enrollments,
+      discipline_id: discipline
+    )
+
+    dependencies = {}
+
+    student_enrollment_dependencies.each do |student_enrollment_dependence|
+      student_enrollment_id = student_enrollment_dependence.student_enrollment_id
+      discipline_id = student_enrollment_dependence.discipline_id
+
+      dependencies[student_enrollment_id] ||= []
+      dependencies[student_enrollment_id] << discipline_id
+    end
   end
 
   def student_exempted_from_discipline?(student_enrollment, daily_frequency)
