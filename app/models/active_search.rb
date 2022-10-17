@@ -38,6 +38,23 @@ class ActiveSearch < ActiveRecord::Base
     in_active_searchs
   end
 
+  def enrollments_in_active_search?(student_enrollments_ids, date)
+    students_active_searches = ActiveSearch.where(student_enrollment_id: student_enrollments_ids)
+                                           .includes(student_enrollment: [:student])
+    in_active_searches = []
+
+    active_search_students_ids = []
+    students_active_searches.each do |students_active_search|
+      next if date < students_active_search.start_date
+
+      if students_active_search.end_date.nil? || date <= students_active_search.end_date
+        active_search_students_ids << students_active_search.student_enrollment.student.id
+      end
+    end
+    in_active_searches << build_hash(date, active_search_students_ids)
+    in_active_searches
+  end
+
   def build_hash(date, student_ids)
     return if student_ids.nil?
 
