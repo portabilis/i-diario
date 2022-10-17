@@ -30,9 +30,9 @@ class DailyFrequenciesController < ApplicationController
       return if @frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
       redirect_to edit_multiple_daily_frequencies_path(
-                    daily_frequency: daily_frequency_params,
-                    class_numbers: @class_numbers
-                  )
+        daily_frequency: daily_frequency_params,
+        class_numbers: @class_numbers
+      )
     else
       render :new
     end
@@ -52,8 +52,8 @@ class DailyFrequenciesController < ApplicationController
     @any_inactive_student = false
     @any_in_active_search = false
 
-    fetch_student_enrollments = fetch_student_enrollment_classrooms
-    student_enrollment_ids = fetch_student_enrollments.map { |student_enrollment|
+    fetch_enrollment_classrooms = fetch_enrollment_classrooms
+    student_enrollment_ids = fetch_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
 
@@ -62,13 +62,13 @@ class DailyFrequenciesController < ApplicationController
     active = active_student_on_date?(@daily_frequency.frequency_date, student_enrollment_ids)
     active_search = student_in_active_search?(student_enrollment_ids, @daily_frequency.frequency_date)
 
-    fetch_student_enrollments.each do |student_enrollment|
-      student = student_enrollment[:student]
-      activated_student = active.include?(student_enrollment[:student_enrollment_classroom_id])
-      has_dependence = dependencies[student_enrollment[:student_enrollment_id]] ? true : false
-      has_exempted = exempt[student_enrollment[:student_enrollment_id]] ? true : false
-      in_active_search = active_search[student_enrollment[:student_enrollment_id]] ? true : false
-      sequence = student_enrollment[:sequence]
+    fetch_enrollment_classrooms.each do |enrollment_classroom|
+      student = enrollment_classroom[:student]
+      activated_student = active.include?(enrollment_classroom[:student_enrollment_classroom_id])
+      has_dependence = dependencies[enrollment_classroom[:student_enrollment_id]] ? true : false
+      has_exempted = exempt[enrollment_classroom[:student_enrollment_id]] ? true : false
+      in_active_search = active_search[enrollment_classroom[:student_enrollment_id]] ? true : false
+      sequence = enrollment_classroom[:sequence]
 
       @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
@@ -338,7 +338,7 @@ class DailyFrequenciesController < ApplicationController
     end
   end
 
-  def fetch_student_enrollment_classrooms
+  def fetch_enrollment_classrooms
     StudentEnrollmentsList.new(
       classroom: @daily_frequency.classroom,
       grade: discipline_classroom_grade_ids,
@@ -354,12 +354,9 @@ class DailyFrequenciesController < ApplicationController
     student_enrollment_classrooms = StudentEnrollmentClassroom.by_student_enrollment(student_enrollments)
                                                               .by_date(frequency_date)
 
-    return {} unless student_enrollment_classrooms
-
     student_enrollment_classrooms.each do |enrollment_classroom|
-      enrollment_classroom_id = enrollment_classroom.id
-      inactive_on_date[enrollment_classroom_id] ||= []
-      inactive_on_date[enrollment_classroom_id] << frequency_date
+      inactive_on_date[enrollment_classroom.id] ||= []
+      inactive_on_date[enrollment_classroom.id] << frequency_date
     end
 
     inactive_on_date
@@ -388,7 +385,6 @@ class DailyFrequenciesController < ApplicationController
       end
       active_searches
     end
-    return {} unless active_searches.any?
   end
 
   def student_has_dependence?(student_enrollments, discipline)
@@ -408,6 +404,7 @@ class DailyFrequenciesController < ApplicationController
       dependencies[student_enrollment_id] ||= []
       dependencies[student_enrollment_id] << discipline_id
     end
+    dependencies
   end
 
   def student_has_exempt_from_discipline?(daily_frequency, student_enrollments)
@@ -419,11 +416,11 @@ class DailyFrequenciesController < ApplicationController
     step = daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
 
     StudentEnrollmentExemptedDiscipline.by_discipline(discipline_id)
-                                       .by_step_number(step.step_number)
+                                       .by_step_number(step)
                                        .by_student_enrollment(student_enrollments)
                                        .includes(student_enrollment: [:student])
                                        .each do |student_exempted|
-      exempts_from_discipline[student_exempted.student_enrollment_id] ||= step.step_number
+      exempts_from_discipline[student_exempted.student_enrollment_id] ||= step
     end
 
     exempts_from_discipline
