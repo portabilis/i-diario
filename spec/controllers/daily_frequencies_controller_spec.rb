@@ -40,10 +40,6 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     request.env['REQUEST_PATH'] = ''
   end
 
-  describe '' do
-
-  end
-
   describe 'DELETE #destroy_multiple' do
     let!(:daily_frequency_1) {
       create(
