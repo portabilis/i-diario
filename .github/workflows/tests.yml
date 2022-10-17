@@ -26,7 +26,7 @@ jobs:
           POSTGRES_DB: idiario_test
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3 -c shared_buffers=256MB -c work_mem=655kB -c effective_io_concurrency=200 -c min_wal_size=1GB -c max_wal_size = 4GB -c effective_cache_size=768MB
 
       redis:
         image: redis
