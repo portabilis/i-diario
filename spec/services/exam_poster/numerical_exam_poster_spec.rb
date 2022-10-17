@@ -161,8 +161,6 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     }
     context 'hasnt complementary exams' do
       it 'queued request score match to recovery score' do
-        skip
-
         subject.post!
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score
@@ -172,7 +170,9 @@ RSpec.describe ExamPoster::NumericalExamPoster do
           Entity.first.id,
           exam_posting.id,
           request,
-          info
+          info,
+          "critical",
+          0
         )
       end
     end
@@ -183,8 +183,6 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       end
 
       it 'change score of queued request' do
-        skip
-
         subject.post!
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score + complementary_exam_student.score
@@ -194,7 +192,9 @@ RSpec.describe ExamPoster::NumericalExamPoster do
           Entity.first.id,
           exam_posting.id,
           request,
-          info
+          info,
+          "critical",
+          0
         )
       end
     end

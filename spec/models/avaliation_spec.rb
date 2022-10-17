@@ -30,7 +30,8 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:school_calendar) }
     it {
-      skip "Test setting keeps returning nil"
+      allow_any_instance_of(Avaliation).to receive(:grades_belongs_to_test_setting).and_return(true)
+
       expect(subject).to validate_presence_of(:test_setting)
     }
     it { expect(subject).to validate_presence_of(:test_date) }

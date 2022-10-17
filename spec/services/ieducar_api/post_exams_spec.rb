@@ -2,8 +2,8 @@ require 'spec_helper'
 
 RSpec.describe IeducarApi::PostExams, type: :service do
   let(:url) { 'https://test.ieducar.com.br' }
-  let(:access_key) { '8IOwGIjiHvbeTklgwo10yVLgwDhhvs' }
-  let(:secret_key) { '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC' }
+  let(:access_key) { '2Me9freQ6gpneyCOlWRcVSx2huwa3X' }
+  let(:secret_key) { '7AWURgchB84ZeY7q8voyIuJeATOsny' }
   let(:unity_id) { 1 }
   let(:resource) { 'notas' }
   let(:etapa) { 1 }
@@ -20,8 +20,8 @@ RSpec.describe IeducarApi::PostExams, type: :service do
 
   describe '#send_post' do
     it 'returns message' do
-      skip
-
+      allow(Rails.application.secrets).to receive(:staging_access_key).and_return(access_key)
+      allow(Rails.application.secrets).to receive(:staging_secret_key).and_return(secret_key)
       VCR.use_cassette('post_exams') do
         result = subject.send_post(
           etapa: etapa,
