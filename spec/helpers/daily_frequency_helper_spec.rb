@@ -26,8 +26,7 @@ RSpec.describe DailyFrequencyHelper, type: :helper do
       :daily_frequency,
       1,
       classroom: classroom,
-      discipline: discipline,
-      frequency_date: '2017-03-01'
+      discipline: discipline
     )
   }
 
