@@ -52,7 +52,6 @@ class DailyFrequenciesController < ApplicationController
     @any_inactive_student = false
     @any_in_active_search = false
 
-    fetch_enrollment_classrooms = fetch_enrollment_classrooms
     student_enrollment_ids = fetch_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
