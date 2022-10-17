@@ -47,7 +47,7 @@ class UniqueDailyFrequencyStudentsCreator
   # But at least at 1 minute after the current time
   def perform_worker_time
     [
-      Date.current + rand(19...24).hours,
+      Date.current + rand(19...24).hours + rand(0...60).minutes + rand(0...60).seconds,
       Time.current + 1.minute
     ].max
   end
