@@ -55,9 +55,8 @@ class StudentEnrollmentsList
     students_enrollment_classrooms = students_enrollment_classrooms.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollment_classrooms = students_enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
-    students_enrollment_classrooms = reject_duplicated_students(students_enrollment_classrooms) unless show_inactive
+    students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
-    students_enrollment_classrooms = remove_not_displayable_students(students_enrollment_classrooms)
     students_enrollment_classrooms.map do |student_enrollment_classroom|
       {
         student_enrollment_id: student_enrollment_classroom.student_enrollment.id,
@@ -169,6 +168,13 @@ class StudentEnrollmentsList
     students_enrollments.select { |student_enrollment|
       student_active?(student_enrollment) ||
         (student_displayable_as_inactive?(student_enrollment) && show_inactive)
+    }
+  end
+
+  def remove_not_displayable_classrooms(student_enrollment_classrooms)
+    student_enrollment_classrooms.select { |enrollment_classroom|
+      student_active?(enrollment_classroom.student_enrollment) ||
+        (student_displayable_as_inactive?(enrollment_classroom.student_enrollment) && show_inactive)
     }
   end
 
