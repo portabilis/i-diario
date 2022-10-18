@@ -59,14 +59,15 @@ class DailyFrequenciesController < ApplicationController
     dependencies = student_has_dependence?(student_enrollment_ids, @daily_frequency.discipline)
     exempt = student_has_exempt_from_discipline?(@daily_frequency, student_enrollment_ids)
     active = active_student_on_date?(@daily_frequency.frequency_date, student_enrollment_ids)
-    active_search = student_in_active_search?(student_enrollment_ids, @daily_frequency.frequency_date)
+    active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
 
     fetch_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
+      student_enrollment_id = enrollment_classroom[:student_enrollment_id]
       activated_student = active.include?(enrollment_classroom[:student_enrollment_classroom_id])
-      has_dependence = dependencies[enrollment_classroom[:student_enrollment_id]] ? true : false
-      has_exempted = exempt[enrollment_classroom[:student_enrollment_id]] ? true : false
-      in_active_search = active_search[enrollment_classroom[:student_enrollment_id]] ? true : false
+      has_dependence = dependencies[student_enrollment_id] ? true : false
+      has_exempted = exempt[student_enrollment_id] ? true : false
+      in_active_search = active_search[@daily_frequency.frequency_date]&.include?(student_enrollment_id)
       sequence = enrollment_classroom[:sequence]
 
       @any_exempted_from_discipline ||= has_exempted
@@ -372,18 +373,8 @@ class DailyFrequenciesController < ApplicationController
     redirect_to root_path
   end
 
-  def student_in_active_search?(student_enrollment_ids, frequency_date)
-    active_searches = {}
-
-    ActiveSearch.new.enrollments_in_active_search?(student_enrollment_ids, frequency_date).each do |active_search|
-      next if active_search[:student_enrollment_ids].blank?
-
-      active_search[:student_enrollment_ids].each do |student_enrollment_id|
-        active_searches[student_enrollment_id] ||= []
-        active_searches[student_enrollment_id] << active_search[:frequency_date]
-      end
-      active_searches
-    end
+  def in_active_searches(student_enrollment_ids, frequency_date)
+    @in_active_searches ||= ActiveSearch.new.enrollments_in_active_search?(student_enrollment_ids, frequency_date)
   end
 
   def student_has_dependence?(student_enrollments, discipline)
