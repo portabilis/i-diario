@@ -30,8 +30,7 @@ jobs:
           --health-cmd pg_isready 
           --health-interval 10s 
           --health-timeout 5s 
-          --health-retries 3
-          -c "shared_buffers=256MB"
+          --health-retries 3          
 
       redis:
         image: redis
