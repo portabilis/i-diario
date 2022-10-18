@@ -80,7 +80,7 @@ class DeficienciesSynchronizer < BaseSynchronizer
   def deficiency_students_to_discard(deficiency_id, student_ids)
     DeficiencyStudent.with_discarded
                      .by_deficiency_id(deficiency_id)
-                     .by_unity_id([unity_id, nil])
+                     .by_unity_id([unity_id, nil].flatten)
                      .where.not(student_id: student_ids)
   end
 
