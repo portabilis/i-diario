@@ -4,7 +4,7 @@ RSpec.describe DeficienciesSynchronizer do
   let(:synchronization) { create(:ieducar_api_synchronization) }
   let(:worker_batch) { create(:worker_batch) }
   let(:worker_state) { create(:worker_state, worker_batch: worker_batch) }
-  let(:unity_id) { 1 }
+  let(:unity_id) { '1' }
 
   let(:student) { create(:student) }
   let(:existing_api_code) { '14612' }
