@@ -153,8 +153,7 @@ class AttendanceRecordReport < BaseReport
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if daily_frequency?(daily_frequency_or_event)
           daily_frequency = daily_frequency_or_event
-
-          next unless frequency_in_period(daily_frequency)
+          next unless frequency_in_period(daily_frequency) && is_school_day?(daily_frequency.frequency_date)
 
           class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
@@ -482,7 +481,7 @@ class AttendanceRecordReport < BaseReport
 
   def in_active_search?(student_id, active_searches, daily_frequency)
     active_searches.detect do |active_searche|
-      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id) 
+      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id)
     end
   end
 
@@ -559,5 +558,11 @@ class AttendanceRecordReport < BaseReport
       @show_legend_remote = true
       'R'
     end
+  end
+
+  def is_school_day?(date)
+    return true if @events.empty?
+
+    @events.detect { |event| event[:date].eql?(date) && event[:type].eql?(EventTypes::NO_SCHOOL) }.blank?
   end
 end

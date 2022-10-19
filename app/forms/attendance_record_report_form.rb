@@ -59,7 +59,8 @@ class AttendanceRecordReportForm
         events_by_day << {
           date: date,
           legend: event.legend,
-          description: event.description
+          description: event.description,
+          type: event.event_type
         }
       end
     end
