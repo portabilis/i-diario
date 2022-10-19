@@ -37,6 +37,36 @@ class StudentEnrollmentsList
     fetch_student_enrollments(as_relation)
   end
 
+  def student_enrollment_classrooms
+    students_enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classroom)
+                                                                 .by_discipline(discipline)
+                                                                 .by_score_type(score_type, classroom)
+                                                                 .joins(student_enrollment: :student)
+                                                                 .includes(student_enrollment: :student)
+                                                                 .includes(student_enrollment: :dependences)
+
+    students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
+
+    if include_date_range
+      students_enrollment_classrooms = students_enrollment_classrooms.by_date_range(start_at, end_at)
+                                                                     .by_date_not_before(start_at)
+    end
+
+    students_enrollment_classrooms = students_enrollment_classrooms.by_opinion_type(opinion_type, classroom) if opinion_type
+    students_enrollment_classrooms = students_enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+
+    students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
+
+    students_enrollment_classrooms.map do |student_enrollment_classroom|
+      {
+        student_enrollment_id: student_enrollment_classroom.student_enrollment.id,
+        student_enrollment_classroom_id: student_enrollment_classroom.id,
+        sequence: student_enrollment_classroom.sequence,
+        student: student_enrollment_classroom.student_enrollment.student
+      }
+    end
+  end
+
   private
 
   attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
@@ -139,6 +169,13 @@ class StudentEnrollmentsList
     students_enrollments.select { |student_enrollment|
       student_active?(student_enrollment) ||
         (student_displayable_as_inactive?(student_enrollment) && show_inactive)
+    }
+  end
+
+  def remove_not_displayable_classrooms(student_enrollment_classrooms)
+    student_enrollment_classrooms.select { |enrollment_classroom|
+      student_active?(enrollment_classroom.student_enrollment) ||
+        (student_displayable_as_inactive?(enrollment_classroom.student_enrollment) && show_inactive)
     }
   end
 
