@@ -51,6 +51,7 @@ class DailyFrequenciesController < ApplicationController
     @any_exempted_from_discipline = false
     @any_inactive_student = false
     @any_in_active_search = false
+    @dependence_students = false
 
     student_enrollment_ids = fetch_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
@@ -72,6 +73,7 @@ class DailyFrequenciesController < ApplicationController
 
       @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
+      @dependence_students ||= has_dependence
       @any_inactive_student ||= !activated_student
 
       @students << {
@@ -95,9 +97,7 @@ class DailyFrequenciesController < ApplicationController
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
-    @normal_students = @students.reject { |student| student[:dependence] }
-    @normal_students = @normal_students.sort_by { |student| student[:sequence] }
-    @dependence_students = @students.select { |student| student[:dependence] }
+    @students = @students.sort_by { |student| student[:sequence] }
   end
 
   def create_or_update_multiple
