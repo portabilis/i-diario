@@ -43,25 +43,13 @@
         <%= f.hidden_field :frequency_date %>
         <%= f.hidden_field :discipline_id %>
         <%= f.hidden_field :period %>
-        <% @normal_students.each do |normal_student| %>
-          <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline],
-            student: normal_student[:student], sequence: normal_student[:sequence], dependence: false,
-            active: normal_student[:active],
-            in_active_search: normal_student[:in_active_search]
+        <% @students.each do |student| %>
+          <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+            student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
+            active: student[:active], in_active_search: student[:in_active_search]
           %>
         <% end %>
-
-        <% if @dependence_students.any? %>
-          <% @dependence_students.each do |dependence_student| %>
-            <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline],
-              student: dependence_student[:student], sequence: dependence_student[:sequence], dependence: true,
-              active: dependence_student[:active],
-              in_active_search: dependence_student[:in_active_search]
-            %>
-          <% end %>
-        <% end %>
-
-        <% if @dependence_students.any? %>
+        <% if @dependence_students %>
           <tr>
             <td colspan="<%= 2 + @daily_frequencies.count %>">
               <span class="daily-note-student-legend">
@@ -69,8 +57,7 @@
               </span>
             </td>
           </tr>
-        <% end %>
-
+      <% end %>
         <% if @any_inactive_student %>
           <tr>
             <td colspan="<%= 2 + @daily_frequencies.count %>">
