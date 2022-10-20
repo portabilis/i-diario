@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AbsenceJustification, type: :model do
   subject(:absence_justification) { build(:absence_justification) }
+  let(:frequency_type_definer) { FrequencyTypeDefiner.new(subject.classroom, subject.teacher) }
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teacher) }
@@ -24,7 +25,11 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to validate_school_calendar_day_of(:absence_date_end) }
     it { expect(subject).to validate_presence_of(:justification) }
     it { expect(subject).to validate_presence_of(:unity) }
-    it { expect(subject).to validate_presence_of(:classroom_id) }
+    it do
+      allow(FrequencyTypeDefiner).to receive(:new).and_return(frequency_type_definer)
+
+      expect(subject).to validate_presence_of(:classroom_id)
+    end
     it { expect(subject).to validate_presence_of(:school_calendar) }
 
     context 'given that I have a record persisted' do

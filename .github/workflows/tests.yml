@@ -2,7 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - tc-gh-actions
   pull_request:
 
 jobs:
@@ -10,7 +12,7 @@ jobs:
 
     name: Unit and Integration
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       RAILS_ENV: test
@@ -24,7 +26,11 @@ jobs:
           POSTGRES_DB: idiario_test
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        options: 
+          --health-cmd pg_isready 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 3
 
       redis:
         image: redis
@@ -42,6 +48,8 @@ jobs:
           ruby-version: '2.4.10'
           bundler: '1.17.3'
           bundler-cache: true
+        env:          
+          ImageOS: ubuntu20
 
       - name: Configure database
         run: cp config/database.sample.yml config/database.yml

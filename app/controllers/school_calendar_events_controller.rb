@@ -25,7 +25,7 @@ class SchoolCalendarEventsController < ApplicationController
     authorize resource
 
     if resource.save
-      update_school_days
+      SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days(resource.start_date, resource.end_date)
 
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
@@ -51,7 +51,7 @@ class SchoolCalendarEventsController < ApplicationController
     end
 
     if resource.save
-      update_school_days(old_start_date, old_end_date) if dates_changed
+      SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days(old_start_date, old_end_date) if dates_changed
 
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
@@ -63,9 +63,8 @@ class SchoolCalendarEventsController < ApplicationController
   def destroy
     authorize resource
 
+    SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days
     resource.destroy
-
-    update_school_days
 
     respond_with resource, location: school_calendar_school_calendar_events_path
   end
@@ -153,47 +152,5 @@ class SchoolCalendarEventsController < ApplicationController
 
   def current_user_role
     current_user.current_user_role || current_user.user_roles.first
-  end
-
-  def update_school_days(old_start_date = nil, old_end_date = nil)
-    frequency_day = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(resource.event_type)
-    school_days = (resource.start_date..resource.end_date).to_a
-
-    case action_name
-    when 'create'
-      frequency_day ? create_school_days(school_days) : destroy_school_days(school_days)
-    when 'destroy'
-      frequency_day ? destroy_school_days(school_days) : create_school_days(school_days)
-    when 'update'
-      old_days = (old_start_date..old_end_date).to_a
-
-      if frequency_day
-        create_school_days(school_days - old_days)
-        destroy_school_days(old_days - school_days)
-      else
-        create_school_days(old_days - school_days)
-        destroy_school_days(school_days - old_days)
-      end
-    end
-  end
-
-  def create_school_days(school_days)
-    school_days.each do |school_day|
-      events_by_date = @school_calendar.events.by_date(school_day)
-      next if events_by_date.where.not(coverage: "by_unity").exists?
-      next if !SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
-
-      SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil,).create(@event)
-    end
-  end
-
-  def destroy_school_days(school_days)
-    school_days.each do |school_day|
-      next if SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
-
-      SchoolDayChecker.new(resource.school_calendar, school_day, nil ,nil ,nil).destroy(@event)
-
-      DailyFrequency.where(unity_id: resource.school_calendar.unity_id, frequency_date: school_day).destroy_all
-    end
   end
 end

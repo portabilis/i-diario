@@ -3,7 +3,9 @@ require 'rails_helper'
 RSpec.describe DisciplineTeachingPlan, type: :model do
   subject { build(:discipline_teaching_plan, :with_teacher_discipline_classroom) }
 
-  before(:all) { skip }
+  before do
+    allow_any_instance_of(TeachingPlan).to receive(:yearly?).and_return(true)
+  end
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teaching_plan).dependent(:destroy) }
@@ -15,20 +17,12 @@ RSpec.describe DisciplineTeachingPlan, type: :model do
     it { expect(subject).to validate_presence_of(:discipline) }
 
     it 'should validate uniqueness of discipline teaching plan' do
-      another_discipline_teaching_plan = create(:discipline_teaching_plan, :with_teacher_discipline_classroom)
+      other_teaching_plan = create(:discipline_teaching_plan, :with_teacher_discipline_classroom)
 
-      teaching_plan = create(
-        :teaching_plan,
-        year: another_discipline_teaching_plan.teaching_plan.year,
-        unity: another_discipline_teaching_plan.teaching_plan.unity,
-        grade: another_discipline_teaching_plan.teaching_plan.grade,
-        school_term: another_discipline_teaching_plan.teaching_plan.school_term,
-        teacher: another_discipline_teaching_plan.teaching_plan.teacher
-      )
       subject = build(
         :discipline_teaching_plan,
-        teaching_plan: teaching_plan,
-        discipline: another_discipline_teaching_plan.discipline
+        teaching_plan: other_teaching_plan.teaching_plan,
+        discipline: other_teaching_plan.discipline
       )
 
       expect(subject).to_not be_valid

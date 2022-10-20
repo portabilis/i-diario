@@ -33,8 +33,38 @@ class StudentEnrollmentsList
     adjust_date_range_by_year if opinion_type_by_year?
   end
 
-  def student_enrollments
-    fetch_student_enrollments
+  def student_enrollments(as_relation = false)
+    fetch_student_enrollments(as_relation)
+  end
+
+  def student_enrollment_classrooms
+    students_enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classroom)
+                                                                 .by_discipline(discipline)
+                                                                 .by_score_type(score_type, classroom)
+                                                                 .joins(student_enrollment: :student)
+                                                                 .includes(student_enrollment: :student)
+                                                                 .includes(student_enrollment: :dependences)
+
+    students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
+
+    if include_date_range
+      students_enrollment_classrooms = students_enrollment_classrooms.by_date_range(start_at, end_at)
+                                                                     .by_date_not_before(start_at)
+    end
+
+    students_enrollment_classrooms = students_enrollment_classrooms.by_opinion_type(opinion_type, classroom) if opinion_type
+    students_enrollment_classrooms = students_enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+
+    students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
+
+    students_enrollment_classrooms.map do |student_enrollment_classroom|
+      {
+        student_enrollment_id: student_enrollment_classroom.student_enrollment.id,
+        student_enrollment_classroom_id: student_enrollment_classroom.id,
+        sequence: student_enrollment_classroom.sequence,
+        student: student_enrollment_classroom.student_enrollment.student
+      }
+    end
   end
 
   private
@@ -51,13 +81,14 @@ class StudentEnrollmentsList
     end
   end
 
-  def fetch_student_enrollments
+  def fetch_student_enrollments(as_relation)
     students_enrollments ||= StudentEnrollment.by_classroom(classroom)
                                               .by_discipline(discipline)
                                               .by_score_type(score_type, classroom)
                                               .joins(:student)
                                               .includes(:student)
                                               .includes(:dependences)
+                                              .includes(:student_enrollment_classrooms)
                                               .active
 
     students_enrollments = students_enrollments.by_grade(grade) if grade
@@ -75,7 +106,7 @@ class StudentEnrollmentsList
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
 
-    students_enrollments = order_by_sequence_and_name(students_enrollments)
+    students_enrollments = order_by_sequence_and_name(students_enrollments, as_relation)
 
     students_enrollments
   end
@@ -141,6 +172,13 @@ class StudentEnrollmentsList
     }
   end
 
+  def remove_not_displayable_classrooms(student_enrollment_classrooms)
+    student_enrollment_classrooms.select { |enrollment_classroom|
+      student_active?(enrollment_classroom.student_enrollment) ||
+        (student_displayable_as_inactive?(enrollment_classroom.student_enrollment) && show_inactive)
+    }
+  end
+
   def step
     @step ||= begin
       step_date = date || start_at
@@ -158,7 +196,7 @@ class StudentEnrollmentsList
     [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@opinion_type)
   end
 
-  def order_by_sequence_and_name(students_enrollments)
+  def order_by_sequence_and_name(students_enrollments, as_relation)
     ids = students_enrollments.compact.map(&:id)
     enrollments = StudentEnrollment.where(id: ids)
                                    .by_classroom(@classroom)
@@ -176,9 +214,7 @@ class StudentEnrollmentsList
                     end
     end
 
-    enrollments.active
-               .ordered
-               .to_a
-               .uniq
+    enrollments = enrollments.active.ordered
+    as_relation ? enrollments : enrollments.to_a.uniq
   end
 end

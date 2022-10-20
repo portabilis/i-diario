@@ -24,7 +24,6 @@ RSpec.describe ConceptualExam, type: :model do
   end
 
   describe 'validations' do
-    it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:student) }
     it { expect(subject).to validate_presence_of(:recorded_at) }
     it { expect(subject).to validate_not_in_future_of(:recorded_at) }
@@ -37,14 +36,26 @@ RSpec.describe ConceptualExam, type: :model do
         '.classroom_must_have_conceptual_exam_score_type'
       )
 
-      invalid_score_types.each do |invalid_score_type|
-        subject.classroom.exam_rule.score_type = invalid_score_type
-        subject.student.uses_differentiated_exam_rule = false
+      student = create(:student)
+      student_enrollment = create(:student_enrollment, student: student)
+      classrooms_grade = create(:classrooms_grade, :score_type_numeric)
+      create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grade,
+        student_enrollment: student_enrollment
+      )
+      conceptual_exam = build(
+        :conceptual_exam,
+        :with_teacher_discipline_classroom,
+        classroom: classrooms_grade.classroom,
+        student: student
+      )
 
-        subject.valid?
+      conceptual_exam.student.uses_differentiated_exam_rule = false
 
-        expect(subject.errors[:student]).to include(expected_message)
-      end
+      conceptual_exam.valid?
+
+      expect(conceptual_exam.errors[:student]).to include(expected_message)
     end
 
     context 'recorded_at validations' do

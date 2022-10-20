@@ -47,11 +47,10 @@ RSpec.describe ObservationRecordReportForm do
       end
 
       it 'should require observation_diary_records to be present' do
-        skip
-
         allow(observation_record_report_query).to(
           receive(:observation_diary_records).and_return([])
         )
+        allow(subject).to receive(:require_observation_diary_records?).and_return(true)
 
         subject.valid?
 

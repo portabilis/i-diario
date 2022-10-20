@@ -7,6 +7,9 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       example.run
     end
   end
+  before(:each) do
+    TeachingPlan.any_instance.stub(:yearly?).and_return(false)
+  end
   let(:user) do
     create(
       :user_with_user_role,
@@ -22,10 +25,10 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
   let(:other_teacher) { create(:teacher) }
-  let(:classroom) { create(:classroom) }
+  let(:classroom) { create(:classroom, :score_type_numeric) }
   let(:discipline) { create(:discipline) }
   let(:school_term_type) { create(:school_term_type) }
-  let(:school_term_type_step) { create(:school_term_type_step) }
+  let(:school_term_type_step) { create(:school_term_type_step, school_term_type: school_term_type) }
   let(:current_teacher_teaching_plan) {
     create(
       :teaching_plan,
@@ -33,7 +36,9 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       teacher: current_teacher,
       unity: unity,
       year: classroom.year,
-      grade: classroom.grade
+      grade: classroom.classrooms_grades.first.grade,
+      school_term_type: school_term_type,
+      school_term_type_step: school_term_type_step
     )
   }
   let(:other_teacher_teaching_plan) {
@@ -43,7 +48,9 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       teacher: other_teacher,
       unity: unity,
       year: classroom.year,
-      grade: classroom.grade
+      grade: classroom.classrooms_grades.first.grade,
+      school_term_type: school_term_type,
+      school_term_type_step: school_term_type_step
     )
   }
   let(:current_teacher_discipline_teaching_plan) {
@@ -77,7 +84,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
           id: '',
           year: classroom.year,
           unity_id: unity.id,
-          grade_id: classroom.grade.id,
+          grade_id: classroom.classrooms_grades.first.grade_id,
           school_term_type_id: school_term_type.id,
           school_term_type_step_id: school_term_type_step.id,
           teacher_id: current_teacher.id,
@@ -90,8 +97,6 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   }
 
   before do
-    skip
-
     user_role.unity = unity
     user_role.save!
 
@@ -151,6 +156,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     context 'without success' do
       it 'fails to create and renders the new template' do
         allow(controller).to receive(:fetch_collections).and_return([])
+        allow(controller).to receive(:yearly_term_type_id).and_return(1)
         params[:discipline_teaching_plan][:discipline_id] = nil
         expect { post :create, params.merge(params) }.to_not change(DisciplineTeachingPlan, :count)
         expect(response).to render_template(:new)
