@@ -29,15 +29,4 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   scope :by_knowledge_area_id, ->(knowledge_area_id) {
     joins(:discipline).where(disciplines: { knowledge_area_id: knowledge_area_id })
   }
-
-  def self.grouped_by_knowledge_area
-    joins(discipline: :knowledge_area)
-      .to_a.group_by { |tdc| [tdc.discipline.knowledge_area.group_descriptors, tdc.discipline.knowledge_area_id] }.map do |group, disciplines|
-      if group[0]
-        disciplines.first
-      else
-        disciplines
-      end
-    end.flatten
-  end
 end
