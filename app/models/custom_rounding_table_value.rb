@@ -2,7 +2,7 @@ class CustomRoundingTableValue < ActiveRecord::Base
   acts_as_copy_target
 
   include Audit
-  audited
+  audited associated_with: :custom_rounding_table
   has_associated_audits
 
   belongs_to :custom_rounding_table
