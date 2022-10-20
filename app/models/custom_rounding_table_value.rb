@@ -14,6 +14,8 @@ class CustomRoundingTableValue < ActiveRecord::Base
 
   scope :ordered, -> { order(arel_table[:label].desc) }
 
+  scope :ordered_asc, -> { order(arel_table[:label].asc) }
+
   def to_s
     label
   end
