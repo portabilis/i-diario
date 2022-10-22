@@ -12,10 +12,7 @@ RSpec.describe LessonsBoard, type: :model do
   end
 
   describe 'validations' do
-    it {
-      binding.pry
-      expect(subject).to validate_presence_of(:period)
-    }
+    it { expect(subject).to validate_presence_of(:period) }
     it { expect(subject).to validate_presence_of(:classrooms_grade_id) }
   end
 end
