@@ -10,7 +10,9 @@ class LessonsBoardsController < ApplicationController
 
   def show
     @lessons_board = resource
-    ActiveRecord::Associations::Preloader.new.preload(@lessons_board, [lessons_board_lessons: [:lessons_board_lesson_weekdays]])
+    ActiveRecord::Associations::Preloader
+      .new
+      .preload(@lessons_board, lessons_board_lessons: :lessons_board_lesson_weekdays)
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
     @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classroom.unity&.id)
 
@@ -190,12 +192,14 @@ class LessonsBoardsController < ApplicationController
   end
 
   def teacher_in_other_classroom
-    return if params[:teacher_discipline_classroom_id].blank? ||
-              params[:lesson_number].blank? ||
-              params[:weekday].blank? ||
-              params[:classroom_id].blank?
+    any_blank_param = params[:teacher_discipline_classroom_id].blank? || params[:lesson_number].blank? ||
+      params[:weekday].blank? ||
+      params[:classroom_id].blank?
 
-    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday], params[:classroom_id])
+    return if any_blank_param
+
+    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday],
+                                params[:classroom_id])
   end
 
   private
@@ -210,17 +214,20 @@ class LessonsBoardsController < ApplicationController
     period = teacher_discipline_classroom.classroom.period
 
     teacher_lessons_board_weekdays = LessonsBoardLessonWeekday.includes(teacher_discipline_classroom:
-                                                                          [:teacher, classroom: [:unity]])
+                                                                          [:teacher, classroom: :unity])
                                                               .where(weekday: weekday)
-                                                              .joins(lessons_board_lesson: [:lessons_board],
-                                                                     teacher_discipline_classroom: [:teacher,
-                                                                                                    classroom: [:classrooms_grades]])
+                                                              .joins(lessons_board_lesson: :lessons_board,
+                                                                     teacher_discipline_classroom: [
+                                                                       :teacher,
+                                                                       classroom: :classrooms_grades
+                                                                     ])
                                                               .where(teachers: { id: teacher_id })
                                                               .where(classrooms: { year: year, period: period })
-                                                              .where(lessons_board_lessons: { lesson_number:
-                                                                                              lesson_number })
-                                                              .where.not(classrooms_grades: { classroom_id:
-                                                                                             classroom.to_i })
+                                                              .where(lessons_board_lessons: {
+                                                                lesson_number: lesson_number
+                                                              })
+                                                              .where
+                                                              .not(classrooms_grades: { classroom_id: classroom.to_i })
                                                               .first
 
 
@@ -294,7 +301,9 @@ class LessonsBoardsController < ApplicationController
           </div>
        </div>
        <div class='flex-discipline'>
-         <span class='flex-discipline-span' style='background-color: #{discipline.label_color};'>#{discipline.description.try(:strip)}</span>
+         <span class='flex-discipline-span' style='background-color: #{discipline.label_color};'>
+           #{discipline.description.try(:strip)}
+         </span>
        </div>
      </div>"
   end
