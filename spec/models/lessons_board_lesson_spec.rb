@@ -1,0 +1,17 @@
+require 'rails_helper'
+
+RSpec.describe LessonsBoardLesson, type: :model do
+  subject {
+    build(
+      :lessons_board_lesson
+    )
+  }
+
+  describe 'associations' do
+    it { expect(subject).to belong_to(:lessons_board) }
+  end
+
+  describe 'validations' do
+    it { expect(subject).to validate_presence_of(:lessons_board_id) }
+  end
+end
