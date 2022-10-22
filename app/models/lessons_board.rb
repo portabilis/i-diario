@@ -5,8 +5,7 @@ class LessonsBoard < ActiveRecord::Base
 
   audited
 
-  validates :period, presence: true
-  validates :classrooms_grade_id, presence: true
+  validates :period, :classrooms_grade_id, presence: true
 
   belongs_to :classrooms_grade
   has_many :lessons_board_lessons
