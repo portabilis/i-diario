@@ -38,7 +38,7 @@ class StudentEnrollmentsListsController < ApplicationController
   private
 
   def validate_date_param
-    validator = DateValidator.new(params[:filter][:date])
+    validator = DateParamValidator.new(params[:filter][:date])
 
     return if validator.valid?
 

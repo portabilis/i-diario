@@ -1,4 +1,4 @@
-class DateValidator
+class DateParamValidator
   include ActiveModel::Validations
 
   attr_accessor :date
