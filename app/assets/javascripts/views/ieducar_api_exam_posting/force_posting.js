@@ -31,31 +31,30 @@
       const button = document.getElementById(key);
       if ((clickTracking[key].clicked > clickTracking[key].clicked_old) && (clickTracking[key].paid < clickTracking[key].timeout)) {
         const interval = setInterval(() => {
-          if (clickTracking[key].paid >= clickTracking[key].timeout) {
-            clickTracking[key] = {
-              ...clickTracking[key],
-              clicked_old: clickTracking[key].clicked,
+          let aux = JSON.parse(localStorage.getItem('click-tracking'));
+          if (aux[key].paid >= aux[key].timeout) {
+            aux[key] = {
+              ...aux[key],
+              clicked_old: aux[key].clicked,
             }
           } else {
-            clickTracking[key].paid += 1000;
+            aux[key].paid += 1000;
           }
-
-          localStorage.setItem('click-tracking', JSON.stringify(clickTracking));
+          localStorage.setItem('click-tracking', JSON.stringify(aux));
         }, 1000);
 
         if (button) button.style.pointerEvents = 'none';
         setTimeout(() => {
           if (button) button.style.pointerEvents = 'auto';
-
-          clickTracking[key] = {
-            ...clickTracking[key],
-            clicked_old: clickTracking[key].clicked,
+          let aux1 = JSON.parse(localStorage.getItem('click-tracking'));
+          aux1[key] = {
+            ...aux1[key],
+            clicked_old: aux1[key].clicked,
             paid: 0
           }
 
           clearInterval(interval);
-
-          localStorage.setItem('click-tracking', JSON.stringify(clickTracking));
+          localStorage.setItem('click-tracking', JSON.stringify(aux1));
         }, clickTracking[key].timeout - clickTracking[key].paid);
       }
     });
