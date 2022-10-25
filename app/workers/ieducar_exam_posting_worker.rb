@@ -33,7 +33,7 @@ class IeducarExamPostingWorker
       when ApiPostingTypes::CONCEPTUAL_EXAM
         queue = SmartEnqueuer.new(EXAM_POSTING_QUEUES).less_used_queue
 
-        ExamPoster::ConceptualExamPoster.post!(posting, entity_id, posting_last, queue)
+        ExamPoster::ConceptualExamPoster.post!(posting, entity_id, posting_last, queue, force_posting)
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         ExamPoster::DescriptiveExamPoster.post!(posting, entity_id, posting_last, force_posting)
       when ApiPostingTypes::ABSENCE
