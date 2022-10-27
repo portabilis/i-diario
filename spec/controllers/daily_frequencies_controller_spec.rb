@@ -32,6 +32,8 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     )
   }
 
+  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+
   let(:params) {
     {
       locale: 'pt-BR',
@@ -63,17 +65,14 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
     allow(controller).to receive(:can_change_school_year?).and_return(true)
+    allow(controller).to receive(:current_classroom).and_return(classroom)
+    allow(controller).to receive(:current_teacher).and_return(current_teacher)
+    allow(controller).to receive(:current_school_calendar).and_return(school_calendar)
+    allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
     request.env['REQUEST_PATH'] = ''
   end
 
   describe 'POST #create' do
-    before do
-      allow(controller).to receive(:current_classroom).and_return(classroom)
-      allow(controller).to receive(:current_teacher).and_return(current_teacher)
-      allow(controller).to receive(:current_school_calendar).and_return(school_calendar)
-      allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
-    end
-
     context 'without success' do
       it 'fails to create and renders the new template' do
         allow(school_calendar).to receive(:school_day?).and_return(false)
@@ -83,9 +82,31 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     end
 
     context 'with success' do
-      it 'creates and redirects to discipline_teaching_plans#index' do
+      it 'creates and redirects to daily frequency edit page' do
         post :create, params
         expect(response).to redirect_to /#{edit_multiple_daily_frequencies_path}/
+      end
+    end
+  end
+
+  describe 'GET #edit_multiple' do
+    before do
+      allow(controller).to receive(:discipline_classroom_grade_ids).and_return([1, 2, classrooms_grade.grade_id])
+    end
+
+    context 'without success' do
+      it 'returns not found status' do
+        get :edit_multiple, params
+        expect(response).to have_http_status(302)
+      end
+    end
+
+    context 'with success' do
+      it 'returns success status' do
+        create_list(:student_enrollment_classroom, 2, classrooms_grade: classrooms_grade)
+        params[:class_numbers] = [1, 2, classrooms_grade.grade_id]
+        get :edit_multiple, params
+        expect(response).to have_http_status(200)
       end
     end
   end
