@@ -103,7 +103,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
 
     context 'with success' do
       it 'returns success status' do
-        create_list(:student_enrollment_classroom, 2, classrooms_grade: classrooms_grade)
+        create(:student_enrollment_classroom, classrooms_grade: classrooms_grade)
         params[:class_numbers] = [1, 2, classrooms_grade.grade_id]
         get :edit_multiple, params
         expect(response).to have_http_status(200)
