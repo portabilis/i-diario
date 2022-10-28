@@ -16,7 +16,6 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    display_knowledge_area_as_discipline,
     students_frequencies_percentage
   )
     new(:landscape)
@@ -30,7 +29,6 @@ class AttendanceRecordReport < BaseReport
              events,
              school_calendar,
              second_teacher_signature,
-             display_knowledge_area_as_discipline,
              students_frequencies_percentage)
   end
 
@@ -45,7 +43,6 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    display_knowledge_area_as_discipline,
     students_frequencies_percentage
   )
     @entity_configuration = entity_configuration
@@ -58,9 +55,6 @@ class AttendanceRecordReport < BaseReport
     @events = events
     @school_calendar = school_calendar
     @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
-    @display_knowledge_area_as_discipline = ActiveRecord::Type::Boolean.new.type_cast_from_user(
-      display_knowledge_area_as_discipline
-    )
     @show_legend_hybrid = false
     @show_legend_remote = false
     @exists_legend_hybrid = false
@@ -449,16 +443,9 @@ class AttendanceRecordReport < BaseReport
   def discipline_display
     return 'Geral' if general_frequency?
 
-    if @display_knowledge_area_as_discipline && display_knowledge_area_as_discipline?
-      return knowledge_area.to_s
-    end
-
     discipline.to_s
   end
 
-  def display_knowledge_area_as_discipline?
-    teacher_allow_absence_by_discipline? && classroom_has_general_absence?
-  end
 
   def classroom_has_general_absence?
     classroom.first_exam_rule.frequency_type == FrequencyTypes::GENERAL
