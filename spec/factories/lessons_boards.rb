@@ -4,7 +4,7 @@ FactoryGirl.define do
     period Periods::MATUTINAL
 
     trait :full_lessons_board do
-      after(:build) do |lesson_board|
+      after(:create) do |lesson_board|
         create(:lessons_board_lesson, :with_five_weekdays, lessons_board: lesson_board, lesson_number: 1)
         create(:lessons_board_lesson, :with_five_weekdays, lessons_board: lesson_board, lesson_number: 2)
         create(:lessons_board_lesson, :with_five_weekdays, lessons_board: lesson_board, lesson_number: 3)
