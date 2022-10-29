@@ -10,8 +10,4 @@ RSpec.describe LessonsBoardLesson, type: :model do
   describe 'associations' do
     it { expect(subject).to belong_to(:lessons_board) }
   end
-
-  describe 'validations' do
-    it { expect(subject).to validate_presence_of(:lessons_board_id) }
-  end
 end

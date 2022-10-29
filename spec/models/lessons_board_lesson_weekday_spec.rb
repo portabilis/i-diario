@@ -14,6 +14,5 @@ RSpec.describe LessonsBoardLessonWeekday, type: :model do
 
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:teacher_discipline_classroom_id) }
-    it { expect(subject).to validate_presence_of(:lessons_board_lesson_id) }
   end
 end
