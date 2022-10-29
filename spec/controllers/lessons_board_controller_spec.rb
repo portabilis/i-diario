@@ -54,12 +54,11 @@ RSpec.describe LessonsBoardsController, type: :controller do
 
   context '#create' do
     it 'when create a new lessons board' do
-      lesson_board = create(:lessons_board, :full_lessons_board, classrooms_grade: classroom_grade_3)
       params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
 
-      post :create, locale: 'pt-BR', params: params
-
-      expect(LessonsBoard.all.size).to eq(3)
+      expect{(
+        post :create,  locale: 'pt-BR', lessons_board: params
+      )}.to change{ LessonsBoard.count }.to(3)
     end
   end
 
