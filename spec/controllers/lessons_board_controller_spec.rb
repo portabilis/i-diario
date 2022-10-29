@@ -3,8 +3,9 @@ require 'rails_helper'
 RSpec.describe LessonsBoardsController, type: :controller do
   let(:user) do
     create(
-      :user_with_user_role,
-      admin: false,
+      :user,
+      :with_user_role_administrator,
+      admin: true,
       teacher_id: current_teacher.id,
       current_unity_id: unity.id,
       current_school_year: classroom.year,
@@ -16,8 +17,13 @@ RSpec.describe LessonsBoardsController, type: :controller do
   let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
   let(:other_teacher) { create(:teacher) }
-  let(:classroom) { create(:classroom) }
+  let(:classroom) { create(:classroom, :with_classroom_trimester_steps) }
   let(:discipline) { create(:discipline) }
+  let!(:classroom_grade) { create(:classrooms_grade, classroom: classroom) }
+  let!(:classroom_grade_2) { create(:classrooms_grade, classroom: classroom) }
+  let!(:classroom_grade_3) { create(:classrooms_grade, classroom: classroom) }
+  let!(:lessons_board_1) { create(:lessons_board, classrooms_grade: classroom_grade) }
+  let!(:lessons_board_2) { create(:lessons_board, classrooms_grade: classroom_grade_2) }
 
   around(:each) do |example|
     Entity.find_by_domain("test.host").using_connection do
@@ -34,12 +40,31 @@ RSpec.describe LessonsBoardsController, type: :controller do
 
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
-    allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
-    allow(controller).to receive(:can_change_school_year?).and_return(true)
+    allow(controller).to receive(:current_unity).and_return(unity)
     request.env['REQUEST_PATH'] = ''
   end
 
-  context 'GET #INDEX'
-  context 'POST #CREATE'
-  context 'DELETE #DESTROY'
+  context '#index' do
+    it 'when list all lessons board' do
+      get :index, locale: 'pt-BR'
+
+      expect(assigns(:lessons_boards).size).to eq(2)
+    end
+  end
+
+  context '#create' do
+    it 'when create a new lessons board' do
+      lesson_board = create(:lessons_board, :full_lessons_board, classrooms_grade: classroom_grade_3)
+      params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+
+      post :create, locale: 'pt-BR', params: params
+
+      expect(LessonsBoard.all.size).to eq(3)
+    end
+  end
+
+
+  context '#destroy' do
+    it 'when delete one lessons board'
+  end
 end
