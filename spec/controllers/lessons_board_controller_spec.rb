@@ -21,7 +21,6 @@ RSpec.describe LessonsBoardsController, type: :controller do
   let(:discipline) { create(:discipline) }
   let!(:classroom_grade) { create(:classrooms_grade, classroom: classroom) }
   let!(:classroom_grade_2) { create(:classrooms_grade, classroom: classroom) }
-  let!(:classroom_grade_3) { create(:classrooms_grade, classroom: classroom) }
   let!(:lessons_board_1) { create(:lessons_board, classrooms_grade: classroom_grade) }
   let!(:lessons_board_2) { create(:lessons_board, classrooms_grade: classroom_grade_2) }
 
