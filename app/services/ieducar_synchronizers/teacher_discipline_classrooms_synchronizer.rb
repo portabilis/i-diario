@@ -20,17 +20,20 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     ActiveRecord::Base.transaction do
       teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
         existing_discipline_api_codes = []
+        created_linked_teachers = []
 
         (teacher_discipline_classroom_record.disciplinas || []).each do |discipline_by_score_type|
           discipline_api_code, score_type = discipline_by_score_type.split
           existing_discipline_api_codes << discipline_api_code
 
-          create_or_update_teacher_discipline_classrooms(
+          created_linked_teachers << create_or_update_teacher_discipline_classrooms(
             teacher_discipline_classroom_record,
             discipline_api_code,
             score_type
           )
         end
+
+        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
 
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
@@ -100,6 +103,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
 
     teacher_discipline_classroom.discard_or_undiscard(false)
+
+    teacher_discipline_classroom
   end
 
   def discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)
@@ -138,5 +143,32 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       classroom_id,
       teacher_id
     )
+  end
+
+  def create_or_destroy_teacher_disciplines_classrooms(linked_teachers)
+    teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
+
+    TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
+                              .where(id: teacher_discipline_classrooms_ids)
+                              .where(knowledge_areas: { group_descriptors: true })
+                              .each do |teacher_discipline_classroom|
+      fake_discipline = Discipline.unscoped.find_by(
+        knowledge_area_id: teacher_discipline_classroom.knowledge_area.id,
+        grouper: true
+      )
+
+      return if fake_discipline.nil?
+
+      TeacherDisciplineClassroom.find_or_initialize_by(
+        api_code: "grouper:#{fake_discipline.id}",
+        year: year,
+        teacher_id: teacher_discipline_classroom.teacher_id,
+        teacher_api_code: teacher_discipline_classroom.teacher_api_code,
+        discipline_id: fake_discipline.id,
+        discipline_api_code: "grouper:#{fake_discipline.id}",
+        classroom_id: teacher_discipline_classroom.classroom_id,
+        classroom_api_code: "grouper:#{fake_discipline.id}"
+      ).save!
+    end
   end
 end

@@ -20,9 +20,10 @@ $(document).ready( function() {
 
     var in_active_search = $(this).closest('tr').find('.in-active-search').size()
     var exempted_from_discipline = $(this).closest('tr').find('.exempted-student-from-discipline').size()
+    var inactive_student = $(this).closest('tr').find('.inactive-student').size()
     var checkbox = $(this).closest('tr').find('[data-id="checkbox-id"]')
 
-    if (in_active_search || exempted_from_discipline) {
+    if (in_active_search || exempted_from_discipline || inactive_student) {
       $(this).val(1)
       $(this).closest('label').addClass('state-disabled');
       $(this).prop('disabled', true)
