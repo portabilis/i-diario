@@ -82,6 +82,38 @@ RSpec.describe LessonsBoardsController, type: :controller do
     end
   end
 
+  context '#update' do
+    it 'when teacher allocation is changed with success' do
+      params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+
+      post :create, locale: 'pt-BR', lessons_board: params
+
+      last_lessons_board = LessonsBoard.last
+      first_lesson = last_lessons_board.lessons_board_lessons.first
+      first_allocation = last_lessons_board.lessons_board_lessons.first.lessons_board_lesson_weekdays.first
+      update_lessons_board = {
+        id: last_lessons_board.id,
+        "lessons_board_lessons_attributes": {
+          "0": {
+            "id": first_lesson.id,
+            "lesson_number": "1",
+            "_destroy": "false",
+            "lessons_board_lesson_weekdays_attributes": {
+              "0": {
+                "id": first_allocation.id,
+                "weekday": "monday",
+                "teacher_discipline_classroom_id": "94000"
+              }
+            }
+          }
+        }
+      }
+
+      expect {(
+        patch :update, locale: 'pt-BR', id: last_lessons_board.id, lessons_board: update_lessons_board
+      )}.to change { first_allocation.reload.teacher_discipline_classroom_id }.from(84167).to(94000)
+    end
+  end
 
   context '#destroy' do
     it 'when delete one lessons board' do
