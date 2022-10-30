@@ -59,6 +59,14 @@ RSpec.describe LessonsBoardsController, type: :controller do
         post :create, locale: 'pt-BR', lessons_board: params
       )}.to change{ LessonsBoard.count }.to(3)
     end
+
+    it 'when params is invalid' do
+      params = json_file_fixture('/spec/fixtures/files/without_classrooms_grade_lessons_board.json')
+
+      expect {(
+        post :create, locale: 'pt-BR', lessons_board: params
+      )}.to_not change(LessonsBoard, :count)
+    end
   end
 
 
