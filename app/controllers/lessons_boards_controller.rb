@@ -28,7 +28,6 @@ class LessonsBoardsController < ApplicationController
 
     authorize resource
 
-
     if resource.save
       respond_with resource, location: lessons_boards_path
     else
@@ -85,6 +84,7 @@ class LessonsBoardsController < ApplicationController
       Unity.where(id: lessons_unities).ordered
     end
   end
+
   helper_method :lesson_unities
 
   def unities
@@ -96,6 +96,7 @@ class LessonsBoardsController < ApplicationController
       [current_user_unity]
     end
   end
+
   helper_method :unities
 
   def unities_id
@@ -109,6 +110,7 @@ class LessonsBoardsController < ApplicationController
     LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classrooms_grade.grade_id }
     Grade.find(lessons_grades)
   end
+
   helper_method :lesson_grades
 
   def lesson_classrooms
@@ -116,6 +118,7 @@ class LessonsBoardsController < ApplicationController
     LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classroom.id }
     Classroom.find(lessons_classrooms)
   end
+
   helper_method :lesson_classrooms
 
   def resource
@@ -194,9 +197,9 @@ class LessonsBoardsController < ApplicationController
   def teacher_in_other_classroom
     any_blank_param = (
       params[:teacher_discipline_classroom_id].blank? ||
-      params[:lesson_number].blank? ||
-      params[:weekday].blank? ||
-      params[:classroom_id].blank?
+        params[:lesson_number].blank? ||
+        params[:weekday].blank? ||
+        params[:classroom_id].blank?
     )
 
     return if any_blank_param
@@ -221,8 +224,12 @@ class LessonsBoardsController < ApplicationController
 
   def classrooms_to_select2(grade_id, unity_id)
     classrooms_to_select2 = []
+    classrooms = Classroom.by_unity(unity_id)
+                          .by_grade(grade_id)
+                          .by_year(current_user_school_year)
+                          .ordered
 
-    Classroom.by_unity(unity_id).by_grade(grade_id).by_year(current_user_school_year).ordered.each do |classroom|
+    classrooms.each do |classroom|
       classrooms_to_select2 << OpenStruct.new(
         id: classroom.id,
         name: classroom.description.to_s,
@@ -235,8 +242,11 @@ class LessonsBoardsController < ApplicationController
 
   def grades_by_unity_to_select2(unity_id)
     grades_to_select2 = []
+    grades = Grade.includes(:course)
+                  .by_unity(unity_id)
+                  .ordered
 
-    Grade.includes(:course).by_unity(unity_id).ordered.each do |grade|
+    grades.each do |grade|
       grades_to_select2 << OpenStruct.new(
         id: grade.id,
         name: grade.description.to_s,
