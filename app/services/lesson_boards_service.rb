@@ -23,6 +23,33 @@ class LessonBoardsService
     teachers_to_select2.insert(0, OpenStruct.new(id: 'empty', name: '<option></option>', text: ''))
   end
 
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
+    teacher_discipline_classroom = TeacherDisciplineClassroom.includes(:teacher, classroom: :unity)
+                                                             .find(teacher_discipline_classroom_id)
+    teacher_id = teacher_discipline_classroom.teacher.id
+    year = teacher_discipline_classroom.classroom.year
+    period = teacher_discipline_classroom.classroom.period
+
+    linked = LessonsBoardLessonWeekday.includes(teacher_discipline_classroom: [:teacher, classroom: :unity])
+                                      .where(weekday: weekday)
+                                      .joins(lessons_board_lesson: :lessons_board,
+                                             teacher_discipline_classroom: [:teacher, classroom: :classrooms_grades])
+                                      .where(teachers: { id: teacher_id })
+                                      .where(classrooms: { year: year, period: period })
+                                      .where(lessons_board_lessons: { lesson_number: lesson_number })
+                                      .where.not(classrooms_grades: { classroom_id: classroom.to_i })
+                                      .first
+
+    return false if linked.nil?
+
+    linked_teacher_message_error(linked.teacher_discipline_classroom.teacher.name,
+                                 linked.teacher_discipline_classroom.classroom.description,
+                                 linked.teacher_discipline_classroom.classroom.unity,
+                                 linked.teacher_discipline_classroom.classroom.year,
+                                 Workdays.translate(Workdays.key_for(weekday.to_s)),
+                                 lesson_number, teacher_discipline_classroom)
+  end
+
   private
 
   def discipline_teacher_name(discipline, teacher)
@@ -38,5 +65,17 @@ class LessonBoardsService
          </span>
        </div>
      </div>"
+  end
+
+  def linked_teacher_message_error(name, classroom, unity, year, weekday, lesson_number, other_allocation)
+    if other_allocation.classroom.unity.id.eql?(unity.id)
+      OpenStruct.new(message: "O(a) professor(a) #{name} já está alocado(a) para a turma #{classroom} na mesma escola
+      em #{year} na #{weekday} e na #{lesson_number}ª aula. Para conseguir vincular o mesmo, efetue a troca de
+      horário em uma das turmas.")
+    else
+      OpenStruct.new(message: "O(a) professor(a) #{name} já está alocado(a) para a turma #{classroom} na #{unity.name}
+      em #{year} na #{weekday} e na #{lesson_number}ª aula. Para conseguir vincular o mesmo, favor contatar o(a)
+      responsável da escola para efetuar a troca de horário.")
+    end
   end
 end

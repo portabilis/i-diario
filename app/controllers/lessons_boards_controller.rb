@@ -207,59 +207,16 @@ class LessonsBoardsController < ApplicationController
 
   private
 
-  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
-    teacher_discipline_classroom = TeacherDisciplineClassroom.includes(:teacher, classroom: [:unity])
-                                                             .find(teacher_discipline_classroom_id)
-
-
-    teacher_id = teacher_discipline_classroom.teacher.id
-    year = teacher_discipline_classroom.classroom.year
-    period = teacher_discipline_classroom.classroom.period
-
-    teacher_lessons_board_weekdays = LessonsBoardLessonWeekday.includes(teacher_discipline_classroom:
-                                                                          [:teacher, classroom: :unity])
-                                                              .where(weekday: weekday)
-                                                              .joins(lessons_board_lesson: :lessons_board,
-                                                                     teacher_discipline_classroom: [
-                                                                       :teacher,
-                                                                       classroom: :classrooms_grades
-                                                                     ])
-                                                              .where(teachers: { id: teacher_id })
-                                                              .where(classrooms: { year: year, period: period })
-                                                              .where(lessons_board_lessons: {
-                                                                lesson_number: lesson_number
-                                                              })
-                                                              .where
-                                                              .not(classrooms_grades: { classroom_id: classroom.to_i })
-                                                              .first
-
-
-    return false if teacher_lessons_board_weekdays.nil?
-
-    linked_teacher_message_error(teacher_lessons_board_weekdays.teacher_discipline_classroom.teacher.name,
-                                 teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.description,
-                                 teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.unity,
-                                 teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.year,
-                                 Workdays.translate(Workdays.key_for(weekday.to_s)),
-                                 lesson_number, teacher_discipline_classroom)
+  def service
+    @service ||= LessonBoardsService.new
   end
 
-  def linked_teacher_message_error(name, classroom, unity, year, weekday, lesson_number, other_allocation)
-    if other_allocation.classroom.unity.id.eql?(unity.id)
-      OpenStruct.new(message: "O(a) professor(a) #{name} já está alocado(a) para a turma #{classroom} na mesma escola
-      em #{year} na #{weekday} e na #{lesson_number}ª aula. Para conseguir vincular o mesmo, efetue a troca de
-      horário em uma das turmas.")
-    else
-      OpenStruct.new(message: "O(a) professor(a) #{name} já está alocado(a) para a turma #{classroom} na #{unity.name}
-      em #{year} na #{weekday} e na #{lesson_number}ª aula. Para conseguir vincular o mesmo, favor contatar o(a)
-      responsável da escola para efetuar a troca de horário.")
-    end
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
+    service.linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
   end
 
   def teachers_to_select2(classroom_id, period)
-    @service ||= LessonBoardsService.new
-
-    @service.teachers(classroom_id, period)
+    service.teachers(classroom_id, period)
   end
 
   def classrooms_to_select2(grade_id, unity_id)
