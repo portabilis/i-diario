@@ -48,78 +48,90 @@ RSpec.describe LessonsBoardsController, type: :controller do
     request.env['REQUEST_PATH'] = ''
   end
 
-  context '#index' do
-    it 'when list all lessons board' do
-      get :index, locale: 'pt-BR'
+  describe '#index' do
+    context 'when user have access' do
+      it 'list all lessons board' do
+        get :index, locale: 'pt-BR'
 
-      expect(assigns(:lessons_boards).size).to eq(2)
+        expect(assigns(:lessons_boards).size).to eq(2)
+      end
     end
 
-    it 'when not list lessons board' do
-      sign_in(other_user)
+    context 'when user dont have access' do
+      it 'dont list any lessons board' do
+        sign_in(other_user)
 
-      get :index, locale: 'pt-BR'
+        get :index, locale: 'pt-BR'
 
-      expect(assigns(:lessons_boards)).to be_empty
-    end
-  end
-
-  context '#create' do
-    it 'when create a new lessons board' do
-      params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
-
-      expect{(
-        post :create, locale: 'pt-BR', lessons_board: params
-      )}.to change{ LessonsBoard.count }.to(3)
-    end
-
-    it 'when params is invalid' do
-      params = json_file_fixture('/spec/fixtures/files/without_classrooms_grade_lessons_board.json')
-
-      expect {(
-        post :create, locale: 'pt-BR', lessons_board: params
-      )}.to_not change(LessonsBoard, :count)
+        expect(assigns(:lessons_boards)).to be_empty
+      end
     end
   end
 
-  context '#update' do
-    it 'when teacher allocation is changed with success' do
-      params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+  describe '#create' do
+    context 'with success' do
+      it 'valid params' do
+        params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
 
-      post :create, locale: 'pt-BR', lessons_board: params
+        expect{(
+          post :create, locale: 'pt-BR', lessons_board: params
+        )}.to change{ LessonsBoard.count }.to(3)
+      end
+    end
 
-      last_lessons_board = LessonsBoard.last
-      first_lesson = last_lessons_board.lessons_board_lessons.first
-      first_allocation = last_lessons_board.lessons_board_lessons.first.lessons_board_lesson_weekdays.first
-      update_lessons_board = {
-        id: last_lessons_board.id,
-        "lessons_board_lessons_attributes": {
-          "0": {
-            "id": first_lesson.id,
-            "lesson_number": "1",
-            "_destroy": "false",
-            "lessons_board_lesson_weekdays_attributes": {
-              "0": {
-                "id": first_allocation.id,
-                "weekday": "monday",
-                "teacher_discipline_classroom_id": "94000"
+    context 'without success' do
+      it 'invalid params' do
+        params = json_file_fixture('/spec/fixtures/files/without_classrooms_grade_lessons_board.json')
+
+        expect {(
+          post :create, locale: 'pt-BR', lessons_board: params
+        )}.to_not change(LessonsBoard, :count)
+      end
+    end
+  end
+
+  describe '#update' do
+    context 'with success' do
+      it 'when teacher allocation is changed with success' do
+        params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+
+        post :create, locale: 'pt-BR', lessons_board: params
+
+        last_lessons_board = LessonsBoard.last
+        first_lesson = last_lessons_board.lessons_board_lessons.first
+        first_allocation = last_lessons_board.lessons_board_lessons.first.lessons_board_lesson_weekdays.first
+        update_lessons_board = {
+          id: last_lessons_board.id,
+          "lessons_board_lessons_attributes": {
+            "0": {
+              "id": first_lesson.id,
+              "lesson_number": "1",
+              "_destroy": "false",
+              "lessons_board_lesson_weekdays_attributes": {
+                "0": {
+                  "id": first_allocation.id,
+                  "weekday": "monday",
+                  "teacher_discipline_classroom_id": "94000"
+                }
               }
             }
           }
         }
-      }
 
-      expect {(
-        patch :update, locale: 'pt-BR', id: last_lessons_board.id, lessons_board: update_lessons_board
-      )}.to change { first_allocation.reload.teacher_discipline_classroom_id }.from(84167).to(94000)
+        expect {(
+          patch :update, locale: 'pt-BR', id: last_lessons_board.id, lessons_board: update_lessons_board
+        )}.to change { first_allocation.reload.teacher_discipline_classroom_id }.from(84167).to(94000)
+      end
     end
   end
 
-  context '#destroy' do
-    it 'when delete one lessons board' do
-      expect{(
-        delete :destroy, locale: 'pt-BR', id: lessons_board_1.id
-      )}.to change{ LessonsBoard.count }.to(1)
+  describe '#destroy' do
+    context 'with success' do
+      it 'when delete one lessons board' do
+        expect{(
+          delete :destroy, locale: 'pt-BR', id: lessons_board_1.id
+        )}.to change{ LessonsBoard.count }.to(1)
+      end
     end
   end
 end
