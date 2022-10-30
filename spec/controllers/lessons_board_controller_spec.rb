@@ -56,13 +56,17 @@ RSpec.describe LessonsBoardsController, type: :controller do
       params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
 
       expect{(
-        post :create,  locale: 'pt-BR', lessons_board: params
+        post :create, locale: 'pt-BR', lessons_board: params
       )}.to change{ LessonsBoard.count }.to(3)
     end
   end
 
 
   context '#destroy' do
-    it 'when delete one lessons board'
+    it 'when delete one lessons board' do
+      expect{(
+        delete :destroy, locale: 'pt-BR', id: lessons_board_1.id
+      )}.to change{ LessonsBoard.count }.to(1)
+    end
   end
 end
