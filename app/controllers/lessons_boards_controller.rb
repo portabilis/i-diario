@@ -77,18 +77,24 @@ class LessonsBoardsController < ApplicationController
   end
 
   def lesson_unities
-    lessons_unities = []
+    lessons_unities = if current_user.current_user_role.try(:role_administrator?)
+                        LessonsBoard.by_unity(unities_id)
+                                    .map(&:unity_id)
+                                    .uniq
+                      elsif current_user.employee?
+                        roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
+                        unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
 
-    if current_user.current_user_role.try(:role_administrator?)
-      LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
-      Unity.where(id: lessons_unities).ordered
-    elsif current_user.employee?
-      roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
-      unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
-      LessonsBoard.by_unity(unities_user).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
-      Unity.where(id: lessons_unities).ordered
-    end
+                        LessonsBoard.by_unity(unities_user)
+                                    .map(&:unity_id)
+                                    .uniq
+                      else
+                        unities
+                      end
+
+    Unity.where(id: lessons_unities).ordered
   end
+
   helper_method :lesson_unities
 
   def unities
@@ -100,6 +106,7 @@ class LessonsBoardsController < ApplicationController
       [current_user_unity]
     end
   end
+
   helper_method :unities
 
   def unities_id
@@ -113,6 +120,7 @@ class LessonsBoardsController < ApplicationController
 
     Grade.find(lessons_grades)
   end
+
   helper_method :lesson_grades
 
   def lesson_classrooms
@@ -122,6 +130,7 @@ class LessonsBoardsController < ApplicationController
 
     Classroom.find(lessons_classrooms)
   end
+
   helper_method :lesson_classrooms
 
   def resource
