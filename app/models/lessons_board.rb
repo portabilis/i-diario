@@ -14,7 +14,8 @@ class LessonsBoard < ActiveRecord::Base
 
   accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: true
 
-  delegate :classroom, :classroom_id, to: :classrooms_grade, allow_nil: true
+  delegate :classroom, :classroom_id, :grade_id, to: :classrooms_grade, allow_nil: true
+  delegate :unity_id, to: :classroom, allow_nil: true
 
   default_scope -> { kept }
 
