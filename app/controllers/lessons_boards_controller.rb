@@ -10,11 +10,13 @@ class LessonsBoardsController < ApplicationController
 
   def show
     @lessons_board = resource
-    ActiveRecord::Associations::Preloader
-      .new
-      .preload(@lessons_board, lessons_board_lessons: :lessons_board_lesson_weekdays)
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
     @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classroom.unity&.id)
+
+    ActiveRecord::Associations::Preloader.new.preload(
+      @lessons_board,
+      lessons_board_lessons: :lessons_board_lesson_weekdays
+    )
 
     authorize @lessons_board
   end
@@ -65,10 +67,13 @@ class LessonsBoardsController < ApplicationController
 
   def filtering_params(params)
     params = {} unless params
-    params.slice(:by_year,
-                 :by_unity,
-                 :by_grade,
-                 :by_classroom)
+
+    params.slice(
+      :by_year,
+      :by_unity,
+      :by_grade,
+      :by_classroom
+    )
   end
 
   def lesson_unities
@@ -84,7 +89,6 @@ class LessonsBoardsController < ApplicationController
       Unity.where(id: lessons_unities).ordered
     end
   end
-
   helper_method :lesson_unities
 
   def unities
@@ -96,37 +100,36 @@ class LessonsBoardsController < ApplicationController
       [current_user_unity]
     end
   end
-
   helper_method :unities
 
   def unities_id
-    unities_id = []
-    unities.each { |unity| unities_id << unity.id }
-    unities_id
+    unities.map(&:id)
   end
 
   def lesson_grades
-    lessons_grades = []
-    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classrooms_grade.grade_id }
+    lessons_grades = LessonsBoard.by_unity(unities_id)
+                                 .map(&:grade_id)
+                                 .uniq
+
     Grade.find(lessons_grades)
   end
-
   helper_method :lesson_grades
 
   def lesson_classrooms
-    lessons_classrooms = []
-    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classroom.id }
+    lessons_classrooms = LessonsBoard.by_unity(unities_id)
+                                     .map(&:classroom_id)
+                                     .uniq
+
     Classroom.find(lessons_classrooms)
   end
-
   helper_method :lesson_classrooms
 
   def resource
     @lessons_board ||= case params[:action]
-                       when 'new', 'create'
-                         LessonsBoard.new
                        when 'edit', 'update', 'show', 'destroy'
                          LessonsBoard.find(params[:id])
+                       else
+                         LessonsBoard.new
                        end.localized
   end
 
@@ -143,19 +146,24 @@ class LessonsBoardsController < ApplicationController
   def classroom_grade
     return if params[:grade_id].blank? && params[:classroom_id].blank?
 
-    render json: ClassroomsGrade.find_by(grade_id: params[:grade_id], classroom_id: params[:classroom_id])&.id
+    render json: ClassroomsGrade.find_by(
+      grade_id: params[:grade_id],
+      classroom_id: params[:classroom_id]
+    )&.id
   end
 
   def period
     return if params[:classroom_id].blank?
 
-    render json: Classroom.find(params[:classroom_id]).period
+    render json: Classroom.find(params[:classroom_id])
+                          .period
   end
 
   def number_of_lessons
     return if params[:classroom_id].blank?
 
-    render json: Classroom.find(params[:classroom_id]).number_of_classes
+    render json: Classroom.find(params[:classroom_id])
+                          .number_of_classes
   end
 
   def teachers_classroom
@@ -185,13 +193,16 @@ class LessonsBoardsController < ApplicationController
   def not_exists_by_classroom
     return if params[:classroom_id].blank?
 
-    render json: LessonsBoard.by_classroom(params[:classroom_id]).empty?
+    render json: LessonsBoard.by_classroom(params[:classroom_id])
+                             .empty?
   end
 
   def not_exists_by_classroom_and_period
     return if params[:classroom_id].blank?
 
-    render json: LessonsBoard.by_classroom(params[:classroom_id]).by_period(period: params[:period]).empty?
+    render json: LessonsBoard.by_classroom(params[:classroom_id])
+                             .by_period(period: params[:period])
+                             .empty?
   end
 
   def teacher_in_other_classroom
