@@ -13,6 +13,11 @@ RSpec.describe LessonsBoardsController, type: :controller do
       current_discipline_id: discipline.id
     )
   end
+
+  let(:other_user) do
+    create(:user)
+  end
+
   let(:user_role) { user.user_roles.first }
   let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
@@ -48,6 +53,14 @@ RSpec.describe LessonsBoardsController, type: :controller do
       get :index, locale: 'pt-BR'
 
       expect(assigns(:lessons_boards).size).to eq(2)
+    end
+
+    it 'when not list lessons board' do
+      sign_in(other_user)
+
+      get :index, locale: 'pt-BR'
+
+      expect(assigns(:lessons_boards)).to be_empty
     end
   end
 
