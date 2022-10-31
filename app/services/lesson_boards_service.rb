@@ -7,7 +7,6 @@ class LessonBoardsService
                                             .where(disciplines: { descriptor: false })
                                             .order('teachers.name')
 
-    period = Array([period.to_i]) if period != 3
     allocations.where(period: period) if classroom_period == Periods::FULL && period
 
     allocations.each do |teacher_discipline_classroom|
