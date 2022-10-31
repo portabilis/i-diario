@@ -8,6 +8,7 @@ $(function () {
   var $disciplineContainer = $('.observation_diary_record_discipline');
   var $date = $('#observation_diary_record_date');
   var $observationDiaryRecordNotesContainer = $('#observation-diary-record-notes');
+  var $observationDiaryRecordAttachmentsContainer = $('#observation-diary-record-attachments');
   var students = [];
 
   function onChangeFileElement(){
@@ -96,8 +97,13 @@ $(function () {
   });
 
   // On after add note
-
   $observationDiaryRecordNotesContainer.on('cocoon:after-insert', function(e, item) {
+    // Workaround to correctly load students select2
+    setTimeout(loadStudentsSelect2, 50);
+  });
+
+  //On after add attachment
+  $observationDiaryRecordAttachmentsContainer.on('cocoon:after-insert', function(e, item) {
     // Workaround to correctly load students select2
     setTimeout(loadStudentsSelect2, 50);
   });
