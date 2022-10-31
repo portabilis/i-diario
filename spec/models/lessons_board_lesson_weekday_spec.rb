@@ -13,6 +13,6 @@ RSpec.describe LessonsBoardLessonWeekday, type: :model do
   end
 
   describe 'validations' do
-    it { expect(subject).to validate_presence_of(:teacher_discipline_classroom) }
+    it { expect(subject).to validate_presence_of(:teacher_discipline_classroom_id) }
   end
 end
