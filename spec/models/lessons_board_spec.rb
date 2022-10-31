@@ -13,6 +13,6 @@ RSpec.describe LessonsBoard, type: :model do
 
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:period) }
-    it { expect(subject).to validate_presence_of(:classrooms_grade_id) }
+    it { expect(subject).to validate_presence_of(:classrooms_grade) }
   end
 end
