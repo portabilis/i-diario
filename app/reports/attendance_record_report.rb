@@ -363,7 +363,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def content
-    # daily_frequencies_table
+    daily_frequencies_table
   end
 
   def footer
