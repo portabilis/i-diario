@@ -76,14 +76,16 @@ class DailyFrequenciesController < ApplicationController
       @dependence_students ||= has_dependence
       @any_inactive_student ||= !activated_student
 
-      @students << {
-        student: student,
-        dependence: has_dependence,
-        active: activated_student,
-        exempted_from_discipline: has_exempted,
-        in_active_search: in_active_search,
-        sequence: sequence
-      }
+      if activated_student || show_inactive_enrollments
+        @students << {
+          student: student,
+          dependence: has_dependence,
+          active: activated_student,
+          exempted_from_discipline: has_exempted,
+          in_active_search: in_active_search,
+          sequence: sequence
+        }
+      end
     end
 
     if @students.blank?
@@ -453,5 +455,9 @@ class DailyFrequenciesController < ApplicationController
         school_calendar_id: school_calendar.id
       ).pluck(:grade_id)
     end
+  end
+
+  def show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
 end
