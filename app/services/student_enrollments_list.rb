@@ -44,6 +44,7 @@ class StudentEnrollmentsList
                                                                  .joins(student_enrollment: :student)
                                                                  .includes(student_enrollment: :student)
                                                                  .includes(student_enrollment: :dependences)
+                                                                 .by_period(period) if period
 
     students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
 
@@ -55,12 +56,16 @@ class StudentEnrollmentsList
     students_enrollment_classrooms = students_enrollment_classrooms.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollment_classrooms = students_enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
+    students_enrollment_classrooms = order_by_name(students_enrollment_classrooms)
+
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
     students_enrollment_classrooms.map do |student_enrollment_classroom|
       {
         student_enrollment_id: student_enrollment_classroom.student_enrollment.id,
+        student_enrollment: student_enrollment_classroom.student_enrollment,
         student_enrollment_classroom_id: student_enrollment_classroom.id,
+        student_enrollment_classroom: student_enrollment_classroom,
         sequence: student_enrollment_classroom.sequence,
         student: student_enrollment_classroom.student_enrollment.student
       }
@@ -216,5 +221,21 @@ class StudentEnrollmentsList
 
     enrollments = enrollments.active.ordered
     as_relation ? enrollments : enrollments.to_a.uniq
+  end
+
+  def order_by_name(students_enrollment_classrooms)
+    unless show_inactive_enrollments
+      students_enrollment_classrooms = if search_type != :by_year
+                                        start_at = @start_at || @date
+                                        end_at = @end_at || @date
+
+                                        students_enrollment_classrooms.by_date_range(start_at, end_at)
+                                      else
+                                        students_enrollment_classrooms.by_year(year)
+                                      end
+    end
+
+    students_enrollment_classrooms = students_enrollment_classrooms.active.ordered_student
+    students_enrollment_classrooms
   end
 end
