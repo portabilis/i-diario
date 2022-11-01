@@ -52,8 +52,7 @@ class StudentEnrollmentsList
                                                                      .by_date_not_before(start_at)
     end
 
-    students_enrollment_classrooms = students_enrollment_classrooms.by_opinion_type(opinion_type, classroom) if opinion_type
-    students_enrollment_classrooms = students_enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+    students_enrollment_classrooms = students_enrollment_classrooms.by_period(period) if period
 
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
