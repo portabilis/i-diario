@@ -5,7 +5,41 @@ RSpec.describe DescriptiveExamsController, type: :controller do
   let(:user) { create(:user, :with_user_role_administrator) }
   let(:user_role) { user.user_roles.first }
   let(:unity) { user_role.unity }
-  let(:classroom) { create(:classroom, :with_classroom_semester_steps, unity: unity) }
+  let(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity, opened_year: true) }
+  let(:step) { school_calendar.steps.first }
+  let(:current_teacher) { create(:teacher) }
+  let(:classroom) {
+    create(
+      :classroom,
+      :with_teacher_discipline_classroom,
+      :with_classroom_semester_steps,
+      unity: unity,
+      school_calendar: school_calendar,
+      teacher: current_teacher,
+      discipline: discipline
+    )
+  }
+  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:student_enrollment_classroom) { create(:student_enrollment_classroom, classrooms_grade: classrooms_grade) }
+  let(:student_enrollment) { student_enrollment_classroom.student_enrollment }
+  let(:student) { student_enrollment.student }
+  let(:discipline) { create(:discipline) }
+
+  let(:params) {
+    {
+      locale: 'pt-BR',
+      descriptive_exam: {
+        classroom_id: classroom.id,
+        discipline_id: discipline.id,
+        recorded_at:  '2017-03-01',
+        opinion_type: classrooms_grade.exam_rule.opinion_type,
+        step_id: step.id,
+        students: [
+          { id: student.id, student_id: student.id, dependence: false }
+        ]
+      }
+    }
+  }
 
   around(:each) do |example|
     entity.using_connection do
@@ -17,7 +51,27 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_unity).and_return(unity)
+    allow(controller).to receive(:current_user_classroom).and_return(classroom)
+    allow(controller).to receive(:current_teacher).and_return(current_teacher)
+    allow(controller).to receive(:recorded_at_by_step).and_return('2017-03-01')
     request.env['REQUEST_PATH'] = ''
+  end
+
+  describe 'POST #create' do
+    context 'without success' do
+      it 'fails to create and renders the new template' do
+        #allow(school_calendar).to receive(:school_day?).and_return(false)
+        post :create, params
+        expect(response).to render_template(:new)
+      end
+    end
+
+    context 'with success' do
+      it 'creates and redirects to daily frequency edit page' do
+        post :create, params
+        expect(response).to redirect_to /#{edit_multiple_daily_frequencies_path}/
+      end
+    end
   end
 
   describe 'PUT #update' do
