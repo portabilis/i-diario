@@ -131,11 +131,13 @@ class AttendanceRecordReport < BaseReport
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
 
-    @student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
+    student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
 
-    active_searches = active_searches_by_range(daily_frequencies, @student_enrollment_ids)
+    active_searches = active_searches_by_range(daily_frequencies, student_enrollment_ids)
+
+    all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_enrollment_ids)
 
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
@@ -154,15 +156,12 @@ class AttendanceRecordReport < BaseReport
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
 
-          student_dependances = @student_enrollment_ids
-          all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_dependances).to_a
-
           @enrollment_classrooms.each do |enrollment_classroom|
             student_enrollment = enrollment_classroom[:student_enrollment]
             student = enrollment_classroom[:student]
             student_enrollment_classroom = enrollment_classroom[:student_enrollment_classroom]
-            joined_at = student_enrollment_classroom.joined_at.to_date
-            left_at = student_enrollment_classroom.left_at.empty? ? Date.current.end_of_year : student_enrollment_classroom.left_at.to_date
+            joined_at = enrollment_classroom[:joined_at].to_date
+            left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
 
             if exempted_from_discipline?(student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
@@ -202,19 +201,19 @@ class AttendanceRecordReport < BaseReport
 
             hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
 
-            # if hybrid_or_remote
-            #   student_frequency = hybrid_or_remote
-            # else
-            #   student_frequency
-            # end
+            if hybrid_or_remote
+              student_frequency = hybrid_or_remote
+            else
+              student_frequency
+            end
 
-            # if @show_legend_hybrid && !@exists_legend_hybrid
-            #   @exists_legend_hybrid = true
-            #   self.legend += ', S - Modalidade semipresencial'
-            # elsif @show_legend_remote && !@exists_legend_remote
-            #   @exists_legend_remote = true
-            #   self.legend += ', R - Modalidade remota'
-            # end
+            if @show_legend_hybrid && !@exists_legend_hybrid
+              @exists_legend_hybrid = true
+              self.legend += ', S - Modalidade semipresencial'
+            elsif @show_legend_remote && !@exists_legend_remote
+              @exists_legend_remote = true
+              self.legend += ', R - Modalidade remota'
+            end
 
             (students[student_enrollment_classroom.id][:attendances] ||= []) <<
               make_cell(content: student_frequency.to_s, align: :center)
@@ -450,7 +449,6 @@ class AttendanceRecordReport < BaseReport
     discipline.to_s
   end
 
-
   def classroom_has_general_absence?
     classroom.first_exam_rule.frequency_type == FrequencyTypes::GENERAL
   end
@@ -489,14 +487,6 @@ class AttendanceRecordReport < BaseReport
 
   def classroom
     @classroom ||= @daily_frequencies.first.classroom
-  end
-
-  def student_enrollment_classroom_by_enrollment(enrollment)
-    if classroom.present?
-      enrollment.student_enrollment_classrooms.by_classroom(classroom.id).first
-    else
-      enrollment.student_enrollment_classrooms.first
-    end
   end
 
   def extra_school_events
