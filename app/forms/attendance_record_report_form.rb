@@ -81,7 +81,7 @@ class AttendanceRecordReportForm
   end
 
   def student_enrollment_ids
-    @enrollment_classrooms_list.map { |student_enrollment|
+    @student_enrollment_ids ||= @enrollment_classrooms_list.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
   end
@@ -220,11 +220,17 @@ class AttendanceRecordReportForm
     inactives_on_dates = {}
 
     daily_frequencies.each do |daily_frequency|
-      enrollments_ids = student_enrollment_ids
-      enrollments_on_date = StudentEnrollment.where(id: enrollments_ids)
-                                             .by_date(daily_frequency.frequency_date)
-      enrollments_on_date_ids = enrollments_on_date.pluck(:id)
-      not_enrrolled_on_the_date = enrollments_ids - enrollments_on_date_ids
+      frequency_date = daily_frequency.frequency_date
+
+      enrollments_on_date = @enrollment_classrooms_list.select { |enrollment_classroom|
+        joined_at = enrollment_classroom[:joined_at].to_date
+        left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
+
+        frequency_date >= joined_at && frequency_date < left_at
+      }
+
+      enrollments_on_date_ids = enrollments_on_date.map { |enrollment| enrollment[:student_enrollment_id] }
+      not_enrrolled_on_the_date = student_enrollment_ids - enrollments_on_date_ids
 
       next if not_enrrolled_on_the_date.empty?
 
