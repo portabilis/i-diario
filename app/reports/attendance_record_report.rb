@@ -77,13 +77,14 @@ class AttendanceRecordReport < BaseReport
   protected
 
   attr_accessor :any_student_with_dependence, :legend, :extra_school_event_description
+
   private
 
   def header
     attendance_header = make_cell(content: 'Registro de frequência', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 6)
     begin
       logo_cell = make_cell(image: open(@entity_configuration.logo.url), fit: [50, 50], width: 70, rowspan: 4, position: :center, vposition: :center)
-    rescue
+    rescue StandardError
       logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
 
@@ -122,7 +123,7 @@ class AttendanceRecordReport < BaseReport
   def daily_frequencies_table
     self.any_student_with_dependence = false
 
-    daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
+    daily_frequencies = @daily_frequencies.select { |daily_frequency| daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
     @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
@@ -152,9 +153,9 @@ class AttendanceRecordReport < BaseReport
           daily_frequency = daily_frequency_or_event
           next unless frequency_in_period(daily_frequency) && is_school_day?(daily_frequency.frequency_date)
 
-          class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
-          days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
-          months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+          class_numbers << make_cell(content: daily_frequency.class_number.to_s, background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: daily_frequency.frequency_date.day.to_s, background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: daily_frequency.frequency_date.month.to_s, background_color: 'FFFFFF', align: :center)
 
           @enrollment_classrooms.each do |enrollment_classroom|
             student_enrollment = enrollment_classroom[:student_enrollment]
@@ -188,14 +189,14 @@ class AttendanceRecordReport < BaseReport
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
-            self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
+            self.any_student_with_dependence = any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
             end
 
-            unless student_frequency.present?
+            if student_frequency.blank?
               students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + 1
             end
 
@@ -223,9 +224,9 @@ class AttendanceRecordReport < BaseReport
           legend = ', ' + school_calendar_event[:legend].to_s + ' - ' + school_calendar_event[:description]
           self.legend += legend unless self.legend.include?(legend)
 
-          class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
-          days << make_cell(content: "#{school_calendar_event[:date].day}", background_color: 'FFFFFF', align: :center)
-          months << make_cell(content: "#{school_calendar_event[:date].month}", background_color: 'FFFFFF', align: :center)
+          class_numbers << make_cell(content: '', background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: school_calendar_event[:date].day.to_s, background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: school_calendar_event[:date].month.to_s, background_color: 'FFFFFF', align: :center)
 
           @enrollment_classrooms.each do |enrollment_classroom|
             student_enrollment = enrollment_classroom[:student_enrollment]
@@ -241,7 +242,7 @@ class AttendanceRecordReport < BaseReport
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
             end
 
-            (students[student_enrollment_classroom.id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event[:legend]}", align: :center)
+            (students[student_enrollment_classroom.id][:attendances] ||= []) << make_cell(content: (school_calendar_event[:legend]).to_s, align: :center)
           end
         end
       end
@@ -260,9 +261,7 @@ class AttendanceRecordReport < BaseReport
 
       first_headers_and_class_numbers_cells << absences_header
 
-      if @show_percentage_on_attendance
-        first_headers_and_class_numbers_cells << percentage_absences_header
-      end
+      first_headers_and_class_numbers_cells << percentage_absences_header if @show_percentage_on_attendance
 
       days_header_and_cells = [day_header].concat(days)
 
@@ -322,7 +321,7 @@ class AttendanceRecordReport < BaseReport
 
         page_content do
           table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] },
-                column_widths: column_widths, width: bounds.width) do |t|
+                      column_widths: column_widths, width: bounds.width) do |t|
             t.cells.border_width = 0.25
 
             t.before_rendering_page do |page|
@@ -391,7 +390,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def event?(record)
-    record.class.to_s == "SchoolCalendarEvent"
+    record.class.to_s == 'SchoolCalendarEvent'
   end
 
   def daily_frequency?(record)
@@ -406,14 +405,14 @@ class AttendanceRecordReport < BaseReport
   end
 
   def exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false unless daily_frequency.discipline_id.present?
+    return false if daily_frequency.discipline_id.blank?
 
     discipline_id = daily_frequency.discipline_id
     step_number = step_number(daily_frequency)
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
+                      .by_step_number(step_number)
+                      .any?
   end
 
   def student_slice_size(students)
@@ -434,9 +433,11 @@ class AttendanceRecordReport < BaseReport
   def step_number(daily_frequency)
     @steps ||= StepsFetcher.new(daily_frequency.classroom).steps
 
-    step = @steps.select{ |step| step[:start_at] <= daily_frequency.frequency_date && step[:end_at] >= daily_frequency.frequency_date }.first
+    step = @steps.detect { |step|
+      step[:start_at] <= daily_frequency.frequency_date && step[:end_at] >= daily_frequency.frequency_date
+    }
 
-    step.to_number unless step.nil?
+    step&.to_number
   end
 
   def frequency_in_period(daily_frequency)
@@ -524,9 +525,9 @@ class AttendanceRecordReport < BaseReport
   end
 
   def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-    student_frequency = @daily_frequency_students.detect do |student_frequency|
+    student_frequency = @daily_frequency_students.detect { |student_frequency|
       student_frequency.student_id.eql?(student_enrollment.student_id)
-    end
+    }
 
     return if student_frequency.blank?
     return if student_frequency.type_of_teaching == TypesOfTeaching::PRESENTIAL
