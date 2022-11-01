@@ -66,6 +66,8 @@ class StudentEnrollmentsList
         student_enrollment: student_enrollment_classroom.student_enrollment,
         student_enrollment_classroom_id: student_enrollment_classroom.id,
         student_enrollment_classroom: student_enrollment_classroom,
+        joined_at: student_enrollment_classroom.joined_at,
+        left_at: student_enrollment_classroom.left_at,
         sequence: student_enrollment_classroom.sequence,
         student: student_enrollment_classroom.student_enrollment.student
       }
