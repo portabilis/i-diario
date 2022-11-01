@@ -66,3 +66,6 @@ yarn-debug.log*
 
 # Carrierwave
 config/initializers/custom_carrierwave.rb
+
+# Optional folders Backups
+/db/backups/*
