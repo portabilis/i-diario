@@ -123,7 +123,7 @@ class AttendanceRecordReport < BaseReport
   def daily_frequencies_table
     self.any_student_with_dependence = false
 
-    daily_frequencies = @daily_frequencies.select { |daily_frequency| daily_frequency.students.any? }
+    daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
     @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
@@ -189,14 +189,14 @@ class AttendanceRecordReport < BaseReport
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
-            self.any_student_with_dependence = any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
+            self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
             end
 
-            if student_frequency.blank?
+            unless student_frequency.present?
               students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + 1
             end
 
@@ -405,14 +405,14 @@ class AttendanceRecordReport < BaseReport
   end
 
   def exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false if daily_frequency.discipline_id.blank?
+    return false unless daily_frequency.discipline_id.present?
 
     discipline_id = daily_frequency.discipline_id
     step_number = step_number(daily_frequency)
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
+                                           .by_step_number(step_number)
+                                           .any?
   end
 
   def student_slice_size(students)
