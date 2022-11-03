@@ -43,12 +43,21 @@
         <%= f.hidden_field :frequency_date %>
         <%= f.hidden_field :discipline_id %>
         <%= f.hidden_field :period %>
-        <% @students.each do |student| %>
-          <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
-            student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
-            active: student[:active], in_active_search: student[:in_active_search]
-          %>
-        <% end %>
+        <% sequence = 0 %>
+          <% @students.each do |student| %>
+            <% if student[:sequence] %>
+              <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+                student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
+                active: student[:active], in_active_search: student[:in_active_search]
+              %>
+            <% else %>
+              <% sequence += 1 %>
+              <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+                student: student[:student], sequence: sequence, dependence: student[:dependence],
+                active: student[:active], in_active_search: student[:in_active_search]
+              %>
+            <% end %>
+          <% end %>
         <% if @dependence_students %>
           <tr>
             <td colspan="<%= 2 + @daily_frequencies.count %>">
