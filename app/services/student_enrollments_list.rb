@@ -44,7 +44,6 @@ class StudentEnrollmentsList
                                                                  .joins(student_enrollment: :student)
                                                                  .includes(student_enrollment: :student)
                                                                  .includes(student_enrollment: :dependences)
-                                                                 .by_period(period) if period
 
     students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
 
@@ -241,15 +240,17 @@ class StudentEnrollmentsList
   end
 
   def order_by_name(students_enrollment_classrooms)
+    students_enrollment_classrooms = students_enrollment_classrooms.by_period(period) if period
+
     unless show_inactive_enrollments
       students_enrollment_classrooms = if search_type != :by_year
-                                        start_at = @start_at || @date
-                                        end_at = @end_at || @date
+                                         start_at = @start_at || @date
+                                         end_at = @end_at || @date
 
-                                        students_enrollment_classrooms.by_date_range(start_at, end_at)
-                                      else
-                                        students_enrollment_classrooms.by_year(year)
-                                      end
+                                         students_enrollment_classrooms.by_date_range(start_at, end_at)
+                                       else
+                                         students_enrollment_classrooms.by_year(year)
+                                       end
     end
 
     students_enrollment_classrooms = students_enrollment_classrooms.active.ordered_student
