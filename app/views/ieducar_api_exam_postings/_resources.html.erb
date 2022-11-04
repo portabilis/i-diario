@@ -64,7 +64,7 @@
     </td>
 
     <td class='<%= 'hidden' unless current_user.admin? || current_user.employee? || current_user.administrator? %>'>
-        <span class="apply_tooltip" data-original-title="<%= api_posting && api_posting.synchronization_in_progress? ? t('ieducar_api_exam_postings.index.form.resend_posting') : t('ieducar_api_exam_postings.index.form.first_resend_posting') %>">
+        <span class="apply_tooltip" data-original-title="<%=t('ieducar_api_exam_postings.index.form.resend_posting') %>">
         <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
                     id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
                     method: 'post',
