@@ -69,7 +69,7 @@ class DailyFrequenciesController < ApplicationController
       has_dependence = dependencies[student_enrollment_id] ? true : false
       has_exempted = exempt[student_enrollment_id] ? true : false
       in_active_search = active_search[@daily_frequency.frequency_date]&.include?(student_enrollment_id)
-      sequence = enrollment_classroom[:sequence]
+      sequence = enrollment_classroom[:sequence] if show_inactive_enrollments
 
       @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
@@ -99,7 +99,11 @@ class DailyFrequenciesController < ApplicationController
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
-    @students = @students.sort_by { |student| student[:sequence] }
+    if show_inactive_enrollments
+      @students = @students.sort_by { |student| student[:sequence] }
+    else
+      @students = @students.sort_by { |student| student[:student][:name] }
+    end
   end
 
   def create_or_update_multiple
