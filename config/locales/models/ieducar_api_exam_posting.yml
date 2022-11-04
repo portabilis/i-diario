@@ -1,4 +1,9 @@
 pt-BR:
+  ieducar_api_exam_postings:
+    index:
+      form:
+        resend_posting: "Aguarde 30min para repetir o envio"
+        first_resend_posting: "Use o botão 'Repetir envio' para corrigir falhas de envio para o i-Educar"
   activerecord:
     models:
       ieducar_api_synchronization:

@@ -3,91 +3,93 @@
 <% end %>
 
 <tbody>
-  <% ApiPostingTypes.to_a.each_with_index do |value, index| %>
-    <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != @steps.to_a.last %>
+<% ApiPostingTypes.to_a.each_with_index do |value, index| %>
+  <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != @steps.to_a.last %>
 
-    <tr>
-      <td>
-        <%= value.first %>
-      </td>
+  <tr>
+    <td>
+      <%= value.first %>
+    </td>
 
-      <td>
-        <% api_posting = instance_variable_get("@step_#{step.id}_#{value.last}_posting") %>
-        <% if api_posting %>
-          <% if api_posting.status == ApiPostingStatus::STARTED %>
-            <i class="fa fa-cog fa-spin"></i> Enviando
-            <% if worker_batch = api_posting.worker_batch %>
-              (<span class='ieducar-posting-done-percentage' data-url='<%= done_percentage_ieducar_api_exam_posting_pt_br_path(api_posting.id) %>'><%= worker_batch.done_percentage %></span>%)
-            <% end %>
-          <% else %>
-            <% if api_posting.message.present? %>
-              <p class="success">
-                <i class="fa fa-check"></i>
-                <%= api_posting.message %>
-              </p>
-            <% end %>
+    <td>
+      <% api_posting = instance_variable_get("@step_#{step.id}_#{value.last}_posting") %>
+      <% if api_posting %>
+        <% if api_posting.status == ApiPostingStatus::STARTED %>
+          <i class="fa fa-cog fa-spin"></i> Enviando
+          <% if worker_batch = api_posting.worker_batch %>
+            (<span class='ieducar-posting-done-percentage' data-url='<%= done_percentage_ieducar_api_exam_posting_pt_br_path(api_posting.id) %>'><%= worker_batch.done_percentage %></span>%)
+          <% end %>
+        <% else %>
+          <% if api_posting.message.present? %>
+            <p class="success">
+              <i class="fa fa-check"></i>
+              <%= api_posting.message %>
+            </p>
+          <% end %>
 
-            <% if api_posting.error_message.present? %>
-              <p class="danger">
-                <i class="fa fa-times"></i>
-                <%= current_user.admin? && api_posting.full_error_message.present? ? api_posting.full_error_message : api_posting.error_message %>
-              </p>
-            <% end %>
+          <% if api_posting.error_message.present? %>
+            <p class="danger">
+              <i class="fa fa-times"></i>
+              <%= current_user.admin? && api_posting.full_error_message.present? ? api_posting.full_error_message : api_posting.error_message %>
+            </p>
+          <% end %>
 
-            <% if api_posting.warning_message.present? %>
-              <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                <div class="panel panel-default">
-                  <div class="panel-heading" role="tab" id="heading<%= api_posting.id %>">
-                    <h4 class="panel-title">
-                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse<%= api_posting.id %>" aria-expanded="true" aria-controls="collapse<%= api_posting.id %>">
-                        <div>
-                          <i class="fa fa-exclamation-triangle"></i>
-                          Atenção
-                        </div>
-                      </a>
-                    </h4>
-                  </div>
-                  <div id="collapse<%= api_posting.id %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading<%= api_posting.id %>">
-                    <div class="panel-body">
-                      <% api_posting.warning_message.each do |message| %>
-                        <p><%= message.html_safe %></p>
-                      <% end %>
-                    </div>
+          <% if api_posting.warning_message.present? %>
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading<%= api_posting.id %>">
+                  <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse<%= api_posting.id %>" aria-expanded="true" aria-controls="collapse<%= api_posting.id %>">
+                      <div>
+                        <i class="fa fa-exclamation-triangle"></i>
+                        Atenção
+                      </div>
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapse<%= api_posting.id %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading<%= api_posting.id %>">
+                  <div class="panel-body">
+                    <% api_posting.warning_message.each do |message| %>
+                      <p><%= message.html_safe %></p>
+                    <% end %>
                   </div>
                 </div>
               </div>
-            <% end %>
+            </div>
           <% end %>
-        <% else %>
-          <i>O envio das informações ainda não foi realizado</i>
         <% end %>
-      </td>
+      <% else %>
+        <i>O envio das informações ainda não foi realizado</i>
+      <% end %>
+    </td>
 
-      <td class='<%= 'hidden' unless current_user.admin? || current_user.employee? %>'>
-                    <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
-                                 id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
-                                 method: 'post',
-                                 onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
-                                 class: 'btn',
-                                 style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
-                     <div style="display: flex; justify-content: space-between; gap: 1rem">
-                       <%= image_tag 'repetir_envio.svg', "data-svg-fallback" => asset_path('repetir_envio.svg') %>
+    <td class='<%= 'hidden' unless current_user.admin? || current_user.employee? || current_user.administrator? %>'>
+        <span class="apply_tooltip" data-original-title="<%= api_posting && api_posting.synchronization_in_progress? ? t('ieducar_api_exam_postings.index.form.resend_posting') : t('ieducar_api_exam_postings.index.form.first_resend_posting') %>">
+        <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
+                    id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
+                    method: 'post',
+                    onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
+                    class: 'btn',
+                    style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
+          <div style="display: flex; justify-content: space-between; gap: 1rem">
+            <%= image_tag 'repetir_envio.svg', "data-svg-fallback" => asset_path('repetir_envio.svg') %>
 
-                       Repetir envio
-                     </div>
-
-          <% end %>
-      </td>
-
-      <td>
-        <% if api_posting && api_posting.synchronization_in_progress? %>
-            <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
-        <% else %>
-          <%= link_to 'Enviar', ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last),
-                                method: 'post',
-                                class: 'btn bg-color-red txt-color-white' %>
+            Repetir envio
+          </div>
         <% end %>
-      </td>
-    </tr>
-  <% end %>
+        </span>
+    </td>
+
+
+    <td>
+      <% if api_posting && api_posting.synchronization_in_progress? %>
+        <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
+      <% else %>
+        <%= link_to 'Enviar', ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last),
+                    method: 'post',
+                    class: 'btn bg-color-red txt-color-white' %>
+      <% end %>
+    </td>
+  </tr>
+<% end %>
 </tbody>
