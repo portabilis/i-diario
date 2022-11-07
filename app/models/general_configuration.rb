@@ -8,12 +8,15 @@ class GeneralConfiguration < ActiveRecord::Base
   has_enumeration_for :backup_status, with: ApiSynchronizationStatus, create_helpers: true
   has_enumeration_for :security_level, with: SecurityLevels
   has_enumeration_for :allows_after_sales_relationship, with: AfterSaleRelationshipOptions
-  has_enumeration_for :require_daily_activities_record, with: RequireDailyActivitiesRecordTypes
+  has_enumeration_for :require_daily_activities_record,
+                      with: RequireDailyActivitiesRecordTypes,
+                      create_helpers: { prefix: true }
 
   mount_uploader :backup_file, BackupFileUploader
 
   validates :security_level, presence: true
   validates :allows_after_sales_relationship, presence: true
+  validates :require_daily_activities_record, presence: true
 
   with_options presence: true, if: :notify_consecutive_or_alternate_absences do
     validates :max_consecutive_absence_days, numericality: { greater_than_or_equal_to: 2 }
