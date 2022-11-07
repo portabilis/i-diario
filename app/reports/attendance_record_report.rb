@@ -137,8 +137,9 @@ class AttendanceRecordReport < BaseReport
     }
 
     active_searches = active_searches_by_range(daily_frequencies, student_enrollment_ids)
-
     all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_enrollment_ids)
+    all_exempts = StudentEnrollmentExemptedDiscipline.by_student_enrollment(student_enrollment_ids)
+                                                     .includes(student_enrollment: [:student]).to_a
 
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
@@ -164,7 +165,7 @@ class AttendanceRecordReport < BaseReport
             joined_at = enrollment_classroom[:joined_at].to_date
             left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
 
-            if exempted_from_discipline?(student_enrollment, daily_frequency)
+            if exempted_from_discipline?(all_exempts, student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
             elsif in_active_search?(student.id, active_searches, daily_frequency)
               @show_legend_active_search = true
@@ -404,15 +405,19 @@ class AttendanceRecordReport < BaseReport
     end
   end
 
-  def exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false unless daily_frequency.discipline_id.present?
+  def exempted_from_discipline?(all_exempts, student_enrollment, daily_frequency)
+    return false if daily_frequency.discipline_id.blank?
 
-    discipline_id = daily_frequency.discipline_id
     step_number = step_number(daily_frequency)
+    discipline_id = daily_frequency.discipline_id
 
-    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
+    exemption = all_exempts.detect { |exempt|
+                  exempt.student_enrollment_id.eql?(student_enrollment.id) &&
+                    exempt.discipline_id.eql?(discipline_id) &&
+                    exempt.steps.split(',').include?(step_number.to_s)
+                }
+
+    exemption.present?
   end
 
   def student_slice_size(students)
