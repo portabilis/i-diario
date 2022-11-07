@@ -8,6 +8,7 @@ class GeneralConfiguration < ActiveRecord::Base
   has_enumeration_for :backup_status, with: ApiSynchronizationStatus, create_helpers: true
   has_enumeration_for :security_level, with: SecurityLevels
   has_enumeration_for :allows_after_sales_relationship, with: AfterSaleRelationshipOptions
+  has_enumeration_for :require_daily_activities_record, with: RequireDailyActivitiesRecordTypes
 
   mount_uploader :backup_file, BackupFileUploader
 
