@@ -46,7 +46,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.content_record.teacher = current_teacher
     @knowledge_area_content_record.content_record.content_ids = content_ids
     @knowledge_area_content_record.content_record.origin = OriginTypes::WEB
-    @discipline_content_record.content_record.creator_type = 'knowledge_area_content_record'
+    @knowledge_area_content_record.content_record.creator_type = 'knowledge_area_content_record'
     @knowledge_area_content_record.content_record.teacher = current_teacher
     @knowledge_area_content_record.teacher_id = current_teacher_id
 
