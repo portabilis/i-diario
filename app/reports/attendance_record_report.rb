@@ -192,6 +192,7 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
+            students[student_enrollment_classroom.id][:sequence] ||= enrollment_classroom[:sequence] if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
@@ -238,6 +239,7 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
             students[student_enrollment_classroom.id][:absences] ||= 0
             students[student_enrollment_classroom.id][:social_name] = student.social_name
+            students[student_enrollment_classroom.id][:sequence] ||= enrollment_classroom[:sequence] if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
@@ -274,7 +276,7 @@ class AttendanceRecordReport < BaseReport
 
       students_cells = []
       students = students.sort_by { |(_key, value)| value[:dependence] ? 1 : 0 }
-      sequence = 1
+      sequence = 1 unless @show_inactive_enrollments
       sequence_reseted = false
 
       students.each do |_key, value|
@@ -283,7 +285,12 @@ class AttendanceRecordReport < BaseReport
           sequence_reseted = true
         end
 
-        sequence_cell = make_cell(content: sequence.to_s, align: :center)
+        if @show_inactive_enrollments
+          sequence_cell = make_cell(content: value[:sequence].to_s, align: :center)
+        else
+          sequence_cell = make_cell(content: sequence.to_s, align: :center)
+        end
+
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
 
         (40 - value[:attendances].count).times { student_cells << nil }
@@ -295,7 +302,7 @@ class AttendanceRecordReport < BaseReport
         end
 
         students_cells << student_cells
-        sequence += 1
+        sequence += 1 unless @show_inactive_enrollments
       end
 
       bottom_offset = @second_teacher_signature ? 24 : 0
