@@ -68,7 +68,7 @@ RSpec.describe KnowledgeAreaContentRecordsController, type: :controller do
       GeneralConfiguration.current
                           .update(
                             require_daily_activities_record:
-                              RequireDailyActivitiesRecordTypes::REQUIRE_ON_KNOWLEDGE_AREA_CONTENT_RECORDS
+                              RequireDailyActivitiesRecordTypes::ON_KNOWLEDGE_AREA_CONTENT_RECORDS
                           )
     end
 

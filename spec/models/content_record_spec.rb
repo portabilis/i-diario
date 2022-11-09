@@ -40,7 +40,7 @@ RSpec.describe ContentRecord, type: :model do
 
     it 'should validate daily_activities_record if set to be always required' do
       GeneralConfiguration.current
-                          .update(require_daily_activities_record: RequireDailyActivitiesRecordTypes::ALWAYS_REQUIRE)
+                          .update(require_daily_activities_record: RequireDailyActivitiesRecordTypes::ALWAYS)
       expect(subject).to validate_presence_of(:daily_activities_record)
     end
 
@@ -55,7 +55,7 @@ RSpec.describe ContentRecord, type: :model do
         GeneralConfiguration.current
                             .update(
                               require_daily_activities_record:
-                                RequireDailyActivitiesRecordTypes::REQUIRE_ON_DISCIPLINE_CONTENT_RECORDS
+                                RequireDailyActivitiesRecordTypes::ON_DISCIPLINE_CONTENT_RECORDS
                             )
       end
 
@@ -75,7 +75,7 @@ RSpec.describe ContentRecord, type: :model do
         GeneralConfiguration.current
                             .update(
                               require_daily_activities_record:
-                                RequireDailyActivitiesRecordTypes::REQUIRE_ON_KNOWLEDGE_AREA_CONTENT_RECORDS
+                                RequireDailyActivitiesRecordTypes::ON_KNOWLEDGE_AREA_CONTENT_RECORDS
                             )
       end
 

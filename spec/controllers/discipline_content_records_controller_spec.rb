@@ -66,7 +66,7 @@ RSpec.describe DisciplineContentRecordsController, type: :controller do
       GeneralConfiguration.current
                           .update(
                             require_daily_activities_record:
-                              RequireDailyActivitiesRecordTypes::REQUIRE_ON_DISCIPLINE_CONTENT_RECORDS
+                              RequireDailyActivitiesRecordTypes::ON_DISCIPLINE_CONTENT_RECORDS
                           )
     end
 

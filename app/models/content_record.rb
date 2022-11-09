@@ -91,19 +91,19 @@ class ContentRecord < ActiveRecord::Base
 
   def require_daily_activities_record?
     return false if general_configuration.require_daily_activities_record_does_not_require?
-    return true if general_configuration.require_daily_activities_record_always_require?
+    return true if general_configuration.require_daily_activities_record_always?
 
     require_discipline_content_records? || require_knowledge_area_content_records?
   end
 
   def require_discipline_content_records?
     has_discipline_content_record = discipline_content_record.present? || creator_type.eql?('discipline_content_record')
-    has_discipline_content_record && general_configuration.require_daily_activities_record_require_on_discipline_content_records?
+    has_discipline_content_record && general_configuration.require_daily_activities_record_on_discipline_content_records?
   end
 
   def require_knowledge_area_content_records?
     has_knowledge_area_content_record = knowledge_area_content_record.present? || creator_type.eql?('knowledge_area_content_record')
-    has_knowledge_area_content_record && general_configuration.require_daily_activities_record_require_on_knowledge_area_content_records?
+    has_knowledge_area_content_record && general_configuration.require_daily_activities_record_on_knowledge_area_content_records?
   end
 
   def general_configuration
