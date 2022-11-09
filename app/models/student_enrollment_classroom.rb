@@ -35,6 +35,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE })
   }
   scope :ordered, -> { order(:joined_at, :index) }
+  scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
 
   delegate :student_id, to: :student_enrollment, allow_nil: true
 

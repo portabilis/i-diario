@@ -54,12 +54,18 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = students_enrollment_classrooms.by_period(period) if period
 
+    students_enrollment_classrooms = order_by_name(students_enrollment_classrooms)
+
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
     students_enrollment_classrooms.map do |student_enrollment_classroom|
       {
         student_enrollment_id: student_enrollment_classroom.student_enrollment.id,
+        student_enrollment: student_enrollment_classroom.student_enrollment,
         student_enrollment_classroom_id: student_enrollment_classroom.id,
+        student_enrollment_classroom: student_enrollment_classroom,
+        joined_at: student_enrollment_classroom.joined_at,
+        left_at: student_enrollment_classroom.left_at,
         sequence: student_enrollment_classroom.sequence,
         student: student_enrollment_classroom.student_enrollment.student
       }
@@ -149,6 +155,20 @@ class StudentEnrollmentsList
     enrollments_on_period.active.any?
   end
 
+  def fetch_student_enrollment_classroom_active(student_enrollment_classrooms)
+    enrollments_on_period = student_enrollment_classrooms.by_classroom(classroom)
+                                                         .active
+    if search_type == :by_date
+      enrollments_on_period = enrollments_on_period.by_date(date)
+    elsif search_type == :by_date_range
+      enrollments_on_period = enrollments_on_period.by_date_range(start_at, end_at)
+    elsif search_type == :by_year
+      enrollments_on_period = enrollments_on_period.by_year(year)
+    end
+
+    enrollments_on_period
+  end
+
   def student_displayable_as_inactive?(student_enrollment)
     return true if show_inactive_enrollments
 
@@ -172,8 +192,9 @@ class StudentEnrollmentsList
   end
 
   def remove_not_displayable_classrooms(student_enrollment_classrooms)
+    active_enrollment_classrooms = fetch_student_enrollment_classroom_active(student_enrollment_classrooms)
     student_enrollment_classrooms.select { |enrollment_classroom|
-      student_active?(enrollment_classroom.student_enrollment) ||
+      active_enrollment_classrooms.include?(enrollment_classroom) ||
         (student_displayable_as_inactive?(enrollment_classroom.student_enrollment) && show_inactive)
     }
   end
@@ -215,5 +236,23 @@ class StudentEnrollmentsList
 
     enrollments = enrollments.active.ordered
     as_relation ? enrollments : enrollments.to_a.uniq
+  end
+
+  def order_by_name(students_enrollment_classrooms)
+    students_enrollment_classrooms = students_enrollment_classrooms.by_period(period) if period
+
+    unless show_inactive_enrollments
+      students_enrollment_classrooms = if search_type != :by_year
+                                         start_at = @start_at || @date
+                                         end_at = @end_at || @date
+
+                                         students_enrollment_classrooms.by_date_range(start_at, end_at)
+                                       else
+                                         students_enrollment_classrooms.by_year(year)
+                                       end
+    end
+
+    students_enrollment_classrooms = students_enrollment_classrooms.active.ordered_student
+    students_enrollment_classrooms
   end
 end
