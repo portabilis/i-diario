@@ -101,8 +101,6 @@ class DailyFrequenciesController < ApplicationController
 
     if show_inactive_enrollments
       @students = @students.sort_by { |student| student[:sequence] }
-    else
-      @students = @students.sort_by { |student| student[:student][:name] }
     end
   end
 
