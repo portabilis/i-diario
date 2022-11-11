@@ -12,7 +12,8 @@ RSpec.describe IeducarApi::SchoolCalendars, type: :service do
       url: url,
       access_key: access_key,
       secret_key: secret_key,
-      unity_id: unity_id)
+      unity_id: unity_id
+    )
   }
 
   describe '#fetch' do
