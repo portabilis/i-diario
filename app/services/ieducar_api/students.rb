@@ -1,4 +1,4 @@
-module IeducarApi::Students
+module IeducarApi
   class Students < Base
     def fetch(params = {})
       params.reverse_merge!(
