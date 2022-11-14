@@ -68,7 +68,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     end
 
     context 'with success' do
-      it 'creates and redirects to daily frequency edit page' do
+      it 'creates and redirects to descriptive exams edit page' do
         allow(controller).to receive(:find_step_number).and_return(1)
         post :create, params
         expect(response).to redirect_to /avaliacoes-descritivas/
