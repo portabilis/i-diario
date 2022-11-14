@@ -8,6 +8,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
   let(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity, opened_year: true) }
   let(:step) { school_calendar.steps.first }
   let(:current_teacher) { create(:teacher) }
+  let(:exam_rule) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE) }
   let(:classroom) {
     create(
       :classroom,
@@ -16,10 +17,11 @@ RSpec.describe DescriptiveExamsController, type: :controller do
       unity: unity,
       school_calendar: school_calendar,
       teacher: current_teacher,
-      discipline: discipline
+      discipline: discipline,
+      exam_rule: exam_rule
     )
   }
-  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule) }
   let(:student_enrollment_classroom) { create(:student_enrollment_classroom, classrooms_grade: classrooms_grade) }
   let(:student_enrollment) { student_enrollment_classroom.student_enrollment }
   let(:student) { student_enrollment.student }
@@ -50,9 +52,9 @@ RSpec.describe DescriptiveExamsController, type: :controller do
   before do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
-    allow(controller).to receive(:current_unity).and_return(unity)
     allow(controller).to receive(:current_user_classroom).and_return(classroom)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
+    allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
     allow(controller).to receive(:recorded_at_by_step).and_return('2017-03-01')
     request.env['REQUEST_PATH'] = ''
   end
@@ -60,7 +62,6 @@ RSpec.describe DescriptiveExamsController, type: :controller do
   describe 'POST #create' do
     context 'without success' do
       it 'fails to create and renders the new template' do
-        #allow(school_calendar).to receive(:school_day?).and_return(false)
         post :create, params
         expect(response).to render_template(:new)
       end
@@ -68,8 +69,9 @@ RSpec.describe DescriptiveExamsController, type: :controller do
 
     context 'with success' do
       it 'creates and redirects to daily frequency edit page' do
+        allow(controller).to receive(:find_step_number).and_return(1)
         post :create, params
-        expect(response).to redirect_to /#{edit_multiple_daily_frequencies_path}/
+        expect(response).to redirect_to /avaliacoes-descritivas/
       end
     end
   end
