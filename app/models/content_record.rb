@@ -25,7 +25,7 @@ class ContentRecord < ActiveRecord::Base
 
   accepts_nested_attributes_for :contents
 
-  validates_date :record_date, on_or_before: -> { Date.current }
+  # validates_date :record_date, on_or_before: -> { Date.current }
   validates :unity_id, presence: true
   validates :classroom, presence: true
   validates :record_date, presence: true, school_calendar_day: true, posting_date: true
