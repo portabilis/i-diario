@@ -135,7 +135,7 @@ class AttendanceRecordReportForm
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
-        student_id = daily_frequency_student.student.id
+        student_id = daily_frequency_student.student_id
         student_enrollment_id = enrollments[student_id][daily_frequency.frequency_date] if enrollments[student_id]
 
         next if student_enrollment_id.nil?
