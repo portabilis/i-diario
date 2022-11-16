@@ -1,7 +1,11 @@
 class ActiveSearch < ActiveRecord::Base
+  include Audit
   include Discardable
 
   belongs_to :student_enrollment
+
+  audited
+  has_associated_audits
 
   has_enumeration_for :status, with: ActiveSearchStatus, create_helpers: true
 
