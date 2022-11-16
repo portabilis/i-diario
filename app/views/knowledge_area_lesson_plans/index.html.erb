@@ -10,6 +10,7 @@
             <td></td>
             <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
             <td><%= f.input :by_knowledge_area_id, as: :select2, elements: @knowledge_areas, label: false, placeholder: t('.by_knowledge_area_id') %></td>
+            <td><%= f.input :by_experience_fields, label: false, placeholder: t('.by_experience_field') %></td>
             <td colspan="2">
               <%= f.input :by_date, as: :date, label: false,
                     placeholder: t('.by_date') %>
@@ -27,6 +28,7 @@
             <th><%= LessonPlan.human_attribute_name :unity %></th>
             <th width="20%"><%= LessonPlan.human_attribute_name :classroom %></th>
             <th width="20%"><%= KnowledgeAreaLessonPlan.human_attribute_name :knowledge_areas %>
+            <th width="20%"><%= KnowledgeAreaLessonPlan.human_attribute_name :experience_fields %>
             <th width="7%"><%= LessonPlan.human_attribute_name :start_at %></th>
             <th width="7%"><%= LessonPlan.human_attribute_name :end_at %></th>
             <th width="7%"><%= KnowledgeAreaLessonPlan.human_attribute_name :author %></th>
