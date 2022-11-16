@@ -1,13 +1,12 @@
 class DailyFrequencyQuery
   def self.call(filters = {})
     DailyFrequency.all.extending(Scopes)
-                  .by_classroom_id(filters[:classroom_id])
-                  .by_period(filters[:period])
-                  .by_frequency_date_between(filters[:frequency_date])
-                  .by_discipline_id(filters[:discipline_id])
-                  .by_class_number(filters[:class_numbers])
-                  .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
-
+      .by_classroom_id(filters[:classroom_id])
+      .by_period(filters[:period])
+      .by_frequency_date_between(filters[:frequency_date])
+      .by_discipline_id(filters[:discipline_id])
+      .by_class_number(filters[:class_numbers])
+      .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
   end
 
   module Scopes
