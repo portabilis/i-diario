@@ -27,7 +27,7 @@ FactoryGirl.define do
       end
 
       lesson_plan.start_at ||= step.try(:first_school_calendar_date) || Date.current
-      lesson_plan.end_at ||= lesson_plan.start_at + 30.days
+      lesson_plan.end_at ||= lesson_plan.start_at + 7.days
 
       teacher = Teacher.find(lesson_plan.teacher_id) if lesson_plan.teacher_id.present?
       teacher ||= lesson_plan.teacher || create(:teacher)
