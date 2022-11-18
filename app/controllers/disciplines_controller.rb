@@ -63,7 +63,8 @@ class DisciplinesController < ApplicationController
   end
 
   def disciplines_to_select2(classroom_id)
-    disciplines = Discipline.grouper.by_classroom_id(classroom_id)
+    disciplines = Discipline.by_classroom_id(classroom_id)
+                            .not_descriptor
 
     if current_user.teacher?
       disciplines.by_teacher_id(current_teacher.id)
