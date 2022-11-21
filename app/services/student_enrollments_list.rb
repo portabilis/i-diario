@@ -25,7 +25,7 @@ class StudentEnrollmentsList
       @year = classroom.year
     end
 
-    if show_inactive_enrollments && show_inactive
+    if show_inactive_enrollments
       @show_inactive = true
       @show_inactive_outside_step = true
     end

@@ -14,9 +14,9 @@ class DailyNoteCreator
 
     if @daily_note.new_record?
       student_enrollments = fetch_student_enrollments
-
-      (student_enrollments || []).each do |student_enrollment|
-        if student = Student.find_by_id(student_enrollment.student_id)
+      student_ids = student_enrollments.map(&:student_id).uniq
+      (student_ids || []).each do |student_id|
+        if student = Student.find_by_id(student_id)
           @daily_note.students.build(student_id: student.id, daily_note: @daily_note, active: true)
         end
       end
