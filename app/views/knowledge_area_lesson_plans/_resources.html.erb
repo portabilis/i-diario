@@ -28,6 +28,7 @@
             </span>
           <% end %>
         </td>
+        <td class="experience_field"><%= knowledge_area_lesson_plan.experience_fields %></td>
         <td class="start_at"><%= l(knowledge_area_lesson_plan.lesson_plan.start_at) %></td>
         <td class="end_at"><%= l(knowledge_area_lesson_plan.lesson_plan.end_at) %></td>
         <td><%= knowledge_area_lesson_plan.lesson_plan.decorator.author(current_teacher) %></td>
