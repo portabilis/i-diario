@@ -38,8 +38,7 @@ class DailyNoteCreator
       discipline: @daily_note.discipline,
       date: @daily_note.avaliation.test_date,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-      search_type: :by_date,
-      show_inactive: false
+      search_type: :by_date
     ).student_enrollments
   end
 end
