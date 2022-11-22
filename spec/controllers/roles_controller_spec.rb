@@ -12,15 +12,7 @@ RSpec.describe RolesController, :type => :controller do
       locale: 'pt-BR',
       role: {
         name: 'test',
-        access_level: 'administrator',
-        # permissions_attributes: {
-        #   feature: 'roles',
-        #   permission: 'change'
-        # },
-        # user_roles_attributes: {
-        #   id: user_role.id,
-        #   unity_id: unity.id
-        # }
+        access_level: 'administrator'
       }
     }
   }
