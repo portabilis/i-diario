@@ -1,7 +1,19 @@
+let $loadingClone = $('#page-loading').clone(true).appendTo('body');
+
 function fetchStudentsInRecovery(classroom, discipline, exam_rule, step_id, recorded_at, success_callback) {
   if (_.isEmpty(step_id) || _.isEmpty(moment(recorded_at, 'MM-DD-YYYY')._i) || exam_rule.recovery_type === 0) {
     return;
   }
+
+  $loadingClone.removeClass('hidden');
+
+  success_callback = (function() {
+    let cached_function = success_callback;
+    return function() {
+      cached_function.apply(this, arguments);
+      $loadingClone.addClass('hidden');
+    };
+  })();
 
   $.ajax({
     url: Routes.in_recovery_students_pt_br_path({
@@ -26,5 +38,6 @@ function loadDecimalMasks() {
 }
 
 function handleFetchStudentsInRecoveryError() {
+  $loadingClone.addClass('hidden');
   flashMessages.error('Ocorreu um erro ao buscar os alunos.');
 }
