@@ -9,7 +9,7 @@ RSpec.describe EntityConfigurationsController, type: :controller do
       admin: false
     )
   end
-  
+
   let(:params) {
     {
       locale: 'pt-BR',
