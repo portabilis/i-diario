@@ -7,8 +7,6 @@ class LessonsBoardLessonWeekday < ActiveRecord::Base
   belongs_to :teacher_discipline_classroom
   belongs_to :lessons_board_lesson
 
-  validates :teacher_discipline_classroom_id, presence: true
-
   default_scope -> { kept }
 
   scope :by_classroom, ->(classroom_id) do
