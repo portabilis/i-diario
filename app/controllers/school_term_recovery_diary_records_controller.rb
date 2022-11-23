@@ -60,7 +60,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list
       render :new
     end
   end
