@@ -9,7 +9,8 @@ module ApplicationHelper
   end
 
   def last_system_notifications
-    @last_system_notifications ||= current_user.system_notifications.limit(10).ordered
+    has_notification = SystemNotificationTarget.where(user: current_user).exists?
+    @last_system_notifications ||= has_notification ? current_user.system_notifications.limit(10).ordered : []
   end
 
   def system_notification_path(notification)
