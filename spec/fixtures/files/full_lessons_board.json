@@ -1,0 +1,168 @@
+{
+  "id": "",
+  "unity": "15",
+  "classrooms_grade_id": "2",
+  "period": "1",
+  "lessons_board_lessons_attributes": {
+    "0": {
+      "id": "",
+      "lesson_number": "1",
+      "_destroy": "false",
+      "lessons_board_lesson_weekdays_attributes": {
+        "0": {
+          "id": "",
+          "weekday": "monday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "1": {
+          "id": "",
+          "weekday": "tuesday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "2": {
+          "id": "",
+          "weekday": "wednesday",
+          "teacher_discipline_classroom_id": "84175"
+        },
+        "3": {
+          "id": "",
+          "weekday": "thursday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "4": {
+          "id": "",
+          "weekday": "friday",
+          "teacher_discipline_classroom_id": "84167"
+        }
+      }
+    },
+    "1": {
+      "id": "",
+      "lesson_number": "2",
+      "_destroy": "false",
+      "lessons_board_lesson_weekdays_attributes": {
+        "0": {
+          "id": "",
+          "weekday": "monday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "1": {
+          "id": "",
+          "weekday": "tuesday",
+          "teacher_discipline_classroom_id": "84177"
+        },
+        "2": {
+          "id": "",
+          "weekday": "wednesday",
+          "teacher_discipline_classroom_id": "84173"
+        },
+        "3": {
+          "id": "",
+          "weekday": "thursday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "4": {
+          "id": "",
+          "weekday": "friday",
+          "teacher_discipline_classroom_id": "84167"
+        }
+      }
+    },
+    "2": {
+      "id": "",
+      "lesson_number": "3",
+      "_destroy": "false",
+      "lessons_board_lesson_weekdays_attributes": {
+        "0": {
+          "id": "",
+          "weekday": "monday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "1": {
+          "id": "",
+          "weekday": "tuesday",
+          "teacher_discipline_classroom_id": "84177"
+        },
+        "2": {
+          "id": "",
+          "weekday": "wednesday",
+          "teacher_discipline_classroom_id": "84173"
+        },
+        "3": {
+          "id": "",
+          "weekday": "thursday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "4": {
+          "id": "",
+          "weekday": "friday",
+          "teacher_discipline_classroom_id": "84167"
+        }
+      }
+    },
+    "3": {
+      "id": "",
+      "lesson_number": "4",
+      "_destroy": "false",
+      "lessons_board_lesson_weekdays_attributes": {
+        "0": {
+          "id": "",
+          "weekday": "monday",
+          "teacher_discipline_classroom_id": "84177"
+        },
+        "1": {
+          "id": "",
+          "weekday": "tuesday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "2": {
+          "id": "",
+          "weekday": "wednesday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "3": {
+          "id": "",
+          "weekday": "thursday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "4": {
+          "id": "",
+          "weekday": "friday",
+          "teacher_discipline_classroom_id": "84167"
+        }
+      }
+    },
+    "4": {
+      "id": "",
+      "lesson_number": "5",
+      "_destroy": "false",
+      "lessons_board_lesson_weekdays_attributes": {
+        "0": {
+          "id": "",
+          "weekday": "monday",
+          "teacher_discipline_classroom_id": "84175"
+        },
+        "1": {
+          "id": "",
+          "weekday": "tuesday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "2": {
+          "id": "",
+          "weekday": "wednesday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "3": {
+          "id": "",
+          "weekday": "thursday",
+          "teacher_discipline_classroom_id": "84167"
+        },
+        "4": {
+          "id": "",
+          "weekday": "friday",
+          "teacher_discipline_classroom_id": "84167"
+        }
+      }
+    }
+  }
+}
