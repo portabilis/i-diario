@@ -12,10 +12,16 @@ class DisciplineTeachingPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
+    discipline = if current_user_discipline.grouper?
+                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                 else
+                   current_user_discipline
+                 end
 
     @discipline_teaching_plans = apply_scopes(
       DisciplineTeachingPlan.includes(:discipline,
                                       teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
+                            .by_discipline(discipline)
                             .by_unity(current_unity)
                             .by_year(current_school_year)
     )
