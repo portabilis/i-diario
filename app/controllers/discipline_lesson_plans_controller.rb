@@ -10,12 +10,17 @@ class DisciplineLessonPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
+    discipline = if current_user_discipline.grouper?
+                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                 else
+                   current_user_discipline
+                 end
 
     @discipline_lesson_plans = apply_scopes(
       DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(current_user_classroom)
-                          .by_discipline_id(current_user_discipline)
+                          .by_discipline_id(discipline)
                           .uniq
                           .ordered
     ).select(
