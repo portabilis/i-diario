@@ -28,7 +28,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     unless current_user_is_employee_or_administrator?
       @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
-                                                             .by_discipline(current_user_discipline)
+                                                             .by_discipline(discipline)
     end
 
     if author_type.present?
