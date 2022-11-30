@@ -14,7 +14,7 @@ class DailyFrequency < ActiveRecord::Base
       Student.unscoped do
         DailyFrequencyStudent.with_discarded
                              .by_daily_frequency_id(id)
-                             .delete_all
+                             .destroy_all
       end
     end
   end
