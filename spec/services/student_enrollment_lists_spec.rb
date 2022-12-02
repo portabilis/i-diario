@@ -11,27 +11,40 @@ RSpec.describe StudentEnrollmentsList, type: :service do
   let(:date_not_before) { '2022-05-22' }
 
   describe '#fetch_student_enrollments' do
-    subject do
-      described_class.new(
-        classroom: classroom,
-        discipline: discipline,
-        search_type: :by_date,
-        date: '2019-01-01'
-      )
-    end
+    context 'when params are correct with search_type is by_date' do
+      subject do
+        described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2019-01-01'
+        )
+      end
 
-    context 'with only one enrollment' do
-      it 'returns that enrollment' do
+      it 'returns with only one enrollment' do
         expect(subject.student_enrollments.size).to eq(1)
+      end
+
+      it 'returns as relation params true' do
+        expect(subject.student_enrollments(true).class).to eq(StudentEnrollment::ActiveRecord_Relation)
       end
     end
 
-    context 'with only one enrollment' do
-      it 'returns that enrollment' do
+    context 'when params are correct with search_type is by_year' do
+      let(:student_enrollment_classroom_2) { create(:student_enrollment_classroom) }
+      let(:classroom_2) { student_enrollment_classroom.classrooms_grade.classroom_id }
+
+      it 'returns with only one enrollment' do
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_year,
+          year: 2017
+        )
+
         expect(subject.student_enrollments.size).to eq(1)
       end
     end
-
 
   end
 end
