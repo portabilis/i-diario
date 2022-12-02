@@ -77,20 +77,8 @@ RSpec.describe StudentsController, type: :controller do
   end
 
   before do
-    user_role.unity = unity
-    user_role.save!
-
-    user.current_user_role = user_role
-    user.save!
-
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
-    allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
-    allow(controller).to receive(:can_change_school_year?).and_return(true)
-    allow(controller).to receive(:current_classroom).and_return(classroom)
-    allow(controller).to receive(:current_teacher).and_return(current_teacher)
-    allow(controller).to receive(:current_school_calendar).and_return(school_calendar)
-    allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
     request.env['REQUEST_PATH'] = ''
   end
 
