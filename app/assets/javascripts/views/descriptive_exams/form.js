@@ -49,16 +49,10 @@ $(function () {
     }
   }
 
-  $opinionType.on('change', function() {
-    setFields();
-  });
-
-  setFields();
-
-  $step.on('change', function() {
+  function validateExistingExams() {
     let step_id = $step.val(),
-        discipline_id = $discipline.val(),
-        opinion_type = $('#descriptive_exam_opinion_type').val();
+      discipline_id = $discipline.val(),
+      opinion_type = $('#descriptive_exam_opinion_type').val();
 
     $.ajax({
       url: Routes.find_descriptive_exams_pt_br_path({
@@ -79,5 +73,16 @@ $(function () {
         view_btn.attr('href', Routes.descriptive_exam_pt_br_path(descriptive_exam_id))
       }
     });
+  }
+
+  $opinionType.on('change', function() {
+    setFields();
+    validateExistingExams();
+  });
+
+  setFields();
+
+  $step.on('change', function() {
+    validateExistingExams()
   })
 });
