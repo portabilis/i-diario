@@ -10,6 +10,23 @@ RSpec.describe StudentEnrollmentsList, type: :service do
   let(:end_at) { Date.new(classroom.year).end_of_year }
   let(:date_not_before) { '2022-05-22' }
 
+  describe '#student_enrollments' do
+    context 'when parameters are required' do
+      subject do
+        described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2019-01-01'
+        )
+      end
+
+      it 'returns as relation params true' do
+        expect(subject.student_enrollments(true).class).to eq(StudentEnrollment::ActiveRecord_Relation)
+      end
+    end
+  end
+
   describe '#fetch_student_enrollments' do
     context 'when params are correct with search_type: :by_date' do
       subject do
@@ -24,9 +41,17 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       it 'returns with only one enrollment' do
         expect(subject.student_enrollments.size).to eq(1)
       end
+    end
 
-      it 'returns as relation params true' do
-        expect(subject.student_enrollments(true).class).to eq(StudentEnrollment::ActiveRecord_Relation)
+    context 'when params are incorrect with search_type: :by_date' do
+      it 'return with raises ArgumentError to search by date' do
+        expect {
+          described_class.new(
+            classroom: classroom,
+            discipline: discipline,
+            search_type: :by_date
+          )
+        }.to raise_error(ArgumentError)
       end
     end
 
@@ -41,12 +66,23 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           search_type: :by_year,
           year: 2017
         )
-
         expect(subject.student_enrollments.size).to eq(1)
       end
     end
 
-    context 'when params are correct with search_type: :by_range_data' do
+    context 'when params are incorrect with search_type: :by_year' do
+      it 'return with raises ArgumentError to search by year' do
+        expect {
+          described_class.new(
+            classroom: classroom,
+            discipline: discipline,
+            search_type: :by_year
+          )
+        }.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when params are correct with search_type: :by_date_range' do
       let(:student_enrollment_classroom_2) { create(:student_enrollment_classroom) }
       let(:classroom_2) { student_enrollment_classroom.classrooms_grade.classroom_id }
 
@@ -60,6 +96,18 @@ RSpec.describe StudentEnrollmentsList, type: :service do
         )
 
         expect(subject.student_enrollments.size).to eq(1)
+      end
+    end
+
+    context 'when params are incorrect with search_type: :by_date_range' do
+      it 'return with raises ArgumentError to search by date range' do
+        expect {
+          described_class.new(
+            classroom: classroom,
+            discipline: discipline,
+            search_type: :by_date_range
+          )
+        }.to raise_error(ArgumentError)
       end
     end
 
