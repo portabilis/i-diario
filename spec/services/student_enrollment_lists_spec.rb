@@ -11,7 +11,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
   let(:date_not_before) { '2022-05-22' }
 
   describe '#fetch_student_enrollments' do
-    context 'when params are correct with search_type is by_date' do
+    context 'when params are correct with search_type: :by_date' do
       subject do
         described_class.new(
           classroom: classroom,
@@ -30,7 +30,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       end
     end
 
-    context 'when params are correct with search_type is by_year' do
+    context 'when params are correct with search_type: :by_year' do
       let(:student_enrollment_classroom_2) { create(:student_enrollment_classroom) }
       let(:classroom_2) { student_enrollment_classroom.classrooms_grade.classroom_id }
 
@@ -40,6 +40,23 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           discipline: discipline,
           search_type: :by_year,
           year: 2017
+        )
+
+        expect(subject.student_enrollments.size).to eq(1)
+      end
+    end
+
+    context 'when params are correct with search_type: :by_range_data' do
+      let(:student_enrollment_classroom_2) { create(:student_enrollment_classroom) }
+      let(:classroom_2) { student_enrollment_classroom.classrooms_grade.classroom_id }
+
+      it 'returns with only one enrollment' do
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date_range,
+          start_at: '2017-01-01',
+          end_at: '2017-03-20'
         )
 
         expect(subject.student_enrollments.size).to eq(1)
