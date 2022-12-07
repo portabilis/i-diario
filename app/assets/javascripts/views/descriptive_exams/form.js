@@ -83,6 +83,6 @@ $(function () {
   setFields();
 
   $step.on('change', function() {
-    validateExistingExams()
+    validateExistingExams();
   })
 });
