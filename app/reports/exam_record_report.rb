@@ -142,6 +142,10 @@ class ExamRecordReport < BaseReport
       end
     end
 
+    @school_term_recoveries.each do |school_term_recovery|
+      exams << school_term_recovery
+    end
+
     @complementary_exams.each do |complementary_exam|
       if complementary_exam.complementary_exam_setting.integral?
         integral_complementary_exams << complementary_exam
@@ -149,10 +153,6 @@ class ExamRecordReport < BaseReport
       end
 
       exams << complementary_exam
-    end
-
-    @school_term_recoveries.each do |school_term_recovery|
-      exams << school_term_recovery
     end
 
     integral_complementary_exams.each do |integral_exam|
@@ -231,6 +231,7 @@ class ExamRecordReport < BaseReport
           students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
           (students[student_enrollment.id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
           students[student_enrollment.id][:social_name] = student.social_name
+          students[student_enrollment.id][:student_id] = student.id
         end
       end
 
@@ -272,7 +273,7 @@ class ExamRecordReport < BaseReport
 
         if daily_notes_slice == sliced_exams.last
           recovery_score = if school_term_recovery_scores[key]
-                             calculate_recovery_score(key, school_term_recovery_scores[key])
+                             calculate_recovery_score(value[:student_id], school_term_recovery_scores[key])
                            end
 
           recovery_average = SchoolTermAverageCalculator.new(classroom)
