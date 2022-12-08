@@ -1,8 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe StudentEnrollmentsList, type: :service do
-  let(:student_enrollment_classroom) { create(:student_enrollment_classroom) }
-  let(:student_enrollment) { student_enrollment_classroom.student_enrollment_id }
+  let(:student_enrollment) { create(:student_enrollment) }
+  let(:student_enrollment_classroom) {
+    create(
+      :student_enrollment_classroom,
+      student_enrollment_id: student_enrollment.id
+    )
+  }
   let(:classroom) { student_enrollment_classroom.classrooms_grade.classroom_id }
   let(:discipline) { create(:discipline) }
 
@@ -62,34 +67,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
   end
 
   describe '#student_active?' do
-    context 'when params are correct with search_type: :by_date' do
-      let(:student_enrollment_2) { create(:student_enrollment) }
-      let(:student_enrollment_classroom_2) {
-        create(
-          :student_enrollment_classroom,
-          student_enrollment_id: student_enrollment_2.id,
-          joined_at: '2017-11-01'
-        )
-      }
-      let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
-
-      subject do
-        described_class.new(
-          classroom: classroom_2,
-          discipline: discipline,
-          search_type: :by_date,
-          date: '2018-02-02'
-        )
-      end
-
-      it 'returns with enrollments by date' do
-        student_enrollment_classroom = subject.student_enrollments.first.student_enrollment_classrooms
-
-        expect(student_enrollment_classroom).to eq(student_enrollment_2.student_enrollment_classrooms)
-      end
-    end
-
-    context 'when params are incorrect with search_type: :by_date' do
+    context 'when searching student by date' do
       let(:student_enrollment_2) { create(:student_enrollment) }
       let(:student_enrollment_classroom_2) {
         create(
@@ -101,17 +79,27 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       }
       let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
 
-      subject do
-        described_class.new(
+      it 'return enrollment with enrollment_classrooms on the date' do
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2018-02-02'
+        )
+        result = subject.student_enrollments.first&.student_enrollment_classrooms
+
+        expect(result).to eq(student_enrollment_classroom)
+      end
+
+      it 'returns enrollments without enrollment_classrooms on the date' do
+        subject = described_class.new(
           classroom: classroom_2,
           discipline: discipline,
           search_type: :by_date,
           date: '2018-12-02'
         )
-      end
-
-      it 'returns nil enrollments by date' do
         student_enrollment_classroom = subject.student_enrollments.first&.student_enrollment_classrooms
+
         expect(student_enrollment_classroom).to be_nil
       end
     end
