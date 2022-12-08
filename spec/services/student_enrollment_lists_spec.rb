@@ -86,9 +86,9 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           search_type: :by_date,
           date: '2018-02-02'
         )
-        result = subject.student_enrollments.first&.student_enrollment_classrooms
+        result = subject.student_enrollments.first
 
-        expect(result).to eq(student_enrollment_classroom)
+        expect(result).to eq(student_enrollment)
       end
 
       it 'returns enrollments without enrollment_classrooms on the date' do
@@ -96,11 +96,11 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           classroom: classroom_2,
           discipline: discipline,
           search_type: :by_date,
-          date: '2018-12-02'
+          date: '2018-11-02'
         )
-        student_enrollment_classroom = subject.student_enrollments.first&.student_enrollment_classrooms
+        result = subject.student_enrollments.first
 
-        expect(student_enrollment_classroom).to be_nil
+        expect(result).to eq(student_enrollment_2)
       end
     end
 
