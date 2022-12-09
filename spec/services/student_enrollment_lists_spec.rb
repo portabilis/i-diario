@@ -104,43 +104,29 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       end
     end
 
-    context 'when params are correct with search_type: :by_year' do
-      subject do
-        described_class.new(
+    context 'when searching student by year' do
+      it 'return enrollment with classroom on the year' do
+        subject = described_class.new(
           classroom: classroom,
           discipline: discipline,
           search_type: :by_year,
           year: 2017
         )
+        result = subject.student_enrollments.first
+
+        expect(result).to eq(student_enrollment)
       end
 
-      it 'returns enrollment id linked to the class of the year' do
-        expect(subject.student_enrollments.first.id).to eq(student_enrollment)
-      end
-    end
-
-    context 'when params are incorrect with search_type: :by_year' do
-      let(:classroom_2) { create(:classroom, year: 2017) }
-      let(:classroom_grade) { create(:classrooms_grade, classroom_id: classroom_2.id) }
-      let(:student_enrollment_classroom_2) {
-        create(
-          :student_enrollment_classroom,
-          classrooms_grade_id: classroom_grade.id
-        )
-      }
-
-      subject do
-        described_class.new(
-          classroom: classroom_2,
+      it 'returns null enrollments for classroom not created for the year' do
+        subject = described_class.new(
+          classroom: classroom,
           discipline: discipline,
           search_type: :by_year,
           year: 2018
         )
-      end
+        result = subject.student_enrollments.first
 
-      it 'returns nil enrollments linked to a classroom by year' do
-        student_enrollment_classroom = subject.student_enrollments.first&.student_enrollment_classrooms
-        expect(student_enrollment_classroom).to be_nil
+        expect(result).to be_nil
       end
     end
 
