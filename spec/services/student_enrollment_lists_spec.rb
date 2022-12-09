@@ -165,19 +165,6 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       end
     end
 
-    context 'when params are incorrect with search_type: :by_date_range' do
-      let(:student_enrollment_2) { create(:student_enrollment) }
-      let(:student_enrollment_classroom_2) {
-        create(
-          :student_enrollment_classroom,
-          student_enrollment_id: student_enrollment_2.id,
-          joined_at: '2017-11-01'
-        )
-      }
-      let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
-
-    end
-
   end
 
   describe '#fetch_student_enrollments' do
