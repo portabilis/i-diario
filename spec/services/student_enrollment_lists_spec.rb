@@ -8,6 +8,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       student_enrollment_id: student_enrollment.id
     )
   }
+  let(:classroom_grade) { student_enrollment_classroom.classrooms_grade_id }
   let(:classroom) { student_enrollment_classroom.classrooms_grade.classroom_id }
   let(:discipline) { create(:discipline) }
 
@@ -168,6 +169,48 @@ RSpec.describe StudentEnrollmentsList, type: :service do
 
   describe '#fetch_student_enrollments' do
     context 'when searching student_enrollment with grade' do
+      let(:classroom_grades) { create_list(:classrooms_grade, 2, classroom_id: 3) }
+      let!(:student_enrollment_classroom_2) {
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade_id: classroom_grades.first.id
+        )
+      }
+      let!(:student_enrollment_classroom_3) {
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade_id: classroom_grades.last.id
+        )
+      }
+
+      it 'returns array of student_enrollment by_grade' do
+        subject = described_class.new(
+          classroom: 3,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-11-01',
+          grade: classroom_grades.map(&:grade_id)
+        )
+        result = subject.student_enrollments
+
+        expect(result).to include(
+          student_enrollment_classroom_2.student_enrollment,
+          student_enrollment_classroom_3.student_enrollment
+        )
+      end
+
+      it 'returns empty array of student_enrollment by_grade' do
+        subject = described_class.new(
+          classroom: 3,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-11-01',
+          grade: classroom_grade
+        )
+        result = subject.student_enrollments
+
+        expect(result).to eq([])
+      end
     end
 
     context 'when searching student_enrollment with include_date_range' do
@@ -184,7 +227,6 @@ RSpec.describe StudentEnrollmentsList, type: :service do
   end
 
   describe '#reject_duplicated_students' do
-
   end
 
   describe '#remove_not_displayable_students' do
