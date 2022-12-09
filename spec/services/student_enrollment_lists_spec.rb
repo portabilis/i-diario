@@ -91,7 +91,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
         expect(result).to eq(student_enrollment)
       end
 
-      it 'returns enrollments without enrollment_classrooms on the date' do
+      it 'return enrollment without enrollment_classrooms on the date' do
         subject = described_class.new(
           classroom: classroom_2,
           discipline: discipline,
@@ -130,30 +130,38 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       end
     end
 
-    context 'when params are correct with search_type: :by_date_range' do
+    context 'when searching student by date range' do
       let(:student_enrollment_2) { create(:student_enrollment) }
       let(:student_enrollment_classroom_2) {
         create(
           :student_enrollment_classroom,
           student_enrollment_id: student_enrollment_2.id,
-          joined_at: '2017-02-01',
-          left_at: nil
+          joined_at: '2017-02-01'
         )
       }
       let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
 
-      subject do
-        described_class.new(
+      it 'return enrollment with enrollment_classrooms on the date range' do
+        subject = described_class.new(
           classroom: classroom,
           discipline: discipline,
           search_type: :by_date_range,
           start_at: '2017-01-02',
           end_at: '2017-03-20'
         )
+        expect(subject.student_enrollments.size).to eq(1)
       end
 
-      it 'returns with only one enrollment linked to the range_date' do
-        expect(subject.student_enrollments.size).to eq(1)
+      it 'return enrollment without enrollment_classrooms on the date range' do
+        subject = described_class.new(
+          classroom: classroom_2,
+          discipline: discipline,
+          search_type: :by_date_range,
+          start_at: '2015-01-01',
+          end_at: '2015-02-01'
+        )
+
+        expect(subject.student_enrollments).to eq([])
       end
     end
 
@@ -168,19 +176,6 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       }
       let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
 
-      subject do
-        described_class.new(
-          classroom: classroom_2,
-          discipline: discipline,
-          search_type: :by_date_range,
-          start_at: '2015-01-01',
-          end_at: '2015-02-01'
-        )
-      end
-
-      it 'returns blank enrollment linked to the range_date ' do
-        expect(subject.student_enrollments).to eq([])
-      end
     end
 
   end
