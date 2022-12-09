@@ -79,42 +79,42 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       }
       let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
 
-      it 'return enrollment with enrollment_classrooms on the date' do
+      it 'return array of enrollment with enrollment_classrooms on the date' do
         subject = described_class.new(
           classroom: classroom,
           discipline: discipline,
           search_type: :by_date,
           date: '2018-02-02'
         )
-        result = subject.student_enrollments.first
+        result = subject.student_enrollments
 
-        expect(result).to eq(student_enrollment)
+        expect(result).to eq([student_enrollment])
       end
 
-      it 'return enrollment without enrollment_classrooms on the date' do
+      it 'return array of enrollment without enrollment_classrooms on the date' do
         subject = described_class.new(
           classroom: classroom_2,
           discipline: discipline,
           search_type: :by_date,
           date: '2018-11-02'
         )
-        result = subject.student_enrollments.first
+        result = subject.student_enrollments
 
-        expect(result).to eq(student_enrollment_2)
+        expect(result).to eq([student_enrollment_2])
       end
     end
 
     context 'when searching student by year' do
-      it 'return enrollment with classroom on the year' do
+      it 'return array of enrollment with classroom on the year' do
         subject = described_class.new(
           classroom: classroom,
           discipline: discipline,
           search_type: :by_year,
           year: 2017
         )
-        result = subject.student_enrollments.first
+        result = subject.student_enrollments
 
-        expect(result).to eq(student_enrollment)
+        expect(result).to eq([student_enrollment])
       end
 
       it 'returns null enrollments for classroom not created for the year' do
@@ -141,7 +141,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       }
       let(:classroom_2) { student_enrollment_classroom_2.classrooms_grade.classroom_id }
 
-      it 'return enrollment with enrollment_classrooms on the date range' do
+      it 'return array of enrollment with enrollment_classrooms on the date range' do
         subject = described_class.new(
           classroom: classroom,
           discipline: discipline,
@@ -149,10 +149,10 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           start_at: '2017-01-02',
           end_at: '2017-03-20'
         )
-        expect(subject.student_enrollments.size).to eq(1)
+        expect(subject.student_enrollments).to eq([student_enrollment])
       end
 
-      it 'return enrollment without enrollment_classrooms on the date range' do
+      it 'returns empty array of enrollment with enrollment_classrooms on the date range' do
         subject = described_class.new(
           classroom: classroom_2,
           discipline: discipline,
@@ -182,12 +182,14 @@ RSpec.describe StudentEnrollmentsList, type: :service do
     context 'when searching student_enrollment with show_inactive' do
     end
   end
+
   describe '#reject_duplicated_students' do
 
   end
 
   describe '#remove_not_displayable_students' do
   end
+
   describe '#order_by_sequence_and_name' do
   end
 
