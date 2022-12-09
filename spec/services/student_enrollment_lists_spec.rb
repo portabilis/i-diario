@@ -164,11 +164,31 @@ RSpec.describe StudentEnrollmentsList, type: :service do
         expect(subject.student_enrollments).to eq([])
       end
     end
-
   end
 
   describe '#fetch_student_enrollments' do
+    context 'when searching student_enrollment with grade' do
+    end
 
+    context 'when searching student_enrollment with include_date_range' do
+    end
+
+    context 'when searching student_enrollment with opinion_type' do
+    end
+
+    context 'when searching student_enrollment with with_recovery_note_in_step' do
+    end
+
+    context 'when searching student_enrollment with show_inactive' do
+    end
+  end
+  describe '#reject_duplicated_students' do
+
+  end
+
+  describe '#remove_not_displayable_students' do
+  end
+  describe '#order_by_sequence_and_name' do
   end
 
 end
