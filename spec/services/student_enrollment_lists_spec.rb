@@ -241,7 +241,38 @@ RSpec.describe StudentEnrollmentsList, type: :service do
     end
 
     context 'when searching student_enrollment with opinion_type' do
+      let(:exam_rule_2) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE) }
+      let!(:classroom_grade_2) { create(:classrooms_grade, exam_rule_id: exam_rule_2.id) }
+      let!(:student_enrollment_classroom_2) {
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade_id: classroom_grade_2.id
+        )
+      }
 
+      it 'returns array of student_enrollment while include opition_type' do
+        subject = described_class.new(
+          classroom: classroom_grade_2.classroom_id,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-01-01',
+          opinion_type: exam_rule_2.opinion_type
+        )
+
+        expect(subject.student_enrollments).to include(student_enrollment_classroom_2.student_enrollment)
+      end
+
+      it 'returns empty array of student_enrollment while not include opinion_type' do
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-01-01',
+          opinion_type: exam_rule_2.opinion_type
+        )
+
+        expect(subject.student_enrollments).to be_empty
+      end
     end
 
     context 'when searching student_enrollment with with_recovery_note_in_step' do
