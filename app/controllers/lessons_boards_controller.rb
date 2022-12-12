@@ -41,6 +41,7 @@ class LessonsBoardsController < ApplicationController
     @lessons_board = resource
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
     @classroom = resource.classroom
+    validate_lessons_number
 
     authorize @lessons_board
   end
@@ -229,6 +230,25 @@ class LessonsBoardsController < ApplicationController
   end
 
   private
+
+  def validate_lessons_number
+    classroom_lessons = resource.classroom.number_of_classes
+    board_lessons = resource.lessons_board_lessons.size
+
+    return if classroom_lessons == board_lessons || classroom_lessons < board_lessons
+
+    build_new_lessons(classroom_lessons, board_lessons)
+  end
+
+  def build_new_lessons(classroom_lessons, board_lessons)
+    while classroom_lessons > board_lessons
+      last_lesson = resource.lessons_board_lessons.size
+
+      if resource.lessons_board_lessons.build(lesson_number: last_lesson + 1)
+        board_lessons += 1
+      end
+    end
+  end
 
   def service
     @service ||= LessonBoardsService.new
