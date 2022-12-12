@@ -291,11 +291,11 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           recovery_diary_record: recovery_diary_record
         )
       }
-      teste = build(
-        :school_term_recovery_diary_record,
-        recovery_diary_record: recovery_diary_record,
-        step: recovery_diary_record.step
-      )
+      # teste = build(
+      #   :school_term_recovery_diary_record,
+      #   recovery_diary_record: recovery_diary_record,
+      #   step: recovery_diary_record.step
+      # )
       let!(:school_calendar) { create(:school_calendar, unity_id: student_enrollment_classroom.classrooms_grade.classroom.unity_id) }
       let!(:school_calendar_step) { create(:school_calendar_step, school_calendar_id: school_calendar.id) }
 
@@ -313,7 +313,69 @@ RSpec.describe StudentEnrollmentsList, type: :service do
     end
 
     context 'when searching student_enrollment with show_inactive' do
+      let!(:classroom_grades_2) { create(:classrooms_grade) }
+      let!(:student_enrollment_2) { create(:student_enrollment, student_id: student_enrollment.student_id) }
+      let!(:enrollment_classroom_2) {
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade_id: classroom_grades_2.id,
+          student_enrollment_id: student_enrollment_2.id,
+          joined_at: '2018-01-01'
+        )
+      }
+      let!(:enrollment_classroom_3) {
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade_id: classroom_grade,
+          student_enrollment_id: student_enrollment_2.id,
+          joined_at: '2018-03-04'
+        )
+      }
 
+      it 'returns array of student_enrollment only while inactive' do
+        student_enrollment_classroom.update_attribute(:left_at, '2017-12-12')
+        student_enrollment.update_attribute(:status, 4)
+
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-11-01',
+          show_inactive: true
+        )
+
+        expect(subject.student_enrollments).to include(student_enrollment)
+      end
+
+      it 'returns array of student_enrollment only while active' do
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-11-01',
+          show_inactive: false
+        )
+
+        expect(subject.student_enrollments).to include(student_enrollment_classroom.student_enrollment)
+      end
+
+      it 'returns array of student_enrollment while active and inactive' do
+        student_enrollment_classroom.update_attribute(:left_at, '2017-12-12')
+        student_enrollment.update_attribute(:status, 4)
+
+        enrollment_classroom_2.update_attribute(:left_at, '2018-03-03')
+
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date_range,
+          start_at: '2017-01-01',
+          end_at: '2018-04-04',
+          show_inactive: true
+        )
+
+        expect(subject.student_enrollments).to include(student_enrollment, enrollment_classroom_2.student_enrollment)
+      end
     end
 
   end
