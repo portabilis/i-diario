@@ -212,7 +212,8 @@ RSpec.describe StudentEnrollmentsList, type: :service do
     end
 
     context 'when searching student_enrollment with include_date_range' do
-      it 'returns array of student_enrollment while include in date_range and in date' do
+
+      it 'returns array of student_enrollment include in date_range ' do
         subject = described_class.new(
           classroom: classroom,
           discipline: discipline,
@@ -222,8 +223,8 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           start_at: '2016-02-02',
           end_at: '2017-03-02'
         )
-        # erro no filtro .by_date_not_before
-        # expect(subject.student_enrollments).to eq(student_enrollment)
+
+        expect(subject.student_enrollments).to include(student_enrollment)
       end
 
       it 'returns empty array of student_enrollment while not include in date_range' do
@@ -233,10 +234,11 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           search_type: :by_date,
           date: '2017-01-01',
           include_date_range: true,
-          start_at: '2016-02-02',
+          start_at: '2017-02-02',
           end_at: '2017-03-02'
         )
-        # expect(subject.student_enrollments).to eq([])
+
+        expect(subject.student_enrollments).to be_empty
       end
     end
 
@@ -359,7 +361,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
         expect(subject.student_enrollments).to include(student_enrollment_classroom.student_enrollment)
       end
 
-      it 'returns array of student_enrollment while active and inactive' do
+      it 'returns array of student_enrollment while active and inactive in the same classroom' do
         student_enrollment_classroom.update_attribute(:left_at, '2017-12-12')
         student_enrollment.update_attribute(:status, 4)
 
@@ -384,8 +386,4 @@ RSpec.describe StudentEnrollmentsList, type: :service do
 
   describe '#remove_not_displayable_students' do
   end
-
-  describe '#order_by_sequence_and_name' do
-  end
-
 end
