@@ -377,7 +377,6 @@ RSpec.describe StudentEnrollmentsList, type: :service do
         expect(subject.student_enrollments).to include(student_enrollment, enrollment_classroom_2.student_enrollment)
       end
     end
-
   end
 
   describe '#reject_duplicated_students' do
