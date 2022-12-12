@@ -24,7 +24,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : @classrooms), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
+        <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : [@classroom]), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
         <%= f.hidden_field :lessons_number, id: 'lessons_number_classroom_id' %>
       </div>
 

@@ -40,7 +40,7 @@ class LessonsBoardsController < ApplicationController
   def edit
     @lessons_board = resource
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
-    @classrooms = Classroom.where(unity_id: resource.classroom&.unity&.id)
+    @classroom = resource.classroom
 
     authorize @lessons_board
   end
