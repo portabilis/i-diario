@@ -18,6 +18,8 @@ class LessonsBoardsController < ApplicationController
       lessons_board_lessons: :lessons_board_lesson_weekdays
     )
 
+    validate_lessons_number
+
     authorize @lessons_board
   end
 
