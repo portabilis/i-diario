@@ -11,7 +11,6 @@ class LessonsBoardsController < ApplicationController
   def show
     @lessons_board = resource
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
-    @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classroom.unity&.id)
 
     ActiveRecord::Associations::Preloader.new.preload(
       @lessons_board,
