@@ -275,11 +275,47 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       end
     end
 
-    context 'when searching student_enrollment with with_recovery_note_in_step' do
+    context 'when searching student_enrollment with recovery_note_in_step' do
+      let!(:recovery_diary_record) {
+        create(
+          :recovery_diary_record,
+          :with_teacher_discipline_classroom,
+          :with_students,
+          classroom_id: classroom,
+          discipline_id: discipline.id
+        )
+      }
+      let!(:school_term_recovery_diary_record) {
+        create(
+          :school_term_recovery_diary_record,
+          recovery_diary_record: recovery_diary_record
+        )
+      }
+      teste = build(
+        :school_term_recovery_diary_record,
+        recovery_diary_record: recovery_diary_record,
+        step: recovery_diary_record.step
+      )
+      let!(:school_calendar) { create(:school_calendar, unity_id: student_enrollment_classroom.classrooms_grade.classroom.unity_id) }
+      let!(:school_calendar_step) { create(:school_calendar_step, school_calendar_id: school_calendar.id) }
+
+      it 'returns array of student_enrollment while include with_recovery_note_in_step' do
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date,
+          date: '2017-01-01',
+          with_recovery_note_in_step: AffectedScoreTypes::STEP_RECOVERY_SCORE
+        )
+
+        # expect(subject.student_enrollments).to include(student_enrollment_classroom.student_enrollment)
+      end
     end
 
     context 'when searching student_enrollment with show_inactive' do
+
     end
+
   end
 
   describe '#reject_duplicated_students' do
