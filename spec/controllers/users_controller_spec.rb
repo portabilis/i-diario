@@ -89,10 +89,11 @@ RSpec.describe UsersController, :type => :controller do
         expect(response).to render_template(:edit)
       end
 
-      # it "without correct params" do
-      #   get :index, params.merge(search: { by_name: nil })
-      #   expect(response).to have_http_status(302)
-      # end
+      it "with correct params and a strong password" do
+        new_params = { user: { password: '!Aa123456' } }
+        put :update, params.merge(new_params)
+        expect(response).to redirect_to(users_path)
+      end
     end
   end
 end
