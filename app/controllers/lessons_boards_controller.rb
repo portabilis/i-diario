@@ -11,12 +11,13 @@ class LessonsBoardsController < ApplicationController
   def show
     @lessons_board = resource
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
-    @classrooms = classrooms_to_select2(resource.classrooms_grade.grade_id, resource.classroom.unity&.id)
 
     ActiveRecord::Associations::Preloader.new.preload(
       @lessons_board,
       lessons_board_lessons: :lessons_board_lesson_weekdays
     )
+
+    validate_lessons_number
 
     authorize @lessons_board
   end
@@ -40,7 +41,8 @@ class LessonsBoardsController < ApplicationController
   def edit
     @lessons_board = resource
     @teachers = teachers_to_select2(resource.classroom.id, resource.period)
-    @classrooms = Classroom.where(unity_id: resource.classroom&.unity&.id)
+    @classroom = resource.classroom
+    validate_lessons_number
 
     authorize @lessons_board
   end
@@ -229,6 +231,25 @@ class LessonsBoardsController < ApplicationController
   end
 
   private
+
+  def validate_lessons_number
+    classroom_lessons = resource.classroom.number_of_classes
+    board_lessons = resource.lessons_board_lessons.size
+
+    return if classroom_lessons == board_lessons || classroom_lessons < board_lessons
+
+    build_new_lessons(classroom_lessons, board_lessons)
+  end
+
+  def build_new_lessons(classroom_lessons, board_lessons)
+    while classroom_lessons > board_lessons
+      last_lesson = resource.lessons_board_lessons.size
+
+      if resource.lessons_board_lessons.build(lesson_number: last_lesson + 1)
+        board_lessons += 1
+      end
+    end
+  end
 
   def service
     @service ||= LessonBoardsService.new
