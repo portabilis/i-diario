@@ -82,7 +82,7 @@ class StudentsInRecoveryFetcher
         start_at: step.start_at,
         end_at: end_at,
         search_type: :by_date_range
-      ).student_enrollments.map(&:student)
+      ).student_enrollments
     end
   end
 
@@ -102,7 +102,8 @@ class StudentsInRecoveryFetcher
   def filter_students_in_recovery
     classrooms_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
     ids_in_recovery = StudentEnrollmentClassroom.where(classrooms_grade_id: classrooms_grade_ids).pluck(:student_enrollment_id)
-    student_enrollments_in_recovery = StudentEnrollment.where(id: ids_in_recovery)
+    in_recovery_and_enrolled = ids_in_recovery & enrollment_students.map(&:id)
+    student_enrollments_in_recovery = StudentEnrollment.where(id: in_recovery_and_enrolled)
 
     student_enrollments_in_recovery.map(&:student)
   end
