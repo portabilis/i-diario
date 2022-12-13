@@ -390,7 +390,7 @@ class ApplicationController < ActionController::Base
     dir = Rails.application.secrets[:REPORTS_SERVER_DIR]
 
     if username && server && dir
-      system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
+      system("rsync -aHAXxv --remove-source-files --quiet \"ssh -T -c arcfour -o Compression=no -x\" #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
     end
 
     redirect_to name
