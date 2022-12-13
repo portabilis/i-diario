@@ -43,8 +43,6 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     where("(CASE
               WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
                 student_enrollment_classrooms.joined_at <= :end_at
-              WHEN COALESCE(student_enrollment_classrooms.left_at) IS NULL THEN
-                student_enrollment_classrooms.joined_at <= :end_at
               ELSE
                 student_enrollment_classrooms.joined_at <= :end_at AND
                 student_enrollment_classrooms.left_at >= :start_at AND

@@ -8,5 +8,6 @@ FactoryGirl.define do
     joined_at { "#{classrooms_grade.classroom.year}-01-01" }
     changed_at { Date.current.to_s }
     show_as_inactive_when_not_in_date false
+    left_at ''
   end
 end
