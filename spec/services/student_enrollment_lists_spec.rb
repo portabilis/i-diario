@@ -163,7 +163,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           end_at: '2015-02-01'
         )
 
-        expect(subject.student_enrollments).to eq([])
+        expect(subject.student_enrollments).to be_empty
       end
     end
   end
@@ -208,7 +208,7 @@ RSpec.describe StudentEnrollmentsList, type: :service do
           grade: classroom_grade
         )
 
-        expect(subject.student_enrollments).to eq([])
+        expect(subject.student_enrollments).to be_empty
       end
     end
 
