@@ -84,8 +84,6 @@ class StudentEnrollmentsList
       raise ArgumentError, 'Should define date argument on search by date' unless date
     elsif search_type == :by_date_range
       raise ArgumentError, 'Should define start_at and end_at arguments on search by date range' unless start_at || end_at
-    elsif search_type == :by_year
-      raise ArgumentError, 'Should define year arguments on search by year' unless year
     end
   end
 

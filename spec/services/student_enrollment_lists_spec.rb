@@ -43,17 +43,17 @@ RSpec.describe StudentEnrollmentsList, type: :service do
       end
     end
 
-    context 'when params are incorrect with search_type: :by_year' do
-      it 'return with raises ArgumentError to search by year' do
-        expect {
-          described_class.new(
-            classroom: classroom,
-            discipline: discipline,
-            search_type: :by_year
-          )
-        }.to raise_error(ArgumentError)
-      end
-    end
+    # context 'when params are incorrect with search_type: :by_year' do
+    #   it 'return with raises ArgumentError to search by year' do
+    #     expect {
+    #       described_class.new(
+    #         classroom: classroom,
+    #         discipline: discipline,
+    #         search_type: :by_year
+    #       )
+    #     }.to raise_error(ArgumentError)
+    #   end
+    # end
 
     context 'when params are incorrect with search_type: :by_date_range' do
       it 'return with raises ArgumentError to search by date range' do
