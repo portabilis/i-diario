@@ -13,6 +13,10 @@ class SchoolDayChecker
     date_is_school_day?(@date)
   end
 
+  def day_allows_entry?
+    date_allows_entry?(@date)
+  end
+
   def create(events)
     [events].flatten.each do |event|
       return if event.coverage != "by_unity"
@@ -93,37 +97,50 @@ class SchoolDayChecker
   def date_is_school_day?(date)
     [@school_calendar].each do |school_calendar|
       events_by_date = school_calendar.events.by_date(date)
+      events_by_date_no_school = events_by_date.no_school_event
+      events_by_date_school = events_by_date.school_event
+
+      return check_for_events(events_by_date_no_school, events_by_date_school, date)
+    end
+  end
+
+  def date_allows_entry?(date)
+    [@school_calendar].each do |school_calendar|
+      events_by_date = school_calendar.events.by_date(date)
       events_by_date_no_frequency = events_by_date.events_to_report
       events_by_date_with_frequency = events_by_date.events_with_frequency
 
-      if @classroom_id.present?
-        if @discipline_id.present?
-          return false if any_discipline_event?(events_by_date_no_frequency, @grade_id, @classroom_id, @discipline_id)
-          return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
-        end
-
-        return false if any_classroom_event?(events_by_date_no_frequency, @grade_id, @classroom_id)
-        return true if any_classroom_event?(events_by_date_with_frequency, @grade_id, @classroom_id)
-
-        return false if any_grade_event?(events_by_date_no_frequency.by_period(classroom.period), @grade_id)
-        return true if any_grade_event?(events_by_date_with_frequency.by_period(classroom.period), @grade_id)
-        return false if any_course_event?(events_by_date_no_frequency.by_period(classroom.period), grade_course_ids)
-        return true if any_course_event?(events_by_date_with_frequency.by_period(classroom.period), grade_course_ids)
-
-        return false if any_global_event?(events_by_date_no_frequency.by_period(classroom.period))
-        return true if any_global_event?(events_by_date_with_frequency.by_period(classroom.period))
-        return false if steps_fetcher.step_by_date(date).nil?
-      else
-        if @grade_id.present?
-          return false if any_grade_event?(events_by_date_no_frequency, @grade_id)
-          return true if any_grade_event?(events_by_date_with_frequency, @grade_id)
-        end
-        return false if events_by_date_no_frequency.exists?
-        return true if events_by_date_with_frequency.exists?
-        return false if school_calendar.step(date).nil?
-      end
+      return check_for_events(events_by_date_no_frequency, events_by_date_with_frequency, date)
     end
+  end
 
+  def check_for_events(not_allowed_events, allowed_events, date)
+    if @classroom_id.present?
+      if @discipline_id.present?
+        return false if any_discipline_event?(not_allowed_events, @grade_id, @classroom_id, @discipline_id)
+        return true if any_discipline_event?(allowed_events, @grade_id, @classroom_id, @discipline_id)
+      end
+
+      return false if any_classroom_event?(not_allowed_events, @grade_id, @classroom_id)
+      return true if any_classroom_event?(allowed_events, @grade_id, @classroom_id)
+
+      return false if any_grade_event?(not_allowed_events.by_period(classroom.period), @grade_id)
+      return true if any_grade_event?(allowed_events.by_period(classroom.period), @grade_id)
+      return false if any_course_event?(not_allowed_events.by_period(classroom.period), grade_course_ids)
+      return true if any_course_event?(allowed_events.by_period(classroom.period), grade_course_ids)
+
+      return false if any_global_event?(not_allowed_events.by_period(classroom.period))
+      return true if any_global_event?(allowed_events.by_period(classroom.period))
+      return false if steps_fetcher.step_by_date(date).nil?
+    else
+      if @grade_id.present?
+        return false if any_grade_event?(not_allowed_events, @grade_id)
+        return true if any_grade_event?(allowed_events, @grade_id)
+      end
+      return false if not_allowed_events.exists?
+      return true if allowed_events.exists?
+      return false if school_calendar.step(date).nil?
+    end
     ![0, 6].include? date.wday
   end
 
