@@ -94,6 +94,8 @@ class SchoolDayChecker
     return school_calendar
   end
 
+  # Checks if date has 'No school' events, used mainly in 'Pedagogical tracking' to
+  # count 'School' days
   def date_is_school_day?(date)
     [@school_calendar].each do |school_calendar|
       events_by_date = school_calendar.events.by_date(date)
@@ -104,6 +106,8 @@ class SchoolDayChecker
     end
   end
 
+  # Checks if date allows entries (frequency, notes, ...) to be saved
+  # Used mainly for validations
   def date_allows_entry?(date)
     [@school_calendar].each do |school_calendar|
       events_by_date = school_calendar.events.by_date(date)
