@@ -8,6 +8,7 @@ class StudentEnrollmentsList
     @grade = params.fetch(:grade, nil)
     @discipline = params.fetch(:discipline)
     @date = params.fetch(:date, nil)
+    @year = params.fetch(:year, nil)
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:end_at, nil)
     @search_type = params.fetch(:search_type, :by_date)
