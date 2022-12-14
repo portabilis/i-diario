@@ -102,7 +102,7 @@ class SchoolDayChecker
       events_by_date_no_school = events_by_date.no_school_event
       events_by_date_school = events_by_date.school_event
 
-      return check_for_events(events_by_date_no_school, events_by_date_school, date)
+      return check_for_events(events_by_date_no_school, events_by_date_school, date, school_calendar)
     end
   end
 
@@ -114,11 +114,11 @@ class SchoolDayChecker
       events_by_date_no_frequency = events_by_date.events_to_report
       events_by_date_with_frequency = events_by_date.events_with_frequency
 
-      return check_for_events(events_by_date_no_frequency, events_by_date_with_frequency, date)
+      return check_for_events(events_by_date_no_frequency, events_by_date_with_frequency, date, school_calendar)
     end
   end
 
-  def check_for_events(not_allowed_events, allowed_events, date)
+  def check_for_events(not_allowed_events, allowed_events, date, school_calendar)
     if @classroom_id.present?
       if @discipline_id.present?
         return false if any_discipline_event?(not_allowed_events, @grade_id, @classroom_id, @discipline_id)
