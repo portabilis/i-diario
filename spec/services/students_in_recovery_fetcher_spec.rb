@@ -7,7 +7,13 @@ RSpec.describe StudentsInRecoveryFetcher, type: :service do
       :with_classroom_semester_steps
     )
   }
-  let!(:exam_rule) { create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL) }
+  let!(:exam_rule) {
+    create(
+      :exam_rule,
+      recovery_type: RecoveryTypes::PARALLEL,
+      parallel_recovery_average: 6
+    )
+  }
   let!(:classrooms_grade) {
     create(
       :classrooms_grade,
@@ -44,25 +50,41 @@ RSpec.describe StudentsInRecoveryFetcher, type: :service do
         expect(subject.fetch).to eq([student])
       end
 
-      it 'does not return that enrollment if student is not enrolled' do
+      it 'does not return enrollment if student joined after the test' do
         student_enrollment_classroom.update(joined_at: '2017-03-02')
+        expect(subject.fetch).to be_empty
+      end
+
+      it 'does not return enrollment if student left the same day as joined' do
+        student_enrollment_classroom.update(left_at: '2017-01-02')
+        expect(subject.fetch).to be_empty
+      end
+
+      it 'returns if student is in recovery' do
+        avaliation = create(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline
+        )
+        daily_note = create(:daily_note, avaliation: avaliation)
+        create(:daily_note_student, student: student, daily_note: daily_note, note: 2)
+        expect(subject.fetch).to eq([student])
+      end
+
+      it 'does not return if student is not in recovery' do
+        avaliation = create(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline
+        )
+        daily_note = create(:daily_note, avaliation: avaliation)
+        create(:daily_note_student, student: student, daily_note: daily_note, note: 8)
         expect(subject.fetch).to be_empty
       end
     end
 
-    context 'with a relocation within the same classroom' do
-      it 'returns the classroom enrollment with higher api_code' do
-        student_enrollment = create_student_enrollment
-        create_student_enrollment_classroom(
-          student_enrollment,
-          joined_at: '2019-01-01',
-          left_at: '2019-02-01'
-        )
-        create_relocation(student_enrollment, '2019-02-01', '')
-
-        expect(subject.current_enrollment).to eq(@student_enrollment_classroom1)
-      end
-    end
   end
 
 end
