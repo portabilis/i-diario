@@ -86,7 +86,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   def destroy
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id])
 
-    @final_recovery_diary_record.destroy
+    @final_recovery_diary_record.recovery_diary_record.destroy
 
     respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
   end

@@ -110,7 +110,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def destroy
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id])
 
-    @school_term_recovery_diary_record.destroy
+    @school_term_recovery_diary_record.recovery_diary_record.destroy
 
     respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
   end
