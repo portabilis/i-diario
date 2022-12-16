@@ -24,9 +24,9 @@ class SchoolCalendarEventsController < ApplicationController
 
     authorize resource
 
-    if resource.save
-      SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days(resource.start_date, resource.end_date)
+    SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days(resource.start_date, resource.end_date)
 
+    if resource.save
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates
