@@ -53,6 +53,10 @@ class SchoolCalendar < ActiveRecord::Base
     school_day_checker(date, grade_id, classroom_id, discipline_id).school_day?
   end
 
+  def day_allows_entry?(date, grade_id = nil, classroom_id = nil, discipline_id = nil)
+    school_day_checker(date, grade_id, classroom_id, discipline_id).day_allows_entry?
+  end
+
   def step(date)
     steps.all.started_after_and_before(date).first
   end
