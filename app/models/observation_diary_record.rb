@@ -34,7 +34,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   scope :by_classroom, -> classroom_ids { where(classroom_id: classroom_ids) }
   scope :by_discipline, -> discipline_ids { where(discipline_id: discipline_ids) }
   scope :by_date, -> date { where(date: date.to_date) }
-  scope :ordered, -> { order(date: :desc) }
+  scope :by_student_id, -> student_id { joins(:notes).merge(ObservationDiaryRecordNote.by_student_id(student_id)) }
 
   validates_date :date
   validates :school_calendar, presence: true

@@ -6,6 +6,7 @@
           <tr>
             <td></td>
             <td><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></td>
+            <td><%= f.input :by_student, as: :select2, elements: [], label: false, placeholder: t('.by_student') %></td>
             <td><%= f.input :by_discipline, as: :select2, elements: disciplines, label: false, placeholder: t('.by_discipline') %></td>
             <td width="135px"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
             <td width="160px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></td>
@@ -14,6 +15,7 @@
           <tr>
             <th><%= ObservationDiaryRecord.human_attribute_name :unity %></th>
             <th><%= ObservationDiaryRecord.human_attribute_name :classroom %></th>
+            <th><%= t('.student') %></th>
             <th><%= ObservationDiaryRecord.human_attribute_name :discipline %>
             <th><%= ObservationDiaryRecord.human_attribute_name :date %></th>
             <th></td>
