@@ -31,6 +31,7 @@ pt-BR:
         days_to_disable_access: "Quantidade de dias permitidos sem acessar o sistema para inativação automática de usuário"
         show_inactive_enrollments: "Apresentar enturmações inativas de alunos(as) nas telas de lançamento e relatórios (avaliação e frequência)"
         show_percentage_on_attendance_record_report: "Exibir frequência em porcentagem no Registro de frequência"
+        allow_class_number_on_content_records: "Permitir informar número de aula no Registro de conteúdos?"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
