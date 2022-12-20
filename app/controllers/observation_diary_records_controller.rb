@@ -16,6 +16,11 @@ class ObservationDiaryRecordsController < ApplicationController
       .by_teacher(teachers_by_discipline)
       .by_discipline([current_discipline.id, nil])
       .ordered
+
+    @students = Student.joins(observation_diary_record_note_students: :observation_diary_record_note)
+                       .where(observation_diary_record_notes: { observation_diary_record_id: @observation_diary_records })
+                       .distinct
+                       .ordered
   end
 
   def new
