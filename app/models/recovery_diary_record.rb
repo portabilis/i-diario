@@ -52,6 +52,8 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   before_validation :self_assign_to_students
 
+  attr_accessor :creator_type
+
   def school_calendar
     CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.try(:year)).fetch
   end
