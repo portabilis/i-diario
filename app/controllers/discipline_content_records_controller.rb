@@ -4,6 +4,8 @@ class DisciplineContentRecordsController < ApplicationController
 
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
+  before_action :set_number_of_classes, only: [:new, :create, :edit, :show]
+  before_action :allow_class_number, only: [:index, :new, :edit, :show]
 
   def index
     params[:filter] ||= {}
@@ -38,6 +40,7 @@ class DisciplineContentRecordsController < ApplicationController
       record_date: Time.zone.now,
       unity_id: current_unity.id
     )
+    @class_numbers = []
 
     authorize @discipline_content_record
   end
@@ -52,10 +55,31 @@ class DisciplineContentRecordsController < ApplicationController
 
     authorize @discipline_content_record
 
-    if @discipline_content_record.save
-      respond_with @discipline_content_record, location: discipline_content_records_path
+    if allow_class_number
+      @class_numbers = resource_params[:content_record_attributes][:class_number].split(',').sort
+      @discipline_content_record.content_record.class_number = @class_numbers.first
+
+      @class_numbers.each do |class_number|
+        @discipline_content_record.content_record.class_number = class_number
+
+        return render :new if @discipline_content_record.invalid?
+      end
+
+      multiple_content_creator = CreateMultipleContents.new(@class_numbers, @discipline_content_record)
+
+      if multiple_content_creator.call
+        respond_with @discipline_content_record, location: discipline_content_records_path
+      else
+        render :new
+      end
     else
-      render :new
+      if @discipline_content_record.save
+        return unless validate_class_numbers
+
+        respond_with @discipline_content_record, location: discipline_content_records_path
+      else
+        render :new
+      end
     end
   end
 
@@ -110,6 +134,24 @@ class DisciplineContentRecordsController < ApplicationController
 
   private
 
+  def allow_class_number
+    @allow_class_number ||= GeneralConfiguration.first.allow_class_number_on_content_records
+  end
+
+  def set_number_of_classes
+    @number_of_classes = current_school_calendar.number_of_classes
+  end
+
+  def validate_class_numbers
+    return true unless allow_class_number
+    return true if @class_numbers.present?
+
+    @error_on_class_numbers = true
+    flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
+
+    false
+  end
+
   def content_ids
     param_content_ids = params[:discipline_content_record][:content_record_attributes][:content_ids] || []
     content_descriptions = params[:discipline_content_record][:content_record_attributes][:content_descriptions] || []
@@ -125,6 +167,7 @@ class DisciplineContentRecordsController < ApplicationController
         :unity_id,
         :classroom_id,
         :record_date,
+        :class_number,
         :daily_activities_record,
         :content_ids
       ]
