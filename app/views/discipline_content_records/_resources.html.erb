@@ -10,6 +10,11 @@
         <td class="discipline"><%= discipline_content_record.discipline %></td>
         <td class="record_date"><%= l(discipline_content_record.content_record.record_date) %></td>
         <td><%= discipline_content_record.content_record.decorator.author(current_teacher) %></td>
+
+        <% if @allow_class_number %>
+          <td><%= discipline_content_record.content_record.class_number %></td>
+        <% end %>
+
         <td class="actions">
           <%= link_to(
                 t('helpers.links.copy_html'),

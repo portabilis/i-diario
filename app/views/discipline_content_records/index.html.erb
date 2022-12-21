@@ -13,6 +13,11 @@
             <td>
               <%= f.input :by_author, as: :select2_plans, label: false %>
             </td>
+
+            <% if @allow_class_number %>
+              <td></td>
+            <% end %>
+
             <td>
               <%= link_to t('.new_html'), new_discipline_content_record_path,
                 class: 'btn btn-primary pull-right', style: 'width: 165px;' %>
@@ -24,6 +29,11 @@
             <th><%= DisciplineContentRecord.human_attribute_name :discipline %>
             <th><%= ContentRecord.human_attribute_name :record_date %></th>
             <th width="10%"><%= DisciplineContentRecord.human_attribute_name :author %></th>
+
+            <% if @allow_class_number %>
+              <th width="10%"><%= ContentRecord.human_attribute_name :class_number %></th>
+            <% end %>
+
             <td width="160px"></td>
           </tr>
         </thead>
@@ -31,7 +41,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td id="pagination-tfoot" colspan="5">
+          <td id="pagination-tfoot" colspan="6">
             <%= render 'shared/pagination', records: @discipline_content_records %>
           </td>
         </tfoot>
