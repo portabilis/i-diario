@@ -17,10 +17,7 @@ class ObservationDiaryRecordsController < ApplicationController
       .by_discipline([current_discipline.id, nil])
       .ordered
 
-    @students = Student.joins(observation_diary_record_note_students: :observation_diary_record_note)
-                       .where(observation_diary_record_notes: { observation_diary_record_id: @observation_diary_records })
-                       .distinct
-                       .ordered
+    @students = fetch_students_with_observation_diary_records
   end
 
   def new
@@ -152,5 +149,12 @@ class ObservationDiaryRecordsController < ApplicationController
       current_user_classroom
     )
     discipline_teachers_fetcher.teachers_by_classroom
+  end
+
+  def fetch_students_with_observation_diary_records
+    Student.joins(observation_diary_record_note_students: :observation_diary_record_note)
+           .where(observation_diary_record_notes: { observation_diary_record_id: @observation_diary_records })
+           .distinct
+           .ordered
   end
 end
