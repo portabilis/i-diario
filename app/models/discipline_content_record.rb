@@ -44,7 +44,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   validates :content_record, presence: true
   validates :discipline, presence: true
 
-  validate :uniqueness_of_discipline_content_record if :not_allow_class_number?
+  validate :uniqueness_of_discipline_content_record
   validate :ensure_is_school_day
 
   delegate :contents, :record_date, :classroom, to: :content_record
@@ -52,8 +52,8 @@ class DisciplineContentRecord < ActiveRecord::Base
 
   private
 
-  def not_allow_class_number?
-    !GeneralConfiguration.first.allow_class_number_on_content_records
+  def allow_class_number?
+    GeneralConfiguration.first.allow_class_number_on_content_records
   end
 
   def valid_for_destruction?
@@ -72,6 +72,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   end
 
   def uniqueness_of_discipline_content_record
+    return if allow_class_number?
     return unless content_record.present? && content_record.classroom.present? && content_record.record_date.present?
 
     discipline_content_records = DisciplineContentRecord.by_teacher_id(content_record.teacher_id)

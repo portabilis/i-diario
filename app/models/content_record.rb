@@ -31,7 +31,7 @@ class ContentRecord < ActiveRecord::Base
   validates :record_date, presence: true, school_calendar_day: true, posting_date: true
   validates :teacher, presence: true
   validate :at_least_one_content
-  validates :class_number, uniqueness: true, allow_blank: true if :allow_class_number?
+  validates :class_number, uniqueness: true, presence: true if :allow_class_number?
 
   delegate :grades, :grade_ids, :first_grade, to: :classroom
 
