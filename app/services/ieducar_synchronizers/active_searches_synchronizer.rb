@@ -3,8 +3,8 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
     update_records(
       HashDecorator.new(
         api.fetch(
-          escola: 2,
-          ano: 2022
+          escola: unity_api_code,
+          ano: year
         )['busca_ativa']
       )
     )
