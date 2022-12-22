@@ -3,8 +3,8 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
     update_records(
       HashDecorator.new(
         api.fetch(
-          escola: unity_api_code,
-          ano: year
+          escola: 2,
+          ano: 2022
         )['busca_ativa']
       )
     )
@@ -18,7 +18,7 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
 
   def update_records(active_searches)
     active_searches.each do |active_search_record|
-      api_code = active_search_record.api_code
+      api_code = active_search_record.id
       student_enrollment = StudentEnrollment.find_by(api_code: active_search_record.ref_cod_matricula)
       next if student_enrollment.nil?
 
