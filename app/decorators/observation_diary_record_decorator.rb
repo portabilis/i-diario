@@ -7,7 +7,11 @@ class ObservationDiaryRecordDecorator
   def students_labels(selected_id)
     return unless component.students
 
-    student_cell = all_students.count == component.students.count ? 'Todos' : student_label_for(component.students.distinct, selected_id)
+    student_cell = if all_students.count == component.students.count
+                     'Todos'
+                   else
+                     student_label_for(component.students.ordered.distinct, selected_id)
+                   end
 
     student_cell
   end
