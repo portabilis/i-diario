@@ -20,6 +20,29 @@ class ObservationDiaryRecordsController < ApplicationController
     @students = fetch_students_with_observation_diary_records
   end
 
+  def show
+    @observation_diary_record = ObservationDiaryRecord.find(params[:id]).localized
+
+    @observation_record_report_form = ObservationRecordReportForm.new(
+      teacher_id: @observation_diary_record.teacher.id,
+      discipline_id: @observation_diary_record.discipline.id,
+      unity_id: @observation_diary_record.unity_id,
+      classroom_id: @observation_diary_record.classroom.id,
+      start_at: @observation_diary_record.date,
+      end_at: @observation_diary_record.date
+    ).localized
+
+    if @observation_record_report_form.valid?
+      observation_record_report = ObservationRecordReport.new(
+        current_entity_configuration,
+        @observation_record_report_form
+      ).build
+      send_pdf(t("routes.observation_record"), observation_record_report.render)
+    else
+      render @observation_diary_records
+    end
+  end
+
   def new
     @observation_diary_record = ObservationDiaryRecord.new.localized
     @observation_diary_record.school_calendar_id = current_school_calendar.id

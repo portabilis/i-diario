@@ -18,6 +18,12 @@
         <td><%= observation_diary_record.discipline %></td>
         <td><%= l(observation_diary_record.date) %></td>
         <td class="actions">
+          <%= link_to(
+                t('helpers.links.print_html'),
+                observation_diary_record_path(observation_diary_record, format: :pdf),
+                class: 'btn btn-info apply_tooltip',
+                target: '_blank',
+                data: { original_title: t('views.index.tooltips.show_report') }) %>
           <%= link_to t('views.index.edit'),
                 edit_observation_diary_record_path(observation_diary_record),
                 class: 'btn btn-success' %>
