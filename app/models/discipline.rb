@@ -61,6 +61,9 @@ class Discipline < ActiveRecord::Base
   scope :by_teacher_and_classroom, lambda { |teacher_id, classroom_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id }).uniq }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_sequence, -> { order(arel_table[:sequence].asc) }
+  scope :not_grouper, -> { where(grouper: false) }
+  scope :grouper, -> { where(grouper: true) }
+  scope :not_descriptor, -> { where(descriptor: false) }
   scope :by_description, lambda { |description|
     joins(:knowledge_area)
       .where(<<-SQL, description: "%#{description}%")

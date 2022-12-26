@@ -1,12 +1,10 @@
-require 'spec_helper_lite'
+require 'rails_helper'
 require 'enumerate_it'
-
-require 'app/services/score_rounder'
-require 'app/enumerations/rounding_table_action'
 
 RSpec.describe ScoreRounder, type: :service do
   let(:exam_rule) { double(:exam_rule, rounding_table: rounding_table) }
-  let(:classroom) { double(:classroom, year: 2017, unity_id: 543, grade_id: 871, exam_rule: exam_rule) }
+  let(:unity) { create(:unity) }
+  let(:classroom) { double(:classroom, year: 2017, unity: unity, unity_id: unity.id, grade_ids: 871, exam_rule: exam_rule) }
   let(:rounding_table) { double(:rounding_table, values: rounding_table_values, id: 1) }
   let(:rounding_table_value) do
     double(:rounding_table_value, label: label, action: action, exact_decimal_place: exact_decimal_place)
@@ -96,8 +94,7 @@ RSpec.describe ScoreRounder, type: :service do
       context 'when number is nil' do
         let(:action) { RoundingTableAction::ABOVE }
         it 'should return zero' do
-          skip
-
+          skip "Logic returns nil"
           expect(subject.round(nil)).to be(0.0)
         end
       end
@@ -153,7 +150,7 @@ RSpec.describe ScoreRounder, type: :service do
       .and_return(CustomRoundingTable)
 
     allow(CustomRoundingTable).to receive(:by_unity)
-      .with(543)
+      .with(unity.id)
       .and_return(CustomRoundingTable)
 
     allow(CustomRoundingTable).to receive(:by_grade)

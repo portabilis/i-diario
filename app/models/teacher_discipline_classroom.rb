@@ -10,6 +10,8 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :classroom
 
+  delegate :knowledge_area, to: :discipline
+
   has_many :student_enrollment_classrooms, through: :classroom
 
   has_enumeration_for :period, with: Periods, skip_validation: true
@@ -27,5 +29,4 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   scope :by_knowledge_area_id, ->(knowledge_area_id) {
     joins(:discipline).where(disciplines: { knowledge_area_id: knowledge_area_id })
   }
-
 end

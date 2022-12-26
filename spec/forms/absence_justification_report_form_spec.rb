@@ -3,6 +3,10 @@ require 'rails_helper'
 RSpec.describe AbsenceJustificationReportForm, type: :model do
   describe "validations" do
 
+    before(:each) do
+      AbsenceJustificationReportForm.any_instance.stub(:frequence_type_by_discipline?).and_return(true)
+    end
+
     it { expect(subject).to validate_presence_of(:unity_id) }
     it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }

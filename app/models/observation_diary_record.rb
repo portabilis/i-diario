@@ -40,8 +40,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :teacher, presence: true
   validates :classroom, presence: true
-  validates :discipline, presence: true, if: :require_discipline?
-  validates :discipline, absence: true, unless: :require_discipline?
+  validates :discipline, presence: true, on: :create
   validates(
     :date,
     presence: true,
@@ -66,15 +65,6 @@ class ObservationDiaryRecord < ActiveRecord::Base
 
   def self_assign_to_notes
     notes.each { |note| note.observation_diary_record = self }
-  end
-
-  def require_discipline?
-    return unless classroom && teacher
-
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
-    frequency_type_definer.define!
-
-    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
 
   def valid_for_destruction?

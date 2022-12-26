@@ -35,7 +35,8 @@ FactoryGirl.define do
     trait :with_teacher_discipline_classroom do
       after(:build) do |teaching_plan, evaluator|
         teaching_plan.teacher_id ||= teaching_plan.teacher.id
-        classroom = evaluator.classroom || create(:classroom, grade: teaching_plan.grade)
+        classrooms_grade = create(:classrooms_grade, grade: teaching_plan.grade)
+        classroom = evaluator.classroom || classrooms_grade.classroom
         discipline = evaluator.discipline || create(:discipline)
 
         teaching_plan.contents_created_at_position = {}

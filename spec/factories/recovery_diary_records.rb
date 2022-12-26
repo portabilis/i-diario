@@ -16,7 +16,7 @@ FactoryGirl.define do
     trait :with_classroom_semester_steps do
       association :classroom, factory: [
         :classroom,
-        :score_type_numeric_and_concept,
+        :score_type_numeric_and_concept_create_rule,
         :with_classroom_semester_steps
       ]
     end

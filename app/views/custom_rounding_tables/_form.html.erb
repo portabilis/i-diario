@@ -39,6 +39,11 @@
   </fieldset>
 
   <fieldset id="custom_rounding_table_values">
+    <% if f.object.errors.messages[:invalid_actions].present? %>
+      <div class="alert alert-danger">
+        <%= f.object.errors[:invalid_actions].first %>
+      </div>
+    <% end %>
     <legend><%= CustomRoundingTableValue.model_name.human %></legend>
 
     <table class="table table-striped table-bordered table-condensed records">

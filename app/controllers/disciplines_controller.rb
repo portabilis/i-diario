@@ -31,7 +31,8 @@ class DisciplinesController < ApplicationController
         grade_id: student_grade_id
       ).pluck(:discipline_id)
 
-      @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, params[:student_id])
+      @disciplines = @disciplines.not_grouper
+                                 .by_score_type(ScoreTypes::CONCEPT, params[:student_id])
                                  .where(id: disciplines_in_grade_ids)
 
     end
@@ -43,7 +44,7 @@ class DisciplinesController < ApplicationController
 
   def search
     params[:filter][:by_teacher_id] = current_user.teacher_id if params[:use_user_teacher]
-    @disciplines = apply_scopes(Discipline).ordered
+    @disciplines = apply_scopes(Discipline.grouper).ordered
 
     render json: @disciplines
   end
@@ -62,7 +63,7 @@ class DisciplinesController < ApplicationController
   end
 
   def disciplines_to_select2(classroom_id)
-    disciplines = Discipline.by_classroom_id(classroom_id)
+    disciplines = Discipline.grouper.by_classroom_id(classroom_id)
 
     if current_user.teacher?
       disciplines.by_teacher_id(current_teacher.id)

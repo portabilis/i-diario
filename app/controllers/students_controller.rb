@@ -8,7 +8,6 @@ class StudentsController < ApplicationController
     start_date = params[:start_date]
     end_date = params[:end_date]
     step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
-    transferred = params[:transferred] || false
 
     if step_id.present?
       step = steps_fetcher.steps.find(step_id)
@@ -16,25 +15,18 @@ class StudentsController < ApplicationController
       end_date ||= step.end_at
     end
 
-    include_date_range = start_date.present? && end_date.present? && !transferred
-    search_type = transferred ? :by_year : :by_date
+    include_date_range = start_date.present? && end_date.present?
 
-    student_enrollment_list = StudentEnrollmentsList.new(
+    student_enrollments = StudentEnrollmentsList.new(
       classroom: params[:classroom_id],
       discipline: params[:discipline_id],
       date: date,
-      search_type: search_type,
+      search_type: :by_date,
       include_date_range: include_date_range,
       start_at: start_date,
       end_at: end_date,
       score_type: params[:score_type]
-    )
-
-    if transferred
-      student_enrollments = student_enrollment_list.students_transfer_notes
-    else
-      student_enrollments = student_enrollment_list.student_enrollments
-    end
+    ).student_enrollments
 
     students = student_enrollments.map(&:student)
 
@@ -45,6 +37,12 @@ class StudentsController < ApplicationController
     students = StudentDecorator.data_for_select2_remote(params[:description])
 
     render json: students
+  end
+
+  def search_autocomplete
+    students = Student.search(params[:q]).ordered
+    structured_students = StudentDecorator.data_for_search_autocomplete(students)
+    render json: structured_students
   end
 
   def search_api

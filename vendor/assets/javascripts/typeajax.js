@@ -51,7 +51,7 @@
         throw new Error("Missing data-typeahead-url for input #" + $element.attr("id"));
       }
 
-      process([JSON.stringify({value: '<i class="icon-spinner icon-spin"></i> Procurando'})]);
+      process([JSON.stringify({ value: '<i class="icon-spinner icon-spin"></i> Procurando', ignoreClick: true })]);
 
       this.jqXHR = $.getJSON(url, { q: query });
 
@@ -71,7 +71,7 @@
 
           process(data);
         } else {
-          process([JSON.stringify({value: '<i class="icon-thumbs-down"></i> Desculpe, mas nada foi encontrado com o termo "' + query + '"'})]);
+          process([JSON.stringify({ value: '<i class="icon-thumbs-down"></i> Desculpe, mas nada foi encontrado com o termo "' + query + '"', ignoreClick: true })]);
         }
       });
 
@@ -80,7 +80,7 @@
           return;
         }
 
-        process([JSON.stringify({value: '<i class="icon-warning-sign"></i> Desculpe, mas ocorreu um erro: (' + jqXHR.status + ')'})]);
+        process([JSON.stringify({ value: '<i class="icon-warning-sign"></i> Desculpe, mas ocorreu um erro: (' + jqXHR.status + ')', ignoreClick: true })]);
       });
     },
 
