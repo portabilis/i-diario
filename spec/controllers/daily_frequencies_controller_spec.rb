@@ -75,7 +75,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
   describe 'POST #create' do
     context 'without success' do
       it 'fails to create and renders the new template' do
-        allow(school_calendar).to receive(:school_day?).and_return(false)
+        allow(school_calendar).to receive(:day_allows_entry?).and_return(false)
         post :create, params
         expect(response).to render_template(:new)
       end

@@ -26,6 +26,7 @@ class CustomRoundingTable < ActiveRecord::Base
   scope :by_avaliation, ->(avaliation) { where('? = ANY(rounded_avaliations)', avaliation) }
   scope :by_year, ->(year) { where(year: year) }
   scope :ordered, -> { order(:name) }
+  scope :ordered_by_year, -> { order(arel_table[:year].desc) }
 
   def to_s
     name

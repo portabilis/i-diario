@@ -42,6 +42,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   }
   scope :extra_school_without_frequency, -> { where(event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY) }
   scope :events_to_report, -> { where(event_type: [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
+  scope :events_with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil)) }
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil)) }
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil)) }

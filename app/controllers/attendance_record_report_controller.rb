@@ -26,7 +26,7 @@ class AttendanceRecordReportController < ApplicationController
         @attendance_record_report_form.start_at,
         @attendance_record_report_form.end_at,
         @attendance_record_report_form.daily_frequencies,
-        @attendance_record_report_form.student_enrollment_list,
+        @attendance_record_report_form.enrollment_classrooms_list,
         @attendance_record_report_form.school_calendar_events,
         current_school_calendar,
         @attendance_record_report_form.second_teacher_signature,

@@ -319,7 +319,25 @@ class ConceptualExamsController < ApplicationController
       @conceptual_exam.step_number
     )
 
-    @disciplines = @disciplines.not_grouper.where.not(id: exempted_discipline_ids)
+    @disciplines = @disciplines.not_grouper
+                               .where.not(id: exempted_discipline_ids)
+                               .where(id: disciplines_in_grade)
+  end
+
+  def disciplines_in_grade
+    school_calendar = @conceptual_exam.school_calendar
+
+    SchoolCalendarDisciplineGrade.where(
+      school_calendar_id: school_calendar.id,
+      grade_id: student_grade_id
+    ).pluck(:discipline_id)
+  end
+
+  def student_grade_id
+    ClassroomsGrade.by_student_id(@conceptual_exam.student_id)
+                   .by_classroom_id(@conceptual_exam.classroom_id)
+                   .first
+                   .grade_id
   end
 
   def steps_fetcher

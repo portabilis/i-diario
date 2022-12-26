@@ -8,5 +8,6 @@ class BnccDisciplines < EnumerateIt::Base
                    :sciences,
                    :geography,
                    :history,
-                   :religious_education
+                   :religious_education,
+                   :italian_language
 end

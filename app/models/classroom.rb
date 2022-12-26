@@ -101,6 +101,11 @@ class Classroom < ActiveRecord::Base
     classrooms_grades.first.exam_rule
   end
 
+  def first_exam_rule_with_recovery
+    exam = classrooms_grades.map(&:exam_rule).detect { |rule| rule.recovery_type != RecoveryTypes::DONT_USE }
+    exam || first_exam_rule
+  end
+
   def first_grade
     classrooms_grades.first.grade
   end

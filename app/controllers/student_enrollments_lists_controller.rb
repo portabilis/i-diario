@@ -1,5 +1,6 @@
 class StudentEnrollmentsListsController < ApplicationController
   before_action :adjusted_period
+  before_action :validate_date_param, only: :by_date
 
   def by_date
     student_enrollments = StudentEnrollmentsList.new(
@@ -35,6 +36,14 @@ class StudentEnrollmentsListsController < ApplicationController
   end
 
   private
+
+  def validate_date_param
+    validator = DateParamValidator.new(params[:filter][:date])
+
+    return if validator.valid?
+
+    render json: { errors: validator.errors.full_messages }, status: :unprocessable_entity
+  end
 
   def current_teacher_period
     TeacherPeriodFetcher.new(
