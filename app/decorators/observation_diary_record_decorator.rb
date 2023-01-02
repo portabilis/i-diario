@@ -8,7 +8,7 @@ class ObservationDiaryRecordDecorator
     return unless component.students
 
     student_cell = if all_students.count == component.students.count
-                     'Todos'
+                     content_tag(:span, 'Todos', class: 'student-name')
                    else
                      student_label_for(component.students.ordered.distinct, selected_id)
                    end
@@ -18,8 +18,7 @@ class ObservationDiaryRecordDecorator
 
   def student_label_for(students, selected_id)
     students.map { |student|
-      student_class = 'student-name'
-      student_class += ' danger' if selected_id == student.id
+      student_class = 'student-name' if selected_id == student.id
       content_tag(:span, student, class: student_class)
     }.join(', ').html_safe
   end

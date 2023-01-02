@@ -436,3 +436,12 @@ span.multiline {
 #header form .select-role {
   margin-top: 11px;
 }
+
+.student-name {
+  font-weight: bold;
+}
+
+.student-name-cell {
+  background-color: #5D98CC !important;
+  color: white;
+}

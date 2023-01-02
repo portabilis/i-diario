@@ -8,13 +8,15 @@
       <tr>
         <td><%= observation_diary_record.unity %></td>
         <td><%= observation_diary_record.classroom %></td>
-        <td>
-          <% if params[:filter]&.fetch(:by_student_id) %>
+        <% if params[:filter]&.fetch(:by_student_id).present? %>
+          <td class="student-name-cell">
             <span class="multiline">
               <%= observation_diary_record.decorator.students_labels(params[:filter][:by_student_id].to_i) %>
             </span>
-          <% end %>
-        </td>
+          </td>
+        <% else %>
+          <td></td>
+        <% end %>
         <td><%= observation_diary_record.discipline %></td>
         <td><%= l(observation_diary_record.date) %></td>
         <td class="actions">
