@@ -1,5 +1,4 @@
 class StudentsController < ApplicationController
-  skip_before_action :authenticate_user!, only: :search_api
 
   def index
     return render json: nil if params[:classroom_id].blank?
@@ -43,17 +42,6 @@ class StudentsController < ApplicationController
     students = Student.search(params[:q]).ordered
     structured_students = StudentDecorator.data_for_search_autocomplete(students)
     render json: structured_students
-  end
-
-  def search_api
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_by_cpf(params[:document], params[:student_code])
-
-      render json: result["alunos"].to_json
-    rescue IeducarApi::Base::ApiError => e
-      render json: e.message, status: "404"
-    end
   end
 
   def recovery_lowest_note
