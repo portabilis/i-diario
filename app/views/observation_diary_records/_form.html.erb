@@ -19,11 +19,20 @@
         <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
       </div>
 
-      <div class="col col-sm-4">
-        <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
-                classroom_id: @observation_diary_record.classroom_id,
-                required: true %>
+      <div data-discipline>
+        <div class="col col-sm-4">
+          <%= f.association :discipline, as: :select2_discipline,
+                            user: current_user,
+                            classroom_id: @observation_diary_record.classroom_id,
+                            admin_or_employee: @allow_discipline_edit,
+                            required: true,
+                            input_html: { value: f.object.discipline_id,
+                                          data: { without_json_parser: true } } %>
+        </div>
       </div>
+
+
+
     </div>
 
     <div class="row">

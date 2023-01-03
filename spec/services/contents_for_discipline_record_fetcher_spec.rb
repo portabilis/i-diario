@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe ContentsForDisciplineRecordFetcher do
   let(:teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
-  let(:school_term_type) { create(:school_term_type) }
+  let(:school_term_type) { create(:school_term_type, description: 'Anual') }
   let(:school_term_type_step) { create(:school_term_type_step) }
   let(:classroom) {
     create(
@@ -14,8 +14,11 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
       teacher: teacher
     )
   }
+  let!(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
 
-  before(:all) { skip }
+  before do
+    allow_any_instance_of(TeachingPlan).to receive(:yearly?).and_return(true)
+  end
 
   it 'fetches contents from lesson plan' do
     lesson_plan = create(
@@ -27,7 +30,7 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
     date = lesson_plan.start_at
     teaching_plan = create(
       :teaching_plan,
-      grade: classroom.grade,
+      grade: classroom.first_grade,
       teacher: teacher,
       teacher_id: teacher.id,
       year: date.year
@@ -58,7 +61,7 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
       :teaching_plan,
       school_term_type: school_term_type,
       school_term_type_step: school_term_type_step,
-      grade: classroom.grade,
+      grade: classroom.first_grade,
       teacher: teacher,
       teacher_id: teacher.id,
       year: classroom.calendar.school_calendar.year,

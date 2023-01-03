@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::RoundingTables, type: :service do
 
   describe '#fetch' do
     it 'returns all rouding_tables' do
-      skip
 
       VCR.use_cassette('all_rouding_tables') do
         result = subject.fetch

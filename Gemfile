@@ -56,7 +56,6 @@ gem 'sd_notify', '0.1.1'
 gem 'sidekiq', '5.2.5'
 gem 'sidekiq-unique-jobs', '6.0.22'
 gem 'simple_form', '4.0.0'
-gem 'skylight', '4.3.2'
 gem 'therubyracer', '0.12.3'
 gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'uglifier', '4.1.20'
@@ -98,7 +97,7 @@ group :test do
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
   gem 'webdrivers', '3.6.0'
-  gem 'webmock', '1.24.6'
+  gem 'webmock', '3.14.0'
 end
 
 group :test, :development do

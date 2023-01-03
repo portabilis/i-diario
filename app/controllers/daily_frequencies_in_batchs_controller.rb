@@ -134,8 +134,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def view_data
     @classroom = Classroom.includes(:unity).find(current_user_classroom)
     @discipline = current_user_discipline
-    teacher_period = current_teacher_period
-    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @period = current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)

@@ -14,8 +14,6 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
   end
 
   before do
-    skip
-
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_unity).and_return(unity)
@@ -23,9 +21,9 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
   end
 
   describe 'GET #index' do
-    let!(:school_calendar) { classroom.calendar.school_calendar }
-    let!(:school_calendar_event) { create(:school_calendar_event, school_calendar: school_calendar) }
-    let!(:other_school_calendar_event) { create(:school_calendar_event, school_calendar: school_calendar) }
+    let(:school_calendar) { classroom.calendar.school_calendar }
+    let(:school_calendar_event) { create(:school_calendar_event, school_calendar: school_calendar) }
+    let(:other_school_calendar_event) { create(:school_calendar_event, school_calendar: school_calendar) }
 
     shared_examples 'test_user_role_access' do
       before do
@@ -41,7 +39,7 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
     end
 
     context 'user has current_user_role selected' do
-      it_behaves_like 'test_user_role_access'
+      it { expect(user.current_user_role).to be_present }
     end
 
     context 'user has not current_user_role selected' do
@@ -50,7 +48,7 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
         user.save!
       end
 
-      it_behaves_like 'test_user_role_access'
+      it { expect(user.current_user_role).to_not be_present }
     end
   end
 end

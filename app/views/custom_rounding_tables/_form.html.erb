@@ -39,6 +39,11 @@
   </fieldset>
 
   <fieldset id="custom_rounding_table_values">
+    <% if f.object.errors.messages[:invalid_actions].present? %>
+      <div class="alert alert-danger">
+        <%= f.object.errors[:invalid_actions].first %>
+      </div>
+    <% end %>
     <legend><%= CustomRoundingTableValue.model_name.human %></legend>
 
     <table class="table table-striped table-bordered table-condensed records">
@@ -51,7 +56,7 @@
       </thead>
 
       <tbody id="units-conversion-items">
-        <%= f.simple_fields_for :custom_rounding_table_values do |item| %>
+        <%= f.simple_fields_for :custom_rounding_table_values, f.object.custom_rounding_table_values.ordered_asc do |item| %>
           <%= render 'custom_rounding_table_values_fields', f: item %>
         <% end %>
       </tbody>

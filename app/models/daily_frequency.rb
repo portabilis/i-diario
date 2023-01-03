@@ -13,9 +13,8 @@ class DailyFrequency < ActiveRecord::Base
     if valid_for_destruction?
       Student.unscoped do
         DailyFrequencyStudent.with_discarded
-                             .joins(:student)
                              .by_daily_frequency_id(id)
-                             .delete_all
+                             .destroy_all
       end
     end
   end
@@ -64,10 +63,11 @@ class DailyFrequency < ActiveRecord::Base
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
             .uniq
         }
-
+  scope :by_owner_teacher_id, lambda { |teacher_id| where(owner_teacher_id: teacher_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_period, ->(period) { where(period: period) }
+  scope :by_period_or_by_teacher, ->(period, teacher) { where('period = ? OR owner_teacher_id = ?', period, teacher) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_frequency_date, lambda { |frequency_date| where(frequency_date: frequency_date.to_date) }
   scope :by_frequency_date_between, lambda { |start_at, end_at| where(frequency_date: start_at.to_date..end_at.to_date) }

@@ -1,6 +1,7 @@
 module ExamPoster
   class StudentOnlyWithRecoveryFetcher < Base
     attr_reader :recoveries
+    attr_reader :scores
 
     def initialize(teacher, classroom, discipline, step)
       @teacher = teacher
@@ -8,10 +9,12 @@ module ExamPoster
       @discipline = discipline
       @step = step
       @recoveries = []
+      @scores = []
     end
 
     def fetch!
       @recoveries = fetch_school_term_recovery_score(@classroom, @discipline, @step)
+      @scores = Student.where(id: @recoveries.map(&:student_id)) if @recoveries.try(:any?)
     end
 
     private
@@ -28,7 +31,6 @@ module ExamPoster
       student_recoveries = RecoveryDiaryRecordStudent.by_recovery_diary_record_id(
         school_term_recovery_diary_record.recovery_diary_record_id
       )
-
       student_recoveries.where.not(student_id: student_ids)
     end
 

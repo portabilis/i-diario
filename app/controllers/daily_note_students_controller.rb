@@ -38,7 +38,7 @@ class DailyNoteStudentsController < ApplicationController
     @normal_students = []
     @dependence_students = []
 
-    respond_with @students if @daily_note_students.empty?
+    respond_with @students && return if @daily_note_students.empty?
 
     daily_note = @daily_note_students.first.daily_note
     date_for_search = params[:search][:recorded_at].to_date

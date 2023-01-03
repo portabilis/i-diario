@@ -4,7 +4,7 @@ module ExamPoster
 
     attr_accessor :warning_messages, :requests
 
-    def initialize(post_data, entity_id, post_data_last = nil, queue = nil)
+    def initialize(post_data, entity_id, post_data_last = nil, queue = nil, force_posting = nil)
       @post_data = post_data
       @post_data_last = post_data_last
       @entity_id = entity_id
@@ -12,10 +12,11 @@ module ExamPoster
       @warning_messages = []
       @requests = []
       @queue = queue || 'critical'
+      @force_posting = force_posting
     end
 
-    def self.post!(post_data, entity_id, post_data_last = nil, queue = nil)
-      new(post_data, entity_id, post_data_last, queue).post!
+    def self.post!(post_data, entity_id, post_data_last = nil, queue = nil, force_posting)
+      new(post_data, entity_id, post_data_last, queue, force_posting).post!
     end
 
     def post!
@@ -103,7 +104,7 @@ module ExamPoster
     end
 
     def not_posted?(options = { classroom: nil, discipline: nil, student: nil })
-      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true, conceptual_exam: true, final_recovery: true } if @post_data_last.nil?
+      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true, conceptual_exam: true, final_recovery: true } if @post_data_last.nil? || @force_posting
 
       not_posted = { absence: false, numerical_exam: false }
       exist_absence?(@post_data.post_type, not_posted, options)

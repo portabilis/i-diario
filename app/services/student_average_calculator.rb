@@ -72,7 +72,7 @@ class StudentAverageCalculator
 
     @scores = extract_note_avaliations(avaliations)
 
-    @scores.reduce(:+)
+    @scores.compact.reduce(:+)
   end
 
   def extract_weight_avaliations(avaliations)
@@ -113,7 +113,7 @@ class StudentAverageCalculator
 
       if avaliation.last.count > 1
         avaliation.last.each { |array| value = array[:value] if value < array[:value] }
-      else
+      elsif avaliation.last.last[:value].present?
         value = avaliation.last.last[:value]
       end
 

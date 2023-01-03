@@ -48,14 +48,14 @@ RSpec.describe DeleteInvalidPresenceRecordService, type: :service do
       let!(:student_enrollment_classroom2) {
         create(
           :student_enrollment_classroom,
-          classroom: classroom,
+          classrooms_grade: classroom.classrooms_grades.first,
           student_enrollment: student_enrollment
         )
       }
       let!(:student_enrollment_classroom3) {
         create(
           :student_enrollment_classroom,
-          classroom: classroom,
+          classrooms_grade: classroom.classrooms_grades.first,
           student_enrollment: student_enrollment
         )
       }
