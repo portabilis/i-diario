@@ -4,8 +4,23 @@ require 'rails_helper'
 RSpec.describe ActiveStudentsOnDate, type: :service do
   context '#call' do
     let(:student_enrollment) { create(:student_enrollment) }
-    let(:enrollment_classrooms_on_date) { create_list(:student_enrollment_classroom, 3, joined_at: '2017-01-01', student_enrollment: student_enrollment) }
-    let(:enrollment_classrooms_out_date) { create_list(:student_enrollment_classroom, 3, joined_at: '2017-01-01', left_at: '2017-04-04', student_enrollment: student_enrollment) }
+    let(:enrollment_classrooms_on_date) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        joined_at: '2017-01-01',
+        student_enrollment: student_enrollment
+      )
+    }
+    let(:enrollment_classrooms_out_date) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        joined_at: '2017-01-01',
+        left_at: '2017-04-04',
+        student_enrollment: student_enrollment
+      )
+    }
 
     subject do
       ActiveStudentsOnDate.call(
