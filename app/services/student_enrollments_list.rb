@@ -57,9 +57,9 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = order_by_name(students_enrollment_classrooms)
 
-    students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
+    students_enrollment_classrooms = reject_duplicated_enrollment_classrooms(students_enrollment_classrooms) unless show_inactive
 
-    # students_enrollment_classrooms = reject_duplicated_enrollment_classrooms(students_enrollment_classrooms) unless show_inactive
+    students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
     students_enrollment_classrooms.map do |student_enrollment_classroom|
       {
@@ -145,29 +145,21 @@ class StudentEnrollmentsList
   end
 
   def reject_duplicated_enrollment_classrooms(enrollment_classrooms)
-    unique_student_enrollments = []
-    enrollment_classrooms.each do |enrollment_classroom|
-      student_enrollment = enrollment_classroom.student_enrollment
-      student_enrollments_for_student = enrollment_classrooms.select{|a| a.student_enrollment.student.id == student_enrollment.student.id && a.student_enrollment.active}
-
-      if student_enrollments_for_student.count > 1
-        any_active_enrollment = false
-        student_enrollments_for_student.each do |student_enrollment_for_student|
-          if student_active?(student_enrollment_for_student)
-            unique_student_enrollments << student_enrollment_for_student
-            any_active_enrollment = true
-            break
-          end
-        end
-
-        if !any_active_enrollment
-          unique_student_enrollments << student_enrollments_for_student.detect{|a| a.show_as_inactive_when_not_in_date == 't'}
-        end
-      else
-        unique_student_enrollments << student_enrollment if show_inactive_outside_step || student_active?(student_enrollment)
-      end
+    # REJEITAR ENTURMACOES DUPLICADAS
+    # GUARDAR MATRICULAS COM STATUS DE CURSANDO
+    enrollment_attended = enrollment_classrooms.joins(:student_enrollment).where(student_enrollments: {
+      status:
+        [ StudentEnrollmentStatus::STUDYING,
+        StudentEnrollmentStatus::APPROVED,
+        StudentEnrollmentStatus::APPROVED_WITH_DEPENDENCY,
+        StudentEnrollmentStatus::RECLASSIFIED,
+        StudentEnrollmentStatus::APPROVE_BY_COUNCIL]
+      }
+    )
+    #VERIFICAR QUAL DESSAS ENTURMACOES ESTA ATIVA NA DATA
+    if student_active?(enrollment_attended) && enrollment_attended.show_as_inactive
+      enrollment_attended
     end
-    unique_student_enrollments.uniq
   end
 
   def student_active?(student_enrollment)
