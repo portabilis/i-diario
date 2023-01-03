@@ -2,6 +2,10 @@
 
 class StudentsExemptFromDiscipline
   def self.call(params)
+    new(params).call
+  end
+
+  def initialize(params)
     @student_enrollments = params.fetch(:student_enrollments)
     @discipline = params.fetch(:discipline)
     @steps = params.fetch(:steps)
