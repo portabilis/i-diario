@@ -59,6 +59,8 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
+    # students_enrollment_classrooms = reject_duplicated_enrollment_classrooms(students_enrollment_classrooms) unless show_inactive
+
     students_enrollment_classrooms.map do |student_enrollment_classroom|
       {
         student_enrollment_id: student_enrollment_classroom.student_enrollment.id,
@@ -134,6 +136,32 @@ class StudentEnrollmentsList
 
         if !any_active_enrollment
           unique_student_enrollments << student_enrollments_for_student.show_as_inactive.first
+        end
+      else
+        unique_student_enrollments << student_enrollment if show_inactive_outside_step || student_active?(student_enrollment)
+      end
+    end
+    unique_student_enrollments.uniq
+  end
+
+  def reject_duplicated_enrollment_classrooms(enrollment_classrooms)
+    unique_student_enrollments = []
+    enrollment_classrooms.each do |enrollment_classroom|
+      student_enrollment = enrollment_classroom.student_enrollment
+      student_enrollments_for_student = enrollment_classrooms.select{|a| a.student_enrollment.student.id == student_enrollment.student.id && a.student_enrollment.active}
+
+      if student_enrollments_for_student.count > 1
+        any_active_enrollment = false
+        student_enrollments_for_student.each do |student_enrollment_for_student|
+          if student_active?(student_enrollment_for_student)
+            unique_student_enrollments << student_enrollment_for_student
+            any_active_enrollment = true
+            break
+          end
+        end
+
+        if !any_active_enrollment
+          unique_student_enrollments << student_enrollments_for_student.detect{|a| a.show_as_inactive_when_not_in_date == 't'}
         end
       else
         unique_student_enrollments << student_enrollment if show_inactive_outside_step || student_active?(student_enrollment)
