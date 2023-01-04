@@ -251,7 +251,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       allocations.by_period(@period) if @period.present?
 
-      valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).school_day?
+      valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).day_allows_entry?
 
       next if allocations.empty? || !valid_day
 
