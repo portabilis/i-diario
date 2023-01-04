@@ -62,7 +62,7 @@ class DailyFrequenciesController < ApplicationController
     frequency_date = @daily_frequency.frequency_date
 
     dependencies = StudentsInDependency.call(student_enrollments: student_enrollment_ids, discipline: discipline)
-    exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, steps: step)
+    exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, step: step)
     active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
 

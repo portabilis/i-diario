@@ -8,14 +8,14 @@ class StudentsExemptFromDiscipline
   def initialize(params)
     @student_enrollments = params.fetch(:student_enrollments)
     @discipline = params.fetch(:discipline)
-    @steps = params.fetch(:steps)
+    @step = params.fetch(:steps)
   end
 
   def call
     return {} if @discipline.blank?
 
     student_enrollments_exempt = StudentEnrollmentExemptedDiscipline.by_discipline(@discipline.id)
-                                                                    .by_step_number(@steps)
+                                                                    .by_step_number(@step)
                                                                     .by_student_enrollment(@student_enrollments)
                                                                     .includes(student_enrollment: [:student])
 
@@ -26,11 +26,10 @@ class StudentsExemptFromDiscipline
   private
 
   def student_has_exempt_for_step(student_enrollments_exempt)
-
     exempts_from_discipline = {}
 
     student_enrollments_exempt.each do |student_exempted|
-      exempts_from_discipline[student_exempted.student_enrollment_id] ||= @steps
+      exempts_from_discipline[student_exempted.student_enrollment_id] ||= @step
     end
 
     exempts_from_discipline
