@@ -145,21 +145,9 @@ class StudentEnrollmentsList
   end
 
   def reject_duplicated_enrollment_classrooms(enrollment_classrooms)
-    # REJEITAR ENTURMACOES DUPLICADAS
-    # GUARDAR MATRICULAS COM STATUS DE CURSANDO
-    enrollment_attended = enrollment_classrooms.joins(:student_enrollment).where(student_enrollments: {
-      status:
-        [ StudentEnrollmentStatus::STUDYING,
-        StudentEnrollmentStatus::APPROVED,
-        StudentEnrollmentStatus::APPROVED_WITH_DEPENDENCY,
-        StudentEnrollmentStatus::RECLASSIFIED,
-        StudentEnrollmentStatus::APPROVE_BY_COUNCIL]
-      }
-    )
-    #VERIFICAR QUAL DESSAS ENTURMACOES ESTA ATIVA NA DATA
-    if student_active?(enrollment_attended) && enrollment_attended.show_as_inactive
-      enrollment_attended
-    end
+    enrollments_attending = enrollment_classrooms.status_attending
+
+    enrollments_attending if show_inactive_outside_step
   end
 
   def student_active?(student_enrollment)
