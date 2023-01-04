@@ -18,7 +18,7 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
       subject = StudentsExemptFromDiscipline.call(
         student_enrollments: student_enrollments,
         discipline: discipline,
-        steps: 1
+        step: 1
       )
 
       expect(subject).to include(
@@ -35,7 +35,7 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
       subject = StudentsExemptFromDiscipline.call(
         student_enrollments: student_enrollments,
         discipline: discipline,
-        steps: 1
+        step: 1
       )
 
       expect(subject).not_to include(
