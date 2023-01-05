@@ -12,7 +12,7 @@ class StudentsExemptFromDiscipline
   end
 
   def call
-    return {} if @discipline.blank?
+    return {} if @discipline.blank? || @student_enrollments.blank?
 
     student_enrollments_exempt = StudentEnrollmentExemptedDiscipline.by_discipline(@discipline.id)
                                                                     .by_step_number(@step)
@@ -33,5 +33,7 @@ class StudentsExemptFromDiscipline
     end
 
     exempts_from_discipline
+  rescue => e
+    e.message
   end
 end

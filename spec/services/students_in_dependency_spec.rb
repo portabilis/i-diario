@@ -24,6 +24,7 @@ RSpec.describe StudentsInDependency, type: :service do
         { student_enrollments.first.id => [disciplines.first.id] },
         { student_enrollments.last.id => [disciplines.last.id] }
       )
+      expect(subject.size).to eql(2)
     end
 
     it 'should not returns student_enrollments with student without dependency' do
