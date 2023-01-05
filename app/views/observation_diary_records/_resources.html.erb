@@ -19,7 +19,7 @@
         <% end %>
         <td><%= observation_diary_record.discipline %></td>
         <td><%= l(observation_diary_record.date) %></td>
-        <td class="actions">
+        <td class="actions" style="white-space: nowrap;">
           <%= link_to(
                 t('helpers.links.print_html'),
                 observation_diary_record_path(observation_diary_record, format: :pdf),

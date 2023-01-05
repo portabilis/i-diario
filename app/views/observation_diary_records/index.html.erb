@@ -13,8 +13,8 @@
             <td><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></td>
             <td width="400px"><%= f.input :by_student_id, as: :select2, elements: @students, label: false, placeholder: t('.by_student') %></td>
             <td><%= f.input :by_discipline, as: :select2, elements: disciplines, label: false, placeholder: t('.by_discipline') %></td>
-            <td width="135px"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
-            <td width="195px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></td>
+            <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
+            <td width="215px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
 
           <tr>
