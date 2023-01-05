@@ -13,16 +13,7 @@ RSpec.describe StudentsInDependency, type: :service do
     end
 
     it 'should returns student_enrollments with student with dependency' do
-      create(
-        :student_enrollment_dependence,
-        student_enrollment: student_enrollments.first,
-        discipline: disciplines.first
-      )
-      create(
-        :student_enrollment_dependence,
-        student_enrollment: student_enrollments.last,
-        discipline: disciplines.last
-      )
+      create_dependence_for_disciplines(student_enrollments, disciplines)
 
       subject = StudentsInDependency.call(
         student_enrollments: student_enrollments,
@@ -44,4 +35,17 @@ RSpec.describe StudentsInDependency, type: :service do
       expect(subject).to be_empty
     end
   end
+end
+
+def create_dependence_for_disciplines(student_enrollments, disciplines)
+  create(
+    :student_enrollment_dependence,
+    student_enrollment: student_enrollments.first,
+    discipline: disciplines.first
+  )
+  create(
+    :student_enrollment_dependence,
+    student_enrollment: student_enrollments.last,
+    discipline: disciplines.last
+  )
 end
