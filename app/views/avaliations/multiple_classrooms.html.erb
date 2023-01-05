@@ -21,20 +21,19 @@
         <div class="col col-sm-4">
           <%= f.input :unity_id, as: :select2_unity, user: current_user %>
         </div>
-
         <div class="col col-sm-4">
           <%= f.input :discipline_id, as: :select2, elements: disciplines_for_multiple_classrooms %>
         </div>
         <div class="col col-sm-4">
           <%= f.input :test_setting_test_id, as: :select2, elements: [], required: true %>
         </div>
+        <div class="col col-sm-4">
+          <%= f.input :description, required: true %>
+        </div>
       </div>
 
       <div class="row">
 
-        <div class="col col-sm-4">
-          <%= f.input :description, required: true %>
-        </div>
 
         <div class="col col-sm-4">
             <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': 0" } } %>
