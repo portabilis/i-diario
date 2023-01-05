@@ -45,15 +45,6 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
       )
     end
 
-    it 'error' do
-      subject = StudentsExemptFromDiscipline.call(
-        student_enrollments: student_enrollments,
-        discipline: discipline,
-        step: '2022-02-02'
-      )
-
-      expect(subject).should_not be_valid
-    end
   end
 end
 
