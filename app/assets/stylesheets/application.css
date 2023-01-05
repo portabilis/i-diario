@@ -445,3 +445,11 @@ span.multiline {
   background-color: #5D98CC !important;
   color: white;
 }
+
+.help-link {
+  text-decoration-line: underline;
+  color: #838A90;
+  float: right;
+  margin-right: 10px;
+  line-height: 34px;
+}
