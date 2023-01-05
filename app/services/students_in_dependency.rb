@@ -7,15 +7,15 @@ class StudentsInDependency
 
   def initialize(params)
     @student_enrollments = params.fetch(:student_enrollments)
-    @discipline = params.fetch(:discipline)
+    @disciplines = params.fetch(:disciplines)
   end
 
   def call
-    return {} unless @discipline
+    return {} unless @disciplines || @student_enrollments
 
     student_enrollment_dependencies = StudentEnrollmentDependence.where(
       student_enrollment_id: @student_enrollments,
-      discipline_id: @discipline
+      discipline_id: @disciplines
     )
 
     student_has_dependency_for_discipline(student_enrollment_dependencies)
