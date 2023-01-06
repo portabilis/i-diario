@@ -1,4 +1,4 @@
-class CreateViewDailyNoteStatus < ActiveRecord::Migration
+class CreateViewDailyNoteStatus < ActiveRecord::Migration[4.2]
   def up
     execute <<-SQL
       CREATE OR REPLACE VIEW daily_note_statuses AS

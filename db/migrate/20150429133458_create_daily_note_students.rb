@@ -1,4 +1,4 @@
-class CreateDailyNoteStudents < ActiveRecord::Migration
+class CreateDailyNoteStudents < ActiveRecord::Migration[4.2]
   def change
     create_table :daily_note_students do |t|
       t.references :daily_note, index: true, null: false

@@ -1,4 +1,4 @@
-class CreateTriggerSetTransferDateInTransferNotes < ActiveRecord::Migration
+class CreateTriggerSetTransferDateInTransferNotes < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE TRIGGER trigger_set_transfer_date_in_transfer_notes

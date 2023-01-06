@@ -1,4 +1,4 @@
-class CreateEntityConfigurations < ActiveRecord::Migration
+class CreateEntityConfigurations < ActiveRecord::Migration[4.2]
   def change
     create_table :entity_configurations do |t|
     	t.string :entity_name
