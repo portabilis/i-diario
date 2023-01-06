@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 ruby '2.4.10'
 
 gem 'active_model_serializers', '0.9.3'
-gem 'activerecord-connections', path: '../forked/activerecord-connections'
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
@@ -70,6 +69,8 @@ group :development do
   gem 'spring', '2.0.2'
   gem 'spring-commands-rspec', '1.0.4'
   gem 'letter_opener_web', '~> 1.3.4'
+  gem 'listen', '~> 3.0.5'
+  gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
 group :test do
