@@ -12,8 +12,8 @@ class ApplicationController < ActionController::Base
   skip_around_filter :set_locale_from_url
   around_action :handle_customer
   before_action :set_honeybadger_context
-  around_filter :set_user_current
-  around_filter :set_thread_origin_type
+  around_action :set_user_current
+  around_action :set_thread_origin_type
 
   respond_to :html, :json
 
@@ -95,6 +95,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_entity_status
+    binding.pry
     redirect_to disabled_entity_path if current_entity.disabled
   end
 
