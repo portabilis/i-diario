@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 ruby '2.4.10'
 
 gem 'active_model_serializers', '0.9.3'
+gem 'activerecord-connections', path: '../forked/activerecord-connections'
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
@@ -59,6 +60,8 @@ gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
 gem 'webpacker', '~> 4.x'
+
+instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
   gem 'rack-mini-profiler', '~> 2.3.4'
