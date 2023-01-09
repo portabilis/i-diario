@@ -1,4 +1,4 @@
-class SchoolCalendarClassroomStep < ActiveRecord::Base
+class SchoolCalendarClassroomStep < ApplicationRecord
   include SchoolTermable
 
   audited

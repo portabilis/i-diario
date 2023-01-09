@@ -1,4 +1,4 @@
-class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
+class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   include Audit
   include Stepable
   include Filterable

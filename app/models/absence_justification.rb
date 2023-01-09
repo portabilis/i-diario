@@ -1,4 +1,4 @@
-class AbsenceJustification < ActiveRecord::Base
+class AbsenceJustification < ApplicationRecord
   include Audit
   include Filterable
   include Discardable

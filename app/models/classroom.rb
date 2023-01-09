@@ -1,4 +1,4 @@
-class Classroom < ActiveRecord::Base
+class Classroom < ApplicationRecord
   include Discardable
 
   LABEL_COLORS = YAML.safe_load(

@@ -1,4 +1,4 @@
-class Avaliation < ActiveRecord::Base
+class Avaliation < ApplicationRecord
   include Audit
   include ColumnsLockable
   include TeacherRelationable

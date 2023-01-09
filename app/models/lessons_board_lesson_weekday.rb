@@ -1,4 +1,4 @@
-class LessonsBoardLessonWeekday < ActiveRecord::Base
+class LessonsBoardLessonWeekday < ApplicationRecord
   include Audit
   include Discardable
 

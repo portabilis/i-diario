@@ -1,4 +1,4 @@
-class DisciplineLessonPlan < ActiveRecord::Base
+class DisciplineLessonPlan < ApplicationRecord
   include Audit
   include Filterable
   include TeacherRelationable

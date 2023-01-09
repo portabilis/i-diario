@@ -1,4 +1,4 @@
-class DailyNote < ActiveRecord::Base
+class DailyNote < ApplicationRecord
   include Audit
 
   acts_as_copy_target

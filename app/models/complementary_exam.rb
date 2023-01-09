@@ -1,4 +1,4 @@
-class ComplementaryExam < ActiveRecord::Base
+class ComplementaryExam < ApplicationRecord
   include Audit
   include Stepable
   include ColumnsLockable

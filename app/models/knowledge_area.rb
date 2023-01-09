@@ -1,4 +1,4 @@
-class KnowledgeArea < ActiveRecord::Base
+class KnowledgeArea < ApplicationRecord
   include Discardable
 
   acts_as_copy_target

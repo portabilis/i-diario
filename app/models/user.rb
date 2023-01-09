@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   acts_as_copy_target
 
   audited allow_mass_assignment: true,

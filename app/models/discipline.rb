@@ -1,4 +1,4 @@
-class Discipline < ActiveRecord::Base
+class Discipline < ApplicationRecord
   acts_as_copy_target
 
   LABEL_COLORS = YAML.safe_load(

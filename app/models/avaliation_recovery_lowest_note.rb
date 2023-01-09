@@ -1,4 +1,4 @@
-class AvaliationRecoveryLowestNote < ActiveRecord::Base
+class AvaliationRecoveryLowestNote < ApplicationRecord
   include Audit
   include Stepable
   include Filterable

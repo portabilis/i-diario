@@ -1,4 +1,4 @@
-class SchoolCalendar < ActiveRecord::Base
+class SchoolCalendar < ApplicationRecord
   acts_as_copy_target
 
   before_validation :self_assign_to_steps

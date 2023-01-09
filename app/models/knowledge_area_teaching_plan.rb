@@ -1,4 +1,4 @@
-class KnowledgeAreaTeachingPlan < ActiveRecord::Base
+class KnowledgeAreaTeachingPlan < ApplicationRecord
   include Audit
   include TeacherRelationable
   include Translatable

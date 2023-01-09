@@ -1,4 +1,4 @@
-class DescriptiveExam < ActiveRecord::Base
+class DescriptiveExam < ApplicationRecord
   include Audit
   include Stepable
   include TeacherRelationable

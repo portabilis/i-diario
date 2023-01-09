@@ -1,4 +1,4 @@
-class DailyFrequency < ActiveRecord::Base
+class DailyFrequency < ApplicationRecord
   include Audit
   include TeacherRelationable
 

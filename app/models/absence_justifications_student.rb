@@ -1,4 +1,4 @@
-class AbsenceJustificationsStudent < ActiveRecord::Base
+class AbsenceJustificationsStudent < ApplicationRecord
   include Discardable
 
   audited
