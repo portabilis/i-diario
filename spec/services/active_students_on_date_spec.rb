@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe ActiveStudentsOnDate, type: :service do
   context '#call' do
     let(:student_enrollment) { create(:student_enrollment) }
-    # before { student_enrollment }
 
     context 'when parameters are correct' do
       it 'should returns enrollment classrooms on date' do
@@ -16,10 +15,10 @@ RSpec.describe ActiveStudentsOnDate, type: :service do
           student_enrollment: student_enrollment
         )
 
-        students = ActiveStudentsOnDate.call(student_enrollments: student_enrollment.id, date: '2017-05-05')
+        enrollments_hash = ActiveStudentsOnDate.call(student_enrollments: student_enrollment.id, date: '2017-05-05')
 
         enrollment_classrooms_on_date.each do |enrollment_classroom|
-          expect(students).to include(enrollment_classroom.id => ['2017-05-05'])
+          expect(enrollments_hash).to include(enrollment_classroom.id => ['2017-05-05'])
         end
         expect(students.size).to be(3)
       end
@@ -33,10 +32,10 @@ RSpec.describe ActiveStudentsOnDate, type: :service do
           student_enrollment: student_enrollment
         )
 
-        students = ActiveStudentsOnDate.call(student_enrollments: student_enrollment.id, date: '2017-05-05')
+        enrollments_hash = ActiveStudentsOnDate.call(student_enrollments: student_enrollment.id, date: '2017-05-05')
 
         enrollment_classrooms_out_date.each do |enrollment_classroom|
-          expect(students).to_not include(enrollment_classroom.id => ['2017-05-05'])
+          expect(enrollments_hash).to_not include(enrollment_classroom.id => ['2017-05-05'])
         end
       end
     end
