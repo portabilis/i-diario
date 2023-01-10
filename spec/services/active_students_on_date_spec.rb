@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe ActiveStudentsOnDate, type: :service do
   context '#call' do
     let(:student_enrollment) { create(:student_enrollment) }
-    before do student_enrollment end
+    # before { student_enrollment }
 
     context 'when parameters are correct' do
       it 'should returns enrollment classrooms on date' do
