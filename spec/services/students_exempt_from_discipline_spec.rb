@@ -7,40 +7,85 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
     let(:discipline) { create(:discipline) }
     let(:student_enrollments) { create_list(:student_enrollment, 3) }
 
-    it 'should returns student_enrollments with students exempt from discipline' do
-      create_enrollments_exempted(student_enrollments, discipline)
-      student_enrollment_ids = student_enrollments.map(&:id)
+    context 'when parameters are correct' do
+      it 'should returns student_enrollments with students exempt from discipline' do
+        create_enrollments_exempted(student_enrollments, discipline)
+        student_enrollment_ids = student_enrollments.map(&:id)
 
-      subject = StudentsExemptFromDiscipline.call(
-        student_enrollments: student_enrollments,
-        discipline: discipline,
-        step: 1
-      )
+        enrollments_hash = StudentsExemptFromDiscipline.call(
+          student_enrollments: student_enrollments,
+          discipline: discipline,
+          step: 1
+        )
 
-      expect(subject).to include(
-        { student_enrollment_ids.first => 1 },
-        { student_enrollment_ids.second => 1 },
-        { student_enrollment_ids.last => 1 }
-      )
-      expect(subject.size).to be(3)
+        expect(enrollments_hash).to include(
+          { student_enrollment_ids.first => 1 },
+          { student_enrollment_ids.second => 1 },
+          { student_enrollment_ids.last => 1 }
+        )
+        expect(enrollments_hash.size).to be(3)
+      end
+
+      it 'should not returns student_enrollments without exempt from discipline' do
+        student_enrollment_ids = student_enrollments.map(&:id)
+
+        enrollments_hash = StudentsExemptFromDiscipline.call(
+          student_enrollments: student_enrollments,
+          discipline: discipline,
+          step: 1
+        )
+
+        expect(enrollments_hash).not_to include(
+          { student_enrollment_ids.first => 1 },
+          { student_enrollment_ids.second => 1 },
+          { student_enrollment_ids.last => 1 }
+        )
+      end
     end
 
-    it 'should not returns student_enrollments without exempt from discipline' do
-      student_enrollment_ids = student_enrollments.map(&:id)
+    context 'when parameters are not correct' do
+      it 'should return error discipline parameter missing' do
+        expect { StudentsExemptFromDiscipline.call(student_enrollments: student_enrollments) }.to raise_error(KeyError, 'key not found: :discipline')
+      end
 
-      subject = StudentsExemptFromDiscipline.call(
-        student_enrollments: student_enrollments,
-        discipline: discipline,
-        step: 1
-      )
+      it 'should return error student_enrollments parameter missing' do
+        expect { StudentsExemptFromDiscipline.call(discipline: discipline) }.to raise_error(KeyError, 'key not found: :student_enrollments')
+      end
 
-      expect(subject).not_to include(
-        { student_enrollment_ids.first => 1 },
-        { student_enrollment_ids.second => 1 },
-        { student_enrollment_ids.last => 1 }
-      )
+      it 'should return error step parameter missing' do
+        expect { StudentsExemptFromDiscipline.call(student_enrollments: student_enrollments, discipline: discipline) }.to raise_error(KeyError, 'key not found: :step')
+      end
+
+      it 'should return empty hash to params student_enrollments invalid' do
+        expect(
+          StudentsExemptFromDiscipline.call(
+            student_enrollments: 'string',
+            discipline: discipline,
+            step: 1
+          )
+        ).to be_empty
+      end
+
+      it 'should return invalid discipline error' do
+        expect {
+          StudentsExemptFromDiscipline.call(
+            student_enrollments: student_enrollments,
+            discipline: 'string',
+            step: 1
+          )
+        }.to raise_error(NoMethodError)
+      end
+
+      it 'should return empty hash to params step invalid' do
+        expect(
+          StudentsExemptFromDiscipline.call(
+            student_enrollments: 'string',
+            discipline: discipline,
+            step: discipline
+          )
+        ).to be_empty
+      end
     end
-
   end
 end
 
