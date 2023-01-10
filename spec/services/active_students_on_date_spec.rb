@@ -20,7 +20,7 @@ RSpec.describe ActiveStudentsOnDate, type: :service do
         enrollment_classrooms_on_date.each do |enrollment_classroom|
           expect(enrollments_hash).to include(enrollment_classroom.id => ['2017-05-05'])
         end
-        expect(students.size).to be(3)
+        expect(enrollments_hash.size).to be(3)
       end
 
       it 'should not returns enrollment classrooms out of date' do
