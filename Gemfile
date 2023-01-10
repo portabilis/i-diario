@@ -4,6 +4,7 @@ ruby '2.4.10'
 
 gem 'active_model_serializers', '0.9.3'
 gem 'activerecord-connections', path: '../forked/activerecord-connections'
+gem "activerecord-tablefree", "~> 3.0"
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
