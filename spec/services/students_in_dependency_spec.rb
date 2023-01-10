@@ -7,11 +7,6 @@ RSpec.describe StudentsInDependency, type: :service do
     let(:student_enrollments) { create_list(:student_enrollment, 2) }
     let(:disciplines) { create_list(:discipline, 2) }
 
-    before do
-      disciplines
-      student_enrollments
-    end
-
     it 'should returns student_enrollments with student in dependency' do
       create_dependencies_for_disciplines(student_enrollments, disciplines)
 

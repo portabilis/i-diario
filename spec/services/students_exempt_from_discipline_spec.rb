@@ -6,10 +6,6 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
   context '#call' do
     let(:discipline) { create(:discipline) }
     let(:student_enrollments) { create_list(:student_enrollment, 3) }
-    before do
-      discipline
-      student_enrollments
-    end
 
     it 'should returns student_enrollments with students exempt from discipline' do
       create_enrollments_exempted(student_enrollments, discipline)
