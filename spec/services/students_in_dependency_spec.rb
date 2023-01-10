@@ -7,28 +7,54 @@ RSpec.describe StudentsInDependency, type: :service do
     let(:student_enrollments) { create_list(:student_enrollment, 2) }
     let(:disciplines) { create_list(:discipline, 2) }
 
-    it 'should returns student_enrollments with student in dependency' do
-      create_dependencies_for_disciplines(student_enrollments, disciplines)
+    context 'when parameters are correct' do
+      it 'should returns student_enrollments with student in dependency' do
+        create_dependencies_for_disciplines(student_enrollments, disciplines)
 
-      subject = StudentsInDependency.call(
-        student_enrollments: student_enrollments,
-        disciplines: disciplines
-      )
+        enrollments_hash = StudentsInDependency.call(
+          student_enrollments: student_enrollments,
+          disciplines: disciplines
+        )
 
-      expect(subject).to include(
-        { student_enrollments.first.id => [disciplines.first.id] },
-        { student_enrollments.last.id => [disciplines.last.id] }
-      )
-      expect(subject.size).to eql(2)
+        expect(enrollments_hash).to include(
+          { student_enrollments.first.id => [disciplines.first.id] },
+          { student_enrollments.last.id => [disciplines.last.id] }
+        )
+        expect(enrollments_hash.size).to eql(2)
+      end
+
+      it 'should not returns student_enrollments with student without dependency' do
+        enrollments_hash = StudentsInDependency.call(
+          student_enrollments: student_enrollments,
+          disciplines: disciplines
+        )
+
+        expect(enrollments_hash).to be_empty
+      end
     end
 
-    it 'should not returns student_enrollments with student without dependency' do
-      subject = StudentsInDependency.call(
-        student_enrollments: student_enrollments,
-        disciplines: disciplines
-      )
+    context 'when parameters are not correct' do
+      it 'should return error discipline parameter missing' do
+        expect { StudentsInDependency.call(student_enrollments: student_enrollments) }.to raise_error(KeyError, 'key not found: :disciplines')
+      end
 
-      expect(subject).to be_empty
+      it 'should return empty hash to params student_enrollments invalid' do
+        expect(
+          StudentsInDependency.call(
+            student_enrollments: 'string',
+            disciplines: disciplines
+          )
+        ).to be_empty
+      end
+
+      it 'should return empty hash to params disciplines invalid' do
+        expect(
+          StudentsInDependency.call(
+            student_enrollments: student_enrollments,
+            disciplines: student_enrollments
+          )
+        ).to be_empty
+      end
     end
   end
 end

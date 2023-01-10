@@ -19,6 +19,8 @@ class StudentsInDependency
     )
 
     student_has_dependency_for_discipline(student_enrollment_dependencies)
+  rescue NoMethodError => errors
+    raise errors
   end
 
   private
