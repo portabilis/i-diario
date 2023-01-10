@@ -16,14 +16,14 @@ class ConceptualExamValueCreator
 
       next if student_enrollment_id.blank?
       next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
+      next if ConceptualExamValue.find_by(conceptual_exam_id: record.conceptual_exam_id, discipline_id: record.discipline_id)
 
       begin
         ConceptualExamValue.create_with(
           value: nil,
-          exempted_discipline: false
-        ).find_or_create_by!(
+          exempted_discipline: false,
           conceptual_exam_id: record.conceptual_exam_id,
-          discipline_id: record.discipline_id,
+          discipline_id: record.discipline_id
         )
       rescue ActiveRecord::RecordNotUnique
         retry
