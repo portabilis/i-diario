@@ -20,8 +20,9 @@ class StudentsExemptFromDiscipline
                                                                     .includes(student_enrollment: [:student])
 
     student_has_exempt_for_step(student_enrollments_exempt)
+  rescue NoMethodError => errors
+    raise errors
   end
-
 
   private
 
@@ -33,7 +34,5 @@ class StudentsExemptFromDiscipline
     end
 
     exempts_from_discipline
-  rescue => e
-    e.message
   end
 end
