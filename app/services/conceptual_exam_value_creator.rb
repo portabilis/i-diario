@@ -21,7 +21,8 @@ class ConceptualExamValueCreator
       begin
         ConceptualExamValue.create_with(
           value: nil,
-          exempted_discipline: false,
+          exempted_discipline: false
+        ).find_or_create_by!(
           conceptual_exam_id: record.conceptual_exam_id,
           discipline_id: record.discipline_id
         )
