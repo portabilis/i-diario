@@ -88,6 +88,7 @@ group :test do
   gem 'nokogiri', '1.9.1'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
+  gem 'rails-controller-testing', '~> 1.0.5'
   gem 'rspec-rails', '3.5.2'
   gem 'rspec-retry', '0.6.2 '
   gem 'rspec-sidekiq', '3.0.3'
