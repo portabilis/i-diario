@@ -47,7 +47,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
       }
 
       expect {
-        post :sync, params, xhr: true
+        post :sync, params: params, xhr: true
       }.to change { ContentRecord.count }.to(0)
     end
 
@@ -83,7 +83,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
       content_record.contents << content_record.contents.first
 
       request.headers['CONTENT_TYPE'] = 'application/json'
-      post :sync, params, xhr: true
+      post :sync, params: params, xhr: true
 
       expect(content_record.reload.contents.pluck(:description)).
         to match_array [Content.first.description, content2[:description]]
