@@ -67,7 +67,7 @@ RSpec.describe UsersController, :type => :controller do
       end
 
       it "without correct params" do
-        get :index, params.merge(search: { by_name: nil })
+        get :index, params.merge(search: { wrong_name: nil })
         expect(response).to have_http_status(302)
       end
     end
