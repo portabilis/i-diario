@@ -105,4 +105,73 @@ http_interactions:
         H4sIAAAAAAAAAx2MwQ5AMBBEf6X27MDV1WcgsmGChG6z20pE/Ltym3l5MzdJgFJDQSxSSQqTpBMy8RLZMjpsMWq6+wsZtyufcDMcTzATt/mzT1WFet9mLrIfr/DNoSpKz1AS+2v82/g/RE14XtqlJ4Z4AAAA
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:18:38 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=2Me9freQ6gpneyCOlWRcVSx2huwa3X&instituicao_id=1&secret_key=7AWURgchB84ZeY7q8voyIuJeATOsny
+    body:
+      encoding: UTF-8
+      string: etapa=1&notas=1&resource=notas&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '40'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 12 Jan 2023 18:26:36 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=Q1hED7wShKgy2d78DE8cZjTUbj1F2aFr34mD0Vau; expires=Thu, 12
+        Jan 2023 20:26:36 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      Cf-Cache-Status:
+      - DYNAMIC
+      Server-Timing:
+      - cf-q-config;dur=5.0000007831841e-06
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=YlBdtnlw5tCrM45tTr81MPLH7vg72qtY02EzH0hRNQbRrWuolWvUC1BLx%2FUI%2Byr9AUU2S%2FHAg4HFbDANJeDK6dlPA3H%2Fqg63%2BoVA0RUAQ2ugiUdEFhx4K%2BqO2F7fsuwWZDpT76U4"}],"group":"cf-nel","max_age":604800}'
+      Nel:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 7887f10158a35893-POA
+      Alt-Svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA6tWyi9ILVKyUirILy5R0lEqSi3OLy1KTgWK5OWXJBYDhXKL04uVrKJjdZQS8yrjU4uK8ovigWJKVmmJOcWptQDBL3znQgAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:03:28 GMT
 recorded_with: VCR 3.0.0
