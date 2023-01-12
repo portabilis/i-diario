@@ -82,7 +82,7 @@ class StudentsInRecoveryFetcher
         start_at: step.start_at,
         end_at: end_at,
         search_type: :by_date_range
-      ).student_enrollments
+      ).student_enrollments(true).by_date_not_after(end_at)
     end
   end
 
