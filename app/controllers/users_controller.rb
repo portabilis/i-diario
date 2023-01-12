@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   def index
     params[:search][:by_name] = params[:search][:by_name].squish if params[:search].present?
 
-    @users = apply_scopes(User.filter(filtering_params params[:search]).ordered, params.to_h)
+    @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
     @search_by_name = params.dig(:search, :by_name)
     @search_by_cpf = params.dig(:search, :by_cpf)

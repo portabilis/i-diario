@@ -47,76 +47,9 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAx2MsQ2AMAwEVwmuYQEGYAmEkBVMGsCRPxQIZXccutedfS9pFqORsqJQTybQ26I42fkojCGJ8eHmRAKN89uG2+m3ob3x5iPqGXBHAbTz6/Lk1nDSENWlJ76eVczU1r/geUj9AIxIu+SAAAAA
+        H4sIAAAAAAAAAx2MsQ2AMAwEVwmuYQEGYAmEkBVMGsCRPxQIZXccutedfS9p
+        FqORsqJQTybQ26I42fkojCGJ8eHmRAKN89uG2+m3ob3x5iPqGXBHAbTz6/Lk
+        1nDSENWlJ76eVczU1r/geUj9AIxIu+SAAAAA
     http_version: 
   recorded_at: Thu, 02 Mar 2017 02:09:01 GMT
-- request:
-    method: post
-    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=2Me9freQ6gpneyCOlWRcVSx2huwa3X&instituicao_id=1&secret_key=7AWURgchB84ZeY7q8voyIuJeATOsny
-    body:
-      encoding: UTF-8
-      string: etapa=1&faltas=1&resource=faltas-geral&oper=post
-    headers:
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip, deflate
-      User-Agent:
-      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
-      Content-Length:
-      - '48'
-      Content-Type:
-      - application/x-www-form-urlencoded
-      Host:
-      - test.ieducar.com.br
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Thu, 12 Jan 2023 18:26:35 GMT
-      Content-Type:
-      - application/json; charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
-      Vary:
-      - Accept-Encoding
-      Cache-Control:
-      - no-cache, private
-      Set-Cookie:
-      - i_educar_session=MZeQtr9uKBjEqfEkYu49KrXltGjDD2kTnlW8S8pB; expires=Thu, 12
-        Jan 2023 20:26:35 GMT; Max-Age=7200; path=/; httponly; samesite=lax
-      Content-Encoding:
-      - gzip
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Content-Type-Options:
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubdomains; preload
-      Cf-Cache-Status:
-      - DYNAMIC
-      Server-Timing:
-      - cf-q-config;dur=5.0000007831841e-06
-      Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=lfqapwbXWZIMOs4SCze7PUuQc%2BwhTqH5ghrt285qPiTkEwkkh%2FE1CeDTvVjc%2B8M6bYZZqpvh08bCjmxwYrSfpZKU63Ao0iT%2FJyguCljsQoKlsdPRCLtBOaJqoAesMmuUSheKi3KX"}],"group":"cf-nel","max_age":604800}'
-      Nel:
-      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Cf-Ray:
-      - 7887f0f91aa85893-POA
-      Alt-Svc:
-      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
-    body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        H4sIAAAAAAAAAx2MsQ2AMAwEVwmuYQEGYAmEkBVMGsCRPxQIZXccutedfS9pFqORsqJQTybQ26I42fkojCGJ8eHmRAKN89uG2+m3ob3x5iPqGXBHAbTz6/Lk1nDSENWlJ76eVczU1r/geUj9AIxIu+SAAAAA
-    http_version: 
-  recorded_at: Wed, 01 Mar 2017 03:03:27 GMT
 recorded_with: VCR 3.0.0
