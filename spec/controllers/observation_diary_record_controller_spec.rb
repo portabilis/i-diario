@@ -97,7 +97,7 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
   describe 'GET observation_diary_records#index' do
     context 'without filter' do
       before do
-        get :index, locale: 'pt-BR'
+        get :index, params: { locale: 'pt-BR' }
       end
 
       it 'lists all records' do
@@ -108,7 +108,7 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
     context 'with discipline filter' do
       context 'when the discipline exists' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_discipline: discipline.id }
+          get :index, params: { locale: 'pt-BR', filter: { by_discipline: discipline.id } }
         end
 
         it 'lists the records by discipline' do
@@ -120,7 +120,7 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
         let(:nil_discipline) { nil }
 
         before do
-          get :index, locale: 'pt-BR', filter: { by_discipline: nil_discipline }
+          get :index, params: { locale: 'pt-BR', filter: { by_discipline: nil_discipline } }
         end
 
         it 'lists all records' do
@@ -139,7 +139,7 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
 
         params[:observation_diary_record][:discipline_id] = discipline.id
         params[:id] = observation_diary_record.id
-        patch :update, params.merge(params)
+        patch :update, params: params.merge(params)
         expect(ObservationDiaryRecord.find(observation_diary_record.id).discipline_id).to eq(discipline.id)
       end
     end
