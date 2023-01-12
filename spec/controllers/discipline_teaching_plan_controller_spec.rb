@@ -110,7 +110,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     request.env['REQUEST_PATH'] = '/discipline_teaching_plans'
   end
 
-  describe 'GET discipline_teaching_plans#index' do
+  describe 'POST discipline_teaching_plans#index' do
     before(:each) do
       allow(controller).to receive(:fetch_grades).and_return([])
       allow(controller).to receive(:fetch_disciplines).and_return([])
@@ -118,7 +118,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
     context 'without author filter' do
       before do
-        get :index, locale: 'pt-BR', filter: { by_author: '' }
+        post :index, params: { locale: 'pt-BR', filter: { by_author: '' } }
       end
 
       it 'lists all plans' do
@@ -132,7 +132,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     context 'with author filter' do
       context 'when the author is the current teacher' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::MY_PLANS }
+          get :index, params: { locale: 'pt-BR', filter: { by_author: PlansAuthors::MY_PLANS } }
         end
 
         it 'lists the current teacher plans' do
@@ -142,7 +142,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
       context 'when the author is other teacher' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::OTHERS }
+          get :index, params: { locale: 'pt-BR', filter: { by_author: PlansAuthors::OTHERS } }
         end
 
         it 'lists the other teachers plans' do
@@ -158,14 +158,14 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
         allow(controller).to receive(:fetch_collections).and_return([])
         allow(controller).to receive(:yearly_term_type_id).and_return(1)
         params[:discipline_teaching_plan][:discipline_id] = nil
-        expect { post :create, params.merge(params) }.to_not change(DisciplineTeachingPlan, :count)
+        expect { post :create, params: params.merge(params) }.to_not change(DisciplineTeachingPlan, :count)
         expect(response).to render_template(:new)
       end
     end
 
     context 'with success' do
       it 'creates and redirects to discipline_teaching_plans#index' do
-        expect { post :create, params.merge(params) }.to change(DisciplineTeachingPlan, :count).by(1)
+        expect { post :create, params: params.merge(params)  }.to change(DisciplineTeachingPlan, :count).by(1)
         expect(response).to redirect_to(discipline_teaching_plans_path)
       end
     end

@@ -10,7 +10,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def index
     params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type = PlansAuthors::MY_PLANS if params[:filter].blank?
     author_type ||= (params[:filter] || []).delete(:by_author)
     discipline = if current_user_discipline.grouper?
                    Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
@@ -23,7 +23,8 @@ class DisciplineTeachingPlansController < ApplicationController
                                       teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
                             .by_discipline(discipline)
                             .by_unity(current_unity)
-                            .by_year(current_school_year)
+                            .by_year(current_school_year),
+      params.to_h
     )
 
     unless current_user_is_employee_or_administrator?
