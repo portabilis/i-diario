@@ -72,7 +72,7 @@ class ConceptualExam < ActiveRecord::Base
   def self.by_teacher(teacher_id)
     active.where(
       TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id)
-    ).uniq
+    ).distinct
   end
 
   def self.by_status(classroom_id, teacher_id, status)

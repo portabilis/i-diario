@@ -96,7 +96,7 @@ class KnowledgeAreaTeachingPlan < ApplicationRecord
               .eq(teacher)
             .and(TeacherDisciplineClassroom.arel_table[:active]
               .eq('t')))
-      .uniq
+      .distinct
   end
 
   def self.by_knowledge_area(knowledge_area)

@@ -37,11 +37,11 @@ class Classroom < ApplicationRecord
   scope :by_unity_and_teacher, lambda { |unity_id, teacher_id|
     joins(:teacher_discipline_classrooms)
       .where(unity_id: unity_id, teacher_discipline_classrooms: { teacher_id: teacher_id })
-      .uniq
+      .distinct
   }
 
   scope :by_unity, ->(unity) { where(unity: unity) }
-  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id).by_grade(grade_id).uniq }
+  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id).by_grade(grade_id).distinct }
   scope :different_than, ->(classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grades).merge(ClassroomsGrade.by_grade_id(grade_id)) }
   scope :by_year, ->(year) { where(year: year) }
@@ -50,7 +50,7 @@ class Classroom < ApplicationRecord
   scope :by_teacher_id, lambda { |teacher_id|
     joins(:teacher_discipline_classrooms)
       .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
-      .uniq
+      .distinct
   }
 
   scope :by_score_type, lambda { |score_type|
@@ -62,7 +62,7 @@ class Classroom < ApplicationRecord
   scope :by_teacher_discipline, lambda { |discipline_id|
     joins(:teacher_discipline_classrooms)
       .where(teacher_discipline_classrooms: { discipline_id: discipline_id })
-      .uniq
+      .distinct
   }
 
   scope :by_api_code, ->(api_code) { where(api_code: api_code) }

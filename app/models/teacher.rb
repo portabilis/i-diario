@@ -47,7 +47,7 @@ class Teacher < ApplicationRecord
   def self.active_query
     joins_teacher_discipline_classrooms.where(
       active: true
-    ).uniq
+    ).distinct
   end
 
   def self.search(value)
@@ -65,7 +65,7 @@ class Teacher < ApplicationRecord
   def self.by_unity_id(unity_id)
     joins_teacher_discipline_classrooms.where(classrooms: { unity_id: unity_id })
                                        .active
-                                       .uniq
+                                       .distinct
   end
 
   def self.filter_current_teachers_by_year(year)

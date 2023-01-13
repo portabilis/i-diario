@@ -223,7 +223,7 @@ class Avaliation < ApplicationRecord
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
-                            .uniq
+                            .distinct
 
     avaliations = avaliations.where.not(id: id) if persisted?
 
