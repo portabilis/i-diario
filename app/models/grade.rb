@@ -26,7 +26,7 @@ class Grade < ActiveRecord::Base
   validates :api_code, uniqueness: true
 
   def self.by_unity(unity)
-    joins(:classrooms).where(classrooms: { unity_id: unity }).uniq
+    joins(:classrooms).where(classrooms: { unity_id: unity }).distinct
   end
 
   def self.by_teacher(teacher)
@@ -36,7 +36,7 @@ class Grade < ActiveRecord::Base
           .join_sources
       )
       .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher))
-      .uniq
+      .distinct
   end
 
   def self.by_year(year)
