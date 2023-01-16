@@ -24,7 +24,7 @@ module SchoolCalendarFilterable
         step_type_description_formatter(calendar)
       }.uniq
 
-      school_term_types = SchoolTermType.where(description: school_calendar + school_calendar_classroom)
+      school_term_types = SchoolTermType.where(description: school_calendar + school_calendar_classroom).to_a
       school_term_types << SchoolTermType.find_by(description: 'Anual') if add_yearly
 
       school_term_types
