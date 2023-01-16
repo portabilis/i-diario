@@ -57,7 +57,7 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = order_by_name(students_enrollment_classrooms)
 
-    students_enrollment_classrooms = reject_duplicated_enrollment_classrooms(students_enrollment_classrooms) unless show_inactive
+    students_enrollment_classrooms = enrollment_classrooms_by_status(students_enrollment_classrooms) unless show_inactive
 
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
@@ -144,10 +144,8 @@ class StudentEnrollmentsList
     unique_student_enrollments.uniq
   end
 
-  def reject_duplicated_enrollment_classrooms(enrollment_classrooms)
-    enrollments_attending = enrollment_classrooms.status_attending
-
-    enrollments_attending if show_inactive_outside_step
+  def enrollment_classrooms_by_status(enrollment_classrooms)
+    enrollment_classrooms.status_attending if show_inactive_outside_step
   end
 
   def student_active?(student_enrollment)
