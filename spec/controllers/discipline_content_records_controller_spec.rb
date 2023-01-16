@@ -72,12 +72,12 @@ RSpec.describe DisciplineContentRecordsController, type: :controller do
 
     it 'not having a daily activities record fails to create and renders the new template' do
       params[:discipline_content_record][:content_record_attributes].delete(:daily_activities_record)
-      post :create, params.merge(params)
+      post :create, params: params.merge(params)
       expect(response).to render_template(:new)
     end
 
     it 'having a daily activities record creates and redirects to discipline content records path' do
-      post :create, params
+      post :create, params: params
       expect(response).to redirect_to(discipline_content_records_path)
     end
 
@@ -94,7 +94,7 @@ RSpec.describe DisciplineContentRecordsController, type: :controller do
 
     it 'not having a daily activities record creates and redirects to discipline content records path' do
       params[:discipline_content_record][:content_record_attributes].delete(:daily_activities_record)
-      post :create, params.merge(params)
+      post :create, params: params.merge(params)
       expect(response).to redirect_to(discipline_content_records_path)
     end
 

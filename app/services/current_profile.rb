@@ -100,8 +100,8 @@ class CurrentProfile
       return Teacher.none if unity.blank? || classroom.blank?
       return Teacher.where(id: user.teacher_id) if user_role&.role&.teacher?
 
-      teachers_ids = TeacherDisciplineClassroom.where(classroom_id: classroom.id).uniq.pluck(:teacher_id)
-      teachers = Teacher.where(id: teachers_ids).uniq.order_by_name
+      teachers_ids = TeacherDisciplineClassroom.where(classroom_id: classroom.id).distinct.pluck(:teacher_id)
+      teachers = Teacher.where(id: teachers_ids).distinct.order_by_name
       teachers.to_a
     end
   end

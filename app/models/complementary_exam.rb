@@ -29,7 +29,7 @@ class ComplementaryExam < ApplicationRecord
         lambda { |teacher_id|
           joins(discipline: :teacher_discipline_classrooms)
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
-            .uniq
+            .distinct
         }
 
   scope :by_complementary_exam_setting, lambda { |complementary_exam_setting_id| where(complementary_exam_setting_id: complementary_exam_setting_id) }
