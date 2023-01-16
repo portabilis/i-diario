@@ -11,6 +11,8 @@ class ConceptualExamValueCreator
   end
 
   def create_empty
+    return if Classroom.find(classroom_id).multi_grade?
+
     conceptual_exam_values_to_create.each do |record|
       student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
 
