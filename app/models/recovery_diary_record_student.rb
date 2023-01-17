@@ -32,7 +32,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   def maximum_score
     if recovery_diary_record.school_term_recovery_diary_record.present?
       maximum_score_for_school_term_recovery
-    elsif recovery_diary_record.final_recovery_diary_record.present?
+    elsif final_recovery?
       maximum_score_for_final_recovery
     elsif recovery_diary_record.avaliation_recovery_diary_record.present?
       maximum_score_for_avaliation_recovery
@@ -74,5 +74,10 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
     TestSettingFetcher.current(
       recovery_diary_record.classroom
     ).maximum_score
+  end
+
+  def final_recovery?
+    recovery_diary_record.final_recovery_diary_record.present? ||
+      recovery_diary_record.creator_type.eql?('final_recovery_diary_record')
   end
 end

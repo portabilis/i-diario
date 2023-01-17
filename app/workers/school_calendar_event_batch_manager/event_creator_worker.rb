@@ -2,7 +2,7 @@ module SchoolCalendarEventBatchManager
   class EventCreatorWorker < Base
     class EventsNotCreatedError < StandardError; end
 
-    def perform(entity_id, school_calendar_event_batch_id, user_id)
+    def perform(entity_id, school_calendar_event_batch_id, user_id, action_name)
       Entity.find(entity_id).using_connection do
         begin
           school_calendar_event_batch = SchoolCalendarEventBatch.find(school_calendar_event_batch_id)
@@ -24,6 +24,8 @@ module SchoolCalendarEventBatchManager
                 event.save! if event.changed?
 
                 created = true
+
+                school_calendars_days(school_calendar_event_batch, action_name)
               end
             rescue ActiveRecord::RecordInvalid
               unity_name = Unity.find_by(id: school_calendar.unity_id)&.name
@@ -63,6 +65,15 @@ module SchoolCalendarEventBatchManager
           school_calendar_event_batch.mark_with_error!(error.message)
         end
       end
+    end
+
+    def school_calendars_days(school_calendar_event_batch, action_name)
+      SchoolCalendarEventDays.new(school_calendars(school_calendar_event_batch), school_calendar_event_batch.school_calendar_events, action_name)
+                             .update_school_days(school_calendar_event_batch.start_date, school_calendar_event_batch.end_date)
+    end
+
+    def school_calendars(school_calendar_event_batch)
+      SchoolCalendar.by_year(school_calendar_event_batch.year)
     end
   end
 end

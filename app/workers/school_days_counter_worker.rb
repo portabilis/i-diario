@@ -29,11 +29,10 @@ class SchoolDaysCounterWorker
 
       school_days_to_removes = (current_school_days - school_days)
 
-      school_days_to_removes.each do |school_days_to_remove|
-        SchoolDayChecker.new(school_calendar, school_days_to_remove, nil, nil, nil).destroy
-        end
+      UnitySchoolDay.where(school_day: school_days_to_removes).destroy_all
+
       school_days.each do |school_day|
-        SchoolDayChecker.new(school_calendar, school_day, nil ,nil, nil).create
+        UnitySchoolDay.find_or_create_by!(unity_id: school_calendar.unity_id, school_day: school_day)
       end
     end
   end

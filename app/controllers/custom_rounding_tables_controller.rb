@@ -6,7 +6,7 @@ class CustomRoundingTablesController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @custom_rounding_tables = apply_scopes(CustomRoundingTable).ordered
+    @custom_rounding_tables = apply_scopes(CustomRoundingTable).ordered_by_year
     authorize @custom_rounding_tables
   end
 

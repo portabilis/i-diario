@@ -1,8 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ObservationDiaryRecordNote do
-  let(:exam_rule) { create(:exam_rule, frequency_type: FrequencyTypes::BY_DISCIPLINE) }
-  let(:classroom) { create(:classroom, :with_classroom_semester_steps, exam_rule: exam_rule) }
+  let(:classroom) { create(:classroom, :with_classroom_semester_steps, :by_discipline) }
   let(:observation_diary_record) {
     create(
       :observation_diary_record,

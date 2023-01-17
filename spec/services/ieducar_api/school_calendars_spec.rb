@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::SchoolCalendars, type: :service do
 
   describe '#fetch' do
     it 'should return all school calendars' do
-      skip
 
       VCR.use_cassette('school_calendars') do
         result = subject.fetch(ano: year, escola: unity_id)

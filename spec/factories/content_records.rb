@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :content_record do
     teacher
+    association :classroom, factory: [:classroom, :score_type_numeric, :with_classroom_semester_steps]
 
     transient do
       discipline nil
@@ -10,6 +11,7 @@ FactoryGirl.define do
     before(:create) do |content_record|
       classroom = content_record.classroom || create(
         :classroom,
+        :score_type_numeric,
         :with_classroom_semester_steps
       )
 

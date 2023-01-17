@@ -1,4 +1,7 @@
 <%= stylesheet_link_tag "resources/lessons_boards" %>
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/lessons_boards/index' %>
+<% end %>
 
 <div class="widget-body no-padding">
   <%= simple_form_for :search, { url: lessons_boards_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>

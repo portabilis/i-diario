@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::Students, type: :service do
 
   describe '#fetch' do
     it 'returns all students' do
-      skip
 
       VCR.use_cassette('all_students') do
         result = subject.fetch(escola: unity_id)

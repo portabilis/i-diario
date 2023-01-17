@@ -18,6 +18,7 @@ class AwsS3HandlerService
     rescue Exception => error
       Honeybadger.context(object_name: object.class, object_id: object.id, source: uri_escape(source), target: target)
       Honeybadger.notify(error)
+      raise
     end
   end
 

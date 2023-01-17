@@ -17,11 +17,10 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
 
   describe 'validations' do
     it 'should validate uniqueness of school term recovery diary record' do
-      exam_rule = create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL)
       classroom = create(
         :classroom,
         :with_classroom_semester_steps,
-        exam_rule: exam_rule
+        :score_type_numeric_and_concept_create_rule
       )
       another_recovery_diary_record = create(
         :recovery_diary_record,

@@ -11,19 +11,6 @@ RSpec.describe SchoolCalendarClassroomStep, type: :model do
     it { expect(subject).to validate_presence_of(:start_date_for_posting) }
     it { expect(subject).to validate_presence_of(:end_date_for_posting) }
 
-    it "validates that start_at is in school_calendar year" do
-      skip
-
-      school_calendar = build(:school_calendar, year: 2020)
-      classroom = build(:classroom)
-      school_calendar_classroom = build(:school_calendar_classroom, school_calendar: school_calendar, classroom: classroom)
-      subject.school_calendar_classroom = school_calendar_classroom
-      subject.start_at = "01/01/2022"
-
-      expect(subject).to_not be_valid
-      expect(subject.errors.messages[:start_at]).to include('não pode ter o ano diferente do calendário escolar')
-    end
-
     it "validates that start_at is less than end_at" do
       subject.start_at = "01/01/2020"
       subject.end_at = "01/01/2020"
