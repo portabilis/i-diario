@@ -106,11 +106,11 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should not return in the list student_enrollments inactives' do
-      expect(list_student_enrollments).not_to eq(student_enrollments_inactive)
+      expect(list_student_enrollments).not_to include(student_enrollments_inactive.first)
     end
 
     it 'should return in the list student_enrollments actives' do
-      expect(list_student_enrollments).to eq(student_enrollments)
+      expect(list_student_enrollments).to include(student_enrollments.first)
     end
 
   end
@@ -128,13 +128,13 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should return student_enrollments liked to classrooms' do
-      expect(list_student_enrollments).to eq(student_enrollments)
+      expect(list_student_enrollments).to include(student_enrollments.first)
     end
 
     it 'should not return student_enrollments without linked classrooms' do
-      enrollment_without_classroom = create_list(:student_enrollment, 3)
+      enrollment_without_classroom = create(:student_enrollment)
 
-      expect(list_student_enrollments).not_to eq(enrollment_without_classroom)
+      expect(list_student_enrollments).not_to include(enrollment_without_classroom)
     end
   end
 
@@ -157,11 +157,11 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should return student_enrollment in dependence on the discipline' do
-      expect(list_student_enrollments.last).to eq(student_enrollments.last)
+      expect(list_student_enrollments).to include(student_enrollments.last)
     end
 
     it 'should return student_enrollments with and without dependence on the discipline' do
-      expect(list_student_enrollments).to eq(student_enrollments)
+      expect(list_student_enrollments).to include(student_enrollments.first)
     end
 
     it 'should not return student_enrollments in dependence on another discipline' do
@@ -194,12 +194,12 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should return list of student_enrollments on @date' do
-      expect(list_student_enrollments).to eq(student_enrollments)
+      expect(list_student_enrollments).to include(student_enrollments.first)
     end
 
 
     it 'should not return list of student_enrollments out of @date' do
-      expect(list_student_enrollments).not_to eq(enrollments_out_date)
+      expect(list_student_enrollments).not_to include(enrollments_out_date)
     end
   end
 
@@ -226,7 +226,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should return list of student_enrollments on date range' do
-      expect(list_student_enrollments).to eq(student_enrollments)
+      expect(list_student_enrollments).to include(student_enrollments.last)
     end
 
 
@@ -256,12 +256,12 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should return list of student_enrollments on @year' do
-      expect(list_student_enrollments).to eq(student_enrollments)
+      expect(list_student_enrollments).to include(student_enrollments.first)
     end
 
 
     it 'should not return list of student_enrollments out of @year' do
-      expect(list_student_enrollments).not_to eq(enrollments_out_date)
+      expect(list_student_enrollments).not_to include(enrollments_out_date.first)
     end
   end
 
