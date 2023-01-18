@@ -25,8 +25,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classroom: classroom_grade.classroom_id,
-        discipline: discipline,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
         date: '2023-02-02'
       )
     }
@@ -51,8 +51,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect {
         StudentEnrollmentsRetriever.call(
           search_type: :by_date,
-          classroom: classroom_grade.classroom_id,
-          discipline: discipline,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline
         )
       }.to raise_error(ArgumentError, 'Should define date argument on search by date')
     end
@@ -61,8 +61,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect {
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
-          classroom: classroom_grade.classroom_id,
-          discipline: discipline,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
           date: '2023-02-02'
         )
       }.to raise_error(ArgumentError, 'Should define @start_at or @end_at argument on search by date_range')
@@ -75,8 +75,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date,
-          classroom: classroom_invalid,
-          discipline: discipline_invalid,
+          classrooms: classroom_invalid,
+          disciplines: discipline_invalid,
           date: '2023-02-02'
         )
       ).to be_empty
@@ -86,8 +86,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: '',
-          classroom: '',
-          discipline: ''
+          classrooms: '',
+          disciplines: ''
         )
       ).to be_nil
     end
@@ -99,8 +99,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classroom: classroom_grade.classroom_id,
-        discipline: discipline,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
         date: '2023-02-02'
       )
     }
@@ -121,8 +121,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classroom: [list_classrooms, classroom_grade.classroom_id],
-        discipline: discipline,
+        classrooms: [list_classrooms, classroom_grade.classroom_id],
+        disciplines: discipline,
         date: '2023-02-02'
       )
     }
@@ -150,8 +150,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classroom: classroom_grade.classroom_id,
-        discipline: discipline,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
         date: '2023-02-02'
       )
     }

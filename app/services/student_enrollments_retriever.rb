@@ -9,20 +9,20 @@ class StudentEnrollmentsRetriever
 
   def initialize(params)
     @search_type = params.fetch(:search_type, :by_date)
-    @classroom = params.fetch(:classroom)
-    @discipline = params.fetch(:discipline)
+    @classrooms = params.fetch(:classrooms)
+    @disciplines = params.fetch(:disciplines)
     @date = params.fetch(:date, nil)
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:ent_at, nil)
 
-    ensure_has_valid_params
+    ensure_has_valid_search_params
   end
 
   def call
-    return if @classroom.blank? || @discipline.blank?
+    return if @classrooms.blank? || @disciplines.blank?
 
-    student_enrollments ||= StudentEnrollment.by_classroom(@classroom)
-                                             .by_discipline(@discipline)
+    student_enrollments ||= StudentEnrollment.by_classroom(@classrooms)
+                                             .by_discipline(@disciplines)
                                              .joins(:student)
                                              .includes(:student)
                                              .includes(:dependences)
@@ -33,7 +33,7 @@ class StudentEnrollmentsRetriever
 
   private
 
-  def ensure_has_valid_params
+  def ensure_has_valid_search_params
     if @search_type.eql?(:by_date)
       raise ArgumentError, 'Should define date argument on search by date' unless @date
     elsif @search_type.eql?(:by_date_range)
