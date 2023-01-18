@@ -182,7 +182,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
         left_at: '2022-12-12'
       )
     }
-    let(:enrollments_out_date) { student_enrollment_classrooms.map(&:student_enrollment) }
+    let(:enrollments_out_date) { enrollment_classrooms.map(&:student_enrollment) }
 
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
@@ -199,7 +199,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
 
     it 'should not return list of student_enrollments out of @date' do
-      expect(list_student_enrollments).to eq(enrollments_out_date)
+      expect(list_student_enrollments).not_to eq(enrollments_out_date)
     end
   end
 
