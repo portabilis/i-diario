@@ -155,35 +155,5 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
       expect(student_enrollments_ids).not_to include(student_enrollment_dependence.map(&:student_enrollment_id))
     end
-
-  end
-
-  context 'when student_enrollments has enrollment_classrooms actives' do
-    # it 'should return list of student_enrollments with enrollment_classrooms in date' do
-    #
-    #   list_student_enrollments = StudentEnrollmentsRetriever.call(
-    #     search_type: :by_date,
-    #     classroom: classroom_grade.classroom_id,
-    #     discipline: discipline,
-    #     date: '2018-02-02'
-    #   )
-    #
-    #   expect(list_student_enrollments.size).to eq(3)
-    # end
-
-    # it 'should return list of student_enrollments with enrollment_classrooms out date' do
-    #
-    #   list_student_enrollments = StudentEnrollmentsRetriever.call(
-    #     search_type: :by_date,
-    #     classroom: classroom_grade.classroom_id,
-    #     discipline: discipline,
-    #     date: '2018-02-02'
-    #   )
-    #
-    #   expect(list_student_enrollments.size).to eq(3)
-    # end
-
-    it 'should return student_enrollments with search_type: :by_year'
-    it 'should return student_enrollments with search_type: :by_range_date'
   end
 end

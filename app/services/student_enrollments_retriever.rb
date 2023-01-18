@@ -18,7 +18,6 @@ class StudentEnrollmentsRetriever
 
     student_enrollments ||= StudentEnrollment.by_classroom(@classroom)
                                              .by_discipline(@discipline)
-                                             .by_score_type(@score_type, @classroom)
                                              .joins(:student)
                                              .includes(:student)
                                              .includes(:dependences)
