@@ -115,7 +115,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
   end
 
-  context 'when there are enrollment_classrooms liked to student_enrollments' do
+  context 'when there are enrollment_classrooms liked with student_enrollments' do
     let(:list_classrooms) { create_list(:classroom, 3) }
 
     subject(:list_student_enrollments) {
@@ -138,7 +138,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
   end
 
-  context 'when there are student_enrollment_dependence liked to student_enrollments' do
+  context 'when there are student_enrollment_dependence liked with student_enrollments' do
     let(:student_enrollment_dependence) {
       create(
         :student_enrollment_dependence,
@@ -171,4 +171,98 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(student_enrollments_ids).not_to include(student_enrollment_dependence.map(&:student_enrollment_id))
     end
   end
+
+  context 'when to send @date to search student_enrollments' do
+    let(:enrollment_classrooms) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        classrooms_grade: classroom_grade,
+        joined_at: '2022-02-02',
+        left_at: '2022-12-12'
+      )
+    }
+    let(:enrollments_out_date) { student_enrollment_classrooms.map(&:student_enrollment) }
+
+    subject(:list_student_enrollments) {
+      StudentEnrollmentsRetriever.call(
+        search_type: :by_date,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        date: '2023-03-02'
+      )
+    }
+
+    it 'should return list of student_enrollments on @date' do
+      expect(list_student_enrollments).to eq(student_enrollments)
+    end
+
+
+    it 'should not return list of student_enrollments out of @date' do
+      expect(list_student_enrollments).to eq(enrollments_out_date)
+    end
+  end
+
+  context 'when to send date range to search student_enrollments' do
+    let(:enrollment_classrooms) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        classrooms_grade: classroom_grade,
+        joined_at: '2022-02-02',
+        left_at: '2022-12-12'
+      )
+    }
+    let(:enrollments_out_date) { enrollment_classrooms.map(&:student_enrollment) }
+
+    subject(:list_student_enrollments) {
+      StudentEnrollmentsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-03-02',
+        end_at: '2023-11-02'
+      )
+    }
+
+    it 'should return list of student_enrollments on date range' do
+      expect(list_student_enrollments).to eq(student_enrollments)
+    end
+
+
+    it 'should not return list of student_enrollments out of date range' do
+      expect(list_student_enrollments).not_to eq(enrollments_out_date)
+    end
+  end
+
+  context 'when to send year to search student_enrollments' do
+    let(:classroom) { create(:classroom, year: 2022) }
+    let(:enrollment_classrooms) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        classroom_code: classroom.api_code
+      )
+    }
+    let(:enrollments_out_date) { enrollment_classrooms.map(&:student_enrollment) }
+
+    subject(:list_student_enrollments) {
+      StudentEnrollmentsRetriever.call(
+        search_type: :by_year,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        year: '2017'
+      )
+    }
+
+    it 'should return list of student_enrollments on @year' do
+      expect(list_student_enrollments).to eq(student_enrollments)
+    end
+
+
+    it 'should not return list of student_enrollments out of @year' do
+      expect(list_student_enrollments).not_to eq(enrollments_out_date)
+    end
+  end
+
 end
