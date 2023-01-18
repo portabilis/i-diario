@@ -39,31 +39,47 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(list_student_enrollments).to be_truthy
     end
 
+    it 'should return a student_enrollment relation' do
+      expect(list_student_enrollments.class).to eq(StudentEnrollment::ActiveRecord_Relation)
+    end
+
   end
 
   context 'when the params are incorrect' do
-    it 'should return empty list of student_enrollments' do
-      classroom_invalid = create(:classroom)
-      discipline_invalid = create(:classroom)
-
-      expect(
-        StudentEnrollmentsRetriever.call(
-          search_type: 'invalid',
-          classroom: classroom_invalid,
-          discipline: discipline_invalid,
-          date: '0000-00-00'
-        )
-      ).to be_empty
-    end
 
     it 'should return ArgumentError to missing params @date' do
       expect {
         StudentEnrollmentsRetriever.call(
           search_type: :by_date,
           classroom: classroom_grade.classroom_id,
-          discipline: discipline
+          discipline: discipline,
         )
-      }.to raise_error(ArgumentError)
+      }.to raise_error(ArgumentError, 'Should define date argument on search by date')
+    end
+
+    it 'should return ArgumentError to missing params @start_at or @end_at' do
+      expect {
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_date_range,
+          classroom: classroom_grade.classroom_id,
+          discipline: discipline,
+          date: '2023-02-02'
+        )
+      }.to raise_error(ArgumentError, 'Should define @start_at or @end_at argument on search by date_range')
+    end
+
+    it 'should return empty list of student_enrollments not linked to classroom and discipline' do
+      classroom_invalid = create(:classroom)
+      discipline_invalid = create(:discipline)
+
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_date,
+          classroom: classroom_invalid,
+          discipline: discipline_invalid,
+          date: '2023-02-02'
+        )
+      ).to be_empty
     end
 
     it 'should return nil for blank params' do
@@ -71,8 +87,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
         StudentEnrollmentsRetriever.call(
           search_type: '',
           classroom: '',
-          discipline: '',
-          date: '2023-02-02'
+          discipline: ''
         )
       ).to be_nil
     end
