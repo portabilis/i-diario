@@ -31,6 +31,8 @@ class StudentEnrollmentsRetriever
                                              .active
 
     search_by_search_type(student_enrollments)
+    # remove_not_displayable_classrooms(student_enrollments)
+    order_by_name_and_sequence(student_enrollments)
   end
 
   private
@@ -57,4 +59,11 @@ class StudentEnrollmentsRetriever
     enrollments_on_period
   end
 
+  def order_by_name_and_sequence(student_enrollments)
+    student_enrollments.ordered unless show_inactive_enrollments
+  end
+
+  def show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
+  end
 end
