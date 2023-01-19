@@ -13,16 +13,14 @@ module Educacao
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    config.autoload_paths += %W(
-      #{config.root}/lib
-      #{config.root}/app/workers
-      #{config.root}/app/workers/ieducar
-      #{config.root}/app/workers/concerns
-      #{config.root}/app/workers/student_dependencies_discarders
-      #{config.root}/app/services
-      #{config.root}/app/services/ieducar_synchronizers
-      #{config.root}/app/queries
-    )
+    config.eager_load_paths << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('app/workers')
+    config.eager_load_paths << Rails.root.join('app/workers/ieducar')
+    config.eager_load_paths << Rails.root.join('app/workers/concerns')
+    config.eager_load_paths << Rails.root.join('app/workers/student_dependencies_discarders')
+    config.eager_load_paths << Rails.root.join('app/services')
+    config.eager_load_paths << Rails.root.join('app/services/ieducar_synchronizers')
+    config.eager_load_paths << Rails.root.join('app/queries')
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
