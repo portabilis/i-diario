@@ -334,8 +334,38 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when include_date_range params exist' do
-    it '' do
+    it 'should return student_enrollments liked to enrollment_classrooms created before @start_at' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_date_range,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          start_at: '2023-03-03',
+          end_at: '2023-06-03',
+          include_date_range: true
+        )
+      ).to include(student_enrollments.first)
+    end
 
+    it 'should return student_enrollments liked to enrollment_classrooms created after @start_at' do
+      classroom_grade_liked = create(:classrooms_grade)
+      enrollment_classroom = create(
+        :student_enrollment_classroom,
+        joined_at: '2023-04-04',
+        classrooms_grade: classroom_grade_liked
+      )
+      enrollment = enrollment_classroom.student_enrollment
+
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_date_range,
+          classrooms: classroom_grade_liked.classroom_id,
+          disciplines: discipline,
+          start_at: '2023-01-01',
+          end_at: '2023-06-03',
+          include_date_range: true
+        )
+      ).to include(enrollment)
     end
   end
 end
