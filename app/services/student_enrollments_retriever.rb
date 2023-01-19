@@ -55,7 +55,11 @@ class StudentEnrollmentsRetriever
   end
 
   def search_by_dates(student_enrollments)
-    student_enrollments.by_date_range(@start_at, @end_at).by_date_not_before(@start_at)
+    enrollment_in_date = student_enrollments.by_date_range(@start_at, @end_at).by_date_not_before(@start_at)
+
+    student_enrollments unless enrollment_in_date.present?
+
+    enrollment_in_date
   end
 
   def search_by_search_type(student_enrollments)
