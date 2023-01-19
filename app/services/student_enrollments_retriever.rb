@@ -30,9 +30,11 @@ class StudentEnrollmentsRetriever
                                              .includes(:student_enrollment_classrooms)
                                              .active
 
-    search_by_search_type(student_enrollments)
-    # remove_not_displayable_classrooms(student_enrollments)
-    order_by_name_and_sequence(student_enrollments)
+    student_enrollments = search_by_search_type(student_enrollments)
+    student_enrollments = search_by_status_attending(student_enrollments)
+    student_enrollments = order_by_name_and_sequence(student_enrollments)
+
+    student_enrollments
   end
 
   private
@@ -50,9 +52,9 @@ class StudentEnrollmentsRetriever
   def search_by_search_type(student_enrollments)
     if @search_type.eql?(:by_date)
       enrollments_on_period = student_enrollments.by_date(@date)
-    elsif  @search_type.eql?(:by_date_range)
+    elsif @search_type.eql?(:by_date_range)
       enrollments_on_period = student_enrollments.by_date_range(@start_at, @end_at)
-    elsif  @search_type.eql?(:by_year)
+    elsif @search_type.eql?(:by_year)
       enrollments_on_period = student_enrollments.by_year(@year)
     end
 
@@ -60,10 +62,18 @@ class StudentEnrollmentsRetriever
   end
 
   def order_by_name_and_sequence(student_enrollments)
-    student_enrollments.ordered unless show_inactive_enrollments
+    return student_enrollments if show_inactive_enrollments
+
+    student_enrollments.ordered
+  end
+
+  def search_by_status_attending(student_enrollments)
+    return student_enrollments if show_inactive_enrollments
+
+    student_enrollments.status_attending
   end
 
   def show_inactive_enrollments
-    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
+    @show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
   end
 end
