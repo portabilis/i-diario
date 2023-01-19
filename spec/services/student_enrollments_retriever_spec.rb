@@ -304,6 +304,40 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(student_enrollment_retriever).not_to include(student_enrollment_transferred.first)
     end
   end
+
+  context 'when grade params exist' do
+    let(:classroom_grade_without_liked) { create_list(:classrooms_grade, 3) }
+
+    it 'should return empty list of student_enrollments without linked to @grade' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_date,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          date: '2023-03-03',
+          grade: classroom_grade_without_liked.first
+        )
+      ).to be_empty
+    end
+
+    it 'should return list of student_enrollments linked to @grade' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_date,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          date: '2023-03-03',
+          grade: classroom_grade.grade_id
+        )
+      ).to include(student_enrollments.first)
+    end
+  end
+
+  context 'when include_date_range params exist' do
+    it '' do
+
+    end
+  end
 end
 
 def create_student_enrollments
