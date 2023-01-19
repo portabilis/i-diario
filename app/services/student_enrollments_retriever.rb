@@ -15,6 +15,8 @@ class StudentEnrollmentsRetriever
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:end_at, nil)
     @year = params.fetch(:year, nil)
+    @grade = params.fetch(:grade, nil)
+    @include_date_range = params.fetch(:include_date_range, nil)
 
     ensure_has_valid_search_params
   end
@@ -29,6 +31,9 @@ class StudentEnrollmentsRetriever
                                              .includes(:dependences)
                                              .includes(:student_enrollment_classrooms)
                                              .active
+
+    student_enrollments = student_enrollments.by_grade(@grade) if @grade
+    student_enrollments = search_by_dates(student_enrollments) if @include_date_range
 
     student_enrollments = search_by_search_type(student_enrollments)
     student_enrollments = search_by_status_attending(student_enrollments)
@@ -47,6 +52,10 @@ class StudentEnrollmentsRetriever
     elsif @search_type.eql?(:by_year)
       raise ArgumentError, 'Should define @start_at or @end_at argument on search by date_range' unless @year
     end
+  end
+
+  def search_by_dates(student_enrollments)
+    student_enrollments.by_date_range(@start_at, @end_at).by_date_not_before(@start_at)
   end
 
   def search_by_search_type(student_enrollments)
