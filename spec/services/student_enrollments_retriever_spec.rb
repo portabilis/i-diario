@@ -265,4 +265,70 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
   end
 
+  context 'when show_inactive checkbox is enabled' do
+    before do
+      GeneralConfiguration.current.update(show_inactive_enrollments: true)
+    end
+
+    subject(:student_enrollment_retriever) {
+      StudentEnrollmentsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-03-03',
+        end_at: '2023-06-03'
+      )
+    }
+
+    it 'should return return student_enrollment with attending status' do
+      student_enrollments_list = create_student_enrollments
+
+      expect(student_enrollment_retriever).to include(student_enrollments_list.first, student_enrollments_list.last)
+    end
+  end
+
+  context 'when show_inactive checkbox is not enabled' do
+    subject(:student_enrollment_retriever) {
+      StudentEnrollmentsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-03-03',
+        end_at: '2023-06-03'
+      )
+    }
+
+    it 'should not return student_enrollment with transferred status' do
+      student_enrollment_transferred = create_student_enrollments
+
+      expect(student_enrollment_retriever).not_to include(student_enrollment_transferred.first)
+    end
+  end
+end
+
+def create_student_enrollments
+  student_enrollment_list = []
+
+  student = create(:student)
+  enrollment_inactive = create(:student_enrollment, student: student, status: 4)
+  create(
+    :student_enrollment_classroom,
+    student_enrollment: enrollment_inactive,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-02-02',
+    left_at: '2023-03-12',
+    show_as_inactive_when_not_in_date: true
+  )
+
+  student_enrollment_list << enrollment_inactive
+
+  enrollment_active = create(:student_enrollment, student: student, status: 3)
+  create(
+    :student_enrollment_classroom,
+    student_enrollment: enrollment_active,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-05-02'
+  )
+
+  student_enrollment_list << enrollment_active
 end
