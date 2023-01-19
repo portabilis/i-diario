@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '2.4.10'
 
 gem 'active_model_serializers', '0.9.3'
-gem 'activerecord-connections', path: '../forked/activerecord-connections'
+gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
 gem "activerecord-tablefree", "~> 3.0"
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
