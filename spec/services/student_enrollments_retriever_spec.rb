@@ -334,9 +334,9 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when include_date_range params exist' do
-    it 'should return student_enrollments with joined_at dates after @start_at' do
-      student_enrollments_list = create_list_student_enrollments
+    let(:student_enrollments_list) { create_list_student_enrollments }
 
+    it 'should return student_enrollments with joined_at dates after @start_at' do
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
@@ -350,8 +350,6 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
 
     it 'should return student_enrollments with joined_at dates before @start_at' do
-      student_enrollments_list = create_list_student_enrollments
-
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
