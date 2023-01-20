@@ -281,7 +281,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should return return student_enrollment with attending status' do
-      student_enrollments_list = create_student_enrollments
+      student_enrollments_list = create_student_enrollments_with_status
 
       expect(student_enrollment_retriever).to include(student_enrollments_list.first, student_enrollments_list.last)
     end
@@ -299,7 +299,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     it 'should not return student_enrollment with transferred status' do
-      student_enrollment_transferred = create_student_enrollments
+      student_enrollment_transferred = create_student_enrollments_with_status
 
       expect(student_enrollment_retriever).not_to include(student_enrollment_transferred.first)
     end
@@ -334,7 +334,9 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when include_date_range params exist' do
-    it 'should return student_enrollments liked to enrollment_classrooms created before @start_at' do
+    it 'should return student_enrollments with joined_at dates after @start_at' do
+      student_enrollments_list = create_list_student_enrollments
+
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
@@ -344,33 +346,27 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           end_at: '2023-06-03',
           include_date_range: true
         )
-      ).to include(student_enrollments.first)
+      ).to include(student_enrollments_list.first, student_enrollments_list.second)
     end
 
-    it 'should return student_enrollments liked to enrollment_classrooms created after @start_at' do
-      classroom_grade_liked = create(:classrooms_grade)
-      enrollment_classroom = create(
-        :student_enrollment_classroom,
-        joined_at: '2023-04-04',
-        classrooms_grade: classroom_grade_liked
-      )
-      enrollment = enrollment_classroom.student_enrollment
+    it 'should return student_enrollments with joined_at dates before @start_at' do
+      student_enrollments_list = create_list_student_enrollments
 
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
-          classrooms: classroom_grade_liked.classroom_id,
+          classrooms: classroom_grade.classroom_id,
           disciplines: discipline,
-          start_at: '2023-01-01',
-          end_at: '2023-06-03',
+          start_at: '2023-04-20',
+          end_at: '2023-12-03',
           include_date_range: true
         )
-      ).to include(enrollment)
+      ).to include(student_enrollments_list.second)
     end
   end
 end
 
-def create_student_enrollments
+def create_student_enrollments_with_status
   student_enrollment_list = []
 
   student = create(:student)
@@ -379,7 +375,7 @@ def create_student_enrollments
     :student_enrollment_classroom,
     student_enrollment: enrollment_inactive,
     classrooms_grade: classroom_grade,
-    joined_at: '2023-02-02',
+    joined_at: '2023-04-04',
     left_at: '2023-03-12',
     show_as_inactive_when_not_in_date: true
   )
@@ -395,4 +391,24 @@ def create_student_enrollments
   )
 
   student_enrollment_list << enrollment_active
+end
+
+def create_list_student_enrollments
+  enrollments = create_list(:student_enrollment, 2)
+
+  create(
+    :student_enrollment_classroom,
+    student_enrollment: enrollments.first,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-04-04'
+  )
+
+  create(
+    :student_enrollment_classroom,
+    student_enrollment: enrollments.second,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-05-04'
+  )
+
+  enrollments
 end
