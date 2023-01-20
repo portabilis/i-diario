@@ -37,7 +37,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   }
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
-
+  scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
   delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)

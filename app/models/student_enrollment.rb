@@ -37,6 +37,19 @@ class StudentEnrollment < ActiveRecord::Base
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
   scope :active, -> { where(active: 1) }
   scope :ordered, -> { joins(:student, :student_enrollment_classrooms).order('sequence ASC, students.name ASC') }
+  scope :status_attending, lambda {
+    where(
+      student_enrollments: {
+        status: [
+          StudentEnrollmentStatus::STUDYING,
+          StudentEnrollmentStatus::APPROVED,
+          StudentEnrollmentStatus::APPROVED_WITH_DEPENDENCY,
+          StudentEnrollmentStatus::RECLASSIFIED,
+          StudentEnrollmentStatus::APPROVE_BY_COUNCIL
+        ]
+      }
+    )
+  }
 
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?
