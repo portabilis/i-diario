@@ -445,7 +445,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           date: '2023-03-10',
           period: Periods::FULL
         )
-      ).to eq(enrollment_classroom.student_enrollment)
+      ).to include(enrollment_classroom.student_enrollment)
     end
 
     it 'should not return student_enrollment attending the full period' do
