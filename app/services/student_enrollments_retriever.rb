@@ -22,17 +22,17 @@ class StudentEnrollmentsRetriever
   end
 
   def call
-    return if @classrooms.blank? || @disciplines.blank?
+    return if classrooms.blank? || disciplines.blank?
 
-    student_enrollments ||= StudentEnrollment.by_classroom(@classrooms)
-                                             .by_discipline(@disciplines)
+    student_enrollments ||= StudentEnrollment.by_classroom(classrooms)
+                                             .by_discipline(disciplines)
                                              .joins(:student)
                                              .includes(:student)
                                              .includes(:dependences)
                                              .includes(:student_enrollment_classrooms)
                                              .active
 
-    student_enrollments = student_enrollments.by_grade(@grade) if @grade
+    student_enrollments = student_enrollments.by_grade(grade) if @grade
     student_enrollments = search_by_dates(student_enrollments) if @include_date_range
 
     student_enrollments = search_by_search_type(student_enrollments)
@@ -44,31 +44,35 @@ class StudentEnrollmentsRetriever
 
   private
 
+  attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type,
+                :include_date_range, :grade
+
   def ensure_has_valid_search_params
-    if @search_type.eql?(:by_date)
-      raise ArgumentError, 'Should define date argument on search by date' unless @date
-    elsif @search_type.eql?(:by_date_range)
-      raise ArgumentError, 'Should define @start_at or @end_at argument on search by date_range' unless @start_at || @end_at
-    elsif @search_type.eql?(:by_year)
-      raise ArgumentError, 'Should define @start_at or @end_at argument on search by date_range' unless @year
+
+    if search_type.eql?(:by_date)
+      raise ArgumentError, 'Should define date argument on search by date' unless date
+    elsif search_type.eql?(:by_date_range)
+      raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless start_at || end_at
+    elsif search_type.eql?(:by_year)
+      raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless year
     end
   end
 
   def search_by_dates(student_enrollments)
-    enrollment_in_date = student_enrollments.by_date_range(@start_at, @end_at).by_date_not_before(@start_at)
+    enrollment_in_date = student_enrollments.by_date_range(start_at, end_at).by_date_not_before(start_at)
 
     student_enrollments unless enrollment_in_date.present?
-
-    enrollment_in_date
   end
 
   def search_by_search_type(student_enrollments)
+    return student_enrollments if @include_date_range
+
     if @search_type.eql?(:by_date)
-      enrollments_on_period = student_enrollments.by_date(@date)
+      enrollments_on_period = student_enrollments.by_date(date)
     elsif @search_type.eql?(:by_date_range)
-      enrollments_on_period = student_enrollments.by_date_range(@start_at, @end_at)
+      enrollments_on_period = student_enrollments.by_date_range(start_at, end_at)
     elsif @search_type.eql?(:by_year)
-      enrollments_on_period = student_enrollments.by_year(@year)
+      enrollments_on_period = student_enrollments.by_year(year)
     end
 
     enrollments_on_period
