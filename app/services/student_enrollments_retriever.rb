@@ -17,6 +17,7 @@ class StudentEnrollmentsRetriever
     @year = params.fetch(:year, nil)
     @grade = params.fetch(:grade, nil)
     @include_date_range = params.fetch(:include_date_range, nil)
+    @period = params.fetch(:period, nil)
 
     ensure_has_valid_search_params
   end
@@ -37,6 +38,7 @@ class StudentEnrollmentsRetriever
 
     student_enrollments = search_by_search_type(student_enrollments)
     student_enrollments = search_by_status_attending(student_enrollments)
+    student_enrollments = student_enrollments.by_period(period) if @period
     student_enrollments = order_by_name_and_sequence(student_enrollments)
 
     student_enrollments
@@ -45,7 +47,7 @@ class StudentEnrollmentsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type,
-                :include_date_range, :grade
+                :include_date_range, :grade, :period
 
   def ensure_has_valid_search_params
 
