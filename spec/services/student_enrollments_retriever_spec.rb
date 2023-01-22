@@ -363,8 +363,50 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
   end
 
+  context 'when opinion_type params exist' do
+    let(:exam_rule) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE) }
+    let(:classroom_grade_with_exam_rule) { create(:classrooms_grade, exam_rule: exam_rule) }
+    let(:enrollment_classroom) {
+      create(
+        :student_enrollment_classroom,
+        classrooms_grade: classroom_grade_with_exam_rule,
+        joined_at: '2023-03-03'
+      )
+    }
+
+    before do
+      exam_rule
+      classroom_grade_with_exam_rule
+      enrollment_classroom
+    end
+
+    it 'return student_enrollment with opinion_type by step and discipline' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: classroom_grade_with_exam_rule.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          opinion_type: exam_rule.opinion_type
+        )
+      ).to include(enrollment_classroom.student_enrollment)
+    end
+
+    it 'return empty list of student_enrollment while not include opinion_type' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          opinion_type: exam_rule.opinion_type
+        )
+      ).to be_empty
+    end
+  end
+
   context 'when period params exist'
-  context 'when opinion_type params exist'
+
   context 'when with_recovery_note_in_step params exist'
 end
 
@@ -413,4 +455,8 @@ def create_list_student_enrollments
   )
 
   enrollments
+end
+
+def create_student_enrollment_with_exam_rule
+
 end
