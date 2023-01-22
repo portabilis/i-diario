@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe StudentEnrollmentsRetriever, type: :service do
-  let(:classroom) { create(:classroom, period: Periods::VESPERTINE) }
+  let(:classroom) { create(:classroom, period: Periods::VESPERTINE, year: '2023') }
   let(:classroom_grade) { create(:classrooms_grade, classroom: classroom) }
   let(:discipline) { create(:discipline) }
   let(:student_enrollment_classrooms) {
@@ -238,32 +238,44 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when to send year to search student_enrollments' do
-    let(:classroom) { create(:classroom, year: 2022) }
+    let(:classroom_with_year) { create(:classroom, year: 2022) }
+    let(:classrooms_grade_with_year) { create(:classrooms_grade, classroom: classroom_with_year) }
     let(:enrollment_classrooms) {
       create_list(
         :student_enrollment_classroom,
         3,
-        classroom_code: classroom.api_code
+        classrooms_grade: classrooms_grade_with_year
       )
     }
-    let(:enrollments_out_date) { enrollment_classrooms.map(&:student_enrollment) }
+    let(:enrollments_year_2022) { enrollment_classrooms.map(&:student_enrollment) }
 
-    subject(:list_student_enrollments) {
-      StudentEnrollmentsRetriever.call(
-        search_type: :by_year,
-        classrooms: classroom_grade.classroom_id,
-        disciplines: discipline,
-        year: '2017'
-      )
-    }
-
-    it 'should return list of student_enrollments on @year' do
-      expect(list_student_enrollments).to include(student_enrollments.first)
+    before do
+      classroom_with_year
+      classrooms_grade_with_year
+      enrollment_classrooms
+      enrollments_year_2022
     end
 
+    it 'should return list of student_enrollments on year 2022' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_year,
+          classrooms: classroom_with_year,
+          disciplines: discipline,
+          year: '2022'
+        )
+      ).to include(enrollments_year_2022.first)
+    end
 
-    it 'should not return list of student_enrollments out of @year' do
-      expect(list_student_enrollments).not_to include(enrollments_out_date.first)
+    it 'should not return list of student_enrollments on year 2022' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_year,
+          classrooms: classroom,
+          disciplines: discipline,
+          year: '2022'
+        )
+      ).not_to include(enrollments_year_2022.first)
     end
   end
 
