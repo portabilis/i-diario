@@ -65,7 +65,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           disciplines: discipline,
           date: '2023-02-02'
         )
-      }.to raise_error(ArgumentError, 'Should define @start_at or @end_at argument on search by date_range')
+      }.to raise_error(ArgumentError, 'Should define start_at or end_at argument on search by date_range')
     end
 
     it 'should return empty list of student_enrollments not linked to classroom and discipline' do
