@@ -69,13 +69,13 @@ class StudentEnrollmentsRetriever
   end
 
   def search_by_search_type(student_enrollments)
-    return student_enrollments if @include_date_range
+    return student_enrollments if include_date_range
 
-    if @search_type.eql?(:by_date)
+    if search_type.eql?(:by_date)
       enrollments_on_period = student_enrollments.by_date(date)
-    elsif @search_type.eql?(:by_date_range)
+    elsif search_type.eql?(:by_date_range)
       enrollments_on_period = student_enrollments.by_date_range(start_at, end_at)
-    elsif @search_type.eql?(:by_year)
+    elsif search_type.eql?(:by_year)
       enrollments_on_period = student_enrollments.by_year(year)
     end
 
