@@ -174,7 +174,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
   end
 
-  context 'when to send @date to search student_enrollments' do
+  context 'when to send date to search student_enrollments' do
     let(:enrollment_classrooms) {
       create_list(
         :student_enrollment_classroom,
