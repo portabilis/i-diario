@@ -382,7 +382,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       enrollment_classroom
     end
 
-    it 'return student_enrollment with opinion_type by step and discipline' do
+    it 'should return student_enrollment with opinion_type by step and discipline' do
       expect(
         StudentEnrollmentsRetriever.call(
           classrooms: classroom_grade_with_exam_rule.classroom_id,
@@ -394,7 +394,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       ).to include(enrollment_classroom.student_enrollment)
     end
 
-    it 'return empty list of student_enrollment while not include opinion_type' do
+    it 'should not return student_enrollment with opinion_type by step and discipline' do
       expect(
         StudentEnrollmentsRetriever.call(
           classrooms: classroom_grade.classroom_id,
