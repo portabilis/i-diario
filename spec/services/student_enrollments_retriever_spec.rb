@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe StudentEnrollmentsRetriever, type: :service do
-  let(:classroom_grade) { create(:classrooms_grade) }
+  let(:classroom) { create(:classroom, period: Periods::VESPERTINE) }
+  let(:classroom_grade) { create(:classrooms_grade, classroom: classroom) }
   let(:discipline) { create(:discipline) }
   let(:student_enrollment_classrooms) {
     create_list(
@@ -15,6 +16,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   let(:student_enrollments) { student_enrollment_classrooms.map(&:student_enrollment) }
 
   before do
+    classroom
     classroom_grade
     discipline
     student_enrollment_classrooms
@@ -405,7 +407,47 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
   end
 
-  context 'when period params exist'
+  context 'when period params exist' do
+    let(:classroom_vespertine) { create(:classroom, period: Periods::FULL) }
+    let(:classroom_grade_with_period) { create(:classrooms_grade, classroom: classroom_vespertine) }
+    let(:enrollment_classroom) {
+      create(
+        :student_enrollment_classroom,
+        classrooms_grade: classroom_grade_with_period,
+        joined_at: '2023-03-03'
+      )
+    }
+
+    before do
+      classroom_vespertine
+      classroom_grade_with_period
+      enrollment_classroom
+    end
+
+    it 'should return student_enrollment attending the full period' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: classroom_grade_with_period.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          period: Periods::FULL
+        )
+      ).to eq(enrollment_classroom.student_enrollment)
+    end
+
+    it 'should not return student_enrollment attending the full period' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          period: Periods::FULL
+        )
+      ).to include(student_enrollments.first)
+    end
+  end
 
   context 'when with_recovery_note_in_step params exist'
 end
