@@ -362,6 +362,10 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       ).to include(student_enrollments_list.second)
     end
   end
+
+  context 'when period params exist'
+  context 'when opinion_type params exist'
+  context 'when with_recovery_note_in_step params exist'
 end
 
 def create_student_enrollments_with_status
