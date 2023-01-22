@@ -18,6 +18,7 @@ class StudentEnrollmentsRetriever
     @grade = params.fetch(:grade, nil)
     @include_date_range = params.fetch(:include_date_range, nil)
     @period = params.fetch(:period, nil)
+    @opinion_type = params.fetch(:opinion_type, nil)
 
     ensure_has_valid_search_params
   end
@@ -36,7 +37,7 @@ class StudentEnrollmentsRetriever
     student_enrollments = search_by_dates(student_enrollments) if include_date_range
     student_enrollments = student_enrollments.by_grade(grade) if grade
     student_enrollments = student_enrollments.by_period(period) if period
-    student_enrollments = student_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
+    student_enrollments = student_enrollments.by_opinion_type(opinion_type, classrooms) if opinion_type
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
     student_enrollments = search_by_search_type(student_enrollments)
