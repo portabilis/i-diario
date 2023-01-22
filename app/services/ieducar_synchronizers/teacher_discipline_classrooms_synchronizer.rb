@@ -130,23 +130,31 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   def create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
     classroom = classroom(teacher_discipline_classroom_record.turma_id)
     classroom_id = classroom.try(:id)
-    grade = grade(teacher_discipline_classroom_record.serie_id)
-    grade_ids = grade.try(:ids)
-
     teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
+    hash_api_codes = teacher_discipline_classroom_record.disciplinas_serie.to_h
+
+    grades_in_disciplines = {}
+
+    return if hash_api_codes.blank?
+
+    hash_api_codes.each do |hash|
+      grade_id = Grade.find_by(api_code: hash.first).try(:id)
+      discipline_ids = Discipline.where(api_code: hash.last).pluck(:id)
+
+      grades_in_disciplines[grade_id] ||= []
+      grades_in_disciplines[grade_id] = discipline_ids
+    end
 
     return if teacher_id.nil?
     return if classroom_id.nil?
     return if classroom.discarded?
-    return if grade_ids.nil?
-    return if grade.discarded?
 
     CreateEmptyConceptualExamValueWorker.perform_in(
       1.second,
       entity_id,
       classroom_id,
       teacher_id,
-      grade_ids
+      grades_in_disciplines
     )
   end
 
