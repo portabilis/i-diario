@@ -456,7 +456,3 @@ def create_list_student_enrollments
 
   enrollments
 end
-
-def create_student_enrollment_with_exam_rule
-
-end
