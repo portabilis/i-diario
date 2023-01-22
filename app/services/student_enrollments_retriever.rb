@@ -54,7 +54,6 @@ class StudentEnrollmentsRetriever
                 :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step
 
   def ensure_has_valid_search_params
-
     if search_type.eql?(:by_date)
       raise ArgumentError, 'Should define date argument on search by date' unless date
     elsif search_type.eql?(:by_date_range)
