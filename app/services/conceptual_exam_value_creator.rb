@@ -12,14 +12,14 @@ class ConceptualExamValueCreator
   end
 
   def create_empty
-    @grades_in_disciplines.each do |grade_discipline|
-      conceptual_exam_values_to_create(grade_discipline.first).each do |record|
+    @grades_in_disciplines.each do |grade, disciplines|
+      conceptual_exam_values_to_create(grade).each do |record|
         student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
 
         next if student_enrollment_id.blank?
         next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
         next if ConceptualExamValue.find_by(conceptual_exam_id: record.conceptual_exam_id, discipline_id: record.discipline_id)
-        next unless grade_discipline.last.include?(record.discipline_id)
+        next if disciplines.include?(record.discipline_id)
 
         begin
           ConceptualExamValue.create_with(
@@ -40,12 +40,26 @@ class ConceptualExamValueCreator
 
   attr_accessor :teacher_id, :classroom_id, :grade_id
 
-  def conceptual_exam_values_to_create(grade_id)
+  def search_disciplines_related_to_grades(classroom_id, grade)
+    classroom = Classroom.find(classroom_id)
+    step_fetcher = StepsFetcher.new(classroom)
+    school_calendar = step_fetcher.school_calendar
+
+    SchoolCalendarDisciplineGrade.where(
+      school_calendar_id: school_calendar.id,
+      grade_id: grade
+    ).pluck(:discipline_id)
+  end
+
+
+  def conceptual_exam_values_to_create(grade)
+    disciplines = disciplines(classroom_id, grade)
+
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
                               .joins(join_conceptual_exam_value)
                               .by_teacher_id(teacher_id)
                               .by_classroom(classroom_id)
-                              .by_grade_id(grade_id)
+                              .by_discipline_id(disciplines)
                               .where(conceptual_exams: { classroom_id: classroom_id })
                               .where(conceptual_exam_values: { id: nil })
                               .select(
