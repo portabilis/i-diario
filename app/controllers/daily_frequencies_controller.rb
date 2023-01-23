@@ -109,7 +109,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequency_record = nil
       daily_frequency_attributes = daily_frequency_params
       daily_frequencies_attributes = daily_frequencies_params
-      receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
         params[:daily_frequency][:receive_email_confirmation]
       )
 
