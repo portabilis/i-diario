@@ -49,7 +49,6 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when the params are incorrect' do
-
     it 'should return ArgumentError to missing params @date' do
       expect {
         StudentEnrollmentsRetriever.call(
