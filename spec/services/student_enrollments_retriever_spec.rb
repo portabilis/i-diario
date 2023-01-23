@@ -1,8 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe StudentEnrollmentsRetriever, type: :service do
+  let(:exam_rule_both) { create(:exam_rule, score_type: ScoreTypes::NUMERIC_AND_CONCEPT) }
   let(:classroom) { create(:classroom, period: Periods::VESPERTINE, year: '2023') }
-  let(:classroom_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:classroom_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule_both) }
   let(:discipline) { create(:discipline) }
   let(:student_enrollment_classrooms) {
     create_list(
@@ -456,6 +457,80 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           search_type: :by_date,
           date: '2023-03-10',
           period: Periods::FULL
+        )
+      ).to include(student_enrollments.first)
+    end
+  end
+
+  context 'when score_type params exist' do
+    it 'should return list of student_enrollments with score_type NUMERIC_AND_CONCEPT' do
+      exam_rule_boths = create(:exam_rule, score_type: ScoreTypes::NUMERIC_AND_CONCEPT)
+      classroom_grade_with_both = create(:classrooms_grade, exam_rule: exam_rule_boths)
+      enrollment_classrooms = create(
+        :student_enrollment_classroom,
+        joined_at: '2023-03-03',
+        classrooms_grade: classroom_grade_with_both
+      )
+
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: [classroom_grade.classroom_id, classroom_grade_with_both],
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          score_type: ScoreTypes::NUMERIC_AND_CONCEPT
+        )
+      ).to include(student_enrollments.first, enrollment_classrooms.student_enrollment)
+    end
+
+    it 'should return list of student_enrollments score_type numeric' do
+      exam_rule_numeric = create(:exam_rule, score_type: ScoreTypes::NUMERIC)
+      classroom_grade_with_numeric = create(:classrooms_grade, exam_rule: exam_rule_numeric)
+      enrollment_classrooms = create(
+        :student_enrollment_classroom,
+        joined_at: '2023-03-03',
+        classrooms_grade: classroom_grade_with_numeric
+      )
+
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: [classroom_grade.classroom_id, classroom_grade_with_numeric.classroom_id],
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          score_type: StudentEnrollmentScoreTypeFilters::NUMERIC
+        )
+      ).to contain_exactly(enrollment_classrooms.student_enrollment)
+    end
+
+    it 'should return list of student_enrollments with score_type concept' do
+      exam_rule_concept = create(:exam_rule, score_type: ScoreTypes::CONCEPT)
+      classroom_grade_with_concept = create(:classrooms_grade, exam_rule: exam_rule_concept)
+      enrollment_classrooms = create(
+        :student_enrollment_classroom,
+        joined_at: '2023-03-03',
+        classrooms_grade: classroom_grade_with_concept
+      )
+
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: [classroom_grade.classroom_id, classroom_grade_with_concept.classroom_id],
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          score_type: StudentEnrollmentScoreTypeFilters::CONCEPT
+        )
+      ).to contain_exactly(enrollment_classrooms.student_enrollment)
+    end
+
+    it 'should return list of student_enrollments with score_type both if given nil' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          score_type: nil
         )
       ).to include(student_enrollments.first)
     end
