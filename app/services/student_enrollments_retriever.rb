@@ -20,6 +20,7 @@ class StudentEnrollmentsRetriever
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, nil)
+    @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH)
 
     ensure_has_valid_search_params
   end
@@ -29,6 +30,7 @@ class StudentEnrollmentsRetriever
 
     student_enrollments ||= StudentEnrollment.by_classroom(classrooms)
                                              .by_discipline(disciplines)
+                                             .by_score_type(score_type, classrooms)
                                              .joins(:student)
                                              .includes(:student)
                                              .includes(:dependences)
@@ -51,7 +53,7 @@ class StudentEnrollmentsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type,
-                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step
+                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type
 
   def ensure_has_valid_search_params
     if search_type.eql?(:by_date)
