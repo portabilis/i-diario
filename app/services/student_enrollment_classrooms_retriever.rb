@@ -20,6 +20,7 @@ class StudentEnrollmentClassroomsRetriever
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, nil)
+    @score_type = params.fetch(:score_type, nil)
 
     ensure_has_valid_search_params
   end
@@ -27,22 +28,22 @@ class StudentEnrollmentClassroomsRetriever
   def call
     return if classrooms.blank? || disciplines.blank?
 
-    enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classroom)
-                                                        .by_discipline(discipline)
-                                                        .by_score_type(score_type, classroom)
+    enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classrooms)
+                                                        .by_discipline(disciplines)
+                                                        .by_score_type(score_type, classrooms)
                                                         .joins(student_enrollment: :student)
                                                         .includes(student_enrollment: :student)
                                                         .includes(student_enrollment: :dependences)
 
-    enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
-    enrollment_classrooms = enrollment_classrooms.by_period(period) if period
-    enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
-    enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
-    enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
-
-    enrollment_classrooms = search_by_search_type(enrollment_classrooms)
-    enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
-    enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
+    # enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
+    # enrollment_classrooms = enrollment_classrooms.by_period(period) if period
+    # enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
+    # enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+    # enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
+    #
+    # enrollment_classrooms = search_by_search_type(enrollment_classrooms)
+    # enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
+    # enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
 
     enrollment_classrooms
   end
@@ -50,7 +51,7 @@ class StudentEnrollmentClassroomsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type,
-                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step
+                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type
 
   def ensure_has_valid_search_params
     if search_type.eql?(:by_date)
