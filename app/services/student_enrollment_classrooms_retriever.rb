@@ -34,6 +34,7 @@ class StudentEnrollmentClassroomsRetriever
                                                         .joins(student_enrollment: :student)
                                                         .includes(student_enrollment: :student)
                                                         .includes(student_enrollment: :dependences)
+                                                        .active
 
     # enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     # enrollment_classrooms = enrollment_classrooms.by_period(period) if period
