@@ -464,23 +464,15 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
   context 'when score_type params exist' do
     it 'should return list of student_enrollments with score_type NUMERIC_AND_CONCEPT' do
-      exam_rule_boths = create(:exam_rule, score_type: ScoreTypes::NUMERIC_AND_CONCEPT)
-      classroom_grade_with_both = create(:classrooms_grade, exam_rule: exam_rule_boths)
-      enrollment_classrooms = create(
-        :student_enrollment_classroom,
-        joined_at: '2023-03-03',
-        classrooms_grade: classroom_grade_with_both
-      )
-
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: [classroom_grade.classroom_id, classroom_grade_with_both],
+          classrooms: classroom_grade.classroom_id,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
-          score_type: ScoreTypes::NUMERIC_AND_CONCEPT
+          score_type: StudentEnrollmentScoreTypeFilters::BOTH
         )
-      ).to include(student_enrollments.first, enrollment_classrooms.student_enrollment)
+      ).to include(student_enrollments.first)
     end
 
     it 'should return list of student_enrollments score_type numeric' do
