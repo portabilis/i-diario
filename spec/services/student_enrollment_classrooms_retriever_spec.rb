@@ -242,48 +242,40 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(list_student_enrollment_classrooms).not_to eq(student_enrollment_classrooms_out_date)
     end
   end
-#
-#   context 'when to send year to search student_enrollments' do
-#     let(:classroom_with_year) { create(:classroom, year: 2022) }
-#     let(:classrooms_grade_with_year) { create(:classrooms_grade, classroom: classroom_with_year) }
-#     let(:enrollment_classrooms) {
-#       create_list(
-#         :student_enrollment_classroom,
-#         3,
-#         classrooms_grade: classrooms_grade_with_year
-#       )
-#     }
-#     let(:enrollments_year_2022) { enrollment_classrooms.map(&:student_enrollment) }
-#
-#     before do
-#       classroom_with_year
-#       classrooms_grade_with_year
-#       enrollment_classrooms
-#       enrollments_year_2022
-#     end
-#
-#     it 'should return list of student_enrollments on year 2022' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           search_type: :by_year,
-#           classrooms: classroom_with_year,
-#           disciplines: discipline,
-#           year: '2022'
-#         )
-#       ).to include(enrollments_year_2022.first)
-#     end
-#
-#     it 'should not return list of student_enrollments on year 2022' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           search_type: :by_year,
-#           classrooms: classroom,
-#           disciplines: discipline,
-#           year: '2022'
-#         )
-#       ).not_to include(enrollments_year_2022.first)
-#     end
-#   end
+
+  context 'when there is a year to search for student_enrollment_classrooms' do
+    let(:classroom_with_year) { create(:classroom, year: 2022) }
+    let(:classrooms_grade_with_year) { create(:classrooms_grade, classroom: classroom_with_year) }
+    let(:student_enrollment_classrooms_year_2022) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        classrooms_grade: classrooms_grade_with_year
+      )
+    }
+
+    it 'should return list of student_enrollment_classrooms on year 2022' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          search_type: :by_year,
+          classrooms: classroom_with_year,
+          disciplines: discipline,
+          year: '2022'
+        )
+      ).to include(student_enrollment_classrooms_year_2022.first)
+    end
+
+    it 'should not return list of student_enrollment_classrooms on year 2022' do
+      expect(
+        StudentEnrollmentsRetriever.call(
+          search_type: :by_year,
+          classrooms: classroom,
+          disciplines: discipline,
+          year: '2022'
+        )
+      ).not_to include(student_enrollment_classrooms_year_2022.first)
+    end
+  end
 #
 #   context 'when show_inactive checkbox is enabled' do
 #     before do
