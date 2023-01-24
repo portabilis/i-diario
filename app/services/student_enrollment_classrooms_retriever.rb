@@ -40,8 +40,8 @@ class StudentEnrollmentClassroomsRetriever
     # enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     # enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
     # enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
-    # enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
-    #
+    enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
+
     # enrollment_classrooms = search_by_search_type(enrollment_classrooms)
     enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
     # enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
@@ -67,7 +67,9 @@ class StudentEnrollmentClassroomsRetriever
   def search_by_dates(enrollment_classrooms)
     enrollment_in_date = enrollment_classrooms.by_date_range(start_at, end_at).by_date_not_before(start_at)
 
-    enrollment_classroomsunless enrollment_in_date.present?
+    return enrollment_classrooms unless enrollment_in_date.present?
+
+    enrollment_in_date
   end
 
   def search_by_search_type(enrollment_classrooms)
