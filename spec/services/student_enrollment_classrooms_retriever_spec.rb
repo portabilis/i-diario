@@ -323,34 +323,34 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(list_student_enrollment_classrooms).not_to include(student_enrollment_classrooms.first)
     end
   end
-#
-#   context 'when grade params exist' do
-#     let(:classroom_grade_without_liked) { create_list(:classrooms_grade, 3) }
-#
-#     it 'should return empty list of student_enrollments without linked to @grade' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           search_type: :by_date,
-#           classrooms: classroom_grade.classroom_id,
-#           disciplines: discipline,
-#           date: '2023-03-03',
-#           grade: classroom_grade_without_liked.first
-#         )
-#       ).to be_empty
-#     end
-#
-#     it 'should return list of student_enrollments linked to @grade' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           search_type: :by_date,
-#           classrooms: classroom_grade.classroom_id,
-#           disciplines: discipline,
-#           date: '2023-03-03',
-#           grade: classroom_grade.grade_id
-#         )
-#       ).to include(student_enrollments.first)
-#     end
-#   end
+
+  context 'when grade params exist' do
+    let(:classroom_grade_without_liked) { create(:classrooms_grade) }
+
+    it 'should return empty list of student_enrollment_classrooms without linked to grade' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          search_type: :by_date,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          date: '2023-03-03',
+          grade: classroom_grade_without_liked
+        )
+      ).to be_empty
+    end
+
+    it 'should return list of student_enrollment_classrooms linked to grade' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          search_type: :by_date,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          date: '2023-03-03',
+          grade: classroom_grade.grade_id
+        )
+      ).to include(student_enrollment_classrooms.first)
+    end
+  end
 #
 #   context 'when include_date_range params exist' do
 #     let(:student_enrollments_list) { create_list_student_enrollments }
