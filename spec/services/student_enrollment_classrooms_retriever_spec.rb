@@ -301,24 +301,28 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       )
     end
   end
-#
-#   context 'when show_inactive checkbox is not enabled' do
-#     subject(:student_enrollment_retriever) {
-#       StudentEnrollmentsRetriever.call(
-#         search_type: :by_date_range,
-#         classrooms: classroom_grade.classroom_id,
-#         disciplines: discipline,
-#         start_at: '2023-03-03',
-#         end_at: '2023-06-03'
-#       )
-#     }
-#
-#     it 'should not return student_enrollment with transferred status' do
-#       student_enrollment_transferred = create_student_enrollments_with_status
-#
-#       expect(student_enrollment_retriever).not_to include(student_enrollment_transferred.first)
-#     end
-#   end
+
+  context 'when show_inactive checkbox is not enabled in settings' do
+    let(:student_enrollment_classrooms) { create_student_enrollments_with_status }
+
+    subject(:list_student_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-03-03',
+        end_at: '2023-06-03'
+      )
+    }
+
+    it 'should return student_enrollment_classrooms with studying status' do
+      expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.last)
+    end
+
+    it 'should not return student_enrollment_classrooms with transferred status' do
+      expect(list_student_enrollment_classrooms).not_to include(student_enrollment_classrooms.first)
+    end
+  end
 #
 #   context 'when grade params exist' do
 #     let(:classroom_grade_without_liked) { create_list(:classrooms_grade, 3) }
