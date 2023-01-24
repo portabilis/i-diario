@@ -206,8 +206,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.first)
     end
 
-
-    it 'should not return list of student_enrollments out of date' do
+    it 'should not return list of student_enrollment_classrooms out of date' do
       expect(list_student_enrollment_classrooms).not_to include(student_enrollment_classrooms_out_date)
     end
   end
