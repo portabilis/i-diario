@@ -382,89 +382,41 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
   end
 
-#   context 'when opinion_type params exist' do
-#     let(:exam_rule) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE) }
-#     let(:classroom_grade_with_exam_rule) { create(:classrooms_grade, exam_rule: exam_rule) }
-#     let(:enrollment_classroom) {
-#       create(
-#         :student_enrollment_classroom,
-#         classrooms_grade: classroom_grade_with_exam_rule,
-#         joined_at: '2023-03-03'
-#       )
-#     }
-#
-#     before do
-#       exam_rule
-#       classroom_grade_with_exam_rule
-#       enrollment_classroom
-#     end
-#
-#     it 'should return student_enrollment with opinion_type by step and discipline' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           classrooms: classroom_grade_with_exam_rule.classroom_id,
-#           disciplines: discipline,
-#           search_type: :by_date,
-#           date: '2023-03-10',
-#           opinion_type: exam_rule.opinion_type
-#         )
-#       ).to include(enrollment_classroom.student_enrollment)
-#     end
-#
-#     it 'should not return student_enrollment with opinion_type by step and discipline' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           classrooms: classroom_grade.classroom_id,
-#           disciplines: discipline,
-#           search_type: :by_date,
-#           date: '2023-03-10',
-#           opinion_type: exam_rule.opinion_type
-#         )
-#       ).to be_empty
-#     end
-#   end
-#
-#   context 'when period params exist' do
-#     let(:classroom_vespertine) { create(:classroom, period: Periods::FULL) }
-#     let(:classroom_grade_with_period) { create(:classrooms_grade, classroom: classroom_vespertine) }
-#     let(:enrollment_classroom) {
-#       create(
-#         :student_enrollment_classroom,
-#         classrooms_grade: classroom_grade_with_period,
-#         joined_at: '2023-03-03'
-#       )
-#     }
-#
-#     before do
-#       classroom_vespertine
-#       classroom_grade_with_period
-#       enrollment_classroom
-#     end
-#
-#     it 'should return student_enrollment attending the full period' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           classrooms: classroom_grade_with_period.classroom_id,
-#           disciplines: discipline,
-#           search_type: :by_date,
-#           date: '2023-03-10',
-#           period: Periods::FULL
-#         )
-#       ).to include(enrollment_classroom.student_enrollment)
-#     end
-#
-#     it 'should not return student_enrollment attending the full period' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           classrooms: classroom_grade.classroom_id,
-#           disciplines: discipline,
-#           search_type: :by_date,
-#           date: '2023-03-10',
-#           period: Periods::FULL
-#         )
-#       ).to include(student_enrollments.first)
-#     end
-#   end
+  context 'when period params exist' do
+    let(:classroom_vespertine) { create(:classroom, period: Periods::FULL) }
+    let(:classroom_grade_all_period) { create(:classrooms_grade, classroom: classroom_vespertine) }
+    let(:enrollment_classroom) {
+      create(
+        :student_enrollment_classroom,
+        classrooms_grade: classroom_grade_all_period,
+        joined_at: '2023-03-03'
+      )
+    }
+
+    it 'should return student_enrollment_classroom attending the full period' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          classrooms: classroom_grade_all_period.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          period: Periods::FULL
+        )
+      ).to include(enrollment_classroom)
+    end
+
+    it 'should not return student_enrollment_classroom attending the full period' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          search_type: :by_date,
+          date: '2023-03-10',
+          period: Periods::FULL
+        )
+      ).to include(student_enrollment_classrooms.first)
+    end
+  end
 #
 #   context 'when score_type params exist' do
 #     it 'should return list of student_enrollments with score_type NUMERIC_AND_CONCEPT' do
