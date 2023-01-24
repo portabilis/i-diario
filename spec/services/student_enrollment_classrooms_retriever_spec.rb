@@ -276,28 +276,31 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       ).not_to include(student_enrollment_classrooms_year_2022.first)
     end
   end
-#
-#   context 'when show_inactive checkbox is enabled' do
-#     before do
-#       GeneralConfiguration.current.update(show_inactive_enrollments: true)
-#     end
-#
-#     subject(:student_enrollment_retriever) {
-#       StudentEnrollmentsRetriever.call(
-#         search_type: :by_date_range,
-#         classrooms: classroom_grade.classroom_id,
-#         disciplines: discipline,
-#         start_at: '2023-03-03',
-#         end_at: '2023-06-03'
-#       )
-#     }
-#
-#     it 'should return return student_enrollment with attending status' do
-#       student_enrollments_list = create_student_enrollments_with_status
-#
-#       expect(student_enrollment_retriever).to include(student_enrollments_list.first, student_enrollments_list.last)
-#     end
-#   end
+
+  context 'when show_inactive checkbox is enabled in settings' do
+    before do
+      GeneralConfiguration.current.update(show_inactive_enrollments: true)
+    end
+
+    subject(:list_student_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-03-03',
+        end_at: '2023-06-03'
+      )
+    }
+
+    it 'should return return student_enrollment_classrooms with all status' do
+      student_enrollment_classrooms_list = create_student_enrollments_with_status
+
+      expect(list_student_enrollment_classrooms).to include(
+        student_enrollment_classrooms_list.first,
+        student_enrollment_classrooms_list.last
+      )
+    end
+  end
 #
 #   context 'when show_inactive checkbox is not enabled' do
 #     subject(:student_enrollment_retriever) {
@@ -535,33 +538,34 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
 #
 #   context 'when with_recovery_note_in_step params exist'
 end
-#
-# def create_student_enrollments_with_status
-#   student_enrollment_list = []
-#
-#   student = create(:student)
-#   enrollment_inactive = create(:student_enrollment, student: student, status: 4)
-#   create(
-#     :student_enrollment_classroom,
-#     student_enrollment: enrollment_inactive,
-#     classrooms_grade: classroom_grade,
-#     joined_at: '2023-04-04',
-#     left_at: '2023-03-12',
-#     show_as_inactive_when_not_in_date: true
-#   )
-#
-#   student_enrollment_list << enrollment_inactive
-#
-#   enrollment_active = create(:student_enrollment, student: student, status: 3)
-#   create(
-#     :student_enrollment_classroom,
-#     student_enrollment: enrollment_active,
-#     classrooms_grade: classroom_grade,
-#     joined_at: '2023-05-02'
-#   )
-#
-#   student_enrollment_list << enrollment_active
-# end
+
+def create_student_enrollments_with_status
+  student_enrollment_classrooms_list = []
+
+  student = create(:student)
+  enrollment_inactive = create(:student_enrollment, student: student, status: 4)
+  enrollment_classroom_inactive = create(
+    :student_enrollment_classroom,
+    student_enrollment: enrollment_inactive,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-04-04',
+    left_at: '2023-03-12',
+    show_as_inactive_when_not_in_date: true
+  )
+
+  student_enrollment_classrooms_list << enrollment_classroom_inactive
+
+  enrollment_active = create(:student_enrollment, student: student, status: 3)
+  enrollment_classroom_active = create(
+    :student_enrollment_classroom,
+    student_enrollment: enrollment_active,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-05-02'
+  )
+
+  student_enrollment_classrooms_list << enrollment_classroom_active
+end
+
 #
 # def create_list_student_enrollments
 #   enrollments = create_list(:student_enrollment, 2)
