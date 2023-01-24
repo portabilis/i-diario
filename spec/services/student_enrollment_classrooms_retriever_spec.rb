@@ -211,38 +211,37 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(list_student_enrollment_classrooms).not_to include(student_enrollment_classrooms_out_date)
     end
   end
-#
-#   context 'when to send date range to search student_enrollments' do
-#     let(:enrollment_classrooms) {
-#       create_list(
-#         :student_enrollment_classroom,
-#         3,
-#         classrooms_grade: classroom_grade,
-#         joined_at: '2022-02-02',
-#         left_at: '2022-12-12'
-#       )
-#     }
-#     let(:enrollments_out_date) { enrollment_classrooms.map(&:student_enrollment) }
-#
-#     subject(:list_student_enrollments) {
-#       StudentEnrollmentsRetriever.call(
-#         search_type: :by_date_range,
-#         classrooms: classroom_grade.classroom_id,
-#         disciplines: discipline,
-#         start_at: '2023-03-02',
-#         end_at: '2023-11-02'
-#       )
-#     }
-#
-#     it 'should return list of student_enrollments on date range' do
-#       expect(list_student_enrollments).to include(student_enrollments.last)
-#     end
-#
-#
-#     it 'should not return list of student_enrollments out of date range' do
-#       expect(list_student_enrollments).not_to eq(enrollments_out_date)
-#     end
-#   end
+
+  context 'when there is a range of dates to search for student_enrollment_classrooms' do
+    let(:student_enrollment_classrooms_out_date) {
+      create_list(
+        :student_enrollment_classroom,
+        3,
+        classrooms_grade: classroom_grade,
+        joined_at: '2022-02-02',
+        left_at: '2022-12-12'
+      )
+    }
+
+    subject(:list_student_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-03-02',
+        end_at: '2023-11-02'
+      )
+    }
+
+    it 'should return list of student_enrollment_classrooms on date range' do
+      expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.last)
+    end
+
+
+    it 'should not return list of student_enrollment_classrooms out of date range' do
+      expect(list_student_enrollment_classrooms).not_to eq(student_enrollment_classrooms_out_date)
+    end
+  end
 #
 #   context 'when to send year to search student_enrollments' do
 #     let(:classroom_with_year) { create(:classroom, year: 2022) }
