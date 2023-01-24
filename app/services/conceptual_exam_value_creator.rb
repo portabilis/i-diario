@@ -53,7 +53,7 @@ class ConceptualExamValueCreator
 
 
   def conceptual_exam_values_to_create(grade)
-    disciplines = disciplines(classroom_id, grade)
+    search_disciplines_related_to_grades = disciplines(classroom_id, grade)
 
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
                               .joins(join_conceptual_exam_value)
