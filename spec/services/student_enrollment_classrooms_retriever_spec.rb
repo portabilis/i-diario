@@ -49,7 +49,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   context 'when the params are incorrect' do
     it 'should return ArgumentError to missing params @date' do
       expect {
-        StudentEnrollmentsRetriever.call(
+        StudentEnrollmentClassroomsRetriever.call(
           search_type: :by_date,
           classrooms: classroom_grade.classroom_id,
           disciplines: discipline
@@ -59,7 +59,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
 
     it 'should return ArgumentError to missing params @start_at or @end_at' do
       expect {
-        StudentEnrollmentsRetriever.call(
+        StudentEnrollmentClassroomsRetriever.call(
           search_type: :by_date_range,
           classrooms: classroom_grade.classroom_id,
           disciplines: discipline,
@@ -73,7 +73,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       discipline_invalid = create(:discipline)
 
       expect(
-        StudentEnrollmentsRetriever.call(
+        StudentEnrollmentClassroomsRetriever.call(
           search_type: :by_date,
           classrooms: classroom_invalid,
           disciplines: discipline_invalid,
@@ -84,7 +84,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
 
     it 'should return nil for blank params' do
       expect(
-        StudentEnrollmentsRetriever.call(
+        StudentEnrollmentClassroomsRetriever.call(
           search_type: '',
           classrooms: '',
           disciplines: ''
