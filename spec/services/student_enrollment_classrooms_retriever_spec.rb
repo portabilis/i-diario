@@ -351,37 +351,37 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       ).to include(student_enrollment_classrooms.first)
     end
   end
-#
-#   context 'when include_date_range params exist' do
-#     let(:student_enrollments_list) { create_list_student_enrollments }
-#
-#     it 'should return student_enrollments with joined_at dates after @start_at' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           search_type: :by_date_range,
-#           classrooms: classroom_grade.classroom_id,
-#           disciplines: discipline,
-#           start_at: '2023-03-03',
-#           end_at: '2023-06-03',
-#           include_date_range: true
-#         )
-#       ).to include(student_enrollments_list.first, student_enrollments_list.second)
-#     end
-#
-#     it 'should return student_enrollments with joined_at dates before @start_at' do
-#       expect(
-#         StudentEnrollmentsRetriever.call(
-#           search_type: :by_date_range,
-#           classrooms: classroom_grade.classroom_id,
-#           disciplines: discipline,
-#           start_at: '2023-04-20',
-#           end_at: '2023-12-03',
-#           include_date_range: true
-#         )
-#       ).to include(student_enrollments_list.second)
-#     end
-#   end
-#
+
+  context 'when include_date_range params exist' do
+    let(:student_enrollment_classrooms) { create_student_enrollment_classrooms }
+
+    it 'should return student_enrollment_classrooms with joined_at dates after start_at' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          search_type: :by_date_range,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          start_at: '2023-03-03',
+          end_at: '2023-06-03',
+          include_date_range: true
+        )
+      ).to include(student_enrollment_classrooms.first, student_enrollment_classrooms.last)
+    end
+
+    it 'should return student_enrollment_classrooms with joined_at dates before @start_at' do
+      expect(
+        StudentEnrollmentClassroomsRetriever.call(
+          search_type: :by_date_range,
+          classrooms: classroom_grade.classroom_id,
+          disciplines: discipline,
+          start_at: '2023-04-20',
+          end_at: '2023-12-03',
+          include_date_range: true
+        )
+      ).to include(student_enrollment_classrooms.last)
+    end
+  end
+
 #   context 'when opinion_type params exist' do
 #     let(:exam_rule) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE) }
 #     let(:classroom_grade_with_exam_rule) { create(:classrooms_grade, exam_rule: exam_rule) }
@@ -570,23 +570,20 @@ def create_student_enrollments_with_status
   student_enrollment_classrooms_list << enrollment_classroom_active
 end
 
-#
-# def create_list_student_enrollments
-#   enrollments = create_list(:student_enrollment, 2)
-#
-#   create(
-#     :student_enrollment_classroom,
-#     student_enrollment: enrollments.first,
-#     classrooms_grade: classroom_grade,
-#     joined_at: '2023-04-04'
-#   )
-#
-#   create(
-#     :student_enrollment_classroom,
-#     student_enrollment: enrollments.second,
-#     classrooms_grade: classroom_grade,
-#     joined_at: '2023-05-04'
-#   )
-#
-#   enrollments
-# end
+def create_student_enrollment_classrooms
+  student_enrollment_classrooms = []
+
+  enrollment_classroom_first = create(
+    :student_enrollment_classroom,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-04-04'
+  )
+  student_enrollment_classrooms << enrollment_classroom_first
+
+  enrollment_classroom_second = create(
+    :student_enrollment_classroom,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-05-04'
+  )
+  student_enrollment_classrooms << enrollment_classroom_second
+end
