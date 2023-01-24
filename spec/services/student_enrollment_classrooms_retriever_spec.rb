@@ -14,19 +14,17 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       left_at: '2023-12-12'
     )
   }
-  let(:student_enrollments) { student_enrollment_classrooms.map(&:student_enrollment) }
 
   before do
     classroom
     classroom_grade
     discipline
     student_enrollment_classrooms
-    student_enrollments
   end
 
   context 'when the params are correct' do
-    subject(:list_student_enrollments) {
-      StudentEnrollmentsRetriever.call(
+    subject(:list_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
         search_type: :by_date,
         classrooms: classroom_grade.classroom_id,
         disciplines: discipline,
@@ -34,16 +32,16 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       )
     }
 
-    it 'should return list of student_enrollments' do
-      expect(list_student_enrollments.size).to eq(3)
+    it 'should return list of student_enrollment_classrooms' do
+      expect(list_enrollment_classrooms.size).to eq(3)
     end
 
     it 'should ensure that params are valid' do
-      expect(list_student_enrollments).to be_truthy
+      expect(list_enrollment_classrooms).to be_truthy
     end
 
-    it 'should return a student_enrollment relation' do
-      expect(list_student_enrollments.class).to eq(StudentEnrollment::ActiveRecord_Relation)
+    it 'should return a student_enrollment_classrooms relation' do
+      expect(list_enrollment_classrooms.class).to eq(StudentEnrollmentClassroom::ActiveRecord_Relation)
     end
 
   end
