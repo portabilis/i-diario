@@ -142,40 +142,45 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(list_student_enrollment_classrooms).not_to include(another_student_enrollment_classroom)
     end
   end
-#
-#   context 'when there are student_enrollment_dependence liked with student_enrollments' do
-#     let(:student_enrollment_dependence) {
-#       create(
-#         :student_enrollment_dependence,
-#         discipline: discipline,
-#         student_enrollment: student_enrollments.last
-#       )
-#     }
-#
-#     subject(:list_student_enrollments) {
-#       StudentEnrollmentsRetriever.call(
-#         search_type: :by_date,
-#         classrooms: classroom_grade.classroom_id,
-#         disciplines: discipline,
-#         date: '2023-02-02'
-#       )
-#     }
-#
-#     it 'should return student_enrollment in dependence on the discipline' do
-#       expect(list_student_enrollments).to include(student_enrollments.last)
-#     end
-#
-#     it 'should return student_enrollments with and without dependence on the discipline' do
-#       expect(list_student_enrollments).to include(student_enrollments.first)
-#     end
-#
-#     it 'should not return student_enrollments in dependence on another discipline' do
-#       student_enrollment_dependence = create_list(:student_enrollment_dependence, 3)
-#       student_enrollments_ids = list_student_enrollments.pluck(:id)
-#
-#       expect(student_enrollments_ids).not_to include(student_enrollment_dependence.map(&:student_enrollment_id))
-#     end
-#   end
+
+  context 'when there are students with dependence on the disciplines' do
+    let(:student_enrollment_dependence) {
+      create(
+        :student_enrollment_dependence,
+        discipline: discipline,
+        student_enrollment: student_enrollment_classrooms.last.student_enrollment
+      )
+    }
+
+    subject(:list_student_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        date: '2023-02-02'
+      )
+    }
+
+    it 'should return student_enrollment_classrooms in dependence on the discipline' do
+      expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.last)
+    end
+
+    it 'should return student_enrollment_classrooms without dependence on the discipline' do
+      expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.first)
+    end
+
+    it 'should not return student_enrollments in dependence on another discipline' do
+      another_student_enrollment_dependence = create(:student_enrollment_dependence)
+      another_student_enrollment_classroom = create(
+        :student_enrollment_classroom,
+        student_enrollment: another_student_enrollment_dependence.student_enrollment
+      )
+
+      expect(list_student_enrollment_classrooms).not_to contain_exactly(
+        another_student_enrollment_classroom
+      )
+    end
+  end
 #
 #   context 'when to send date to search student_enrollments' do
 #     let(:enrollment_classrooms) {
