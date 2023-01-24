@@ -43,7 +43,7 @@ class StudentEnrollmentClassroomsRetriever
     # enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
     #
     # enrollment_classrooms = search_by_search_type(enrollment_classrooms)
-    # enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
+    enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
     # enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
 
     enrollment_classrooms
