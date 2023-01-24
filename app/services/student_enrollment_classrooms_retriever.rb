@@ -36,7 +36,7 @@ class StudentEnrollmentClassroomsRetriever
                                                         .includes(student_enrollment: :dependences)
                                                         .active
 
-    # enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
+    enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     # enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     # enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
     # enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
