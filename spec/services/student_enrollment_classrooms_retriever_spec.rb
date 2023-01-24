@@ -93,7 +93,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
   end
 
-  context 'when there are active and inactive student_enrollments' do
+  context 'when there are student_enrollment_classrooms linked to active and inactive student_enrollments' do
     let(:student_enrollment_inactive) { create(:student_enrollment, active: IeducarBooleanState::INACTIVE) }
     let(:student_enrollment_classroom_inactive) {
       create(
@@ -120,28 +120,28 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
   end
 
-#   context 'when there are enrollment_classrooms liked with student_enrollments' do
-#     let(:list_classrooms) { create_list(:classroom, 3) }
-#
-#     subject(:list_student_enrollments) {
-#       StudentEnrollmentsRetriever.call(
-#         search_type: :by_date,
-#         classrooms: [list_classrooms, classroom_grade.classroom_id],
-#         disciplines: discipline,
-#         date: '2023-02-02'
-#       )
-#     }
-#
-#     it 'should return student_enrollments liked to classrooms' do
-#       expect(list_student_enrollments).to include(student_enrollments.first)
-#     end
-#
-#     it 'should not return student_enrollments without linked classrooms' do
-#       enrollment_without_classroom = create(:student_enrollment)
-#
-#       expect(list_student_enrollments).not_to include(enrollment_without_classroom)
-#     end
-#   end
+  context 'when there are many classrooms in params' do
+    let(:another_classroom) { create(:classroom) }
+
+    subject(:list_student_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date,
+        classrooms: [another_classroom, classroom_grade.classroom_id],
+        disciplines: discipline,
+        date: '2023-02-02'
+      )
+    }
+
+    it 'should return student_enrollment_classrooms liked to classrooms' do
+      expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.first)
+    end
+
+    it 'should not return student_enrollment_classrooms without linked classrooms' do
+      another_student_enrollment_classroom = create(:student_enrollment_classroom)
+
+      expect(list_student_enrollment_classrooms).not_to include(another_student_enrollment_classroom)
+    end
+  end
 #
 #   context 'when there are student_enrollment_dependence liked with student_enrollments' do
 #     let(:student_enrollment_dependence) {
@@ -539,7 +539,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
 #   end
 #
 #   context 'when with_recovery_note_in_step params exist'
-# end
+end
 #
 # def create_student_enrollments_with_status
 #   student_enrollment_list = []
