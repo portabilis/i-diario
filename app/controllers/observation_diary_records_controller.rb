@@ -10,7 +10,7 @@ class ObservationDiaryRecordsController < ApplicationController
     current_discipline = fetch_current_discipline
     teachers_by_discipline = fetch_teachers_by_discipline(current_discipline)
 
-    @observation_diary_records = apply_scopes(ObservationDiaryRecord, params.to_h)
+    @observation_diary_records = apply_scopes(ObservationDiaryRecord)
       .includes(:discipline, classroom: :unity)
       .by_classroom(current_user_classroom)
       .by_teacher(teachers_by_discipline)
