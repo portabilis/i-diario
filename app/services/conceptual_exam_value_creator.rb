@@ -13,6 +13,8 @@ class ConceptualExamValueCreator
 
   def create_empty
     @grades_in_disciplines.each do |grade, disciplines|
+      next if grade.blank?
+
       conceptual_exam_values_to_create(grade).each do |record|
         student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
 
