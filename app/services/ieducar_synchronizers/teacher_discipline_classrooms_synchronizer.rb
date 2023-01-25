@@ -42,7 +42,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           )
         )
 
-        create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
+        create_empty_conceptual_exam_value(teacher_discipline_classroom_record) if teacher_discipline_classroom_record.deleted_at.present?
       end
     end
   end
