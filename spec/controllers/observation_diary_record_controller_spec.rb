@@ -70,6 +70,7 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
   let(:params) {
     {
       locale: 'pt-BR',
+      format: 'json',
       observation_diary_record: {
         discipline_id: discipline.id,
         classroom_id: classroom,
@@ -139,6 +140,7 @@ RSpec.describe ObservationDiaryRecordsController, type: :controller do
 
         params[:observation_diary_record][:discipline_id] = discipline.id
         params[:id] = observation_diary_record.id
+        request.headers['CONTENT_TYPE'] = 'application/json'
         patch :update, params: params.merge(params)
         expect(ObservationDiaryRecord.find(observation_diary_record.id).discipline_id).to eq(discipline.id)
       end
