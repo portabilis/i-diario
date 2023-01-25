@@ -6,7 +6,7 @@ class SchoolCalendarStepsController < ApplicationController
   end
 
   def index
-    @school_calendar_steps = apply_scopes(SchoolCalendarStep).ordered
+    @school_calendar_steps = apply_scopes(SchoolCalendarStep, params.to_h).ordered
 
     steps = []
     @school_calendar_steps.each do |school_calendar_step|
