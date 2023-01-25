@@ -23,8 +23,7 @@ class DisciplineTeachingPlansController < ApplicationController
                                       teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
                             .by_discipline(discipline)
                             .by_unity(current_unity)
-                            .by_year(current_school_year),
-      params.to_h
+                            .by_year(current_school_year)
     )
 
     unless current_user_is_employee_or_administrator?

@@ -22,8 +22,7 @@ class DisciplineLessonPlansController < ApplicationController
                           .by_classroom_id(current_user_classroom)
                           .by_discipline_id(discipline)
                           .uniq
-                          .ordered,
-      params.to_h
+                          .ordered
     ).select(
       DisciplineLessonPlan.arel_table[Arel.sql('*')],
       LessonPlan.arel_table[:start_at],
