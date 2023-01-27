@@ -1,18 +1,18 @@
 class ConceptualExamValueCreator
-  def self.create_empty_by(classroom_id, teacher_id, grades_in_disciplines)
-    new(classroom_id, teacher_id, grades_in_disciplines).create_empty
+  def self.create_empty_by(classroom_id, teacher_id, grade_in_disciplines)
+    new(classroom_id, teacher_id, grade_in_disciplines).create_empty
   end
 
-  def initialize(classroom_id, teacher_id, grades_in_disciplines)
-    raise ArgumentError if classroom_id.blank? || teacher_id.blank? || grades_in_disciplines.blank?
+  def initialize(classroom_id, teacher_id, grade_in_disciplines)
+    raise ArgumentError if classroom_id.blank? || teacher_id.blank? || grade_in_disciplines.blank?
 
     @classroom_id = classroom_id
     @teacher_id = teacher_id
-    @grades_in_disciplines = grades_in_disciplines
+    @grade_in_disciplines = grade_in_disciplines
   end
 
   def create_empty
-    @grades_in_disciplines.each do |grade, disciplines|
+    @grade_in_disciplines.each do |grade, disciplines|
       next if grade.blank?
 
       conceptual_exam_values_to_create(grade).each do |record|
