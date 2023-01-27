@@ -42,7 +42,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           )
         )
 
-        create_empty_conceptual_exam_value(teacher_discipline_classroom_record) if teacher_discipline_classroom_record.deleted_at.present?
+        create_empty_conceptual_exam_value(teacher_discipline_classroom_record) unless teacher_discipline_classroom_record.deleted_at.present?
       end
     end
   end
@@ -133,16 +133,18 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
     hash_api_codes = teacher_discipline_classroom_record.disciplinas_serie.to_h
 
-    grades_in_disciplines = {}
+    grade_in_disciplines = {}
 
     return if hash_api_codes.blank?
 
-    hash_api_codes.each do |hash|
-      grade_id = Grade.find_by(api_code: hash.first).try(:id)
-      discipline_ids = Discipline.where(api_code: hash.last).pluck(:id)
+    hash_api_codes.each do |grade, disciplines|
+      return if grade.blank?
 
-      grades_in_disciplines[grade_id] ||= []
-      grades_in_disciplines[grade_id] = discipline_ids
+      grade_id = Grade.find_by(api_code: grade).try(:id)
+      discipline_ids = Discipline.where(api_code: disciplines).pluck(:id)
+
+      grade_in_disciplines[grade_id] ||= []
+      grade_in_disciplines[grade_id] = discipline_ids
     end
 
     return if teacher_id.nil?
@@ -154,7 +156,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       entity_id,
       classroom_id,
       teacher_id,
-      grades_in_disciplines
+      grade_in_disciplines
     )
   end
 
