@@ -3,8 +3,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: year,
-          escola: unity_api_code
+            ano: year,
+            escola: unity_api_code
         )['vinculos']
       )
     )
@@ -138,7 +138,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     return if hash_api_codes.blank?
 
     hash_api_codes.each do |grade, disciplines|
-      return if grade.blank?
+      next if grade.blank?
 
       grade_id = Grade.find_by(api_code: grade).try(:id)
       discipline_ids = Discipline.where(api_code: disciplines).pluck(:id)
@@ -150,6 +150,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     return if teacher_id.nil?
     return if classroom_id.nil?
     return if classroom.discarded?
+    return if grade_in_disciplines.blank?
 
     CreateEmptyConceptualExamValueWorker.perform_in(
       1.second,
@@ -176,7 +177,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       TeacherDisciplineClassroom.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
-        year: year,
+        year: 2022,
         teacher_id: teacher_discipline_classroom.teacher_id,
         teacher_api_code: teacher_discipline_classroom.teacher_api_code,
         discipline_id: fake_discipline.id,
