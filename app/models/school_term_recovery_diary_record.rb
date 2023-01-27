@@ -10,7 +10,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
 
   accepts_nested_attributes_for :recovery_diary_record
 
