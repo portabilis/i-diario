@@ -291,19 +291,16 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       )
     }
 
-    it 'should return return student_enrollment_classrooms with all status' do
-      student_enrollment_classrooms_list = create_student_enrollments_with_status
-
+    it 'should return student_enrollment_classrooms with all status' do
+      create_student_enrollment_classrooms_with_status
       expect(list_student_enrollment_classrooms).to include(
-        student_enrollment_classrooms_list.first,
-        student_enrollment_classrooms_list.last
+        @enrollment_classroom_inactive,
+        @enrollment_classroom_active
       )
     end
   end
 
   context 'when show_inactive checkbox is not enabled in settings' do
-    let(:student_enrollment_classrooms) { create_student_enrollments_with_status }
-
     subject(:list_student_enrollment_classrooms) {
       StudentEnrollmentClassroomsRetriever.call(
         search_type: :by_date_range,
@@ -315,11 +312,13 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     }
 
     it 'should return student_enrollment_classrooms with studying status' do
-      expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.last)
+      create_student_enrollment_classrooms_with_status
+      expect(list_student_enrollment_classrooms).to include(@enrollment_classroom_active)
     end
 
     it 'should not return student_enrollment_classrooms with transferred status' do
-      expect(list_student_enrollment_classrooms).not_to include(student_enrollment_classrooms.first)
+      create_student_enrollment_classrooms_with_status
+      expect(list_student_enrollment_classrooms).not_to include(@enrollment_classroom_inactive)
     end
   end
 
@@ -486,12 +485,10 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   context 'when with_recovery_note_in_step params exist'
 end
 
-def create_student_enrollments_with_status
-  student_enrollment_classrooms_list = []
-
+def create_student_enrollment_classrooms_with_status
   student = create(:student)
   enrollment_inactive = create(:student_enrollment, student: student, status: 4)
-  enrollment_classroom_inactive = create(
+  @enrollment_classroom_inactive = create(
     :student_enrollment_classroom,
     student_enrollment: enrollment_inactive,
     classrooms_grade: classroom_grade,
@@ -500,17 +497,13 @@ def create_student_enrollments_with_status
     show_as_inactive_when_not_in_date: true
   )
 
-  student_enrollment_classrooms_list << enrollment_classroom_inactive
-
   enrollment_active = create(:student_enrollment, student: student, status: 3)
-  enrollment_classroom_active = create(
+  @enrollment_classroom_active = create(
     :student_enrollment_classroom,
     student_enrollment: enrollment_active,
     classrooms_grade: classroom_grade,
     joined_at: '2023-05-02'
   )
-
-  student_enrollment_classrooms_list << enrollment_classroom_active
 end
 
 def create_student_enrollment_classrooms
