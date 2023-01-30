@@ -3,8 +3,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: year,
-          escola: unity_api_code
+            ano: year,
+            escola: unity_api_code
         )['vinculos']
       )
     )
@@ -42,7 +42,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           )
         )
 
-        create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
+        create_empty_conceptual_exam_value(teacher_discipline_classroom_record) unless teacher_discipline_classroom_record.deleted_at.present?
       end
     end
   end
@@ -130,18 +130,34 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   def create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
     classroom = classroom(teacher_discipline_classroom_record.turma_id)
     classroom_id = classroom.try(:id)
-
     teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
+    hash_api_codes = teacher_discipline_classroom_record.disciplinas_serie.to_h
+
+    grade_in_disciplines = {}
+
+    return if hash_api_codes.blank?
+
+    hash_api_codes.each do |grade, disciplines|
+      next if grade.blank?
+
+      grade_id = Grade.find_by(api_code: grade).try(:id)
+      discipline_ids = Discipline.where(api_code: disciplines).pluck(:id)
+
+      grade_in_disciplines[grade_id] ||= []
+      grade_in_disciplines[grade_id] = discipline_ids
+    end
 
     return if teacher_id.nil?
     return if classroom_id.nil?
     return if classroom.discarded?
+    return if grade_in_disciplines.blank?
 
     CreateEmptyConceptualExamValueWorker.perform_in(
       1.second,
       entity_id,
       classroom_id,
-      teacher_id
+      teacher_id,
+      grade_in_disciplines
     )
   end
 
@@ -161,7 +177,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       TeacherDisciplineClassroom.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
-        year: year,
+        year: 2022,
         teacher_id: teacher_discipline_classroom.teacher_id,
         teacher_api_code: teacher_discipline_classroom.teacher_api_code,
         discipline_id: fake_discipline.id,
