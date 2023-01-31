@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @observation_diary_records.empty? %>
     <tr>
-      <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @observation_diary_records.each do |observation_diary_record| %>

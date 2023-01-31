@@ -23,14 +23,14 @@
             <th><%= t('.student') %></th>
             <th><%= ObservationDiaryRecord.human_attribute_name :discipline %>
             <th><%= ObservationDiaryRecord.human_attribute_name :date %></th>
-            <th></td>
+            <th>
           </tr>
         </thead>
 
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="5">
+          <td colspan="6">
             <div id="page_entries_info" class="pull-left hidden-xs">
               <%= page_entries_info @observation_diary_records %>
             </div>
