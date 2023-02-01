@@ -79,7 +79,7 @@ module ExamPoster
             next if exempted_discipline(classroom, discipline.id, student_score.id)
             next unless correct_score_type(student_score.uses_differentiated_exam_rule,
                                            exam_rule)
-            next unless numerical_or_school_term_recovery?(classroom, discipline, student_score)
+            next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score)
 
             exempted_discipline_ids =
               ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
@@ -90,7 +90,6 @@ module ExamPoster
                                                 .calculate(classroom, discipline, get_step(classroom)))
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             end
-
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             next unless school_term_recovery
@@ -104,6 +103,17 @@ module ExamPoster
       end
 
       scores
+    end
+
+    def exist_complementary_exam?(classroom, discipline, student_score)
+      start_at = get_step(classroom).start_at
+      end_at = get_step(classroom).end_at
+
+      ComplementaryExamStudent.by_complementary_exam_id(
+        ComplementaryExam.by_classroom_id(classroom)
+                         .by_discipline_id(discipline)
+                         .by_date_range(start_at, end_at)
+      ).by_student_id(student_score)
     end
 
     def numerical_or_school_term_recovery?(classroom, discipline, student_score)
