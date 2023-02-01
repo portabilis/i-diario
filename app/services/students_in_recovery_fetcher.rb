@@ -72,14 +72,15 @@ class StudentsInRecoveryFetcher
     @step ||= steps_fetcher.step_by_id(@step_id)
   end
 
-  def enrollment_students
-    @enrollment_students ||= begin
+  def student_enrollments(classroom_grade_ids)
+    @student_enrollments ||= begin
       end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
       StudentEnrollmentsRetriever.call(
         classrooms: classroom,
         disciplines: discipline,
         start_at: step.start_at,
+        classroom_grades: classroom_grade_ids,
         end_at: end_at,
         search_type: :by_date_range
       ).by_date_not_after(end_at)
@@ -100,10 +101,8 @@ class StudentsInRecoveryFetcher
   end
 
   def filter_students_in_recovery
-    classrooms_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
-    ids_in_recovery = StudentEnrollmentClassroom.where(classrooms_grade_id: classrooms_grade_ids).pluck(:student_enrollment_id)
-    in_recovery_and_enrolled = ids_in_recovery & enrollment_students.map(&:id)
-    student_enrollments_in_recovery = StudentEnrollment.where(id: in_recovery_and_enrolled)
+    classroom_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
+    student_enrollments_in_recovery = student_enrollments(classroom_grade_ids)
 
     student_enrollments_in_recovery.map(&:student)
   end
