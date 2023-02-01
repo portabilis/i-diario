@@ -76,13 +76,13 @@ class StudentsInRecoveryFetcher
     @enrollment_students ||= begin
       end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-      StudentEnrollmentsList.new(
-        classroom: classroom,
-        discipline: discipline,
+      StudentEnrollmentsRetriever.call(
+        classrooms: classroom,
+        disciplines: discipline,
         start_at: step.start_at,
         end_at: end_at,
         search_type: :by_date_range
-      ).student_enrollments(true).by_date_not_after(end_at)
+      ).by_date_not_after(end_at)
     end
   end
 
