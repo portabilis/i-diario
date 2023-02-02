@@ -1,0 +1,12 @@
+class AddNewFieldsInBncc < ActiveRecord::Migration
+  def change
+    execute <<-SQL
+      insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.methodology_by_discipline', 'Metodologia (por disciplina)', '', 'teaching_plans', 'fields', 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro; cópia de registros', 25, now(), now());
+      insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.methodology_by_knowledge_area', 'Metodologia (por área)', '', 'lesson_plans', 'fields', 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro; cópia de registros', 26, now(), now());
+      insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.avaliation_by_discipline', 'Avaliação (por disciplina)', '', 'teaching_plans', 'fields', 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro; cópia de registros', 27, now(), now());
+      insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.avaliation_knowledge_area', 'Avaliação (por área)', '', 'lesson_plans', 'fields', 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro; cópia de registros', 28, now(), now());
+      insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.references_by_discipline', 'Referências (por disciplina)', '', 'teaching_plans', 'fields', 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro; cópia de registros', 29, now(), now());
+      insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.references_knowledge_area', 'Referências (por área)', '', 'lesson_plans', 'fields', 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro; cópia de registros', 30, now(), now());
+    SQL
+  end
+end
