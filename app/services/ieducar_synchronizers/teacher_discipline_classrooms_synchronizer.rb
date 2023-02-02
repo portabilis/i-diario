@@ -177,7 +177,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       TeacherDisciplineClassroom.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
-        year: 2022,
+        year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
         teacher_api_code: teacher_discipline_classroom.teacher_api_code,
         discipline_id: fake_discipline.id,
