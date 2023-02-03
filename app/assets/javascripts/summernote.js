@@ -28,6 +28,7 @@ function createSummerNote(element, options = {}) {
 }
 
 function CleanPastedHTML(input) {
+  console.log('sss')
   var stringStripper = /(\n|\r| class=(")?Mso[a-zA-Z]+(")?)/g;
   var output = input.replace(stringStripper, ' ');
   var commentSripper = new RegExp('<!--(.*?)-->','g');
@@ -46,4 +47,23 @@ function CleanPastedHTML(input) {
   }
 
   return output;
+}
+
+function getTags(htmlString){
+  var tmpTag = document.createElement("div");
+  tmpTag.innerHTML = htmlString;
+
+  var all = tmpTag.getElementsByTagName("*");
+  var goodTags = ['DIV', 'P', 'B', 'I', 'U', 'BR'];
+  var tags = [];
+
+  for (var i = 0, max = all.length; i < max; i++) {
+    var tagname = all[i].tagName;
+
+    if (tags.indexOf(tagname) == -1 && !goodTags.includes(tagname)) {
+      tags.push(tagname);
+    }
+  }
+
+  return tags
 }
