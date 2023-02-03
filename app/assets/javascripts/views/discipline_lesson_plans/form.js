@@ -241,56 +241,6 @@ $(function () {
   }
 });
 
-function createSummerNote(element, options = {}) {
-  $(element).summernote({
-    lang: 'pt-BR',
-    toolbar: options.toolbar || [],
-    disableDragAndDrop : true,
-    callbacks : {
-      onPaste : function (event) {
-        var thisNote = $(this);
-        var updatePastedText = function(someNote){
-          var original = someNote.summernote('code');
-          var cleaned = CleanPastedHTML(original);
-
-          someNote.summernote('code', cleaned);
-        };
-
-        setTimeout(function () {
-          updatePastedText(thisNote);
-        }, 10);
-      }
-    }
-  });
-
-  if (options.disabled) {
-    $(element).each(function(index, el) {
-      $(el).summernote('disable');
-    })
-  }
-}
-
-function CleanPastedHTML(input) {
-  var stringStripper = /(\n|\r| class=(")?Mso[a-zA-Z]+(")?)/g;
-  var output = input.replace(stringStripper, ' ');
-  var commentSripper = new RegExp('<!--(.*?)-->','g');
-  var output = output.replace(commentSripper, '');
-  var tagStripper = new RegExp('<(/)*(meta|link|span|\\?xml:|st1:|o:|font)(.*?)>','gi');
-  output = output.replace(tagStripper, '');
-  var badTags = getTags(output)
-  for (var i=0; i< badTags.length; i++) {
-    tagStripper = new RegExp('<'+badTags[i]+'.*?'+badTags[i]+'(.*?)>', 'gi');
-    output = output.replace(tagStripper, '');
-  }
-  var badAttributes = ['style', 'start'];
-  for (var i=0; i< badAttributes.length; i++) {
-    var attributeStripper = new RegExp(' ' + badAttributes[i] + '="(.*?)"','gi');
-    output = output.replace(attributeStripper, '');
-  }
-
-  return output;
-}
-
 $(function () {
 
   $('textarea[maxLength]').maxlength();
