@@ -242,7 +242,6 @@ $(function () {
 });
 
 $(function () {
-
   $('textarea[maxLength]').maxlength();
 
   createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_activities]" , {
@@ -250,19 +249,16 @@ $(function () {
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-
   createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_resources]" , {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-
   createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_evaluation]" , {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-
   createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_bibliography]" , {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
