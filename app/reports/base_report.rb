@@ -103,7 +103,8 @@ class BaseReport
           width: bounds.width - 10,
           overflow: :truncate,
           size: 10,
-          at: [5, box_height - 20]
+          at: [5, box_height - 20],
+          inline_format: true
         )
       end
 
