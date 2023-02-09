@@ -99,7 +99,7 @@ class BaseReport
 
         information = text_formatted.join(" ")
       end
-      # return if information.class.eql?(Array)
+
       text_height = height_of(information, width: bounds.width - 10, size: 10) + 30
       box_height = (text_height > cursor ? cursor : text_height)
 
