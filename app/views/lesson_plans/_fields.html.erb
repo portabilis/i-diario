@@ -134,12 +134,12 @@
 </fieldset>
 
 <% if @discipline_lesson_plan.present? %>
-<% @methodology_translation = Translation.find_by(key: 'navigation.methodology_by_discipline', group: 'lesson_plans').translation %>
+<% @methodology_translation = Translation.find_by(key: 'navigation.actives_methodology_by_discipline', group: 'lesson_plans').translation %>
 <% @resources_translation = Translation.find_by(key: 'navigation.resources_by_discipline', group: 'lesson_plans').translation %>
 <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'lesson_plans').translation %>
 <% @references_translation = Translation.find_by(key: 'navigation.references_by_discipline', group: 'lesson_plans').translation %>
 <% else @knowledge_area_lesson_plan.present? %>
-<% @methodology_translation= Translation.find_by(key: 'navigation.methodology_by_knowledge_area', group: 'lesson_plans').translation %>
+<% @methodology_translation= Translation.find_by(key: 'navigation.actives_methodology_by_knowledge_area', group: 'lesson_plans').translation %>
 <% @resources_translation = Translation.find_by(key: 'navigation.resources_by_knowledge_area', group: 'lesson_plans').translation %>
 <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'lesson_plans').translation %>
 <% @references_translation = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'lesson_plans').translation %>
