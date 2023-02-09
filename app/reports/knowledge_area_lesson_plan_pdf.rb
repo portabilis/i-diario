@@ -239,7 +239,6 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     avaliation_label = Translation.t('navigation.avaliation_by_knowledge_area')
     references_label = Translator.t('navigation.references_by_knowledge_area')
 
-
     text_box_truncate('Atividades/metodologia', (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
     text_box_truncate('Recursos', (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
     text_box_truncate(avaliation_label, (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
