@@ -92,6 +92,14 @@ class BaseReport
     draw_text(title, size: 8, style: :bold, at: [5, cursor - 10])
 
     begin
+      if information.class.eql?(Array)
+        text_formatted = []
+
+        text_formatted << information.map { |text| text[:text] }
+
+        information = text_formatted.join(" ")
+      end
+
       text_height = height_of(information, width: bounds.width - 10, size: 10) + 30
       box_height = (text_height > cursor ? cursor : text_height)
 
@@ -103,7 +111,8 @@ class BaseReport
           width: bounds.width - 10,
           overflow: :truncate,
           size: 10,
-          at: [5, box_height - 20]
+          at: [5, box_height - 20],
+          inline_format: true
         )
       end
 
@@ -119,7 +128,8 @@ class BaseReport
         at: at,
         width: width,
         height: height,
-        overflow: :truncate
+        overflow: :truncate,
+        inline_format: true
       )
 
       if information.present?

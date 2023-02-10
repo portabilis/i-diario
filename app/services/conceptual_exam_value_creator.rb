@@ -45,6 +45,9 @@ class ConceptualExamValueCreator
   def search_disciplines_related_to_grades(classroom_id, grade)
     classroom = Classroom.find(classroom_id)
     step_fetcher = StepsFetcher.new(classroom)
+
+    return if step_fetcher.school_calendar.blank?
+
     school_calendar = step_fetcher.school_calendar
 
     SchoolCalendarDisciplineGrade.where(
