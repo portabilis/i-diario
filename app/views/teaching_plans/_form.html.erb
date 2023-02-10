@@ -48,25 +48,21 @@
       </div>
     </div>
 
-    <% @methodology_translation = Translation.find_by(key: 'navigation.methodology_by_discipline', group: 'teaching_plans').translation %>
-    <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'teaching_plans').translation %>
-    <% @references_translation = Translation.find_by(key: 'navigation.references_by_discipline', group: 'teaching_plans').translation %>
-
     <div class="row">
       <div class="col col-sm-12">
-        <%= f.input :methodology, label: @methodology_translation %>
+        <%= f.input :methodology %>
       </div>
     </div>
 
     <div class="row">
       <div class="col col-sm-12">
-        <%= f.input :evaluation, label: @evaluation_translation%>
+        <%= f.input :evaluation %>
       </div>
     </div>
 
     <div class="row">
       <div class="col col-sm-12">
-        <%= f.input :references, label: @references_translation %>
+        <%= f.input :references %>
       </div>
     </div>
   </fieldset>
