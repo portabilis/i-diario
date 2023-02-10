@@ -77,3 +77,23 @@ $(function() {
     });
   }
 });
+
+$(function () {
+  $('textarea[maxLength]').maxlength();
+
+  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_methodology]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_evaluation]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_references]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+});
