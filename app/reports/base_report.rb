@@ -122,6 +122,14 @@ class BaseReport
 
   def text_box_overflow_to_new_page(information, size, at, width, height)
     begin
+      if information.class.eql?(Array)
+        text_formatted = []
+
+        text_formatted << information.map { |text| text[:text] }
+
+        information = text_formatted.join(" ")
+      end
+
       information = text_box(
         information,
         size: size,
