@@ -217,11 +217,15 @@ class DisciplineLessonPlanPdf < BaseReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+    actives_methodology_label = Translation.t('navigation.actives_methodology_by_discipline')
+    resources_label = Translation.t('navigation.resources_by_discipline')
+    avaliation_label = Translation.t('navigation.avaliation_by_discipline')
+    references_label = Translation.t('navigation.references_by_discipline')
 
-    text_box_truncate('Atividades/metodologia', (lesson_plan.activities || '-'))
-    text_box_truncate('Recursos', (lesson_plan.resources || '-'))
-    text_box_truncate('Avaliação', (lesson_plan.evaluation || '-'))
-    text_box_truncate('Referências', (lesson_plan.bibliography || '-'))
+    text_box_truncate(actives_methodology_label, (lesson_plan.activities || '-'))
+    text_box_truncate(resources_label, (lesson_plan.resources || '-'))
+    text_box_truncate(avaliation_label, (lesson_plan.evaluation || '-'))
+    text_box_truncate(references_label, (lesson_plan.bibliography || '-'))
   end
 
   def additional_information

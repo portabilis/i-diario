@@ -194,23 +194,27 @@
         </div>
       <% end %>
 
+      <% @methodology_translation = Translation.find_by(key: 'navigation.methodology_by_knowledge_area', group: 'teaching_plans').translation %>
+      <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'teaching_plans').translation %>
+      <% @references_translation = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'teaching_plans').translation %>
+
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :methodology, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :evaluation, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :references, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
