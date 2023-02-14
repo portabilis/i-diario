@@ -73,7 +73,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan.teaching_plan.objective_ids = objective_ids
     @knowledge_area_teaching_plan.teacher_id = current_teacher_id
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
-
+    @knowledge_area_teaching_plan.teaching_plan.methodology = resource_params[:teaching_plan_attributes][:methodology].gsub(/&nbsp;/, "").squeeze
+    @knowledge_area_teaching_plan.teaching_plan.evaluation = resource_params[:teaching_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
+    @knowledge_area_teaching_plan.teaching_plan.references = resource_params[:teaching_plan_attributes][:references].gsub(/&nbsp;/, "").squeeze
     authorize @knowledge_area_teaching_plan
 
     if @knowledge_area_teaching_plan.save
@@ -102,6 +104,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_teaching_plan.teacher_id = current_teacher_id
     @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher_id
+    @knowledge_area_teaching_plan.teaching_plan.methodology = resource_params[:teaching_plan_attributes][:methodology].gsub(/&nbsp;/, "").squeeze
+    @knowledge_area_teaching_plan.teaching_plan.evaluation = resource_params[:teaching_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
+    @knowledge_area_teaching_plan.teaching_plan.references = resource_params[:teaching_plan_attributes][:references].gsub(/&nbsp;/, "").squeeze
 
     authorize @knowledge_area_teaching_plan
 
