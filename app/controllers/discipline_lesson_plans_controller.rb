@@ -78,6 +78,10 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.objective_ids = objective_ids
     @discipline_lesson_plan.lesson_plan.teacher = current_teacher
     @discipline_lesson_plan.teacher_id = current_teacher_id
+    @discipline_lesson_plan.lesson_plan.activities = resource_params[:lesson_plan_attributes][:activities].gsub(/&nbsp;/, "").squeeze
+    @discipline_lesson_plan.lesson_plan.resources = resource_params[:lesson_plan_attributes][:resources].gsub(/&nbsp;/, "").squeeze
+    @discipline_lesson_plan.lesson_plan.evaluation = resource_params[:lesson_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
+    @discipline_lesson_plan.lesson_plan.bibliography = resource_params[:lesson_plan_attributes][:bibliography].gsub(/&nbsp;/, "").squeeze
 
     authorize @discipline_lesson_plan
 
@@ -100,6 +104,10 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.content_ids = content_ids
     @discipline_lesson_plan.lesson_plan.objective_ids = objective_ids
     @discipline_lesson_plan.teacher_id = current_teacher_id
+    @discipline_lesson_plan.lesson_plan.activities = resource_params[:lesson_plan_attributes][:activities].gsub(/&nbsp;/, "").squeeze
+    @discipline_lesson_plan.lesson_plan.resources = resource_params[:lesson_plan_attributes][:resources].gsub(/&nbsp;/, "").squeeze
+    @discipline_lesson_plan.lesson_plan.evaluation = resource_params[:lesson_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
+    @discipline_lesson_plan.lesson_plan.bibliography = resource_params[:lesson_plan_attributes][:bibliography].gsub(/&nbsp;/, "").squeeze
 
     authorize @discipline_lesson_plan
 
