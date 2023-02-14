@@ -79,6 +79,9 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
+    @discipline_teaching_plan.teaching_plan.methodology = resource_params[:teaching_plan_attributes][:methodology].gsub(/&nbsp;/, "").squeeze
+    @discipline_teaching_plan.teaching_plan.evaluation = resource_params[:teaching_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
+    @discipline_teaching_plan.teaching_plan.references = resource_params[:teaching_plan_attributes][:references].gsub(/&nbsp;/, "").squeeze
 
     authorize @discipline_teaching_plan
 
@@ -108,6 +111,9 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
     @discipline_teaching_plan.current_user = current_user
+    @discipline_teaching_plan.teaching_plan.methodology = resource_params[:teaching_plan_attributes][:methodology].gsub(/&nbsp;/, "").squeeze
+    @discipline_teaching_plan.teaching_plan.evaluation = resource_params[:teaching_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
+    @discipline_teaching_plan.teaching_plan.references = resource_params[:teaching_plan_attributes][:references].gsub(/&nbsp;/, "").squeeze
 
     authorize @discipline_teaching_plan
 
