@@ -80,10 +80,18 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.lesson_plan.objective_ids = objective_ids
     @knowledge_area_lesson_plan.lesson_plan.teacher = current_teacher
     @knowledge_area_lesson_plan.teacher_id = current_teacher_id
-    @knowledge_area_lesson_plan.lesson_plan.activities = resource_params[:lesson_plan_attributes][:activities].gsub(/&nbsp;/, "").squeeze
-    @knowledge_area_lesson_plan.lesson_plan.resources = resource_params[:lesson_plan_attributes][:resources].gsub(/&nbsp;/, "").squeeze
-    @knowledge_area_lesson_plan.lesson_plan.evaluation = resource_params[:lesson_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
-    @knowledge_area_lesson_plan.lesson_plan.bibliography = resource_params[:lesson_plan_attributes][:bibliography].gsub(/&nbsp;/, "").squeeze
+    @knowledge_area_lesson_plan.lesson_plan.activities = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:activities], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @knowledge_area_lesson_plan.lesson_plan.resources = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:resources], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @knowledge_area_lesson_plan.lesson_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @knowledge_area_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u' ]
+    )
 
     authorize @knowledge_area_lesson_plan
 
@@ -115,10 +123,18 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.lesson_plan.objective_ids = objective_ids
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.teacher_id = current_teacher_id
-    @knowledge_area_lesson_plan.lesson_plan.activities = resource_params[:lesson_plan_attributes][:activities].gsub(/&nbsp;/, "").squeeze
-    @knowledge_area_lesson_plan.lesson_plan.resources = resource_params[:lesson_plan_attributes][:resources].gsub(/&nbsp;/, "").squeeze
-    @knowledge_area_lesson_plan.lesson_plan.evaluation = resource_params[:lesson_plan_attributes][:evaluation].gsub(/&nbsp;/, "").squeeze
-    @knowledge_area_lesson_plan.lesson_plan.bibliography = resource_params[:lesson_plan_attributes][:bibliography].gsub(/&nbsp;/, "").squeeze
+    @knowledge_area_lesson_plan.lesson_plan.activities = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:activities], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @knowledge_area_lesson_plan.lesson_plan.resources = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:resources], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @knowledge_area_lesson_plan.lesson_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @knowledge_area_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u' ]
+    )
 
     authorize @knowledge_area_lesson_plan
 
