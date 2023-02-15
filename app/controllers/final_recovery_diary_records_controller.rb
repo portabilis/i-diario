@@ -35,6 +35,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.new.localized
     @final_recovery_diary_record.assign_attributes(resource_params)
     @final_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
+    @final_recovery_diary_record.recovery_diary_record.creator_type = 'final_recovery_diary_record'
 
     authorize @final_recovery_diary_record
 
@@ -86,7 +87,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   def destroy
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id])
 
-    @final_recovery_diary_record.destroy
+    @final_recovery_diary_record.recovery_diary_record.destroy
 
     respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
   end

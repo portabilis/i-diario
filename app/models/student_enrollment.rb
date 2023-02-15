@@ -31,11 +31,25 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at)) }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }
+  scope :by_date_not_after, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_after(date)) }
   scope :by_period, lambda { |period| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_period(period)) }
   scope :show_as_inactive, lambda { joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.show_as_inactive) }
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
   scope :active, -> { where(active: 1) }
   scope :ordered, -> { joins(:student, :student_enrollment_classrooms).order('sequence ASC, students.name ASC') }
+  scope :status_attending, lambda {
+    where(
+      student_enrollments: {
+        status: [
+          StudentEnrollmentStatus::STUDYING,
+          StudentEnrollmentStatus::APPROVED,
+          StudentEnrollmentStatus::APPROVED_WITH_DEPENDENCY,
+          StudentEnrollmentStatus::RECLASSIFIED,
+          StudentEnrollmentStatus::APPROVE_BY_COUNCIL
+        ]
+      }
+    )
+  }
 
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?

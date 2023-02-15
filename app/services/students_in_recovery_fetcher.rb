@@ -43,14 +43,14 @@ class StudentsInRecoveryFetcher
   end
 
   def classroom_grades_with_recovery_rule
-    return @classroom_grade if @classroom_grade
+    return @classroom_grade if @classroom_grade.present?
 
     @classroom_grade = []
 
     classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
 
     if @classroom_grade.empty?
-      classroom_grades.first
+      classroom_grades
     else
       @classroom_grade
     end
@@ -82,7 +82,7 @@ class StudentsInRecoveryFetcher
         start_at: step.start_at,
         end_at: end_at,
         search_type: :by_date_range
-      ).student_enrollments
+      ).student_enrollments(true).by_date_not_after(end_at)
     end
   end
 

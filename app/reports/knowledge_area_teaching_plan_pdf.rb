@@ -179,12 +179,16 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     experience_fields_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.experience_fields')
     contents_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents')
     objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
+    methododlogy_label = Translator.t('navigation.methodology_by_knowledge_area')
+    avaliation_label = Translator.t('navigation.avaliation_by_knowledge_area')
+    references_label = Translator.t('navigation.references_by_knowledge_area')
+
     text_box_truncate(experience_fields_label, experience_fields) if experience_fields
     text_box_truncate(contents_label, content)
     text_box_truncate(objectives_label, objectives)
-    text_box_truncate('Metodologia', methodology)
-    text_box_truncate('Avaliação', evaluation)
-    text_box_truncate('Referências', references)
+    text_box_truncate(methododlogy_label, methodology)
+    text_box_truncate(avaliation_label, evaluation)
+    text_box_truncate(references_label, references)
   end
 
   def teaching_plan

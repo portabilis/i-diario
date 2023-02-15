@@ -236,10 +236,15 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    text_box_truncate('Atividades/metodologia', (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
-    text_box_truncate('Recursos', (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
-    text_box_truncate('Avaliação', (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
-    text_box_truncate('Referências', (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))
+    actives_methodology_label = Translator.t('navigation.actives_methodology_by_knowledge_area')
+    resources_label = Translator.t('navigation.resources_by_knowledge_area')
+    avaliation_label = Translator.t('navigation.avaliation_by_knowledge_area')
+    references_label = Translator.t('navigation.references_by_knowledge_area')
+
+    text_box_truncate(actives_methodology_label, (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
+    text_box_truncate(resources_label, (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
+    text_box_truncate(avaliation_label, (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
+    text_box_truncate(references_label, (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))
   end
 
   def additional_information
