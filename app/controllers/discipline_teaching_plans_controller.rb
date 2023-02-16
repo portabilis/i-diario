@@ -79,6 +79,15 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
+    @discipline_teaching_plan.teaching_plan.methodology = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:methodology], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @discipline_teaching_plan.teaching_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:evaluation], tags: ['b','br', 'i', 'u' ]
+    )
+    @discipline_teaching_plan.teaching_plan.references = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:references], tags: ['b', 'br', 'i', 'u' ]
+    )
 
     authorize @discipline_teaching_plan
 
@@ -108,6 +117,15 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
     @discipline_teaching_plan.current_user = current_user
+    @discipline_teaching_plan.teaching_plan.methodology = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:methodology], tags: ['b', 'br', 'i', 'u' ]
+    )
+    @discipline_teaching_plan.teaching_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:evaluation], tags: ['b',  'br', 'i', 'u' ]
+    )
+    @discipline_teaching_plan.teaching_plan.references = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:references], tags: ['b',  'br', 'i', 'u' ]
+    )
 
     authorize @discipline_teaching_plan
 
