@@ -40,7 +40,6 @@ class AbsenceJustification < ActiveRecord::Base
   validates :justification, presence: true
 
   validate :at_least_one_student
-  validate :at_least_one_discipline, if: :frequence_type_by_discipline?
   validate :period_absence
   validate :no_retroactive_dates
 
