@@ -14,8 +14,6 @@ class AbsenceJustificationsController < ApplicationController
   # - [ ] Permitir lançar em lote, editar individual
 
   def index
-    current_discipline = fetch_current_discipline
-
     @classrooms = Classroom.where(id: current_user_classroom)
 
     author_type = (params[:search] || []).delete(:by_author)
@@ -29,8 +27,6 @@ class AbsenceJustificationsController < ApplicationController
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
                                                                .includes(:students).uniq.ordered)
-
-    @absence_justifications = @absence_justifications.by_discipline_id(current_discipline) if current_discipline
 
     if author_type.present?
       user_id = UserDiscriminatorService.new(current_user, current_user.current_role_is_admin_or_employee?).user_id
@@ -126,7 +122,6 @@ class AbsenceJustificationsController < ApplicationController
       :absence_date_end,
       :unity_id,
       :classroom_id,
-      :discipline_ids,
       absence_justification_attachments_attributes: [
         :id,
         :attachment,
@@ -135,7 +130,6 @@ class AbsenceJustificationsController < ApplicationController
     )
 
     parameters[:student_ids] = parameters[:student_ids].split(',')
-    parameters[:discipline_ids] = parameters[:discipline_ids].split(',')
 
     parameters
   end
@@ -153,6 +147,7 @@ class AbsenceJustificationsController < ApplicationController
   protected
 
   def fetch_students
+    # TODO: remover filtro por disciplina, não faz mais sentido
     student_enrollments = StudentEnrollmentsList.new(
       classroom: current_user_classroom,
       discipline: fetch_current_discipline,
