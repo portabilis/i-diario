@@ -6,7 +6,7 @@
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
 
-  <% if @absence_justification.teacher %>
+  <% if @absence_justification.legacy %>
     <!-- #absence-justifications-refactor esta mensagem é informativa para justificativas anteriores a 2023  -->
     <div class="alert alert-warning alert-dismissable">
       Não é possível editar uma justificativa de falta anterior ao ano de 2023.
@@ -22,7 +22,7 @@
         <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
       </div>
 
-      <% if @absence_justification.teacher %>
+      <% if @absence_justification.legacy %>
       <!-- #absence-justifications-refactor esta mensagem é informativa para justificativas anteriores a 2023  -->
       <div data-discipline>
         <div class="col col-sm-4">
@@ -34,7 +34,7 @@
                 required: true,
                 input_html: {
                   value: f.object.discipline_ids.join(','),
-                  readonly: @absence_justification.teacher,
+                  readonly: @absence_justification.legacy,
                   data: { without_json_parser: true }
                 } %>
         </div>
@@ -45,23 +45,23 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :absence_date, input_html: { readonly: @absence_justification.teacher } %>
+        <%= f.input :absence_date, input_html: { readonly: @absence_justification.legacy } %>
       </div>
       <div class="col col-sm-4">
-        <%= f.input :absence_date_end, input_html: { readonly: @absence_justification.teacher } %>
+        <%= f.input :absence_date_end, input_html: { readonly: @absence_justification.legacy } %>
       </div>
-      <% if @absence_justification.teacher %>
+      <% if @absence_justification.legacy %>
         <!-- #absence-justifications-refactor esta mensagem é informativa para justificativas anteriores a 2023  -->
         <div class="col col-sm-4" data-student>
           <%= f.association :students, as: :select2, elements: @students, multiple: true, required: true,
-          input_html: { value: f.object.student_ids.join(','), readonly: @absence_justification.teacher, data: { without_json_parser: true } } %>
+          input_html: { value: f.object.student_ids.join(','), readonly: @absence_justification.legacy, data: { without_json_parser: true } } %>
         </div>
       <% end %>
     </div>
     <div class="row">
 
       <div class="col col-sm-8">
-        <%= f.input :justification, input_html: { readonly: @absence_justification.teacher }  %>
+        <%= f.input :justification, input_html: { readonly: @absence_justification.legacy }  %>
       </div>
     </div>
 
@@ -103,7 +103,7 @@
             <td colspan="2">
               <%= link_to_add_association t('.add_attachment'), f, :absence_justification_attachments,
                 class: 'btn btn-success btn-sm',
-                disabled: @absence_justification.teacher,
+                disabled: @absence_justification.legacy,
                 :"data-association-insertion-method" => "append",
                 :"data-association-insertion-node" => "#absence-justification-attachments" %>
             </td>
@@ -125,7 +125,7 @@
       <%= link_to 'Histórico', history_absence_justification_path(@absence_justification), class: 'btn btn-info' %>
     <% end %>
 
-    <% unless @absence_justification.teacher %>
+    <% unless @absence_justification.legacy %>
       <%= f.submit 'Salvar', class: 'btn btn-primary' %>
     <% end %>
 
