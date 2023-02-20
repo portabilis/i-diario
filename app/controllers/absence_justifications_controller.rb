@@ -7,6 +7,12 @@ class AbsenceJustificationsController < ApplicationController
 
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
+  # TODO: release-absence-justification
+  # - [ ] Remover vínculo com professor
+  # - [ ] Remover vínculo com disciplina
+  # - [ ] Não permitir edição de justificativas de anos anterioes à 2023
+  # - [ ] Permitir lançar em lote, editar individual
+
   def index
     current_discipline = fetch_current_discipline
 
