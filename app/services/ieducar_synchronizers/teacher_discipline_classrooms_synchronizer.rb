@@ -204,5 +204,3 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 end
 
 
-
-TeacherDisciplineClassroomsSynchronizer.new({synchronization: IeducarApiSynchronization.last}).synchronize!
