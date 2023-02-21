@@ -129,7 +129,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
-      year: year,
+      year: year
     )
 
     existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes)
