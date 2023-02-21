@@ -3,8 +3,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-            ano: year,
-            escola: unity_api_code
+          ano: year,
+          escola: unity_api_code
         )['vinculos']
       )
     )
@@ -22,13 +22,17 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         existing_discipline_api_codes = []
         created_linked_teachers = []
 
-        (teacher_discipline_classroom_record.disciplinas || []).each do |discipline_by_score_type|
-          discipline_api_code, score_type = discipline_by_score_type.split
+        teacher_discipline_classroom_record.disciplinas.each do |discipline_by_grade|
+          discipline_api_code = discipline_by_grade.id
+          score_type = discipline_by_grade.tipo_nota
+          grade_api_code = discipline_by_grade.serie_id
+
           existing_discipline_api_codes << discipline_api_code
 
           created_linked_teachers << create_or_update_teacher_discipline_classrooms(
             teacher_discipline_classroom_record,
             discipline_api_code,
+            grade_api_code,
             score_type
           )
         end
@@ -50,6 +54,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   def create_or_update_teacher_discipline_classrooms(
     teacher_discipline_classroom_record,
     discipline_api_code,
+    grade_api_code,
     score_type
   )
     teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
@@ -64,9 +69,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
     return if discipline_id.blank?
 
+    grade_id = grade(grade_api_code).try(:id)
+
+    return if grade_id.blank?
+
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year,
+      grade_id: grade_id,
+      score_type: score_type,
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code
     )
@@ -83,6 +94,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       year: year,
       teacher_id: teacher_id,
       teacher_api_code: teacher_discipline_classroom_record.servidor_id,
+      grade_id: grade_id,
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code
     )
@@ -95,6 +107,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classroom.period = teacher_discipline_classroom_record.turno_id
     teacher_discipline_classroom.score_type = score_type
     teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
+
     teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
 
     if teacher_discipline_classroom.new_record?
@@ -116,7 +129,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
-      year: year
+      year: year,
     )
 
     existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes)
@@ -180,6 +193,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
         teacher_api_code: teacher_discipline_classroom.teacher_api_code,
+        grade_id: teacher_discipline_classroom.grade_id,
         discipline_id: fake_discipline.id,
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
@@ -188,3 +202,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
   end
 end
+
+
+
+TeacherDisciplineClassroomsSynchronizer.new({synchronization: IeducarApiSynchronization.last}).synchronize!
