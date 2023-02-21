@@ -4,6 +4,6 @@ class AddGradeToTeacherDisciplineClassrooms < ActiveRecord::Migration
   end
 
   def down
-    add_reference :teacher_discipline_classrooms, :grade, index: true, foreign_key: true
+    remove_reference :teacher_discipline_classrooms, :grade, index: true, foreign_key: true
   end
 end
