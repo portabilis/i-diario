@@ -20,7 +20,6 @@ class ConceptualExamValueCreator
 
         next if student_enrollment_id.blank?
         next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
-        next if ConceptualExamValue.find_by(conceptual_exam_id: record.conceptual_exam_id, discipline_id: record.discipline_id)
         next if disciplines.include?(record.discipline_id)
 
         begin
