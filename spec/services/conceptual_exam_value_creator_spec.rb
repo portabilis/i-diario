@@ -27,8 +27,18 @@ RSpec.describe ConceptualExamValueCreator, type: :service do
       student: student_enrollment_classroom.student_enrollment.student
     )
   }
+  let(:teacher_discipline_classroom) {
+    create(
+      :teacher_discipline_classroom,
+      classroom: classroom.first,
+      grade: grade.first,
+      teacher: teacher.first,
+      discipline: discipline.last
+    )
+  }
 
   before do
+    teacher_discipline_classroom
     conceptual_exam
   end
 
@@ -56,13 +66,6 @@ RSpec.describe ConceptualExamValueCreator, type: :service do
     }
 
     it 'should return list of new conceptual_exam with value nil' do
-      teacher_discipline_classroom = create(
-        :teacher_discipline_classroom,
-        classroom: classroom.first,
-        grade: grade.first,
-        teacher: teacher.first,
-        discipline: discipline.last
-      )
       expect(new_conceptual_exam.size).to eq(1)
       expect(new_conceptual_exam.first.discipline_id).to eq(teacher_discipline_classroom.discipline_id)
     end
@@ -77,9 +80,9 @@ RSpec.describe ConceptualExamValueCreator, type: :service do
         discipline.first
       )
     }
+
     it 'should not return conceptual exam list' do
       expect(new_conceptual_exam).to be_empty
     end
-
   end
 end
