@@ -18,7 +18,6 @@ class ConceptualExamValueCreator
 
       next if student_enrollment_id.blank?
       next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
-      next if disciplines.include?(record.discipline_id)
 
       begin
         ConceptualExamValue.create_with(
@@ -44,6 +43,7 @@ class ConceptualExamValueCreator
                               .by_teacher_id(teacher_id)
                               .by_classroom(classroom_id)
                               .by_discipline_id(discipline_id)
+                              .by_grade_id(grade_id)
                               .where(conceptual_exams: { classroom_id: classroom_id })
                               .where(conceptual_exam_values: { id: nil })
                               .select(
