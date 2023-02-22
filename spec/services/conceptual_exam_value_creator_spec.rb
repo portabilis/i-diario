@@ -1,57 +1,34 @@
 require 'rails_helper'
 
 RSpec.describe ConceptualExamValueCreator, type: :service do
-  let(:unity) { create(:unity) }
-  let(:classroom) { create(:classroom, unity: unity) }
-  let(:discipline) { create(:discipline) }
-  let(:teacher) { create(:teacher) }
-  let(:grade) { create(:grade) }
-  let(:teacher_discipline_classroom) {
-    create(
-      :teacher_discipline_classroom,
-      classroom: classroom,
-      discipline: discipline,
-      teacher: teacher,
-      grade: grade
-    )
-  }
-  let(:current_user) { create(:user) }
-  let(:school_calendar) { create(:school_calendar, :with_one_step, unity: classroom.unity)}
+  let(:grade) { create_list(:grade, 2) }
+  let(:teacher) { create_list(:teacher, 2) }
+  let(:classroom) { create_list(:classroom, 2, :with_classroom_semester_steps) }
+  let(:discipline) { create_list(:discipline, 2) }
+
   let(:classrooms_grade) {
     create(
       :classrooms_grade,
       :score_type_numeric_and_concept,
-      :with_classroom_semester_steps,
-      classroom: classroom,
-      grade: grade
+      classroom: classroom.first,
+      grade: grade.first
     )
   }
   let(:student_enrollment_classroom) { create(:student_enrollment_classroom, classrooms_grade: classrooms_grade) }
   let(:conceptual_exam) {
-    conceptual_exam = create(
+    create(
       :conceptual_exam,
       :with_teacher_discipline_classroom,
       :with_one_value,
+      discipline: discipline.first,
+      teacher: teacher.first,
+      grade: grade.first,
       classroom: classrooms_grade.classroom,
       student: student_enrollment_classroom.student_enrollment.student
-    )
-    current_user.current_classroom_id = conceptual_exam.classroom_id
-    allow_any_instance_of(ConceptualExam).to receive(:current_user).and_return(current_user)
-
-    conceptual_exam
-  }
-  let(:conceptual_exam_value) {
-    create(
-      :conceptual_exam_value,
-      discipline: discipline,
-      conceptual_exam: conceptual_exam
     )
   }
 
   before do
-    school_calendar
-    teacher_discipline_classroom
-    conceptual_exam_value
     conceptual_exam
   end
 
@@ -68,20 +45,41 @@ RSpec.describe ConceptualExamValueCreator, type: :service do
     end
   end
 
-  context 'when you have a classroom and grades with new disciplines' do
-
+  context 'when ´teacher_discipline_classroom´ has no conceptual_exam' do
     subject(:new_conceptual_exam) {
       ConceptualExamValueCreator.create_empty_by(
-        classroom,
-        discipline,
-        teacher,
-        grade
+        classroom.first,
+        teacher.first,
+        grade.first,
+        discipline.last
       )
     }
 
-    it 'should return a new conceptual_exam with empty value' do
-      binding.pry
+    it 'should return list of new conceptual_exam with value nil' do
+      teacher_discipline_classroom = create(
+        :teacher_discipline_classroom,
+        classroom: classroom.first,
+        grade: grade.first,
+        teacher: teacher.first,
+        discipline: discipline.last
+      )
       expect(new_conceptual_exam.size).to eq(1)
+      expect(new_conceptual_exam.first.discipline_id).to eq(teacher_discipline_classroom.discipline_id)
     end
+  end
+
+  context 'when ´teacher_discipline_classroom´ has conceptual_exam' do
+    subject(:new_conceptual_exam) {
+      ConceptualExamValueCreator.create_empty_by(
+        classroom.first,
+        grade.first,
+        teacher.first,
+        discipline.first
+      )
+    }
+    it 'should not return conceptual exam list' do
+      expect(new_conceptual_exam).to be_empty
+    end
+
   end
 end
