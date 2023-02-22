@@ -9,6 +9,7 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   belongs_to :teacher
   belongs_to :discipline
   belongs_to :classroom
+  belongs_to :grade
 
   delegate :knowledge_area, to: :discipline
 
