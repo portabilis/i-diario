@@ -72,7 +72,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       :teacher_discipline_classroom,
       teacher: current_teacher,
       discipline: discipline,
-      classroom: classroom
+      classroom: classroom,
+      grade: classroom.classrooms_grades.first.grade
     )
   }
   let(:params) {
