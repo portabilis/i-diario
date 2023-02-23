@@ -17,8 +17,8 @@ class AbsenceJustifiedOnDate
 
     absence_justifications.each do |absence_justification|
       absence_justification.students.each do |student|
-        absence_justified[student.id] ||= []
-        absence_justified[student.id] << @date
+        absence_justified[student.id] ||= {}
+        absence_justified[student.id][@date] = absence_justification.id
       end
     end
 

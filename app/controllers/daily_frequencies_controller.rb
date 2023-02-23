@@ -77,7 +77,7 @@ class DailyFrequenciesController < ApplicationController
       activated_student = active.include?(enrollment_classroom[:student_enrollment_classroom_id])
       has_dependence = dependencies[student_enrollment_id] ? true : false
       has_exempted = exempt[student_enrollment_id] ? true : false
-      has_absence_justification = absence_justifications[student.id] ? true : false
+      absence_justification = absence_justifications[student.id] || {}
       in_active_search = active_search[@daily_frequency.frequency_date]&.include?(student_enrollment_id)
       sequence = enrollment_classroom[:sequence] if show_inactive_enrollments
 
@@ -93,7 +93,7 @@ class DailyFrequenciesController < ApplicationController
           active: activated_student,
           exempted_from_discipline: has_exempted,
           in_active_search: in_active_search,
-          absence_justification: has_absence_justification,
+          absence_justification: absence_justification,
           sequence: sequence
         }
       end
@@ -232,7 +232,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequencies: [
         :class_number,
         students_attributes: [
-          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching]
+          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching, :absence_justification_student_id]
         ]
       ]
     ).require(:daily_frequencies)

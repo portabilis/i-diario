@@ -27,17 +27,23 @@
           </td>
       <% end %>
       <td>
-        <% ignore_student = !active || exempted_from_discipline || in_active_search || absence_justification %>
+        <% absence_justification_student_id = absence_justification[@daily_frequency.frequency_date] %>
+        <% ignore_student = !active || exempted_from_discipline || in_active_search %>
         <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
         <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
         <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
         <%= f.hidden_field :active, value: active, disabled: ignore_student %>
+        <%= f.hidden_field :absence_justification_student_id, value: absence_justification_student_id, disabled: ignore_student %>
 
-        <label class="checkbox <%= ignore_student ? "state-disabled" : "" %>">
-          <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
-          <i></i>
-        </label>
+        <% if absence_justification_student_id %>
+          <label>Falta Justificada</label>
+        <% else %>
+          <label class="checkbox <%= ignore_student ? "state-disabled" : "" %>">
+            <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
+            <i></i>
+          </label>
+        <% end %>
 
         <% if @general_configuration.type_of_teaching == true && index != 0 %>
           <span class='hidden'>
