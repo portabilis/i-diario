@@ -171,17 +171,18 @@ class DailyNotesController < ApplicationController
   protected
 
   def fetch_student_enrollments
-    StudentEnrollmentsList.new(classroom: @daily_note.classroom,
-                               grade: @daily_note.avaliation.grade_ids,
-                               discipline: @daily_note.discipline,
-                               date: @daily_note.avaliation.test_date,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               search_type: :by_date)
-                          .student_enrollments
+    students_enrollments ||= StudentEnrollmentsRetriever.call(
+      classrooms: @daily_note.classroom,
+       grades: @daily_note.avaliation.grade_ids,
+       disciplines: @daily_note.discipline,
+       date: @daily_note.avaliation.test_date,
+       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+       search_type: :by_date
+    )
   end
 
   def reload_students_list
-    students_enrollments = fetch_student_enrollments
+    students_enrollments ||= fetch_student_enrollments
 
     @students = []
 
