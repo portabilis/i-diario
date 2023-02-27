@@ -109,7 +109,7 @@ class BaseReport
         information = text_box(
           information,
           width: bounds.width - 10,
-          overflow: :truncate,
+          overflow: :shrink_to_fit,
           size: 10,
           at: [5, box_height - 20],
           inline_format: true
