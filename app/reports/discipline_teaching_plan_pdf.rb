@@ -138,9 +138,10 @@ class DisciplineTeachingPlanPdf < BaseReport
     thematic_unit_label = Translator.t('activerecord.attributes.discipline_teaching_plan.thematic_unit')
     contents_label = Translator.t('activerecord.attributes.discipline_teaching_plan.contents')
     objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
-    methododlogy_label = Translator.t('navigation.methodology_by_discipline')
-    evaluation_label = Translator.t('navigation.avaliation_by_discipline')
-    references_label = Translator.t('navigation.references_by_discipline')
+    methododlogy_label = Translation.find_by(key: 'navigation.methodology_by_discipline', group: 'teaching_plans').translation || 'Metodologia'
+    evaluation_label = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'teaching_plans').translation || 'Avaliação'
+    references_label = Translation.find_by(key: 'navigation.references_by_discipline', group: 'teaching_plans').translation || 'Referências'
+
     text_box_truncate(thematic_unit_label, thematic_unit) if thematic_unit
     text_box_truncate(contents_label, content)
     text_box_truncate(objectives_label, objectives)
