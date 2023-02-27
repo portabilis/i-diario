@@ -236,10 +236,10 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    actives_methodology_label = Translator.t('navigation.actives_methodology_by_knowledge_area')
-    resources_label = Translator.t('navigation.resources_by_knowledge_area')
-    avaliation_label = Translator.t('navigation.avaliation_by_knowledge_area')
-    references_label = Translator.t('navigation.references_by_knowledge_area')
+    actives_methodology_label = Translation.find_by(key: 'navigation.methodology_by_knowledge_area', group: 'lesson_plans').translation || 'Atividades/metodologia'
+    resources_label = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'lesson_plans').translation || 'Recursos'
+    avaliation_label = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'lesson_plans').translation || 'Avaliação'
+    references_label = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'lesson_plans').translation || 'Referências'
 
     text_box_truncate(actives_methodology_label, (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
     text_box_truncate(resources_label, (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
