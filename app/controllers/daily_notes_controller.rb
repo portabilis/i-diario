@@ -59,6 +59,7 @@ class DailyNotesController < ApplicationController
     student_enrollments = fetch_student_enrollments
 
     @students = []
+
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
@@ -171,18 +172,18 @@ class DailyNotesController < ApplicationController
   protected
 
   def fetch_student_enrollments
-    students_enrollments ||= StudentEnrollmentsRetriever.call(
+    @students_enrollments ||= StudentEnrollmentsRetriever.call(
       classrooms: @daily_note.classroom,
-       grades: @daily_note.avaliation.grade_ids,
-       disciplines: @daily_note.discipline,
-       date: @daily_note.avaliation.test_date,
-       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-       search_type: :by_date
+      grades: @daily_note.avaliation.grade_ids,
+      disciplines: @daily_note.discipline,
+      date: @daily_note.avaliation.test_date,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      search_type: :by_date
     )
   end
 
   def reload_students_list
-    students_enrollments ||= fetch_student_enrollments
+    students_enrollments = fetch_student_enrollments
 
     @students = []
 
