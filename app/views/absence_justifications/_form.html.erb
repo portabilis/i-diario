@@ -39,11 +39,6 @@
                 } %>
         </div>
       </div>
-      <% else # TODO: seleção de aluno temporária, rever %>
-        <div class="col col-sm-4" data-student>
-          <%= f.association :students, as: :select2, elements: @students, multiple: true, required: true,
-                            input_html: { value: f.object.student_ids.join(','), data: { without_json_parser: true } } %>
-        </div>
       <% end %>
 
     </div>
@@ -63,8 +58,17 @@
         </div>
       <% end %>
     </div>
-    <div class="row">
 
+    <% unless @absence_justification.legacy %>
+    <div class="row">
+      <div class="col col-sm-4" data-student>
+        <%= f.association :students, as: :select2, elements: @students, multiple: true, required: true,
+                          input_html: { value: f.object.student_ids.join(','), data: { without_json_parser: true } } %>
+      </div>
+    </div>
+    <% end %>
+
+    <div class="row">
       <div class="col col-sm-8">
         <%= f.input :justification, input_html: { readonly: @absence_justification.legacy }  %>
       </div>
