@@ -11,14 +11,16 @@ class AbsenceJustifiedOnDate
   end
 
   def call
-    absence_justifications = AbsenceJustification.by_date(@date).by_student_id(@students)
+    absence_justifications = AbsenceJustification.includes(:absence_justifications_students)
+                                                 .by_date(@date)
+                                                 .by_student_id(@students)
 
     absence_justified = {}
 
     absence_justifications.each do |absence_justification|
-      absence_justification.students.each do |student|
-        absence_justified[student.id] ||= {}
-        absence_justified[student.id][@date] = absence_justification.id
+      absence_justification.absence_justifications_students.each do |absence_justifications_student|
+        absence_justified[absence_justifications_student.student_id] ||= {}
+        absence_justified[absence_justifications_student.student_id][@date] = absence_justifications_student.id
       end
     end
 
