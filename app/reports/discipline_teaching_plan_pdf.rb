@@ -138,14 +138,19 @@ class DisciplineTeachingPlanPdf < BaseReport
     thematic_unit_label = Translator.t('activerecord.attributes.discipline_teaching_plan.thematic_unit')
     contents_label = Translator.t('activerecord.attributes.discipline_teaching_plan.contents')
     objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
-    methododlogy_label = Translation.find_by(key: 'navigation.methodology_by_discipline', group: 'teaching_plans').translation || 'Metodologia'
-    evaluation_label = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'teaching_plans').translation || 'Avaliação'
-    references_label = Translation.find_by(key: 'navigation.references_by_discipline', group: 'teaching_plans').translation || 'Referências'
+    methodology_label_translation = Translation.find_by(key: 'navigation.methodology_by_discipline', group: 'teaching_plans').translation
+    methodology_label = methodology_label_translation.present? ? methodology_label_translation : 'Metodologia'
+
+    evaluation_label_translation = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'teaching_plans').translation
+    evaluation_label = evaluation_label_translation.present? ? evaluation_label_translation : 'Avaliação'
+
+    references_label_translation = Translation.find_by(key: 'navigation.references_by_discipline', group: 'teaching_plans').translation
+    references_label = references_label_translation.present? ? references_label_translation : 'Referências'
 
     text_box_truncate(thematic_unit_label, thematic_unit) if thematic_unit
     text_box_truncate(contents_label, content)
     text_box_truncate(objectives_label, objectives)
-    text_box_truncate(methododlogy_label, methodology)
+    text_box_truncate(methodology_label, methodology)
     text_box_truncate(evaluation_label, evaluation)
     text_box_truncate(references_label, references)
   end
