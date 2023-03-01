@@ -101,6 +101,9 @@ class AbsenceJustification < ActiveRecord::Base
     errors.add(:absence_date_end, :not_less_than_initial)
   end
 
+  # TODO: release-absence-justification
+  # - [ ] Remover vínculo com professor
+  # - [ ] Remover vínculo com disciplina
   def period_absence
     return if absence_date.blank? || absence_date_end.blank?
 
