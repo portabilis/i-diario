@@ -9,7 +9,7 @@ RSpec.describe AbsenceJustificationsStudent, type: :model do
   end
 
   describe 'callbacks' do
-    context  'should remove justification from student frequencies ' do
+    context 'should remove justification from student frequencies ' do
       let!(:absence_justifications_student) { create(:absence_justifications_student, :with_daily_frequency) }
 
       it 'ensures justification was removed' do
@@ -19,6 +19,22 @@ RSpec.describe AbsenceJustificationsStudent, type: :model do
 
         expect(DailyFrequencyStudent.first.absence_justification_student_id).to be_nil
       end
+    end
+
+    it 'should justify presence or absence already released' do
+      daily_frequency = create(:daily_frequency, :with_teacher_discipline_classroom, :with_students)
+      absence_justification = create(:absence_justification, teacher_discipline_classroom: TeacherDisciplineClassroom.first)
+      daily_frequency_student = daily_frequency.students.first
+      absence_justifications_student = create(
+        :absence_justifications_student,
+        student: daily_frequency_student.student,
+        absence_justification: absence_justification,
+      )
+
+      daily_frequency_student.reload
+
+      expect(daily_frequency_student.present).to equal false
+      expect(daily_frequency_student.absence_justification_student_id).to equal absence_justifications_student.id
     end
   end
 end
