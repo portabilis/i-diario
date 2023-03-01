@@ -28,8 +28,8 @@ class AbsenceJustificationsStudent < ActiveRecord::Base
     classroom_id = absence_justification.classroom_id
 
     daily_frequency_students = DailyFrequencyStudent.by_classroom_id(classroom_id)
-                         .by_frequency_date_between(absence_date, absence_date_end)
-                         .by_student_id(student_id)
+                                                    .by_frequency_date_between(absence_date, absence_date_end)
+                                                    .by_student_id(student_id)
 
     daily_frequency_students.each do |daily_frequency_student|
       daily_frequency_student.present = false
