@@ -107,7 +107,7 @@ class BaseReport
         line_width 0.5
         stroke_bounds
         information = text_box(
-          information,
+          information.gsub("</p>", "</p><br>"),
           width: bounds.width - 10,
           overflow: :truncate,
           size: 10,
