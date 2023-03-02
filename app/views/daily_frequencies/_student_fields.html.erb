@@ -27,7 +27,8 @@
           </td>
       <% end %>
       <td>
-        <% absence_justification_student_id = absence_justification[@daily_frequency.frequency_date] %>
+        <% absence_justifications = absence_justification[@daily_frequency.frequency_date] || {} %>
+        <% absence_justification_student_id = absence_justifications[0] || absence_justifications[class_number] %>
         <% ignore_student = !active || exempted_from_discipline || in_active_search %>
         <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
