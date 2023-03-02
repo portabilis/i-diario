@@ -56,8 +56,7 @@
             elements: SchoolTermType.to_select2(
               current_user.current_school_year,
               current_user.current_unity_id,
-              add_empty_element: false,
-              add_yearly: false
+              add_empty_element: false
             ).to_json,
             input_html: { value: teaching_plan_form.object.school_term_type_id,
                           data: { without_json_parser: true } },
