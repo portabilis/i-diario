@@ -51,15 +51,28 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def create
-    @absence_justification = AbsenceJustification.new(resource_params)
-    @absence_justification.teacher = current_teacher
-    @absence_justification.user = current_user
-    @absence_justification.unity = current_unity
-    @absence_justification.school_calendar = current_school_calendar
+    class_numbers = params[:absence_justification][:class_number].split(',')
 
-    authorize @absence_justification
+    if class_numbers.empty?
+      class_numbers = [nil]
+    end
 
-    if @absence_justification.save
+    valid = class_numbers.map do |class_number|
+      @absence_justification = AbsenceJustification.new(resource_params)
+      @absence_justification.class_number = class_number
+      @absence_justification.teacher = current_teacher
+      @absence_justification.user = current_user
+      @absence_justification.unity = current_unity
+      @absence_justification.school_calendar = current_school_calendar
+
+      authorize @absence_justification
+
+      @absence_justification.save
+    end
+
+    valid = valid.reject { |is_valid| is_valid }.empty?
+
+    if valid
       respond_with @absence_justification, location: absence_justifications_path
     else
       clear_invalid_dates
@@ -80,7 +93,7 @@ class AbsenceJustificationsController < ApplicationController
 
   def update
     @absence_justification = AbsenceJustification.find(params[:id])
-    @absence_justification.assign_attributes resource_params
+    @absence_justification.assign_attributes resource_params_edit
     @absence_justification.current_user = current_user
     @absence_justification.school_calendar = current_school_calendar if @absence_justification.persisted? && @absence_justification.school_calendar.blank?
     fetch_collections
@@ -132,6 +145,17 @@ class AbsenceJustificationsController < ApplicationController
     parameters[:student_ids] = parameters[:student_ids].split(',')
 
     parameters
+  end
+
+  def resource_params_edit
+    params.require(:absence_justification).permit(
+      :justification,
+      absence_justification_attachments_attributes: [
+        :id,
+        :attachment,
+        :_destroy
+      ]
+    )
   end
 
   private
