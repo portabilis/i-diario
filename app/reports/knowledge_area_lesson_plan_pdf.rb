@@ -236,7 +236,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    actives_methodology_translation = Translation.find_by(key: 'navigation.methodology_by_knowledge_area', group: 'lesson_plans').translation
+    actives_methodology_translation = Translation.find_by(key: 'navigation.actives_methodology_by_discipline', group: 'lesson_plans').translation
     actives_methodology_label = actives_methodology_translation.present? ? actives_methodology_translation : 'Atividades/metodologia'
 
     resources_translation = Translation.find_by(key: 'navigation.resources_by_knowledge_area', group: 'lesson_plans').translation
