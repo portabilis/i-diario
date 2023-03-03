@@ -221,13 +221,14 @@ class LessonsBoardsController < ApplicationController
       params[:teacher_discipline_classroom_id].blank? ||
         params[:lesson_number].blank? ||
         params[:weekday].blank? ||
-        params[:classroom_id].blank?
+        params[:classroom_id].blank? ||
+        params[:period].blank?
     )
 
     return if any_blank_param
 
     render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday],
-                                params[:classroom_id])
+                                params[:classroom_id], params[:period])
   end
 
   private
@@ -255,8 +256,8 @@ class LessonsBoardsController < ApplicationController
     @service ||= LessonBoardsService.new
   end
 
-  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
-    service.linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom, period)
+    service.linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom, period)
   end
 
   def teachers_to_select2(classroom_id, period)
