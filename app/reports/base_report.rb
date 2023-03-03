@@ -100,7 +100,7 @@ class BaseReport
         information = text_formatted.join(" ")
       end
 
-      text_height = height_of(information, width: bounds.width - 10, size: 10) + 100
+      text_height = height_of(information, width: bounds.width - 10, size: 10) + 180
       box_height = (text_height > cursor ? cursor : text_height)
 
       bounding_box([0, cursor], width: bounds.width, height: box_height - 5) do
