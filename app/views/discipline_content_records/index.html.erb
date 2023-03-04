@@ -28,13 +28,13 @@
             <th><%= ContentRecord.human_attribute_name :classroom %></th>
             <th><%= DisciplineContentRecord.human_attribute_name :discipline %>
             <th><%= ContentRecord.human_attribute_name :record_date %></th>
-            <th width="10%" id='author'><%= DisciplineContentRecord.human_attribute_name :author %></th>
+            <th style='width: 10%' id='author'><%= DisciplineContentRecord.human_attribute_name :author %></th>
 
             <% if @allow_class_number %>
-              <th width="10%" id='class_number'><%= ContentRecord.human_attribute_name :class_number %></th>
+              <th style='width: 10%' id='class_number'><%= ContentRecord.human_attribute_name :class_number %></th>
             <% end %>
 
-            <td width="160px"></td>
+            <td style='width: 160px'></td>
           </tr>
         </thead>
 
