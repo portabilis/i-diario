@@ -26,7 +26,7 @@ class StudentAverageCalculator
       step
     ).calculate(result)
 
-    ScoreRounder.new(classroom, RoundedAvaliations::NUMERICAL_EXAM).round(result)
+    ScoreRounder.new(classroom, RoundedAvaliations::NUMERICAL_EXAM, step).round(result)
   end
 
   private

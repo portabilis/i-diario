@@ -278,7 +278,7 @@ class ExamRecordReport < BaseReport
 
           recovery_average = SchoolTermAverageCalculator.new(classroom)
                                                         .calculate(averages[key], recovery_score)
-          averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+          averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, @school_calendar_step)
                                       .round(recovery_average)
 
           average = averages[key]

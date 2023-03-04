@@ -16,7 +16,7 @@ class PartialScoreRecordReportController < ApplicationController
                                                   @partial_score_record_report_form.students,
                                                   @partial_score_record_report_form.unity,
                                                   @partial_score_record_report_form.classroom,
-                                                  current_test_setting)
+                                                  current_test_setting_step(@partial_score_record_report_form.step))
       send_pdf(t("routes.partial_score_record"), partial_score_record_report.render)
     else
       @partial_score_record_report_form.school_calendar_year = current_school_calendar.year
