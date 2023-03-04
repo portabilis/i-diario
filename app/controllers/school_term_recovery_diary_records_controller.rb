@@ -70,7 +70,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def edit
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
     step_number = @school_term_recovery_diary_record.step_number
-    @school_term_recovery_diary_record.step_id = steps_fetcher.step(step_number).try(:id)
+    step = steps_fetcher.step(step_number)
+    @school_term_recovery_diary_record.step_id = step.try(:id)
 
     if @school_term_recovery_diary_record.step_id.blank?
       recorded_at = @school_term_recovery_diary_record.recorded_at
@@ -89,7 +90,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     add_missing_students(students_in_recovery)
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
+      current_test_setting_step(step)&.number_of_decimal_places
   end
 
   def update
