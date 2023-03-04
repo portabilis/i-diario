@@ -52,7 +52,7 @@ module ExamPoster
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
-          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, get_step(classroom))
 
           next unless can_post?(classroom)
 
