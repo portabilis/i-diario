@@ -36,8 +36,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
     @school_term_recovery_diary_record.build_recovery_diary_record
     @school_term_recovery_diary_record.recovery_diary_record.unity = current_unity
+    current_year_last_step = StepsFetcher.new(current_user_classroom).last_step_by_year
 
-    if current_test_setting.blank?
+    if current_test_setting.blank? && current_year_last_step.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
       redirect_to(school_term_recovery_diary_records_path)
@@ -45,7 +46,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     return if performed?
 
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
+      current_test_setting_step(current_year_last_step)&.number_of_decimal_places
   end
 
   def create
