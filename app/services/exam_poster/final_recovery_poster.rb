@@ -45,7 +45,8 @@ module ExamPoster
         discipline_api_code = final_recovery_diary_record.recovery_diary_record.discipline.api_code
         score_rounder = ScoreRounder.new(
           final_recovery_diary_record.recovery_diary_record.classroom,
-          RoundedAvaliations::FINAL_RECOVERY
+          RoundedAvaliations::FINAL_RECOVERY,
+          get_step(teacher_discipline_classroom.classroom)
         )
 
         final_recovery_diary_record.recovery_diary_record.students.each do |recovery_diary_record_student|
