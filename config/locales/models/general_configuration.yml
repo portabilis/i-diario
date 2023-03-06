@@ -32,6 +32,7 @@ pt-BR:
         show_inactive_enrollments: "Apresentar enturmações inativas de alunos(as) nas telas de lançamento e relatórios (avaliação e frequência)"
         show_percentage_on_attendance_record_report: "Exibir frequência em porcentagem no Registro de frequência"
         require_daily_activities_record: "Obrigar preenchimento do campo 'Registro diário das atividades' no lançamento de Registro de conteúdos?"
+        remove_lesson_plan_objectives: "Remover campo 'Objetivos' dos Planos de aula por área de conhecimento (tela e relatório)"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
