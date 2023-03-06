@@ -99,7 +99,6 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
   before do
     teacher_discipline_classroom
-
     user_role.unity = unity
     user_role.save!
 
