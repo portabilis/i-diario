@@ -133,7 +133,7 @@ class User < ActiveRecord::Base
           user.student,
           user.teacher,
           user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact },
-          user.expiration_date&.strftime("%m/%d/%Y")
+          user.expiration_date&.strftime("%d/%m/%Y")
         ]
       end
     end
