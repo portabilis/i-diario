@@ -37,20 +37,22 @@ module ExamPoster
       end
 
       final_recovery_diary_records.each do |final_recovery_diary_record|
+        classroom = final_recovery_diary_record.recovery_diary_record.classroom
+
         if final_recovery_diary_record.recovery_diary_record.students.any? { |student| student.score.blank? }
-          @warning_messages << "Não foi possível enviar as recuperações finais da turma #{final_recovery_diary_record.recovery_diary_record.classroom} pois existem alunos sem nota."
+          @warning_messages << "Não foi possível enviar as recuperações finais da turma #{classroom} pois existem alunos sem nota."
         end
 
-        classroom_api_code = final_recovery_diary_record.recovery_diary_record.classroom.api_code
+        classroom_api_code = classroom.api_code
         discipline_api_code = final_recovery_diary_record.recovery_diary_record.discipline.api_code
         score_rounder = ScoreRounder.new(
-          final_recovery_diary_record.recovery_diary_record.classroom,
+          classroom,
           RoundedAvaliations::FINAL_RECOVERY,
-          get_step(teacher_discipline_classroom.classroom)
+          get_step(classroom)
         )
 
         final_recovery_diary_record.recovery_diary_record.students.each do |recovery_diary_record_student|
-          next unless not_posted?({ classroom: recovery_diary_record_student.recovery_diary_record.classroom,
+          next unless not_posted?({ classroom: classroom,
                                     discipline: recovery_diary_record_student.recovery_diary_record.discipline,
                                     student: recovery_diary_record_student.student })[:final_recovery]
 
