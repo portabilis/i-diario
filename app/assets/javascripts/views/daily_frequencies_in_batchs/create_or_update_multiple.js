@@ -150,7 +150,13 @@ function markGeneralCheckbox(td) {
   td.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').addClass('unchecked')
   td.find('.class-number-checkbox:is(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
 
-  if (all_checked && has_absence_justification) {
+  if (all_checked && all_not_checked) {
+    td.find('.general-checkbox-icon').addClass('half-checked')
+    td.find('.general-checkbox-icon').removeClass('unchecked')
+    td.find('.general-checkbox').prop('checked', true)
+    td.find('.general-checkbox').prop('disabled', true)
+    td.find('label.checkbox').addClass('justified-absence')
+  } else if (all_checked && has_absence_justification) {
     td.find('.general-checkbox-icon').addClass('half-checked')
     td.find('.general-checkbox-icon').removeClass('unchecked')
     td.find('.general-checkbox').prop('checked', true)
