@@ -53,7 +53,7 @@ function getTags(htmlString){
   tmpTag.innerHTML = htmlString;
 
   var all = tmpTag.getElementsByTagName("*");
-  var goodTags = ['P', 'B', 'I', 'U', 'BR'];
+  var goodTags = ['DIV', 'P', 'B', 'I', 'U', 'BR'];
   var tags = [];
 
   for (var i = 0, max = all.length; i < max; i++) {

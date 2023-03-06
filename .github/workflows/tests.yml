@@ -9,9 +9,11 @@ on:
 
 jobs:
   default:
-
+    
     name: Unit and Integration
-
+    
+    if: '! github.event.pull_request.draft'
+    
     runs-on: self-hosted
 
     env:
