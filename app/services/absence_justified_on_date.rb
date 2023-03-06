@@ -8,22 +8,26 @@ class AbsenceJustifiedOnDate
   def initialize(params)
     @students = params.fetch(:students)
     @date = params.fetch(:date)
+    @end_date = params.fetch(:end_date)
   end
 
   def call
     absence_justifications = AbsenceJustification.includes(:absence_justifications_students)
-                                                 .by_date(@date)
+                                                 .by_date_range(@date, @end_date)
                                                  .by_student_id(@students)
 
     absence_justified = {}
 
     absence_justifications.each do |absence_justification|
       class_number = absence_justification.class_number || 0
+      dates = absence_justification.absence_date..absence_justification.absence_date_end
 
-      absence_justification.absence_justifications_students.each do |absence_justifications_student|
-        absence_justified[absence_justifications_student.student_id] ||= {}
-        absence_justified[absence_justifications_student.student_id][@date] ||= {}
-        absence_justified[absence_justifications_student.student_id][@date][class_number] = absence_justifications_student.id
+      dates.each do |date|
+        absence_justification.absence_justifications_students.each do |absence_justifications_student|
+          absence_justified[absence_justifications_student.student_id] ||= {}
+          absence_justified[absence_justifications_student.student_id][date] ||= {}
+          absence_justified[absence_justifications_student.student_id][date][class_number] = absence_justifications_student.id
+        end
       end
     end
 
