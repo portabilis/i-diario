@@ -57,6 +57,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
           daily_frequency_student.type_of_teaching = student_attributes[:type_of_teaching]
           daily_frequency_student.active = student_attributes[:active]
+          daily_frequency_student.absence_justification_student_id = student_attributes[:absence_justification_student_id]
 
           daily_frequency_student.save!
         end
@@ -324,7 +325,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         :date,
         :class_number,
         students_attributes: [
-          :id, :daily_frequency_id, :student_id, :present, :active, :dependence, :type_of_teaching
+          :id, :daily_frequency_id, :student_id, :present, :active, :dependence, :type_of_teaching, :absence_justification_student_id
         ]
       ]
     )
