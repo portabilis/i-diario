@@ -67,12 +67,13 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       discipline: discipline
     )
   }
-  let!(:teacher_discipline_classroom) {
+  let(:teacher_discipline_classroom) {
     create(
       :teacher_discipline_classroom,
       teacher: current_teacher,
       discipline: discipline,
-      classroom: classroom
+      classroom: classroom,
+      grade: classroom.classrooms_grades.first.grade
     )
   }
   let(:params) {
@@ -97,6 +98,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   }
 
   before do
+    teacher_discipline_classroom
+
     user_role.unity = unity
     user_role.save!
 
