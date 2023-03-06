@@ -151,27 +151,44 @@ function markGeneralCheckbox(td) {
   td.find('.class-number-checkbox:is(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
 
   if (all_checked && all_not_checked) {
-    td.find('.general-checkbox-icon').addClass('half-checked')
+
+    // Não há presenças e faltas, apenas faltas justificadas, neutro
+
     td.find('.general-checkbox-icon').removeClass('unchecked')
     td.find('.general-checkbox').prop('checked', true)
     td.find('.general-checkbox').prop('disabled', true)
     td.find('label.checkbox').addClass('justified-absence')
   } else if (all_checked && has_absence_justification) {
+
+    // Há apenas presenças e faltas justificadas, neutro
+
     td.find('.general-checkbox-icon').addClass('half-checked')
     td.find('.general-checkbox-icon').removeClass('unchecked')
     td.find('.general-checkbox').prop('checked', true)
   } else if (all_not_checked && has_absence_justification) {
+
+    // Há apenas faltas e faltas justificadas, neutro
+
     td.find('.general-checkbox-icon').addClass('half-checked')
     td.find('.general-checkbox-icon').addClass('unchecked')
     td.find('.general-checkbox').prop('checked', false)
   } else if (all_checked) {
+
+    // Há apenas presença sem faltas justificadas, verde
+
     td.find('.general-checkbox').prop('checked', true)
     td.find('.general-checkbox-icon').removeClass('half-checked')
     td.find('.checkbox-frequency-in-batch').removeClass('unchecked')
   } else if (all_not_checked) {
+
+    // Há apenas faltas não justificadas, vermelho
+
     td.find('.general-checkbox').prop('checked', false)
     td.find('.checkbox-frequency-in-batch').addClass('unchecked')
   } else {
+
+    // Há presença e faltas, neutro
+
     td.find('.general-checkbox-icon').addClass('half-checked')
     td.find('.general-checkbox-icon').removeClass('unchecked')
     td.find('.general-checkbox').prop('checked', true)
