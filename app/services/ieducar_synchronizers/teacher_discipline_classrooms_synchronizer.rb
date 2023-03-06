@@ -190,5 +190,3 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
   end
 end
-
-
