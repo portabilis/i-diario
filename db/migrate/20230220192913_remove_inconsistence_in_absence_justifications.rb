@@ -1,4 +1,4 @@
-class MigrateLegacyAbsenceJustifications < ActiveRecord::Migration
+class RemoveInconsistenceInAbsenceJustifications < ActiveRecord::Migration
   def change
     execute <<-SQL
       delete from absence_justifications_students
