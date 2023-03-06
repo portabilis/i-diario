@@ -16,7 +16,7 @@ $(document).ready( function() {
         checkbox.prop('disabled', disabled)
         checkbox.prop('checked', true)
         checkbox.closest('label').addClass('state-disabled');
-        checkbox.closest('td').find('.class-number-checkbox').prop('checked', true)
+        checkbox.closest('td').find('.class-number-checkbox:not(.justified-absence-checkbox)').prop('checked', true)
         checkbox.closest('label').find('.general-checkbox-icon').removeClass('unchecked')
       } else {
         checkbox.closest('label:not(.never-change)').find('.general-checkbox:not(.never-change)').prop('disabled', disabled)
@@ -103,11 +103,11 @@ $('.general-checkbox').on('change', function() {
     $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('half-checked')
   }
 
-  $(this).closest('td').find('.class-number-checkbox').prop('checked', checked)
+  $(this).closest('td').find('.class-number-checkbox:not(.justified-absence-checkbox)').prop('checked', checked)
   studentAbsencesCount($(this).closest('tr'))
 })
 
-$('.class-number-checkbox').on('change', function() {
+$('.class-number-checkbox:not(.justified-absence-checkbox)').on('change', function() {
   if ($(this).is(':checked')) {
     $(this).closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
   } else {
@@ -118,7 +118,7 @@ $('.class-number-checkbox').on('change', function() {
 });
 
 function studentAbsencesCount(tr) {
-  let count = tr.find('.class-number-checkbox:not(:checked)').not('.inactive').length
+  let count = tr.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').not('.inactive').length
   tr.find('.student-absences-count').text(count)
 }
 
@@ -143,17 +143,21 @@ $('.date-collapse').on('click', function () {
 });
 
 function markGeneralCheckbox(td) {
-  let all_checked = td.find('.class-number-checkbox:not(:checked)').length == 0
-  let all_not_checked = td.find('.class-number-checkbox:is(:checked)').length == 0
+  let all_checked = td.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').length == 0
+  let all_not_checked = td.find('.class-number-checkbox:is(:checked):not(.justified-absence-checkbox)').length == 0
   let has_absence_justification = td.find('.justified-absence-checkbox').length > 0
 
-  td.find('.class-number-checkbox:not(:checked)').closest('label').find('.checkbox-frequency-in-batch').addClass('unchecked')
-  td.find('.class-number-checkbox:is(:checked)').closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
+  td.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').addClass('unchecked')
+  td.find('.class-number-checkbox:is(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
 
-  if ((all_checked || all_not_checked) && has_absence_justification) {
+  if (all_checked && has_absence_justification) {
     td.find('.general-checkbox-icon').addClass('half-checked')
     td.find('.general-checkbox-icon').removeClass('unchecked')
     td.find('.general-checkbox').prop('checked', true)
+  } else if (all_not_checked && has_absence_justification) {
+    td.find('.general-checkbox-icon').addClass('half-checked')
+    td.find('.general-checkbox-icon').addClass('unchecked')
+    td.find('.general-checkbox').prop('checked', false)
   } else if (all_checked) {
     td.find('.general-checkbox').prop('checked', true)
     td.find('.general-checkbox-icon').removeClass('half-checked')
