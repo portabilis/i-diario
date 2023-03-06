@@ -154,6 +154,7 @@ function markGeneralCheckbox(td) {
 
     // Não há presenças e faltas, apenas faltas justificadas, neutro
 
+    td.find('.general-checkbox-icon').addClass('half-checked')
     td.find('.general-checkbox-icon').removeClass('unchecked')
     td.find('.general-checkbox').prop('checked', true)
     td.find('.general-checkbox').prop('disabled', true)
