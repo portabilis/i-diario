@@ -125,7 +125,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
       knowledge_area_ids << knowledge_area_lesson_plans_knowledge_area.knowledge_area_id
     end
 
-    knowledge_areas = KnowledgeArea.where id: [knowledge_area_ids]
+    knowledge_areas = KnowledgeArea.where(id: knowledge_area_ids)
 
     knowledge_area_descriptions = knowledge_areas.map { |descriptions| descriptions }.join(', ')
 
