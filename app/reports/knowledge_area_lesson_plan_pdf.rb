@@ -47,7 +47,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
         position: :center,
         vposition: :center
       )
-    rescue
+    rescue StandardError
       entity_logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
 
@@ -127,7 +127,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
 
     knowledge_areas = KnowledgeArea.where id: [knowledge_area_ids]
 
-    knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))
+    knowledge_area_descriptions = knowledge_areas.map { |descriptions| descriptions }.join(', ')
 
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
     @teacher_cell = make_cell(content: @current_teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
@@ -136,10 +136,10 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     @unity_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
     @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
-    @start_at_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
+    @start_at_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.start_at.strftime('%d/%m/%Y'), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
 
     @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
-    @end_at_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
+    @end_at_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.end_at.strftime('%d/%m/%Y'), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
 
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     @classroom_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
@@ -195,6 +195,12 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     @opinion_cell = make_cell(content: opinion_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
 
+  def removed_objectives?
+    return false if GeneralConfiguration.current.remove_lesson_plan_objectives
+
+    true
+  end
+
   def identification
     identification_table_data = [
       [@identification_header_cell],
@@ -218,11 +224,18 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
   end
 
   def class_plan
-    class_plan_table_data = [
-      [@class_plan_header_cell],
-      [@content_cell],
-      [@objectives_cell]
-    ]
+    class_plan_table_data = if removed_objectives?
+                              [
+                                [@class_plan_header_cell],
+                                [@content_cell],
+                                [@objectives_cell]
+                              ]
+                            else
+                              [
+                                [@class_plan_header_cell],
+                                [@content_cell]
+                              ]
+                            end
 
     if @knowledge_area_lesson_plan.experience_fields.present?
       class_plan_table_data.insert(1, [@experience_fields_cell])
