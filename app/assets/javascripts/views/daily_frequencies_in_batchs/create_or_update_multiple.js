@@ -25,8 +25,8 @@ $(document).ready( function() {
     }).trigger('change');
   })
 
-  $('.class-number-checkbox').each( function () {
-    markGeneralCheckbox($(this).closest('td'))
+  $('.frequency-in-batch-day').each( function () {
+    markGeneralCheckbox($(this))
   });
 
   $('.date-collapse').each( function () {
@@ -89,12 +89,20 @@ $(function () {
 
 $('.general-checkbox').on('change', function() {
   let checked = $(this).prop('checked')
+  let has_absence_justification = $(this).closest('td').find('.justified-absence-checkbox').length > 0;
+
   if (checked) {
-    $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('half-checked')
     $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('unchecked')
   } else {
     $(this).closest('td').find('.checkbox-frequency-in-batch').addClass('unchecked')
   }
+
+  if (has_absence_justification) {
+    $(this).closest('td').find('.checkbox-frequency-in-batch').addClass('half-checked')
+  } else {
+    $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('half-checked')
+  }
+
   $(this).closest('td').find('.class-number-checkbox').prop('checked', checked)
   studentAbsencesCount($(this).closest('tr'))
 })
@@ -137,10 +145,16 @@ $('.date-collapse').on('click', function () {
 function markGeneralCheckbox(td) {
   let all_checked = td.find('.class-number-checkbox:not(:checked)').length == 0
   let all_not_checked = td.find('.class-number-checkbox:is(:checked)').length == 0
+  let has_absence_justification = td.find('.justified-absence-checkbox').length > 0
+
   td.find('.class-number-checkbox:not(:checked)').closest('label').find('.checkbox-frequency-in-batch').addClass('unchecked')
   td.find('.class-number-checkbox:is(:checked)').closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
 
-  if (all_checked) {
+  if ((all_checked || all_not_checked) && has_absence_justification) {
+    td.find('.general-checkbox-icon').addClass('half-checked')
+    td.find('.general-checkbox-icon').removeClass('unchecked')
+    td.find('.general-checkbox').prop('checked', true)
+  } else if (all_checked) {
     td.find('.general-checkbox').prop('checked', true)
     td.find('.general-checkbox-icon').removeClass('half-checked')
     td.find('.checkbox-frequency-in-batch').removeClass('unchecked')

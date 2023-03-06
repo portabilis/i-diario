@@ -32,7 +32,7 @@
         <% end %>
       <% end %>
     <% end %>
-    <td style="width: 1%;">
+    <td class="frequency-in-batch-day" style="width: 1%;">
       <div class="<%= additional_class %>" style="display: flex; max-height: 50px">
         <div style="width: 30px; margin: 0 5px;">
           <span>
@@ -86,7 +86,7 @@
 
                 <% if absence_justification_student_id %>
                   <label title="Falta Justificada" class="checkbox justified-absence" style="margin-top: -5px ">
-                    <input type="checkbox" checked disabled><i></i>
+                    <input type="checkbox" checked disabled class="justified-absence-checkbox"><i></i>
                   </label>
                 <% else %>
                   <label class="checkbox <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="bottom: 15px;" title="<%= tooltip %>">
