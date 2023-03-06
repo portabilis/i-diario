@@ -219,10 +219,10 @@ class LessonsBoardsController < ApplicationController
   def teacher_in_other_classroom
     any_blank_param = (
       params[:teacher_discipline_classroom_id].blank? ||
-        params[:lesson_number].blank? ||
-        params[:weekday].blank? ||
-        params[:classroom_id].blank? ||
-        params[:period].blank?
+      params[:lesson_number].blank? ||
+      params[:weekday].blank? ||
+      params[:classroom_id].blank? ||
+      params[:period].blank?
     )
 
     return if any_blank_param
