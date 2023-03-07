@@ -249,14 +249,21 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    actives_methodology_label = Translator.t('navigation.actives_methodology_by_knowledge_area')
-    resources_label = Translator.t('navigation.resources_by_knowledge_area')
-    avaliation_label = Translator.t('navigation.avaliation_by_knowledge_area')
-    references_label = Translator.t('navigation.references_by_knowledge_area')
+    actives_methodology_translation = Translation.find_by(key: 'navigation.actives_methodology_by_discipline', group: 'lesson_plans').translation
+    actives_methodology_label = actives_methodology_translation.present? ? actives_methodology_translation : 'Atividades/metodologia'
+
+    resources_translation = Translation.find_by(key: 'navigation.resources_by_knowledge_area', group: 'lesson_plans').translation
+    resources_label = resources_translation.present? ? resources_translation : 'Recursos'
+
+    evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'lesson_plans').translation
+    evaluation_label = evaluation_translation.present? ? evaluation_translation : 'Avaliação'
+
+    references_translation = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'lesson_plans').translation
+    references_label = references_translation.present? ? references_translation : 'Referências'
 
     text_box_truncate(actives_methodology_label, (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
     text_box_truncate(resources_label, (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
-    text_box_truncate(avaliation_label, (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
+    text_box_truncate(evaluation_label, (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
     text_box_truncate(references_label, (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))
   end
 
