@@ -100,14 +100,14 @@ class BaseReport
         information = text_formatted.join(" ")
       end
 
-      text_height = height_of(information, width: bounds.width - 10, size: 10) + 30
+      text_height = height_of(information, width: bounds.width - 10, size: 10) + 180
       box_height = (text_height > cursor ? cursor : text_height)
 
       bounding_box([0, cursor], width: bounds.width, height: box_height - 5) do
         line_width 0.5
         stroke_bounds
         information = text_box(
-          information,
+          information.gsub("</p>", "</p><br>"),
           width: bounds.width - 10,
           overflow: :truncate,
           size: 10,

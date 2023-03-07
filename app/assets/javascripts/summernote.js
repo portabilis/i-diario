@@ -28,7 +28,6 @@ function createSummerNote(element, options = {}) {
 }
 
 function CleanPastedHTML(input) {
-  console.log('sss')
   var stringStripper = /(\n|\r| class=(")?Mso[a-zA-Z]+(")?)/g;
   var output = input.replace(stringStripper, ' ');
   var commentSripper = new RegExp('<!--(.*?)-->','g');
