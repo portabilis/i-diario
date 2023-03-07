@@ -6,8 +6,8 @@ class LessonPlanDecorator
   end
 
   def removed_objectives?
-    general_configuration = GeneralConfiguration.current
-    return false if general_configuration.remove_lesson_plan_objectives
+    @general_configuration ||= GeneralConfiguration.current
+    return false if @general_configuration.remove_lesson_plan_objectives
 
     true
   end
