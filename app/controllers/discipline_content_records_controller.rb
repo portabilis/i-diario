@@ -50,6 +50,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def new
+    fetch_linked_by_teacher
+
     @discipline_content_record = DisciplineContentRecord.new.localized
     @discipline_content_record.build_content_record(
       record_date: Time.zone.now,
@@ -112,8 +114,8 @@ class DisciplineContentRecordsController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
-    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
   end
 
   def history
