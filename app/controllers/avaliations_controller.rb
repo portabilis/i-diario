@@ -82,7 +82,9 @@ class AvaliationsController < ApplicationController
       @avaliation_multiple_creator_form.unity_id = current_unity.id
       @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
     else
-      @avaliation_multiple_creator_form.discipline_id = @disciplines.map(&:id)
+      fetch_linked_by_teacher
+
+      @avaliation_multiple_creator_form.discipline_id = current_user.discipline.id
       @avaliation_multiple_creator_form.unity_id = current_unity.id
       @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
     end

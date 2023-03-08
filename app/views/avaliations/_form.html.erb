@@ -34,8 +34,8 @@
           <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
                             classroom_id: @avaliation.classroom_id %>
         <% else %>
-          <%= f.association :discipline, as: :select2, elements: @disciplines,
-                            user: current_user, record: f.object %>
+          <%= f.association :discipline, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+                             classroom_id: @avaliation.classroom_id %>
         <% end %>
       </div>
     </div>
