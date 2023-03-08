@@ -47,7 +47,10 @@ class AvaliationsController < ApplicationController
 
       @classrooms = @fetch_linked_by_teacher[:classrooms]
       @disciplines = @fetch_linked_by_teacher[:disciplines]
-      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, @fetch_linked_by_teacher[:classrooms])
+      @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+        current_school_calendar,
+        @classrooms
+      )
     end
 
     authorize @avaliations
