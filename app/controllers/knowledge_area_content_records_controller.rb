@@ -41,6 +41,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def new
+    fetch_linked_by_teacher
+
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new.localized
     @knowledge_area_content_record.build_content_record(
       record_date: Time.zone.now,
@@ -70,6 +72,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id]).localized
 
     authorize @knowledge_area_content_record
@@ -202,8 +206,13 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
   def knowledge_areas
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
-    @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
+    if current_user.current_role_is_admin_or_employee?
+      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
+    else
+      fetch_linked_by_teacher
 
+      @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
+    end
     @knowledge_areas
   end
   helper_method :knowledge_areas
