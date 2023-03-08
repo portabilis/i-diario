@@ -58,6 +58,8 @@ class AvaliationsController < ApplicationController
   end
 
   def new
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+
     return if test_settings_redirect
     return if score_types_redirect
     return if not_allow_numerical_exam
@@ -339,7 +341,7 @@ class AvaliationsController < ApplicationController
     else
       classrooms_grade_ids = @fetch_linked_by_teacher[:classroom_grades][:id]
 
-      @grades ||= ClassroomsGrades.where(id: classrooms_grade_ids).by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+      @grades ||= ClassroomsGrade.where(id: classrooms_grade_ids).by_score_type(ScoreTypes::NUMERIC).map(&:grade)
     end
   end
   helper_method :grades
