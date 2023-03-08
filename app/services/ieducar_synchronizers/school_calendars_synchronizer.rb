@@ -43,7 +43,10 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
           school_calendar.step_type_description = school_calendar_record.descricao
           school_calendar.opened_year = school_calendar_record.ano_em_aberto
 
-          school_calendar.save! if school_calendar.changed?
+          if school_calendar.changed?
+            school_calendar.save!
+            update_or_create_school_term_types(school_calendar)
+          end
 
           @school_calendar_steps_ids = []
           @changed_steps = false
