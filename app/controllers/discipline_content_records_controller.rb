@@ -10,17 +10,34 @@ class DisciplineContentRecordsController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @discipline_content_records = apply_scopes(
-      DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
-                             .by_unity_id(current_unity.id)
-                             .by_classroom_id(current_user_classroom)
-                             .by_discipline_id(current_user_discipline)
-                             .ordered
-    )
+    if current_user.current_role_is_admin_or_employee?
+      @discipline_content_records = apply_scopes(
+        DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
+                               .by_unity_id(current_unity.id)
+                               .by_classroom_id(current_user_classroom)
+                               .by_discipline_id(current_user_discipline)
+                               .ordered
+      )
 
-    if author_type.present?
-      @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
-      params[:filter][:by_author] = author_type
+      if author_type.present?
+        @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
+        params[:filter][:by_author] = author_type
+      end
+    else
+      fetch_linked_by_teacher
+
+      @discipline_content_records = apply_scopes(
+        DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
+                               .by_unity_id(current_unity.id)
+                               .by_classroom_id(@classrooms.map(&:id))
+                               .by_discipline_id(@disciplines.map(&:id))
+                               .ordered
+      )
+
+      if author_type.present?
+        @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
+        params[:filter][:by_author] = author_type
+      end
     end
 
     authorize @discipline_content_records
@@ -91,6 +108,12 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record.destroy
 
     respond_with @discipline_content_record, location: discipline_content_records_path
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
 
   def history
