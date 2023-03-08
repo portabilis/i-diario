@@ -10,24 +10,42 @@ class DisciplineLessonPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
-    discipline = if current_user_discipline.grouper?
-                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
-                 else
-                   current_user_discipline
-                 end
 
-    @discipline_lesson_plans = apply_scopes(
-      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
-                          .by_unity_id(current_unity.id)
-                          .by_classroom_id(current_user_classroom)
-                          .by_discipline_id(discipline)
-                          .uniq
-                          .ordered
-    ).select(
-      DisciplineLessonPlan.arel_table[Arel.sql('*')],
-      LessonPlan.arel_table[:start_at],
-      LessonPlan.arel_table[:end_at]
-    )
+    if current_user.current_role_is_admin_or_employee?
+      discipline = if current_user_discipline.grouper?
+                     Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                   else
+                     current_user_discipline
+                   end
+
+      @discipline_lesson_plans = apply_scopes(
+        DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+                            .by_unity_id(current_unity.id)
+                            .by_classroom_id(current_user_classroom)
+                            .by_discipline_id(discipline)
+                            .uniq
+                            .ordered
+      ).select(
+        DisciplineLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
+      )
+    else
+      fetch_linked_by_teacher
+
+      @discipline_lesson_plans = apply_scopes(
+        DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+                            .by_unity_id(current_unity.id)
+                            .by_classroom_id(@classrooms.map(&:id))
+                            .by_discipline_id(@disciplines.map(&:id))
+                            .uniq
+                            .ordered
+      ).select(
+        DisciplineLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
+      )
+    end
 
     if author_type.present?
       @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
@@ -183,6 +201,12 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+  end
 
   def content_ids
     param_content_ids = params[:discipline_lesson_plan][:lesson_plan_attributes][:content_ids] || []
