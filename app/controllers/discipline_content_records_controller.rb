@@ -80,6 +80,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @discipline_content_record = DisciplineContentRecord.find(params[:id]).localized
 
     authorize @discipline_content_record
