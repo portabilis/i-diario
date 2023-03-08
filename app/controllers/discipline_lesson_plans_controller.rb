@@ -12,6 +12,8 @@ class DisciplineLessonPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     if current_user.current_role_is_admin_or_employee?
+      @classrooms = fetch_classrooms
+      @disciplines = fetch_disciplines
       discipline = if current_user_discipline.grouper?
                      Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
                    else
@@ -53,9 +55,6 @@ class DisciplineLessonPlansController < ApplicationController
     end
 
     authorize @discipline_lesson_plans
-
-    @classrooms = fetch_classrooms
-    @disciplines = fetch_disciplines
   end
 
   def show
@@ -204,7 +203,7 @@ class DisciplineLessonPlansController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
     @disciplines = @fetch_linked_by_teacher[:disciplines]
   end
 
