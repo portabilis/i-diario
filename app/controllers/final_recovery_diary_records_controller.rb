@@ -7,22 +7,38 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    @final_recovery_diary_records =
-      apply_scopes(FinalRecoveryDiaryRecord)
-      .includes(recovery_diary_record: [:unity, :classroom, :discipline])
-      .filter(filtering_params(params[:search]))
-      .by_unity_id(current_unity.id)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .ordered
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = fetch_classrooms
+      @disciplines = fetch_disciplines
+
+      @final_recovery_diary_records =
+        apply_scopes(FinalRecoveryDiaryRecord)
+        .includes(recovery_diary_record: [:unity, :classroom, :discipline])
+        .filter(filtering_params(params[:search]))
+        .by_unity_id(current_unity.id)
+        .by_classroom_id(current_user_classroom)
+        .by_discipline_id(current_user_discipline)
+        .ordered
+    else
+      fetch_linked_by_teacher
+
+      @final_recovery_diary_records =
+        apply_scopes(FinalRecoveryDiaryRecord)
+          .includes(recovery_diary_record: [:unity, :classroom, :discipline])
+          .filter(filtering_params(params[:search]))
+          .by_unity_id(current_unity.id)
+          .by_classroom_id(@classrooms.map(&:id))
+          .by_discipline_id(@disciplines.map(&:id))
+          .ordered
+
+    end
 
     authorize @final_recovery_diary_records
-
-    @classrooms = fetch_classrooms
-    @disciplines = fetch_disciplines
   end
 
   def new
+    fetch_linked_by_teacher
+
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.new.localized
     @final_recovery_diary_record.school_calendar = current_school_calendar
     @final_recovery_diary_record.build_recovery_diary_record
@@ -42,6 +58,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
+      fetch_linked_by_teacher
       number_of_decimal_places
 
       students_in_final_recovery = fetch_students_in_final_recovery
@@ -52,6 +69,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
 
     authorize @final_recovery_diary_record
@@ -78,6 +97,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
+      fetch_linked_by_teacher
       number_of_decimal_places
 
       render :edit
@@ -101,6 +121,12 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+  end
 
   def resource_params
     params.require(:final_recovery_diary_record).permit(
@@ -135,13 +161,23 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-    .ordered
+    if current_user.current_role_is_admin_or_employee?
+      Classroom.where(id: current_user_classroom.id).ordered
+    else
+      fetch_linked_by_teacher
+
+      Classroom.where(id: @classrooms.map(&:id)).ordered
+    end
   end
 
   def fetch_disciplines
-    Discipline.where(id: current_user_discipline)
-      .ordered
+    if current_user.current_role_is_admin_or_employee?
+      Discipline.where(id: current_user_discipline.id).ordered
+    else
+      fetch_linked_by_teacher
+
+      Discipline.where(id: @disciplines.map(&:id)).ordered
+    end
   end
 
   def fetch_students_in_final_recovery
