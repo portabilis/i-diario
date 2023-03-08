@@ -27,10 +27,7 @@ class TeacherClassroomAndDisciplineFetcher
   def classrooms_fetch
     return {} if unity.nil?
 
-    Classroom.by_unity_and_teacher(unity.id, teacher_id)
-             .by_year(current_school_calendar.year)
-             .ordered
-             .uniq
+    Classroom.by_unity_and_teacher(unity.id, teacher_id).ordered.uniq
   end
 
   def disciplines_fetch
