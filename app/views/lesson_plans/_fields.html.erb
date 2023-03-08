@@ -62,7 +62,7 @@
     <% end %>
 </fieldset>
 
-<% if f.object.decorator.removed_objectives? %>
+<% unless f.object.decorator.removed_objectives? %>
   <fieldset>
     <legend style="margin-bottom: -10px;">
       <%= model.class.human_attribute_name(:objectives) %>
