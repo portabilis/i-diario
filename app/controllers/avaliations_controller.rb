@@ -37,16 +37,14 @@ class AvaliationsController < ApplicationController
       @disciplines = Discipline.where(id: current_user_discipline)
       @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
     else
-      @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+      fetch_linked_by_teacher
 
       @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
                                              .by_unity_id(current_unity_id)
-                                             .by_classroom_id(@fetch_linked_by_teacher[:classrooms].map(&:id))
-                                             .by_discipline_id(@fetch_linked_by_teacher[:disciplines].map(&:id))
+                                             .by_classroom_id(@classrooms.map(&:id))
+                                             .by_discipline_id(@disciplines.map(&:id))
                                              .ordered
 
-      @classrooms = @fetch_linked_by_teacher[:classrooms]
-      @disciplines = @fetch_linked_by_teacher[:disciplines]
       @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
         current_school_calendar,
         @classrooms
@@ -58,7 +56,7 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    fetch_linked_by_teacher
 
     return if test_settings_redirect
     return if score_types_redirect
@@ -84,7 +82,7 @@ class AvaliationsController < ApplicationController
       @avaliation_multiple_creator_form.unity_id = current_unity.id
       @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
     else
-      @avaliation_multiple_creator_form.discipline_id = @fetch_linked_by_teacher[:disciplines].map(&:id)
+      @avaliation_multiple_creator_form.discipline_id = @disciplines.map(&:id)
       @avaliation_multiple_creator_form.unity_id = current_unity.id
       @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
     end
@@ -127,6 +125,8 @@ class AvaliationsController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @avaliation = resource
 
     authorize @avaliation
@@ -187,6 +187,12 @@ class AvaliationsController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
+  end
 
   def respond_to_save
     if params[:commit] == I18n.t('avaliations.form.save_and_edit_daily_notes')
