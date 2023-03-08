@@ -75,6 +75,8 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def new
+    fetch_linked_by_teacher
+
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.lesson_plan.classroom = current_user_classroom
@@ -118,6 +120,8 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
     authorize @discipline_lesson_plan
