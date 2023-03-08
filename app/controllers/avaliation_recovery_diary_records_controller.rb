@@ -7,28 +7,42 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    @avaliation_recovery_diary_records =
-      apply_scopes(AvaliationRecoveryDiaryRecord)
-      .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
-      .by_unity_id(current_unity.id)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .ordered
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = fetch_classrooms
+      @disciplines = fetch_disciplines
+
+      @avaliation_recovery_diary_records =
+        apply_scopes(AvaliationRecoveryDiaryRecord)
+        .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
+        .by_unity_id(current_unity.id)
+        .by_classroom_id(current_user_classroom)
+        .by_discipline_id(current_user_discipline)
+        .ordered
+    else
+      fetch_linked_by_teacher
+
+      @avaliation_recovery_diary_records =
+        apply_scopes(AvaliationRecoveryDiaryRecord)
+          .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
+          .by_unity_id(current_unity.id)
+          .by_classroom_id(@classrooms.map(&:id))
+          .by_discipline_id(@disciplines.map(&:id))
+          .ordered
+    end
 
     authorize @avaliation_recovery_diary_records
-
-    @classrooms = fetch_classrooms
-    @disciplines = fetch_disciplines
     @school_calendar_steps = current_school_calendar.steps
   end
 
   def new
+    fetch_linked_by_teacher
+
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
     @avaliation_recovery_diary_record.build_recovery_diary_record
     @avaliation_recovery_diary_record.recovery_diary_record.unity = current_unity
 
     @unities = fetch_unities
-    @classrooms = fetch_classrooms
+    @classrooms = fetch_classrooms if current_user.current_role_is_admin_or_employee?
     @school_calendar_steps = current_school_calendar.steps
 
     if current_test_setting.blank?
@@ -52,6 +66,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if @avaliation_recovery_diary_record.save
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
+      fetch_linked_by_teacher
+
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       reload_students_list if daily_note_students.present?
 
@@ -60,6 +76,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
 
     authorize @avaliation_recovery_diary_record
@@ -89,6 +107,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if @avaliation_recovery_diary_record.save
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
+      fetch_linked_by_teacher
+
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       reload_students_list if daily_note_students.present?
 
@@ -114,6 +134,12 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   private
 
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+  end
+
   def resource_params
     params.require(:avaliation_recovery_diary_record).permit(
       :avaliation_id,
@@ -138,8 +164,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-    .ordered
+    Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_disciplines
