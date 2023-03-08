@@ -10,11 +10,21 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_content_records = apply_scopes(
-      KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
-                                .by_classroom_id(current_user_classroom)
-                                .ordered
-    )
+    if current_user.current_role_is_admin_or_employee?
+      @knowledge_area_content_records = apply_scopes(
+        KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
+                                  .by_classroom_id(current_user_classroom)
+                                  .ordered
+      )
+    else
+      fetch_linked_by_teacher
+
+      @knowledge_area_content_records = apply_scopes(
+        KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
+                                  .by_classroom_id(@classrooms.map(&:id))
+                                  .ordered
+      )
+    end
 
     if author_type.present?
       @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
@@ -90,6 +100,11 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.destroy
 
     respond_with @knowledge_area_content_record, location: knowledge_area_content_records_path
+  end
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
   end
 
   def history

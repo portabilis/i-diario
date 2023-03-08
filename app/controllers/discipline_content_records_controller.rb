@@ -18,11 +18,6 @@ class DisciplineContentRecordsController < ApplicationController
                                .by_discipline_id(current_user_discipline)
                                .ordered
       )
-
-      if author_type.present?
-        @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
-        params[:filter][:by_author] = author_type
-      end
     else
       fetch_linked_by_teacher
 
@@ -33,11 +28,11 @@ class DisciplineContentRecordsController < ApplicationController
                                .by_discipline_id(@disciplines.map(&:id))
                                .ordered
       )
+    end
 
-      if author_type.present?
-        @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
-        params[:filter][:by_author] = author_type
-      end
+    if author_type.present?
+      @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type
     end
 
     authorize @discipline_content_records
