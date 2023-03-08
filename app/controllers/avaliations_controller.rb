@@ -16,28 +16,41 @@ class AvaliationsController < ApplicationController
   def index
     current_unity_id = current_unity.id if current_unity
 
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
+    if current_user.current_role_is_admin_or_employee?
+      if params[:filter].present? && params[:filter][:by_step_id].present?
+        step_id = params[:filter].delete(:by_step_id)
 
-      if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
-        params[:filter][:by_school_calendar_classroom_step] = step_id
-      else
-        params[:filter][:by_school_calendar_step] = step_id
+        if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
+          params[:filter][:by_school_calendar_classroom_step] = step_id
+        else
+          params[:filter][:by_school_calendar_step] = step_id
+        end
       end
+
+      @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
+                                             .by_unity_id(current_unity_id)
+                                             .by_classroom_id(current_user_classroom)
+                                             .by_discipline_id(current_user_discipline)
+                                             .ordered
+
+      @classrooms = Classroom.where(id: current_user_classroom)
+      @disciplines = Discipline.where(id: current_user_discipline)
+      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    else
+      @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+
+      @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
+                                             .by_unity_id(current_unity_id)
+                                             .by_classroom_id(@fetch_linked_by_teacher[:classrooms].map(&:id))
+                                             .by_discipline_id(@fetch_linked_by_teacher[:disciplines].map(&:id))
+                                             .ordered
+
+      @classrooms = @fetch_linked_by_teacher[:classrooms]
+      @disciplines = @fetch_linked_by_teacher[:disciplines]
+      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, @fetch_linked_by_teacher[:classrooms])
     end
 
-    @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
-                                           .by_unity_id(current_unity_id)
-                                           .by_classroom_id(current_user_classroom)
-                                           .by_discipline_id(current_user_discipline)
-                                           .ordered
-
     authorize @avaliations
-
-    @classrooms = Classroom.where(id: current_user_classroom)
-    @disciplines = Discipline.where(id: current_user_discipline)
-    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
-
     respond_with @avaliations
   end
 
@@ -60,10 +73,16 @@ class AvaliationsController < ApplicationController
 
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
-    @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
-    @avaliation_multiple_creator_form.unity_id = current_unity.id
-    @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
+    if current_user.current_role_is_admin_or_employee?
+      @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
+      @avaliation_multiple_creator_form.unity_id = current_unity.id
+      @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
+    else
+      @avaliation_multiple_creator_form.discipline_id = @fetch_linked_by_teacher[:disciplines].map(&:id)
+      @avaliation_multiple_creator_form.unity_id = current_unity.id
+      @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
+    end
     authorize Avaliation.new
 
     test_settings
@@ -268,7 +287,7 @@ class AvaliationsController < ApplicationController
   end
 
   def test_settings
-    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
+    return unless (year_test_setting = TestSetting.where(year: current_user.classroom.year))
 
     @test_settings ||= general_by_school_test_setting(year_test_setting) ||
                        general_test_setting(year_test_setting) ||
@@ -277,10 +296,10 @@ class AvaliationsController < ApplicationController
 
   def general_by_school_test_setting(year_test_setting)
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
-                     .by_unities(current_user_classroom.unity)
+                     .by_unities(current_user.classroom.unity)
                      .where(
                        "grades && ARRAY[?]::integer[] OR grades = '{}'",
-                       current_user_classroom.grade_ids
+                       current_user.classroom.grade_ids
                      )
                      .presence
   end
@@ -304,7 +323,7 @@ class AvaliationsController < ApplicationController
   end
 
   def not_allow_numerical_exam
-    grades_by_numerical_exam = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    grades_by_numerical_exam = current_user.classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
 
     return if grades_by_numerical_exam.present?
 
@@ -312,7 +331,13 @@ class AvaliationsController < ApplicationController
   end
 
   def grades
-    @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    if current_user.current_role_is_admin_or_employee?
+      @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    else
+      classrooms_grade_ids = @fetch_linked_by_teacher[:classroom_grades][:id]
+
+      @grades ||= ClassroomsGrades.where(id: classrooms_grade_ids).by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    end
   end
   helper_method :grades
 end
