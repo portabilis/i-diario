@@ -14,42 +14,19 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    current_unity_id = current_unity.id if current_unity
-
     if current_user.current_role_is_admin_or_employee?
-      if params[:filter].present? && params[:filter][:by_step_id].present?
-        step_id = params[:filter].delete(:by_step_id)
-
-        if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
-          params[:filter][:by_school_calendar_classroom_step] = step_id
-        else
-          params[:filter][:by_school_calendar_step] = step_id
-        end
-      end
-
-      @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
-                                             .by_unity_id(current_unity_id)
-                                             .by_classroom_id(current_user_classroom)
-                                             .by_discipline_id(current_user_discipline)
-                                             .ordered
-
       @classrooms = Classroom.where(id: current_user_classroom)
       @disciplines = Discipline.where(id: current_user_discipline)
-      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
     else
       fetch_linked_by_teacher
-
-      @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
-                                             .by_unity_id(current_unity_id)
-                                             .by_classroom_id(@classrooms.map(&:id))
-                                             .by_discipline_id(@disciplines.map(&:id))
-                                             .ordered
-
-      @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
-        current_school_calendar,
-        @classrooms
-      )
     end
+
+    if params[:filter].present? && params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+      params[:filter][school_calendar_step] = step_id
+    end
+
+    fetch_avaliations_by_user
 
     authorize @avaliations
     respond_with @avaliations
@@ -190,9 +167,33 @@ class AvaliationsController < ApplicationController
 
   private
 
+  def school_calendar_step
+    return :by_school_calendar_classroom_step if school_calendar_by_classroom?
+
+    :by_school_calendar_step
+  end
+
+  def school_calendar_by_classroom?
+    classroom_ids = @classrooms.map(&:id)
+
+    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
+  end
+
+  def fetch_avaliations_by_user
+    current_unity_id = current_unity.id if current_unity
+
+    @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
+                                           .by_unity_id(current_unity_id)
+                                           .by_classroom_id(@classrooms.map(&:id))
+                                           .by_discipline_id(@disciplines.map(&:id))
+                                           .ordered
+
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
+  end
+
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year).by_score_type(ScoreTypes::NUMERIC)
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
 
