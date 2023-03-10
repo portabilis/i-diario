@@ -29,7 +29,7 @@ FactoryGirl.define do
 
     trait :without_contents do
       contents []
-      objective []
+      objectives []
     end
 
     after(:build) do |lesson_plan, evaluator|
