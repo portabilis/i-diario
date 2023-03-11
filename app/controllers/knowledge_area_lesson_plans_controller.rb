@@ -67,7 +67,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = fetch_classrooms
+    else
+      fetch_linked_by_teacher
+    end
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
@@ -80,7 +84,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     authorize @knowledge_area_lesson_plan
 
     @unities = fetch_unities
-    @classrooms = fetch_classrooms if current_user.current_role_is_admin_or_employee?
     @knowledge_areas = fetch_knowledge_area
   end
 
