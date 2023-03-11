@@ -6,29 +6,18 @@ class DisciplineContentRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = Classroom.where(id: current_user_classroom)
+      @disciplines = Discipline.where(id: current_user_discipline)
+    else
+      fetch_linked_by_teacher
+    end
+
+    fetch_discipline_content_records_by_user
+
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
-
-    if current_user.current_role_is_admin_or_employee?
-      @discipline_content_records = apply_scopes(
-        DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
-                               .by_unity_id(current_unity.id)
-                               .by_classroom_id(current_user_classroom)
-                               .by_discipline_id(current_user_discipline)
-                               .ordered
-      )
-    else
-      fetch_linked_by_teacher
-
-      @discipline_content_records = apply_scopes(
-        DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
-                               .by_unity_id(current_unity.id)
-                               .by_classroom_id(@classrooms.map(&:id))
-                               .by_discipline_id(@disciplines.map(&:id))
-                               .ordered
-      )
-    end
 
     if author_type.present?
       @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
@@ -45,7 +34,7 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @discipline_content_record = DisciplineContentRecord.new.localized
     @discipline_content_record.build_content_record(
@@ -132,6 +121,16 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   private
+
+  def fetch_discipline_content_records_by_user
+    @discipline_content_records = apply_scopes(
+      DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
+                             .by_unity_id(current_unity.id)
+                             .by_classroom_id(@classrooms.map(&:id))
+                             .by_discipline_id(@disciplines.map(&:id))
+                             .ordered
+    )
+  end
 
   def content_ids
     param_content_ids = params[:discipline_content_record][:content_record_attributes][:content_ids] || []
