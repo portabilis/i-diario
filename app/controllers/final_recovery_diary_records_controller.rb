@@ -10,32 +10,25 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if current_user.current_role_is_admin_or_employee?
       @classrooms = fetch_classrooms
       @disciplines = fetch_disciplines
-
-      @final_recovery_diary_records =
-        apply_scopes(FinalRecoveryDiaryRecord)
-        .includes(recovery_diary_record: [:unity, :classroom, :discipline])
-        .filter(filtering_params(params[:search]))
-        .by_unity_id(current_unity.id)
-        .by_classroom_id(current_user_classroom)
-        .by_discipline_id(current_user_discipline)
-        .ordered
     else
       fetch_linked_by_teacher
-
-      @final_recovery_diary_records =
-        apply_scopes(FinalRecoveryDiaryRecord)
-          .includes(recovery_diary_record: [:unity, :classroom, :discipline])
-          .filter(filtering_params(params[:search]))
-          .by_unity_id(current_unity.id)
-          .by_classroom_id(@classrooms.map(&:id))
-          .by_discipline_id(@disciplines.map(&:id))
-          .ordered
-
     end
+
+    fetch_recovery_diary_records_by_user
 
     authorize @final_recovery_diary_records
   end
 
+  def fetch_recovery_diary_records_by_user
+    @final_recovery_diary_records =
+      apply_scopes(FinalRecoveryDiaryRecord)
+        .includes(recovery_diary_record: [:unity, :classroom, :discipline])
+        .filter(filtering_params(params[:search]))
+        .by_unity_id(current_unity.id)
+        .by_classroom_id(@classrooms.map(&:id))
+        .by_discipline_id(@disciplines.map(&:id))
+        .ordered
+  end
   def new
     fetch_linked_by_teacher
 
@@ -161,23 +154,11 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_classrooms
-    if current_user.current_role_is_admin_or_employee?
-      Classroom.where(id: current_user_classroom.id).ordered
-    else
-      fetch_linked_by_teacher
-
-      Classroom.where(id: @classrooms.map(&:id)).ordered
-    end
+    Classroom.where(id: current_user_classroom.id).ordered
   end
 
   def fetch_disciplines
-    if current_user.current_role_is_admin_or_employee?
-      Discipline.where(id: current_user_discipline.id).ordered
-    else
-      fetch_linked_by_teacher
-
-      Discipline.where(id: @disciplines.map(&:id)).ordered
-    end
+    Discipline.where(id: current_user_discipline.id).ordered
   end
 
   def fetch_students_in_final_recovery
