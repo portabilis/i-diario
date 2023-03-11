@@ -25,14 +25,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     authorize @knowledge_area_content_records
   end
 
-  def fetch_knowledge_area_content_records_by_user
-    @knowledge_area_content_records = apply_scopes(
-      KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
-                                .by_classroom_id(@classrooms.map(&:id))
-                                .ordered
-    )
-  end
-
   def show
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id]).localized
 
@@ -125,6 +117,14 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   private
+
+  def fetch_knowledge_area_content_records_by_user
+    @knowledge_area_content_records = apply_scopes(
+      KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
+                                .by_classroom_id(@classrooms.map(&:id))
+                                .ordered
+    )
+  end
 
   def content_ids
     param_content_ids = params[:knowledge_area_content_record][:content_record_attributes][:content_ids] || []
