@@ -19,8 +19,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @school_calendar_steps = current_school_calendar.steps
   end
 
-
-
   def new
     if current_user.current_role_is_admin_or_employee?
       @classrooms = fetch_classrooms
@@ -56,7 +54,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if @avaliation_recovery_diary_record.save
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
-      fetch_linked_by_teacher
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       reload_students_list if daily_note_students.present?
