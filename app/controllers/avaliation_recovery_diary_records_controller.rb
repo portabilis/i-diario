@@ -10,39 +10,29 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if current_user.current_role_is_admin_or_employee?
       @classrooms = fetch_classrooms
       @disciplines = fetch_disciplines
-
-      @avaliation_recovery_diary_records =
-        apply_scopes(AvaliationRecoveryDiaryRecord)
-        .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
-        .by_unity_id(current_unity.id)
-        .by_classroom_id(current_user_classroom)
-        .by_discipline_id(current_user_discipline)
-        .ordered
     else
       fetch_linked_by_teacher
-
-      @avaliation_recovery_diary_records =
-        apply_scopes(AvaliationRecoveryDiaryRecord)
-          .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
-          .by_unity_id(current_unity.id)
-          .by_classroom_id(@classrooms.map(&:id))
-          .by_discipline_id(@disciplines.map(&:id))
-          .ordered
     end
 
+    fetch_avaliation_recovery_diary_records_by_user
     authorize @avaliation_recovery_diary_records
     @school_calendar_steps = current_school_calendar.steps
   end
 
+
+
   def new
-    fetch_linked_by_teacher
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = fetch_classrooms
+    else
+      fetch_linked_by_teacher
+    end
 
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
     @avaliation_recovery_diary_record.build_recovery_diary_record
     @avaliation_recovery_diary_record.recovery_diary_record.unity = current_unity
 
     @unities = fetch_unities
-    @classrooms = fetch_classrooms if current_user.current_role_is_admin_or_employee?
     @school_calendar_steps = current_school_calendar.steps
 
     if current_test_setting.blank?
@@ -76,7 +66,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = fetch_classrooms
+    else
+      fetch_linked_by_teacher
+    end
 
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
 
@@ -87,7 +81,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     @student_notes = fetch_student_notes
     @unities = fetch_unities
-    @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
     @avaliations = fetch_avaliations
     reload_students_list
@@ -133,6 +126,16 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   private
+
+  def fetch_avaliation_recovery_diary_records_by_user
+    @avaliation_recovery_diary_records =
+      apply_scopes(AvaliationRecoveryDiaryRecord)
+        .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
+        .by_unity_id(current_unity.id)
+        .by_classroom_id(@classrooms.map(&:id))
+        .by_discipline_id(@disciplines.map(&:id))
+        .ordered
+  end
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
