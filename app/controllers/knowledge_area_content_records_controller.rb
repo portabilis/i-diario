@@ -205,6 +205,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
   def knowledge_areas
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
+
     if current_user.current_role_is_admin_or_employee?
       @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
     else
