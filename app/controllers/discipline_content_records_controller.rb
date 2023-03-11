@@ -98,6 +98,7 @@ class DisciplineContentRecordsController < ApplicationController
     respond_with @discipline_content_record, location: discipline_content_records_path
   end
 
+
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
     @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
