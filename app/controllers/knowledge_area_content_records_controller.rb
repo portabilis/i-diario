@@ -6,25 +6,16 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = Classroom.where(id: current_user_classroom.id)
+    else
+      fetch_linked_by_teacher
+    end
+
+    fetch_knowledge_area_content_records_by_user
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
-
-    if current_user.current_role_is_admin_or_employee?
-      @knowledge_area_content_records = apply_scopes(
-        KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
-                                  .by_classroom_id(current_user_classroom)
-                                  .ordered
-      )
-    else
-      fetch_linked_by_teacher
-
-      @knowledge_area_content_records = apply_scopes(
-        KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
-                                  .by_classroom_id(@classrooms.map(&:id))
-                                  .ordered
-      )
-    end
 
     if author_type.present?
       @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
@@ -32,6 +23,14 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     end
 
     authorize @knowledge_area_content_records
+  end
+
+  def fetch_knowledge_area_content_records_by_user
+    @knowledge_area_content_records = apply_scopes(
+      KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
+                                .by_classroom_id(@classrooms.map(&:id))
+                                .ordered
+    )
   end
 
   def show
@@ -207,7 +206,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def knowledge_areas
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
     if current_user.current_role_is_admin_or_employee?
-      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
+      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
     else
       fetch_linked_by_teacher
 
