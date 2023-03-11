@@ -34,7 +34,7 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    fetch_linked_by_teacher
 
     @discipline_content_record = DisciplineContentRecord.new.localized
     @discipline_content_record.build_content_record(
