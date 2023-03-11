@@ -33,7 +33,7 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_role_is_admin_or_employee?
 
     return if test_settings_redirect
     return if score_types_redirect
@@ -51,23 +51,25 @@ class AvaliationsController < ApplicationController
     return if score_types_redirect
     return if not_allow_numerical_exam
 
-    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
-    @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
-
     if current_user.current_role_is_admin_or_employee?
-      @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
-      @avaliation_multiple_creator_form.unity_id = current_unity.id
-      @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
+      @disciplines = Discipline.where(id: current_user_discipline.id)
     else
       fetch_linked_by_teacher
-
-      @avaliation_multiple_creator_form.discipline_id = current_user.discipline.id
-      @avaliation_multiple_creator_form.unity_id = current_unity.id
-      @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
     end
+
+    set_avaliation_multiple_creator_by_user
+
     authorize Avaliation.new
 
     test_settings
+  end
+
+  def set_avaliation_multiple_creator_by_user
+    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
+    @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
+    @avaliation_multiple_creator_form.discipline_id = @disciplines.map(&:id)
+    @avaliation_multiple_creator_form.unity_id = current_unity.id
+    @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
   end
 
   def create_multiple_classrooms
@@ -215,9 +217,11 @@ class AvaliationsController < ApplicationController
   end
 
   def disciplines_for_multiple_classrooms
-    @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_unity.id)
-                                                       .by_teacher_id(current_teacher.id)
-                                                       .ordered
+    if current_user.current_role_is_admin_or_employee?
+      @disciplines ||= Discipline.by_unity_id(current_unity.id).by_teacher_id(current_teacher.id).ordered
+    else
+      fetch_linked_by_teacher
+    end
   end
   helper_method :disciplines_for_multiple_classrooms
 
