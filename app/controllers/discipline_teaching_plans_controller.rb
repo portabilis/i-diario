@@ -44,22 +44,6 @@ class DisciplineTeachingPlansController < ApplicationController
     authorize @discipline_teaching_plans
   end
 
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades][:grade_id]).uniq.ordered
-  end
-
-  def fetch_discipline_teaching_plan(disciplines)
-    @discipline_teaching_plans = apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline,
-                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
-                            .by_discipline(disciplines.map(&:id))
-                            .by_unity(current_unity)
-                            .by_year(current_school_year)
-    )
-  end
-
   def show
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
 
@@ -224,6 +208,22 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades][:grade_id]).uniq.ordered
+  end
+
+  def fetch_discipline_teaching_plan(disciplines)
+    @discipline_teaching_plans = apply_scopes(
+      DisciplineTeachingPlan.includes(:discipline,
+                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
+                            .by_discipline(disciplines.map(&:id))
+                            .by_unity(current_unity)
+                            .by_year(current_school_year)
+    )
+  end
 
   def content_ids
     param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
