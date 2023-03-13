@@ -2,7 +2,6 @@ require 'rails_helper'
 
 RSpec.describe KnowledgeAreaLessonPlanPdf, type: :report do
 
-  it 'should be created' do
   skip "should be created knowledge_area_lesson_plan_pdf"
   let(:entity_configuration) { create(:entity_configuration) }
   let(:discipline) { create(:discipline) }
