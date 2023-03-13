@@ -31,3 +31,27 @@
   opacity: 1;
   color: #dc3545 !important;
 }
+
+.frequency-legend {
+  display: flex;
+  padding: 20px;
+  flex-wrap: wrap;
+  justify-content: right;
+  align-items: center;
+  border-bottom: 1px solid #DDD;
+}
+
+.frequency-legend-item {
+  display: flex;
+  margin-left: 10px;
+}
+.frequency-legend-item .checkbox {
+  display: flex;
+  margin: -2px 5px 0 0;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+}
+.frequency-legend-button {
+  margin-left: 15px;
+}
