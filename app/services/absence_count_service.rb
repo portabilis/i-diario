@@ -25,7 +25,7 @@ class AbsenceCountService
 
   def student_frequencies_in_date_range
     if @discipline
-      DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
+      daily_frequency_student = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
         @classroom.id,
         @discipline.id,
         @student.id,
@@ -33,13 +33,19 @@ class AbsenceCountService
         @end_date
       ).active
     else
-      DailyFrequencyStudent.general_by_classroom_student_date_between(
+      daily_frequency_student = DailyFrequencyStudent.general_by_classroom_student_date_between(
         @classroom,
         @student.id,
         @start_date,
         @end_date
       )
     end
+
+    if GeneralConfiguration.current.do_not_send_justified_absence
+      daily_frequency_student = daily_frequency_student.by_not_justified
+    end
+
+    daily_frequency_student
   end
 
   def grouped_frequencies_by_date
