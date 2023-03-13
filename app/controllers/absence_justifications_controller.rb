@@ -205,10 +205,14 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def is_frequency_by_discipline?
-    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
-    frequency_type_definer.define!
+    if @is_frequency_by_discipline.nil?
+      frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
+      frequency_type_definer.define!
 
-    @is_frequency_by_discipline ||= frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+      @is_frequency_by_discipline = frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    end
+
+    @is_frequency_by_discipline
   end
 
   def clear_invalid_dates
