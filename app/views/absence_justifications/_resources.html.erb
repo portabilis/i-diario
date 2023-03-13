@@ -12,10 +12,7 @@
         <td width="70"><%= l absence_justification.absence_date %></td>
         <td width="70"><%= l absence_justification.absence_date_end %></td>
         <td>
-        <%= absence_justification.decorator.author(
-          current_user,
-          current_user.current_role_is_admin_or_employee?
-          ) %>
+        <%= absence_justification.user %>
         </td>
         <td class="actions">
           <%= link_to 'Editar', edit_absence_justification_path(absence_justification),

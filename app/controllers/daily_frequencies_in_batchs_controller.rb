@@ -57,6 +57,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
           daily_frequency_student.type_of_teaching = student_attributes[:type_of_teaching]
           daily_frequency_student.active = student_attributes[:active]
+          daily_frequency_student.absence_justification_student_id = student_attributes[:absence_justification_student_id]
 
           daily_frequency_student.save!
         end
@@ -177,6 +178,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     inactives_on_date = students_inactive_on_range(student_enrollments_ids, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
+
+    @absence_justifications = AbsenceJustifiedOnDate.call(students: student_ids, date: dates.first, end_date: dates.last)
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
@@ -322,7 +325,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         :date,
         :class_number,
         students_attributes: [
-          :id, :daily_frequency_id, :student_id, :present, :active, :dependence, :type_of_teaching
+          :id, :daily_frequency_id, :student_id, :present, :active, :dependence, :type_of_teaching, :absence_justification_student_id
         ]
       ]
     )
