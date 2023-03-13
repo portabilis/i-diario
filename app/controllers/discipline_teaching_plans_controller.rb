@@ -10,6 +10,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def index
     if current_user.current_role_is_admin_or_employee?
+      fetch_grades
       fetch_disciplines
 
       disciplines = if current_user_discipline.grouper?
@@ -24,10 +25,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
       fetch_discipline_teaching_plan(@disciplines)
 
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@classroom_grade_ids).by_discipline(@disciplines.map(&:id))
+      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id)).by_discipline(@disciplines.map(&:id))
     end
-
-    fetch_grades
 
     if @discipline_teaching_plan.present?
       @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade).ordered
@@ -46,10 +45,9 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
-    @classroom_grade_ids = @fetch_linked_by_teacher[:classroom_grades][:grade_id]
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades][:grade_id]).uniq.ordered
   end
 
   def fetch_discipline_teaching_plan(disciplines)
