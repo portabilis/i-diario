@@ -48,13 +48,15 @@
             <% if student[:sequence] %>
               <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
                 student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
-                active: student[:active], in_active_search: student[:in_active_search]
+                active: student[:active], in_active_search: student[:in_active_search],
+                absence_justification: student[:absence_justification]
               %>
             <% else %>
               <% sequence += 1 %>
               <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
                 student: student[:student], sequence: sequence, dependence: student[:dependence],
-                active: student[:active], in_active_search: student[:in_active_search]
+                active: student[:active], in_active_search: student[:in_active_search],
+                absence_justification: student[:absence_justification]
               %>
             <% end %>
           <% end %>

@@ -40,7 +40,6 @@ class AbsenceJustification < ActiveRecord::Base
   validates :justification, presence: true
 
   validate :at_least_one_student
-  validate :at_least_one_discipline, if: :frequence_type_by_discipline?
   validate :period_absence
   validate :no_retroactive_dates
 
@@ -102,6 +101,9 @@ class AbsenceJustification < ActiveRecord::Base
     errors.add(:absence_date_end, :not_less_than_initial)
   end
 
+  # TODO: release-absence-justification
+  # - [ ] Remover vínculo com professor
+  # - [ ] Remover vínculo com disciplina
   def period_absence
     return if absence_date.blank? || absence_date_end.blank?
 

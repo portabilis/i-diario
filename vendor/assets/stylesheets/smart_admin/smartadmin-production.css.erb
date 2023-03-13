@@ -15326,6 +15326,15 @@ textarea.clone {
 .smart-form .checkbox input:checked:disabled:hover + i:after {
   content: '\f00c';
 }
+.smart-form .checkbox.justified-absence input + i:after {
+  content: 'FJ';
+  font: bold 12px/19px Arial, sans-serif;
+  letter-spacing: -1px;
+}
+.smart-form .checkbox.justified-absence input:checked:hover + i:after,
+.smart-form .checkbox.justified-absence input:checked:disabled:hover + i:after {
+  content: 'FJ';
+}
 .smart-form .radio input:checked + i:after,
 .smart-form .checkbox input:checked + i:after {
   opacity: 1;

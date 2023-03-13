@@ -34,6 +34,8 @@ RSpec.describe AbsenceJustification, type: :model do
 
     context 'given that I have a record persisted' do
       it 'should validate if is a valid date on a absence with frequence type by discipline' do
+        skip 'disciplines will not be able in future'
+
         classroom = create(
           :classroom,
           :with_classroom_semester_steps,
