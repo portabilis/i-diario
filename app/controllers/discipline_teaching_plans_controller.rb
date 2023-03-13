@@ -9,27 +9,33 @@ class DisciplineTeachingPlansController < ApplicationController
   before_action :require_current_classroom, only: [:index]
 
   def index
+    if current_user.current_role_is_admin_or_employee?
+      fetch_disciplines
+
+      disciplines = if current_user_discipline.grouper?
+                      Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                    else
+                      current_user_discipline
+                    end
+
+      fetch_discipline_teaching_plan(disciplines)
+    else
+      fetch_linked_by_teacher
+
+      fetch_discipline_teaching_plan(@disciplines)
+
+      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@classroom_grade_ids).by_discipline(@disciplines.map(&:id))
+    end
+
+    fetch_grades
+
+    if @discipline_teaching_plan.present?
+      @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade).ordered
+    end
+
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
-    discipline = if current_user_discipline.grouper?
-                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
-                 else
-                   current_user_discipline
-                 end
-
-    @discipline_teaching_plans = apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline,
-                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
-                            .by_discipline(discipline)
-                            .by_unity(current_unity)
-                            .by_year(current_school_year)
-    )
-
-    unless current_user_is_employee_or_administrator?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
-                                                             .by_discipline(discipline)
-    end
 
     if author_type.present?
       @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
@@ -37,9 +43,23 @@ class DisciplineTeachingPlansController < ApplicationController
     end
 
     authorize @discipline_teaching_plans
+  end
 
-    fetch_grades
-    fetch_disciplines
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_year(current_school_calendar.year)
+    @classroom_grade_ids = @fetch_linked_by_teacher[:classroom_grades][:grade_id]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def fetch_discipline_teaching_plan(disciplines)
+    @discipline_teaching_plans = apply_scopes(
+      DisciplineTeachingPlan.includes(:discipline,
+                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
+                            .by_discipline(disciplines.map(&:id))
+                            .by_unity(current_unity)
+                            .by_year(current_school_year)
+    )
   end
 
   def show
@@ -319,26 +339,10 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def fetch_grades
     @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
-
-    @grades = @grades.by_teacher(current_teacher) unless current_user_is_employee_or_administrator?
   end
 
   def fetch_disciplines
-    if current_user_is_employee_or_administrator?
-      @disciplines = Discipline.by_unity_id(current_unity)
-    else
-      @disciplines = Discipline.where(id: current_user_discipline)
-      .ordered
-    end
-
-    if @discipline_teaching_plan.present?
-      @disciplines = @disciplines.by_grade(
-          @discipline_teaching_plan.teaching_plan.grade
-        )
-        .ordered
-    end
-
-    @disciplines
+    @disciplines = Discipline.by_unity_id(current_unity).ordered
   end
 
   def yearly_term_type_id
