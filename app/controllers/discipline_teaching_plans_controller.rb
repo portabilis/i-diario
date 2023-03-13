@@ -16,7 +16,7 @@ class DisciplineTeachingPlansController < ApplicationController
       disciplines = if current_user_discipline.grouper?
                       Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
                     else
-                      current_user_discipline
+                      Discipline.where(id: @disciplines.map(&:id))
                     end
 
       fetch_discipline_teaching_plan(disciplines)
@@ -327,8 +327,12 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def fetch_collections
     fetch_unities
-    fetch_grades
-    fetch_disciplines
+    if current_user.current_role_is_admin_or_employee?
+      fetch_grades
+      fetch_disciplines
+    else
+      fetch_linked_by_teacher
+    end
   end
 
   def fetch_unities
