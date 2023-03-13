@@ -1,7 +1,7 @@
 class AbsenceJustificationsController < ApplicationController
   before_action :require_current_teacher
   before_action :require_current_classroom
-  before_action :is_frequency_by_discipline?
+  before_action :is_frequency_by_discipline?, only: [:new, :edit, :create, :update]
 
   has_scope :page, default: 1
   has_scope :per, default: 10
