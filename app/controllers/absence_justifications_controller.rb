@@ -1,7 +1,7 @@
 class AbsenceJustificationsController < ApplicationController
   before_action :require_current_teacher
   before_action :require_current_classroom
-  before_action :is_frequency_by_discipline?
+  before_action :is_frequency_by_discipline?, only: [:new, :edit, :create, :update]
 
   has_scope :page, default: 1
   has_scope :per, default: 10
@@ -205,10 +205,14 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def is_frequency_by_discipline?
-    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
-    frequency_type_definer.define!
+    if @is_frequency_by_discipline.nil?
+      frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
+      frequency_type_definer.define!
 
-    @is_frequency_by_discipline ||= frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+      @is_frequency_by_discipline = frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    end
+
+    @is_frequency_by_discipline
   end
 
   def clear_invalid_dates

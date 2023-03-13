@@ -56,7 +56,8 @@ class GeneralConfigurationsController < ApplicationController
       :show_inactive_enrollments,
       :show_percentage_on_attendance_record_report,
       :do_not_send_justified_absence,
-      :require_daily_activities_record
+      :require_daily_activities_record,
+      :remove_lesson_plan_objectives
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')

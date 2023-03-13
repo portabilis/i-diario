@@ -33,6 +33,7 @@ pt-BR:
         show_percentage_on_attendance_record_report: "Exibir frequência em porcentagem no Registro de frequência"
         do_not_send_justified_absence: "Desconsiderar faltas justificadas no Envio de avaliações"
         require_daily_activities_record: "Obrigar preenchimento do campo 'Registro das atividades' no lançamento de Registro de conteúdos?"
+        remove_lesson_plan_objectives: "Remover campo 'Objetivos' dos Planos de aula por área de conhecimento (tela e relatório)"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
