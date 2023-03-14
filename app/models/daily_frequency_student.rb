@@ -50,7 +50,9 @@ class DailyFrequencyStudent < ActiveRecord::Base
                                                           .includes(:daily_frequency) }
 
   def to_s
-    if present?
+    if absence_justification_student_id
+      'FJ'
+    elsif present?
       TermsDictionary.cached_current.try(:presence_identifier_character) || '.'
     else
       'F'
