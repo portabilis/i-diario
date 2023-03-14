@@ -143,6 +143,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
 
     @students = []
+    @students_list = []
 
     student_enrollments_ids = []
     student_ids = []
@@ -160,6 +161,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       next if student.blank?
 
+      @students_list << student
       @students << {
         student: student,
         type_of_teaching: type_of_teaching
