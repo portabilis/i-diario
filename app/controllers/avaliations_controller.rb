@@ -33,7 +33,7 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher unless current_role_is_admin_or_employee?
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     return if test_settings_redirect
     return if score_types_redirect
@@ -41,6 +41,7 @@ class AvaliationsController < ApplicationController
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
+    @avaliation.classroom = current_user_classroom
     @avaliation.test_date = Time.zone.today
 
     authorize resource
@@ -194,7 +195,7 @@ class AvaliationsController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
