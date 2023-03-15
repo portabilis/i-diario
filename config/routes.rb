@@ -235,6 +235,7 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_by_grade_and_unity
         get :search_grouped_by_knowledge_area
         get :by_classroom
       end
