@@ -29,6 +29,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
     @avaliation_recovery_diary_record.build_recovery_diary_record
     @avaliation_recovery_diary_record.recovery_diary_record.unity = current_unity
+    @avaliation_recovery_diary_record.recovery_diary_record.classroom = current_user_classroom
+    @avaliation_recovery_diary_record.recovery_diary_record.discipline = current_user_discipline
 
     @unities = fetch_unities
     @school_calendar_steps = current_school_calendar.steps
