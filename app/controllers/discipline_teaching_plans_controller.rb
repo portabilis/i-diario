@@ -140,8 +140,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def destroy
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
 
     authorize @discipline_teaching_plan
 
@@ -344,7 +343,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def fetch_disciplines
-    @disciplines = Discipline.by_unity_id(current_unity).ordered
+    @disciplines = Discipline.where(id: current_user_discipline).ordered
   end
 
   def yearly_term_type_id
