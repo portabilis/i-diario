@@ -3,8 +3,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-            ano: year,
-            escola: unity_api_code
+          ano: year,
+          escola: unity_api_code
         )['vinculos']
       )
     )
@@ -22,15 +22,32 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         existing_discipline_api_codes = []
         created_linked_teachers = []
 
-        (teacher_discipline_classroom_record.disciplinas || []).each do |discipline_by_score_type|
-          discipline_api_code, score_type = discipline_by_score_type.split
+        classroom = classroom(teacher_discipline_classroom_record.turma_id)
+        teacher = teacher(teacher_discipline_classroom_record.servidor_id)
+
+        next if classroom.discarded? || classroom.blank?
+        next if teacher.discarded? || teacher.blank?
+
+        teacher_id = teacher.try(:id)
+        classroom_id = classroom.try(:id)
+
+        teacher_discipline_classroom_record.disciplinas.each do |discipline_by_grade|
+          discipline_api_code = discipline_by_grade.id
+          score_type = discipline_by_grade.tipo_nota
+          grade_api_code = discipline_by_grade.serie_id
+
           existing_discipline_api_codes << discipline_api_code
 
           created_linked_teachers << create_or_update_teacher_discipline_classrooms(
             teacher_discipline_classroom_record,
+            classroom_id,
+            teacher_id,
             discipline_api_code,
+            grade_api_code,
             score_type
           )
+
+          create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id) unless teacher_discipline_classroom_record.deleted_at.present?
         end
 
         create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
@@ -41,32 +58,31 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
             existing_discipline_api_codes
           )
         )
-
-        create_empty_conceptual_exam_value(teacher_discipline_classroom_record) unless teacher_discipline_classroom_record.deleted_at.present?
       end
     end
   end
 
   def create_or_update_teacher_discipline_classrooms(
     teacher_discipline_classroom_record,
+    classroom_id,
+    teacher_id,
     discipline_api_code,
+    grade_api_code,
     score_type
   )
-    teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
-
-    return if teacher_id.blank?
-
-    classroom_id = classroom(teacher_discipline_classroom_record.turma_id).try(:id)
-
-    return if classroom_id.blank?
-
     discipline_id = discipline(discipline_api_code).try(:id)
 
     return if discipline_id.blank?
 
+    grade_id = grade(grade_api_code).try(:id)
+
+    return if grade_id.blank?
+
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year,
+      grade_id: grade_id,
+      score_type: score_type,
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code
     )
@@ -83,6 +99,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       year: year,
       teacher_id: teacher_id,
       teacher_api_code: teacher_discipline_classroom_record.servidor_id,
+      grade_id: grade_id,
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code
     )
@@ -95,6 +112,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classroom.period = teacher_discipline_classroom_record.turno_id
     teacher_discipline_classroom.score_type = score_type
     teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
+
     teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
 
     if teacher_discipline_classroom.new_record?
@@ -127,37 +145,20 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classrooms.where.not(discipline_id: existing_disciplines_ids)
   end
 
-  def create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
-    classroom = classroom(teacher_discipline_classroom_record.turma_id)
-    classroom_id = classroom.try(:id)
-    teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
-    hash_api_codes = teacher_discipline_classroom_record.disciplinas_serie.to_h
+  def create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id)
+    discipline_id = discipline(discipline_by_grade.id).try(:id)
+    grade_id = grade(discipline_by_grade.serie_id).try(:id)
 
-    grade_in_disciplines = {}
-
-    return if hash_api_codes.blank?
-
-    hash_api_codes.each do |grade, disciplines|
-      next if grade.blank?
-
-      grade_id = Grade.find_by(api_code: grade).try(:id)
-      discipline_ids = Discipline.where(api_code: disciplines).pluck(:id)
-
-      grade_in_disciplines[grade_id] ||= []
-      grade_in_disciplines[grade_id] = discipline_ids
-    end
-
-    return if teacher_id.nil?
-    return if classroom_id.nil?
-    return if classroom.discarded?
-    return if grade_in_disciplines.blank?
+    return if grade_id.nil?
+    return if discipline_id.nil?
 
     CreateEmptyConceptualExamValueWorker.perform_in(
       1.second,
       entity_id,
       classroom_id,
       teacher_id,
-      grade_in_disciplines
+      grade_id,
+      discipline_id
     )
   end
 
@@ -180,6 +181,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
         teacher_api_code: teacher_discipline_classroom.teacher_api_code,
+        grade_id: teacher_discipline_classroom.grade_id,
         discipline_id: fake_discipline.id,
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
