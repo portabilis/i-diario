@@ -185,7 +185,9 @@
 
   <% @absence_justification = AbsenceJustification.new %>
   <% @absence_justification.school_calendar = current_school_calendar %>
-  <%= simple_form_for @absence_justification, html: { class: "smart-form", id: 'absence_justification' } do |f| %>
+  <%= simple_form_for @absence_justification, url: absence_justifications_path, html: { class: "smart-form", id: 'absence_justification' } do |f| %>
+    <%= f.hidden_field :unity_id, value: @classroom.unity.id %>
+    <%= f.hidden_field :classroom_id, value: @classroom.id %>
     <div class="modal fade" tabindex="-1" role="dialog" id="absence-justification-modal" aria-hidden="true">
       <div class="modal-dialog" style="width: 480px;">
         <div class="modal-content" style="background-color: #F8F8F8">
