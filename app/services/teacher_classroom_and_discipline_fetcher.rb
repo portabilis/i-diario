@@ -40,15 +40,7 @@ class TeacherClassroomAndDisciplineFetcher
   def classroom_grades
     return {} if @disciplines.nil? || @classrooms.nil? || teacher_id.nil?
 
-    classroom_grades = {}
-
-    @query_classroom_grades ||= ClassroomsGrade.where(classroom_id: @classrooms.map(&:id))
-
-    classroom_grades[:id] = @query_classroom_grades.map(&:id)
-    classroom_grades[:grade_id] = @query_classroom_grades.map(&:grade_id)
-    classroom_grades[:exam_rule_id] = @query_classroom_grades.map(&:exam_rule_id)
-
-    classroom_grades
+    ClassroomsGrade.where(classroom_id: @classrooms.map(&:id)).uniq
   end
 
   protected
