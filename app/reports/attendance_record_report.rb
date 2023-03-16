@@ -66,6 +66,7 @@ class AttendanceRecordReport < BaseReport
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
     @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
+    @do_not_send_justified_absence = @general_configuration.do_not_send_justified_absence
 
     header
     content
@@ -199,7 +200,13 @@ class AttendanceRecordReport < BaseReport
             end
 
             unless student_frequency.present?
-              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + 1
+              absences = 1
+
+              if @do_not_send_justified_absence && student_frequency.absence_justification_student_id
+                absences = 0
+              end
+
+              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + absences
             end
 
             hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
