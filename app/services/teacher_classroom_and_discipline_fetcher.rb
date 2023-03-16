@@ -10,7 +10,7 @@ class TeacherClassroomAndDisciplineFetcher
   end
 
   def fetch!
-    return unless teacher_id || unity
+    return if teacher_id.blank? || unity.blank?
 
     fetch_linked_by_teacher = {}
 
