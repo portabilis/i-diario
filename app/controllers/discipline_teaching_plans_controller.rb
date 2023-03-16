@@ -211,7 +211,7 @@ class DisciplineTeachingPlansController < ApplicationController
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades][:grade_id]).uniq.ordered
+    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades].map(&:grade_id)).uniq
   end
 
   def fetch_discipline_teaching_plan(disciplines)
