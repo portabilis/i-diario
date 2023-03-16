@@ -188,6 +188,8 @@
   <%= simple_form_for @absence_justification, url: absence_justifications_path, html: { class: "smart-form", id: 'absence_justification' } do |f| %>
     <%= f.hidden_field :unity_id, value: @classroom.unity.id %>
     <%= f.hidden_field :classroom_id, value: @classroom.id %>
+    <%= f.hidden_field :start_date, value: start_date %>
+    <%= f.hidden_field :end_date, value: end_date %>
     <div class="modal fade" tabindex="-1" role="dialog" id="absence-justification-modal" aria-hidden="true">
       <div class="modal-dialog" style="width: 480px;">
         <div class="modal-content" style="background-color: #F8F8F8">

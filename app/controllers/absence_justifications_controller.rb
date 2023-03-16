@@ -73,7 +73,12 @@ class AbsenceJustificationsController < ApplicationController
 
     valid = valid.reject { |is_valid| is_valid }.empty?
 
-    if valid
+    parameters = params[:absence_justification]
+
+    # Se vier da tela de lançamento de frequência em lote, redireciona para ela
+    if valid && parameters[:start_date] && parameters[:end_date]
+      redirect_to form_daily_frequencies_in_batchs_path(start_date: parameters[:start_date], end_date: parameters[:end_date])
+    elsif valid
       respond_with @absence_justification, location: absence_justifications_path
     else
       clear_invalid_dates
