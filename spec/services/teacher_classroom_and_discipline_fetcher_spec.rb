@@ -20,11 +20,7 @@ RSpec.describe TeacherClassroomAndDisciplineFetcher, type: :service do
   describe '#fetch!' do
     context 'when the required params are correct' do
       subject(:fetch_classrooms_disciplines_grades) {
-        TeacherClassroomAndDisciplineFetcher.fetch!(
-          teacher_discipline_classroom.teacher_id,
-          unity,
-          classroom.year
-        )
+        TeacherClassroomAndDisciplineFetcher.fetch!(teacher_discipline_classroom.teacher_id, unity, classroom.year)
       }
 
       it 'should return list of disciplines, classrooms and classroom_grades' do
@@ -106,11 +102,7 @@ RSpec.describe TeacherClassroomAndDisciplineFetcher, type: :service do
       end
 
       subject(:fetch_classrooms_disciplines_grades) {
-        TeacherClassroomAndDisciplineFetcher.fetch!(
-          another_teacher.id,
-          another_classroom.unity,
-          another_classroom.year
-        )
+        TeacherClassroomAndDisciplineFetcher.fetch!(another_teacher.id, another_classroom.unity, another_classroom.year)
       }
 
       it 'should return only hash with link of classroom' do
