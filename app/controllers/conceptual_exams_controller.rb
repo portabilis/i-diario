@@ -254,7 +254,7 @@ class ConceptualExamsController < ApplicationController
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
-        conceptual_exam_value.discipline.id == discipline.id
+          conceptual_exam_value.discipline.id == discipline.id
       end
 
       conceptual_exam_value.mark_as_invisible unless discipline_exists
@@ -266,7 +266,7 @@ class ConceptualExamsController < ApplicationController
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
-        conceptual_exam_value.new_record?
+          conceptual_exam_value.new_record?
       end
 
       conceptual_exam_value.mark_as_invisible unless discipline_exists
@@ -363,7 +363,7 @@ class ConceptualExamsController < ApplicationController
       @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
 
       if @conceptual_exam.student_id.present? &&
-        @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
+         @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
         @student_enrollments << StudentEnrollment.by_student(@conceptual_exam.student_id).first
       end
 
