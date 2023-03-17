@@ -7,6 +7,59 @@ $(function() {
   var old_values = {};
   var flashMessages = new FlashMessages();
 
+  $classroom.on('change', async function () {
+    await getStep();
+    // await getDisciplineScoreTypes();
+  })
+
+  async function getStep() {
+    let classroom_id = $('#conceptual_exam_classroom_id').select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.find_step_number_by_classroom_conceptual_exams_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchStepByClassroomSuccess,
+        error: handleFetchStepByClassroomError,
+      });
+    }
+  }
+
+  function handleFetchStepByClassroomSuccess(data) {
+    var step = $("#conceptual_exam_step");
+    var first_step = data[0]['table']
+
+    step.select2('data', first_step);
+  }
+
+  function handleFetchStepByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
+  }
+
+  // async function getDisciplineScoreTypes(){
+  //   let classroom_id = $('#conceptual_exam_classroom_id').select2('val');
+  //
+  //   if (!_.isEmpty(classroom_id)) {
+  //     return $.ajax({
+  //       url: Routes.teacher_differentiated_discipline_score_types_pt_br_path({
+  //         classroom_id: classroom_id,
+  //         format: 'json'
+  //       }),
+  //       success: handleFetchDisciplineScoreTypeByClassroomSuccess,
+  //       error: handleFetchDisciplineScoreTypeByClassroomError
+  //     });
+  //   }
+  // }
+  //
+  // function handleFetchDisciplineScoreTypeByClassroomSuccess(data) {
+  //   console.log('Validar')
+  // }
+  // function handleFetchDisciplineScoreTypeByClassroomError(data) {
+    //   console.log('Validar')
+    // }
+
   function fetchExamRule() {
     var classroom_id = $classroom.select2('val');
     var student_id = $student.select2('val');
