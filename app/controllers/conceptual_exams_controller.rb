@@ -12,23 +12,40 @@ class ConceptualExamsController < ApplicationController
     step_id = (params[:filter] || []).delete(:by_step)
     status = (params[:filter] || []).delete(:by_status)
 
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
-                                                    .by_classroom(current_user_classroom)
-                                                    .by_teacher(current_teacher_id)
-                                                    .ordered_by_date_and_student
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = Classroom.where(id: current_user_classroom)
+    else
+      fetch_linked_by_teacher
+    end
+
+    fetch_conceptual_exam_by_classroom
 
     if step_id.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id)
+      @conceptual_exams = @conceptual_exams.by_step_id(@classrooms.map(&:id), step_id)
       params[:filter][:by_step] = step_id
     end
 
     if status.present?
-      @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status)
+      @conceptual_exams = @conceptual_exams.by_status(@classrooms.map(&:id), current_teacher_id, status)
       params[:filter][:by_status] = status
     end
 
     authorize @conceptual_exams
+  end
+
+  def fetch_conceptual_exam_by_classroom
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
+                                                    .by_unity(current_unity)
+                                                    .by_classroom(@classrooms.map(&:id))
+                                                    .by_teacher(current_teacher_id)
+                                                    .ordered_by_date_and_student
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
   end
 
   def new
