@@ -33,36 +33,25 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exams
   end
 
-  def fetch_conceptual_exam_by_classroom
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
-                                                    .by_classroom(@classrooms.map(&:id))
-                                                    .by_teacher(current_teacher_id)
-                                                    .ordered_by_date_and_student
-  end
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
-  end
-
   def new
-    discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
+    if current_user.current_role_is_admin_or_employee?
+      discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
-    not_concept_score = discipline_score_types.none? { |discipline_score_type|
-      discipline_score_type == ScoreTypes::CONCEPT
-    }
+      not_concept_score = discipline_score_types.none? { |discipline_score_type|
+        discipline_score_type == ScoreTypes::CONCEPT
+      }
 
-    if not_concept_score
-      redirect_to(
-        conceptual_exams_path,
-        alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
-      )
+      if not_concept_score
+        redirect_to(
+          conceptual_exams_path,
+          alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
+        )
+      end
+
+      return if performed?
+    else
+      fetch_linked_by_teacher
     end
-
-    return if performed?
 
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_unity.id,
@@ -86,6 +75,13 @@ class ConceptualExamsController < ApplicationController
     end
 
     mark_exempted_disciplines if @conceptual_exam.conceptual_exam_values.any?
+  end
+
+  def find_step_number_by_classroom
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
+
+    render json: step_numbers.to_json
   end
 
   def create
@@ -177,6 +173,36 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
+
+  def fetch_conceptual_exam_by_classroom
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
+                                                    .by_unity(current_unity)
+                                                    .by_classroom(@classrooms.map(&:id))
+                                                    .by_teacher(current_teacher_id)
+                                                    .ordered_by_date_and_student
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
+  end
+
+  def fetch_conceptual_exam_by_classroom
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
+                                                    .by_unity(current_unity)
+                                                    .by_classroom(@classrooms.map(&:id))
+                                                    .by_teacher(current_teacher_id)
+                                                    .ordered_by_date_and_student
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
+  end
 
   def view_data
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
