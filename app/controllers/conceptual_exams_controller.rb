@@ -12,21 +12,19 @@ class ConceptualExamsController < ApplicationController
     step_id = (params[:filter] || []).delete(:by_step)
     status = (params[:filter] || []).delete(:by_status)
 
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = Classroom.where(id: current_user_classroom)
-    else
-      fetch_linked_by_teacher
-    end
-
-    fetch_conceptual_exam_by_classroom
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
+                                                    .by_unity(current_unity)
+                                                    .by_classroom(current_user_classroom)
+                                                    .by_teacher(current_teacher_id)
+                                                    .ordered_by_date_and_student
 
     if step_id.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(@classrooms.map(&:id), step_id)
+      @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id)
       params[:filter][:by_step] = step_id
     end
 
     if status.present?
-      @conceptual_exams = @conceptual_exams.by_status(@classrooms.map(&:id), current_teacher_id, status)
+      @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status)
       params[:filter][:by_status] = status
     end
 
@@ -34,24 +32,20 @@ class ConceptualExamsController < ApplicationController
   end
 
   def new
-    if current_user.current_role_is_admin_or_employee?
-      discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
+    discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
-      not_concept_score = discipline_score_types.none? { |discipline_score_type|
-        discipline_score_type == ScoreTypes::CONCEPT
-      }
+    not_concept_score = discipline_score_types.none? { |discipline_score_type|
+      discipline_score_type == ScoreTypes::CONCEPT
+    }
 
-      if not_concept_score
-        redirect_to(
-          conceptual_exams_path,
-          alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
-        )
-      end
-
-      return if performed?
-    else
-      fetch_linked_by_teacher
+    if not_concept_score
+      redirect_to(
+        conceptual_exams_path,
+        alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
+      )
     end
+
+    return if performed?
 
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_unity.id,
@@ -75,13 +69,6 @@ class ConceptualExamsController < ApplicationController
     end
 
     mark_exempted_disciplines if @conceptual_exam.conceptual_exam_values.any?
-  end
-
-  def find_step_number_by_classroom
-    classroom = Classroom.find(params[:classroom_id])
-    step_numbers = StepsFetcher.new(classroom)&.steps
-
-    render json: step_numbers.to_json
   end
 
   def create
@@ -173,36 +160,6 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
-
-  def fetch_conceptual_exam_by_classroom
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
-                                                    .by_classroom(@classrooms.map(&:id))
-                                                    .by_teacher(current_teacher_id)
-                                                    .ordered_by_date_and_student
-  end
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
-  end
-
-  def fetch_conceptual_exam_by_classroom
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
-                                                    .by_classroom(@classrooms.map(&:id))
-                                                    .by_teacher(current_teacher_id)
-                                                    .ordered_by_date_and_student
-  end
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
-  end
 
   def view_data
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
@@ -297,7 +254,7 @@ class ConceptualExamsController < ApplicationController
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
-          conceptual_exam_value.discipline.id == discipline.id
+        conceptual_exam_value.discipline.id == discipline.id
       end
 
       conceptual_exam_value.mark_as_invisible unless discipline_exists
@@ -309,7 +266,7 @@ class ConceptualExamsController < ApplicationController
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
-          conceptual_exam_value.new_record?
+        conceptual_exam_value.new_record?
       end
 
       conceptual_exam_value.mark_as_invisible unless discipline_exists
@@ -406,7 +363,7 @@ class ConceptualExamsController < ApplicationController
       @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
 
       if @conceptual_exam.student_id.present? &&
-         @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
+        @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
         @student_enrollments << StudentEnrollment.by_student(@conceptual_exam.student_id).first
       end
 

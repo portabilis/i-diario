@@ -46,19 +46,11 @@ class StudentEnrollmentsListsController < ApplicationController
   end
 
   def current_teacher_period
-    if current_user.current_role_is_admin_or_employee?
-      TeacherPeriodFetcher.new(
-        current_teacher.id,
-        current_user.current_classroom_id,
-        current_user.current_discipline_id
-      ).teacher_period
-    else
-      TeacherPeriodFetcher.new(
-        current_teacher.id,
-        params[:filter][:classroom],
-        params[:filter][:discipline],
-      ).teacher_period
-    end
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
   end
 
   def adjusted_period
