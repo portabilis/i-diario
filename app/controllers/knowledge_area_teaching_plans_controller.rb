@@ -9,12 +9,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   before_action :require_current_classroom, only: [:index]
 
   def index
-    @knowledge_area_teaching_plans = apply_scopes(
-      KnowledgeAreaTeachingPlan.includes(:knowledge_areas,
-                                         teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
-                               .by_unity(current_unity)
-                               .by_year(current_school_year)
-    )
+    @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan.includes(:knowledge_areas,teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher]).by_unity(current_unity).by_year(current_school_year))
 
     fetch_grades
     fetch_knowledge_areas
@@ -156,7 +151,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @disciplines = @fetch_linked_by_teacher[:disciplines]
     @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades][:grade_id]).uniq.ordered
+    @grades = ClassroomsGrade.where(id: @fetch_linked_by_teacher[:classroom_grades]).map(&:grade)
   end
 
 
