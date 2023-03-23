@@ -6,6 +6,10 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
+
     if current_user.current_role_is_admin_or_employee?
       @classrooms = Classroom.where(id: current_user_classroom.id)
     else
@@ -13,9 +17,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     end
 
     fetch_knowledge_area_content_records_by_user
-    params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
-    author_type ||= (params[:filter] || []).delete(:by_author)
 
     if author_type.present?
       @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
@@ -32,12 +33,13 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new.localized
     @knowledge_area_content_record.build_content_record(
       record_date: Time.zone.now,
-      unity_id: current_unity.id
+      unity_id: current_unity.id,
+      classroom_id: current_user_classroom.id
     )
 
     authorize @knowledge_area_content_record
@@ -63,7 +65,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id]).localized
 
