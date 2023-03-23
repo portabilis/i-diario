@@ -22,7 +22,7 @@
                                            record: f.object %>
           <% else %>
             <%= content_record.association :classroom, as: :select2, elements: @classrooms,
-                                           user: current_user, record: f.object %>
+                                           user: current_user, record: f.object, readonly: f.object.persisted? %>
           <% end %>
         </div>
 
