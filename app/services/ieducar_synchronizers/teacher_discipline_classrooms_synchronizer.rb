@@ -47,10 +47,21 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
             score_type
           )
 
-          create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id) unless teacher_discipline_classroom_record.deleted_at.present?
+          if teacher_discipline_classroom_record.deleted_at.blank?
+            create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id)
+          end
         end
 
         create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
+
+        if teacher_discipline_classroom_record.disciplinas.empty?
+          api_code = teacher_discipline_classroom_record.id
+
+          TeacherDisciplineClassroom.where(teacher_id: teacher_id, classroom_id: classroom_id)
+                                    .where.not(api_code: api_code.to_s).each do |linked|
+                                      linked.discard
+                                    end
+        end
 
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
