@@ -187,7 +187,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       return if fake_discipline.nil?
 
-      TeacherDisciplineClassroom.find_or_initialize_by(
+      TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
         year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
