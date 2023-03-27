@@ -54,19 +54,12 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
         create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
 
-        if teacher_discipline_classroom_record.disciplinas.empty?
-          api_code = teacher_discipline_classroom_record.id
-
-          TeacherDisciplineClassroom.where(teacher_id: teacher_id, classroom_id: classroom_id)
-                                    .where.not(api_code: api_code.to_s).each do |linked|
-                                      linked.discard
-                                    end
-        end
-
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
             teacher_discipline_classroom_record,
-            existing_discipline_api_codes
+            existing_discipline_api_codes,
+            teacher_id,
+            classroom_id
           )
         )
       end
@@ -142,9 +135,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
+  def teacher_discipline_classrooms_to_discard(
+    teacher_discipline_classroom_record, 
+    existing_discipline_api_codes,
+    teacher_id,
+    classroom_id
+  )
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
-      api_code: teacher_discipline_classroom_record.id,
+      teacher_id: teacher_id,
+      classroom_id: classroom_id,
       year: year
     )
 
