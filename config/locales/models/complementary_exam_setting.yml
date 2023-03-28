@@ -23,7 +23,7 @@ pt-BR:
         complementary_exam_setting:
           attributes:
             base:
-              uniqueness_of_calculation_type_by_grade: "Não é possível cadastrar mais de uma avaliação de substituião para mesma nota afetada e série"
+              uniqueness_of_calculation_type_by_grade: "Não é possível cadastrar mais de uma avaliação de substituição para mesma nota afetada e série"
               uniqueness_of_initials_and_description_by_affected_score: "Não é possível cadastrar avaliações com a mesma descrição e sigla quando a nota afetada for a mesma"
               grades_in_use_cant_be_removed: "Não é possível remover séries que estão em uso"
               integral_calculation_score: "Cálculo integral pode afetar apenas ambas as notas"
