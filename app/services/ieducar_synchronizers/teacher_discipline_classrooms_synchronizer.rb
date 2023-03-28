@@ -178,32 +178,32 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       return if link_fake.nil?
 
       link_fake.api_code.include?('grouper') ? link_fake.discard : return
-    else
-      teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
+    end
 
-      TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
-                                .where(id: teacher_discipline_classrooms_ids)
-                                .where(knowledge_areas: { group_descriptors: true })
-                                .each do |teacher_discipline_classroom|
-        fake_discipline = Discipline.unscoped.find_by(
-          knowledge_area_id: teacher_discipline_classroom.knowledge_area.id,
-          grouper: true
-        )
+    teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
 
-        return if fake_discipline.nil?
+    TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
+                              .where(id: teacher_discipline_classrooms_ids)
+                              .where(knowledge_areas: { group_descriptors: true })
+                              .each do |teacher_discipline_classroom|
+      fake_discipline = Discipline.unscoped.find_by(
+        knowledge_area_id: teacher_discipline_classroom.knowledge_area.id,
+        grouper: true
+      )
 
-        TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
-          api_code: "grouper:#{fake_discipline.id}",
-          year: year,
-          teacher_id: teacher_discipline_classroom.teacher_id,
-          teacher_api_code: teacher_discipline_classroom.teacher_api_code,
-          grade_id: teacher_discipline_classroom.grade_id,
-          discipline_id: fake_discipline.id,
-          discipline_api_code: "grouper:#{fake_discipline.id}",
-          classroom_id: teacher_discipline_classroom.classroom_id,
-          classroom_api_code: "grouper:#{fake_discipline.id}"
-        ).save!
-      end
+      return if fake_discipline.nil?
+
+      TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
+        api_code: "grouper:#{fake_discipline.id}",
+        year: year,
+        teacher_id: teacher_discipline_classroom.teacher_id,
+        teacher_api_code: teacher_discipline_classroom.teacher_api_code,
+        grade_id: teacher_discipline_classroom.grade_id,
+        discipline_id: fake_discipline.id,
+        discipline_api_code: "grouper:#{fake_discipline.id}",
+        classroom_id: teacher_discipline_classroom.classroom_id,
+        classroom_api_code: "grouper:#{fake_discipline.id}"
+      ).save!
     end
   end
 end
