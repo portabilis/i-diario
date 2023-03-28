@@ -59,9 +59,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
             teacher_discipline_classroom_record,
-            existing_discipline_api_codes,
-            teacher_id,
-            classroom_id
+            existing_discipline_api_codes
           )
         )
       end
@@ -137,15 +135,9 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def teacher_discipline_classrooms_to_discard(
-    teacher_discipline_classroom_record, 
-    existing_discipline_api_codes,
-    teacher_id,
-    classroom_id
-  )
+  def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
-      teacher_id: teacher_id,
-      classroom_id: classroom_id,
+      api_code: teacher_discipline_classroom_record.id,
       year: year
     )
 
@@ -174,31 +166,44 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     )
   end
 
-  def create_or_destroy_teacher_disciplines_classrooms(linked_teachers)
-    teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
+  def create_or_destroy_teacher_disciplines_classrooms(
+    linked_teachers,
+    teacher_id,
+    classroom_id,
+    links_fake_disciplines = nil
+  )
+    if links_fake_disciplines.present? && links_fake_disciplines.deleted_at.present?
+      link_fake = TeacherDisciplineClassroom.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
 
-    TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
-                              .where(id: teacher_discipline_classrooms_ids)
-                              .where(knowledge_areas: { group_descriptors: true })
-                              .each do |teacher_discipline_classroom|
-      fake_discipline = Discipline.unscoped.find_by(
-        knowledge_area_id: teacher_discipline_classroom.knowledge_area.id,
-        grouper: true
-      )
+      return if link_fake.nil?
 
-      return if fake_discipline.nil?
+      link_fake.api_code.include?('grouper') ? link_fake.discard : return
+    else
+      teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
 
-      TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
-        api_code: "grouper:#{fake_discipline.id}",
-        year: year,
-        teacher_id: teacher_discipline_classroom.teacher_id,
-        teacher_api_code: teacher_discipline_classroom.teacher_api_code,
-        grade_id: teacher_discipline_classroom.grade_id,
-        discipline_id: fake_discipline.id,
-        discipline_api_code: "grouper:#{fake_discipline.id}",
-        classroom_id: teacher_discipline_classroom.classroom_id,
-        classroom_api_code: "grouper:#{fake_discipline.id}"
-      ).save!
+      TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
+                                .where(id: teacher_discipline_classrooms_ids)
+                                .where(knowledge_areas: { group_descriptors: true })
+                                .each do |teacher_discipline_classroom|
+        fake_discipline = Discipline.unscoped.find_by(
+          knowledge_area_id: teacher_discipline_classroom.knowledge_area.id,
+          grouper: true
+        )
+
+        return if fake_discipline.nil?
+
+        TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
+          api_code: "grouper:#{fake_discipline.id}",
+          year: year,
+          teacher_id: teacher_discipline_classroom.teacher_id,
+          teacher_api_code: teacher_discipline_classroom.teacher_api_code,
+          grade_id: teacher_discipline_classroom.grade_id,
+          discipline_id: fake_discipline.id,
+          discipline_api_code: "grouper:#{fake_discipline.id}",
+          classroom_id: teacher_discipline_classroom.classroom_id,
+          classroom_api_code: "grouper:#{fake_discipline.id}"
+        ).save!
+      end
     end
   end
 end
