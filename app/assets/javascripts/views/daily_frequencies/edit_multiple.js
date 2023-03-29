@@ -62,7 +62,7 @@ $(function () {
     modalOptions = Object.assign(modalOptions, {
       callback: function(result) {
         if (result) {
-          $('input[type=submit]').click();
+          $('input[type=submit].new-save-style').click();
         } else {
           e.target.click();
         }
