@@ -186,10 +186,8 @@ class AbsenceJustificationsController < ApplicationController
   protected
 
   def fetch_students
-    # TODO: remover filtro por disciplina, não faz mais sentido
     student_enrollments = StudentEnrollmentsList.new(
       classroom: current_user_classroom,
-      discipline: fetch_current_discipline,
       search_type: :by_date,
       date: Date.current
     ).student_enrollments
@@ -205,17 +203,6 @@ class AbsenceJustificationsController < ApplicationController
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
-  end
-
-  def fetch_current_discipline
-    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
-    frequency_type_definer.define!
-
-    if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
-      current_user_discipline
-    else
-      nil
-    end
   end
 
   def is_frequency_by_discipline?
