@@ -227,7 +227,7 @@
               </div>
 
               <div class="row">
-                <% if true %>
+                <% if @daily_frequencies.first.discipline %>
                   <div class="col col-sm-6">
                     <%= f.input :class_number, as: :select2, multiple: true,
                                 elements: number_of_classes_elements(@absence_justification.school_calendar.number_of_classes), label_html: { class: 'required' },
