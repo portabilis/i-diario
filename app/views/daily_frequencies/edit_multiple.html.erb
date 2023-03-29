@@ -20,6 +20,39 @@
 
   <%= simple_form_for @daily_frequency, url: create_or_update_multiple_daily_frequencies_path, method: :put,
     html: { class: 'smart-form daily_frequency' } do |f| %>
+
+    <div class="frequency-legend">
+      <strong>Legenda:</strong>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox">
+          <input type="checkbox" class="general-checkbox" checked disabled>
+          <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
+        </label>
+        Presente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox">
+          <input type="checkbox" class="general-checkbox" disabled>
+          <i class="general-checkbox-icon checkbox-frequency-in-batch unchecked"></i>
+        </label>
+        Ausente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox justified-absence">
+          <input type="checkbox" class="general-checkbox " disabled checked>
+          <i class="general-checkbox-icon checkbox-frequency-in-batch half-checked"></i>
+        </label>
+        Falta justificada
+      </div>
+
+      <a href="#" class="btn btn-primary frequency-legend-button" data-toggle="modal" data-target="#absence-justification-modal">
+        Inserir falta justificada por período
+      </a>
+    </div>
+
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
         <th style="width: 65px;">Sequencial</th>
