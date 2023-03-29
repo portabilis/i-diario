@@ -48,6 +48,7 @@ class DailyFrequenciesController < ApplicationController
     authorize @daily_frequency
 
     @students = []
+    @students_list = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
     @any_in_active_search = false
@@ -87,6 +88,7 @@ class DailyFrequenciesController < ApplicationController
       @any_inactive_student ||= !activated_student
 
       if activated_student || show_inactive_enrollments
+        @students_list << student
         @students << {
           student: student,
           dependence: has_dependence,
