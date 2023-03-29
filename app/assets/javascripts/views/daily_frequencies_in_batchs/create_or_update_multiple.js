@@ -51,7 +51,7 @@ $(function () {
     }
   };
 
-  $('a, button').on('click', function(e) {
+  $('a:not(.no-confirm), button:not(.no-confirm)').on('click', function(e) {
     if (!showConfirmation) {
       return true;
     }
