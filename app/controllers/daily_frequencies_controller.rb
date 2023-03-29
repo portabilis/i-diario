@@ -1,7 +1,7 @@
 class DailyFrequenciesController < ApplicationController
   before_action :require_current_classroom
   before_action :require_teacher
-  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
+  before_action :set_number_of_classes, only: [:new, :form, :create, :edit_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
 
@@ -15,6 +15,18 @@ class DailyFrequenciesController < ApplicationController
     authorize @daily_frequency
   end
 
+  def form
+    redirect_to edit_multiple_daily_frequencies_path(
+      daily_frequency: {
+        unity_id: params[:unity_id],
+        classroom_id: params[:classroom_id],
+        frequency_date: params[:frequency_date],
+        discipline_id: params[:discipline_id],
+        period: params[:period],
+      },
+      class_numbers: params[:class_numbers].split(',').sort
+    )
+  end
   def create
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
