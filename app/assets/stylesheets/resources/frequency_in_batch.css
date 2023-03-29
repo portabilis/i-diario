@@ -14,6 +14,17 @@
   color: #28a745 !important;
 }
 
+.checkbox input.general-checkbox:not(:checked) + i.checkbox-frequency-in-batch {
+  border-color: #dc3545 !important;
+}
+
+.checkbox input.general-checkbox:not(:checked) + i.checkbox-frequency-in-batch:after {
+  content: '\f00d' !important;
+  opacity: 1;
+  color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
 .half-checked {
   border-color: #0779fb !important;
 }
