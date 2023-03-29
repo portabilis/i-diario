@@ -173,9 +173,9 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     links_fake_disciplines = nil
   )
     if links_fake_disciplines.present? && links_fake_disciplines.deleted_at.present?
-      link_fake = TeacherDisciplineClassroom.with_discarded.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
+      link_fake = TeacherDisciplineClassroom.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
 
-      return if link_fake.nil? || link_fake.discarded?
+      return if link_fake.nil?
 
       link_fake.api_code.include?('grouper') ? link_fake.discard : return
     end
