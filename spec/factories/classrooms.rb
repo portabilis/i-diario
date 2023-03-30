@@ -9,6 +9,7 @@ FactoryGirl.define do
     period { Periods.to_a.sample[1] }
 
     transient do
+      grade nil
       discipline nil
       teacher nil
       student nil
