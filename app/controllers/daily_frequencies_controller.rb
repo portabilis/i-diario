@@ -34,6 +34,7 @@ class DailyFrequenciesController < ApplicationController
                     class_numbers: @class_numbers
                   )
     else
+      puts @daily_frequency.errors
       render :new
     end
   end
