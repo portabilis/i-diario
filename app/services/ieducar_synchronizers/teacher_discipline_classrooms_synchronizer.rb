@@ -193,7 +193,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       return if fake_discipline.nil?
 
-      TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
+      link_teacher = TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
         year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
@@ -203,7 +203,11 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
         classroom_api_code: "grouper:#{fake_discipline.id}"
-      ).save!
+      )
+
+      link_teacher.undiscard if link_teacher.discarded?
+
+      link_teacher.save! if link_teacher.new_record?
     end
   end
 end
