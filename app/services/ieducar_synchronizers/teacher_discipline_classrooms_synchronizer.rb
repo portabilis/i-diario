@@ -47,10 +47,14 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
             score_type
           )
 
-          create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id) unless teacher_discipline_classroom_record.deleted_at.present?
+          if teacher_discipline_classroom_record.deleted_at.blank?
+            create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id)
+          end
         end
 
-        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
+        links_fake_disciplines = teacher_discipline_classroom_record if teacher_discipline_classroom_record.disciplinas.blank?
+
+        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines)
 
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
@@ -162,7 +166,20 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     )
   end
 
-  def create_or_destroy_teacher_disciplines_classrooms(linked_teachers)
+  def create_or_destroy_teacher_disciplines_classrooms(
+    linked_teachers,
+    teacher_id,
+    classroom_id,
+    links_fake_disciplines = nil
+  )
+    if links_fake_disciplines.present? && links_fake_disciplines.deleted_at.present?
+      link_fake = TeacherDisciplineClassroom.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
+
+      return if link_fake.nil?
+
+      link_fake.api_code.include?('grouper') ? link_fake.discard : return
+    end
+
     teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
 
     TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
@@ -176,7 +193,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       return if fake_discipline.nil?
 
-      TeacherDisciplineClassroom.find_or_initialize_by(
+      link_teacher = TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
         year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
@@ -186,7 +203,11 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
         classroom_api_code: "grouper:#{fake_discipline.id}"
-      ).save!
+      )
+
+      link_teacher.undiscard if link_teacher.discarded?
+
+      link_teacher.save! if link_teacher.new_record?
     end
   end
 end
