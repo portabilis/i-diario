@@ -19,6 +19,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
   let(:current_teacher) { create(:teacher) }
   let(:other_teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
+  let(:grade) { create(:grade) }
   let(:classroom) {
     create(
       :classroom,
@@ -27,12 +28,13 @@ RSpec.describe DailyFrequenciesController, type: :controller do
       :score_type_numeric,
       unity: unity,
       teacher: current_teacher,
+      grade: grade,
       discipline: discipline,
       school_calendar: school_calendar
     )
   }
 
-  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom, grade: grade) }
 
   let(:params) {
     {
