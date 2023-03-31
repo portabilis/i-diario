@@ -44,7 +44,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
         classroom_id: classroom.id,
         unity_id: unity.id,
         discipline_id: discipline.id,
-        frequency_date: '2017-03-01',
+        frequency_date: '2017-02-28',
         period: 1
       }
     }
