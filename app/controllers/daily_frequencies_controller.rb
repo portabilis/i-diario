@@ -34,7 +34,6 @@ class DailyFrequenciesController < ApplicationController
                     class_numbers: @class_numbers
                   )
     else
-
       render :new
     end
   end
