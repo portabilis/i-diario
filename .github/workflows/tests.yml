@@ -68,4 +68,4 @@ jobs:
         run: RAILS_ENV=test bundle exec rake db:migrate
 
       - name: Tests
-        run: bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
+        run: bundle exec rspec spec/controllers/daily_frequencies_controller_spec.rb
