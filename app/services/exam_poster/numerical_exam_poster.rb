@@ -55,13 +55,14 @@ module ExamPoster
           next unless can_post?(classroom)
 
           discipline = teacher_discipline_classroom.discipline
-          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, get_step(classroom))
+          step = get_step(classroom)
+          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, step)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(
             teacher,
             classroom,
             discipline,
-            get_step(classroom)
+            step
           )
           teacher_score_fetcher.fetch!
 
@@ -69,7 +70,7 @@ module ExamPoster
             teacher,
             classroom,
             discipline,
-            get_step(classroom)
+            step
           )
           teacher_recovery_score_fetcher.fetch!
 
@@ -83,12 +84,12 @@ module ExamPoster
             next unless numerical_or_school_term_recovery?(classroom, discipline, student_score)
 
             exempted_discipline_ids =
-              ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+              ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
 
             next if exempted_discipline_ids.include?(discipline.id)
 
             if (value = StudentAverageCalculator.new(student_score)
-                                                .calculate(classroom, discipline, get_step(classroom)))
+                                                .calculate(classroom, discipline, step))
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             end
 
