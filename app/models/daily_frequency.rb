@@ -65,13 +65,14 @@ class DailyFrequency < ActiveRecord::Base
         }
 
   scope :by_teacher_discipline_classroom,
-        lambda { |teacher_id|
+        lambda { |teacher_id, classroom_id|
           joins(teacher: :teacher_discipline_classrooms)
             .where.not(owner_teacher_id: nil)
             .where(
               teacher_discipline_classrooms:
                 {
                   teacher_id: teacher_id,
+                  classroom_id: classroom_id,
                   allow_absence_by_discipline: false
                 }
             )
