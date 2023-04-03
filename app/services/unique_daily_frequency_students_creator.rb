@@ -23,7 +23,6 @@ class UniqueDailyFrequencyStudentsCreator
                                       .by_frequency_date(frequency_date)
                                       .by_teacher_discipline_classroom(teacher_id, classroom_id)
 
-
     if daily_frequencies.present?
       daily_frequencies.each do |current_daily_frequency|
         current_daily_frequency.students.each do |student|
