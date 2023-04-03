@@ -9,6 +9,7 @@ FactoryGirl.define do
     period { Periods.to_a.sample[1] }
 
     transient do
+      grade nil
       discipline nil
       teacher nil
       student nil
@@ -49,12 +50,14 @@ FactoryGirl.define do
       after(:create) do |classroom, evaluator|
         discipline = evaluator.discipline || create(:discipline)
         teacher = evaluator.teacher || create(:teacher)
+        grade = evaluator.grade || create(:grade)
 
         create(
           :teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          teacher: teacher
+          teacher: teacher,
+          grade: grade
         )
       end
     end
