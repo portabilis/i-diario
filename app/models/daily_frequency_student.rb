@@ -30,6 +30,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_absence_justification_student_id, lambda { |absence_justification_student_id| where(absence_justification_student_id: absence_justification_student_id) }
+  scope :by_not_justified, lambda { where(absence_justification_student_id: nil) }
   scope :by_frequency_date, lambda { |frequency_date| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date(frequency_date)) }
   scope :by_frequency_date_between, lambda { |start_at, end_at| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date_between(start_at, end_at)) }
   scope :by_not_poster, ->(poster_sent) { where("daily_frequency_students.updated_at > ?", poster_sent) }
