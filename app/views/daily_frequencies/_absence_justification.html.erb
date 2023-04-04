@@ -44,8 +44,9 @@
 
             <div class="row">
               <% if @daily_frequencies.first.discipline %>
-                <div class="col col-sm-6">
+                <div class="col col-sm-12">
                   <%= f.input :class_number, as: :select2, multiple: true,
+                              hint: "O não preenchimento do campo 'Aula' vincula a justificativa de falta com todas as aulas do período selecionado.",
                               elements: number_of_classes_elements(@absence_justification.school_calendar.number_of_classes), label_html: { class: 'required' },
                               input_html: { value: @absence_justification.class_number, data: { without_json_parser: true } } %>
                 </div>
