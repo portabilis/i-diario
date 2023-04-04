@@ -11,7 +11,7 @@
         <td><span class="multiline"><%= absence_justification.decorator.students_labels %></span></td>
         <td width="70"><%= l absence_justification.absence_date %></td>
         <td width="70"><%= l absence_justification.absence_date_end %></td>
-        <td><%= absence_justification.class_number %></td>
+        <td><span class="label label-info label-list"><%= absence_justification.class_number || 'Todas' %></span></td>
         <td><%= absence_justification.user %></td>
         <td class="actions">
 
