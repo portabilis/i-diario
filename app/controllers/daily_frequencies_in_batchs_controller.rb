@@ -154,8 +154,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
     @frequency_form = FrequencyInBatchForm.new
-
-
+    @absence_justification = AbsenceJustification.new
+    @absence_justification.school_calendar = current_school_calendar
     @students = []
     @students_list = []
 
