@@ -64,6 +64,8 @@ class DailyFrequenciesController < ApplicationController
     @any_inactive_student = false
     @any_in_active_search = false
     @dependence_students = false
+    @absence_justification = AbsenceJustification.new
+    @absence_justification.school_calendar = current_school_calendar
 
     student_enrollment_ids = fetch_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
