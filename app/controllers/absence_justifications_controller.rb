@@ -8,12 +8,6 @@ class AbsenceJustificationsController < ApplicationController
 
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
-  # TODO: release-absence-justification
-  # - [ ] Remover vínculo com professor
-  # - [ ] Remover vínculo com disciplina
-  # - [ ] Não permitir edição de justificativas de anos anterioes à 2023
-  # - [ ] Permitir lançar em lote, editar individual
-
   def index
     @classrooms = Classroom.where(id: current_user_classroom)
 
@@ -52,7 +46,7 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def create
-    class_numbers = params[:absence_justification][:class_number].split(',')
+    class_numbers = params[:absence_justification][:class_number]&.split(',')
 
     if class_numbers.empty?
       class_numbers = [nil]
@@ -73,7 +67,21 @@ class AbsenceJustificationsController < ApplicationController
 
     valid = valid.reject { |is_valid| is_valid }.empty?
 
-    if valid
+    parameters = params[:absence_justification]
+
+    # Se vier da tela de lançamento de frequência em lote, redireciona para ela
+    if valid && parameters[:start_date] && parameters[:end_date]
+      redirect_to form_daily_frequencies_in_batchs_path(start_date: parameters[:start_date], end_date: parameters[:end_date])
+    # Se vier da tela de lançamento de diário de frequência
+    elsif valid && parameters[:frequency_date]
+      redirect_to form_daily_frequencies_path(
+        unity_id: parameters[:unity_id],
+        classroom_id: parameters[:classroom_id],
+        frequency_date: parameters[:frequency_date],
+        discipline_id: parameters[:discipline_id],
+        class_numbers: parameters[:class_numbers_original],
+      )
+    elsif valid
       respond_with @absence_justification, location: absence_justifications_path
     else
       clear_invalid_dates
@@ -172,10 +180,9 @@ class AbsenceJustificationsController < ApplicationController
   protected
 
   def fetch_students
-    # TODO: remover filtro por disciplina, não faz mais sentido
     student_enrollments = StudentEnrollmentsList.new(
       classroom: current_user_classroom,
-      discipline: fetch_current_discipline,
+      discipline: nil,
       search_type: :by_date,
       date: Date.current
     ).student_enrollments
@@ -191,17 +198,6 @@ class AbsenceJustificationsController < ApplicationController
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
-  end
-
-  def fetch_current_discipline
-    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
-    frequency_type_definer.define!
-
-    if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
-      current_user_discipline
-    else
-      nil
-    end
   end
 
   def is_frequency_by_discipline?

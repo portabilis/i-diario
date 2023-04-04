@@ -70,7 +70,9 @@
         Falta justificada
       </div>
 
-      <button class="btn btn-primary frequency-legend-button">Inserir falta justificada por período</button>
+      <a href="#" class="btn btn-primary frequency-legend-button no-confirm" data-toggle="modal" data-target="#absence-justification-modal">
+        Inserir falta justificada por período
+      </a>
     </div>
 
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
@@ -180,4 +182,7 @@
       </div>
     </footer>
   <% end %>
+
+  <%= render 'absence_justification' %>
+
 </div>

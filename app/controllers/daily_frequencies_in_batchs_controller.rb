@@ -2,13 +2,27 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :require_current_classroom
   before_action :require_teacher
   before_action :require_allocation_on_lessons_board
-  before_action :set_number_of_classes, only: [:new, :create, :create_or_update_multiple]
+  before_action :set_number_of_classes, only: [:new, :form, :create, :create_or_update_multiple]
   before_action :authorize_daily_frequency, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
 
   def new
     @frequency_type = current_frequency_type(current_user_classroom)
+  end
+
+  # TODO método duplicado para ser acessado via GET, unificar
+  def form
+    start_date = params[:start_date].to_date
+    end_date = params[:end_date].to_date
+
+    return redirect_to new_daily_frequencies_in_batch_path if invalid_dates?(start_date, end_date)
+
+    @dates = [*start_date..end_date]
+
+    view_data
+
+    render :create_or_update_multiple
   end
 
   def create
@@ -140,9 +154,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
     @frequency_form = FrequencyInBatchForm.new
-
-
+    @absence_justification = AbsenceJustification.new
+    @absence_justification.school_calendar = current_school_calendar
     @students = []
+    @students_list = []
 
     student_enrollments_ids = []
     student_ids = []
@@ -160,6 +175,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       next if student.blank?
 
+      @students_list << student
       @students << {
         student: student,
         type_of_teaching: type_of_teaching

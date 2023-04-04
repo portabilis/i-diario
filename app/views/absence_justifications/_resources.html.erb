@@ -11,9 +11,8 @@
         <td><span class="multiline"><%= absence_justification.decorator.students_labels %></span></td>
         <td width="70"><%= l absence_justification.absence_date %></td>
         <td width="70"><%= l absence_justification.absence_date_end %></td>
-        <td>
-        <%= absence_justification.user %>
-        </td>
+        <td><%= absence_justification.class_number %></td>
+        <td><%= absence_justification.user %></td>
         <td class="actions">
           <%= link_to 'Editar', edit_absence_justification_path(absence_justification),
             class: "btn btn-success" %>
