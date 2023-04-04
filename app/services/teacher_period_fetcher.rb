@@ -8,9 +8,12 @@ class TeacherPeriodFetcher
   def teacher_period
     return classroom_period if @teacher_id.blank?
 
+    grade_ids = ClassroomsGrade.where(classroom_id: @classroom_id).map(&:grade)
+
     teacher_discipline_classrooms = TeacherDisciplineClassroom.where(
       teacher_id: @teacher_id,
-      classroom_id: @classroom_id
+      classroom_id: @classroom_id,
+      grade_id: grade_ids
     )
 
     if @discipline_id
