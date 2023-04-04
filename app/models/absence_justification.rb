@@ -37,7 +37,6 @@ class AbsenceJustification < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :absence_date_end, presence: true, school_calendar_day: true, posting_date: true
   validates :absence_date, presence: true, school_calendar_day: true, posting_date: true
-  validates :justification, presence: true
 
   validate :at_least_one_student
   validate :period_absence
