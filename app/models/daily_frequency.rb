@@ -73,7 +73,7 @@ class DailyFrequency < ActiveRecord::Base
                 {
                   teacher_id: teacher_id,
                   classroom_id: classroom_id,
-                  allow_absence_by_discipline: false
+                  allow_absence_by_discipline: 0
                 }
             )
             .uniq
