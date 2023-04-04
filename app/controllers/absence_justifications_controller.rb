@@ -182,6 +182,7 @@ class AbsenceJustificationsController < ApplicationController
   def fetch_students
     student_enrollments = StudentEnrollmentsList.new(
       classroom: current_user_classroom,
+      discipline: nil,
       search_type: :by_date,
       date: Date.current
     ).student_enrollments
