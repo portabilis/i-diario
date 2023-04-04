@@ -82,7 +82,7 @@
 
     <div class="row">
       <div class="col col-sm-8">
-        <%= f.input :justification, input_html: { readonly: @absence_justification.legacy }  %>
+        <%= f.input :justification, input_html: { readonly: @absence_justification.legacy || action_name == 'show' }  %>
       </div>
     </div>
 
@@ -124,7 +124,7 @@
             <td colspan="2">
               <%= link_to_add_association t('.add_attachment'), f, :absence_justification_attachments,
                 class: 'btn btn-success btn-sm',
-                disabled: @absence_justification.legacy,
+                disabled: @absence_justification.legacy || action_name == 'show',
                 :"data-association-insertion-method" => "append",
                 :"data-association-insertion-node" => "#absence-justification-attachments" %>
             </td>
@@ -133,6 +133,37 @@
       </table>
     </div>
   </div>
+
+    <div class="row textarea">
+      <div class="col col-sm-12">
+        <legend>Faltas justificadas</legend>
+        <table class="table table-striped table-bordered table-condensed records">
+          <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Dia</th>
+            <th>Aula</th>
+            <th>Disciplina</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if @absences_justified.empty? %>
+            <tr class="nested-fields">
+              <td colspan="4">Nenhuma falta foi justificada.</td>
+            </tr>
+          <% end %>
+          <% @absences_justified.each do |absence_justified| %>
+            <tr class="nested-fields">
+              <td><%= absence_justified[:student_name] %></td>
+              <td><%= absence_justified[:frequency_date] %></td>
+              <td><%= absence_justified[:class_number] %></td>
+              <td><%= absence_justified[:discipline_name] %></td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
   <%= hidden_field_tag :current_date, Time.now.strftime("%d/%m/%Y") %>
   <%= hidden_field_tag :teacher_id, current_teacher %>
@@ -146,7 +177,7 @@
       <%= link_to 'Histórico', history_absence_justification_path(@absence_justification), class: 'btn btn-info' %>
     <% end %>
 
-    <% unless @absence_justification.legacy %>
+    <% unless @absence_justification.legacy || action_name == 'show' %>
       <%= f.submit 'Salvar', class: 'btn btn-primary' %>
     <% end %>
 
