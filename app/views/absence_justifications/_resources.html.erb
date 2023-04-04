@@ -14,13 +14,29 @@
         <td><%= absence_justification.class_number %></td>
         <td><%= absence_justification.user %></td>
         <td class="actions">
-          <%= link_to 'Editar', edit_absence_justification_path(absence_justification),
-            class: "btn btn-success" %>
-          <%= link_to 'Excluir', absence_justification_path(absence_justification),
-            class: "btn btn-danger",
-            disabled: !absence_justification_destroy?(absence_justification),
-            method: "delete",
-            data: { confirm: "Tem certeza?" } %>
+
+          <%= link_to(
+                t('helpers.links.show_html'),
+                absence_justification_path(absence_justification),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
+          <%= link_to(
+                t('helpers.links.edit_html'),
+                edit_absence_justification_path(absence_justification),
+                class: 'btn btn-success apply_tooltip',
+                data: { original_title: t('views.index.tooltips.edit') }
+              ) %>
+          <%= link_to(
+                t('helpers.links.destroy_html'),
+                absence_justification_path(absence_justification),
+                class: 'btn btn-danger apply_tooltip',
+                disabled: !absence_justification_destroy?(absence_justification),
+                method: 'delete',
+                data: {
+                  confirm: t('views.index.confirm'),
+                  original_title: t('views.index.tooltips.delete')
+                }
+              ) %>
         </td>
       </tr>
     <% end %>

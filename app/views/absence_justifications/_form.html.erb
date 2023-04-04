@@ -134,6 +134,7 @@
     </div>
   </div>
 
+  <% if action_name == 'show' %>
     <div class="row textarea">
       <div class="col col-sm-12">
         <legend>Faltas justificadas</legend>
@@ -164,6 +165,7 @@
         </table>
       </div>
     </div>
+  <% end %>
 
   <%= hidden_field_tag :current_date, Time.now.strftime("%d/%m/%Y") %>
   <%= hidden_field_tag :teacher_id, current_teacher %>
