@@ -139,14 +139,13 @@ $(function () {
 
   function handleFetchNumberOfClassesByClassroomSuccess(data) {
     var elements = []
-    var class_numbers = $class_numbers
-
+    var class_numbers = $('#attendance_record_report_form_class_numbers')
+    
     for (let i = 1; i <= data; i++){
       elements.push({id: i, name: i, text: i})
     }
-    // var first_class_number = elements[0]
-
-    class_numbers.select2('data', elements);
+    console.log(elements)
+    class_numbers.select2('name', elements);
   }
 
   function handleFetchNumberOfClassesByClassroomError() {
