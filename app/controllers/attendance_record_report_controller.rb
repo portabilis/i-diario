@@ -5,12 +5,11 @@ class AttendanceRecordReportController < ApplicationController
   def form
     if current_user.current_role_is_admin_or_employee?
       @period = current_teacher_period
-      fetch_collections
     else
       fetch_linked_by_teacher
     end
-
-    @teacher = current_teacher
+    
+    fetch_collections
     @attendance_record_report_form = AttendanceRecordReportForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
