@@ -10,6 +10,7 @@ class AttendanceRecordReportController < ApplicationController
     end
     
     fetch_collections
+
     @attendance_record_report_form = AttendanceRecordReportForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
@@ -43,8 +44,8 @@ class AttendanceRecordReportController < ApplicationController
       @attendance_record_report_form.school_calendar_year = current_school_year
       
       if current_user.current_role_is_admin_or_employee?
+        fetch_collections
         @period = current_teacher_period
-        @number_of_classes = current_school_calendar.number_of_classes
       else
         fetch_linked_by_teacher
       end

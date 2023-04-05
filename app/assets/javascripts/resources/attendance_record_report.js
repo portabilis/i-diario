@@ -66,7 +66,6 @@ $(function () {
     $discipline.val('').select2({ data: [] });
     $('#attendance_record_report_form_class_numbers').select2("val", "")
 
-
     if (!_.isEmpty(e.val)) {
       checkExamRule(params);
 
@@ -80,8 +79,6 @@ $(function () {
         });
       });
     }
-   
-    
   });
 
   $discipline.on('change', async function () {
