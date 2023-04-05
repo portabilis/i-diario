@@ -5,13 +5,17 @@ class AttendanceRecordReportController < ApplicationController
   def form
     if current_user.current_role_is_admin_or_employee?
       @period = current_teacher_period
-      @number_of_classes = current_school_calendar.number_of_classes
+      fetch_collections
     else
       fetch_linked_by_teacher
     end
 
     @teacher = current_teacher
-    attendance_record_report_form
+    @attendance_record_report_form = AttendanceRecordReportForm.new(
+      unity_id: current_unity.id,
+      school_calendar_year: current_school_year,
+      period: @period
+    )
   end
 
   def report
@@ -52,6 +56,11 @@ class AttendanceRecordReportController < ApplicationController
     end
   end
 
+  def fetch_collections
+    @number_of_classes = current_school_calendar.number_of_classes
+    @teacher = current_teacher
+  end
+
   def period
     return if params[:classroom_id].blank? || params[:discipline_id].blank?
 
@@ -88,11 +97,7 @@ class AttendanceRecordReportController < ApplicationController
   end
 
   def attendance_record_report_form
-    @attendance_record_report_form = AttendanceRecordReportForm.new(
-      unity_id: current_unity.id,
-      school_calendar_year: current_school_year,
-      period: @period
-    )
+   
   end
 
   def fetch_linked_by_teacher
