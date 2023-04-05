@@ -115,7 +115,6 @@ $(function () {
       period.val(data).trigger("change")
       period.attr('readonly', true)
     } else {
-      console.log('false', data)
       period.attr('readonly', false)
     }
   };
@@ -139,13 +138,12 @@ $(function () {
 
   function handleFetchNumberOfClassesByClassroomSuccess(data) {
     var elements = []
-    var class_numbers = $('#attendance_record_report_form_class_numbers')
-    
+
     for (let i = 1; i <= data; i++){
       elements.push({id: i, name: i, text: i})
     }
-    console.log(elements)
-    class_numbers.select2('name', elements);
+
+    $class_numbers.select2('data', elements);
   }
 
   function handleFetchNumberOfClassesByClassroomError() {
