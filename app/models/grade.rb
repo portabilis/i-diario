@@ -11,6 +11,7 @@ class Grade < ActiveRecord::Base
   has_many :unity_discipline_grades
   has_many :disciplines, through: :unity_discipline_grades
   has_many :mvw_infrequency_tracking_classrooms
+  has_many :teacher_discipline_classrooms, dependent: :destroy
 
   has_and_belongs_to_many :custom_rounding_tables
 

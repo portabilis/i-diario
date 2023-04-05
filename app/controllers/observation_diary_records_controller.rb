@@ -16,6 +16,31 @@ class ObservationDiaryRecordsController < ApplicationController
       .by_teacher(teachers_by_discipline)
       .by_discipline([current_discipline.id, nil])
       .ordered
+
+    @students = fetch_students_with_observation_diary_records
+  end
+
+  def show
+    @observation_diary_record = ObservationDiaryRecord.find(params[:id]).localized
+
+    @observation_record_report_form = ObservationRecordReportForm.new(
+      teacher_id: @observation_diary_record.teacher.id,
+      discipline_id: @observation_diary_record.discipline.id,
+      unity_id: @observation_diary_record.unity_id,
+      classroom_id: @observation_diary_record.classroom.id,
+      start_at: @observation_diary_record.date,
+      end_at: @observation_diary_record.date
+    ).localized
+
+    if @observation_record_report_form.valid?
+      observation_record_report = ObservationRecordReport.new(
+        current_entity_configuration,
+        @observation_record_report_form
+      ).build
+      send_pdf(t("routes.observation_record"), observation_record_report.render)
+    else
+      render @observation_diary_records
+    end
   end
 
   def new
@@ -147,5 +172,12 @@ class ObservationDiaryRecordsController < ApplicationController
       current_user_classroom
     )
     discipline_teachers_fetcher.teachers_by_classroom
+  end
+
+  def fetch_students_with_observation_diary_records
+    Student.joins(observation_diary_record_note_students: :observation_diary_record_note)
+           .where(observation_diary_record_notes: { observation_diary_record_id: @observation_diary_records })
+           .distinct
+           .ordered
   end
 end

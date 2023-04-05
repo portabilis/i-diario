@@ -10,7 +10,7 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -88,14 +88,14 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   end
 
   def classroom_grades_with_recovery_rule
-    return @classroom_grade if @classroom_grade
+    return @classroom_grade if @classroom_grade.present?
 
     @classroom_grade = []
 
     classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
 
     if @classroom_grade.empty?
-      classroom_grades.first
+      classroom_grades
     else
       @classroom_grade
     end

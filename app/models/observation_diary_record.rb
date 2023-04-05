@@ -23,6 +23,7 @@ class ObservationDiaryRecord < ApplicationRecord
   belongs_to :discipline
   has_many :notes, class_name: 'ObservationDiaryRecordNote', dependent: :destroy
   has_many :observation_diary_record_attachments, dependent: :destroy
+  has_many :students, through: :notes
 
   accepts_nested_attributes_for :observation_diary_record_attachments, allow_destroy: true
   accepts_nested_attributes_for :notes, allow_destroy: true
@@ -34,6 +35,7 @@ class ObservationDiaryRecord < ApplicationRecord
   scope :by_classroom, -> classroom_ids { where(classroom_id: classroom_ids) }
   scope :by_discipline, -> discipline_ids { where(discipline_id: discipline_ids) }
   scope :by_date, -> date { where(date: date.to_date) }
+  scope :by_student_id, -> student_id { joins(:notes).merge(ObservationDiaryRecordNote.by_student_id(student_id)) }
   scope :ordered, -> { order(date: :desc) }
 
   validates_date :date

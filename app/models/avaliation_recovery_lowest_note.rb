@@ -8,7 +8,7 @@ class AvaliationRecoveryLowestNote < ApplicationRecord
   audited
   has_associated_audits
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
 
   accepts_nested_attributes_for :recovery_diary_record
 
