@@ -24,7 +24,7 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
