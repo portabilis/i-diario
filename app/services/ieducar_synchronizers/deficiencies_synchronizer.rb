@@ -28,7 +28,7 @@ class DeficienciesSynchronizer < BaseSynchronizer
         changed = deficiency.changed?
         deficiency.save! if changed
 
-        update_deficiency_students(deficiency.id, deficiency_record.alunos) if changed
+        update_deficiency_students(deficiency.id, deficiency_record.alunos) if changed && deficiency_record.deleted_at.blank?
 
         deficiency.discard_or_undiscard(deficiency_record.deleted_at.present?)
       end
