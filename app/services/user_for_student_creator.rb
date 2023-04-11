@@ -16,8 +16,7 @@ class UserForStudentCreator
 
     email = "#{student.api_code}@#{Rails.application.secrets[:STUDENT_DOMAIN]}"
 
-    next if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
-    next if User.find_by(email: email, kind: RoleKind::STUDENT)
+    return if User.find_by(student_id: student.id, email: email, kind: RoleKind::STUDENT)
 
     password = "estudante#{student.api_code}"
     login = User.find_by(login: student.api_code) ? '' : student.api_code
@@ -29,7 +28,7 @@ class UserForStudentCreator
       student_id: student.id
     )
 
-    next unless user.new_record?
+    return unless user.new_record?
 
     user.first_name = student.name
     user.password = password
