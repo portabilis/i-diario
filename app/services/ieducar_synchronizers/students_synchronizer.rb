@@ -3,7 +3,7 @@ class StudentsSynchronizer < BaseSynchronizer
     update_students(
       HashDecorator.new(
         api.fetch(
-          escola: '118'
+          escola: unity_api_code
         )['alunos']
       )
     )
