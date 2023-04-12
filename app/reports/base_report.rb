@@ -95,7 +95,13 @@ class BaseReport
       if information.class.eql?(Array)
         text_formatted = []
 
-        text_formatted << information.map { |text| text[:text] }
+        information.each do |text|
+          if text[:styles].include?(:bold)
+            text_formatted << "<b>#{text[:text]}</b>"
+          else
+            text_formatted << text[:text]
+          end
+        end
 
         information = text_formatted.join(" ")
       end
