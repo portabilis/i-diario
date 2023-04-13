@@ -365,6 +365,7 @@ Rails.application.routes.draw do
     post '/reports/absence_justification', to: 'absence_justification_report#report', as: 'absence_justification_report'
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
+    get '/reports/fetch_step', to: 'exam_record_report#fetch_step', as: 'fetch_step_exam_record_report'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
     get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'
