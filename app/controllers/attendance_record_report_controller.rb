@@ -3,11 +3,7 @@ class AttendanceRecordReportController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    if current_user.current_role_is_admin_or_employee?
-      @period = current_teacher_period
-    else
-      fetch_linked_by_teacher
-    end
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     fetch_collections
 
@@ -16,7 +12,7 @@ class AttendanceRecordReportController < ApplicationController
       school_calendar_year: current_school_year,
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id,
-      period: @period
+      period: current_teacher_period
     )
   end
 
@@ -84,6 +80,7 @@ class AttendanceRecordReportController < ApplicationController
   def fetch_collections
     @number_of_classes = current_school_calendar.number_of_classes
     @teacher = current_teacher
+    @period = current_teacher_period
   end
 
   def resource_params
