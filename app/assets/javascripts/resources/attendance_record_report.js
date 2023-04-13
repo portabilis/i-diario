@@ -104,12 +104,11 @@ $(function () {
   }
 
   function handleFetchPeriodByClassroomSuccess(data) {
-    $('#attendance_record_report_form_classroom_id').val(data);
     let period = $('#attendance_record_report_form_period');
 
     if (data != PERIOD_FULL) {
       getNumberOfClasses();
-      period.val(data).trigger("change")
+      period.select2('val', data);
       period.attr('readonly', true)
     } else {
       period.attr('readonly', false)
