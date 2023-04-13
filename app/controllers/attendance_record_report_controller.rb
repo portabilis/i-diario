@@ -8,12 +8,14 @@ class AttendanceRecordReportController < ApplicationController
     else
       fetch_linked_by_teacher
     end
-    
+
     fetch_collections
 
     @attendance_record_report_form = AttendanceRecordReportForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id,
       period: @period
     )
   end
@@ -42,23 +44,13 @@ class AttendanceRecordReportController < ApplicationController
       send_pdf(t('routes.attendance_record'), attendance_record_report.render)
     else
       @attendance_record_report_form.school_calendar_year = current_school_year
-      
-      if current_user.current_role_is_admin_or_employee?
-        fetch_collections
-        @period = current_teacher_period
-      else
-        fetch_linked_by_teacher
-      end
 
-      @teacher = current_teacher
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+      fetch_collections
       clear_invalid_dates
       render :form
     end
-  end
-
-  def fetch_collections
-    @number_of_classes = current_school_calendar.number_of_classes
-    @teacher = current_teacher
   end
 
   def period
@@ -83,6 +75,17 @@ class AttendanceRecordReportController < ApplicationController
 
   private
 
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+  end
+
+  def fetch_collections
+    @number_of_classes = current_school_calendar.number_of_classes
+    @teacher = current_teacher
+  end
+
   def resource_params
     params.require(:attendance_record_report_form).permit(:unity_id,
                                                           :classroom_id,
@@ -94,16 +97,6 @@ class AttendanceRecordReportController < ApplicationController
                                                           :school_calendar_year,
                                                           :current_teacher_id,
                                                           :second_teacher_signature)
-  end
-
-  def attendance_record_report_form
-   
-  end
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
   end
 
   def clear_invalid_dates
