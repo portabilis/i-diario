@@ -97,10 +97,16 @@ class BaseReport
 
         information.each do |text|
           if text[:styles].include?(:bold)
-            text_formatted << "<b>#{text[:text]}</b>"
-          else
-            text_formatted << text[:text]
+            text[:text] = "<b>#{text[:text]}</b>"
           end
+          if text[:styles].include?(:italic)
+            text[:text] = "<i>#{text[:text]}</i>"
+          end
+          if text[:styles].include?(:underline)
+            text[:text]= "<u>#{text[:text]}</u>"
+          end
+
+          text_formatted << text[:text]
         end
 
         information = text_formatted.join(" ")
