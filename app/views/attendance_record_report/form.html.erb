@@ -33,7 +33,7 @@
             <%= f.input :period, as: :select2_period, user: current_user %>
           <% else %>
             <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2 3]).to_json, 
-                  label: "Período", readonly: true %>
+                  label: "Período", readonly: @period != Periods::FULL %>
           <% end %>
         </div>
       </div>
