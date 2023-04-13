@@ -4,20 +4,30 @@ class ExamRecordReportController < ApplicationController
 
   def form
     @exam_record_report_form = ExamRecordReportForm.new
-    fetch_collections
+    if current_user.current_role_is_admin_or_employee?
+      fetch_collections
+    else
+      fetch_linked_by_teacher
+    end
   end
 
-  def report
-    @exam_record_report_form = ExamRecordReportForm.new(resource_params)
-    fetch_collections
+  def fetch_step
+    return if params[:classroom_id].blank?
 
-    if @exam_record_report_form.valid?
-      exam_record_report = @school_calendar_classroom_steps.any? ? build_by_classroom_steps : build_by_school_steps
-      send_pdf(t("routes.exam_record_report"), exam_record_report.render)
+    classroom = Classroom.find(params[:classroom_id])
+
+    school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, classroom, current_school_year).fetch
+
+    school_calendar_steps = SchoolCalendarStep.where(school_calendar: school_calendar)
+    school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(classroom.id).ordered
+
+    if school_calendar_classroom_steps.any?
+      step = school_calendar_classroom_steps
     else
-      fetch_collections
-      render :form
+      step = school_calendar_steps
     end
+    #erro undefined method `test_setting'
+    render json: step
   end
 
   private
@@ -52,6 +62,12 @@ class ExamRecordReportController < ApplicationController
       @exam_record_report_form.recovery_lowest_notes?,
       @exam_record_report_form.lowest_notes
     )
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
   end
 
   def fetch_collections
