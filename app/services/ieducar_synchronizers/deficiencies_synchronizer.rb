@@ -28,9 +28,15 @@ class DeficienciesSynchronizer < BaseSynchronizer
         changed = deficiency.changed?
         deficiency.save! if changed
 
-        update_deficiency_students(deficiency.id, deficiency_record.alunos) if changed && deficiency_record.deleted_at.blank?
+        update_deficiency_students(deficiency.id, deficiency_record.alunos)
 
         deficiency.discard_or_undiscard(deficiency_record.deleted_at.present?)
+
+        if changed
+          update_students_uses_differentiated_exam_rule(
+            deficiency_id: deficiency.id
+          )
+        end
       end
     end
   end
@@ -54,6 +60,8 @@ class DeficienciesSynchronizer < BaseSynchronizer
         deficiency_student.save! if deficiency_student.changed?
         deficiency_student.discard_or_undiscard(false)
       end
+
+      update_students_uses_differentiated_exam_rule(student_id: student_id)
     end
 
     discard_inexisting_deficiency_students(deficiency_id, student_ids)
@@ -64,8 +72,7 @@ class DeficienciesSynchronizer < BaseSynchronizer
       deficiency_student.discard_or_undiscard(true)
 
       update_students_uses_differentiated_exam_rule(
-        student_id: deficiency_student.student_id,
-        deficiency_id: deficiency_id
+        student_id: deficiency_student.student_id
       )
     end
   end
