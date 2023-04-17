@@ -58,7 +58,8 @@ class GeneralConfigurationsController < ApplicationController
       :do_not_send_justified_absence,
       :require_daily_activities_record,
       :remove_lesson_plan_objectives,
-      :show_experience_fields
+      :show_experience_fields,
+      :allows_copy_experience_fields_in_lesson_plans
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')
