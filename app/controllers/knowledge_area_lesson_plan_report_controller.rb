@@ -2,8 +2,10 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(unity_id: current_unity.id)
-    fetch_collections
+    @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(
+      unity_id: current_unity.id
+    )
+    select_options_by_user
   end
 
   def lesson_plan_report
@@ -20,7 +22,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
     else
       @knowledge_area_lesson_plan_report_form
       clear_invalid_dates
-      fetch_collections
+      select_options_by_user
       render :form
     end
   end
@@ -39,12 +41,27 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
     else
       @knowledge_area_lesson_plan_report_form
       clear_invalid_dates
-      fetch_collections
+      select_options_by_user
       render :form
     end
   end
 
   private
+
+  def select_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      fetch_collections
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @knowledge_areas = KnowledgeArea.all
+  end
 
   def fetch_collections
     @number_of_classes = current_school_calendar.number_of_classes
