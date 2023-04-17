@@ -7,7 +7,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   def form
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new
     @discipline_lesson_plan_report_form.teacher_id = current_teacher_id
-    fetch_collections
+    select_options_by_user
   end
 
   def lesson_plan_report
@@ -24,7 +24,7 @@ class DisciplineLessonPlanReportController < ApplicationController
       send_pdf(t("routes.lesson_plan_record"), lesson_plan_report.render)
     else
       @discipline_lesson_plan_report_form
-      fetch_collections
+      select_options_by_user
       clear_invalid_dates
       render :form
     end
@@ -44,13 +44,27 @@ class DisciplineLessonPlanReportController < ApplicationController
       send_pdf(t("routes.discipline_content_record"), lesson_plan_report.render)
     else
       @discipline_lesson_plan_report_form
-      fetch_collections
+      select_options_by_user
       clear_invalid_dates
       render :form
     end
   end
 
   private
+
+  def select_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      fetch_collections
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+  end
 
   def fetch_collections
     @number_of_classes = current_school_calendar.number_of_classes
