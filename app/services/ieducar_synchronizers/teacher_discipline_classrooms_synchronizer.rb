@@ -87,9 +87,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       year: year,
       grade_id: grade_id,
       discipline_id: discipline_id,
-      discipline_api_code: discipline_api_code,
       teacher_id: teacher_id,
-      teacher_api_code: teacher_discipline_classroom_record.servidor_id
+      classroom_id: classroom_id
     )
 
     teacher_discipline_classroom =
