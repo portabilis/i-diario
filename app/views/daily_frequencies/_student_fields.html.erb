@@ -42,9 +42,9 @@
             <input type="checkbox" checked disabled><i></i>
           </label>
         <% else %>
-          <label class="checkbox <%= ignore_student ? "state-disabled" : "" %>">
-            <%= f.check_box :present, disabled: ignore_student, class: 'general-checkbox', data: { id: 'checkbox-id' }%>
-            <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
+          <label class="checkbox checkbox-frequency <%= ignore_student ? "state-disabled" : "" %>">
+            <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
+            <i></i>
           </label>
         <% end %>
 
