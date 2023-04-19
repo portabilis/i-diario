@@ -173,10 +173,10 @@ class DailyFrequenciesController < ApplicationController
                 absence_date_end: daily_frequency_attributes[:frequency_date],
                 unity_id: daily_frequency_attributes[:unity_id],
                 classroom_id: daily_frequency_attributes[:classroom_id],
+                class_number: daily_frequency_students_params[:class_number],
               }
 
               absence_justification = AbsenceJustification.new(params)
-              absence_justification.class_number = class_numbers_from_params
               absence_justification.teacher = current_teacher
               absence_justification.user = current_user
               absence_justification.school_calendar = current_school_calendar
