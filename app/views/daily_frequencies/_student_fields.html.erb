@@ -35,7 +35,7 @@
         <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
         <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
         <%= f.hidden_field :active, value: active, disabled: ignore_student %>
-        <%= f.hidden_field :absence_justification_student_id, value: absence_justification_student_id, disabled: ignore_student %>
+        <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id, disabled: ignore_student %>
 
         <% if absence_justification_student_id %>
           <label title="Falta Justificada" class="checkbox justified-absence">
