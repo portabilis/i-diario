@@ -7,9 +7,10 @@ class DailyNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
+    set_options_by_user
+
     if params[:filter].present? && params[:filter][:by_step_id].present?
       step_id = params[:filter].delete(:by_step_id)
-
       if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
         params[:filter][:by_school_calendar_classroom_step_id] = step_id
       else
@@ -17,26 +18,17 @@ class DailyNotesController < ApplicationController
       end
     end
 
-    @daily_notes = apply_scopes(DailyNote).includes(:avaliation)
-                                          .by_unity_id(current_unity)
-                                          .by_classroom_id(current_user_classroom)
-                                          .by_discipline_id(current_user_discipline)
-                                          .order_by_avaliation_test_date_desc
-
-    @classrooms = Classroom.where(id: current_user_classroom)
-    @disciplines = Discipline.where(id: current_user_discipline)
-    @avaliations = Avaliation.by_classroom_id(current_user_classroom)
-                             .by_discipline_id(current_user_discipline)
-    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    fetch_daily_notes_and_avaliations
 
     authorize @daily_notes
   end
 
   def new
+    set_options_by_user
+
     @daily_note = DailyNote.new
 
     authorize @daily_note
-
   end
 
   def create
@@ -254,6 +246,32 @@ class DailyNotesController < ApplicationController
   end
 
   private
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = Classroom.where(id: current_user_classroom)
+      @disciplines = Discipline.where(id: current_user_discipline)
+      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_daily_notes_and_avaliations
+    @daily_notes = apply_scopes(DailyNote).includes(:avaliation)
+                                          .by_unity_id(current_unity)
+                                          .by_classroom_id(@classrooms.map(&:id))
+                                          .by_discipline_id(@disciplines.map(&:id))
+                                          .order_by_avaliation_test_date_desc
+
+    @avaliations = Avaliation.by_classroom_id(@classrooms.map(&:id)).by_discipline_id(@disciplines.map(&:id))
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
+  end
 
   def destroy_students_not_found
     @daily_note.students.each do |student|
