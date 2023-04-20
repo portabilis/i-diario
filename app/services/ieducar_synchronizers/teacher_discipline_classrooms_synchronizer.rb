@@ -84,7 +84,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
-      year: 2023,
+      year: year,
       discipline_id: discipline_id,
       teacher_id: teacher_id
     )
