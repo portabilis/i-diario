@@ -12,19 +12,33 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :classroom_id, as: :select2_classroom, user: current_user, record: f.object %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.input :classroom_id, as: :select2_classroom, user: current_user, record: f.object %>
+        <% else %>
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user, record: f.object %>
+        <% end %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :discipline_id, as: :select2_discipline, user: current_user, record: f.object,
-          classroom_id: @transfer_note.classroom_id %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.input :discipline_id, as: :select2_discipline, user: current_user, record: f.object,
+            classroom_id: @transfer_note.classroom_id %>
+        <% else %>
+        <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+            classroom_id: @transfer_note.classroom_id %>
+        <% end %>
       </div>
     </div>
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
-          readonly: @transfer_note.persisted?, required: true %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+            readonly: @transfer_note.persisted?, required: true %>
+        <% else %>
+          <%= f.input :step_id, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+              classroom_id: @transfer_note.classroom_id %>
+        <% end %>
       </div>
 
       <div class="col col-sm-4">
