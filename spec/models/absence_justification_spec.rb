@@ -38,12 +38,17 @@ RSpec.describe AbsenceJustification, type: :model do
         classroom = create(
           :classroom,
           :with_classroom_semester_steps,
-          :with_teacher_discipline_classroom,
           :by_discipline
         )
 
+        teacher_discipline_classroom = create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          grade: classroom.classrooms_grades.first.grade
+        )
+
         school_calendar = classroom.calendar.school_calendar
-        teacher = classroom.teacher_discipline_classrooms.first.teacher
+        teacher = teacher_discipline_classroom.teacher
         user = create(:user, assumed_teacher_id: teacher.id)
         first_school_calendar_date = classroom.calendar.classroom_steps.first.first_school_calendar_date
         absence = create(
@@ -71,6 +76,7 @@ RSpec.describe AbsenceJustification, type: :model do
         subject.disciplines << absence.disciplines.first
 
         expect(subject).to_not be_valid
+
         expect(subject.errors.messages[:base]).to(
           include('Já existe uma justificativa para a disciplina e período informados')
         )
