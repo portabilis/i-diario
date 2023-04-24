@@ -1,4 +1,4 @@
-<div class="modal fade" tabindex="-1" role="dialog" id="copy-objectives-modal" aria-hidden="true">
+<div class="modal fade" tabindex="-1" role="dialog" id="<%= modal_id %>" aria-hidden="true">
   <div class="modal-dialog" style="<%= 'width: 800px;' if type != 'disciplines' %>">
     <div class="modal-content">
       <div class="modal-header">
@@ -11,36 +11,9 @@
         </h4>
       </div>
       <div class="modal-body smart-form">
-        <% (type == 'disciplines' ? BnccDisciplines : BnccDisciplines).to_a.each do |value| %>
-          <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
-            <div>
-              <div class="control-group boolean">
-                <div class="controls input">
-                  <label class="checkbox">
-                    <input type="checkbox"
-                           class="boolean optional"
-                           data-id="<%= value[1] %>"
-                           name="experience_fields[]" />
-                    <%= value[0] %> <i></i>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-1 grades" style="margin-top: 13px; display: none;">
-              <%= t('activerecord.attributes.teaching_plan.grade_ids') %>
-            </div>
-            <div class="<%= type == 'disciplines' ? 'col-sm-6' : 'col-sm-4' %> grades"
-              style="margin-top: 5px; margin-left: -27px; display: none;">
-              <%= f.input :grade_ids, as: :select2, label: false, multiple: true,
-                elements: BnccObjectivesAndSkillsDecorator.education_fields_by_type(type).to_json,
-                input_html: { class: 'grade_ids', data: { without_json_parser: true } } %>
-            </div>
-          </div>
-        <% end %>
-
-        <% (type == 'disciplines' ? BnccExperienceFields : BnccExperienceFields).to_a.each do |value| %>
-          <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
-            <div>
+        <% (type == 'disciplines' ? BnccDisciplines : BnccExperienceFields).to_a.each do |value| %>
+          <div class="row">
+            <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
               <div class="control-group boolean">
                 <div class="controls input">
                   <label class="checkbox">
@@ -69,7 +42,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">
           Cancelar
         </button>
-        <button type="button" data-type="<%= type %>" id="confirm-copy-objectives-modal" class="btn btn-primary">
+        <button type="button" data-type="<%= type %>" id="<%= confirm_btn %>" class="btn btn-primary">
           Confirmar
         </button>
       </div>
