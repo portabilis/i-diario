@@ -34,6 +34,14 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :require_daily_activities_record do %>
+            <%= f.input_field :require_daily_activities_record, collection: RequireDailyActivitiesRecordTypes %>
+            <i></i>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :display_header_on_all_reports_pages, label: false, inline_label: true %>
         </div>
         <div class="col col-sm-6">
@@ -60,6 +68,17 @@
           <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :remove_lesson_plan_objectives, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_experience_fields, label: false, inline_label: true %>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col col-sm-6">
           <%= f.input :show_inactive_enrollments, label: false, inline_label: true %>

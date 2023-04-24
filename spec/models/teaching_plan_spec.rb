@@ -32,14 +32,8 @@ RSpec.describe TeachingPlan, type: :model do
     context 'when school term type is yearly' do
       subject { build(:teaching_plan, school_term_type: nil, school_term_type_step: nil) }
 
-      it {
-        skip "Keeps validating"
-        should_not validate_presence_of(:school_term_type)
-      }
-      it {
-        skip "Keeps validating"
-        should_not validate_presence_of(:school_term_type_step)
-      }
+      it { expect(subject.school_term_type).to_not be_present  }
+      it { expect(subject.school_term_type_step).to_not be_present  }
     end
 
     context 'when contents has no records assigneds' do

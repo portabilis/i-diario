@@ -69,18 +69,19 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find
-    return render json: nil if params[:step_id].blank? || params[:opinion_type].blank?
+    return render json: nil if params[:opinion_type].blank? ||
+                               (params[:step_id].blank? && !opinion_type_by_year?(params[:opinion_type]))
 
     discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
-    step_id = opinion_type_by_year?(params[:opinion_type].to_i) ? nil : params[:step_id].to_i
+    step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
     set_opinion_types
 
     descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
                                          .by_discipline_id(discipline_id)
-                                         .by_step_id(current_user_classroom, step_id)
-                                         .first
-                                         &.id
+
+    descriptive_exam_id = descriptive_exam_id.by_step_id(current_user_classroom, step_id) if step_id
+    descriptive_exam_id = descriptive_exam_id.first&.id
 
     render json: descriptive_exam_id
   end
@@ -234,9 +235,7 @@ class DescriptiveExamsController < ApplicationController
     end
 
     if @opinion_types.blank?
-      redirect_with_message(t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam'))
-
-      return
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam')) && return
     end
 
     @opinion_type = params.dig('descriptive_exam', 'opinion_type')

@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe TestSettingFetcher, type: :service do
   let!(:classroom) { create(:classroom, :with_classroom_trimester_steps, year: 2019) }
   let!(:step) { classroom.calendar.classroom_steps.first }
-  let(:school_term_type_step) { create(:school_term_type_step) }
+  let!(:school_term_type) { create(:school_term_type, steps_number: 3) }
+  let!(:school_term_type_step) { create(:school_term_type_step, school_term_type: school_term_type) }
 
   context 'when does not receive classroom' do
     it 'raises ArgumentError to classroom' do
@@ -49,7 +50,7 @@ RSpec.describe TestSettingFetcher, type: :service do
 
     context 'test setting exists for step year and school_term' do
       it 'returns current test setting of step' do
-        skip "Uses wrong year"
+        allow(step.school_calendar).to receive(:year).and_return(2019)
         expect(described_class.current(classroom, step)).to eq(step_test_setting)
       end
     end

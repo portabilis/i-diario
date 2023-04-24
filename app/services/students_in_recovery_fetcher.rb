@@ -43,14 +43,14 @@ class StudentsInRecoveryFetcher
   end
 
   def classroom_grades_with_recovery_rule
-    return @classroom_grade if @classroom_grade
+    return @classroom_grade if @classroom_grade.present?
 
     @classroom_grade = []
 
     classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
 
     if @classroom_grade.empty?
-      classroom_grades.first
+      classroom_grades
     else
       @classroom_grade
     end
@@ -72,17 +72,18 @@ class StudentsInRecoveryFetcher
     @step ||= steps_fetcher.step_by_id(@step_id)
   end
 
-  def enrollment_students
-    @enrollment_students ||= begin
+  def student_enrollments(classroom_grade_ids)
+    @student_enrollments ||= begin
       end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-      StudentEnrollmentsList.new(
-        classroom: classroom,
-        discipline: discipline,
+      StudentEnrollmentsRetriever.call(
+        classrooms: classroom,
+        disciplines: discipline,
         start_at: step.start_at,
+        classroom_grades: classroom_grade_ids,
         end_at: end_at,
         search_type: :by_date_range
-      ).student_enrollments.map(&:student)
+      ).by_date_not_after(end_at)
     end
   end
 
@@ -90,20 +91,18 @@ class StudentsInRecoveryFetcher
     students = filter_students_in_recovery
 
     if classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
-      students = students.select { |student|
-        if (average = student.average(classroom, discipline, step))
-          average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
-        end
-      }
+      students = students.select do |student|
+        average = student.average(classroom, discipline, step) || 0
+        average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
+      end
     end
 
     filter_differentiated_students(students, differentiated)
   end
 
   def filter_students_in_recovery
-    classrooms_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
-    ids_in_recovery = StudentEnrollmentClassroom.where(classrooms_grade_id: classrooms_grade_ids).pluck(:student_enrollment_id)
-    student_enrollments_in_recovery = StudentEnrollment.where(id: ids_in_recovery)
+    classroom_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
+    student_enrollments_in_recovery = student_enrollments(classroom_grade_ids)
 
     student_enrollments_in_recovery.map(&:student)
   end

@@ -13,7 +13,6 @@ RSpec.describe Avaliation, type: :model do
 
   describe 'attributes' do
     it { expect(subject).to respond_to(:weight) }
-    it { expect(subject).to respond_to(:classes) }
     it { expect(subject).to respond_to(:observations) }
   end
 
@@ -30,7 +29,8 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:school_calendar) }
     it {
-      skip "Test setting keeps returning nil"
+      allow_any_instance_of(Avaliation).to receive(:grades_belongs_to_test_setting).and_return(true)
+
       expect(subject).to validate_presence_of(:test_setting)
     }
     it { expect(subject).to validate_presence_of(:test_date) }
@@ -51,36 +51,6 @@ RSpec.describe Avaliation, type: :model do
       it 'should validate that classroom score type is numeric' do
         expect(subject).to_not be_valid
         expect(subject.errors.messages[:classroom]).to include('o tipo de nota da regra de avaliação não é numérica')
-      end
-    end
-
-    context 'when there is already an avaliation with the classroom/discipline/test_date and class number' do
-      let(:another_avaliation) {
-        create(
-          :avaliation,
-          :with_teacher_discipline_classroom,
-          classroom: classroom,
-          test_date: step.first_school_calendar_date,
-          classes: '1'
-        )
-      }
-
-      subject do
-        build(
-          :avaliation,
-          :with_teacher_discipline_classroom,
-          classroom: another_avaliation.classroom,
-          discipline: another_avaliation.discipline,
-          test_date: another_avaliation.test_date,
-          grade_ids: another_avaliation.grade_ids,
-          classes: '1',
-          school_calendar: another_avaliation.school_calendar
-        )
-      end
-
-      it 'should not be valid' do
-        expect(subject).to_not be_valid
-        expect(subject.errors[:classes]).to include('já existe uma avaliação para a aula informada')
       end
     end
 

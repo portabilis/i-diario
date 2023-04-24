@@ -295,7 +295,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_collections
-    if @conceptual_exam.step_id.present?
+    if @conceptual_exam.step_id.present? && @conceptual_exam.student_id.present?
       fetch_unities_classrooms_disciplines_by_teacher
       fetch_students
     end
@@ -319,7 +319,25 @@ class ConceptualExamsController < ApplicationController
       @conceptual_exam.step_number
     )
 
-    @disciplines = @disciplines.where.not(id: exempted_discipline_ids)
+    @disciplines = @disciplines.not_grouper
+                               .where.not(id: exempted_discipline_ids)
+                               .where(id: disciplines_in_grade)
+  end
+
+  def disciplines_in_grade
+    school_calendar = @conceptual_exam.school_calendar
+
+    SchoolCalendarDisciplineGrade.where(
+      school_calendar_id: school_calendar.id,
+      grade_id: student_grade_id
+    ).pluck(:discipline_id)
+  end
+
+  def student_grade_id
+    ClassroomsGrade.by_student_id(@conceptual_exam.student_id)
+                   .by_classroom_id(@conceptual_exam.classroom_id)
+                   .first
+                   .grade_id
   end
 
   def steps_fetcher

@@ -3,6 +3,7 @@ pt-BR:
     index:
       by_classroom_id: "Filtrar turma"
       by_knowledge_area_id: "Filtrar área de conhecimento"
+      by_experience_field: "Filtrar campos de experiência"
       by_date: "Filtrar data"
       new_html: "<i class='fa fa-plus'></i> Novo"
     content_fields:

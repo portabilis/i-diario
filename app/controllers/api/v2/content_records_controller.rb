@@ -7,7 +7,7 @@ module Api
         return unless params[:teacher_id]
 
         @unities = Unity.by_teacher(params[:teacher_id]).ordered.uniq
-        @number_of_days = params[:number_of_days].to_i || 90
+        @number_of_days = params[:number_of_days] ? params[:number_of_days].to_i : 90
 
         @content_records = ContentRecord.by_unity_id(@unities.map(&:id))
                                         .by_teacher_id(params[:teacher_id])

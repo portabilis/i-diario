@@ -21,6 +21,7 @@ class UniqueDailyFrequencyStudentsCreator
     daily_frequency_students = {}
     daily_frequencies = DailyFrequency.by_classroom_id(classroom_id)
                                       .by_frequency_date(frequency_date)
+                                      .by_teacher_discipline_classroom(teacher_id, classroom_id)
 
     if daily_frequencies.present?
       daily_frequencies.each do |current_daily_frequency|
@@ -46,7 +47,7 @@ class UniqueDailyFrequencyStudentsCreator
   # But at least at 1 minute after the current time
   def perform_worker_time
     [
-      Date.current + rand(19...24).hours,
+      Date.current + rand(19...24).hours + rand(0...60).minutes + rand(0...60).seconds,
       Time.current + 1.minute
     ].max
   end

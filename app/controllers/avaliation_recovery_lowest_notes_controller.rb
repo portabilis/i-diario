@@ -103,7 +103,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   def destroy
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id])
 
-    @lowest_note_recovery.destroy
+    @lowest_note_recovery.recovery_diary_record.destroy
 
     respond_with @lowest_note_recovery, location: avaliation_recovery_lowest_notes_path
   end

@@ -49,6 +49,14 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
     school_calendar.school_day?(date, classroom.grade_ids, classroom)
   end
 
+  def school_calendar_day_allows_entry?(date)
+    step_from_date = school_calendar_classroom.classroom_step(date)
+
+    return false unless step_from_date.eql?(self)
+
+    school_calendar.day_allows_entry?(date, classroom.grade_ids, classroom)
+  end
+
   def first_school_calendar_date
     school_calendar.school_day_checker(start_at, classroom.grade_ids, classroom_id).next_school_day
   end

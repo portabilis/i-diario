@@ -46,6 +46,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.content_record.teacher = current_teacher
     @knowledge_area_content_record.content_record.content_ids = content_ids
     @knowledge_area_content_record.content_record.origin = OriginTypes::WEB
+    @knowledge_area_content_record.content_record.creator_type = 'knowledge_area_content_record'
     @knowledge_area_content_record.content_record.teacher = current_teacher
     @knowledge_area_content_record.teacher_id = current_teacher_id
 
@@ -119,6 +120,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def resource_params
     params.require(:knowledge_area_content_record).permit(
       :knowledge_area_ids,
+      :experience_fields,
       content_record_attributes: [
         :id,
         :unity_id,

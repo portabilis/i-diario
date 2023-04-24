@@ -6,7 +6,7 @@ class CustomRoundingTablesController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @custom_rounding_tables = apply_scopes(CustomRoundingTable).ordered
+    @custom_rounding_tables = apply_scopes(CustomRoundingTable).ordered_by_year
     authorize @custom_rounding_tables
   end
 
@@ -19,11 +19,15 @@ class CustomRoundingTablesController < ApplicationController
       value.action = RoundingTableAction::NONE
     end
 
+    @custom_rounding_table_values = @custom_rounding_table.custom_rounding_table_values
+
     authorize @custom_rounding_table
   end
 
   def edit
     @custom_rounding_table = CustomRoundingTable.find(params[:id])
+
+    @custom_rounding_table_values = @custom_rounding_table.custom_rounding_table_values.ordered_asc
 
     authorize @avaliation_recovery_diary_record
 
