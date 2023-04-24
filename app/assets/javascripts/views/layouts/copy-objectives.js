@@ -1,13 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
-
+  // alert('copy-objectives.js loaded');
   const confirmCopyButton = document.getElementById('confirm-copy-objectives-modal');
+  const experienceConfirmButton = document.getElementById('experience-confirm-btn');
+  const disciplinesConfirmCopyButton = document.getElementById('disciplines-confirm-btn');
 
-  const requestContents = (itens) => {
+  // console.log(confirmCopyButton);
+  const requestContents = (itens, origin) => {
     return new Promise(resolve => {
       const url = Routes.contents_learning_objectives_and_skills_pt_br_path();
       let params = {}
-      params[confirmCopyButton.dataset.type] = itens
+
+      if (origin === 'experience') {
+        params[experienceConfirmButton.dataset.type] = itens
+      } else if (origin === 'disciplines') {
+        params[disciplinesConfirmCopyButton.dataset.type] = itens
+      } else {
+        params[confirmCopyButton.dataset.type] = itens
+      }
 
       $.getJSON(url, params).done(resolve);
     });
@@ -33,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyObjectives = () => {
     const selectedItens = [];
 
+
     $(checkedExperienceFields()).each(function() {
       const experience_field = this.dataset.id;
       const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
@@ -52,8 +63,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const disciplinesCopyObjectives = () => {
+    const selectedItens = [];
+
+
+    $(checkedExperienceFields()).each(function() {
+      const experience_field = this.dataset.id;
+      const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
+      selectedItens.push({ type: experience_field, grades: grades });
+    });
+
+    if (selectedItens.length === 0) {
+      return;
+    }
+
+    requestContents(selectedItens, 'disciplines').then(data => {
+      data['contents'].forEach(content => {
+        addElement(content['description']);
+      });
+
+      $('#disciplines-modal').modal('hide');
+    });
+  };
+
+  const experienceCopyObjectives = () => {
+    const selectedItens = [];
+
+
+    $(checkedExperienceFields()).each(function() {
+      const experience_field = this.dataset.id;
+      const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
+      selectedItens.push({ type: experience_field, grades: grades });
+    });
+
+    if (selectedItens.length === 0) {
+      return;
+    }
+
+    requestContents(selectedItens, 'experience').then(data => {
+      data['contents'].forEach(content => {
+        addElement(content['description']);
+      });
+
+      $('#experience-modal').modal('hide');
+    });
+  };
+
   if (confirmCopyButton) {
     confirmCopyButton.addEventListener('click', copyObjectives);
+  }
+
+  if (experienceConfirmButton) {
+    experienceConfirmButton.addEventListener('click', experienceCopyObjectives);
+  }
+
+  if (disciplinesConfirmCopyButton) {
+    disciplinesConfirmCopyButton.addEventListener('click', disciplinesCopyObjectives);
   }
 
   const clearCheckboxs = () => {
@@ -77,6 +142,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   $('#copy-objectives-modal').on('show.bs.modal', function() {
+    clearCheckboxs();
+    clearGrades();
+  });
+
+  $('#disciplines-modal').on('show.bs.modal', function() {
+    clearCheckboxs();
+    clearGrades();
+  });
+
+  $('#experience-modal').on('show.bs.modal', function() {
     clearCheckboxs();
     clearGrades();
   });
