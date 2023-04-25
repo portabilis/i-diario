@@ -82,14 +82,14 @@
                 <%= f.hidden_field :dependence, value: tooltip == 'Dependência' ? true : false %>
                 <%= f.hidden_field :active, value: additional_class != 'inactive' ? true : false %>
                 <%= f.hidden_field :type_of_teaching, value: student[:type_of_teaching] %>
-                <%= f.hidden_field :absence_justification_student_id, value: absence_justification_student_id %>
+                <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id %>
 
                 <% if absence_justification_student_id %>
                   <label title="Falta Justificada" class="checkbox justified-absence" style="margin-top: -5px ">
                     <input type="checkbox" checked disabled class="class-number-checkbox justified-absence-checkbox"><i></i>
                   </label>
                 <% else %>
-                  <label class="checkbox <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="bottom: 15px;" title="<%= tooltip %>">
+                  <label class="checkbox checkbox-frequency <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="bottom: 15px;" title="<%= tooltip %>">
                     <%= f.check_box :present, class: 'class-number-checkbox' + (additional_class ? ' never-change ' + additional_class : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: additional_class ? true : false %>
                     <i class="checkbox-frequency-in-batch"></i>
                   </label>

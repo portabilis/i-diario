@@ -68,6 +68,28 @@ class DailyFrequenciesInBatchsController < ApplicationController
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
           daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
+
+          if student_attributes[:absence_justification_student_id].to_i.eql?(-1)
+            params = {
+              student_ids: [student_attributes[:student_id]],
+              absence_date: daily_frequency_data[:frequency_date],
+              justification: nil,
+              absence_date_end: daily_frequency_data[:frequency_date],
+              unity_id: daily_frequency_data[:unity_id],
+              classroom_id: daily_frequency_data[:classroom_id],
+              class_number: daily_frequency_data[:class_number],
+            }
+
+            absence_justification = AbsenceJustification.new(params)
+            absence_justification.teacher = current_teacher
+            absence_justification.user = current_user
+            absence_justification.school_calendar = current_school_calendar
+
+            absence_justification.save
+
+            student_attributes[:absence_justification_student_id] = absence_justification.id
+          end
+
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
           daily_frequency_student.type_of_teaching = student_attributes[:type_of_teaching]
           daily_frequency_student.active = student_attributes[:active]
