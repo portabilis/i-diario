@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
-  // alert('copy-objectives.js loaded');
+
   const confirmCopyButton = document.getElementById('confirm-copy-objectives-modal');
   const experienceConfirmButton = document.getElementById('experience-confirm-btn');
   const disciplinesConfirmCopyButton = document.getElementById('disciplines-confirm-btn');
 
-  // console.log(confirmCopyButton);
   const requestContents = (itens, origin) => {
     return new Promise(resolve => {
       const url = Routes.contents_learning_objectives_and_skills_pt_br_path();
@@ -42,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const copyObjectives = () => {
     const selectedItens = [];
-
 
     $(checkedExperienceFields()).each(function() {
       const experience_field = this.dataset.id;
@@ -88,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const experienceCopyObjectives = () => {
     const selectedItens = [];
-
 
     $(checkedExperienceFields()).each(function() {
       const experience_field = this.dataset.id;
