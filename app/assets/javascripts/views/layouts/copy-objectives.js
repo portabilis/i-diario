@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const disciplinesCopyObjectives = () => {
     const selectedItens = [];
 
-
     $(checkedExperienceFields()).each(function() {
       const experience_field = this.dataset.id;
       const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
