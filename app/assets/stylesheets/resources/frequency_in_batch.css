@@ -43,47 +43,6 @@ label.checkbox-frequency.justified input[type=checkbox]:not(:checked) + i::after
   width: 25px;
 }
 
-.checkbox-collapsed {
-  left: 3px;
-}
-
-.checkbox-frequency-in-batch {
-  border-color: #28a745 !important;
-}
-
-.checkbox-frequency-in-batch::after {
-  color: #28a745 !important;
-}
-
-.checkbox input.general-checkbox:not(:checked) + i.checkbox-frequency-in-batch {
-  border-color: #dc3545 !important;
-}
-
-.checkbox input.general-checkbox:not(:checked) + i.checkbox-frequency-in-batch:after {
-  content: '\f00d' !important;
-  opacity: 1;
-  color: #dc3545 !important;
-  border-color: #dc3545 !important;
-}
-
-.half-checked {
-  border-color: #0779fb !important;
-}
-
-.half-checked::after {
-  color: #0779fb !important;
-}
-
-.unchecked {
-  border-color: #dc3545 !important;
-}
-
-.smart-form .checkbox input:not(:checked) + i.unchecked:after {
-  content: '\f00d' !important;
-  opacity: 1;
-  color: #dc3545 !important;
-}
-
 .frequency-legend {
   display: flex;
   padding: 20px;
