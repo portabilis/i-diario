@@ -88,10 +88,12 @@
       </a>|
       <a href="#" data-toggle="modal" data-target="#disciplines-modal">
         Copiar objetivos/habilidades por área
-      </a>|
-      <a href="#" data-toggle="modal" data-target="#experience-modal">
-        Copiar objetivos por campos de experiência
       </a>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        |<a href="#" data-toggle="modal" data-target="#experience-modal">
+          Copiar objetivos por campos de experiência
+        </a>
+      <% end %>
     <% end %>
     <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
       <ul class="list-group checked-list-box" id="objectives-list">
