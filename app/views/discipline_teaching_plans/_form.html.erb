@@ -145,12 +145,12 @@
             </div>
           <% end %>
           <% if !action_name.eql?('show') %>
-            <a href="#" data-toggle="modal" data-target="#experience-modal">
-              Copiar objetivos por campos de experiência
+            <a href="#" data-toggle="modal" data-target="#disciplines-modal">
+              Copiar objetivos/habilidades por área
             </a>
             <% if @allows_copy_experience_fields_in_lesson_plans %>
-              |<a href="#" data-toggle="modal" data-target="#disciplines-modal">
-                Copiar objetivos/habilidades por área
+              <a href="#" data-toggle="modal" data-target="#experience-modal">
+                Copiar objetivos por campos de experiência
               </a>
             <% end %>
           <% end %>
