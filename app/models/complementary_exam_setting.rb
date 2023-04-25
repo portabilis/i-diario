@@ -1,4 +1,4 @@
-class ComplementaryExamSetting < ActiveRecord::Base
+class ComplementaryExamSetting < ApplicationRecord
   acts_as_copy_target
 
   audited

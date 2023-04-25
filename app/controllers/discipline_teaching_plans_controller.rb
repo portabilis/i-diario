@@ -10,7 +10,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def index
     params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type = PlansAuthors::MY_PLANS if params[:filter].blank?
     author_type ||= (params[:filter] || []).delete(:by_author)
     discipline = if current_user_discipline.grouper?
                    Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all

@@ -1,4 +1,4 @@
-class TransferNote < ActiveRecord::Base
+class TransferNote < ApplicationRecord
   include Audit
   include Stepable
   include ColumnsLockable

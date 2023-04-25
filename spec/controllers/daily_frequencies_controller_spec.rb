@@ -78,14 +78,14 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     context 'without success' do
       it 'fails to create and renders the new template' do
         allow(school_calendar).to receive(:day_allows_entry?).and_return(false)
-        post :create, params
+        post :create, params: params
         expect(response).to render_template(:new)
       end
     end
 
     context 'with success' do
       it 'creates and redirects to daily frequency edit page' do
-        post :create, params
+        post :create, params: params
         expect(response).to redirect_to /#{edit_multiple_daily_frequencies_path}/
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
 
     context 'without success' do
       it 'returns not found status' do
-        get :edit_multiple, params
+        get :edit_multiple, params: params
         expect(response).to have_http_status(302)
       end
     end
@@ -107,7 +107,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
       it 'returns success status' do
         create(:student_enrollment_classroom, classrooms_grade: classrooms_grade)
         params[:class_numbers] = [1, 2, classrooms_grade.grade_id]
-        get :edit_multiple, params
+        get :edit_multiple, params: params
         expect(response).to have_http_status(200)
       end
     end
@@ -141,7 +141,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
         daily_frequencies_ids = [daily_frequency_1.id, daily_frequency_2.id]
 
         expect {
-          delete :destroy_multiple, locale: 'pt-BR', daily_frequencies_ids: daily_frequencies_ids
+          delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: daily_frequencies_ids }
         }.to change(DailyFrequency, :count).by(-2)
       end
     end

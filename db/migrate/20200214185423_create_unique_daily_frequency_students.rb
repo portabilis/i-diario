@@ -1,4 +1,4 @@
-class CreateUniqueDailyFrequencyStudents < ActiveRecord::Migration
+class CreateUniqueDailyFrequencyStudents < ActiveRecord::Migration[4.2]
   def change
     create_table :unique_daily_frequency_students do |t|
       t.references :student, index: true, foreign_key: true

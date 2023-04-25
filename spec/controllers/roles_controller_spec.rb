@@ -85,14 +85,14 @@ RSpec.describe RolesController, :type => :controller do
   describe 'POST #create' do
     context 'without success' do
       it 'fails to create and renders the new template' do
-        post :create, params.merge(role: { permissions_attributes: nil })
+        post :create, params: params.merge(role: { permissions_attributes: nil })
         expect(response).to render_template(:new)
       end
     end
 
     context 'with success' do
       it 'creates and redirects to daily frequency edit page' do
-        post :create, params
+        post :create, params: params
         expect(response).to redirect_to /#{roles_path}/
       end
     end
@@ -100,12 +100,12 @@ RSpec.describe RolesController, :type => :controller do
 
   describe 'PUT #update' do
     it 'updates when params are correct' do
-      put :update, params.merge(id: user_role.role.id)
+      put :update, params: params.merge(id: user_role.role.id)
       expect(Role.find(user_role.role.id)).to have_attributes(name: 'test')
     end
 
     it 'does not update and returns error when params are wrong' do
-      put :update, params.merge(id: user_role.role.id, role: { permissions_attributes: { feature: 'roles' } })
+      put :update, params: params.merge(id: user_role.role.id, role: { permissions_attributes: { feature: 'roles' } })
       expect(response).to have_http_status(302)
     end
 
