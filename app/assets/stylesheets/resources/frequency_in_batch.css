@@ -20,6 +20,14 @@ label.checkbox-frequency input[type=checkbox]:not(:checked) + i::after {
   opacity: 1;
 }
 
+label.checkbox-frequency.partial-absence input[type=checkbox] + i {
+  border-color: #0779fb !important;
+}
+
+label.checkbox-frequency.partial-absence input[type=checkbox] + i::after {
+  color: #0779fb !important;
+}
+
 label.checkbox-frequency.justified input[type=checkbox]:not(:checked) + i {
   border-color: #0779fb !important;
 }
