@@ -212,7 +212,7 @@ class LessonsBoardsController < ApplicationController
     return if params[:classroom_id].blank?
 
     render json: LessonsBoard.by_classroom(params[:classroom_id])
-                             .by_period(period: params[:period])
+                             .by_period(params[:period])
                              .empty?
   end
 
