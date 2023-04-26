@@ -278,6 +278,7 @@ Rails.application.routes.draw do
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
+        get :find_step_number_by_classroom
       end
     end
     resources :final_recovery_diary_records, concerns: :history

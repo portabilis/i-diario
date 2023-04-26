@@ -118,6 +118,13 @@ class TransferNotesController < ApplicationController
     respond_with(@transfer_note, location: transfer_notes_path)
   end
 
+  def find_step_number_by_classroom
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
+
+    render json: step_numbers.to_json
+  end
+
   private
 
   def resource_params
