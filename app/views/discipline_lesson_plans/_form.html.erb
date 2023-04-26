@@ -16,7 +16,10 @@
 
     <fieldset>
     <% if action_name != 'show' %>
-      <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'disciplines' %>
+      <%= render 'teaching_plans/diciplines_modal', f: lesson_plan %>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        <%= render 'teaching_plans/experience_fields_modal', f: lesson_plan %>
+      <% end %>
     <% end %>
       <div class="row">
         <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
