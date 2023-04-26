@@ -1,13 +1,12 @@
 class LessonBoardsService
-  def teachers(classroom_id, period)
+  def teachers(classroom_id, period, grade_id)
     teachers_to_select2 = []
     classroom_period = Classroom.find(classroom_id).period
-    grade_ids = Classroom.find(classroom_id).grades.pluck(:id)
 
     allocations = TeacherDisciplineClassroom.where(classroom_id: classroom_id)
                                             .includes(:teacher, discipline: :knowledge_area)
                                             .where(disciplines: { descriptor: false })
-                                            .where(grade_id: grade_ids)
+                                            .where(grade_id: grade_id)
                                             .order('teachers.name')
 
     allocations.where(period: period) if classroom_period == Periods::FULL && period
