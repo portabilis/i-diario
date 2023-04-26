@@ -11,6 +11,70 @@ $(function () {
   var $recordedAt = $('#transfer_note_recorded_at');
   var $student = $('#transfer_note_student_id');
 
+  window.classrooms = [];
+  window.disciplines = [];
+
+  var fetchDisciplines = function (params, callback) {
+    if (_.isEmpty(window.disciplines)) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
+        window.disciplines = data;
+        callback(window.disciplines);
+      });
+    } else {
+      callback(window.disciplines);
+    }
+  };
+
+  $classroom.on('change', async function (e) {
+    await getStep();
+    
+    var params = {
+      classroom_id: e.val
+    };
+
+    window.disciplines = [];
+    $discipline.val('').select2({ data: [] });
+
+    if (!_.isEmpty(e.val)) {
+
+      fetchDisciplines(params, function (disciplines) {
+        var selectedDisciplines = _.map(disciplines, function (discipline) {
+          return { id:discipline['id'], text: discipline['description'] };
+        });
+
+        $discipline.select2({
+          data: selectedDisciplines
+        });
+      });
+    }
+  });
+
+  async function getStep() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.find_step_number_by_classroom_transfer_notes_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchStepByClassroomSuccess,
+        error: handleFetchStepByClassroomError,
+      });
+    }
+  }
+
+  function handleFetchStepByClassroomSuccess(data) {
+    var step = $("#transfer_note_step_id");
+    var first_step = data[0]
+
+    step.select2('data', first_step);
+  }
+
+  function handleFetchStepByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
+  }
+
   function fetchStudents() {
     var step_id = $step.select2('val');
     var recorded_at = $recordedAt.val();
