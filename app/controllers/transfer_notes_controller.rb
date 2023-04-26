@@ -26,7 +26,9 @@ class TransferNotesController < ApplicationController
     set_options_by_user
 
     @transfer_note = TransferNote.new(
-      unity_id: current_unity.id
+      unity_id: current_unity.id,
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id,
     ).localized
 
     authorize @transfer_note
