@@ -22,23 +22,18 @@
       <div class="col col-sm-4">
         <% if current_user.current_role_is_admin_or_employee? %>
           <%= f.input :discipline_id, as: :select2_discipline, user: current_user, record: f.object,
-            classroom_id: @transfer_note.classroom_id %>
+                classroom_id: @transfer_note.classroom_id %>
         <% else %>
-        <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user, record: f.object,
-            classroom_id: @transfer_note.classroom_id %>
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+                classroom_id: @transfer_note.classroom_id %>
         <% end %>
       </div>
     </div>
 
     <div class="row">
       <div class="col col-sm-4">
-        <% if current_user.current_role_is_admin_or_employee? %>
-          <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
-            readonly: @transfer_note.persisted?, required: true %>
-        <% else %>
-          <%= f.input :step_id, as: :select2, elements: @disciplines, user: current_user, record: f.object,
-              classroom_id: @transfer_note.classroom_id %>
-        <% end %>
+        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+              readonly: @transfer_note.persisted?, required: true %>
       </div>
 
       <div class="col col-sm-4">
