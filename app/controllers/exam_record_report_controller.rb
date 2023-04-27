@@ -12,6 +12,20 @@ class ExamRecordReportController < ApplicationController
     fetch_collections
   end
 
+  def report
+    @exam_record_report_form = ExamRecordReportForm.new(resource_params)
+    fetch_collections
+
+    if @exam_record_report_form.valid?
+      exam_record_report = @school_calendar_classroom_steps.any? ? build_by_classroom_steps : build_by_school_steps
+      send_pdf(t("routes.exam_record_report"), exam_record_report.render)
+    else
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_collections
+      render :form
+    end
+  end
+
   def fetch_step
     return if params[:classroom_id].blank?
 
