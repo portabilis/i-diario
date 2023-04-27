@@ -3,12 +3,13 @@ class ExamRecordReportController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    @exam_record_report_form = ExamRecordReportForm.new
-    if current_user.current_role_is_admin_or_employee?
-      fetch_collections
-    else
-      fetch_linked_by_teacher
-    end
+    @exam_record_report_form = ExamRecordReportForm.new(
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
+
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    fetch_collections
   end
 
   def fetch_step
