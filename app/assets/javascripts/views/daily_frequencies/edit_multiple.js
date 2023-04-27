@@ -88,10 +88,10 @@ $(function () {
 });
 
 $(document).ready(function () {
-  $("label.checkbox-frequency input[type=checkbox]").click(function() {
+  $("label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]").click(function() {
     let el = $(this);
 
-    el.closest('td').find('.hidden-justified').prop('disabled', true).val(null);
+    el.closest('div').find('.hidden-justified').prop('disabled', true).val(null);
 
     switch (el.data('status')) {
       case 'present':
@@ -106,7 +106,7 @@ $(document).ready(function () {
         el.prop('indeterminate', true);
         el.prop('checked', false);
         el.closest('label').addClass('justified');
-        el.closest('td').find('.hidden-justified').prop('disabled', false).val(-1);
+        el.closest('div').find('.hidden-justified').prop('disabled', false).val(-1);
         break;
 
       case 'absent':
