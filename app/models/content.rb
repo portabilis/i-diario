@@ -20,7 +20,7 @@ class Content < ApplicationRecord
   }
 
   scope :start_with_description, lambda { |description|
-    where(arel_table[:description].matches("#{description}%")).
+    where("description ^@ ?", description).
       order(created_at: :desc)
   }
 
