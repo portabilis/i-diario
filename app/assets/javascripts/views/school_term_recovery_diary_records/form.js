@@ -10,6 +10,36 @@ $(function () {
   let $recorded_at = $('#school_term_recovery_diary_record_recorded_at');
   let $submitButton = $('input[type=submit]');
 
+  $classroom.on('change', async function () {
+    await getStep();
+    await getNumberOfDecimalPlaces();
+  });
+
+  async function getStep() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_step_school_term_recovery_diary_records_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchStepByClassroomSuccess,
+        error: handleFetchStepByClassroomError
+      });
+    }
+  }
+
+  function handleFetchStepByClassroomSuccess(data) {
+    var first_step = data[0];
+
+    $step.select2('val', first_step);
+  };
+
+  function handleFetchStepByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
+  };
+
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
 
