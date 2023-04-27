@@ -15,19 +15,9 @@ class ExamRecordReportController < ApplicationController
     return if params[:classroom_id].blank?
 
     classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
 
-    school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, classroom, current_school_year).fetch
-
-    school_calendar_steps = SchoolCalendarStep.where(school_calendar: school_calendar)
-    school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(classroom.id).ordered
-
-    if school_calendar_classroom_steps.any?
-      step = school_calendar_classroom_steps
-    else
-      step = school_calendar_steps
-    end
-    #erro undefined method `test_setting'
-    render json: step
+    render json: step_numbers.to_json
   end
 
   private
