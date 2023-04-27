@@ -27,15 +27,15 @@
           <% end %>
         </div>
         <div class="col col-sm-4">
-         <% if current_user.current_role_is_admin_or_employee? %>
-          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-                classroom_id: @exam_record_report_form.classroom_id,
-                required: true, input_html: { value: @exam_record_report_form.discipline_id } %>
-        <% else %>
-          <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user,
-                classroom_id: @exam_record_report_form.classroom_id,
-                required: true, input_html: { value: @exam_record_report_form.discipline_id } %>
-        <% end %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+                  classroom_id: @exam_record_report_form.classroom_id,
+                  required: true, input_html: { value: @exam_record_report_form.discipline_id } %>
+          <% else %>
+            <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user,
+                  classroom_id: @exam_record_report_form.classroom_id,
+                  required: true, input_html: { value: @exam_record_report_form.discipline_id } %>
+          <% end %>
         </div>
       </div>
 
