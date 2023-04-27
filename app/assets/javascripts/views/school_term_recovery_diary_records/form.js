@@ -40,6 +40,29 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
   };
 
+  async function getNumberOfDecimalPlaces() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_number_of_decimal_places_school_term_recovery_diary_records_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchNumberOfDecimalByClassroomSuccess,
+        error: handleFetchNumberOfDecimalByClassroomError
+      });
+    }
+  }
+
+  function handleFetchNumberOfDecimalByClassroomSuccess(data) {
+    flashMessages.success('Configuração de avaliação validada com sucesso')
+  };
+
+  function handleFetchNumberOfDecimalByClassroomError() {
+    flashMessages.error('É necessário configurar uma avaliação numérica');
+  };
+
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
 
