@@ -274,7 +274,12 @@ Rails.application.routes.draw do
         get :dependence
       end
     end
-    resources :school_term_recovery_diary_records, concerns: :history
+    resources :school_term_recovery_diary_records, concerns: :history do
+      collection do
+        get :fetch_step
+        get :fetch_number_of_decimal_places
+      end
+    end
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
