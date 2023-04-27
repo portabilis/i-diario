@@ -32,8 +32,9 @@ $(document).ready(function() {
 
   function handleFetchStepByClassroomSuccess(data) {
     let step = $('#exam_record_report_form_school_calendar_classroom_step_id');
-    console.log('data', data);
-    step.select2('val', data);
+    var first_step = data[0];
+
+    step.select2('val', first_step);
   };
 
   function handleFetchStepByClassroomError() {
