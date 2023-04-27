@@ -9,6 +9,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def index
     step_id = (params[:filter] || []).delete(:by_step_id)
 
+    set_options_by_user
+
     @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
       .includes(
         recovery_diary_record: [
@@ -17,8 +19,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
           :discipline
         ]
       )
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
+      .by_classroom_id(@classrooms.map(&:id))
+      .by_discipline_id(@disciplines.map(&:id))
       .ordered
 
     if step_id.present?
@@ -36,12 +38,16 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
     @school_term_recovery_diary_record.build_recovery_diary_record
     @school_term_recovery_diary_record.recovery_diary_record.unity = current_unity
+    @school_term_recovery_diary_record.recovery_diary_record.classroom_id = current_user_classroom.id
+    @school_term_recovery_diary_record.recovery_diary_record.discipline_id = current_user_discipline.id
 
-    if current_test_setting.blank?
+    if current_test_setting.blank? && current_user.current_role_is_admin_or_employee?
       flash[:error] = t('errors.avaliations.require_setting')
 
       redirect_to(school_term_recovery_diary_records_path)
     end
+
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     return if performed?
 
@@ -59,7 +65,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      if current_user.current_role_is_admin_or_employee?
+        @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      else
+        fetch_linked_by_teacher
+      end
+
       render :new
     end
   end
@@ -120,6 +131,25 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     authorize @school_term_recovery_diary_record
 
     respond_with @school_term_recovery_diary_record
+  end
+
+
+  def fetch_step
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
+
+    render json: step_numbers.to_json
+  end
+
+  def fetch_number_of_decimal_places
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    number_of_decimal_places = TestSettingFetcher.current(classroom)
+
+    render json: number_of_decimal_places.to_json
   end
 
   private
@@ -252,5 +282,24 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
                      .by_classroom(recovery_diary_record.classroom)
                      .by_date(recovery_diary_record.recorded_at)
                      .any?
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = current_user_classroom.id
+      @disciplines = current_user_discipline.id
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
   end
 end
