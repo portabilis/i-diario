@@ -25,10 +25,6 @@ $(document).ready( function() {
     }).trigger('change');
   })
 
-  $('.frequency-in-batch-day').each( function () {
-    markGeneralCheckbox($(this))
-  });
-
   $('.date-collapse').each( function () {
     let index = $(this).index() + 1
     $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('hidden')
@@ -87,36 +83,6 @@ $(function () {
   $('.alert-success, .alert-danger').fadeTo(700, 0.1).fadeTo(700, 1.0);
 });
 
-$('.general-checkbox').on('change', function() {
-  let checked = $(this).prop('checked')
-  let has_absence_justification = $(this).closest('td').find('.justified-absence-checkbox').length > 0;
-
-  if (checked) {
-    $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('unchecked')
-  } else {
-    $(this).closest('td').find('.checkbox-frequency-in-batch').addClass('unchecked')
-  }
-
-  if (has_absence_justification) {
-    $(this).closest('td').find('.checkbox-frequency-in-batch').addClass('half-checked')
-  } else {
-    $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('half-checked')
-  }
-
-  $(this).closest('td').find('.class-number-checkbox:not(.justified-absence-checkbox)').prop('checked', checked)
-  studentAbsencesCount($(this).closest('tr'))
-})
-
-$('.class-number-checkbox:not(.justified-absence-checkbox)').on('change', function() {
-  if ($(this).is(':checked')) {
-    $(this).closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
-  } else {
-    $(this).closest('label').find('.checkbox-frequency-in-batch').addClass('unchecked')
-  }
-  markGeneralCheckbox($(this).closest('td'))
-  studentAbsencesCount($(this).closest('tr'))
-});
-
 function studentAbsencesCount(tr) {
   let count = tr.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').not('.inactive').length
   tr.find('.student-absences-count').text(count)
@@ -124,7 +90,6 @@ function studentAbsencesCount(tr) {
 
 $('.date-collapse').on('click', function () {
   let index = $(this).index() + 1
-  console.log($(this).data('count'))
   if ($(this).data('count') > 1) {
     if ($(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').hasClass('hidden')) {
       $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').removeClass('hidden')
@@ -142,62 +107,8 @@ $('.date-collapse').on('click', function () {
   }
 });
 
-function markGeneralCheckbox(td) {
-  let all_checked = td.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').length == 0
-  let all_not_checked = td.find('.class-number-checkbox:is(:checked):not(.justified-absence-checkbox)').length == 0
-  let has_absence_justification = td.find('.justified-absence-checkbox').length > 0
-
-  td.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').addClass('unchecked')
-  td.find('.class-number-checkbox:is(:checked):not(.justified-absence-checkbox)').closest('label').find('.checkbox-frequency-in-batch').removeClass('unchecked')
-
-  if (all_checked && all_not_checked) {
-
-    // Não há presenças e faltas, apenas faltas justificadas, neutro
-
-    td.find('.general-checkbox-icon').addClass('half-checked')
-    td.find('.general-checkbox-icon').removeClass('unchecked')
-    td.find('.general-checkbox').prop('checked', true)
-    td.find('.general-checkbox').prop('disabled', true)
-    td.find('label.checkbox').addClass('justified-absence')
-  } else if (all_checked && has_absence_justification) {
-
-    // Há apenas presenças e faltas justificadas, neutro
-
-    td.find('.general-checkbox-icon').addClass('half-checked')
-    td.find('.general-checkbox-icon').removeClass('unchecked')
-    td.find('.general-checkbox').prop('checked', true)
-  } else if (all_not_checked && has_absence_justification) {
-
-    // Há apenas faltas e faltas justificadas, neutro
-
-    td.find('.general-checkbox-icon').addClass('half-checked')
-    td.find('.general-checkbox-icon').addClass('unchecked')
-    td.find('.general-checkbox').prop('checked', false)
-  } else if (all_checked) {
-
-    // Há apenas presença sem faltas justificadas, verde
-
-    td.find('.general-checkbox').prop('checked', true)
-    td.find('.general-checkbox-icon').removeClass('half-checked')
-    td.find('.checkbox-frequency-in-batch').removeClass('unchecked')
-  } else if (all_not_checked) {
-
-    // Há apenas faltas não justificadas, vermelho
-
-    td.find('.general-checkbox').prop('checked', false)
-    td.find('.checkbox-frequency-in-batch').addClass('unchecked')
-  } else {
-
-    // Há presença e faltas, neutro
-
-    td.find('.general-checkbox-icon').addClass('half-checked')
-    td.find('.general-checkbox-icon').removeClass('unchecked')
-    td.find('.general-checkbox').prop('checked', true)
-  }
-}
-
 $(document).ready(function () {
-  $("label.checkbox-frequency input[type=checkbox]").click(function() {
+  $("label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]").click(function() {
     let el = $(this);
 
     el.closest('div').find('.hidden-justified').prop('disabled', true).val(null);
@@ -225,5 +136,83 @@ $(document).ready(function () {
         el.prop('checked', false);
         el.closest('label').removeClass('justified');
     }
+
+    studentAbsencesCount(el.closest('tr'));
+
+    let checkboxes = el.closest('td').find('label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]');
+    let general = el.closest('td').find('label.checkbox-batch input[type=checkbox]');
+    let total = checkboxes.length;
+    let present = 0;
+    let justified = 0;
+    let absent = 0;
+
+    checkboxes.each(function () {
+      let checked = $(this).prop('checked');
+      let indeterminate = $(this).prop('indeterminate');
+
+      if (checked && !indeterminate) {
+        present++;
+      } else if (!checked && indeterminate) {
+        justified++;
+      } else {
+        absent++;
+      }
+    });
+
+    if (present == total) {
+      general.data('status', 'absent');
+      general.prop('indeterminate', false);
+      general.prop('checked', true);
+      general.closest('label').removeClass('justified').removeClass('partial-absence');
+    } else if (justified == total) {
+      general.data('status', 'present');
+      general.prop('indeterminate', true);
+      general.prop('checked', false);
+      general.closest('label').addClass('justified').removeClass('partial-absence');
+    } else if (absent == total) {
+      general.data('status', 'justified');
+      general.prop('indeterminate', false);
+      general.prop('checked', false);
+      general.closest('label').removeClass('justified').removeClass('partial-absence');
+    } else {
+      general.data('status', 'absent');
+      general.prop('indeterminate', false);
+      general.prop('checked', true);
+      general.closest('label').removeClass('justified').addClass('partial-absence');
+    }
+  });
+
+  $("label.checkbox-batch input[type=checkbox]").click(function() {
+    let el = $(this);
+    let td = el.closest('td');
+
+    el.closest('label').removeClass('partial-absence');
+    td.find('.hidden-justified').prop('disabled', true).val(null);
+
+    switch (el.data('status')) {
+      case 'present':
+        td.find('label.checkbox-frequency input[type=checkbox]').data('status', 'absent');
+        td.find('label.checkbox-frequency input[type=checkbox]').prop('indeterminate', false);
+        td.find('label.checkbox-frequency input[type=checkbox]').prop('checked', true);
+        td.find('label').removeClass('justified');
+        break;
+
+      case 'justified':
+        td.find('label.checkbox-frequency input[type=checkbox]').data('status', 'present');
+        td.find('label.checkbox-frequency input[type=checkbox]').prop('indeterminate', true);
+        td.find('label.checkbox-frequency input[type=checkbox]').prop('checked', false);
+        td.find('label').addClass('justified');
+        td.find('.hidden-justified').prop('disabled', false).val(-1);
+        break;
+
+      case 'absent':
+      default:
+        td.find('label.checkbox-frequency input[type=checkbox]').data('status', 'justified');
+        td.find('label.checkbox-frequency input[type=checkbox]').prop('indeterminate', false);
+        td.find('label.checkbox-frequency input[type=checkbox]').prop('checked', false);
+        td.find('label').removeClass('justified');
+    }
+
+    studentAbsencesCount(el.closest('tr'));
   });
 });
