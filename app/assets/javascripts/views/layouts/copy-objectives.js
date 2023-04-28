@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
-  const confirmCopyButton = document.getElementById('confirm-copy-objectives-modal');
+  const confirmCopyButton = document.getElementById('confirm-copy-objectives-btn');
   const experienceConfirmButton = document.getElementById('experience-confirm-btn');
   const disciplinesConfirmCopyButton = document.getElementById('disciplines-confirm-btn');
 
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addElement(content['description']);
       });
 
-      $('#copy-objectives-modal').modal('hide');
+      $('#confirm-copy-objectives-modal').modal('hide');
     });
   };
 
@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $('.grades').hide();
     $('input.grade_ids').select2("val", "");
   };
+
+  clearGrades();
 
   $('[name="experience_fields[]"]').change(function() {
     if ($(this).is(':checked')) {
