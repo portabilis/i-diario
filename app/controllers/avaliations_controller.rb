@@ -306,14 +306,18 @@ class AvaliationsController < ApplicationController
 
   def not_allow_numerical_exam
     grades_by_numerical_exam = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    grades_by_numerical_and_concept_exam = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC_AND_CONCEPT).map(&:grade)
 
-    return if grades_by_numerical_exam.present?
+    return if grades_by_numerical_exam.present? || grades_by_numerical_and_concept_exam.present?
 
     redirect_to avaliations_path, alert: t('avaliation.grades_not_allow_numeric_exam')
   end
 
   def grades
-    @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    numeric_grades = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC)
+    numeric_and_concept_grades = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC_AND_CONCEPT)
+    
+    @grades ||= (numeric_grades + numeric_and_concept_grades).map(&:grade)
   end
   helper_method :grades
 end
