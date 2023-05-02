@@ -45,6 +45,32 @@ class AbsenceJustificationsController < ApplicationController
     authorize @absence_justification
   end
 
+  def show
+    @absence_justification = AbsenceJustification
+      .includes(absence_justifications_students: [{ daily_frequency_students: { daily_frequency: [:discipline] } }, :student])
+      .find(params[:id])
+      .localized
+
+    authorize @absence_justification
+
+    @absences_justified = []
+
+    @absence_justification.absence_justifications_students.each do |absence_justifications_students|
+      absence_justifications_students.daily_frequency_students.each do |daily_frequency_students|
+        @absences_justified << {
+          student_name: absence_justifications_students.student.name,
+          frequency_date: daily_frequency_students.daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y'),
+          class_number: daily_frequency_students.daily_frequency.class_number,
+          discipline_name: daily_frequency_students.daily_frequency.discipline&.description || 'Geral',
+        }
+      end
+    end
+
+    @absences_justified = @absences_justified.sort { |a,b| a[:class_number] <=> b[:class_number] }
+    @absences_justified = @absences_justified.sort { |a,b| a[:frequency_date] <=> b[:frequency_date] }
+    @absences_justified = @absences_justified.sort { |a,b| a[:student_name] <=> b[:student_name] }
+  end
+
   def create
     class_numbers = params[:absence_justification][:class_number]&.split(',')
 
