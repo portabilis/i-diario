@@ -85,8 +85,8 @@
                 <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id %>
 
                 <% if absence_justification_student_id %>
-                  <label title="Falta Justificada" class="checkbox justified-absence" style="margin-top: -5px">
-                    <input type="checkbox" checked disabled><i></i>
+                  <label title="Falta Justificada" class="checkbox checkbox-frequency justified" style="margin-top: -5px">
+                    <input type="checkbox" disabled><i></i>
                   </label>
                 <% else %>
                   <label class="checkbox checkbox-frequency <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="bottom: 15px;" title="<%= tooltip %>">

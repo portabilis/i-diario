@@ -84,8 +84,59 @@ $(function () {
 });
 
 function studentAbsencesCount(tr) {
-  let count = tr.find('.class-number-checkbox:not(:checked):not(.justified-absence-checkbox)').not('.inactive').length
+  let count = tr.find('label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]:not(:checked)').not('.inactive').length
   tr.find('.student-absences-count').text(count)
+}
+
+function updateCheckboxes(el, init = false) {
+  let checkboxes = el.closest('td').find('label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]');
+  let general = el.closest('td').find('label.checkbox-batch input[type=checkbox]');
+  let total = checkboxes.length;
+  let present = 0;
+  let justified = 0;
+  let absent = 0;
+
+  checkboxes.each(function () {
+    let checked = $(this).prop('checked');
+    let indeterminate = $(this).prop('indeterminate') || $(this).closest('label').hasClass('justified');
+
+    if (checked && !indeterminate) {
+      present++;
+    } else if (!checked && indeterminate) {
+      justified++;
+    } else {
+      absent++;
+    }
+  });
+
+  if (present == total) {
+    general.data('status', 'absent');
+    general.prop('indeterminate', false);
+    general.prop('checked', true);
+    general.closest('label').removeClass('justified').removeClass('partial-absence');
+  } else if (justified == total) {
+    general.data('status', 'present');
+    general.prop('indeterminate', true);
+    general.prop('checked', false);
+    general.closest('label').addClass('justified').removeClass('partial-absence');
+
+    // Garante que um dia já justificado não possa ser alterado
+    if (init) {
+      general.prop('disabled', true);
+    }
+  } else if (absent == total) {
+    general.data('status', 'justified');
+    general.prop('indeterminate', false);
+    general.prop('checked', false);
+    general.closest('label').removeClass('justified').removeClass('partial-absence');
+  } else {
+    general.data('status', 'absent');
+    general.prop('indeterminate', false);
+    general.prop('checked', true);
+    general.closest('label').removeClass('justified').addClass('partial-absence');
+  }
+
+  studentAbsencesCount(el.closest('tr'));
 }
 
 $('.date-collapse').on('click', function () {
@@ -108,6 +159,10 @@ $('.date-collapse').on('click', function () {
 });
 
 $(document).ready(function () {
+  $("label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]").each(function () {
+    updateCheckboxes($(this), true);
+  });
+
   $("label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]").click(function() {
     let el = $(this);
 
@@ -137,49 +192,7 @@ $(document).ready(function () {
         el.closest('label').removeClass('justified');
     }
 
-    studentAbsencesCount(el.closest('tr'));
-
-    let checkboxes = el.closest('td').find('label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]');
-    let general = el.closest('td').find('label.checkbox-batch input[type=checkbox]');
-    let total = checkboxes.length;
-    let present = 0;
-    let justified = 0;
-    let absent = 0;
-
-    checkboxes.each(function () {
-      let checked = $(this).prop('checked');
-      let indeterminate = $(this).prop('indeterminate');
-
-      if (checked && !indeterminate) {
-        present++;
-      } else if (!checked && indeterminate) {
-        justified++;
-      } else {
-        absent++;
-      }
-    });
-
-    if (present == total) {
-      general.data('status', 'absent');
-      general.prop('indeterminate', false);
-      general.prop('checked', true);
-      general.closest('label').removeClass('justified').removeClass('partial-absence');
-    } else if (justified == total) {
-      general.data('status', 'present');
-      general.prop('indeterminate', true);
-      general.prop('checked', false);
-      general.closest('label').addClass('justified').removeClass('partial-absence');
-    } else if (absent == total) {
-      general.data('status', 'justified');
-      general.prop('indeterminate', false);
-      general.prop('checked', false);
-      general.closest('label').removeClass('justified').removeClass('partial-absence');
-    } else {
-      general.data('status', 'absent');
-      general.prop('indeterminate', false);
-      general.prop('checked', true);
-      general.closest('label').removeClass('justified').addClass('partial-absence');
-    }
+    updateCheckboxes(el);
   });
 
   $("label.checkbox-batch input[type=checkbox]").click(function() {
