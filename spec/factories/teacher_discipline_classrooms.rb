@@ -3,6 +3,7 @@ FactoryGirl.define do
     classroom
     teacher
     discipline
+    grade
 
     year { Date.current.year }
     classroom_api_code { classroom.api_code }

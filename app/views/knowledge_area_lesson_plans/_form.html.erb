@@ -16,7 +16,7 @@
 
     <fieldset>
       <% if action_name != 'show' %>
-        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'experience_fields' %>
+        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'experience_fields', modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-modal' %>
       <% end %>
 
       <div class="row">
