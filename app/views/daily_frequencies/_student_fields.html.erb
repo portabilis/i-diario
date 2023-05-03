@@ -27,34 +27,36 @@
           </td>
       <% end %>
       <td>
-        <% absence_justifications = absence_justification[@daily_frequency.frequency_date] || {} %>
-        <% absence_justification_student_id = absence_justifications[0] || absence_justifications[class_number] %>
-        <% ignore_student = !active || exempted_from_discipline || in_active_search.present? %>
-        <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
-        <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
-        <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
-        <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
-        <%= f.hidden_field :active, value: active, disabled: ignore_student %>
-        <%= f.hidden_field :absence_justification_student_id, value: absence_justification_student_id, disabled: ignore_student %>
+        <div>
+          <% absence_justifications = absence_justification[@daily_frequency.frequency_date] || {} %>
+          <% absence_justification_student_id = absence_justifications[0] || absence_justifications[class_number] %>
+          <% ignore_student = !active || exempted_from_discipline || in_active_search.present? %>
+          <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
+          <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
+          <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
+          <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
+          <%= f.hidden_field :active, value: active, disabled: ignore_student %>
+          <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id, disabled: ignore_student %>
 
-        <% if absence_justification_student_id %>
-          <label title="Falta Justificada" class="checkbox justified-absence">
-            <input type="checkbox" checked disabled><i></i>
-          </label>
-        <% else %>
-          <label class="checkbox <%= ignore_student ? "state-disabled" : "" %>">
-            <%= f.check_box :present, disabled: ignore_student, class: 'general-checkbox', data: { id: 'checkbox-id' }%>
-            <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
-          </label>
-        <% end %>
+          <% if absence_justification_student_id %>
+            <label title="Falta Justificada" class="checkbox checkbox-frequency justified">
+              <input type="checkbox" disabled><i></i>
+            </label>
+          <% else %>
+            <label class="checkbox checkbox-frequency <%= ignore_student ? "state-disabled" : "" %>">
+              <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
+              <i></i>
+            </label>
+          <% end %>
 
-        <% if @general_configuration.type_of_teaching == true && index != 0 && active %>
+          <% if @general_configuration.type_of_teaching == true && index != 0 && active %>
           <span class='hidden'>
             <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
-                label: false, required: false,
-                input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
+                        label: false, required: false,
+                        input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
           </span>
-        <% end %>
+          <% end %>
+        </div>
       </td>
     <% end %>
   <% end %>

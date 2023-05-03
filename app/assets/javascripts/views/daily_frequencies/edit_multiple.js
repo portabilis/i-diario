@@ -86,3 +86,35 @@ $(function () {
 
   $('.alert-success, .alert-danger').fadeTo(700, 0.1).fadeTo(700, 1.0);
 });
+
+$(document).ready(function () {
+  $("label.checkbox-frequency:not(.checkbox-batch) input[type=checkbox]").click(function() {
+    let el = $(this);
+
+    el.closest('div').find('.hidden-justified').prop('disabled', true).val(null);
+
+    switch (el.data('status')) {
+      case 'present':
+        el.data('status', 'absent');
+        el.prop('indeterminate', false);
+        el.prop('checked', true);
+        el.closest('label').removeClass('justified');
+        break;
+
+      case 'justified':
+        el.data('status', 'present');
+        el.prop('indeterminate', true);
+        el.prop('checked', false);
+        el.closest('label').addClass('justified');
+        el.closest('div').find('.hidden-justified').prop('disabled', false).val(-1);
+        break;
+
+      case 'absent':
+      default:
+        el.data('status', 'justified');
+        el.prop('indeterminate', false);
+        el.prop('checked', false);
+        el.closest('label').removeClass('justified');
+    }
+  });
+});

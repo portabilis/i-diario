@@ -163,6 +163,30 @@ class DailyFrequenciesController < ApplicationController
             daily_frequency_record,
             daily_frequency_students_params
           )
+
+          daily_frequency_students_params[:students_attributes].each_value do |daily_frequency_student|
+            if daily_frequency_student[:absence_justification_student_id].to_i.eql?(-1)
+              params = {
+                student_ids: [daily_frequency_student[:student_id]],
+                absence_date: daily_frequency_attributes[:frequency_date],
+                justification: nil,
+                absence_date_end: daily_frequency_attributes[:frequency_date],
+                unity_id: daily_frequency_attributes[:unity_id],
+                classroom_id: daily_frequency_attributes[:classroom_id],
+                class_number: daily_frequency_students_params[:class_number],
+              }
+
+              absence_justification = AbsenceJustification.new(params)
+              absence_justification.teacher = current_teacher
+              absence_justification.user = current_user
+              absence_justification.school_calendar = current_school_calendar
+
+              absence_justification.save
+
+              daily_frequency_student[:absence_justification_student_id] = absence_justification.id
+            end
+          end
+
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
           daily_frequency_record.save!
         end
