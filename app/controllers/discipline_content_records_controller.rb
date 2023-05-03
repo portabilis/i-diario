@@ -57,11 +57,11 @@ class DisciplineContentRecordsController < ApplicationController
     authorize @discipline_content_record
 
     if allow_class_number
-      @class_numbers = resource_params[:content_record_attributes][:class_number].split(',').sort
-      @discipline_content_record.content_record.class_number = @class_numbers.first
+      @class_numbers = resource_params[:class_number].split(',').sort
+      @discipline_content_record.class_number = @class_numbers.first
 
       @class_numbers.each do |class_number|
-        @discipline_content_record.content_record.class_number = class_number
+        @discipline_content_record.class_number = class_number
 
         return render :new if @discipline_content_record.invalid?
       end
@@ -162,13 +162,13 @@ class DisciplineContentRecordsController < ApplicationController
 
   def resource_params
     params.require(:discipline_content_record).permit(
+      :class_number,
       :discipline_id,
       content_record_attributes: [
         :id,
         :unity_id,
         :classroom_id,
         :record_date,
-        :class_number,
         :daily_activities_record,
         :content_ids
       ]

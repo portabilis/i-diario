@@ -15,7 +15,6 @@ pt-BR:
         daily_activities_record: "Registro diário das atividades"
         contents: "Conteúdos"
         contents_tags: "Adicionar novo"
-        class_number: "Aula"
     errors:
       models:
         content_record:
