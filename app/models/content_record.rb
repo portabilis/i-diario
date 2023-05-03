@@ -34,7 +34,7 @@ class ContentRecord < ActiveRecord::Base
   validates :daily_activities_record, presence: true, if: :require_daily_activities_record?
   validates :teacher, presence: true
   validate :at_least_one_content
-  validates_uniqueness_of :class_number, scope: [:classroom, :teacher]
+  validates_uniqueness_of :class_number, scope: [:classroom, :teacher, :record_date], if: -> { allow_class_number? }
   validates :class_number, presence: true, if: -> { allow_class_number? }
 
   delegate :grades, :grade_ids, :first_grade, to: :classroom
