@@ -34,16 +34,11 @@ class ContentRecord < ActiveRecord::Base
   validates :daily_activities_record, presence: true, if: :require_daily_activities_record?
   validates :teacher, presence: true
   validate :at_least_one_content
-  validates :class_number, uniqueness: true, presence: true, if: -> { allow_class_number? }
 
   delegate :grades, :grade_ids, :first_grade, to: :classroom
 
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
-
-  def allow_class_number?
-    GeneralConfiguration.first.allow_class_number_on_content_records
-  end
 
   def to_s
     return discipline_content_record.discipline.to_s if discipline_content_record

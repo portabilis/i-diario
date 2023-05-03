@@ -31,7 +31,7 @@
             <th style='width: 10%' id='author'><%= DisciplineContentRecord.human_attribute_name :author %></th>
 
             <% if @allow_class_number %>
-              <th style='width: 10%' id='class_number'><%= ContentRecord.human_attribute_name :class_number %></th>
+              <th width="10%"><%= DisciplineContentRecord.human_attribute_name :class_number %></th>
             <% end %>
 
             <td style='width: 160px'></td>
