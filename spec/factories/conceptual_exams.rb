@@ -10,6 +10,7 @@ FactoryGirl.define do
       discipline nil
       teacher nil
       student_enrollment nil
+      grade nil
     end
 
     after(:build) do |conceptual_exam|
@@ -31,12 +32,14 @@ FactoryGirl.define do
         teacher ||= evaluator.teacher || create(:teacher)
         conceptual_exam.teacher_id = teacher.id if conceptual_exam.teacher_id.blank?
         discipline = evaluator.discipline || create(:discipline)
+        grade = evaluator.grade || create(:grade)
 
         create(
           :teacher_discipline_classroom,
           classroom: conceptual_exam.classroom,
           discipline: discipline,
-          teacher: teacher
+          teacher: teacher,
+          grade: grade
         )
       end
     end
@@ -63,5 +66,16 @@ FactoryGirl.define do
         )
       end
     end
+
+    trait :without_value do
+      after(:build) do |conceptual_exam, evaluator|
+        discipline = evaluator.discipline || create(:discipline)
+
+        conceptual_exam.conceptual_exam_values.build(
+          attributes_for(:conceptual_exam_value, discipline_id: discipline.id, value: nil)
+        )
+      end
+    end
+
   end
 end
