@@ -73,7 +73,7 @@ class DailyFrequency < ActiveRecord::Base
                 classroom_id: classroom_id
               }
             )
-            .uniq
+            .distinct
         }
 
   scope :by_teacher_discipline_classroom,
