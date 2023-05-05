@@ -34,8 +34,13 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def new
+    set_options_by_user
+
     @lowest_note_recovery = AvaliationRecoveryLowestNote.new.localized
-    @lowest_note_recovery.build_recovery_diary_record
+    @lowest_note_recovery.build_recovery_diary_record(
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
     @lowest_note_recovery.recovery_diary_record.unity = current_unity
     @students_lowest_note = StudentNotesInStepFetcher.new
 
@@ -143,6 +148,25 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def steps_fetcher
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = current_user_classroom.id
+      @disciplines = current_user_discipline.id
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
   end
 
   def test_setting
@@ -262,6 +286,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def arithmetic_test_setting
+    return unless current_user.current_role_is_admin_or_employee?
+
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
