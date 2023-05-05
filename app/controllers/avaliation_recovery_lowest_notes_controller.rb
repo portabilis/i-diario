@@ -66,7 +66,9 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if @lowest_note_recovery.save
       respond_with @lowest_note_recovery, location: avaliation_recovery_lowest_notes_path
     else
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      set_options_by_user
+
+      @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
 
       render :new
     end
@@ -111,6 +113,24 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @lowest_note_recovery.recovery_diary_record.destroy
 
     respond_with @lowest_note_recovery, location: avaliation_recovery_lowest_notes_path
+  end
+
+  def fetch_step
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
+
+    render json: step_numbers.to_json
+  end
+
+  def fetch_number_of_decimal_places
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    number_of_decimal_places = TestSettingFetcher.current(classroom)
+
+    render json: number_of_decimal_places.to_json
   end
 
   def resource_params
