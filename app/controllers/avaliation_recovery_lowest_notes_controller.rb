@@ -9,7 +9,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def index
     step_id = (params[:filter] || []).delete(:by_step_id)
-
+    set_options_by_user
     @lowest_note_recoverys = apply_scopes(AvaliationRecoveryLowestNote)
                                             .includes(
                                               recovery_diary_record: [
@@ -18,8 +18,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
                                                 :discipline
                                               ]
                                             )
-                                            .by_classroom_id(current_user_classroom)
-                                            .by_discipline_id(current_user_discipline)
+                                            .by_classroom_id(@classrooms.map(&:id))
+                                            .by_discipline_id(@disciplines.map(&:id))
                                             .ordered
 
     if step_id.present?
