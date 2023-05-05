@@ -10,6 +10,19 @@ $(function () {
   let $recorded_at = $('#avaliation_recovery_lowest_note_recorded_at');
   let $submitButton = $('input[type=submit]');
 
+  window.disciplines = [];
+
+  var fetchDisciplines = function (params, callback) {
+    if (_.isEmpty(window.disciplines)) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
+        window.disciplines = data;
+        callback(window.disciplines);
+      });
+    } else {
+      callback(window.disciplines);
+    }
+  };
+
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
 
@@ -207,4 +220,82 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
+
+  $classroom.on('change', async function (e) {
+    await getStep();
+    await getNumberOfDecimalPlaces();
+
+    var params = {
+      classroom_id: e.val
+    };
+
+    window.disciplines = [];
+    
+    if (_.isEmpty(e.val)) {
+      $discipline.val('');
+      $discipline.select2({
+        data: []
+      });
+
+    } else {
+      fetchDisciplines(params, function (disciplines) {
+        var selectedDisciplines = _.map(disciplines, function (discipline) {
+          return { id:discipline['id'], text: discipline['description'] };
+        });
+        
+        $discipline.select2({
+          data: selectedDisciplines
+        });
+      });
+    }
+  });
+
+  async function getStep() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_step_avaliation_recovery_lowest_notes_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchStepByClassroomSuccess,
+        error: handleFetchStepByClassroomError
+      });
+    }
+  }
+
+  function handleFetchStepByClassroomSuccess(data) {
+    var first_step = data[0];
+
+    $step.select2('val', first_step);
+  };
+
+  function handleFetchStepByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
+  };
+
+  async function getNumberOfDecimalPlaces() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_number_of_decimal_places_avaliation_recovery_lowest_notes_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchNumberOfDecimalByClassroomSuccess,
+        error: handleFetchNumberOfDecimalByClassroomError
+      });
+    }
+  }
+
+  function handleFetchNumberOfDecimalByClassroomSuccess() {
+    flashMessages.success('Configuração de avaliação validada com sucesso')
+  };
+
+  function handleFetchNumberOfDecimalByClassroomError() {
+    flashMessages.error('É necessário configurar uma avaliação numérica');
+  };
+ 
 });
