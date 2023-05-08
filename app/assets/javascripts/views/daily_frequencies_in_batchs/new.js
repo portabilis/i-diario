@@ -20,7 +20,9 @@ $(document).ready( function() {
     }
   };
 
-  $classroom.on('change', function (e) {
+  $classroom.on('change', async function (e) {
+    await getFrequencyType();
+
     var params = {
       classroom_id: e.val
     };
@@ -40,5 +42,34 @@ $(document).ready( function() {
       });
     }
   });
+
+  async function getFrequencyType() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_frequency_type_daily_frequencies_in_batchs_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchFrequencyTypeSuccess,
+        error: handleFetchFrequencyTypeError
+      });
+    }
+  }
+
+  function handleFetchFrequencyTypeSuccess(data) {
+    let FREQUENCY_BY_DISCIPLINE = '2'
+
+    if (data == FREQUENCY_BY_DISCIPLINE) {
+      $('.frequency_in_batch_form_discipline_id').show();
+    } else {
+      $('.frequency_in_batch_form_discipline_id').hide()
+    }
+  };
+
+  function handleFetchFrequencyTypeError() {
+    flashMessages.error('Ocorreu um erro ao buscar o o tipo da frequencia.');
+  };
 
 })
