@@ -130,6 +130,23 @@ class DailyFrequenciesInBatchsController < ApplicationController
     respond_with @daily_frequencies
   end
 
+  def fetch_frequency_type
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    render json: current_frequency_type(classroom)
+  end
+
+  def fetch_teacher_allocated
+    return if params[:classroom_id].blank? || params[:discipline_id].blank?
+
+    @classroom = Classroom.find(params[:classroom_id])
+    @discipline = params[:discipline_id]
+
+    render json: teacher_allocated
+  end
+
   private
 
   def authorize_daily_frequency
