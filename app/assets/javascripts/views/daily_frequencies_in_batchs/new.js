@@ -72,4 +72,37 @@ $(document).ready( function() {
     flashMessages.error('Ocorreu um erro ao buscar o o tipo da frequencia.');
   };
 
+  $discipline.on('change', async function (e) {
+    await getTeacherAllocated();
+  });
+
+  async function getTeacherAllocated() {
+    let classroom_id = $classroom.select2('val');
+    let discipline_id = $discipline.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_teacher_allocated_daily_frequencies_in_batchs_pt_br_path({
+          classroom_id: classroom_id,
+          discipline_id: discipline_id,
+          format: 'json'
+        }),
+        success: handleFetchTeacherAllocatedSuccess,
+        error: handleFetchTeacherAllocatedError
+      });
+    }
+  }
+
+  function handleFetchTeacherAllocatedSuccess(data) {
+    if (data == false) {
+      flashMessages.error('Não encontramos alocação no quadro de aula da turma para o(a) professor(a) vinculado(a) ao perfil. Por favor, validar no registro do quadro de aula e tentar novamente.');
+
+      $classroom.select2("val", "");
+      $discipline.select2("val", "");
+    }
+  };
+
+  function handleFetchTeacherAllocatedError() {
+    flashMessages.error('Erro ao buscar alocação no quadro de aula da turma para o(a) professor(a) vinculado(a) ao perfil. Por favor, validar no registro do quadro de aula e tentar novamente.');
+  };
 })
