@@ -139,14 +139,14 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @classroom = Classroom.includes(:unity).find(current_user_classroom)
-    @discipline = current_user_discipline
+    @classroom = Classroom.includes(:unity).find(@frequency_in_batch_form.classroom_id)
+    @discipline = @frequency_in_batch_form.discipline_id
+
     @period = current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
     @frequency_form = FrequencyInBatchForm.new
-
 
     @students = []
 
@@ -160,7 +160,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment.student
       student_ids << student.id
       type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .by_classroom(current_user_classroom.id)
+                                           .by_classroom(@classroom.id)
                                            .last
                                            .type_of_teaching
 
@@ -258,7 +258,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       allocations.by_period(@period) if @period.present?
 
-      valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).day_allows_entry?
+      if current_user.current_role_is_admin_or_employee?
+        school_calendar = current_school_calendar
+      else
+        school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, @classroom, current_school_year).fetch
+      end
+
+      valid_day = SchoolDayChecker.new(school_calendar, date, nil, nil, nil).day_allows_entry?
 
       next if allocations.empty? || !valid_day
 
@@ -367,8 +373,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def current_teacher_period
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user.current_classroom_id,
-      current_user.current_discipline_id
+      @classroom.id,
+      @discipline.id
     ).teacher_period
   end
 
@@ -486,16 +492,19 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def teacher_allocated
-    frequency_type = current_frequency_type(current_user_classroom)
+    @classroom ||= current_user_classroom
+    @discipline ||= current_user_discipline
+
+    frequency_type = current_frequency_type(@classroom)
 
     if frequency_type == FrequencyTypes::BY_DISCIPLINE
       LessonsBoard.by_teacher(current_teacher)
-                  .by_classroom(current_user_classroom)
-                  .by_discipline(current_user_discipline)
+                  .by_classroom(@classroom)
+                  .by_discipline(@discipline)
                   .exists?
     else
       LessonsBoard.by_teacher(current_teacher)
-                  .by_classroom(current_user_classroom)
+                  .by_classroom(@classroom)
                   .exists?
     end
   end
