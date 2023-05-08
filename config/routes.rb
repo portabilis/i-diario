@@ -312,6 +312,8 @@ Rails.application.routes.draw do
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
         get :history_multiple
+        get :fetch_frequency_type
+        get :fetch_teacher_allocated
         put :create_or_update_multiple
         delete :destroy_multiple
       end
