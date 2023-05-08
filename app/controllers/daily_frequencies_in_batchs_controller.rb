@@ -8,7 +8,14 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :require_valid_daily_frequency_classroom
 
   def new
+    @frequency_in_batch_form = FrequencyInBatchForm.new(
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
+
     @frequency_type = current_frequency_type(current_user_classroom)
+
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
   end
 
   def create
@@ -519,5 +526,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
       true
     end
   end
-end
 
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+  end
+end
