@@ -286,8 +286,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def set_options_by_user
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = current_user_classroom.id
-      @disciplines = current_user_discipline.id
+      @classrooms = current_user_classroom
+      @disciplines = current_user_discipline
     else
       fetch_linked_by_teacher
     end
