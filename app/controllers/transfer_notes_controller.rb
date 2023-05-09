@@ -103,6 +103,7 @@ class TransferNotesController < ApplicationController
 
   def destroy
     @transfer_note = TransferNote.find(params[:id])
+    @transfer_note.step_id = @transfer_note.step.try(:id)
 
     authorize @transfer_note
 
