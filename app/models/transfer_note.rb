@@ -16,6 +16,7 @@ class TransferNote < ActiveRecord::Base
   attr_writer :unity_id
 
   before_destroy :valid_for_destruction?
+  before_destroy :before_destroy
 
   belongs_to :classroom
   belongs_to :discipline
@@ -27,8 +28,6 @@ class TransferNote < ActiveRecord::Base
   accepts_nested_attributes_for :daily_note_students, reject_if: proc { |attributes| attributes[:note].blank? }
 
   before_validation :set_transfer_date, on: [:create, :update]
-
-  before_destroy :before_destroy
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
   validate :at_least_one_daily_note_student, if: :persisted?
@@ -79,8 +78,9 @@ class TransferNote < ActiveRecord::Base
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
       self.validation_type = :destroy
-      valid?
-      !errors[:transfer_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+      self.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      !errors[:transfer_date].include?(forbidden_error)
     end
   end
 
