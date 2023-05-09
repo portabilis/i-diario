@@ -31,7 +31,7 @@ class TransferNote < ActiveRecord::Base
   before_destroy :before_destroy
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
-  validate :at_least_one_daily_note_student
+  validate :at_least_one_daily_note_student, if: :persisted?
 
   default_scope -> { kept }
 
