@@ -77,7 +77,10 @@ module ExamPoster
       student_enrollment_classrooms = daily_notes.map(&:avaliation).uniq.map do |avaliation|
         date_avaliation = avaliation.test_date
 
-        StudentEnrollmentClassroom.by_classroom(@classroom_id).by_date(date_avaliation)
+        StudentEnrollmentClassroom.includes(student_enrollment: :student)
+                                  .by_classroom(@classroom_id)
+                                  .by_date(date_avaliation)
+                                  .active
       end
 
       student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
