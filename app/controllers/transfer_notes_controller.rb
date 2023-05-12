@@ -165,7 +165,7 @@ class TransferNotesController < ApplicationController
   def update_daily_note_student(daily_note_students_attributes)
     ActiveRecord::Base.transaction do
       daily_note_students_attributes.values.each do |data|
-        record = DailyNoteStudent.find_or_initialize_by(id: data[:id]).localized
+        record = DailyNoteStudent.find_or_initialize_by(daily_note_id: data[:daily_note_id]).localized
 
         record.assign_attributes(
           note: data[:note],
