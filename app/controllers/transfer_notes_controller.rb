@@ -58,7 +58,9 @@ class TransferNotesController < ApplicationController
     @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.current_user = current_user
     @transfer_note.assign_attributes(resource_params)
+    daily_note_students = resource_params[:daily_note_students_attributes]
 
+    require_daily_note_student(daily_note_students)
     authorize @transfer_note
 
     if @transfer_note.save
@@ -172,5 +174,11 @@ class TransferNotesController < ApplicationController
         record.save!
       end
     end
+  end
+
+  def require_daily_note_student(daily_note_students)
+    data = daily_note_students.values.map(&:any?)
+
+    flash[:alert] = t('errors.daily_note.at_least_one_daily_note_student') if data.include?(false)
   end
 end
