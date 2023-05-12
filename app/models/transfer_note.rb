@@ -30,7 +30,6 @@ class TransferNote < ActiveRecord::Base
   before_validation :set_transfer_date, on: [:create, :update]
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
-  validate :at_least_one_daily_note_student, if: :persisted?
 
   default_scope -> { kept }
 
@@ -66,12 +65,6 @@ class TransferNote < ActiveRecord::Base
 
   def set_transfer_date
     self.transfer_date = recorded_at
-  end
-
-  def at_least_one_daily_note_student
-    if daily_note_students.reject { |daily_note_student| daily_note_student.note.blank? }.empty?
-      errors.add(:daily_note_students, :at_least_one_daily_note_student)
-    end
   end
 
   def valid_for_destruction?
