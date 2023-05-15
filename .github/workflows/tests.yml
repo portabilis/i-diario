@@ -64,11 +64,6 @@ jobs:
               redis_url: redis://localhost:6379
           " > config/secrets.yml
 
-      - name: Ajusta gem
-        run: |
-          gem uninstall loofah:2.21.1
-          gem install loofah -v 2.18.0
-
       - name: Migrate
         run: RAILS_ENV=test bundle exec rake db:migrate
 
