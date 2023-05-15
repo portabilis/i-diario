@@ -31,13 +31,15 @@ class TransferNotesController < ApplicationController
 
   def create
     @transfer_note = TransferNote.new.localized
-    @transfer_note.assign_attributes(resource_params)
+    @transfer_note.assign_attributes(resource_params.except(:daily_note_students_attributes))
     @transfer_note.step_number = @transfer_note.step.try(:step_number)
     @transfer_note.teacher = current_teacher
 
     authorize @transfer_note
 
     if @transfer_note.save
+      update_daily_note_student(resource_params[:daily_note_students_attributes])
+
       respond_with @transfer_note, location: transfer_notes_path
     else
       render :new
@@ -101,6 +103,7 @@ class TransferNotesController < ApplicationController
 
   def destroy
     @transfer_note = TransferNote.find(params[:id])
+    @transfer_note.step_id = @transfer_note.step.try(:id)
 
     authorize @transfer_note
 
@@ -156,4 +159,18 @@ class TransferNotesController < ApplicationController
     @students = (@transfer_note.student_id.present? ? [@transfer_note.student] : [])
   end
   helper_method :students
+
+  def update_daily_note_student(daily_note_students_attributes)
+    ActiveRecord::Base.transaction do
+      daily_note_students_attributes.values.each do |data|
+        record = DailyNoteStudent.find_or_initialize_by(id: data[:id]).localized
+
+        record.assign_attributes(
+          note: data[:note],
+          transfer_note_id: @transfer_note.id
+        )
+        record.save!
+      end
+    end
+  end
 end

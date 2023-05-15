@@ -40,7 +40,7 @@
         </div>
       </div>
     </fieldset>
-    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan } %>
+    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan, modal_id: '#disciplines-modal' } %>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 
