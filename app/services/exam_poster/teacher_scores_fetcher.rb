@@ -28,6 +28,7 @@ module ExamPoster
       validate_pending_exams(daily_notes, exams)
 
       students = fetch_student(daily_notes)
+      binding.pry
 
       @scores = students.each do |student|
         student_exams = DailyNoteStudent.by_classroom_id(@classroom)
@@ -78,11 +79,10 @@ module ExamPoster
         date_avaliation = avaliation.test_date
 
         StudentEnrollmentClassroom.includes(student_enrollment: :student)
-                                  .by_classroom(@classroom_id)
+                                  .by_classroom(@classroom.id)
                                   .by_date(date_avaliation)
                                   .active
       end
-
       student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
       student_enrollments.flatten.map(&:student)
     end
