@@ -74,14 +74,13 @@ module ExamPoster
     end
 
     def fetch_student(daily_notes)
-      student_enrollment_classrooms = daily_notes.map(&:avaliation).uniq.map do |avaliation|
-        date_avaliation = avaliation.test_date
+      avaliations = daily_notes.map(&:avaliation)
+      date_avaliations = avaliations.map(&:test_date)
 
-        StudentEnrollmentClassroom.includes(student_enrollment: :student)
-                                  .by_classroom(@classroom_id)
-                                  .by_date(date_avaliation)
-                                  .active
-      end
+      student_enrollment_classrooms = StudentEnrollmentClassroom.includes(student_enrollment: :student)
+                                                                .by_classroom(@classroom_id)
+                                                                .by_date(date_avaliations)
+                                                                .active
 
       student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
       student_enrollments.flatten.map(&:student)
