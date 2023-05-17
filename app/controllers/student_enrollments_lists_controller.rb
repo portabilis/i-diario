@@ -13,7 +13,8 @@ class StudentEnrollmentsListsController < ApplicationController
         params[:filter][:with_recovery_note_in_step]
       ),
       date: params[:filter][:date],
-      period: @period
+      period: @period,
+      status_attending: params[:filter][:status_attending]
     ).student_enrollments
 
     render json: student_enrollments
