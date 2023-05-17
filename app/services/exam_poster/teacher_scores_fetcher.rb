@@ -28,7 +28,6 @@ module ExamPoster
       validate_pending_exams(daily_notes, exams)
 
       students = fetch_student(daily_notes)
-      binding.pry
 
       @scores = students.each do |student|
         student_exams = DailyNoteStudent.by_classroom_id(@classroom)
