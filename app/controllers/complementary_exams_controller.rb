@@ -154,33 +154,6 @@ class ComplementaryExamsController < ApplicationController
   end
   helper_method :steps
 
-  def fetch_student_enrollments
-    return unless @complementary_exam.complementary_exam_setting && @complementary_exam.recorded_at
-    StudentEnrollmentsList.new(classroom: @complementary_exam.classroom,
-                               discipline: @complementary_exam.discipline,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               show_inactive: false,
-                               with_recovery_note_in_step: @complementary_exam.complementary_exam_setting.affected_score == AffectedScoreTypes::STEP_RECOVERY_SCORE,
-                               date: @complementary_exam.recorded_at,
-                               search_type: :by_date)
-                          .student_enrollments
-  end
-
-  def reload_students_list
-    return unless @complementary_exam.recorded_at
-
-    student_enrollments = fetch_student_enrollments
-    return unless student_enrollments
-    enrolled_student_ids = []
-    student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        @complementary_exam.students.where(student_id: student.id).first || @complementary_exam.students.build(student_id: student.id, student: student)
-        enrolled_student_ids << student.id
-      end
-    end
-    @complementary_exam.students.select{|student| !enrolled_student_ids.include?(student.student_id)}.each(&:mark_for_destruction)
-  end
-
   def mark_students_not_found_for_destruction
     @complementary_exam.students.each do |student|
       student_exists = student.new_record? || resource_params[:students_attributes].any? do |student_params|
