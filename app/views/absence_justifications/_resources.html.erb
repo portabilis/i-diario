@@ -11,20 +11,32 @@
         <td><span class="multiline"><%= absence_justification.decorator.students_labels %></span></td>
         <td width="70"><%= l absence_justification.absence_date %></td>
         <td width="70"><%= l absence_justification.absence_date_end %></td>
-        <td>
-        <%= absence_justification.decorator.author(
-          current_user,
-          current_user.current_role_is_admin_or_employee?
-          ) %>
-        </td>
+        <td><span class="label label-info label-list"><%= absence_justification.class_number || 'Todas' %></span></td>
+        <td><%= absence_justification.user %></td>
         <td class="actions">
-          <%= link_to 'Editar', edit_absence_justification_path(absence_justification),
-            class: "btn btn-success" %>
-          <%= link_to 'Excluir', absence_justification_path(absence_justification),
-            class: "btn btn-danger",
-            disabled: !absence_justification_destroy?(absence_justification),
-            method: "delete",
-            data: { confirm: "Tem certeza?" } %>
+
+          <%= link_to(
+                t('helpers.links.show_html'),
+                absence_justification_path(absence_justification),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
+          <%= link_to(
+                t('helpers.links.edit_html'),
+                edit_absence_justification_path(absence_justification),
+                class: 'btn btn-success apply_tooltip',
+                data: { original_title: t('views.index.tooltips.edit') }
+              ) %>
+          <%= link_to(
+                t('helpers.links.destroy_html'),
+                absence_justification_path(absence_justification),
+                class: 'btn btn-danger apply_tooltip',
+                disabled: !absence_justification_destroy?(absence_justification),
+                method: 'delete',
+                data: {
+                  confirm: t('views.index.confirm'),
+                  original_title: t('views.index.tooltips.delete')
+                }
+              ) %>
         </td>
       </tr>
     <% end %>
