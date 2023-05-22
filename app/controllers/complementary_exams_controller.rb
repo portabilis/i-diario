@@ -73,6 +73,7 @@ class ComplementaryExamsController < ApplicationController
 
   def destroy
     @complementary_exam = ComplementaryExam.find(params[:id])
+    @complementary_exam.step_id = @complementary_exam.step.try(:id)
     @complementary_exam.destroy
     respond_with @complementary_exam, location: complementary_exams_path
   end
@@ -139,8 +140,7 @@ class ComplementaryExamsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom)
-    .ordered
+    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
   end
   helper_method :classrooms
 
@@ -180,7 +180,7 @@ class ComplementaryExamsController < ApplicationController
     end
     @complementary_exam.students.select{|student| !enrolled_student_ids.include?(student.student_id)}.each(&:mark_for_destruction)
   end
-  
+
   def mark_students_not_found_for_destruction
     @complementary_exam.students.each do |student|
       student_exists = student.new_record? || resource_params[:students_attributes].any? do |student_params|
