@@ -74,7 +74,7 @@ class AbsenceJustificationsController < ApplicationController
   def create
     class_numbers = params[:absence_justification][:class_number]&.split(',')
 
-    if class_numbers.empty?
+    if class_numbers.nil? || class_numbers.empty?
       class_numbers = [nil]
     end
 
