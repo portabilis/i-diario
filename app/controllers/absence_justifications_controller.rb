@@ -60,7 +60,7 @@ class AbsenceJustificationsController < ApplicationController
         @absences_justified << {
           student_name: absence_justifications_students.student.name,
           frequency_date: daily_frequency_students.daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y'),
-          class_number: daily_frequency_students.daily_frequency.class_number,
+          class_number: daily_frequency_students.daily_frequency.class_number || 0,
           discipline_name: daily_frequency_students.daily_frequency.discipline&.description || 'Geral',
         }
       end
