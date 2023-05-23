@@ -8,7 +8,7 @@ class AbsenceCountService
       return student_frequencies_in_date_range(student, classroom, start_date, end_date, discipline).absences.count
     end
 
-    grouped_frequencies_by_date(discipline).sum { |_key, value|
+    grouped_frequencies_by_date(student, classroom, start_date, end_date, discipline).sum { |_key, value|
       if discipline
         value[:absence_count]
       elsif value[:presence_count].zero? && value[:absence_count] >= 1
@@ -46,8 +46,8 @@ class AbsenceCountService
     daily_frequency_student
   end
 
-  def grouped_frequencies_by_date(discipline)
-    frequecies_by_date = student_frequencies_in_date_range.group_by { |daily_frequency_student|
+  def grouped_frequencies_by_date(student, classroom, start_date, end_date, discipline)
+    frequecies_by_date = student_frequencies_in_date_range(student, classroom, start_date, end_date, discipline).group_by { |daily_frequency_student|
       daily_frequency_student.daily_frequency.frequency_date
     }
 
