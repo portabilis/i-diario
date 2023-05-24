@@ -59,7 +59,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
             teacher_discipline_classroom_record,
-            existing_discipline_api_codes
+            existing_discipline_api_codes,
+            classroom_id
           )
         )
       end
@@ -141,18 +142,57 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
+  def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes, classroom_id)
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year
     )
 
-    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes)
-                                         .pluck(:id)
+    existing_disciplines = Discipline.where(api_code: existing_discipline_api_codes)
 
     return teacher_discipline_classrooms if teacher_discipline_classroom_record.deleted_at.present?
 
-    teacher_discipline_classrooms.where.not(discipline_id: existing_disciplines_ids)
+    teacher_discipline_classrooms.where.not(discipline: existing_disciplines)
+    discard_links = []
+
+    discard_links << teacher_discipline_classrooms.where.not(discipline: existing_disciplines)
+    discard_links << grouping_links(existing_disciplines, teacher_discipline_classroom_record, classroom_id)
+    discard_links.flatten
+  end
+
+  def grouping_links(disciplines, link, classroom_id)
+    grouping_disciplines = Discipline.where.not(id: disciplines.map(&:id)).where(grouper: true)
+    knowledge_area_ids = grouping_disciplines.map(&:knowledge_area_id).uniq
+    grouper_disciplines = []
+
+    grouping_links = TeacherDisciplineClassroom.with_discarded
+                                               .joins(discipline: { knowledge_area: :disciplines })
+                                               .where(
+                                                 teacher_api_code: link.servidor_id,
+                                                 year: year,
+                                                 classroom_id: classroom_id
+                                               ).where(
+                                                 disciplines: { knowledge_area_id: knowledge_area_ids },
+                                                 knowledge_areas: { group_descriptors: true }
+                                               )
+
+    link_to_discard = []
+
+    grouping_links.uniq.each do |teacher_discipline_classroom|
+      knowledge_area_id = teacher_discipline_classroom.knowledge_area.id
+
+      if teacher_discipline_classroom.discarded? && knowledge_area_ids.include?(knowledge_area_id)
+        grouping_disciplines.each do |disciplina|
+          grouper_disciplines << disciplina.id if disciplina.knowledge_area_id.eql?(knowledge_area_id)
+        end
+      end
+
+      next unless teacher_discipline_classroom.api_code.eql?("grouper:#{grouper_disciplines.uniq.first}")
+
+      link_to_discard << teacher_discipline_classroom
+    end
+
+    link_to_discard
   end
 
   def create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id)
