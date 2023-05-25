@@ -31,11 +31,7 @@ class TransferNotesController < ApplicationController
 
   def create
     @transfer_note = TransferNote.new.localized
-<<<<<<< HEAD
-    @transfer_note.assign_attributes(resource_params.to_h.except(:daily_note_students_attributes))
-=======
-    @transfer_note.assign_attributes(resource_params.except(:daily_note_students_attributes))
->>>>>>> main
+    @transfer_note.assign_attributes(resource_params.to_unsafe_h.except(:daily_note_students_attributes))
     @transfer_note.step_number = @transfer_note.step.try(:step_number)
     @transfer_note.teacher = current_teacher
 
@@ -61,13 +57,8 @@ class TransferNotesController < ApplicationController
   def update
     @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.current_user = current_user
-<<<<<<< HEAD
     @transfer_note.assign_attributes(resource_params.to_unsafe_h)
     daily_note_students = resource_params[:daily_note_students_attributes]
-=======
-    @transfer_note.assign_attributes(resource_params)
-    daily_note_students = resource_params[:daily_note_students_attributes]
->>>>>>> main
 
     require_daily_note_student(daily_note_students)
     authorize @transfer_note
