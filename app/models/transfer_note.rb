@@ -16,6 +16,7 @@ class TransferNote < ApplicationRecord
   attr_writer :unity_id
 
   before_destroy :valid_for_destruction?
+  before_destroy :before_destroy
 
   belongs_to :classroom
   belongs_to :discipline
@@ -28,10 +29,7 @@ class TransferNote < ApplicationRecord
 
   before_validation :set_transfer_date, on: [:create, :update]
 
-  before_destroy :before_destroy
-
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
-  validate :at_least_one_daily_note_student
 
   default_scope -> { kept }
 
@@ -69,18 +67,15 @@ class TransferNote < ApplicationRecord
     self.transfer_date = recorded_at
   end
 
-  def at_least_one_daily_note_student
-    if daily_note_students.reject { |daily_note_student| daily_note_student.note.blank? }.empty?
-      errors.add(:daily_note_students, :at_least_one_daily_note_student)
-    end
-  end
-
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
       self.validation_type = :destroy
-      valid?
-      !errors[:transfer_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+
+      return false if errors[:transfer_date].include?(forbidden_error)
+
+      self.valid?
     end
   end
 

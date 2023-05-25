@@ -65,6 +65,11 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :allows_copy_experience_fields_in_lesson_plans, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
         </div>
       </div>
@@ -87,6 +92,11 @@
       <div class="row">
         <div class="col col-sm-6">
           <%= f.input :show_percentage_on_attendance_record_report, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :do_not_send_justified_absence, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row <%= 'hidden' unless Rails.application.secrets[:STUDENT_DOMAIN] %>">

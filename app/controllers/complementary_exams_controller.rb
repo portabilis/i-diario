@@ -67,12 +67,14 @@ class ComplementaryExamsController < ApplicationController
     if @complementary_exam.save
       respond_with @complementary_exam, location: complementary_exams_path
     else
+      reload_students_list
       render :edit
     end
   end
 
   def destroy
     @complementary_exam = ComplementaryExam.find(params[:id])
+    @complementary_exam.step_id = @complementary_exam.step.try(:id)
     @complementary_exam.destroy
     respond_with @complementary_exam, location: complementary_exams_path
   end
@@ -139,8 +141,7 @@ class ComplementaryExamsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom)
-    .ordered
+    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
   end
   helper_method :classrooms
 
@@ -156,14 +157,17 @@ class ComplementaryExamsController < ApplicationController
 
   def fetch_student_enrollments
     return unless @complementary_exam.complementary_exam_setting && @complementary_exam.recorded_at
-    StudentEnrollmentsList.new(classroom: @complementary_exam.classroom,
-                               discipline: @complementary_exam.discipline,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               show_inactive: false,
-                               with_recovery_note_in_step: @complementary_exam.complementary_exam_setting.affected_score == AffectedScoreTypes::STEP_RECOVERY_SCORE,
-                               date: @complementary_exam.recorded_at,
-                               search_type: :by_date)
-                          .student_enrollments
+
+    @student_enrollments ||= StudentEnrollmentsList.new(
+      classroom: @complementary_exam.classroom,
+      discipline: @complementary_exam.discipline,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      show_inactive: false,
+      with_recovery_note_in_step: @complementary_exam.complementary_exam_setting.affected_score == AffectedScoreTypes::STEP_RECOVERY_SCORE,
+      date: @complementary_exam.recorded_at,
+      status_attending: true,
+      search_type: :by_date
+    ).student_enrollments
   end
 
   def reload_students_list

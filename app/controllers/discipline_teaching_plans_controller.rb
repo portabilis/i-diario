@@ -7,6 +7,8 @@ class DisciplineTeachingPlansController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
   before_action :yearly_term_type_id, only: [:show, :edit, :new]
   before_action :require_current_classroom, only: [:index]
+  before_action :require_allows_copy_experience_fields_in_lesson_plans, only: [:new, :edit]
+
 
   def index
     params[:filter] ||= {}
@@ -343,5 +345,9 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def yearly_term_type_id
     @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
+  end
+
+  def require_allows_copy_experience_fields_in_lesson_plans
+    @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
   end
 end

@@ -79,7 +79,7 @@ class CurrentProfile
       return Classroom.none if unity.blank?
 
       classrooms = Classroom.by_unity(unity).ordered
-      if user_role&.role&.teacher? && teacher.present? && user.teacher?
+      if user_role&.role&.teacher? && teacher.present?
         classrooms = classrooms.by_teacher_id(teacher).ordered
       end
       classrooms = classrooms.by_year(school_year) if school_year

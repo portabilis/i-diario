@@ -85,12 +85,17 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year,
-      grade_id: grade_id,
       discipline_id: discipline_id,
-      discipline_api_code: discipline_api_code,
       teacher_id: teacher_id,
-      teacher_api_code: teacher_discipline_classroom_record.servidor_id
+      grade_id: grade_id,
+      classroom_id: classroom_id
     )
+
+    TeacherDisciplineClassroom.unscoped.where(
+      api_code: teacher_discipline_classroom_record.id
+    ).where.not(classroom_id: classroom_id).each do |teacher_discipline_classroom|
+      teacher_discipline_classroom.destroy
+    end
 
     teacher_discipline_classroom =
       if teacher_discipline_classrooms.size == 1
