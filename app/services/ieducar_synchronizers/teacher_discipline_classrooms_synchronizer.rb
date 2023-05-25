@@ -148,11 +148,11 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       year: year
     )
 
-    existing_disciplines = Discipline.where(api_code: existing_discipline_api_codes)
+    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes).pluck(:id)
 
     return teacher_discipline_classrooms if teacher_discipline_classroom_record.deleted_at.present?
 
-    teacher_discipline_classrooms.where.not(discipline: existing_disciplines)
+    teacher_discipline_classrooms.where.not(discipline: existing_disciplines_ids)
   end
 
 
