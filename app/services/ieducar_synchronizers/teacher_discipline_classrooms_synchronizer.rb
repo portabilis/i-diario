@@ -216,5 +216,12 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       link_teacher.save! if link_teacher.new_record?
     end
+
+    grouped_link_id = GroupedTeacherDisciplineClassrooms.where(
+      teacher_id: teacher_id,
+      classroom_id: classroom_id
+    ).flatten.map(&:link_id)
+
+    TeacherDisciplineClassroom.where(id: grouped_link_id).each(&:destroy)
   end
 end
