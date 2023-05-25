@@ -59,8 +59,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
             teacher_discipline_classroom_record,
-            existing_discipline_api_codes,
-            classroom_id
+            existing_discipline_api_codes
           )
         )
       end
@@ -154,7 +153,6 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
     teacher_discipline_classrooms.where.not(discipline_id: existing_disciplines_ids)
   end
-
 
   def create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id)
     discipline_id = discipline(discipline_by_grade.id).try(:id)
