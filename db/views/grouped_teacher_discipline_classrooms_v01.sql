@@ -1,3 +1,5 @@
+-- "Essa view serve apenas para identificar os registros de `teacher_discipline_classrooms`
+  -- que devem ser removidos devido a disciplinas fakes órfãs"
 select tdc.id as link_id, tdc.teacher_id, tdc.classroom_id
 from teacher_discipline_classrooms tdc 
   inner join (
