@@ -145,8 +145,8 @@ class DisciplineLessonPlansController < ApplicationController
 
   def teaching_plan_contents
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
-      @disciplines = fetch_disciplines
+      fetch_classrooms
+      fetch_disciplines
     else
       fetch_linked_by_teacher
     end
@@ -164,8 +164,8 @@ class DisciplineLessonPlansController < ApplicationController
 
   def teaching_plan_objectives
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
-      @disciplines = fetch_disciplines
+      fetch_classrooms
+      fetch_disciplines
     else
       fetch_linked_by_teacher
     end
@@ -321,11 +321,11 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_disciplines
-    Discipline.where(id: current_user_discipline).ordered
+    @disciplines ||= Discipline.where(id: current_user_discipline).ordered
   end
 
   def set_options_by_user
