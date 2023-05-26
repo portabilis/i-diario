@@ -27,8 +27,7 @@ module ExamPoster
       validate_exam_quantity_for_fix_test(number_of_exams)
       validate_pending_exams(daily_notes, exams)
 
-      student_ids = fetch_student_ids(daily_notes.by_active_student_enrollment_classroom(@classroom.id))
-      students = Student.find(student_ids)
+      students = fetch_student(daily_notes)
 
       @scores = students.each do |student|
         student_exams = DailyNoteStudent.by_classroom_id(@classroom)
@@ -74,11 +73,17 @@ module ExamPoster
       end
     end
 
-    def fetch_student_ids(daily_notes)
-      student_ids = []
-      daily_notes.each { |d| student_ids << d.students.map(&:student_id) }
-      student_ids.flatten!.uniq! if student_ids.any?
-      student_ids
+    def fetch_student(daily_notes)
+      student_enrollment_classrooms = daily_notes.map(&:avaliation).map do |avaliation|
+        date_avaliation = avaliation.test_date
+
+        StudentEnrollmentClassroom.includes(student_enrollment: :student)
+                                  .by_classroom(@classroom.id)
+                                  .by_date(date_avaliation)
+                                  .active
+      end
+      student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
+      student_enrollments.flatten.map(&:student)
     end
 
     def current_test_setting
