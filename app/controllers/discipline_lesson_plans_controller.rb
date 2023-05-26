@@ -11,21 +11,7 @@ class DisciplineLessonPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
-      @disciplines = fetch_disciplines
-
-      discipline = if current_user_discipline.grouper?
-                     Discipline.where(knowledge_area_id: @disciplines.knowledge_area_id).all
-                   else
-                     Discipline.where(id: @disciplines.map(&:id))
-                   end
-
-      fetch_discipline_lesson_plan(discipline)
-    else
-      fetch_linked_by_teacher
-      fetch_discipline_lesson_plan(@disciplines)
-    end
+    set_options_by_user
 
     if author_type.present?
       @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
@@ -340,5 +326,23 @@ class DisciplineLessonPlansController < ApplicationController
 
   def fetch_disciplines
     Discipline.where(id: current_user_discipline).ordered
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms
+      fetch_disciplines
+
+      discipline = if current_user_discipline.grouper?
+                     Discipline.where(knowledge_area_id: @disciplines.knowledge_area_id).all
+                   else
+                     Discipline.where(id: @disciplines.map(&:id))
+                   end
+
+      fetch_discipline_lesson_plan(discipline)
+    else
+      fetch_linked_by_teacher
+      fetch_discipline_lesson_plan(@disciplines)
+    end
   end
 end
