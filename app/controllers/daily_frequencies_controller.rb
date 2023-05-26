@@ -183,7 +183,7 @@ class DailyFrequenciesController < ApplicationController
 
               absence_justification.save
 
-              daily_frequency_student[:absence_justification_student_id] = absence_justification.id
+              daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
             end
           end
 
