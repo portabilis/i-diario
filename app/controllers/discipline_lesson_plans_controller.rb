@@ -7,6 +7,10 @@ class DisciplineLessonPlansController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
+
     if current_user.current_role_is_admin_or_employee?
       @classrooms = fetch_classrooms
       @disciplines = fetch_disciplines
@@ -22,10 +26,6 @@ class DisciplineLessonPlansController < ApplicationController
       fetch_linked_by_teacher
       fetch_discipline_lesson_plan(@disciplines)
     end
-
-    params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
-    author_type ||= (params[:filter] || []).delete(:by_author)
 
     if author_type.present?
       @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
@@ -58,6 +58,7 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.lesson_plan.classroom = current_user_classroom
+    @discipline_lesson_plan.lesson_plan.discipline_id = current_user_discipline.id
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
