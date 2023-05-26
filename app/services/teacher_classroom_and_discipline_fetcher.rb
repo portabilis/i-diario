@@ -12,7 +12,6 @@ class TeacherClassroomAndDisciplineFetcher
   def fetch!
     return if teacher_id.blank? || unity.blank?
 
-
     fetch_linked_by_teacher = {}
 
     @classrooms ||= classrooms_fetch
@@ -28,7 +27,6 @@ class TeacherClassroomAndDisciplineFetcher
 
   def classrooms_fetch
     return [] if unity.nil?
-
 
     Classroom.by_unity_and_teacher(unity.id, teacher_id).by_year(current_school_year).ordered.uniq
   end
