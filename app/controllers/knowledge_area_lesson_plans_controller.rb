@@ -12,7 +12,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
+      fetch_classrooms
     else
       fetch_linked_by_teacher
     end
@@ -54,7 +54,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def new
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
+      fetch_classrooms
     else
       fetch_linked_by_teacher
     end
@@ -69,7 +69,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plan
 
-    @unities = fetch_unities
+    fetch_unities
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -100,8 +100,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
+      fetch_unities
+      fetch_classrooms
       @knowledge_areas = fetch_knowledge_area
 
       render :new
@@ -115,8 +115,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plan
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms if current_user.current_role_is_admin_or_employee?
+    fetch_unities
+    fetch_classrooms if current_user.current_role_is_admin_or_employee?
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -147,7 +147,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     else
       fetch_linked_by_teacher
 
-      @unities = fetch_unities
+      fetch_unities
       @classrooms = fetch_classrooms if current_user.current_role_is_admin_or_employee?
       @knowledge_areas = fetch_knowledge_area
 
@@ -334,11 +334,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   helper_method :objectives
 
   def fetch_unities
-    Unity.by_teacher(current_teacher.id).ordered
+    @unities ||= Unity.by_teacher(current_teacher.id).ordered
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_knowledge_area
