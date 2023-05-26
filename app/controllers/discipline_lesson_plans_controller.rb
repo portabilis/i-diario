@@ -40,7 +40,7 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
@@ -80,12 +80,14 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
       render :new
     end
   end
 
   def edit
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
@@ -116,6 +118,8 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
       render :edit
     end
   end
