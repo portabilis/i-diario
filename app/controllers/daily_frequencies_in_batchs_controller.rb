@@ -87,7 +87,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             absence_justification.save
 
-            student_attributes[:absence_justification_student_id] = absence_justification.id
+            student_attributes[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
 
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
