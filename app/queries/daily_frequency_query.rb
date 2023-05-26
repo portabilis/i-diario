@@ -19,7 +19,11 @@ class DailyFrequencyQuery
     def by_period(period)
       return self if period.blank?
 
-      where(period: period)
+      if period.eql?(Periods::FULL)
+        where(period: [Periods::FULL, Periods::MATUTINAL, Periods::VESPERTINE, Periods::NIGHTLY])
+      else
+        where(period: period)
+      end
     end
 
     def by_frequency_date_between(frequency_date)

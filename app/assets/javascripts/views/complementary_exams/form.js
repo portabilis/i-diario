@@ -78,7 +78,8 @@ $(function () {
             discipline: discipline_id,
             show_inactive: false,
             with_recovery_note_in_step: with_recovery_note_in_step,
-            score_type: 'numeric'
+            score_type: 'numeric',
+            status_attending: true
           },
           format: 'json'
         }),

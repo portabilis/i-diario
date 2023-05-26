@@ -40,7 +40,7 @@ RSpec.describe DisciplineContentRecordsController, type: :controller do
           classroom_id: classroom.id,
           unity_id: unity.id,
           daily_activities_record: 'test',
-          record_date: '2017-03-01',
+          record_date: '2017-02-28',
           content_ids: [content.id]
         }
       }
