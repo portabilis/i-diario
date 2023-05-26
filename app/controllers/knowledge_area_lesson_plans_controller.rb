@@ -7,6 +7,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
+
     if current_user.current_role_is_admin_or_employee?
       @classrooms = fetch_classrooms
     else
@@ -14,10 +18,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     end
 
     fetch_knowledge_area_by_user
-
-    params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
-    author_type ||= (params[:filter] || []).delete(:by_author)
 
     if author_type.present?
       @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
