@@ -14,7 +14,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if current_user.current_role_is_admin_or_employee?
       fetch_classrooms
     else
-      fetch_linked_by_teacher
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
     end
 
     fetch_knowledge_area_by_user
@@ -24,13 +24,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       params[:filter][:by_author] = author_type
     end
 
-    @knowledge_areas = fetch_knowledge_area
-
     authorize @knowledge_area_lesson_plans
+
+    @knowledge_areas = fetch_knowledge_area
   end
 
   def show
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
@@ -109,7 +109,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher fetch_linked_by_teacher
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
@@ -145,10 +145,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      fetch_linked_by_teacher
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
       fetch_unities
-      @classrooms = fetch_classrooms if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms if current_user.current_role_is_admin_or_employee?
       @knowledge_areas = fetch_knowledge_area
 
       render :edit
@@ -181,7 +181,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def teaching_plan_contents
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
+      fetch_classrooms
     else
       fetch_linked_by_teacher
     end
@@ -199,7 +199,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def teaching_plan_objectives
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = fetch_classrooms
+      fetch_classrooms
     else
       fetch_linked_by_teacher
     end
