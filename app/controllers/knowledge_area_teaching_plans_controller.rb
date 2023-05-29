@@ -52,6 +52,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new.localized
     @knowledge_area_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
+      grade: current_grade,
       unity: current_unity
     )
 
@@ -270,6 +271,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       fetch_linked_by_teacher
       @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
     end
+
     @knowledge_areas
   end
 
@@ -281,7 +283,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
-    @grades ||= ClassroomsGrade.where(id: @fetch_linked_by_teacher[:classroom_grades]).map(&:grade)
+    @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
 
   def fetch_knowledge_area_teaching_plans
@@ -292,5 +294,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
                                 .by_unity(current_unity)
                                 .by_year(current_school_year)
     )
+  end
+
+  def current_grade
+    current_user_grade = ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
   end
 end
