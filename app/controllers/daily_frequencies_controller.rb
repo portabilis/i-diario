@@ -22,6 +22,7 @@ class DailyFrequenciesController < ApplicationController
         classroom_id: params[:classroom_id],
         frequency_date: params[:frequency_date],
         discipline_id: params[:discipline_id],
+        period: params[:period],
       },
       class_numbers: params[:class_numbers].split(',').sort
     )
