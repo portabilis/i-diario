@@ -14,24 +14,9 @@ class DisciplineTeachingPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    if current_user.current_role_is_admin_or_employee?
-      fetch_grades
-      fetch_disciplines
+    set_options_by_user
 
-      disciplines = if current_user_discipline.grouper?
-                      Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
-                    else
-                      Discipline.where(id: @disciplines.map(&:id))
-                    end
-
-      fetch_discipline_teaching_plan(disciplines)
-    else
-      fetch_linked_by_teacher
-
-      fetch_discipline_teaching_plan(@disciplines)
-
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id)).by_discipline(@disciplines.map(&:id))
-    end
+    @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id)).by_discipline(@disciplines.map(&:id))
 
     if @discipline_teaching_plan.present?
       @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade).ordered
@@ -353,5 +338,20 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def require_allows_copy_experience_fields_in_lesson_plans
     @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      fetch_grades
+      fetch_disciplines
+
+      @disciplines = if current_user_discipline.grouper?
+                      Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                    else
+                      current_user_discipline
+                    end
+    else
+      fetch_linked_by_teacher
+    end
   end
 end
