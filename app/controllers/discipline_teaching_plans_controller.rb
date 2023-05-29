@@ -54,14 +54,12 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def new
     @discipline_teaching_plan = DisciplineTeachingPlan.new.localized
-
+    @discipline_teaching_plan.discipline = current_user_discipline
     @discipline_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
       grade: current_grade,
       unity: current_unity
     )
-
-    @discipline_teaching_plan.discipline = current_user_discipline
 
     authorize @discipline_teaching_plan
 
@@ -348,7 +346,7 @@ class DisciplineTeachingPlansController < ApplicationController
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
-    @grades ||= Grade.where(id: @fetch_linked_by_teacher[:classroom_grades].map(&:grade_id)).uniq
+    @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
 
   def fetch_discipline_teaching_plans
