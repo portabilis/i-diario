@@ -9,8 +9,11 @@ class DisciplineTeachingPlansController < ApplicationController
   before_action :require_current_classroom, only: [:index]
   before_action :require_allows_copy_experience_fields_in_lesson_plans, only: [:new, :edit]
 
-
   def index
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
+
     if current_user.current_role_is_admin_or_employee?
       fetch_grades
       fetch_disciplines
@@ -33,10 +36,6 @@ class DisciplineTeachingPlansController < ApplicationController
     if @discipline_teaching_plan.present?
       @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade).ordered
     end
-
-    params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
-    author_type ||= (params[:filter] || []).delete(:by_author)
 
     if author_type.present?
       @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)

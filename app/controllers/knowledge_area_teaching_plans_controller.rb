@@ -9,6 +9,10 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   before_action :require_current_classroom, only: [:index]
 
   def index
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
+
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan.includes(:knowledge_areas,teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher]).by_unity(current_unity).by_year(current_school_year))
 
     fetch_grades
@@ -17,10 +21,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     unless current_user.current_role_is_admin_or_employee?
       @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_grade(@grades.map(&:id))
     end
-
-    params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
-    author_type ||= (params[:filter] || []).delete(:by_author)
 
     if author_type.present?
       @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_author(author_type, current_teacher)
