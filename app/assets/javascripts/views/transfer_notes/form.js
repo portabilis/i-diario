@@ -148,7 +148,9 @@ $(function () {
       var $equivalentLine = $('#current-notes-rows tr:eq('+i+')');
 
       if($equivalentLine.length){
-        $equivalentLine.find('input[id$=_note]').val(note > recovery_note ? note : recovery_note);
+        if (note.length) {
+          $equivalentLine.find('input[id$=_note]').val(note > recovery_note ? note : recovery_note);
+        }
       }
     });
 

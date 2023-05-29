@@ -18,7 +18,7 @@ module Api
 
       return true if DailyFrequency
                      .by_classroom_id(@classroom_id)
-                     .by_teacher_id(@teacher_id)
+                     .by_teacher_classroom_id(@teacher_id, @classroom_id)
                      .joins(join_audits('daily_frequencies.id', 'DailyFrequency'))
                      .where('audits.user_id' => @user_id)
                      .exists?

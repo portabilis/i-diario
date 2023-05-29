@@ -22,7 +22,10 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
-      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: 'disciplines' %>
+      <%= render 'teaching_plans/diciplines_modal', f: teaching_plan_form %>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        <%= render 'teaching_plans/experience_fields_modal', f: teaching_plan_form %>
+      <% end %>
 
       <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
         <i class='fa-fw fa fa-info'></i>
@@ -152,9 +155,14 @@
             </div>
           <% end %>
           <% if !action_name.eql?('show') %>
-            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+            <a href="#" data-toggle="modal" data-target="#disciplines-modal">
               Copiar objetivos/habilidades por área
             </a>
+            <% if @allows_copy_experience_fields_in_lesson_plans %>
+              |<a href="#" data-toggle="modal" data-target="#experience-modal">
+                Copiar objetivos por campos de experiência
+              </a>
+            <% end %>
           <% end %>
 
             <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
