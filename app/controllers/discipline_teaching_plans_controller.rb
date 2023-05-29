@@ -36,7 +36,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
-    fetch_collections
+    fetch_unities
+    set_options_by_user
 
     respond_with @discipline_teaching_plans do |format|
       format.pdf do
@@ -58,7 +59,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
-    fetch_collections
+    fetch_unities
+    set_options_by_user
   end
 
   def create
@@ -83,7 +85,8 @@ class DisciplineTeachingPlansController < ApplicationController
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_collections
+      fetch_unities
+      set_options_by_user
 
       render :new
     end
@@ -94,7 +97,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
-    fetch_collections
+    fetch_unities
+    set_options_by_user
   end
 
   def update
@@ -120,7 +124,8 @@ class DisciplineTeachingPlansController < ApplicationController
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_collections
+      fetch_unities
+      set_options_by_user
 
       render :edit
     end
@@ -194,12 +199,6 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   private
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades].map(&:grade_id)).uniq
-  end
 
   def fetch_discipline_teaching_plans
     apply_scopes(
@@ -311,22 +310,12 @@ class DisciplineTeachingPlansController < ApplicationController
   end
   helper_method :objectives
 
-  def fetch_collections
-    fetch_unities
-    if current_user.current_role_is_admin_or_employee?
-      fetch_grades
-      fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
-  end
-
   def fetch_unities
-    @unities = Unity.by_teacher(current_teacher).ordered
+    @unities ||= Unity.by_teacher(current_teacher).ordered
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
+    @grades ||= Grade.by_unity(current_unity).by_year(current_school_year).ordered
   end
 
   def fetch_disciplines
@@ -354,5 +343,11 @@ class DisciplineTeachingPlansController < ApplicationController
     else
       fetch_linked_by_teacher
     end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @grades ||= Grade.where(id: @fetch_linked_by_teacher[:classroom_grades].map(&:grade_id)).uniq
   end
 end
