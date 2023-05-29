@@ -34,13 +34,13 @@ class TeacherClassroomAndDisciplineFetcher
   def disciplines_fetch
     return [] if @classrooms.nil?
 
-    Discipline.by_teacher_and_classroom(teacher_id, @classrooms.map(&:id)).ordered.uniq
+    Discipline.includes(:knowledge_area).by_teacher_and_classroom(teacher_id, @classrooms.map(&:id)).ordered.uniq
   end
 
   def classroom_grades
     return [] if @disciplines.nil? || @classrooms.nil? || teacher_id.nil?
 
-    ClassroomsGrade.where(classroom_id: @classrooms.map(&:id)).uniq
+    ClassroomsGrade.includes(:grade).where(classroom_id: @classrooms.map(&:id)).uniq
   end
 
   protected
