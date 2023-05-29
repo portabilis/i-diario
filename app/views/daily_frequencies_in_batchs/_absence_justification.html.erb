@@ -1,0 +1,65 @@
+<%= simple_form_for @absence_justification, url: absence_justifications_path, html: { class: "smart-form", id: 'absence_justification' } do |f| %>
+  <%= f.hidden_field :unity_id, value: @classroom.unity.id %>
+  <%= f.hidden_field :classroom_id, value: @classroom.id %>
+  <%= f.hidden_field :start_date, value: @dates.first %>
+  <%= f.hidden_field :end_date, value: @dates.last %>
+  <div class="modal fade" tabindex="-1" role="dialog" id="absence-justification-modal" aria-hidden="true">
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-content" style="background-color: #F8F8F8">
+        <div class="modal-header">
+          <button type="button" class="close no-confirm" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Fechar</span>
+          </button>
+          <h4 class="modal-title">
+            Adicionar justificativa
+          </h4>
+        </div>
+        <div class="modal-body smart-form">
+          <fieldset style="background-color: #F8F8F8">
+            <div class="row">
+              <div class="col col-sm-12">
+                <%= f.association :students, as: :select2, elements: @students_list, multiple: true, required: true,
+                                  input_html: {
+                                    data: { without_json_parser: true }
+                                  } %>
+              </div>
+            </div>
+
+            <div class="row padding-bottom-16">
+              <div class="col col-sm-12">
+                <%= f.input :justification %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-sm-6">
+                <%= f.input :absence_date %>
+              </div>
+              <div class="col col-sm-6">
+                <%= f.input :absence_date_end %>
+              </div>
+            </div>
+
+            <div class="row">
+              <% if @frequency_type == FrequencyTypes::BY_DISCIPLINE %>
+                <div class="col col-sm-12">
+                  <%= f.input :class_number, as: :select2, multiple: true,
+                              hint: "O não preenchimento do campo 'Aula' vincula a justificativa de falta com todas as aulas do período selecionado.",
+                              elements: number_of_classes_elements(@absence_justification.school_calendar.number_of_classes), label_html: { class: 'required' },
+                              input_html: { value: @absence_justification.class_number, data: { without_json_parser: true } } %>
+                </div>
+              <% end %>
+            </div>
+          </fieldset>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default no-confirm" data-dismiss="modal">
+            Cancelar
+          </button>
+          <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -26,6 +26,11 @@
         <div class="col col-sm-4">
           <%= content_record.input :record_date, as: :date, readonly: true %>
         </div>
+        <div class="col col-sm-4">
+          <% if f.object.decorator.show_experience_fields %>
+            <%= f.input :experience_fields, readonly: true %>
+          <% end %>
+        </div>
       </div>
 
       <div class="row">
