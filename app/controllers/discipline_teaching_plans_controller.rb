@@ -23,10 +23,6 @@ class DisciplineTeachingPlansController < ApplicationController
                                                              .by_discipline(@disciplines.map(&:id))
     end
 
-    if @discipline_teaching_plan.present?
-      @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade).ordered
-    end
-
     if author_type.present?
       @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
       params[:filter][:by_author] = author_type
