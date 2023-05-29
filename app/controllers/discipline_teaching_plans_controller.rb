@@ -52,10 +52,14 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def new
     @discipline_teaching_plan = DisciplineTeachingPlan.new.localized
+
     @discipline_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
+      grade: current_grade,
       unity: current_unity
     )
+
+    @discipline_teaching_plan.discipline = current_user_discipline
 
     authorize @discipline_teaching_plan
 
@@ -328,6 +332,10 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def require_allows_copy_experience_fields_in_lesson_plans
     @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
+  end
+
+  def current_grade
+    current_user_grade = ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
   end
 
   def set_options_by_user
