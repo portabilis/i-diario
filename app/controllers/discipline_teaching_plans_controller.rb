@@ -16,6 +16,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     set_options_by_user
 
+    @discipline_teaching_plans = fetch_discipline_teaching_plans
+
     @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id)).by_discipline(@disciplines.map(&:id))
 
     if @discipline_teaching_plan.present?
@@ -200,11 +202,11 @@ class DisciplineTeachingPlansController < ApplicationController
     @grades = Grade.where(id: @fetch_linked_by_teacher[:classroom_grades].map(&:grade_id)).uniq
   end
 
-  def fetch_discipline_teaching_plan(disciplines)
-    @discipline_teaching_plans = apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline,
-                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
-                            .by_discipline(disciplines.map(&:id))
+  def fetch_discipline_teaching_plans
+    apply_scopes(
+      DisciplineTeachingPlan.includes(:discipline, teaching_plan:
+                              [:unity, :grade, :teaching_plan_attachments, :teacher])
+                            .by_discipline(@disciplines.map(&:id))
                             .by_unity(current_unity)
                             .by_year(current_school_year)
     )
