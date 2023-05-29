@@ -18,7 +18,10 @@ class DisciplineTeachingPlansController < ApplicationController
 
     @discipline_teaching_plans = fetch_discipline_teaching_plans
 
-    @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id)).by_discipline(@disciplines.map(&:id))
+    unless current_user.current_role_is_admin_or_employee?
+      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id))
+                                                             .by_discipline(@disciplines.map(&:id))
+    end
 
     if @discipline_teaching_plan.present?
       @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade).ordered
