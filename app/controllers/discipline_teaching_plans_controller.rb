@@ -15,6 +15,8 @@ class DisciplineTeachingPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     set_options_by_user
+    school_term_type
+    school_term_type_step
 
     @discipline_teaching_plans = fetch_discipline_teaching_plans
 
@@ -204,16 +206,6 @@ class DisciplineTeachingPlansController < ApplicationController
 
   private
 
-  def fetch_discipline_teaching_plans
-    apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline, teaching_plan:
-                              [:unity, :grade, :teaching_plan_attachments, :teacher])
-                            .by_discipline(@disciplines.map(&:id))
-                            .by_unity(current_unity)
-                            .by_year(current_school_year)
-    )
-  end
-
   def content_ids
     param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
     content_descriptions = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
@@ -346,7 +338,7 @@ class DisciplineTeachingPlansController < ApplicationController
       @disciplines = if current_user_discipline.grouper?
                       Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
                     else
-                      current_user_discipline
+                      [current_user_discipline]
                     end
     else
       fetch_linked_by_teacher
@@ -355,7 +347,32 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @grades ||= Grade.where(id: @fetch_linked_by_teacher[:classroom_grades].map(&:grade_id)).uniq
+  end
+
+  def fetch_discipline_teaching_plans
+    apply_scopes(
+      DisciplineTeachingPlan.includes(:discipline, teaching_plan:
+                             [:unity, :grade, :teaching_plan_attachments, :teacher,
+                              :school_term_type, :school_term_type_step])
+                            .by_discipline(@disciplines.map(&:id))
+                            .by_unity(current_unity)
+                            .by_year(current_school_year)
+    )
+  end
+
+  def school_term_type
+    @school_term_type ||= SchoolTermType.to_select2(
+      current_user.current_school_year,
+      current_user.current_unity_id
+    ).to_json
+  end
+
+  def school_term_type_step
+    @school_term_type_step ||= SchoolTermTypeStep.to_select2(
+      current_user.current_school_year,
+      current_user.current_unity_id
+    ).to_json
   end
 end
