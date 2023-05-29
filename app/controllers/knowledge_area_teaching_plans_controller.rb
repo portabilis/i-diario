@@ -15,8 +15,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     @knowledge_area_teaching_plans = fetch_knowledge_area_teaching_plans
 
-   
-
     fetch_grades
     fetch_knowledge_areas
 
