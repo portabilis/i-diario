@@ -13,7 +13,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan.includes(:knowledge_areas,teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher]).by_unity(current_unity).by_year(current_school_year))
+    @knowledge_area_teaching_plans = fetch_knowledge_area_teaching_plans
+
+   
 
     fetch_grades
     fetch_knowledge_areas
@@ -35,7 +37,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_collections
+    fetch_knowledge_areas
 
     respond_with @knowledge_area_teaching_plan do |format|
       format.pdf do
@@ -57,7 +59,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_collections
+    fetch_knowledge_areas
   end
 
   def create
@@ -83,7 +85,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_collections
+      fetch_knowledge_areas
 
       render :new
     end
@@ -94,7 +96,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_collections
+    fetch_knowledge_areas
   end
 
   def update
@@ -121,7 +123,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_collections
+      fetch_knowledge_areas
 
       render :edit
     end
@@ -146,14 +148,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   private
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @grades = ClassroomsGrade.where(id: @fetch_linked_by_teacher[:classroom_grades]).map(&:grade)
-  end
-
 
   def content_ids
     param_content_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_ids] || []
@@ -225,10 +219,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     )
   end
 
-  def fetch_collections
-    fetch_knowledge_areas
-  end
-
   def contents
     @contents = []
 
@@ -265,9 +255,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def fetch_grades
     if current_user.current_role_is_admin_or_employee?
-      @grades = Grade.by_unity(current_unity)
-                     .by_year(current_school_year)
-                     .where(id: current_user_classroom.try(:grade_id)).ordered
+      @grades ||= Grade.by_unity(current_unity)
+                       .by_year(current_school_year)
+                       .where(id: current_user_classroom.try(:grade_id)).ordered
     else
       fetch_linked_by_teacher
     end
@@ -287,5 +277,22 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def yearly_term_type_id
     @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @grades ||= ClassroomsGrade.where(id: @fetch_linked_by_teacher[:classroom_grades]).map(&:grade)
+  end
+
+  def fetch_knowledge_area_teaching_plans
+    apply_scopes(
+      KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan:
+                                  [:unity, :grade, :teaching_plan_attachments, :teacher,
+                                   :school_term_type, :school_term_type_step])
+                                .by_unity(current_unity)
+                                .by_year(current_school_year)
+    )
   end
 end
