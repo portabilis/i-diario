@@ -105,6 +105,7 @@ class AbsenceJustificationsController < ApplicationController
         classroom_id: parameters[:classroom_id],
         frequency_date: parameters[:frequency_date],
         discipline_id: parameters[:discipline_id],
+        period: parameters[:period],
         class_numbers: parameters[:class_numbers_original],
       )
     elsif valid
