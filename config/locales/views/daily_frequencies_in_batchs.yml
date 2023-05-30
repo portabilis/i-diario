@@ -20,3 +20,4 @@ pt-BR:
       start_date_greater_end_date: "A Data inicial deve ser menor ou igual a Data final"
       initial_date_no_school_day: "Data inicial deve ser um dia letivo."
       final_date_no_school_day: "Data final deve ser um dia letivo."
+      no_school_day: "Não há dias para lançamento no período selecionado."
