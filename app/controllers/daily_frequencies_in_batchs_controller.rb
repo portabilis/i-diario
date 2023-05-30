@@ -186,6 +186,14 @@ class DailyFrequenciesInBatchsController < ApplicationController
     dates = []
     params['dates'].each { |date| dates << date['date'] }
 
+    if dates.empty?
+      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.no_school_day')
+
+      render :new
+
+      return
+    end
+
     fetch_student_enrollments.each do |student_enrollment|
       student_enrollments_ids << student_enrollment.id
       student = student_enrollment.student
