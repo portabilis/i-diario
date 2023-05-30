@@ -6,9 +6,9 @@ class ReceiptMailer < BaseMailer
     @classroom = classroom
     @unity = unity
 
-    return unless (email = user.email)
+    return unless @email
 
-    skip_domains([email])
+    skip_domains([@email])
 
     mail(to: @recipient, subject: "Frequência do dia #{date} lançada com sucesso") if @recipient.present?
   end
