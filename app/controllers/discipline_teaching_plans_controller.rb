@@ -140,8 +140,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def destroy
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
 
     authorize @discipline_teaching_plan
 
