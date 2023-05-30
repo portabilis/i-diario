@@ -1,4 +1,4 @@
-class CreateFunctionStudentsAvailableByDateRange < ActiveRecord::Migration
+class CreateFunctionStudentsAvailableByDateRange < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE OR REPLACE FUNCTION students_available_by_date_range(

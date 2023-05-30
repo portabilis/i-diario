@@ -1,4 +1,4 @@
-class DailyFrequency < ActiveRecord::Base
+class DailyFrequency < ApplicationRecord
   include Audit
   include TeacherRelationable
 
@@ -61,7 +61,7 @@ class DailyFrequency < ActiveRecord::Base
         lambda { |teacher_id|
           joins(discipline: :teacher_discipline_classrooms)
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
-            .uniq
+            .distinct
         }
 
   scope :by_teacher_classroom_id,

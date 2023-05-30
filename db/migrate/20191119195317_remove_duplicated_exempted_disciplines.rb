@@ -1,4 +1,4 @@
-class RemoveDuplicatedExemptedDisciplines < ActiveRecord::Migration
+class RemoveDuplicatedExemptedDisciplines < ActiveRecord::Migration[4.2]
   def change
     student_enrollment_exempted_disciplines =
       StudentEnrollmentExemptedDiscipline.with_discarded

@@ -41,7 +41,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def create_or_update_multiple
     daily_frequency_attributes = daily_frequency_in_batchs_params
     daily_frequencies_attributes = daily_frequencies_in_batch_params
-    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+    receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
       daily_frequency_attributes[:frequency_in_batch_form][:receive_email_confirmation]
     )
     dates = []

@@ -1,4 +1,4 @@
-class RemoveUnneededIndexAvaliationExemptionsOnAvaliationId < ActiveRecord::Migration
+class RemoveUnneededIndexAvaliationExemptionsOnAvaliationId < ActiveRecord::Migration[4.2]
   def up
     remove_index :avaliation_exemptions, name: "index_avaliation_exemptions_on_avaliation_id"
   end

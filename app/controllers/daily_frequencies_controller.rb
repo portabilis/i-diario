@@ -136,7 +136,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequency_record = nil
       daily_frequency_attributes = daily_frequency_params
       daily_frequencies_attributes = daily_frequencies_params
-      receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
         params[:daily_frequency][:receive_email_confirmation]
       )
 
@@ -207,7 +207,8 @@ class DailyFrequenciesController < ApplicationController
 
     if receive_email_confirmation
       ReceiptMailer.delay.notify_daily_frequency_success(
-        current_user,
+        current_user.first_name,
+        current_user.email,
         "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
         daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y'),
         daily_frequency_record.classroom.description,

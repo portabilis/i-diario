@@ -1,4 +1,4 @@
-class DailyNoteStudent < ActiveRecord::Base
+class DailyNoteStudent < ApplicationRecord
   include Discardable
 
   acts_as_copy_target

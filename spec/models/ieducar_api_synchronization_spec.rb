@@ -10,14 +10,16 @@ RSpec.describe IeducarApiSynchronization, :type => :model do
     it { should validate_presence_of :ieducar_api_configuration }
 
     it do
-      subject.ieducar_api_configuration = build(:ieducar_api_configuration)
+      subject.ieducar_api_configuration = create(:ieducar_api_configuration)
       subject.status = ApiSynchronizationStatus::STARTED
+      subject.save!
       is_expected.to validate_uniqueness_of(:ieducar_api_configuration_id).scoped_to(:status)
     end
 
     it do
-      subject.ieducar_api_configuration = build(:ieducar_api_configuration)
+      subject.ieducar_api_configuration = create(:ieducar_api_configuration)
       subject.status = ApiSynchronizationStatus::ERROR
+      subject.save!
       is_expected.to_not validate_uniqueness_of(:ieducar_api_configuration_id).scoped_to(:status)
     end
   end

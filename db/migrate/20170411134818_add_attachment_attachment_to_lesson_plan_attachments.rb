@@ -1,4 +1,4 @@
-class AddAttachmentAttachmentToLessonPlanAttachments < ActiveRecord::Migration
+class AddAttachmentAttachmentToLessonPlanAttachments < ActiveRecord::Migration[4.2]
   def self.up
     change_table :lesson_plan_attachments do |t|
       t.string :attachment_file_name

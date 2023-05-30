@@ -1,4 +1,4 @@
-class AddFullnameUsersIndex < ActiveRecord::Migration
+class AddFullnameUsersIndex < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

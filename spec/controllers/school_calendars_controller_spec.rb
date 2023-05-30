@@ -27,7 +27,7 @@ RSpec.describe SchoolCalendarsController, type: :controller do
     shared_examples 'test_user_role_access' do
       context 'when user is administrator' do
         before do
-          get :index, locale: 'pt-BR'
+          get :index, params: { locale: 'pt-BR' }
         end
 
         it 'lists all school calendars' do
@@ -43,7 +43,7 @@ RSpec.describe SchoolCalendarsController, type: :controller do
           user_role.role = create(:role)
           user_role.save!
 
-          get :index, locale: 'pt-BR'
+          get :index, params: { locale: 'pt-BR' }
         end
 
         it 'lists only school calendar with role unity' do

@@ -1,4 +1,4 @@
-class ActiveSearch < ActiveRecord::Base
+class ActiveSearch < ApplicationRecord
   include Audit
   include Discardable
 

@@ -1,4 +1,4 @@
-class CreateFunctionCheckToKeepUniqueConceptualExams < ActiveRecord::Migration
+class CreateFunctionCheckToKeepUniqueConceptualExams < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE OR REPLACE FUNCTION check_conceptual_exam_is_unique(
