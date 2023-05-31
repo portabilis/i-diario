@@ -27,7 +27,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def create
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -48,7 +48,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -212,7 +212,7 @@ class LessonsBoardsController < ApplicationController
     return if params[:classroom_id].blank?
 
     render json: LessonsBoard.by_classroom(params[:classroom_id])
-                             .by_period(period: params[:period])
+                             .by_period(params[:period])
                              .empty?
   end
 

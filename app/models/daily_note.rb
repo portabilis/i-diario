@@ -1,4 +1,4 @@
-class DailyNote < ActiveRecord::Base
+class DailyNote < ApplicationRecord
   include Audit
 
   acts_as_copy_target
@@ -14,7 +14,7 @@ class DailyNote < ActiveRecord::Base
   }, class_name: 'DailyNoteStudent', dependent: :destroy
 
   accepts_nested_attributes_for :students, allow_destroy: true, reject_if: proc { |attributes|
-    !ActiveRecord::Type::Boolean.new.type_cast_from_user(attributes[:active])
+    !ActiveRecord::Type::Boolean.new.cast(attributes[:active])
   }
 
   has_enumeration_for :status, with: DailyNoteStatuses, create_helpers: true

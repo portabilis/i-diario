@@ -54,7 +54,7 @@ class AttendanceRecordReport < BaseReport
     @enrollment_classrooms = enrollment_classrooms_list
     @events = events
     @school_calendar = school_calendar
-    @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
+    @second_teacher_signature = ActiveRecord::Type::Boolean.new.cast(second_teacher_signature)
     @show_legend_hybrid = false
     @show_legend_remote = false
     @exists_legend_hybrid = false

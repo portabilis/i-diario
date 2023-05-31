@@ -71,7 +71,7 @@ RSpec.describe KnowledgeAreaLessonPlansController, type: :controller do
   describe 'GET knowledge_area_lesson_plans#index' do
     context 'without filter' do
       before do
-        get :index, locale: 'pt-BR'
+        get :index, params: { locale: 'pt-BR' }
       end
 
       it 'lists all records' do
@@ -92,7 +92,7 @@ RSpec.describe KnowledgeAreaLessonPlansController, type: :controller do
 
       context 'when the experience field matches a record' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_experience_fields: another_knowledge_area_lesson_plan.experience_fields }
+          get :index, params: { locale: 'pt-BR', filter: { by_experience_fields: another_knowledge_area_lesson_plan.experience_fields } }
         end
 
         it 'lists the records that match' do
@@ -103,7 +103,7 @@ RSpec.describe KnowledgeAreaLessonPlansController, type: :controller do
 
       context 'when the experience field does not match a record' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_experience_fields: 'does not exist' }
+          get :index, params: { locale: 'pt-BR', filter: { by_experience_fields: 'does not exist' } }
         end
 
         it 'does not list any record' do
@@ -113,7 +113,7 @@ RSpec.describe KnowledgeAreaLessonPlansController, type: :controller do
 
       context 'without experience field' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_experience_fields: nil }
+          get :index, params: { locale: 'pt-BR', filter: { by_experience_fields: nil } }
         end
 
         it 'lists all records' do

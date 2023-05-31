@@ -1,4 +1,4 @@
-class CreateObservationDiaryRecords < ActiveRecord::Migration
+class CreateObservationDiaryRecords < ActiveRecord::Migration[4.2]
   def change
     create_table :observation_diary_records do |t|
       t.references :school_calendar, null: false, index: true, foreign_key: true

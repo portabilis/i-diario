@@ -1,4 +1,4 @@
-class DeleteRecentTeacherDisciplineClassrooms < ActiveRecord::Migration
+class DeleteRecentTeacherDisciplineClassrooms < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DELETE

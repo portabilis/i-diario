@@ -1,4 +1,4 @@
-class CreateStudentBiometrics < ActiveRecord::Migration
+class CreateStudentBiometrics < ActiveRecord::Migration[4.2]
   def change
     create_table :student_biometrics do |t|
       t.integer :student_id, null: false, index: true

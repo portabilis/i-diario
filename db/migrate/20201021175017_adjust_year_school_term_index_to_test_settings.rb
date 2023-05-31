@@ -1,4 +1,4 @@
-class AdjustYearSchoolTermIndexToTestSettings < ActiveRecord::Migration
+class AdjustYearSchoolTermIndexToTestSettings < ActiveRecord::Migration[4.2]
   def change
     remove_index :test_settings, column: [:year, :school_term]
 

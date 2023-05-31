@@ -1,4 +1,4 @@
-class AdjustFunctionCheckToKeepUniqueDescriptiveExamsToUseStepNumber < ActiveRecord::Migration
+class AdjustFunctionCheckToKeepUniqueDescriptiveExamsToUseStepNumber < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DROP FUNCTION check_descriptive_exam_is_unique(INT, INT, INT, DATE);

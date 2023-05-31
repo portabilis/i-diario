@@ -1,4 +1,4 @@
-class CreateFunctionSetRecordedAtInRecoveryDiaryRecords < ActiveRecord::Migration
+class CreateFunctionSetRecordedAtInRecoveryDiaryRecords < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE OR REPLACE FUNCTION set_recorded_at_in_recovery_diary_records()

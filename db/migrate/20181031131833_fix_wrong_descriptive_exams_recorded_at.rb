@@ -1,4 +1,4 @@
-class FixWrongDescriptiveExamsRecordedAt < ActiveRecord::Migration
+class FixWrongDescriptiveExamsRecordedAt < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE descriptive_exams
