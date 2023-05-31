@@ -128,7 +128,7 @@ class DisciplineTeachingPlansController < ApplicationController
     )
 
     authorize @discipline_teaching_plan
-    binding.pry
+
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
