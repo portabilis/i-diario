@@ -41,7 +41,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def create_or_update_multiple
     daily_frequency_attributes = daily_frequency_in_batchs_params
     daily_frequencies_attributes = daily_frequencies_in_batch_params
-    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+    receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
       daily_frequency_attributes[:frequency_in_batch_form][:receive_email_confirmation]
     )
     dates = []
@@ -185,6 +185,14 @@ class DailyFrequenciesInBatchsController < ApplicationController
     student_ids = []
     dates = []
     params['dates'].each { |date| dates << date['date'] }
+
+    if dates.empty?
+      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.no_school_day')
+
+      render :new
+
+      return
+    end
 
     fetch_student_enrollments.each do |student_enrollment|
       student_enrollments_ids << student_enrollment.id

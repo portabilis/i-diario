@@ -47,31 +47,31 @@ RSpec.describe AccountsController, :type => :controller do
   describe 'PUT #update' do
     it 'does not update and returns error when params are wrong' do
       params[:user] = nil
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response).to have_http_status(302)
     end
 
     it 'redirects to account edit page when password is weak' do
       params[:user][:password] = 'weak'
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response).to render_template(:edit)
     end
 
     it 'updates when password is strong' do
       params[:user][:password] = '!Test123'
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response).to have_http_status(:ok)
       expect(response.headers['Location']).to eq('/conta/editar')
     end
 
     it 'redirects to account edit page when params are correct' do
-      put :update, params
+      put :update, params: params
       expect(response.headers['Location']).to eq('/conta/editar')
     end
 
     it 'updates value when params are correct' do
       params[:user][:first_name] = 'new name'
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response.headers['Location']).to eq('/conta/editar')
       expect(user).to have_attributes(first_name: 'new name')
     end

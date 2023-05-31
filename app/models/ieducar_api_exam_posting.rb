@@ -1,4 +1,4 @@
-class IeducarApiExamPosting < ActiveRecord::Base
+class IeducarApiExamPosting < ApplicationRecord
   audited only: [:teacher_id]
 
   acts_as_copy_target

@@ -1,4 +1,4 @@
-class AddUniqueIndexToContentsTeachingPlans < ActiveRecord::Migration
+class AddUniqueIndexToContentsTeachingPlans < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

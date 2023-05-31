@@ -78,7 +78,7 @@ class ObservationDiaryRecordsController < ApplicationController
   def update
     @observation_diary_record = ObservationDiaryRecord.find(params[:id])
     @observation_diary_record.current_user = current_user
-    @observation_diary_record.assign_attributes(resource_params)
+    @observation_diary_record.assign_attributes(resource_params.to_h)
 
     authorize @observation_diary_record
 
@@ -150,7 +150,7 @@ class ObservationDiaryRecordsController < ApplicationController
   def parse_params
     return unless params['observation_diary_record']['notes_attributes'].present?
 
-    params['observation_diary_record']['notes_attributes'].each do |_, v|
+    params['observation_diary_record']['notes_attributes'].to_unsafe_h.each do |_, v|
       v['student_ids'] = v['student_ids'].split(',')
     end
   end

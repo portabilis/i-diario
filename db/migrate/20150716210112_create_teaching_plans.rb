@@ -1,4 +1,4 @@
-class CreateTeachingPlans < ActiveRecord::Migration
+class CreateTeachingPlans < ActiveRecord::Migration[4.2]
   def change
     create_table :teaching_plans do |t|
       t.integer :classroom_id, null: false

@@ -1,4 +1,4 @@
-class CreateAbsenceJustifications < ActiveRecord::Migration
+class CreateAbsenceJustifications < ActiveRecord::Migration[4.2]
   def change
     create_table :absence_justifications do |t|
       t.references :student, index: true, null: false
