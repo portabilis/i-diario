@@ -112,7 +112,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def update
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
-    @discipline_teaching_plan.assign_attributes(resource_params)
+    @discipline_teaching_plan.assign_attributes(resource_params.to_h)
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
