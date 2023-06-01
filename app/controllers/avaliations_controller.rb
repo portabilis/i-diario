@@ -14,16 +14,16 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
+    if params[:filter].present? && params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+      params[:filter][school_calendar_step] = step_id
+    end
+
     if current_user.current_role_is_admin_or_employee?
       @classrooms = Classroom.where(id: current_user_classroom)
       @disciplines = Discipline.where(id: current_user_discipline)
     else
       fetch_linked_by_teacher
-    end
-
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      params[:filter][school_calendar_step] = step_id
     end
 
     fetch_avaliations_by_user
@@ -33,11 +33,13 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
-    return if test_settings_redirect
-    return if score_types_redirect
-    return if not_allow_numerical_exam
+    if current_user.current_role_is_admin_or_employee?
+      return if test_settings_redirect
+      return if score_types_redirect
+      return if not_allow_numerical_exam
+    else
+      fetch_linked_by_teacher
+    end
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -49,12 +51,11 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
-    return if test_settings_redirect
-    return if score_types_redirect
-    return if not_allow_numerical_exam
-
     if current_user.current_role_is_admin_or_employee?
       @disciplines = Discipline.where(id: current_user_discipline.id)
+      return if test_settings_redirect
+      return if score_types_redirect
+      return if not_allow_numerical_exam
     else
       fetch_linked_by_teacher
     end
@@ -116,6 +117,32 @@ class AvaliationsController < ApplicationController
     authorize @avaliation
 
     test_settings
+  end
+
+  def set_avaliation_setting
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    year_test_setting = TestSetting.where(year: classroom.year)
+
+    test_settings ||= general_by_school_test_setting(year_test_setting) ||
+                      general_test_setting(year_test_setting) ||
+                      by_school_term_test_setting(year_test_setting)
+
+    test_setting_tests = TestSettingTest.where(test_setting: test_settings)
+
+    render json: test_setting_tests
+  end
+
+  def set_grades_by_classrooms
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    grades = classroom.grades.ordered
+
+    render json: grades
   end
 
   def update
@@ -317,11 +344,13 @@ class AvaliationsController < ApplicationController
   end
 
   def general_by_school_test_setting(year_test_setting)
+    params["classroom_id"].present? ? classroom = Classroom.find(params["classroom_id"]) : classroom = current_user.classroom
+
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                      .by_unities(current_user.classroom.unity)
                      .where(
                        "grades && ARRAY[?]::integer[] OR grades = '{}'",
-                       current_user.classroom.grade_ids
+                       classroom.grade_ids
                      )
                      .presence
   end
