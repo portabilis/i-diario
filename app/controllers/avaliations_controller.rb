@@ -34,12 +34,12 @@ class AvaliationsController < ApplicationController
 
   def new
     if current_user.current_role_is_admin_or_employee?
-      return if test_settings_redirect
       return if score_types_redirect
       return if not_allow_numerical_exam
     else
       fetch_linked_by_teacher
     end
+    return if test_settings_redirect
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -337,7 +337,11 @@ class AvaliationsController < ApplicationController
   end
 
   def test_settings
-    return unless (year_test_setting = TestSetting.where(year: current_user.classroom.year))
+    year_test_setting = TestSetting.where(year: current_user.classroom.year)
+
+    return unless year_test_setting if current_user.current_role_is_admin_or_employee?
+
+    flash[:error] = t('errors.avaliations.require_setting') unless year_test_setting
 
     @test_settings ||= general_by_school_test_setting(year_test_setting) ||
                        general_test_setting(year_test_setting) ||
