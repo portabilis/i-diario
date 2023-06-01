@@ -113,7 +113,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     if receive_email_confirmation
       ReceiptMailer.delay.notify_daily_frequency_in_batch_success(
-        current_user,
+        current_user.first_name,
+        current_user.email,
         "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
         dates,
         Classroom.find(daily_frequency_attributes[:classroom_id].to_i).description,
