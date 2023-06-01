@@ -45,6 +45,7 @@ class AvaliationsController < ApplicationController
     @avaliation.school_calendar = current_school_calendar
     @avaliation.classroom = current_user_classroom
     @avaliation.discipline = current_user_discipline
+    @avaliation.grades = current_user_classroom.grades
     @avaliation.test_date = Time.zone.today
 
     authorize resource
