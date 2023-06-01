@@ -75,7 +75,7 @@ $(function () {
 
   
   function handleFetchTestSettingsByClassroomError() {
-    flashMessages.error('É necessário configurar uma avaliação numérica');
+    flashMessages.error('A regra de avaliação da turma informada não permite lançamentos de avaliações numéricas');
   }
 
   async function getGrades(){
@@ -105,7 +105,7 @@ $(function () {
   }
   
   function handleFetchGradesByClassroomError() {
-    flashMessages.error('É necessário configurar uma avaliação numérica');
+    flashMessages.error('Não foi encontrado nenhuma série vinculada nessa turma');
   }
 
   var updateFieldsBasedOnTestSetting = function() {
