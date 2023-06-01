@@ -141,13 +141,10 @@ $(function () {
     var grades_by_classroom = data['avaliations']
 
     var options = _.map(grades_by_classroom, function (grades_by_classroom) {
-      return { id:grades_by_classroom['id'], text: grades_by_classroom['description'] };
+      return { id: grades_by_classroom['id'], text: grades_by_classroom['description'] };
     });
 
-    grades_select2.select2({data: options})
-    // grades_select2.on("click", function () {
-
-    // });
+    grades_select2.select2({data: options, multiple: true})
   }
   
   function handleFetchGradesByClassroomError() {
