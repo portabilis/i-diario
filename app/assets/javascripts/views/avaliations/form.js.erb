@@ -1,16 +1,4 @@
 $(function () {
-  window.classrooms = [];
-  var fetchClassrooms = function (params, callback) {
-    if (_.isEmpty(window.classrooms)) {
-      $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-        window.classrooms = data;
-        callback(window.classrooms);
-      });
-    } else {
-      callback(window.classrooms);
-    }
-  };
-
   window.disciplines = [];
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
@@ -35,36 +23,6 @@ $(function () {
     }
   };
 
-  $('#avaliation_unity_id').on('change', function (e) {
-    var $classroom = $('#avaliation_classroom_id'),
-        params = {
-          filter: {
-            by_unity: e.val
-          },
-          find_by_current_teacher: true
-        };
-
-    window.classrooms = [];
-
-    if (_.isEmpty(e.val)) {
-      $classroom.val('');
-      $classroom.select2({
-        data: []
-      });
-
-    } else {
-      fetchClassrooms(params, function (classrooms) {
-        var selectedClassrooms = _.map(classrooms, function (classroom) {
-          return { id:classroom['id'], text: classroom['description'] };
-        });
-
-        $classroom.select2({
-          data: selectedClassrooms
-        });
-      });
-    }
-  });
-
   $('#avaliation_classroom_id').on('change', async function (e) {
     await getTestSetting();
     await getGrades();
@@ -75,19 +33,18 @@ $(function () {
         };
     window.disciplines = [];
 
-    if (_.isEmpty(e.val)) {
-      $discipline.val('').select2({data: []});
+    if (!_.isEmpty(e.val)) {
+      $discipline.val('').select2({ data: [] });
 
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
         });
 
-        $discipline.select2({
-          data: selectedDisciplines
-        });
+        $discipline.select2({ data: selectedDisciplines });
       });
     }
+   
   });
 
   async function getTestSetting(){
