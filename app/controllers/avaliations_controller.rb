@@ -197,6 +197,46 @@ class AvaliationsController < ApplicationController
     render json: resource
   end
 
+  def set_type_score_for_discipline
+    return if params[:classroom_id].blank? && params[:discipline_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    discipline = Discipline.find(params[:discipline_id])
+
+    score_types = []
+
+    classroom.classrooms_grades.each do |classroom_grade|
+      exam_rule = classroom_grade.exam_rule
+
+      next if exam_rule.blank?
+
+      differentiated_exam_rule = exam_rule.differentiated_exam_rule
+
+      if differentiated_exam_rule.blank? || !classroom_grade.classroom.has_differentiated_students?
+        score_types << discipline_score_type_by_exam_rule(exam_rule, classroom_grade.classroom, discipline)
+      end
+
+      score_types << discipline_score_type_by_exam_rule(differentiated_exam_rule, classroom_grade.classroom, discipline)
+    end
+
+    available_score_types = score_types.uniq
+
+    render json: true if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
+  end
+
+  def discipline_score_type_by_exam_rule(exam_rule, classroom, discipline)
+    return if exam_rule.blank?
+    return unless (score_type = exam_rule.score_type)
+    return if score_type == ScoreTypes::DONT_USE
+    return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
+
+    TeacherDisciplineClassroom.find_by(
+      classroom: classroom,
+      teacher: current_teacher,
+      discipline: discipline
+    ).score_type
+  end
+
   private
 
   def school_calendar_step
