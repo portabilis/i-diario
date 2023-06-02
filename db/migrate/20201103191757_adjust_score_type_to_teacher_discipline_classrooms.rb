@@ -1,4 +1,4 @@
-class AdjustScoreTypeToTeacherDisciplineClassrooms < ActiveRecord::Migration
+class AdjustScoreTypeToTeacherDisciplineClassrooms < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE teacher_discipline_classrooms

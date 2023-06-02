@@ -1,4 +1,4 @@
-class CreateAvaliationExemptions < ActiveRecord::Migration
+class CreateAvaliationExemptions < ActiveRecord::Migration[4.2]
   def change
     create_table :avaliation_exemptions do |t|
       t.references :avaliation, index: true, foreign_key: true

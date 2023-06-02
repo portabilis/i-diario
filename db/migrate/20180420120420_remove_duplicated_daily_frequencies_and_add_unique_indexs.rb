@@ -1,4 +1,4 @@
-class RemoveDuplicatedDailyFrequenciesAndAddUniqueIndexs < ActiveRecord::Migration
+class RemoveDuplicatedDailyFrequenciesAndAddUniqueIndexs < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE OR REPLACE FUNCTION public.remove_duplicated_daily_frequencies_and_create_indexes() RETURNS void AS $BODY$

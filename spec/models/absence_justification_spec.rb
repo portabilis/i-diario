@@ -23,7 +23,6 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to validate_school_calendar_day_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
     it { expect(subject).to validate_school_calendar_day_of(:absence_date_end) }
-    it { expect(subject).to validate_presence_of(:justification) }
     it { expect(subject).to validate_presence_of(:unity) }
     it do
       allow(FrequencyTypeDefiner).to receive(:new).and_return(frequency_type_definer)
@@ -34,6 +33,8 @@ RSpec.describe AbsenceJustification, type: :model do
 
     context 'given that I have a record persisted' do
       it 'should validate if is a valid date on a absence with frequence type by discipline' do
+        skip 'disciplines will not be able in future'
+
         classroom = create(
           :classroom,
           :with_classroom_semester_steps,

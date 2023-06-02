@@ -1,4 +1,4 @@
-class RefactorConceptualExams < ActiveRecord::Migration
+class RefactorConceptualExams < ActiveRecord::Migration[4.2]
   def change
     rename_table :conceptual_exams, :conceptual_exams_old
 

@@ -1,4 +1,4 @@
-class CreateIeducarApiConfigurations < ActiveRecord::Migration
+class CreateIeducarApiConfigurations < ActiveRecord::Migration[4.2]
   def change
     create_table :ieducar_api_configurations do |t|
       t.string :url, null: false

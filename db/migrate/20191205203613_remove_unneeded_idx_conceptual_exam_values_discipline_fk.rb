@@ -1,4 +1,4 @@
-class RemoveUnneededIdxConceptualExamValuesDisciplineFk < ActiveRecord::Migration
+class RemoveUnneededIdxConceptualExamValuesDisciplineFk < ActiveRecord::Migration[4.2]
   def up
     remove_index :conceptual_exam_values, name: "idx_conceptual_exam_values_discipline_fk"
   end

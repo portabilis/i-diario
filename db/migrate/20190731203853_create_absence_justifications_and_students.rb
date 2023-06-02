@@ -1,4 +1,4 @@
-class CreateAbsenceJustificationsAndStudents < ActiveRecord::Migration
+class CreateAbsenceJustificationsAndStudents < ActiveRecord::Migration[4.2]
   def change
     create_table :absence_justifications_students, id: false do |t|
       t.belongs_to :student, null: false

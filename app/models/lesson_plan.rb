@@ -1,4 +1,4 @@
-class LessonPlan < ActiveRecord::Base
+class LessonPlan < ApplicationRecord
   include Audit
   include TeacherRelationable
   include Translatable

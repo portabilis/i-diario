@@ -1,4 +1,4 @@
-class CreateMaintenanceAdjustments < ActiveRecord::Migration
+class CreateMaintenanceAdjustments < ActiveRecord::Migration[4.2]
   def change
     create_table :maintenance_adjustments do |t|
       t.integer :year

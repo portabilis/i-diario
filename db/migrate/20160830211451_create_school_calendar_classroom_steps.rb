@@ -1,4 +1,4 @@
-class CreateSchoolCalendarClassroomSteps < ActiveRecord::Migration
+class CreateSchoolCalendarClassroomSteps < ActiveRecord::Migration[4.2]
   def change
     create_table :school_calendar_classroom_steps do |t|
       t.references :school_calendar_classroom, index: {name: "index_school_calendar_classroom"}, foreign_key: true

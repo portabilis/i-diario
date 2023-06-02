@@ -1,4 +1,4 @@
-class ResetStudentsWithDeficienciesSync < ActiveRecord::Migration
+class ResetStudentsWithDeficienciesSync < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
      UPDATE students
