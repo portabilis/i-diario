@@ -119,32 +119,6 @@ class AvaliationsController < ApplicationController
     test_settings
   end
 
-  def set_avaliation_setting
-    return if params[:classroom_id].blank?
-
-    classroom = Classroom.find(params[:classroom_id])
-
-    year_test_setting = TestSetting.where(year: classroom.year)
-
-    test_settings ||= general_by_school_test_setting(year_test_setting) ||
-                      general_test_setting(year_test_setting) ||
-                      by_school_term_test_setting(year_test_setting)
-
-    test_setting_tests = TestSettingTest.where(test_setting: test_settings)
-
-    render json: test_setting_tests
-  end
-
-  def set_grades_by_classrooms
-    return if params[:classroom_id].blank?
-
-    classroom = Classroom.find(params[:classroom_id])
-
-    grades = classroom.grades.ordered
-
-    render json: grades
-  end
-
   def update
     @avaliation = resource
     @avaliation.localized.assign_attributes(resource_params)
@@ -235,6 +209,44 @@ class AvaliationsController < ApplicationController
       teacher: current_teacher,
       discipline: discipline
     ).score_type
+  end
+
+  def set_avaliation_setting
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    year_test_setting = TestSetting.where(year: classroom.year)
+
+    test_settings ||= general_by_school_test_setting(year_test_setting) ||
+                      general_test_setting(year_test_setting) ||
+                      by_school_term_test_setting(year_test_setting)
+
+    test_setting_tests = TestSettingTest.where(test_setting: test_settings)
+
+    render json: test_setting_tests
+  end
+
+  def set_grades_by_classrooms
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    grades = classroom.grades.ordered
+
+    render json: grades
+  end
+
+  def check_if_allow_numeric_exam
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    grades_by_numerical_exam = classroom.classrooms_grades
+                                        .by_score_type(ScoreTypes::NUMERIC)
+                                        .map(&:grade)
+
+    render json: true if grades_by_numerical_exam.present?
   end
 
   private

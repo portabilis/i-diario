@@ -110,11 +110,11 @@ $(function () {
     flashMessages.error('Não foi encontrado nenhuma série vinculada nessa turma');
   }
 
-  $('#avaliation_discipline_id').on('change', async function (e) {
+  $('#avaliation_discipline_id').on('change', function (e) {
     // verifica se a disciplina selecionada tem regra de avaliacao numerica
     let classroom_id = $classroom_id.select2('val');
     let discipline_id = $discipline_id.select2('val');
-   
+
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
         url: Routes.set_type_score_for_discipline_avaliations_pt_br_path({
@@ -125,7 +125,7 @@ $(function () {
         success: handleFetchTypeScoreForDisciplineByClassroomSuccess,
         error: handleFetchTypeScoreForDisciplineByClassroomError
       });
-    }
+    };
   });
 
   function handleFetchTypeScoreForDisciplineByClassroomSuccess(data) {
