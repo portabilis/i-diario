@@ -1,4 +1,10 @@
 $(function () {
+
+  var $avaliation_setting = $('#avaliation_test_setting_test_id'),
+      $classroom_id = $('#avaliation_classroom_id'),
+      $discipline_id = $('#avaliation_discipline_id'),
+      flashMessages = new FlashMessages();
+
   window.disciplines = [];
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
@@ -27,28 +33,26 @@ $(function () {
     await getTestSetting();
     await getGrades();
 
-    var $discipline = $('#avaliation_discipline_id'),
-        params = {
-          classroom_id: e.val
-        };
+    var params = { classroom_id: e.val };
     window.disciplines = [];
 
+    $discipline_id.val('').select2({ data: [] });
+
     if (!_.isEmpty(e.val)) {
-      $discipline.val('').select2({ data: [] });
 
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
         });
 
-        $discipline.select2({ data: selectedDisciplines });
+        $discipline_id.select2({ data: selectedDisciplines });
       });
     }
    
   });
 
   async function getTestSetting(){
-    let classroom_id = $('#avaliation_classroom_id').select2('val');
+    let classroom_id = $classroom_id.select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
@@ -63,16 +67,14 @@ $(function () {
   }
 
   function handleFetchTestSettingsByClassroomSuccess(data) {
-    var avaliation_setting = $('#avaliation_test_setting_test_id');
     var settings = data['avaliations']
 
     var options = _.map(settings, function (settings) {
       return { id:settings['id'], text: settings['description'] };
     });
 
-    avaliation_setting.select2({data: options})
+    $avaliation_setting.select2({ data: options })
   }
-
   
   function handleFetchTestSettingsByClassroomError() {
     flashMessages.error('A regra de avaliação da turma informada não permite lançamentos de avaliações numéricas');
@@ -106,6 +108,31 @@ $(function () {
   
   function handleFetchGradesByClassroomError() {
     flashMessages.error('Não foi encontrado nenhuma série vinculada nessa turma');
+  }
+
+  $('#avaliation_discipline_id').on('change', async function (e) {
+    // verifica se a disciplina selecionada tem regra de avaliacao numerica
+    let classroom_id = $classroom_id.select2('val');
+    let discipline_id = $discipline_id.select2('val');
+   
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.set_type_score_for_discipline_avaliations_pt_br_path({
+          classroom_id: classroom_id,
+          discipline_id: discipline_id,
+          format: 'json'
+        }),
+        success: handleFetchTypeScoreForDisciplineByClassroomSuccess,
+        error: handleFetchTypeScoreForDisciplineByClassroomError
+      });
+    }
+  });
+
+  function handleFetchTypeScoreForDisciplineByClassroomSuccess(data) {
+    flashMessages.success('Disciplina com regra de avaliação numérica');
+  }
+  function handleFetchTypeScoreForDisciplineByClassroomError() {
+    flashMessages.error('Essa disciplina não tem regra de avaliação numérica');
   }
 
   var updateFieldsBasedOnTestSetting = function() {
