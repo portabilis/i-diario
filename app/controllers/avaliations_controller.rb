@@ -87,6 +87,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
       render :multiple_classrooms
     end
@@ -98,12 +99,12 @@ class AvaliationsController < ApplicationController
     resource.teacher_id = current_teacher_id
 
     authorize resource
-
     if resource.save
       respond_to_save
     else
       @avaliation = resource
       test_settings
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
       render :new
     end
