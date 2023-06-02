@@ -33,13 +33,11 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    if current_user.current_role_is_admin_or_employee?
-      return if score_types_redirect
-      return if not_allow_numerical_exam
-    else
-      fetch_linked_by_teacher
-    end
     return if test_settings_redirect
+    return if score_types_redirect
+    return if not_allow_numerical_exam
+
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -52,11 +50,12 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
+    return if test_settings_redirect
+    return if score_types_redirect
+    return if not_allow_numerical_exam
+
     if current_user.current_role_is_admin_or_employee?
-      @disciplines = Discipline.where(id: current_user_discipline.id)
-      return if test_settings_redirect
-      return if score_types_redirect
-      return if not_allow_numerical_exam
+      @disciplines = current_user_discipline
     else
       fetch_linked_by_teacher
     end
@@ -339,7 +338,7 @@ class AvaliationsController < ApplicationController
   def test_settings
     year_test_setting = TestSetting.where(year: current_user.classroom.year)
 
-    return unless year_test_setting if current_user.current_role_is_admin_or_employee?
+    return unless year_test_setting && !current_user.current_role_is_admin_or_employee?
 
     flash[:error] = t('errors.avaliations.require_setting') unless year_test_setting
 
@@ -348,8 +347,8 @@ class AvaliationsController < ApplicationController
                        by_school_term_test_setting(year_test_setting)
   end
 
-  def general_by_school_test_setting(year_test_setting)
-    params["classroom_id"].present? ? classroom = Classroom.find(params["classroom_id"]) : classroom = current_user.classroom
+  def general_by_school_test_setting(year_test_setting, classroom = nil)
+    classroom ||= classroom || current_user.classroom
 
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                      .by_unities(current_user.classroom.unity)
@@ -375,7 +374,12 @@ class AvaliationsController < ApplicationController
 
     return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
 
-    redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
+    if current_user.current_role_is_admin_or_employee?
+      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
+    else
+      flash.now[:alert] = t('avaliation.numeric_exam_absence')
+      return false
+    end
   end
 
   def not_allow_numerical_exam
@@ -383,7 +387,12 @@ class AvaliationsController < ApplicationController
 
     return if grades_by_numerical_exam.present?
 
-    redirect_to avaliations_path, alert: t('avaliation.grades_not_allow_numeric_exam')
+    if current_user.current_role_is_admin_or_employee?
+      redirect_to avaliations_path, alert: t('avaliation.grades_not_allow_numeric_exam')
+    else
+      flash.now[:alert] = t('avaliation.grades_not_allow_numeric_exam')
+      return false
+    end
   end
 
   def grades
