@@ -1,4 +1,4 @@
-class CreateRecoveryDiaryRecords < ActiveRecord::Migration
+class CreateRecoveryDiaryRecords < ActiveRecord::Migration[4.2]
   def change
     create_table :recovery_diary_records do |t|
       t.date :recorded_at, null: false

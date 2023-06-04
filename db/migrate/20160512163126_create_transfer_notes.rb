@@ -1,4 +1,4 @@
-class CreateTransferNotes < ActiveRecord::Migration
+class CreateTransferNotes < ActiveRecord::Migration[4.2]
   def change
     create_table :transfer_notes do |t|
       t.integer :classroom_id, index: true, null: false

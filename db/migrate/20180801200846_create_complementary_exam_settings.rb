@@ -1,4 +1,4 @@
-class CreateComplementaryExamSettings < ActiveRecord::Migration
+class CreateComplementaryExamSettings < ActiveRecord::Migration[4.2]
   def change
     create_table :complementary_exam_settings do |t|
       t.string :description, null: false

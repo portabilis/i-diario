@@ -1,4 +1,4 @@
-class ContentRecord < ActiveRecord::Base
+class ContentRecord < ApplicationRecord
   include Audit
   include ColumnsLockable
   include TeacherRelationable

@@ -1,4 +1,4 @@
-class KnowledgeAreaTeachingPlanKnowledgeArea < ActiveRecord::Base
+class KnowledgeAreaTeachingPlanKnowledgeArea < ApplicationRecord
   audited
 
   belongs_to :knowledge_area_teaching_plan

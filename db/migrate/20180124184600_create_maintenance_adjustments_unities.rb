@@ -1,4 +1,4 @@
-class CreateMaintenanceAdjustmentsUnities < ActiveRecord::Migration
+class CreateMaintenanceAdjustmentsUnities < ActiveRecord::Migration[4.2]
   def change
     create_table :maintenance_adjustments_unities, id: false do |t|
       t.belongs_to :maintenance_adjustment

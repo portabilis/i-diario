@@ -1,4 +1,4 @@
-class FixTransferNotesIndexes2 < ActiveRecord::Migration
+class FixTransferNotesIndexes2 < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change
