@@ -1,4 +1,4 @@
-class Address < ActiveRecord::Base
+class Address < ApplicationRecord
   acts_as_copy_target
 
   audited associated_with: :source, except: [:source_id, :source_type, :latitude, :longitude]

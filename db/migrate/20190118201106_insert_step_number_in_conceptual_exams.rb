@@ -1,4 +1,4 @@
-class InsertStepNumberInConceptualExams < ActiveRecord::Migration
+class InsertStepNumberInConceptualExams < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE conceptual_exams

@@ -55,8 +55,11 @@ class GeneralConfigurationsController < ApplicationController
       :days_to_disable_access,
       :show_inactive_enrollments,
       :show_percentage_on_attendance_record_report,
+      :do_not_send_justified_absence,
       :require_daily_activities_record,
-      :remove_lesson_plan_objectives
+      :remove_lesson_plan_objectives,
+      :show_experience_fields,
+      :allows_copy_experience_fields_in_lesson_plans
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')

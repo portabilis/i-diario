@@ -31,13 +31,15 @@ class TransferNotesController < ApplicationController
 
   def create
     @transfer_note = TransferNote.new.localized
-    @transfer_note.assign_attributes(resource_params)
+    @transfer_note.assign_attributes(resource_params.to_unsafe_h.except(:daily_note_students_attributes))
     @transfer_note.step_number = @transfer_note.step.try(:step_number)
     @transfer_note.teacher = current_teacher
 
     authorize @transfer_note
 
     if @transfer_note.save
+      update_daily_note_student(resource_params[:daily_note_students_attributes])
+
       respond_with @transfer_note, location: transfer_notes_path
     else
       render :new
@@ -55,8 +57,10 @@ class TransferNotesController < ApplicationController
   def update
     @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.current_user = current_user
-    @transfer_note.assign_attributes(resource_params)
+    @transfer_note.assign_attributes(resource_params.to_unsafe_h)
+    daily_note_students = resource_params[:daily_note_students_attributes]
 
+    require_daily_note_student(daily_note_students)
     authorize @transfer_note
 
     if @transfer_note.save
@@ -101,6 +105,7 @@ class TransferNotesController < ApplicationController
 
   def destroy
     @transfer_note = TransferNote.find(params[:id])
+    @transfer_note.step_id = @transfer_note.step.try(:id)
 
     authorize @transfer_note
 
@@ -156,4 +161,27 @@ class TransferNotesController < ApplicationController
     @students = (@transfer_note.student_id.present? ? [@transfer_note.student] : [])
   end
   helper_method :students
+
+  def update_daily_note_student(daily_note_students_attributes)
+    ActiveRecord::Base.transaction do
+      daily_note_students_attributes.values.each do |data|
+        record = DailyNoteStudent.find_or_initialize_by(
+          daily_note_id: data[:daily_note_id],
+          student_id: data[:student_id]
+        ).localized
+
+        record.assign_attributes(
+          note: data[:note],
+          transfer_note_id: @transfer_note.id
+        )
+        record.save!
+      end
+    end
+  end
+
+  def require_daily_note_student(daily_note_students)
+    data = daily_note_students.values.map(&:any?)
+
+    flash[:alert] = t('errors.daily_note.at_least_one_daily_note_student') if data.include?(false)
+  end
 end

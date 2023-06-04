@@ -1,4 +1,4 @@
-class RemoveAbsenceJustificationsWithoutStudents < ActiveRecord::Migration
+class RemoveAbsenceJustificationsWithoutStudents < ActiveRecord::Migration[4.2]
   class MigrationAbsenceJustification < ActiveRecord::Base
     self.table_name = :absence_justifications
   end

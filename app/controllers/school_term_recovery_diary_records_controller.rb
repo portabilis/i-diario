@@ -50,7 +50,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def create
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
-    @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.assign_attributes(resource_params.to_h)
     @school_term_recovery_diary_record.step_number = @school_term_recovery_diary_record.step.try(:step_number)
     @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
 
@@ -91,7 +91,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def update
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-    @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.assign_attributes(resource_params.to_h)
     @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
     @school_term_recovery_diary_record.recovery_diary_record.current_user = current_user
 

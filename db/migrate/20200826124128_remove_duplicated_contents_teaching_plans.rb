@@ -1,4 +1,4 @@
-class RemoveDuplicatedContentsTeachingPlans < ActiveRecord::Migration
+class RemoveDuplicatedContentsTeachingPlans < ActiveRecord::Migration[4.2]
   def change
     contents_teaching_plans = ContentsTeachingPlan.group(
       :teaching_plan_id, :content_id

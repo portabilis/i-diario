@@ -11,12 +11,12 @@ class UnitiesClassroomsDisciplinesByTeacher
 
     self.unities = Unity.by_teacher(teacher_id)
                         .ordered
-                        .uniq
+                        .distinct
 
     if unity_id
       self.classrooms = Classroom.by_unity_and_teacher(unity_id, teacher_id)
                                  .ordered
-                                 .uniq
+                                 .distinct
     else
       self.classrooms = {}
     end
@@ -24,7 +24,7 @@ class UnitiesClassroomsDisciplinesByTeacher
     if classroom_id
       @disciplines = Discipline.by_teacher_and_classroom(teacher_id, classroom_id)
                                .ordered
-                               .uniq
+                               .distinct
     else
       @disciplines = {}
     end
@@ -32,7 +32,7 @@ class UnitiesClassroomsDisciplinesByTeacher
     if discipline_id
       @avaliations = Avaliation.teacher_avaliations(teacher_id, classroom_id, discipline_id)
                                .ordered
-                               .uniq
+                               .distinct
     else
       @avaliations = {}
     end
