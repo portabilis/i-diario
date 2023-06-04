@@ -1,4 +1,4 @@
-class AdjustPeriodOnDailyFrequencies < ActiveRecord::Migration
+class AdjustPeriodOnDailyFrequencies < ActiveRecord::Migration[4.2]
   def change
     DailyFrequency.includes(:classroom).where(period: 0).each do |daily_frequency|
       classroom_id = daily_frequency.classroom_id

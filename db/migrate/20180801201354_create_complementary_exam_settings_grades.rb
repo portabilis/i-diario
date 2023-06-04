@@ -1,4 +1,4 @@
-class CreateComplementaryExamSettingsGrades < ActiveRecord::Migration
+class CreateComplementaryExamSettingsGrades < ActiveRecord::Migration[4.2]
   def change
     create_table :complementary_exam_settings_grades do |t|
       t.references :grade, index: { name: 'idx_cesg_grade_id' }

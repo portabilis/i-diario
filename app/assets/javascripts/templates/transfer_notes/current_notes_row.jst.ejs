@@ -4,25 +4,23 @@
   </td>
 
   <td>
-    <% if(id > 0){ %>
-      <%= note %>
-    <% } else {%>
     <div class="control-group string required transfer_note_daily_note_students_note">
       <div class="controls input">
         <input class="form-control string required decimal" type="decimal" name="transfer_note[daily_note_students_attributes][<%= element_id %>][note]" id="transfer_note_daily_note_students_attributes_<%= element_id %>_note" value="<%= note %>">
       </div>
     </div>
+
     <input type="hidden" name="transfer_note[daily_note_students_attributes][<%= element_id %>][id]"
-        id="transfer_note_daily_note_students_attributes_<%= element_id %>_id" value="<%= id %>">
+      id="transfer_note_daily_note_students_attributes_<%= element_id %>_id" value="<%= id %>">
 
     <input type="hidden" name="transfer_note[daily_note_students_attributes][<%= element_id %>][student_id]"
-        id="transfer_note_daily_note_students_attributes_<%= element_id %>_student_id" value="<%= student.id %>">
+      id="transfer_note_daily_note_students_attributes_<%= element_id %>_student_id" value="<%= student.id %>">
 
     <input type="hidden" name="transfer_note[daily_note_students_attributes][<%= element_id %>][daily_note_id]"
-        id="transfer_note_daily_note_students_attributes_<%= element_id %>_daily_note_id" value="<%= daily_note_id %>">
+      id="transfer_note_daily_note_students_attributes_<%= element_id %>_daily_note_id" value="<%= daily_note_id %>">
 
     <input type="hidden" name="transfer_note[daily_note_students_attributes][<%= element_id %>][active]"
-        id="transfer_note_daily_note_students_attributes_<%= element_id %>_active" value="<%= true %>">
-    <% } %>
+      id="transfer_note_daily_note_students_attributes_<%= element_id %>_active" value="<%= true %>">
+ 
   </td>
 </tr>

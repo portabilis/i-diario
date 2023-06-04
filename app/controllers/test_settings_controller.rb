@@ -26,7 +26,7 @@ class TestSettingsController < ApplicationController
   end
 
   def create
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -48,7 +48,7 @@ class TestSettingsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 

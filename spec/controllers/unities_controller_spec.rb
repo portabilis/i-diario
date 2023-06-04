@@ -80,7 +80,7 @@ RSpec.describe UnitiesController, :type => :controller do
     let(:unities) { create_list(:unity, 2) }
 
     it 'lists all unities when params are correct' do
-      get :index, locale: 'pt-BR'
+      get :index, params: { locale: 'pt-BR' }
       expect(response).to have_http_status(:ok)
     end
   end
@@ -89,7 +89,7 @@ RSpec.describe UnitiesController, :type => :controller do
     let(:unities) { create_list(:unity, 2) }
 
     it 'list unity when params are correct' do
-      get :show, locale: 'pt-BR', id: unities.first.id
+      get :show, params: { locale: 'pt-BR', id: unities.first.id }
       expect(response.body).to include(unities.first.id.to_s)
     end
   end
@@ -97,12 +97,12 @@ RSpec.describe UnitiesController, :type => :controller do
   describe 'POST #create' do
     it 'fails to create and renders the new template' do
       params[:unity] = { name: nil }
-      post :create, params.merge(params)
+      post :create, params: params.merge(params)
       expect(response).to render_template(:new)
     end
 
     it 'creates and redirects to daily frequency edit page' do
-      post :create, params
+      post :create, params: params
       expect(response).to redirect_to(unities_path)
     end
   end
@@ -113,14 +113,14 @@ RSpec.describe UnitiesController, :type => :controller do
     it 'does not update and returns error when params are wrong' do
       params[:unity] = { name: nil }
       params[:id] = unity.id
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response).to render_template(:edit)
     end
 
     it 'updates when params are correct' do
       params[:id] = unity.id
       params[:unity] = { name: 'new name' }
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(Unity.find(unity.id)).to have_attributes(name: 'new name')
       expect(response).to redirect_to(unities_path)
     end
@@ -130,7 +130,7 @@ RSpec.describe UnitiesController, :type => :controller do
     it 'discards when unity is not active' do
       unity = create(:unity, active: false)
       params[:id] = unity.id
-      delete :destroy, params.merge(params)
+      delete :destroy, params: params.merge(params)
       expect(Unity.with_discarded.find(unity.id).discarded_at).not_to be(nil)
       expect(response).to redirect_to(unities_path)
     end
@@ -139,16 +139,16 @@ RSpec.describe UnitiesController, :type => :controller do
       unity = create(:unity, active: true)
       params[:id] = unity.id
       expect {
-        delete :destroy, params.merge(params)
+        delete :destroy, params: params.merge(params)
       }.to change(Unity, :count).by(-1)
     end
 
     it 'does not destroy when params are wrong' do
       unity = create(:unity, active: true)
       params[:id] = 0
-      delete :destroy, params.merge(params)
+      delete :destroy, params: params.merge(params)
       expect {
-        delete :destroy, params.merge(params)
+        delete :destroy, params: params.merge(params)
       }.not_to change(Unity, :count)
     end
   end
@@ -159,14 +159,14 @@ RSpec.describe UnitiesController, :type => :controller do
     it 'destroys when params are correct' do
       params[:ids] = unities.map(&:id)
       expect {
-        delete :destroy_batch, params.merge(params)
+        delete :destroy_batch, params: params.merge(params)
       }.to change(Unity, :count).by(-2)
     end
 
     it 'does not destroy when params are wrong' do
       params[:ids] = 0
       expect {
-        delete :destroy_batch, params.merge(params)
+        delete :destroy_batch, params: params.merge(params)
       }.not_to change(Unity, :count)
     end
   end

@@ -1,4 +1,4 @@
-class UpdateMaterializedViewMvwInfrequencyTrackingClassrooms < ActiveRecord::Migration
+class UpdateMaterializedViewMvwInfrequencyTrackingClassrooms < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DROP MATERIALIZED VIEW mvw_infrequency_tracking_classrooms;

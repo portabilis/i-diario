@@ -1,4 +1,4 @@
-class NullifyInvalidCurrentClassroomIdReferenceFromUsers < ActiveRecord::Migration
+class NullifyInvalidCurrentClassroomIdReferenceFromUsers < ActiveRecord::Migration[4.2]
   def change
     user_current_classroom_ids = User.pluck(:current_classroom_id).uniq.compact
     classroom_ids = Classroom.where(id: user_current_classroom_ids).pluck(:id).uniq

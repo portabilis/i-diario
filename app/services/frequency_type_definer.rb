@@ -31,11 +31,14 @@ class FrequencyTypeDefiner
   private
 
   def define_frequency_type
+    grade_ids = @classroom.classrooms_grades.pluck(:grade_id)
+
     allow_absence_by_discipline_record = TeacherDisciplineClassroom.find_by(
       teacher_id: @teacher.id,
       classroom_id: @classroom.id,
       year: current_year,
       allow_absence_by_discipline: 1,
+      grade_id: grade_ids,
       active: true
     )
 

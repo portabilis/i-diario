@@ -41,7 +41,7 @@ class AbsenceJustificationReportForm
 
     @absence_justifications = @absence_justifications.by_author(author, user_id) if author.present?
 
-    @absence_justifications.ordered.uniq
+    @absence_justifications.ordered.distinct
   end
 
   def frequence_type_by_discipline?

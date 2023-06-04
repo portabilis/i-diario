@@ -1,4 +1,4 @@
-class RemoveUnneededIndexDailyFrequencyStudentsOnDailyFrequencyId < ActiveRecord::Migration
+class RemoveUnneededIndexDailyFrequencyStudentsOnDailyFrequencyId < ActiveRecord::Migration[4.2]
   def up
     remove_index :daily_frequency_students, name: "index_daily_frequency_students_on_daily_frequency_id"
   end

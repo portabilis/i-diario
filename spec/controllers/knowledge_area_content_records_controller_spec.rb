@@ -41,7 +41,7 @@ RSpec.describe KnowledgeAreaContentRecordsController, type: :controller do
           classroom_id: classroom.id,
           unity_id: unity.id,
           daily_activities_record: 'test',
-          record_date: '2017-03-01',
+          record_date: '2017-02-28',
           content_ids: [content.id]
         }
       }
@@ -74,12 +74,12 @@ RSpec.describe KnowledgeAreaContentRecordsController, type: :controller do
 
     it 'not having a daily activities record fails to create and renders the new template' do
       params[:knowledge_area_content_record][:content_record_attributes].delete(:daily_activities_record)
-      post :create, params.merge(params)
+      post :create, params: params.merge(params)
       expect(response).to render_template(:new)
     end
 
     it 'having a daily activities record creates and redirects to knowledge area  content records path' do
-      post :create, params
+      post :create, params: params
       expect(response).to redirect_to(knowledge_area_content_records_path)
     end
 
@@ -96,7 +96,7 @@ RSpec.describe KnowledgeAreaContentRecordsController, type: :controller do
 
     it 'not having a daily activities record creates and redirects to knowledge area content records path' do
       params[:knowledge_area_content_record][:content_record_attributes].delete(:daily_activities_record)
-      post :create, params.merge(params)
+      post :create, params: params.merge(params)
       expect(response).to redirect_to(knowledge_area_content_records_path)
     end
 

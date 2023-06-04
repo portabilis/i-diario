@@ -1,4 +1,4 @@
-class CreateTeacherUnifications < ActiveRecord::Migration
+class CreateTeacherUnifications < ActiveRecord::Migration[4.2]
   def change
     create_table :teacher_unifications do |t|
       t.belongs_to :teacher
