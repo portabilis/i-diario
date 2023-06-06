@@ -31,6 +31,7 @@ module Api
           students: [params[:student_id]],
           date: frequency_date,
           end_date: frequency_date,
+          classroom: params[:classroom_id]
         )
 
         if daily_frequency
