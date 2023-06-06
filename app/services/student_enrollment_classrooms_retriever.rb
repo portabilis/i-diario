@@ -94,7 +94,7 @@ class StudentEnrollmentClassroomsRetriever
   def search_by_status_attending(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    enrollment_classrooms.status_attending
+    enrollment_classrooms.status_attending.or(enrollment_classrooms.only_transferred)
   end
 
   def show_inactive_enrollments
