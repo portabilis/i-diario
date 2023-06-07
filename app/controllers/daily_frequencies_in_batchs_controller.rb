@@ -230,6 +230,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                           date: dates.first,
                                                           end_date: dates.last,
                                                           classroom: current_user_classroom.id,
+                                                          period: @period
                                                         )
 
     @additional_data = additional_data(dates, student_ids, dependences,
