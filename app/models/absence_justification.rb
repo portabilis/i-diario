@@ -42,6 +42,8 @@ class AbsenceJustification < ApplicationRecord
   validate :period_absence
   validate :no_retroactive_dates
 
+  has_enumeration_for :period, with: Periods, skip_validation: true
+
   default_scope -> { kept }
 
   scope :ordered, -> { order(absence_date: :desc) }
@@ -79,6 +81,7 @@ class AbsenceJustification < ApplicationRecord
       where.not(user_id: current_user_id)
     end
   }
+  scope :by_period, ->(period) { where(period: period) }
 
   private
 

@@ -10,6 +10,7 @@ class AbsenceJustifiedOnDate
     @date = params.fetch(:date)
     @end_date = params.fetch(:end_date)
     @classroom = params.fetch(:classroom)
+    @period = params.fetch(:period)
   end
 
   def call
@@ -17,6 +18,7 @@ class AbsenceJustifiedOnDate
                                                  .by_date_range(@date, @end_date)
                                                  .by_student_id(@students)
                                                  .by_classroom(@classroom)
+                                                 .by_period(@period)
 
     absence_justified = {}
 

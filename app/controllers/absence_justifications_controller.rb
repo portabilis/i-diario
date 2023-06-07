@@ -171,6 +171,7 @@ class AbsenceJustificationsController < ApplicationController
       :absence_date_end,
       :unity_id,
       :classroom_id,
+      :period,
       absence_justification_attachments_attributes: [
         :id,
         :attachment,
