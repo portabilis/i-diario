@@ -69,6 +69,8 @@ class AbsenceJustificationsController < ApplicationController
     @absences_justified = @absences_justified.sort { |a,b| a[:class_number] <=> b[:class_number] }
     @absences_justified = @absences_justified.sort { |a,b| a[:frequency_date] <=> b[:frequency_date] }
     @absences_justified = @absences_justified.sort { |a,b| a[:student_name] <=> b[:student_name] }
+
+    fetch_students
   end
 
   def create
