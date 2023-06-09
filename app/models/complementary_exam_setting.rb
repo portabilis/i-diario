@@ -1,4 +1,4 @@
-class ComplementaryExamSetting < ActiveRecord::Base
+class ComplementaryExamSetting < ApplicationRecord
   acts_as_copy_target
 
   audited
@@ -70,6 +70,7 @@ class ComplementaryExamSetting < ActiveRecord::Base
                   .by_calculation_type([CalculationTypes::SUBSTITUTION, CalculationTypes::SUBSTITUTION_IF_GREATER])
                   .by_affected_score(affected_score)
                   .by_grade_id(grades.map(&:id))
+                  .by_year(year)
                   .exists?
 
     errors.add(:base, :uniqueness_of_calculation_type_by_grade)

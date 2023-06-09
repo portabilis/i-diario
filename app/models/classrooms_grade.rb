@@ -1,4 +1,4 @@
-class ClassroomsGrade < ActiveRecord::Base
+class ClassroomsGrade < ApplicationRecord
   include Discardable
 
   belongs_to :classroom

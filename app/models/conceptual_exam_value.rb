@@ -75,7 +75,7 @@ class ConceptualExamValue < ActiveRecord::Base
           differentiated_exam_rules[:score_type].eq(ScoreTypes::CONCEPT).
           and(differentiated_exam_rule_students[:id].not_eq(nil))
         )
-      ).uniq
+      ).distinct
   end
 
   def valid_for_destruction?

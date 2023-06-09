@@ -1,4 +1,4 @@
-class AddExamSettingTypeAndSchoolTermToTestSettings < ActiveRecord::Migration
+class AddExamSettingTypeAndSchoolTermToTestSettings < ActiveRecord::Migration[4.2]
   def change
     add_column :test_settings, :exam_setting_type, :string, null: true
     add_column :test_settings, :school_term,       :string, null: true

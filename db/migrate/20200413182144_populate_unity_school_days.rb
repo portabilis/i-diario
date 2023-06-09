@@ -1,4 +1,4 @@
-class PopulateUnitySchoolDays < ActiveRecord::Migration
+class PopulateUnitySchoolDays < ActiveRecord::Migration[4.2]
   def change
     SchoolCalendar.where(year: 2020).each do |school_calendar|
       next if school_calendar.unity_id.nil?

@@ -1,4 +1,4 @@
-class LearningObjectivesAndSkill < ActiveRecord::Base
+class LearningObjectivesAndSkill < ApplicationRecord
   include Audit
 
   audited

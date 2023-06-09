@@ -1,4 +1,4 @@
-class SchoolCalendarEvent < ActiveRecord::Base
+class SchoolCalendarEvent < ApplicationRecord
   acts_as_copy_target
 
   audited

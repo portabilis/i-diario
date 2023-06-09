@@ -1,4 +1,4 @@
-class FinalRecoveryDiaryRecord < ActiveRecord::Base
+class FinalRecoveryDiaryRecord < ApplicationRecord
   include Audit
   include Filterable
 

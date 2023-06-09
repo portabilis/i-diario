@@ -141,6 +141,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def resource_params
     params.require(:knowledge_area_content_record).permit(
       :knowledge_area_ids,
+      :experience_fields,
       content_record_attributes: [
         :id,
         :unity_id,

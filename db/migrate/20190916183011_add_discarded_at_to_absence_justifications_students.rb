@@ -1,4 +1,4 @@
-class AddDiscardedAtToAbsenceJustificationsStudents < ActiveRecord::Migration
+class AddDiscardedAtToAbsenceJustificationsStudents < ActiveRecord::Migration[4.2]
   def change
     add_column :absence_justifications_students, :discarded_at, :datetime
 

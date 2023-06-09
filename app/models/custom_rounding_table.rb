@@ -1,4 +1,4 @@
-class CustomRoundingTable < ActiveRecord::Base
+class CustomRoundingTable < ApplicationRecord
   acts_as_copy_target
 
   include Audit

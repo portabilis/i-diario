@@ -1,4 +1,4 @@
-class DescriptiveExamStudent < ActiveRecord::Base
+class DescriptiveExamStudent < ApplicationRecord
   include Discardable
   acts_as_copy_target
 

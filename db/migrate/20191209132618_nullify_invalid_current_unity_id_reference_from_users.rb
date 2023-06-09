@@ -1,4 +1,4 @@
-class NullifyInvalidCurrentUnityIdReferenceFromUsers < ActiveRecord::Migration
+class NullifyInvalidCurrentUnityIdReferenceFromUsers < ActiveRecord::Migration[4.2]
   def change
     user_current_unity_ids = User.pluck(:current_unity_id).uniq.compact
     unity_ids = Unity.where(id: user_current_unity_ids).pluck(:id).uniq
