@@ -183,12 +183,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
   helper_method :all_contents
 
-  def fetch_collections
-    fetch_unities
-    fetch_grades
-    fetch_knowledge_areas
-  end
-
   def unities
     @unities = [current_unity]
   end
