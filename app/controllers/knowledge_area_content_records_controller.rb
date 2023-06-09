@@ -10,6 +10,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
+    set_options_by_user
+
     fetch_knowledge_area_content_records_by_user
 
     if author_type.present?
@@ -193,16 +195,9 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
   helper_method :classrooms
 
-  def knowledge_areas
+  def set_options_by_user
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
 
-    set_options_by_user
-
-    @knowledge_areas
-  end
-  helper_method :knowledge_areas
-
-  def set_options_by_user
     if current_user.current_role_is_admin_or_employee?
       @classrooms = Classroom.where(id: current_user_classroom.id)
       @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
