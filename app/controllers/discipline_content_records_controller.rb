@@ -192,12 +192,6 @@ class DisciplineContentRecordsController < ApplicationController
   end
   helper_method :all_contents
 
-  def fetch_collections
-    fetch_unities
-    fetch_grades
-    fetch_disciplines
-  end
-
   def unities
     @unities = [current_unity]
   end
