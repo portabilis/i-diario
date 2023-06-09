@@ -99,12 +99,6 @@ class DisciplineContentRecordsController < ApplicationController
     respond_with @discipline_content_record, location: discipline_content_records_path
   end
 
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
-  end
-
   def history
     @discipline_content_record = DisciplineContentRecord.find(params[:id])
 
@@ -223,5 +217,11 @@ class DisciplineContentRecordsController < ApplicationController
     else
       fetch_linked_by_teacher
     end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
   end
 end
