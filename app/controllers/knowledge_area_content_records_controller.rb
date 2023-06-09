@@ -10,12 +10,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = Classroom.where(id: current_user_classroom.id)
-    else
-      fetch_linked_by_teacher
-    end
-
     fetch_knowledge_area_content_records_by_user
 
     if author_type.present?
@@ -33,7 +27,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    set_options_by_user
 
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new.localized
     @knowledge_area_content_record.build_content_record(
@@ -60,12 +54,14 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     if @knowledge_area_content_record.save
       respond_with @knowledge_area_content_record, location: knowledge_area_content_records_path
     else
+      set_options_by_user
+
       render :new
     end
   end
 
   def edit
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    set_options_by_user
 
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id]).localized
 
@@ -85,6 +81,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     if @knowledge_area_content_record.save
       respond_with @knowledge_area_content_record, location: knowledge_area_content_records_path
     else
+      set_options_by_user
+
       render :edit
     end
   end
@@ -97,12 +95,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.destroy
 
     respond_with @knowledge_area_content_record, location: knowledge_area_content_records_path
-  end
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
   end
 
   def history
@@ -210,14 +202,25 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def knowledge_areas
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
 
-    if current_user.current_role_is_admin_or_employee?
-      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
-    else
-      fetch_linked_by_teacher
+    set_options_by_user
 
-      @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
-    end
     @knowledge_areas
   end
   helper_method :knowledge_areas
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = Classroom.where(id: current_user_classroom.id)
+      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
+  end
 end
