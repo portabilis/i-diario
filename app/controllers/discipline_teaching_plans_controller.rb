@@ -14,11 +14,7 @@ class DisciplineTeachingPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].blank?
     author_type ||= (params[:filter] || []).delete(:by_author)
-    discipline = if current_user_discipline.grouper?
-                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
-                 else
-                   current_user_discipline
-                 end
+    discipline = current_user_discipline.grouper? ? Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all : current_user_discipline
 
     @discipline_teaching_plans = apply_scopes(
       DisciplineTeachingPlan.includes(:discipline,
@@ -26,17 +22,11 @@ class DisciplineTeachingPlansController < ApplicationController
                             .by_discipline(discipline)
                             .by_unity(current_unity)
                             .by_year(current_school_year)
+                            .order('teaching_plans.school_term_type_step_id')
     )
 
-    unless current_user_is_employee_or_administrator?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
-                                                             .by_discipline(discipline)
-    end
-
-    if author_type.present?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
-      params[:filter][:by_author] = author_type
-    end
+    @discipline_teaching_plans = filter_by_grade(@discipline_teaching_plans) unless current_user_is_employee_or_administrator?
+    @discipline_teaching_plans = filter_by_author(@discipline_teaching_plans, author_type) if author_type.present?
 
     authorize @discipline_teaching_plans
 
@@ -112,7 +102,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def update
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
-    @discipline_teaching_plan.assign_attributes(resource_params)
+    @discipline_teaching_plan.assign_attributes(resource_params.to_h)
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
@@ -207,6 +197,16 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   private
+
+  def filter_by_grade(plans)
+    plans.by_grade(current_user_classroom.grades.pluck(:id))
+  end
+
+  def filter_by_author(plans, author_type)
+    params[:filter][:by_author] = author_type
+
+    plans.by_author(author_type, current_teacher)
+  end
 
   def content_ids
     param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
