@@ -236,7 +236,6 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(list_student_enrollment_classrooms).to include(student_enrollment_classrooms.last)
     end
 
-
     it 'should not return list of student_enrollment_classrooms out of date range' do
       expect(list_student_enrollment_classrooms).not_to eq(student_enrollment_classrooms_out_date)
     end
@@ -252,6 +251,8 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         classrooms_grade: classrooms_grade_with_year
       )
     }
+
+    before { student_enrollment_classrooms_year_2022 }
 
     it 'should return list of student_enrollment_classrooms on year 2022' do
       expect(
@@ -390,6 +391,8 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         joined_at: '2023-03-03'
       )
     }
+
+    before { enrollment_classroom }
 
     it 'should return student_enrollment_classroom attending the full period' do
       expect(
