@@ -5,6 +5,8 @@ class TeacherReportCardsController < ApplicationController
     @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_unity.id)
     @teacher_report_card_form.status = TeacherReportCardStatus::ALL
     authorize(TeacherReportCard, :show?)
+
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
   end
 
   def report
@@ -74,5 +76,12 @@ class TeacherReportCardsController < ApplicationController
     params.require(:teacher_report_card_form).permit(
       :unity_id, :classroom_id, :grade_id, :discipline_id, :status
     )
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @grades = @fetch_linked_by_teacher[:classroom_grades].map(&:grade)
   end
 end
