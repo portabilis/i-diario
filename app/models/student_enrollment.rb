@@ -55,16 +55,6 @@ class StudentEnrollment < ActiveRecord::Base
     )
   }
 
-  scope :only_transferred, lambda {
-    where(
-      student_enrollments: {
-        status: [
-          StudentEnrollmentStatus::TRANSFERRED
-        ]
-      }
-    )
-  }
-
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?
       where("(not exists(select 1
