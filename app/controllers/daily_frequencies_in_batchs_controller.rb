@@ -6,6 +6,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :authorize_daily_frequency, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
+  before_action :require_valid_dates, only: [:create, :form]
 
   def new
     @frequency_type = current_frequency_type(current_user_classroom)
@@ -13,14 +14,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
   # TODO método duplicado para ser acessado via GET, unificar
   def form
-    start_date = params[:start_date].to_date
-    end_date = params[:end_date].to_date
-
-    return redirect_to new_daily_frequencies_in_batch_path if invalid_dates?(start_date, end_date)
+    start_date = params[:frequency_in_batch_form][:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date
 
     @dates = [*start_date..end_date]
 
-    view_data
+    return unless view_data
 
     render :create_or_update_multiple
   end
@@ -29,11 +28,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     start_date = params[:frequency_in_batch_form][:start_date].to_date
     end_date = params[:frequency_in_batch_form][:end_date].to_date
 
-    return redirect_to new_daily_frequencies_in_batch_path if invalid_dates?(start_date, end_date)
-
     @dates = [*start_date..end_date]
 
-    view_data
+    return unless view_data
 
     render :create_or_update_multiple
   end
@@ -113,7 +110,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     if receive_email_confirmation
       ReceiptMailer.delay.notify_daily_frequency_in_batch_success(
-        current_user,
+        current_user.first_name,
+        current_user.email,
         "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
         dates,
         Classroom.find(daily_frequency_attributes[:classroom_id].to_i).description,
@@ -162,6 +160,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
   private
 
+
+
   def authorize_daily_frequency
     @daily_frequency = DailyFrequency.new.localized
 
@@ -191,7 +191,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       render :new
 
-      return
+      return false
     end
 
     fetch_student_enrollments.each do |student_enrollment|
@@ -217,7 +217,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       render :new
 
-      return
+      return false
     end
 
     dependences = student_has_dependence(student_enrollments_ids, dates)
@@ -566,6 +566,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
     if start_date > end_date
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.start_date_greater_end_date')
       true
+    end
+  end
+
+  def require_valid_dates
+    start_date = params[:frequency_in_batch_form][:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date
+
+    if invalid_dates?(start_date, end_date)
+      redirect_to(new_daily_frequencies_in_batch_path) and return
     end
   end
 end
