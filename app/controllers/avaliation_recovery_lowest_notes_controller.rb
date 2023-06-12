@@ -38,8 +38,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     @lowest_note_recovery = AvaliationRecoveryLowestNote.new.localized
     @lowest_note_recovery.build_recovery_diary_record(
-      classroom_id: current_user_classroom.id,
-      discipline_id: current_user_discipline.id
+      classroom_id: @classrooms.map(&:id),
+      discipline_id: @disciplines.map(&:id)
     )
     @lowest_note_recovery.recovery_diary_record.unity = current_unity
     @students_lowest_note = StudentNotesInStepFetcher.new
@@ -101,7 +101,9 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if @lowest_note_recovery.save
       respond_with @lowest_note_recovery, location: avaliation_recovery_lowest_notes_path
     else
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      set_options_by_user
+
+      @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
 
       render :edit
     end
@@ -172,8 +174,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def set_options_by_user
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = current_user_classroom.id
-      @disciplines = current_user_discipline.id
+      @classrooms ||= [current_user_classroom.id]
+      @disciplines ||= [current_user_discipline.id]
     else
       fetch_linked_by_teacher
     end
@@ -185,8 +187,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       current_unity,
       current_school_year
     )
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
   end
 
   def test_setting
