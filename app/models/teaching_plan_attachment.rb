@@ -1,4 +1,4 @@
-class TeachingPlanAttachment < ActiveRecord::Base
+class TeachingPlanAttachment < ApplicationRecord
   belongs_to :teaching_plan
 
   mount_uploader :attachment, DocUploader

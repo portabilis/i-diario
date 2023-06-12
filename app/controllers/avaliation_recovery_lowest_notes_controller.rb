@@ -57,7 +57,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def create
     @lowest_note_recovery = AvaliationRecoveryLowestNote.new.localized
-    @lowest_note_recovery.assign_attributes(resource_params)
+    @lowest_note_recovery.assign_attributes(resource_params.to_h)
     @lowest_note_recovery.step_number = @lowest_note_recovery.step.try(:step_number)
     @lowest_note_recovery.recovery_diary_record.teacher_id = current_teacher_id
 
@@ -92,7 +92,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def update
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id]).localized
-    @lowest_note_recovery.assign_attributes(resource_params)
+    @lowest_note_recovery.assign_attributes(resource_params.to_h)
     @lowest_note_recovery.recovery_diary_record.teacher_id = current_teacher_id
     @lowest_note_recovery.recovery_diary_record.current_user = current_user
 

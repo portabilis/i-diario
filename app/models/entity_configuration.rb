@@ -1,4 +1,4 @@
-class EntityConfiguration < ActiveRecord::Base
+class EntityConfiguration < ApplicationRecord
   acts_as_copy_target
 
   audited except: [:logo]

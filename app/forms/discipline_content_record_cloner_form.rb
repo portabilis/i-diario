@@ -1,4 +1,4 @@
-class DisciplineContentRecordClonerForm< ActiveRecord::Base
+class DisciplineContentRecordClonerForm< ApplicationRecord
   has_no_table
 
   attr_accessor :discipline_content_record_id, :teacher

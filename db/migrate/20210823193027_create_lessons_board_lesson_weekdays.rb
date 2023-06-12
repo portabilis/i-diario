@@ -1,4 +1,4 @@
-class CreateLessonsBoardLessonWeekdays < ActiveRecord::Migration
+class CreateLessonsBoardLessonWeekdays < ActiveRecord::Migration[4.2]
   def change
     create_table :lessons_board_lesson_weekdays do |t|
       t.integer :lessons_board_lesson_id

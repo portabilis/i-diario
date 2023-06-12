@@ -1,4 +1,4 @@
-class DisciplineLessonPlanItemClonerForm < ActiveRecord::Base
+class DisciplineLessonPlanItemClonerForm < ApplicationRecord
   has_no_table
 
   attr_accessor :uuid, :discipline_lesson_plan_cloner_form_id, :classroom_id, :start_at, :end_at

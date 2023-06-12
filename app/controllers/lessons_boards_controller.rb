@@ -10,7 +10,7 @@ class LessonsBoardsController < ApplicationController
 
   def show
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom.id, resource.period)
+    @teachers = teachers_to_select2(resource.classroom.id, resource.period, resource.grade_id)
 
     ActiveRecord::Associations::Preloader.new.preload(
       @lessons_board,
@@ -27,7 +27,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def create
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -40,7 +40,7 @@ class LessonsBoardsController < ApplicationController
 
   def edit
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom.id, resource.period)
+    @teachers = teachers_to_select2(resource.classroom.id, resource.period, resource.grade_id)
     @classroom = resource.classroom
     validate_lessons_number
 
@@ -48,7 +48,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -178,15 +178,15 @@ class LessonsBoardsController < ApplicationController
   end
 
   def teachers_classroom
-    return if params[:classroom_id].blank?
+    return if params[:classroom_id].blank? || params[:grade_id].blank?
 
-    render json: teachers_to_select2(params[:classroom_id], nil)
+    render json: teachers_to_select2(params[:classroom_id], nil, params[:grade_id])
   end
 
   def teachers_classroom_period
-    return if params[:classroom_id].blank? || params[:period].blank?
+    return if params[:classroom_id].blank? || params[:period].blank? || params[:grade_id].blank?
 
-    render json: teachers_to_select2(params[:classroom_id], params[:period])
+    render json: teachers_to_select2(params[:classroom_id], params[:period], params[:grade_id])
   end
 
   def classrooms_filter
@@ -212,7 +212,7 @@ class LessonsBoardsController < ApplicationController
     return if params[:classroom_id].blank?
 
     render json: LessonsBoard.by_classroom(params[:classroom_id])
-                             .by_period(period: params[:period])
+                             .by_period(params[:period])
                              .empty?
   end
 
@@ -260,8 +260,8 @@ class LessonsBoardsController < ApplicationController
     service.linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom, period)
   end
 
-  def teachers_to_select2(classroom_id, period)
-    service.teachers(classroom_id, period)
+  def teachers_to_select2(classroom_id, period, grade_id)
+    service.teachers(classroom_id, period, grade_id)
   end
 
   def classrooms_to_select2(grade_id, unity_id)

@@ -86,9 +86,14 @@
       <a href="#" id="copy-from-objectives-teaching-plan-link">
         Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
       </a>|
-      <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+      <a href="#" data-toggle="modal" data-target="<%= modal_id %>">
         Copiar objetivos/habilidades por área
       </a>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        |<a href="#" data-toggle="modal" data-target="#experience-modal">
+          Copiar objetivos por campos de experiência
+        </a>
+      <% end %>
     <% end %>
     <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
       <ul class="list-group checked-list-box" id="objectives-list">
