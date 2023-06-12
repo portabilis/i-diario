@@ -15,14 +15,20 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       :user_with_user_role,
       admin: false,
       teacher_id: current_teacher.id,
-      current_unity_id: unity.id,
+      current_unity_id: classroom.unity_id,
       current_school_year: classroom.year,
       current_classroom_id: classroom.id,
       current_discipline_id: discipline.id
     )
   end
+  let(:school_calendar) do
+    create(
+      :school_calendar,
+      year: classroom.year,
+      unity: classroom.unity
+    )
+  end
   let(:user_role) { user.user_roles.first }
-  let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
   let(:other_teacher) { create(:teacher) }
   let(:classroom) { create(:classroom, :score_type_numeric) }
@@ -34,7 +40,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       :teaching_plan,
       :with_teacher_discipline_classroom,
       teacher: current_teacher,
-      unity: unity,
+      unity: classroom.unity,
       year: classroom.year,
       grade: classroom.classrooms_grades.first.grade,
       school_term_type: school_term_type,
@@ -46,7 +52,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       :teaching_plan,
       :with_teacher_discipline_classroom,
       teacher: other_teacher,
-      unity: unity,
+      unity: classroom.unity,
       year: classroom.year,
       grade: classroom.classrooms_grades.first.grade,
       school_term_type: school_term_type,
@@ -84,7 +90,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
         teaching_plan_attributes: {
           id: '',
           year: classroom.year,
-          unity_id: unity.id,
+          unity_id: classroom.unity_id,
           grade_id: classroom.classrooms_grades.first.grade_id,
           school_term_type_id: school_term_type.id,
           school_term_type_step_id: school_term_type_step.id,
@@ -98,8 +104,11 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   }
 
   before do
+    school_term_type
+    school_term_type_step
+    school_calendar
     teacher_discipline_classroom
-    user_role.unity = unity
+    user_role.unity = classroom.unity
     user_role.save!
 
     user.current_user_role = user_role
