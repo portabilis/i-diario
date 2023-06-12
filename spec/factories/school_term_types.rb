@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :school_term_type do
-    description { Faker::Lorem.sentence }
+    description 'Anual'
     steps_number 4
   end
 end
