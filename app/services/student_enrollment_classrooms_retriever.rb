@@ -94,7 +94,19 @@ class StudentEnrollmentClassroomsRetriever
   def search_by_status_attending(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    enrollment_classrooms.status_attending.or(enrollment_classrooms.only_transferred)
+    enrollment_classrooms.each do |enrollment_classroom|
+      student_id = enrollment_classroom.student_enrollment.student_id
+
+      student_enrollment_for_student = enrollment_classrooms.select do |ec|
+        ec.student_enrollment.student_id == student_id
+      end
+
+      if student_enrollment_for_student.count > 1
+        enrollment_classrooms.delete(student_enrollment_for_student.first)
+      end
+    end
+
+    enrollment_classrooms
   end
 
   def show_inactive_enrollments
