@@ -1,4 +1,4 @@
-class UpdateTranslationHints < ActiveRecord::Migration
+class UpdateTranslationHints < ActiveRecord::Migration[4.2]
   def up
     execute <<-SQL
       UPDATE translations SET hint = 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por disciplina; título da listagem e do novo cadastro; cópia de registros' WHERE key = 'navigation.discipline_content_records';

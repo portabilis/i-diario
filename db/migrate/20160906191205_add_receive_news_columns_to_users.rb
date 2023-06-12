@@ -1,4 +1,4 @@
-class AddReceiveNewsColumnsToUsers < ActiveRecord::Migration
+class AddReceiveNewsColumnsToUsers < ActiveRecord::Migration[4.2]
   def change
     add_column :users, :receive_news, :boolean
     add_column :users, :receive_news_related_daily_teacher, :boolean

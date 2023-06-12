@@ -1,4 +1,4 @@
-class FixDescriptiveExamsWithBothSteps < ActiveRecord::Migration
+class FixDescriptiveExamsWithBothSteps < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE descriptive_exams

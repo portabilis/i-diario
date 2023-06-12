@@ -1,4 +1,4 @@
-class FrequencyInBatchForm < ActiveRecord::Base
+class FrequencyInBatchForm < ApplicationRecord
   has_no_table
 
   attr_accessor :unity_id, :classroom_id, :period, :discipline_id, :start_date, :end_date, :receive_email_confirmation

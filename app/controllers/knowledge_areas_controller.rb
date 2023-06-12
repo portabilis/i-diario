@@ -15,7 +15,7 @@ class KnowledgeAreasController < ApplicationController
 
       disciplines_ids = Discipline.by_teacher_and_classroom(current_teacher.id, classroom_id)
         .ordered
-        .uniq
+        .distinct
         .map { |discipline| discipline.id }
 
       @knowledge_areas = @knowledge_areas.by_discipline_id(disciplines_ids)

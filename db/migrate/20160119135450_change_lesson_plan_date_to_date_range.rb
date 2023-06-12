@@ -1,4 +1,4 @@
-class ChangeLessonPlanDateToDateRange < ActiveRecord::Migration
+class ChangeLessonPlanDateToDateRange < ActiveRecord::Migration[4.2]
   def change
     rename_column :lesson_plans, :lesson_plan_date, :start_at
     add_column :lesson_plans, :end_at, :date

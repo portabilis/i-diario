@@ -100,7 +100,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def update
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
-    @knowledge_area_teaching_plan.assign_attributes(resource_params)
+    @knowledge_area_teaching_plan.assign_attributes(resource_params.to_h)
     @knowledge_area_teaching_plan.teaching_plan.content_ids = content_ids
     @knowledge_area_teaching_plan.teaching_plan.objective_ids = objective_ids
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')

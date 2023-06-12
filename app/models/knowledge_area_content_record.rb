@@ -86,7 +86,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
                   content_record.school_calendar.present? &&
                   record_date.present?
 
-    unless content_record.school_calendar.school_day?(record_date, grades.first, classroom)
+    unless content_record.school_calendar.school_day?(record_date, grades.first, classroom_id)
       errors.add(:base, "")
       content_record.errors.add(:record_date, :not_school_calendar_day)
     end

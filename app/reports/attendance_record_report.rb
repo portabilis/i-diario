@@ -54,7 +54,7 @@ class AttendanceRecordReport < BaseReport
     @enrollment_classrooms = enrollment_classrooms_list
     @events = events
     @school_calendar = school_calendar
-    @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
+    @second_teacher_signature = ActiveRecord::Type::Boolean.new.cast(second_teacher_signature)
     @show_legend_hybrid = false
     @show_legend_remote = false
     @exists_legend_hybrid = false
@@ -127,7 +127,7 @@ class AttendanceRecordReport < BaseReport
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
-    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
+    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.map(&:id)).to_a
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]

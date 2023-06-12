@@ -11,7 +11,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def index
     params[:filter] ||= {}
-    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type = PlansAuthors::MY_PLANS if params[:filter].blank?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     set_options_by_user
@@ -21,14 +21,9 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plans = fetch_discipline_teaching_plans
 
     unless current_user.current_role_is_admin_or_employee?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(@grades.map(&:id))
-                                                             .by_discipline(@disciplines.map(&:id))
+      @discipline_teaching_plans = filter_by_grade_discipline(@discipline_teaching_plans)
     end
-
-    if author_type.present?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
-      params[:filter][:by_author] = author_type
-    end
+    @discipline_teaching_plans = filter_by_author(@discipline_teaching_plans, author_type) if author_type.present?
 
     authorize @discipline_teaching_plans
   end
@@ -107,7 +102,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def update
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
-    @discipline_teaching_plan.assign_attributes(resource_params)
+    @discipline_teaching_plan.assign_attributes(resource_params.to_h)
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
@@ -203,6 +198,16 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   private
+
+  def filter_by_grade_discipline(plans)
+    plans.by_grade(@grades.map(&:id)).by_discipline(@disciplines.map(&:id))
+  end
+
+  def filter_by_author(plans, author_type)
+    params[:filter][:by_author] = author_type
+
+    plans.by_author(author_type, current_teacher)
+  end
 
   def content_ids
     param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
@@ -332,12 +337,9 @@ class DisciplineTeachingPlansController < ApplicationController
     if current_user.current_role_is_admin_or_employee?
       fetch_grades
       fetch_disciplines
+      
+      discipline = current_user_discipline.grouper? ? Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all : [current_user_discipline]
 
-      @disciplines = if current_user_discipline.grouper?
-                      Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
-                    else
-                      [current_user_discipline]
-                    end
     else
       fetch_linked_by_teacher
     end
@@ -357,6 +359,7 @@ class DisciplineTeachingPlansController < ApplicationController
                             .by_discipline(@disciplines.map(&:id))
                             .by_unity(current_unity)
                             .by_year(current_school_year)
+                            .order('teaching_plans.school_term_type_step_id')
     )
   end
 

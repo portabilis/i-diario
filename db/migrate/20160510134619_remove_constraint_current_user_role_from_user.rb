@@ -1,8 +1,6 @@
-class RemoveConstraintCurrentUserRoleFromUser < ActiveRecord::Migration
+class RemoveConstraintCurrentUserRoleFromUser < ActiveRecord::Migration[4.2]
   def change
-    execute <<-SQL
-      DROP INDEX index_users_on_current_user_role_id;
-      ALTER TABLE users DROP CONSTRAINT users_current_user_role_id_fk;
-    SQL
+    remove_index :users, :current_user_role_id
+    remove_foreign_key :users, :user_roles
   end
 end

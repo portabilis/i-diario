@@ -1,4 +1,4 @@
-class AddSessions < ActiveRecord::Migration
+class AddSessions < ActiveRecord::Migration[4.2]
   def change
     create_table :sessions do |t|
       t.string :session_id, :null => false

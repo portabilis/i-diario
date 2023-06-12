@@ -1,4 +1,4 @@
-class CreateKnowledgeAreaContentRecords < ActiveRecord::Migration
+class CreateKnowledgeAreaContentRecords < ActiveRecord::Migration[4.2]
   def change
     create_table :knowledge_area_content_records do |t|
       t.integer :knowledge_area_id, null: false, index: true

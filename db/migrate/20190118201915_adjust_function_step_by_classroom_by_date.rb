@@ -1,4 +1,4 @@
-class AdjustFunctionStepByClassroomByDate < ActiveRecord::Migration
+class AdjustFunctionStepByClassroomByDate < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DROP FUNCTION step_by_classroom(INT, DATE);

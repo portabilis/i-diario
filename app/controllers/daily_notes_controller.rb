@@ -87,7 +87,7 @@ class DailyNotesController < ApplicationController
 
   def update
     @daily_note = DailyNote.find(params[:id]).localized
-    @daily_note.assign_attributes resource_params
+    @daily_note.assign_attributes(resource_params.to_h)
 
     authorize @daily_note
 

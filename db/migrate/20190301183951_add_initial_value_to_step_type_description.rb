@@ -1,4 +1,4 @@
-class AddInitialValueToStepTypeDescription < ActiveRecord::Migration
+class AddInitialValueToStepTypeDescription < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE school_calendar_classrooms

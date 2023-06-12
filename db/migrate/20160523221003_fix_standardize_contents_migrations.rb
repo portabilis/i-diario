@@ -1,4 +1,4 @@
-class FixStandardizeContentsMigrations < ActiveRecord::Migration
+class FixStandardizeContentsMigrations < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DELETE
