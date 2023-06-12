@@ -126,13 +126,13 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     render json: step_numbers.to_json
   end
 
-  def fetch_number_of_decimal_places
+  def fetch_exam_setting_arithmetic
     return if params[:classroom_id].blank?
 
     classroom = Classroom.find(params[:classroom_id])
-    number_of_decimal_places = TestSettingFetcher.current(classroom)
+    exam_setting = TestSettingFetcher.current(classroom)
 
-    render json: number_of_decimal_places.to_json
+    render json: exam_setting.arithmetic_calculation_type?
   end
 
   def resource_params

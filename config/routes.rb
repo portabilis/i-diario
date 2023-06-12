@@ -286,7 +286,7 @@ Rails.application.routes.draw do
       collection do
         get :exists_recovery_on_step
         get :recorded_at_in_selected_step
-        get :fetch_number_of_decimal_places
+        get :fetch_exam_setting_arithmetic
         get :fetch_step
       end
     end
