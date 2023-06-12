@@ -14,11 +14,13 @@ class AbsenceJustifiedOnDate
   end
 
   def call
+    periods = [@period, Periods::FULL.to_i, nil].uniq!
+
     absence_justifications = AbsenceJustification.includes(:absence_justifications_students)
                                                  .by_date_range(@date, @end_date)
                                                  .by_student_id(@students)
                                                  .by_classroom(@classroom)
-                                                 .by_period(@period)
+                                                 .by_period(periods)
 
     absence_justified = {}
 
