@@ -1,4 +1,4 @@
-class CreateRecoveryExamRules < ActiveRecord::Migration
+class CreateRecoveryExamRules < ActiveRecord::Migration[4.2]
   def change
     create_table :recovery_exam_rules do |t|
       t.string :api_code, index: true, null: false

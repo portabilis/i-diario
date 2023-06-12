@@ -1,4 +1,4 @@
-class FixRecoveryDiaryRecordsIndexes2 < ActiveRecord::Migration
+class FixRecoveryDiaryRecordsIndexes2 < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

@@ -279,11 +279,13 @@ $(function () {
 
   async function getTeachersFromClassroom() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
+    let grade_id = $('#lessons_board_grade').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
         url: Routes.teachers_classroom_lessons_boards_pt_br_path({
           classroom_id: classroom_id,
+          grade_id: grade_id,
           format: 'json'
         }),
         success: handleFetchTeachersFromTheClassroomSuccess,
@@ -295,11 +297,13 @@ $(function () {
   function getTeachersFromClassroomAndPeriod() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
     let period = $('#lessons_board_period').select2('val');
+    let grade_id = $('#lessons_board_grade').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
         url: Routes.teachers_classroom_period_lessons_boards_pt_br_path({
           classroom_id: classroom_id,
+          grade_id: grade_id,
           period: period,
           format: 'json'
         }),

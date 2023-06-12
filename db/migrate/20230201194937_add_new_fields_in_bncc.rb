@@ -1,4 +1,4 @@
-class AddNewFieldsInBncc < ActiveRecord::Migration
+class AddNewFieldsInBncc < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       insert into translations(key, label, translation, "group", subgroup, hint, "order", created_at, updated_at) values ('navigation.methodology_by_discipline', 'Metodologia (por disciplina)', '', 'teaching_plans', 'fields', 'Altera a nomenclatura do campo Metodologia dentro do cadastro de Planos de ensino por disciplina', 25, now(), now());

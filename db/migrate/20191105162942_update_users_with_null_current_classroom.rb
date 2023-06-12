@@ -1,4 +1,4 @@
-class UpdateUsersWithNullCurrentClassroom < ActiveRecord::Migration
+class UpdateUsersWithNullCurrentClassroom < ActiveRecord::Migration[4.2]
   def change
     User.where(current_classroom_id: nil).each do |user|
       user.without_auditing do

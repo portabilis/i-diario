@@ -87,7 +87,8 @@ RSpec.describe TeacherClassroomAndDisciplineFetcher, type: :service do
       let(:another_classroom) { create(:classroom, id: 1577, year: 2023) }
       let(:another_teacher) { create(:teacher, id: 1755) }
       let(:another_discipline) { create(:discipline, id: 2566) }
-      let(:link_teacher) {
+
+      before do
         create(
           :teacher_discipline_classroom,
           id: 1245,
@@ -95,10 +96,6 @@ RSpec.describe TeacherClassroomAndDisciplineFetcher, type: :service do
           teacher: another_teacher,
           year: 2023
         )
-      }
-
-      before do
-        link_teacher
       end
 
       subject(:fetch_classrooms_disciplines_grades) {

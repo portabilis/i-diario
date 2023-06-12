@@ -1,4 +1,4 @@
-class ExamRule < ActiveRecord::Base
+class ExamRule < ApplicationRecord
   acts_as_copy_target
 
   audited

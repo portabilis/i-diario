@@ -1,4 +1,4 @@
-class AddIndexToDisciplineIdClassroomIdTeacherIdOnTeacherDisciplineClassrooms < ActiveRecord::Migration
+class AddIndexToDisciplineIdClassroomIdTeacherIdOnTeacherDisciplineClassrooms < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

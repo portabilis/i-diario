@@ -1,4 +1,4 @@
-class UpdateConceptualExams2019OldRecordToFalse < ActiveRecord::Migration
+class UpdateConceptualExams2019OldRecordToFalse < ActiveRecord::Migration[4.2]
   def change
     ConceptualExam.joins(
       :classroom

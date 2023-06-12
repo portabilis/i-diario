@@ -1,4 +1,4 @@
-class RefreshMaterializeView < ActiveRecord::Migration
+class RefreshMaterializeView < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DROP MATERIALIZED VIEW mvw_content_record_by_school_classroom_teachers;

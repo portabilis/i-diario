@@ -84,12 +84,12 @@ RSpec.describe StudentsController, type: :controller do
 
   describe 'GET #index' do
     it 'returns students when params are correct, not including dates' do
-      get :index, params
+      get :index, params: params
       expect(response.body).to include(student_enrollment_classroom.student_enrollment.student.id.to_s)
     end
 
     it 'returns students when params are correct, including dates' do
-      get :index, params_with_date
+      get :index, params: params_with_date
       expect(response.body).to include(student_enrollment_classroom.student_enrollment.student.id.to_s)
     end
   end
