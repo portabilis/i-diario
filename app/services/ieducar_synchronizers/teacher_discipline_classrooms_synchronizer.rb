@@ -218,7 +218,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     grouped_link_id = GroupedTeacherDisciplineClassrooms.where(
       teacher_id: teacher_id,
       classroom_id: classroom_id
-    ).flatten.map(&:link_id)
+    ).map(&:link_id)
 
     TeacherDisciplineClassroom.where(id: grouped_link_id).each(&:destroy)
   end
