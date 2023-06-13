@@ -231,10 +231,6 @@ class AttendanceRecordReportForm
     @inactives ||= inactives_on_dates
   end
 
-  def show_inactive_enrollments
-    @show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
-  end
-
   def inactives_on_dates
     inactives_on_dates = {}
 
