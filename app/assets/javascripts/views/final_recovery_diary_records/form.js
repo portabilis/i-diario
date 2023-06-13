@@ -21,7 +21,7 @@ $(function () {
   };
 
   function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines, function(discipline) {
+    var selectedDisciplines = _.map(disciplines, function (discipline) {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
@@ -37,13 +37,13 @@ $(function () {
     var discipline_id = $discipline.select2('val');
 
     if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(discipline_id)) {
+      !_.isEmpty(discipline_id)) {
       $.ajax({
         url: Routes.in_final_recovery_students_pt_br_path({
-            classroom_id: classroom_id,
-            discipline_id: discipline_id,
-            format: 'json'
-          }),
+          classroom_id: classroom_id,
+          discipline_id: discipline_id,
+          format: 'json'
+        }),
         success: handleFetchStudentsInFinalRecoverySuccess,
         error: handleFetchStudentsInFinalRecoveryError
       });
@@ -57,15 +57,15 @@ $(function () {
 
       hideNoItemMessage();
 
-      _.each(students, function(student) {
+      _.each(students, function (student) {
         var element_id = new Date().getTime() + element_counter++
 
         var html = JST['templates/final_recovery_diary_records/student_fields']({
-            id: student.id,
-            name: student.name,
-            needed_score: student.needed_score,
-            element_id: element_id
-          });
+          id: student.id,
+          name: student.name,
+          needed_score: student.needed_score,
+          element_id: element_id
+        });
 
         $('#recovery-diary-record-students').append(html);
       });
@@ -106,12 +106,39 @@ $(function () {
 
   // On change
 
-  $classroom.on('change', function() {
+  $classroom.on('change', async function () {
+    await getNumberOfDecimalPlaces();
     fetchDisciplines();
     removeStudents();
+
+    // calendar final_recovery_diary_record_school_calendar_id
   });
 
-  $discipline.on('change', function() {
+  async function getNumberOfDecimalPlaces() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_number_of_decimal_places_final_recovery_diary_records_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchNumberOfDecimalByClassroomSuccess,
+        error: handleFetchNumberOfDecimalByClassroomError
+      });
+    }
+  }
+
+  function handleFetchNumberOfDecimalByClassroomSuccess(data) {
+    console.log(data)
+    flashMessages.success('Configuração de avaliação validada com sucesso')
+  };
+
+  function handleFetchNumberOfDecimalByClassroomError() {
+    flashMessages.error('Não existe configuração de avaliação numérica para essa escola');
+  };
+
+  $discipline.on('change', function () {
     removeStudents();
     fetchStudentsInFinalRecovery();
   });
