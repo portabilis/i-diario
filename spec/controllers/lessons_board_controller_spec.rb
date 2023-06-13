@@ -51,7 +51,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
   describe '#index' do
     context 'when user have access' do
       it 'list all lessons board' do
-        get :index, locale: 'pt-BR'
+        get :index, params: { locale: 'pt-BR' }
 
         expect(assigns(:lessons_boards).size).to eq(2)
       end
@@ -61,7 +61,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
       it 'dont list any lessons board' do
         sign_in(other_user)
 
-        get :index, locale: 'pt-BR'
+        get :index, params: { locale: 'pt-BR' }
 
         expect(assigns(:lessons_boards)).to be_empty
       end
@@ -74,7 +74,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
         params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
 
         expect{(
-          post :create, locale: 'pt-BR', lessons_board: params
+          post :create, params: {  locale: 'pt-BR', lessons_board: params }
         )}.to change{ LessonsBoard.count }.to(3)
       end
     end
@@ -84,7 +84,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
         params = json_file_fixture('/spec/fixtures/files/without_classrooms_grade_lessons_board.json')
 
         expect {(
-          post :create, locale: 'pt-BR', lessons_board: params
+          post :create, params: {  locale: 'pt-BR', lessons_board: params }
         )}.to_not change(LessonsBoard, :count)
       end
     end
@@ -95,7 +95,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
       it 'when teacher allocation is changed with success' do
         params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
 
-        post :create, locale: 'pt-BR', lessons_board: params
+        post :create, params: {  locale: 'pt-BR', lessons_board: params }
 
         last_lessons_board = LessonsBoard.last
         first_lesson = last_lessons_board.lessons_board_lessons.first
@@ -119,7 +119,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
         }
 
         expect {(
-          patch :update, locale: 'pt-BR', id: last_lessons_board.id, lessons_board: update_lessons_board
+          patch :update, params: { locale: 'pt-BR', id: last_lessons_board.id, lessons_board: update_lessons_board }
         )}.to change { first_allocation.reload.teacher_discipline_classroom_id }.from(84167).to(94000)
       end
     end
@@ -129,7 +129,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
     context 'with success' do
       it 'when delete one lessons board' do
         expect{(
-          delete :destroy, locale: 'pt-BR', id: lessons_board_1.id
+          delete :destroy, params: { locale: 'pt-BR', id: lessons_board_1.id }
         )}.to change{ LessonsBoard.count }.to(1)
       end
     end

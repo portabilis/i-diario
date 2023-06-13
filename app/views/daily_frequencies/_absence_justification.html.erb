@@ -2,7 +2,8 @@
   <%= f.hidden_field :unity_id, value: @daily_frequencies.first.classroom.unity.id %>
   <%= f.hidden_field :classroom_id, value: @daily_frequencies.first.classroom.id %>
   <%= f.hidden_field :frequency_date, value: @daily_frequencies.first.frequency_date %>
-  <%= f.hidden_field :discipline_id, value: @daily_frequencies.first.discipline %>
+  <%= f.hidden_field :discipline_id, value: @daily_frequencies.first.discipline_id %>
+  <%= f.hidden_field :period, value: @daily_frequencies.first.period %>
   <%= f.hidden_field :class_numbers_original, value: @daily_frequencies&.map(&:class_number).join(',') %>
   <div class="modal fade" tabindex="-1" role="dialog" id="absence-justification-modal" aria-hidden="true">
     <div class="modal-dialog" style="width: 480px;">

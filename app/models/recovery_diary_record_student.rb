@@ -1,4 +1,4 @@
-class RecoveryDiaryRecordStudent < ActiveRecord::Base
+class RecoveryDiaryRecordStudent < ApplicationRecord
   include Audit
   include Discardable
 

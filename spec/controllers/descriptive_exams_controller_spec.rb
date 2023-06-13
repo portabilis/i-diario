@@ -62,7 +62,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
   describe 'POST #create' do
     context 'without success' do
       it 'fails to create and renders the new template' do
-        post :create, params
+        post :create, params: params
         expect(response).to render_template(:new)
       end
     end
@@ -70,7 +70,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     context 'with success' do
       it 'creates and redirects to descriptive exams edit page' do
         allow(controller).to receive(:find_step_number).and_return(1)
-        post :create, params
+        post :create, params: params
         expect(response).to redirect_to /avaliacoes-descritivas/
       end
     end

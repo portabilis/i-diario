@@ -1,4 +1,4 @@
-class UpdateUsersCurrentUserRoleIdWithWrongUnityId < ActiveRecord::Migration
+class UpdateUsersCurrentUserRoleIdWithWrongUnityId < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE users

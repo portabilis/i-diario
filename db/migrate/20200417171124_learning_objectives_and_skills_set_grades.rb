@@ -1,4 +1,4 @@
-class LearningObjectivesAndSkillsSetGrades < ActiveRecord::Migration
+class LearningObjectivesAndSkillsSetGrades < ActiveRecord::Migration[4.2]
   def up
     execute File.read(Rails.root.join('db', 'seeds', 'learning_objectives_and_skills_set_grades.sql'))
   end

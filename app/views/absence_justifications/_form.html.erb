@@ -160,7 +160,7 @@
             <tr class="nested-fields">
               <td><%= absence_justified[:student_name] %></td>
               <td><%= absence_justified[:frequency_date] %></td>
-              <td><%= absence_justified[:class_number] %></td>
+              <td><%= absence_justified[:class_number] == 0 ? 'Todas' : absence_justified[:class_number] %></td>
               <td><%= absence_justified[:discipline_name] %></td>
             </tr>
           <% end %>

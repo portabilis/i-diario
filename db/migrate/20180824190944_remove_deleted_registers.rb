@@ -1,4 +1,4 @@
-class RemoveDeletedRegisters < ActiveRecord::Migration
+class RemoveDeletedRegisters < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DELETE FROM avaliations WHERE deleted_at IS NOT NULL;

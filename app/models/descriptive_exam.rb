@@ -1,4 +1,4 @@
-class DescriptiveExam < ActiveRecord::Base
+class DescriptiveExam < ApplicationRecord
   include Audit
   include Stepable
   include TeacherRelationable
@@ -25,7 +25,7 @@ class DescriptiveExam < ActiveRecord::Base
         lambda { |teacher_id|
           joins(discipline: :teacher_discipline_classrooms)
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
-            .uniq
+            .distinct
         }
 
   scope :by_unity_id, ->(unity_id) { joins(:classroom).where(classrooms: { unity_id: unity_id }) }

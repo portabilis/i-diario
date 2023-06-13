@@ -1,4 +1,4 @@
-class MigrateAbsenceJustificationsDisciplines < ActiveRecord::Migration
+class MigrateAbsenceJustificationsDisciplines < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DO $$DECLARE
