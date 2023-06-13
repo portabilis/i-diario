@@ -106,8 +106,7 @@ $(function () {
 
   // On change
 
-  $classroom.on('change', async function () {
-    await getNumberOfDecimalPlaces();
+  $classroom.on('change', function () {
     fetchDisciplines();
     removeStudents();
 
