@@ -1,4 +1,4 @@
-class CreateLearningObjectivesAndSkillsTable < ActiveRecord::Migration
+class CreateLearningObjectivesAndSkillsTable < ActiveRecord::Migration[4.2]
   def change
     create_table :learning_objectives_and_skills do |t|
       t.string :code, null: false, limit: 15, unique: true

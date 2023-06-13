@@ -1,4 +1,4 @@
-class RemoveInvalidUserRolesFromUsersAndAddFk < ActiveRecord::Migration
+class RemoveInvalidUserRolesFromUsersAndAddFk < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE users

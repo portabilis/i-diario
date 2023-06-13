@@ -13,6 +13,7 @@ pt-BR:
         knowledge_area_ids: "Áreas de conhecimento"
         author: "Autor"
         contents: "Conteúdos"
+        experience_fields: "Campos de experiência"
     errors:
       models:
         knowledge_area_content_record:

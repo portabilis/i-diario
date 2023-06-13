@@ -1,4 +1,4 @@
-class CreateObservationDiaryRecordAttachments < ActiveRecord::Migration
+class CreateObservationDiaryRecordAttachments < ActiveRecord::Migration[4.2]
   def change
     create_table :observation_diary_record_attachments do |t|
       t.references(

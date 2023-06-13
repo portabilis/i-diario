@@ -1,4 +1,4 @@
-class CreateAndRenameRoundingTablesAndRoundingTableValues < ActiveRecord::Migration
+class CreateAndRenameRoundingTablesAndRoundingTableValues < ActiveRecord::Migration[4.2]
   def change
     rename_table :rounding_tables, :rounding_table_values
     rename_column :rounding_table_values, :api_code, :tabela_arredondamento_id

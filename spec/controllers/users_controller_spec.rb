@@ -62,12 +62,12 @@ RSpec.describe UsersController, :type => :controller do
       end
 
       it "with correct params" do
-        get :index, params
+        get :index, params: params
         expect(response).to have_http_status(:ok)
       end
 
       it "without correct params" do
-        get :index, params.merge(search: { by_name: nil })
+        get :index, params: params.merge(search: { wrong_name: nil })
         expect(response).to have_http_status(302)
       end
     end
@@ -84,14 +84,14 @@ RSpec.describe UsersController, :type => :controller do
       end
 
       it "with correct params and a weak password" do
-        put :update, params
+        put :update, params: params
         expect(response).to have_http_status(:ok)
         expect(response).to render_template(:edit)
       end
 
       it "with correct params and a strong password" do
         new_params = { user: { password: '!Aa123456' } }
-        put :update, params.merge(new_params)
+        put :update, params: params.merge(new_params)
         expect(response).to redirect_to(users_path)
       end
     end

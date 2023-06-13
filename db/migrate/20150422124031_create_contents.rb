@@ -1,4 +1,4 @@
-class CreateContents < ActiveRecord::Migration
+class CreateContents < ActiveRecord::Migration[4.2]
   def change
     create_table :contents do |t|
       t.references :unity, index: true, null: false

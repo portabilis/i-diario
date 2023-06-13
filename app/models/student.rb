@@ -1,4 +1,4 @@
-class Student < ActiveRecord::Base
+class Student < ApplicationRecord
   include Discardable
 
   acts_as_copy_target
@@ -76,14 +76,14 @@ class Student < ActiveRecord::Base
   end
 
   def classrooms
-    Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
+    Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).distinct
   end
 
   def current_classrooms
     Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(
       StudentEnrollmentClassroom.by_student(id)
                                 .by_date(Date.current)
-    ).uniq
+    ).distinct
   end
 
   private

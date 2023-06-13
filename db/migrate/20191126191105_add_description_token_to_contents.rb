@@ -1,4 +1,4 @@
-class AddDescriptionTokenToContents < ActiveRecord::Migration
+class AddDescriptionTokenToContents < ActiveRecord::Migration[4.2]
   def up
     execute %{
       ALTER TABLE contents add column document_tokens TSVECTOR;

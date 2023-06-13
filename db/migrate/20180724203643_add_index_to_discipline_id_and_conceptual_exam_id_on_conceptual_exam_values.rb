@@ -1,4 +1,4 @@
-class AddIndexToDisciplineIdAndConceptualExamIdOnConceptualExamValues < ActiveRecord::Migration
+class AddIndexToDisciplineIdAndConceptualExamIdOnConceptualExamValues < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

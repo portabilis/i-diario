@@ -1,4 +1,4 @@
-class CreateRecoveryDiaryRecordStudents < ActiveRecord::Migration
+class CreateRecoveryDiaryRecordStudents < ActiveRecord::Migration[4.2]
   def change
     create_table :recovery_diary_record_students do |t|
       t.decimal :score, null: true

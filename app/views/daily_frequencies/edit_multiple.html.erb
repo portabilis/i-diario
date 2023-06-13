@@ -20,6 +20,39 @@
 
   <%= simple_form_for @daily_frequency, url: create_or_update_multiple_daily_frequencies_path, method: :put,
     html: { class: 'smart-form daily_frequency' } do |f| %>
+
+    <div class="frequency-legend">
+      <strong>Legenda:</strong>
+
+      <div class="frequency-legend-item">
+        <label class="checkbox checkbox-frequency">
+          <input type="checkbox" checked disabled>
+          <i></i>
+        </label>
+        Presente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label class="checkbox checkbox-frequency">
+          <input type="checkbox" disabled>
+          <i></i>
+        </label>
+        Ausente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox checkbox-frequency justified">
+          <input type="checkbox" disabled>
+          <i></i>
+        </label>
+        Falta justificada
+      </div>
+
+      <a href="#" class="btn btn-primary frequency-legend-button no-confirm" data-toggle="modal" data-target="#absence-justification-modal">
+        Inserir falta justificada por período
+      </a>
+    </div>
+
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
         <th style="width: 65px;">Sequencial</th>
@@ -48,13 +81,15 @@
             <% if student[:sequence] %>
               <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
                 student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
-                active: student[:active], in_active_search: student[:in_active_search]
+                active: student[:active], in_active_search: student[:in_active_search],
+                absence_justification: student[:absence_justification]
               %>
             <% else %>
               <% sequence += 1 %>
               <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
                 student: student[:student], sequence: sequence, dependence: student[:dependence],
-                active: student[:active], in_active_search: student[:in_active_search]
+                active: student[:active], in_active_search: student[:in_active_search],
+                absence_justification: student[:absence_justification]
               %>
             <% end %>
           <% end %>
@@ -144,4 +179,7 @@
       </div>
     </footer>
   <% end %>
+
+  <%= render 'absence_justification' %>
+
 </div>

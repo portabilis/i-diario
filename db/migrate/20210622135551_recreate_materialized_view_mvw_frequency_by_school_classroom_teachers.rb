@@ -1,4 +1,4 @@
-class RecreateMaterializedViewMvwFrequencyBySchoolClassroomTeachers < ActiveRecord::Migration
+class RecreateMaterializedViewMvwFrequencyBySchoolClassroomTeachers < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DROP MATERIALIZED VIEW mvw_frequency_by_school_classroom_teachers;

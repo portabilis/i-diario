@@ -1,4 +1,4 @@
-class PopulateAbsenceJustificationUserIdField < ActiveRecord::Migration
+class PopulateAbsenceJustificationUserIdField < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DO $$DECLARE

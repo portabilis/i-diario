@@ -54,6 +54,10 @@ module ExamPoster
     def post_general_classrooms
       absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
+      absence_count_service = AbsenceCountService.new(
+        GeneralConfiguration.current.do_not_send_justified_absence
+      )
+
       teacher.classrooms.uniq.each do |classroom|
         next unless can_post?(classroom)
         next if frequency_by_discipline?(classroom)
@@ -70,7 +74,7 @@ module ExamPoster
         students.each do |student|
           next unless not_posted?({ classroom: classroom, student: student })[:absence]
 
-          value = AbsenceCountService.new(student, classroom, start_date, end_date).count
+          value = absence_count_service.count(student, classroom, start_date, end_date)
 
           absences[classroom.api_code][student.api_code]['valor'] = value
         end
@@ -81,6 +85,10 @@ module ExamPoster
 
     def post_by_discipline_classrooms
       absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
+
+      absence_count_service = AbsenceCountService.new(
+        GeneralConfiguration.current.do_not_send_justified_absence
+      )
 
       teacher.classrooms.uniq.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
@@ -107,7 +115,7 @@ module ExamPoster
           students.each do |student|
             next unless not_posted?({ classroom: classroom, discipline: discipline, student: student })[:absence]
 
-            value = AbsenceCountService.new(student, classroom, start_date, end_date, discipline).count
+            value = absence_count_service.count(student, classroom, start_date, end_date, discipline)
 
             absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
           end
