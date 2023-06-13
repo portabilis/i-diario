@@ -7,8 +7,9 @@ class DescriptiveExamsController < ApplicationController
 
   def new
     @descriptive_exam = DescriptiveExam.new
+    @descriptive_exam.classroom = current_user_classroom
 
-    set_opinion_types
+    set_options_by_user
 
     authorize @descriptive_exam
   end
@@ -26,7 +27,7 @@ class DescriptiveExamsController < ApplicationController
 
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      set_opinion_types
+      set_options_by_user
 
       render :new
     end
@@ -62,12 +63,6 @@ class DescriptiveExamsController < ApplicationController
     respond_with @descriptive_exam
   end
 
-  def opinion_types
-    set_opinion_types(Classroom.find(params[:classroom_id]))
-
-    render json: @opinion_types.to_json
-  end
-
   def find
     return render json: nil if params[:opinion_type].blank? ||
                                (params[:step_id].blank? && !opinion_type_by_year?(params[:opinion_type]))
@@ -75,7 +70,7 @@ class DescriptiveExamsController < ApplicationController
     discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
     step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
-    set_opinion_types
+    set_options_by_user
 
     descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
                                          .by_discipline_id(discipline_id)
@@ -84,6 +79,19 @@ class DescriptiveExamsController < ApplicationController
     descriptive_exam_id = descriptive_exam_id.first&.id
 
     render json: descriptive_exam_id
+  end
+
+  def opinion_types
+    set_options_by_user(Classroom.find(params[:classroom_id]))
+
+    render json: @opinion_types.to_json
+  end
+
+  def find_step_number_by_classroom
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
+
+    render json: step_numbers.to_json
   end
 
   protected
@@ -102,7 +110,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def steps_fetcher
-    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+    @steps_fetcher ||= StepsFetcher.new(@descriptive_exam.classroom)
   end
 
   def find_step_id
@@ -202,8 +210,18 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
-  def set_opinion_types
-    exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+  def set_options_by_user(classroom = nil)
+    if current_user.current_role_is_admin_or_employee?
+      exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+    else
+      fetch_linked_by_teacher
+
+      if classroom.present?
+        exam_rules = classroom.classrooms_grades.map(&:exam_rule)
+      else
+        exam_rules = @classroom_grades.map(&:exam_rule)
+      end
+    end
 
     if exam_rules.blank?
       redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
@@ -283,6 +301,17 @@ class DescriptiveExamsController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classroom_grades ||= @fetch_linked_by_teacher[:classroom_grades]
+  end
 
   def view_data
     @descriptive_exam = DescriptiveExam.find(params[:id]).localized
