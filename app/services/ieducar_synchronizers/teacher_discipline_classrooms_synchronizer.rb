@@ -25,8 +25,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         classroom = classroom(teacher_discipline_classroom_record.turma_id)
         teacher = teacher(teacher_discipline_classroom_record.servidor_id)
 
-        next if classroom.discarded? || classroom.blank?
-        next if teacher.discarded? || teacher.blank?
+        next if classroom.blank? || classroom.discarded?
+        next if teacher.blank? || teacher.discarded?
 
         teacher_id = teacher.try(:id)
         classroom_id = classroom.try(:id)
