@@ -39,9 +39,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
       set_options_by_user
-      number_of_decimal_places unless current_user.current_role_is_admin_or_employee?
-      students_in_final_recovery = fetch_students_in_final_recovery
-      decorate_students(students_in_final_recovery)
+      number_of_decimal_places
+      decorate_students(fetch_students_in_final_recovery)
 
       render :new
     end
@@ -60,7 +59,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       record_student.student = fetch_student_in_final_recovery(record_student.student.id)
     end
 
-    number_of_decimal_places unless current_user.current_role_is_admin_or_employee?
+    number_of_decimal_places
   end
 
   def update
@@ -77,7 +76,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
       set_options_by_user
-      number_of_decimal_places unless current_user.current_role_is_admin_or_employee?
+      number_of_decimal_places
 
       render :edit
     end
@@ -201,7 +200,9 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def number_of_decimal_places
-    test_setting = test_setting(current_user_classroom, @final_recovery_diary_record.school_calendar.steps.to_a.last)
+    classroom = @final_recovery_diary_record.school_calendar.steps.to_a.last
+    schoool_calendar = @final_recovery_diary_record.school_calendar.steps.to_a.last
+    test_setting = test_setting(classroom, schoool_calendar)
 
     if test_setting.nil?
       redirect_to final_recovery_diary_records_path, alert: t('final_recovery_diary_records.new.not_exists_test_setting')
