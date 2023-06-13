@@ -39,7 +39,7 @@ function CleanPastedHTML(input) {
     tagStripper = new RegExp('<'+badTags[i]+'.*?'+badTags[i]+'(.*?)>', 'gi');
     output = output.replace(tagStripper, '');
   }
-  var badAttributes = ['style', 'start'];
+  var badAttributes = ['style', 'start', 'class'];
   for (var i=0; i< badAttributes.length; i++) {
     var attributeStripper = new RegExp(' ' + badAttributes[i] + '="(.*?)"','gi');
     output = output.replace(attributeStripper, '');

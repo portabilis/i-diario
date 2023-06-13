@@ -1,4 +1,4 @@
-class CreateDailyFrequencies < ActiveRecord::Migration
+class CreateDailyFrequencies < ActiveRecord::Migration[4.2]
   def change
     create_table :daily_frequencies do |t|
       t.references :unity, index: true, null: false

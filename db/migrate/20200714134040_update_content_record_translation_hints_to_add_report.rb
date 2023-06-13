@@ -1,4 +1,4 @@
-class UpdateContentRecordTranslationHintsToAddReport < ActiveRecord::Migration
+class UpdateContentRecordTranslationHintsToAddReport < ActiveRecord::Migration[4.2]
   def up
     execute <<-SQL
       UPDATE translations

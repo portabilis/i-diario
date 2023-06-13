@@ -1,4 +1,4 @@
-class InsertObjectivesFromLessonPlans < ActiveRecord::Migration
+class InsertObjectivesFromLessonPlans < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DO $$

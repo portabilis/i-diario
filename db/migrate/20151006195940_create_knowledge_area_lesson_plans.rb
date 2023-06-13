@@ -1,4 +1,4 @@
-class CreateKnowledgeAreaLessonPlans < ActiveRecord::Migration
+class CreateKnowledgeAreaLessonPlans < ActiveRecord::Migration[4.2]
   def change
     create_table :knowledge_area_lesson_plans do |t|
       t.references :lesson_plan, index: { unique: true }, null: false

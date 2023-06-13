@@ -1,4 +1,4 @@
-class CreateDataExportation < ActiveRecord::Migration
+class CreateDataExportation < ActiveRecord::Migration[4.2]
   def change
     create_table :data_exportations do |t|
       t.string :backup_type, null: false

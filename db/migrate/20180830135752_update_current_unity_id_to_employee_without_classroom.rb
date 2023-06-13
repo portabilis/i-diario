@@ -1,4 +1,4 @@
-class UpdateCurrentUnityIdToEmployeeWithoutClassroom < ActiveRecord::Migration
+class UpdateCurrentUnityIdToEmployeeWithoutClassroom < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE users

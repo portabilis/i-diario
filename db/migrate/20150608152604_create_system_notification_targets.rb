@@ -1,4 +1,4 @@
-class CreateSystemNotificationTargets < ActiveRecord::Migration
+class CreateSystemNotificationTargets < ActiveRecord::Migration[4.2]
   def change
     create_table :system_notification_targets do |t|
       t.integer :system_notification_id, null: false
