@@ -1,4 +1,4 @@
-class Avaliation < ActiveRecord::Base
+class Avaliation < ApplicationRecord
   include Audit
   include ColumnsLockable
   include TeacherRelationable
@@ -51,7 +51,7 @@ class Avaliation < ActiveRecord::Base
   validate :discipline_in_grade?
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
-  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).distinct }
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_grade_id, lambda { |grade_id|
@@ -223,7 +223,7 @@ class Avaliation < ActiveRecord::Base
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
-                            .uniq
+                            .distinct
 
     avaliations = avaliations.where.not(id: id) if persisted?
 

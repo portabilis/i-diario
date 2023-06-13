@@ -38,11 +38,11 @@ class Unity < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:name].asc) }
   scope :by_api_codes, -> (codes) { where(arel_table[:api_code].in(codes)) }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
-  scope :by_teacher, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_year, -> (year) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { year: year }).uniq }
+  scope :by_teacher, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).distinct }
+  scope :by_year, -> (year) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { year: year }).distinct }
   scope :by_teacher_with_school_calendar_year, lambda {
     joins(:teacher_discipline_classrooms, :school_calendars)
-      .where(TeacherDisciplineClassroom.arel_table[:year].eq(SchoolCalendar.arel_table[:year])).uniq
+      .where(TeacherDisciplineClassroom.arel_table[:year].eq(SchoolCalendar.arel_table[:year])).distinct
   }
   scope :by_date, lambda { |date|
     joins(school_calendars: :steps).where(

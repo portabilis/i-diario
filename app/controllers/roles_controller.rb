@@ -135,6 +135,6 @@ class RolesController < ApplicationController
   end
 
   def to_boolean(param)
-    ActiveRecord::Type::Boolean.new.type_cast_from_user(param)
+    ActiveRecord::Type::Boolean.new.cast(param)
   end
 end

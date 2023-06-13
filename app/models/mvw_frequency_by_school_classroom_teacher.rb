@@ -1,4 +1,4 @@
-class MvwFrequencyBySchoolClassroomTeacher < ActiveRecord::Base
+class MvwFrequencyBySchoolClassroomTeacher < ApplicationRecord
   belongs_to :unity
   belongs_to :classroom
   belongs_to :teacher

@@ -1,4 +1,4 @@
-class MvwContentRecordBySchoolClassroomTeacher < ActiveRecord::Base
+class MvwContentRecordBySchoolClassroomTeacher < ApplicationRecord
   belongs_to :unity
   belongs_to :classroom
   belongs_to :teacher

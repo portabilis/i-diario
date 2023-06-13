@@ -1,4 +1,4 @@
-class AddFieldsToContents < ActiveRecord::Migration
+class AddFieldsToContents < ActiveRecord::Migration[4.2]
   def change
     add_column :contents, :theme, :text
     add_column :contents, :goals, :text

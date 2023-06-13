@@ -7,7 +7,7 @@ pt-BR:
       print: "Imprimir"
       edit: "Editar"
       delete: "Excluir"
-      confirm: "Você tem certeza?"
+      confirm: "Ao excluir, a frequência vinculada será alterada para falta nas aulas e dias definidos na justificativa.Você tem certeza?"
 
       tooltips:
         print: "Imprimir"

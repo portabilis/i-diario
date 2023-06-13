@@ -1,4 +1,4 @@
-class CreateDescriptiveExams < ActiveRecord::Migration
+class CreateDescriptiveExams < ActiveRecord::Migration[4.2]
   def change
     create_table :descriptive_exams do |t|
        t.references :classroom, index: true, null: false, foreign_key: true
