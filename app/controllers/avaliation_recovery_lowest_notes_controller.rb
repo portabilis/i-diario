@@ -75,6 +75,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def edit
+    set_options_by_user
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id]).localized
     step_number = @lowest_note_recovery.step_number
     @lowest_note_recovery.step_id = steps_fetcher.step(step_number).try(:id)

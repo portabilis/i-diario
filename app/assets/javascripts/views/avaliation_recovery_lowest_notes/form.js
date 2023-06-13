@@ -231,13 +231,7 @@ $(function () {
 
     window.disciplines = [];
 
-    if (_.isEmpty(e.val)) {
-      $discipline.val('');
-      $discipline.select2({
-        data: []
-      });
-
-    } else {
+    if (!_.isEmpty(e.val)) {
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id: discipline['id'], text: discipline['description'] };
