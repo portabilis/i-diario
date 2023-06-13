@@ -33,7 +33,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:other_teacher) { create(:teacher) }
   let(:classroom) { create(:classroom, :score_type_numeric) }
   let(:discipline) { create(:discipline) }
-  let(:school_term_type) { create(:school_term_type) }
+  let(:school_term_type) { create(:school_term_type, description: 'Anual') }
   let(:school_term_type_step) { create(:school_term_type_step, school_term_type: school_term_type) }
   let(:current_teacher_teaching_plan) {
     create(
