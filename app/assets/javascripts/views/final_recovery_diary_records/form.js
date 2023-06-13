@@ -114,30 +114,6 @@ $(function () {
     // calendar final_recovery_diary_record_school_calendar_id
   });
 
-  async function getNumberOfDecimalPlaces() {
-    let classroom_id = $classroom.select2('val');
-
-    if (!_.isEmpty(classroom_id)) {
-      return $.ajax({
-        url: Routes.fetch_number_of_decimal_places_final_recovery_diary_records_pt_br_path({
-          classroom_id: classroom_id,
-          format: 'json'
-        }),
-        success: handleFetchNumberOfDecimalByClassroomSuccess,
-        error: handleFetchNumberOfDecimalByClassroomError
-      });
-    }
-  }
-
-  function handleFetchNumberOfDecimalByClassroomSuccess(data) {
-    console.log(data)
-    flashMessages.success('Configuração de avaliação validada com sucesso')
-  };
-
-  function handleFetchNumberOfDecimalByClassroomError() {
-    flashMessages.error('Não existe configuração de avaliação numérica para essa escola');
-  };
-
   $discipline.on('change', function () {
     removeStudents();
     fetchStudentsInFinalRecovery();

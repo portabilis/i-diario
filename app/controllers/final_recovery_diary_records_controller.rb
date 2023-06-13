@@ -98,17 +98,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     respond_with @final_recovery_diary_record
   end
 
-  def fetch_number_of_decimal_places
-    return if params[:classroom_id].blank?
-
-    classroom = Classroom.find(params[:classroom_id])
-    school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, classroom, current_school_year).fetch
-
-    number_of_decimal_places = TestSettingFetcher.current(classroom, school_calendar.steps.to_a.last).number_of_decimal_places
-
-    render json: number_of_decimal_places.to_json
-  end
-
   private
 
   def resource_params
