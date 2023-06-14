@@ -213,6 +213,8 @@ class DescriptiveExamsController < ApplicationController
   def set_options_by_user(classroom = nil)
     if current_user.current_role_is_admin_or_employee?
       exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_found')) if exam_rules.blank?
     else
       fetch_linked_by_teacher
 
