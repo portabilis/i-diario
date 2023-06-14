@@ -63,6 +63,9 @@
 
     <% unless @absence_justification.legacy %>
     <div class="row">
+      <div class="col col-sm-4" id="period">
+        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2 3 4]).to_json, readonly: readonly %>
+      </div>
       <div class="col col-sm-4" data-student>
         <%= f.association :students, as: :select2, elements: @students, multiple: true, required: true,
                           input_html: {

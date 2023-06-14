@@ -12,7 +12,13 @@ RSpec.describe AbsenceJustifiedOnDate, type: :service do
         absence_justifications_student = absence_justification.absence_justifications_students.first
         student = absence_justifications_student.student
 
-        absence_justifications = AbsenceJustifiedOnDate.call(students: [student.id], date: frequency_date, end_date: frequency_date)
+        absence_justifications = AbsenceJustifiedOnDate.call(
+                                                              students: [student.id],
+                                                              date: frequency_date,
+                                                              end_date: frequency_date,
+                                                              classroom: absence_justification.classroom.id,
+                                                              period: absence_justification.period
+                                                            )
 
         expected = {
           student.id => {
@@ -28,24 +34,33 @@ RSpec.describe AbsenceJustifiedOnDate, type: :service do
       it 'should returns absence justified on date (per day) in batch' do
         frequency_date_yesterday = Date.current - 1
         frequency_date = Date.current
+        teacher_discipline_classroom = create(:teacher_discipline_classroom, :with_classroom_semester_steps)
 
         absence_justification = create(
           :absence_justification,
           absence_date: frequency_date,
           absence_date_end: frequency_date,
+          teacher_discipline_classroom: teacher_discipline_classroom
         )
         absence_justification_yesterday = create(
           :absence_justification,
           students: absence_justification.students,
           absence_date: frequency_date_yesterday,
           absence_date_end: frequency_date_yesterday,
+          teacher_discipline_classroom: teacher_discipline_classroom
         )
 
         absence_justifications_student = absence_justification.absence_justifications_students.first
         absence_justification_yesterday_student = absence_justification_yesterday.absence_justifications_students.first
         student = absence_justifications_student.student
 
-        absence_justifications = AbsenceJustifiedOnDate.call(students: [student.id], date: frequency_date_yesterday, end_date: frequency_date)
+        absence_justifications = AbsenceJustifiedOnDate.call(
+                                                              students: [student.id],
+                                                              date: frequency_date_yesterday,
+                                                              end_date: frequency_date,
+                                                              classroom: absence_justification.classroom.id,
+                                                              period: absence_justification.period
+                                                            )
 
         expected = {
           student.id => {
@@ -68,7 +83,13 @@ RSpec.describe AbsenceJustifiedOnDate, type: :service do
         absence_justifications_student = absence_justification.absence_justifications_students.first
         student = absence_justifications_student.student
 
-        absence_justifications = AbsenceJustifiedOnDate.call(students: [student.id], date: frequency_date, end_date: frequency_date)
+        absence_justifications = AbsenceJustifiedOnDate.call(
+                                                              students: [student.id],
+                                                              date: frequency_date,
+                                                              end_date: frequency_date,
+                                                              classroom: absence_justification.classroom.id,
+                                                              period: absence_justification.period
+                                                            )
 
         expected = {
           student.id => {
