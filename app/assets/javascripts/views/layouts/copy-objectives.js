@@ -1,13 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
-  const confirmCopyButton = document.getElementById('confirm-copy-objectives-modal');
+  const confirmCopyButton = document.getElementById('confirm-copy-objectives-btn');
+  const experienceConfirmButton = document.getElementById('experience-confirm-btn');
+  const disciplinesConfirmCopyButton = document.getElementById('disciplines-confirm-btn');
 
-  const requestContents = (itens) => {
+  const requestContents = (itens, origin) => {
     return new Promise(resolve => {
       const url = Routes.contents_learning_objectives_and_skills_pt_br_path();
       let params = {}
-      params[confirmCopyButton.dataset.type] = itens
+
+      if (origin === 'experience') {
+        params[experienceConfirmButton.dataset.type] = itens
+      } else if (origin === 'disciplines') {
+        params[disciplinesConfirmCopyButton.dataset.type] = itens
+      } else {
+        params[confirmCopyButton.dataset.type] = itens
+      }
 
       $.getJSON(url, params).done(resolve);
     });
@@ -48,12 +57,64 @@ document.addEventListener('DOMContentLoaded', () => {
         addElement(content['description']);
       });
 
-      $('#copy-objectives-modal').modal('hide');
+      $('#confirm-copy-objectives-modal').modal('hide');
+    });
+  };
+
+  const disciplinesCopyObjectives = () => {
+    const selectedItens = [];
+
+    $(checkedExperienceFields()).each(function() {
+      const experience_field = this.dataset.id;
+      const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
+      selectedItens.push({ type: experience_field, grades: grades });
+    });
+
+    if (selectedItens.length === 0) {
+      return;
+    }
+
+    requestContents(selectedItens, 'disciplines').then(data => {
+      data['contents'].forEach(content => {
+        addElement(content['description']);
+      });
+
+      $('#disciplines-modal').modal('hide');
+    });
+  };
+
+  const experienceCopyObjectives = () => {
+    const selectedItens = [];
+
+    $(checkedExperienceFields()).each(function() {
+      const experience_field = this.dataset.id;
+      const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
+      selectedItens.push({ type: experience_field, grades: grades });
+    });
+
+    if (selectedItens.length === 0) {
+      return;
+    }
+
+    requestContents(selectedItens, 'experience').then(data => {
+      data['contents'].forEach(content => {
+        addElement(content['description']);
+      });
+
+      $('#experience-modal').modal('hide');
     });
   };
 
   if (confirmCopyButton) {
     confirmCopyButton.addEventListener('click', copyObjectives);
+  }
+
+  if (experienceConfirmButton) {
+    experienceConfirmButton.addEventListener('click', experienceCopyObjectives);
+  }
+
+  if (disciplinesConfirmCopyButton) {
+    disciplinesConfirmCopyButton.addEventListener('click', disciplinesCopyObjectives);
   }
 
   const clearCheckboxs = () => {
@@ -67,6 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $('input.grade_ids').select2("val", "");
   };
 
+  clearGrades();
+
   $('[name="experience_fields[]"]').change(function() {
     if ($(this).is(':checked')) {
       $(this).closest('.row').find('.grades').show();
@@ -77,6 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   $('#copy-objectives-modal').on('show.bs.modal', function() {
+    clearCheckboxs();
+    clearGrades();
+  });
+
+  $('#disciplines-modal').on('show.bs.modal', function() {
+    clearCheckboxs();
+    clearGrades();
+  });
+
+  $('#experience-modal').on('show.bs.modal', function() {
     clearCheckboxs();
     clearGrades();
   });

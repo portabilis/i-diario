@@ -1,4 +1,4 @@
-class RemoveEmptyObjectives < ActiveRecord::Migration
+class RemoveEmptyObjectives < ActiveRecord::Migration[4.2]
   class MigrationObjective < ActiveRecord::Base
     self.table_name = :objectives
   end

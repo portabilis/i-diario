@@ -1,7 +1,7 @@
 class DailyFrequenciesController < ApplicationController
   before_action :require_current_classroom
   before_action :require_teacher
-  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
+  before_action :set_number_of_classes, only: [:new, :form, :create, :edit_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
 
@@ -15,6 +15,18 @@ class DailyFrequenciesController < ApplicationController
     authorize @daily_frequency
   end
 
+  def form
+    redirect_to edit_multiple_daily_frequencies_path(
+      daily_frequency: {
+        unity_id: params[:unity_id],
+        classroom_id: params[:classroom_id],
+        frequency_date: params[:frequency_date],
+        discipline_id: params[:discipline_id],
+        period: params[:period],
+      },
+      class_numbers: params[:class_numbers].split(',').sort
+    )
+  end
   def create
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
@@ -48,13 +60,20 @@ class DailyFrequenciesController < ApplicationController
     authorize @daily_frequency
 
     @students = []
+    @students_list = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
     @any_in_active_search = false
     @dependence_students = false
+    @absence_justification = AbsenceJustification.new
+    @absence_justification.school_calendar = current_school_calendar
 
     student_enrollment_ids = fetch_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
+    }
+
+    student_ids = fetch_enrollment_classrooms.map { |student_enrollment|
+      student_enrollment[:student].id
     }
 
     step = @daily_frequency.school_calendar.step(@daily_frequency.frequency_date).try(:to_number)
@@ -65,6 +84,7 @@ class DailyFrequenciesController < ApplicationController
     exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, step: step)
     active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
+    absence_justifications = AbsenceJustifiedOnDate.call(students: student_ids, date: frequency_date, end_date: frequency_date)
 
     fetch_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
@@ -72,6 +92,7 @@ class DailyFrequenciesController < ApplicationController
       activated_student = active.include?(enrollment_classroom[:student_enrollment_classroom_id])
       has_dependence = dependencies[student_enrollment_id] ? true : false
       has_exempted = exempt[student_enrollment_id] ? true : false
+      absence_justification = absence_justifications[student.id] || {}
       in_active_search = active_search[@daily_frequency.frequency_date]&.include?(student_enrollment_id)
       sequence = enrollment_classroom[:sequence] if show_inactive_enrollments
 
@@ -81,12 +102,14 @@ class DailyFrequenciesController < ApplicationController
       @any_inactive_student ||= !activated_student
 
       if activated_student || show_inactive_enrollments
+        @students_list << student
         @students << {
           student: student,
           dependence: has_dependence,
           active: activated_student,
           exempted_from_discipline: has_exempted,
           in_active_search: in_active_search,
+          absence_justification: absence_justification,
           sequence: sequence
         }
       end
@@ -113,7 +136,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequency_record = nil
       daily_frequency_attributes = daily_frequency_params
       daily_frequencies_attributes = daily_frequencies_params
-      receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
         params[:daily_frequency][:receive_email_confirmation]
       )
 
@@ -141,6 +164,30 @@ class DailyFrequenciesController < ApplicationController
             daily_frequency_record,
             daily_frequency_students_params
           )
+
+          daily_frequency_students_params[:students_attributes].each_value do |daily_frequency_student|
+            if daily_frequency_student[:absence_justification_student_id].to_i.eql?(-1)
+              params = {
+                student_ids: [daily_frequency_student[:student_id]],
+                absence_date: daily_frequency_attributes[:frequency_date],
+                justification: nil,
+                absence_date_end: daily_frequency_attributes[:frequency_date],
+                unity_id: daily_frequency_attributes[:unity_id],
+                classroom_id: daily_frequency_attributes[:classroom_id],
+                class_number: daily_frequency_students_params[:class_number],
+              }
+
+              absence_justification = AbsenceJustification.new(params)
+              absence_justification.teacher = current_teacher
+              absence_justification.user = current_user
+              absence_justification.school_calendar = current_school_calendar
+
+              absence_justification.save
+
+              daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
+            end
+          end
+
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
           daily_frequency_record.save!
         end
@@ -160,7 +207,8 @@ class DailyFrequenciesController < ApplicationController
 
     if receive_email_confirmation
       ReceiptMailer.delay.notify_daily_frequency_success(
-        current_user,
+        current_user.first_name,
+        current_user.email,
         "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
         daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y'),
         daily_frequency_record.classroom.description,
@@ -225,7 +273,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequencies: [
         :class_number,
         students_attributes: [
-          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching]
+          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching, :absence_justification_student_id]
         ]
       ]
     ).require(:daily_frequencies)

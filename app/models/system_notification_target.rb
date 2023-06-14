@@ -1,4 +1,4 @@
-class SystemNotificationTarget < ActiveRecord::Base
+class SystemNotificationTarget < ApplicationRecord
   belongs_to :system_notification
   belongs_to :user
 

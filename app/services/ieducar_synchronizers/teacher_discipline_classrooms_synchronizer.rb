@@ -25,8 +25,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         classroom = classroom(teacher_discipline_classroom_record.turma_id)
         teacher = teacher(teacher_discipline_classroom_record.servidor_id)
 
-        next if classroom.discarded? || classroom.blank?
-        next if teacher.discarded? || teacher.blank?
+        next if classroom.blank? || classroom.discarded?
+        next if teacher.blank? || teacher.discarded?
 
         teacher_id = teacher.try(:id)
         classroom_id = classroom.try(:id)
@@ -47,10 +47,14 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
             score_type
           )
 
-          create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id) unless teacher_discipline_classroom_record.deleted_at.present?
+          if teacher_discipline_classroom_record.deleted_at.blank?
+            create_empty_conceptual_exam_value(discipline_by_grade, classroom_id, teacher_id)
+          end
         end
 
-        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
+        links_fake_disciplines = teacher_discipline_classroom_record if teacher_discipline_classroom_record.disciplinas.blank?
+
+        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines)
 
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classrooms_to_discard(
@@ -81,11 +85,17 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year,
-      grade_id: grade_id,
-      score_type: score_type,
       discipline_id: discipline_id,
-      discipline_api_code: discipline_api_code
+      teacher_id: teacher_id,
+      grade_id: grade_id,
+      classroom_id: classroom_id
     )
+
+    TeacherDisciplineClassroom.unscoped.where(
+      api_code: teacher_discipline_classroom_record.id
+    ).where.not(classroom_id: classroom_id).each do |teacher_discipline_classroom|
+      teacher_discipline_classroom.destroy
+    end
 
     teacher_discipline_classroom =
       if teacher_discipline_classrooms.size == 1
@@ -137,8 +147,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       year: year
     )
 
-    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes)
-                                         .pluck(:id)
+    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes).pluck(:id)
 
     return teacher_discipline_classrooms if teacher_discipline_classroom_record.deleted_at.present?
 
@@ -162,7 +171,20 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     )
   end
 
-  def create_or_destroy_teacher_disciplines_classrooms(linked_teachers)
+  def create_or_destroy_teacher_disciplines_classrooms(
+    linked_teachers,
+    teacher_id,
+    classroom_id,
+    links_fake_disciplines = nil
+  )
+    if links_fake_disciplines.present? && links_fake_disciplines.deleted_at.present?
+      link_fake = TeacherDisciplineClassroom.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
+
+      return if link_fake.nil?
+
+      link_fake.api_code.include?('grouper') ? link_fake.discard : return
+    end
+
     teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
 
     TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
@@ -176,7 +198,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       return if fake_discipline.nil?
 
-      TeacherDisciplineClassroom.find_or_initialize_by(
+      link_teacher = TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
         year: year,
         teacher_id: teacher_discipline_classroom.teacher_id,
@@ -186,7 +208,18 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
         classroom_api_code: "grouper:#{fake_discipline.id}"
-      ).save!
+      )
+
+      link_teacher.undiscard if link_teacher.discarded?
+
+      link_teacher.save! if link_teacher.new_record?
     end
+
+    grouped_link_id = GroupedTeacherDisciplineClassrooms.where(
+      teacher_id: teacher_id,
+      classroom_id: classroom_id
+    ).map(&:link_id)
+
+    TeacherDisciplineClassroom.where(id: grouped_link_id).each(&:destroy)
   end
 end

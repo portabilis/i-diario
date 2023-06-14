@@ -9,4 +9,7 @@ class KnowledgeAreaContentRecordDecorator
     true
   end
 
+  def show_experience_fields
+    @show_experience_fields ||= GeneralConfiguration.current.show_experience_fields
+  end
 end

@@ -1,4 +1,4 @@
-class RemoveFontFamilyFromDescriptiveExamStudentValues < ActiveRecord::Migration
+class RemoveFontFamilyFromDescriptiveExamStudentValues < ActiveRecord::Migration[4.2]
   def change
     DescriptiveExamStudent.where("value ILIKE '%font-family:%'").each do |descriptive_exam_student|
       inline_style = /style=\"([^"]*)"/m if descriptive_exam_student.value.match?(/style=\"([^"]*)"/m)

@@ -1,4 +1,4 @@
-class CreateFunctionSetTransferDateInTransferNotes < ActiveRecord::Migration
+class CreateFunctionSetTransferDateInTransferNotes < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE OR REPLACE FUNCTION set_transfer_date_in_transfer_notes()

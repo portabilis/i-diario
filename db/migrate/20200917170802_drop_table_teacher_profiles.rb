@@ -1,4 +1,4 @@
-class DropTableTeacherProfiles < ActiveRecord::Migration
+class DropTableTeacherProfiles < ActiveRecord::Migration[4.2]
   def change
     remove_column :users, :teacher_profile_id
     drop_table :teacher_profiles

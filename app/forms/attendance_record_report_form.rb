@@ -31,13 +31,20 @@ class AttendanceRecordReportForm
   validate :must_have_daily_frequencies
 
   def daily_frequencies
-    @daily_frequencies ||= DailyFrequencyQuery.call(
+    @daily_frequencies ||= fetch_daily_frequencies
+  end
+
+  def fetch_daily_frequencies
+    DailyFrequencyQuery.call(
       classroom_id: classroom_id,
       period: period,
       frequency_date: start_at..end_at,
       discipline_id: !global_absence? && discipline_id,
       class_numbers: !global_absence? && class_numbers
-    )
+    ).group_by(&:frequency_date).map do |frequency_date, frequencies|
+      daily_frequency = frequencies.find { |f| f.period == Periods::FULL.to_i }
+      daily_frequency || frequencies.first
+    end
   end
 
   def school_calendar_events
@@ -101,9 +108,8 @@ class AttendanceRecordReportForm
 
   def days_enrollment
     days = daily_frequencies.map(&:frequency_date)
-    students_ids = daily_frequencies.map do |daily_frequency|
-      daily_frequency.students.map(&:student_id)
-    end.flatten.uniq
+
+    students_ids = daily_frequencies.flat_map(&:students).map(&:student_id).uniq
 
     EnrollmentFromStudentFetcher.new.current_enrollments(students_ids, classroom_id, days)
   end
@@ -190,7 +196,7 @@ class AttendanceRecordReportForm
   end
 
   def in_active_searches
-    dates = daily_frequencies.pluck(:frequency_date).uniq
+    dates = daily_frequencies.map(&:frequency_date).uniq
 
     active_searches = {}
 
