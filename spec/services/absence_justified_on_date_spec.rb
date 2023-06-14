@@ -16,7 +16,8 @@ RSpec.describe AbsenceJustifiedOnDate, type: :service do
                                                               students: [student.id],
                                                               date: frequency_date,
                                                               end_date: frequency_date,
-                                                              classroom: absence_justification.classroom.id
+                                                              classroom: absence_justification.classroom.id,
+                                                              period: absence_justification.period
                                                             )
 
         expected = {
@@ -57,7 +58,8 @@ RSpec.describe AbsenceJustifiedOnDate, type: :service do
                                                               students: [student.id],
                                                               date: frequency_date_yesterday,
                                                               end_date: frequency_date,
-                                                              classroom: absence_justification.classroom.id
+                                                              classroom: absence_justification.classroom.id,
+                                                              period: absence_justification.period
                                                             )
 
         expected = {
@@ -85,7 +87,8 @@ RSpec.describe AbsenceJustifiedOnDate, type: :service do
                                                               students: [student.id],
                                                               date: frequency_date,
                                                               end_date: frequency_date,
-                                                              classroom: absence_justification.classroom.id
+                                                              classroom: absence_justification.classroom.id,
+                                                              period: absence_justification.period
                                                             )
 
         expected = {

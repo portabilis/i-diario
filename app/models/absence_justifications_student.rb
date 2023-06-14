@@ -23,6 +23,7 @@ class AbsenceJustificationsStudent < ApplicationRecord
                                                     .by_student_id(student_id)
 
     daily_frequency_students = daily_frequency_students.by_class_number(absence_justification.class_number) if absence_justification.class_number.present?
+    daily_frequency_students = daily_frequency_students.by_period(absence_justification.period) unless absence_justification.period.nil? || absence_justification.period == Periods::FULL
 
     daily_frequency_students.each do |daily_frequency_student|
       daily_frequency_student.present = false

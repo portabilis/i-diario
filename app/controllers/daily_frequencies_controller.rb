@@ -88,7 +88,8 @@ class DailyFrequenciesController < ApplicationController
                                                       students: student_ids,
                                                       date: frequency_date,
                                                       end_date: frequency_date,
-                                                      classroom: @daily_frequency.classroom_id
+                                                      classroom: @daily_frequency.classroom_id,
+                                                      period: @period
                                                     )
 
     fetch_enrollment_classrooms.each do |enrollment_classroom|
