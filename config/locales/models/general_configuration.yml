@@ -35,7 +35,7 @@ pt-BR:
         require_daily_activities_record: "Obrigar preenchimento do campo 'Registro das atividades' no lançamento de Registro de conteúdos?"
         remove_lesson_plan_objectives: "Remover campo 'Objetivos' dos Planos de aula por área de conhecimento (tela e relatório)"
         show_experience_fields: "Apresentar campo 'Campos de experiência' no Registro de conteúdo por área de conhecimento (tela e relatório)"
-        allows_copy_experience_fields_in_lesson_plans: "Permite copiar campos de experiência nos Planos de ensino e Planos de aula por disciplina"
+        group_children_education: "Apresentar outras séries de Educação infantil na configuração de objetivos/habilidades da bncc"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
