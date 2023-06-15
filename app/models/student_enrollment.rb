@@ -63,7 +63,7 @@ class StudentEnrollment < ActiveRecord::Base
                   exists(select 1
                            from student_enrollment_dependences
                           where student_enrollment_dependences.student_enrollment_id = student_enrollments.id and
-                                student_enrollment_dependences.discipline_id = ?))", discipline_id)
+                                student_enrollment_dependences.discipline_id IN (?)))", discipline_id)
     end
   end
 
