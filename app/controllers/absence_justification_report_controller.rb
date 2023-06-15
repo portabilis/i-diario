@@ -5,16 +5,18 @@ class AbsenceJustificationReportController < ApplicationController
   def form
     @absence_justification_report_form = AbsenceJustificationReportForm.new
     @absence_justification_report_form.unity_id = current_unity.id
-    @absence_justification_report_form.school_calendar_year = current_school_calendar
     @absence_justification_report_form.current_teacher_id = current_teacher
+    @absence_justification_report_form.classroom_id = current_user_classroom.id
+
+    set_options_by_user
   end
 
   def report
     @absence_justification_report_form = AbsenceJustificationReportForm.new(resource_params)
     @absence_justification_report_form.unity_id = current_unity.id
-    @absence_justification_report_form.school_calendar_year = current_school_calendar
     @absence_justification_report_form.current_teacher_id = current_teacher
     @absence_justification_report_form.user_id = user_id
+    @absence_justification_report_form.school_calendar_year = fetch_school_calendar_by_user
 
     if @absence_justification_report_form.valid?
       absence_justification_report = AbsenceJustificationReport.build(
@@ -63,5 +65,29 @@ class AbsenceJustificationReportController < ApplicationController
       current_user,
       current_user.current_role_is_admin_or_employee?
     ).user_id
+  end
+
+  def fetch_school_calendar_by_user
+    if current_user.current_role_is_admin_or_employee?
+      current_school_calendar
+    else
+      classroom = Classroom.find(@absence_justification_report_form.classroom_id)
+
+      CurrentSchoolCalendarFetcher.new(current_unity, classroom, current_school_year).fetch
+    end
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @absence_justification_report_form.school_calendar_year = current_school_calendar
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
   end
 end
