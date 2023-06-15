@@ -3,58 +3,67 @@
 <% end %>
 
 <div class="widget-body no-padding">
-<%= simple_form_for @daily_frequency,
-    url: daily_frequencies_path,
-    method: :post,
-    html: { class: "smart-form" } do |f| %>
-  <%= f.hidden_field :period, value: @period %>
-  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
-    <i class="fa fa-exclamation-circle fa-fw"></i>
-    <%= t('.exam_rule_not_found') %>
-  </div>
-  <%= f.error_notification %>
+  <%= simple_form_for @daily_frequency, url: daily_frequencies_path, method: :post, html: { class: "smart-form" } do |f| %>
+    <% if current_user.current_role_is_admin_or_employee? %>
+      <%= f.hidden_field :period, value: @period %>
+        <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+          <i class="fa fa-exclamation-circle fa-fw"></i>
+          <%= t('.exam_rule_not_found') %>
+        </div>
+      <%= f.error_notification %>
+    <% end %>
 
-  <fieldset>
-    <div class="row">
-      <div class="col col-sm-4">
-        <%= f.association :unity, as: :select2_unity, user: current_user %>
-      </div>
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.association :unity, as: :select2_unity, user: current_user %>
+        </div>
 
-      <div class="col col-sm-4">
-        <%= f.association :classroom, as: :select2_classroom, user: current_user %>
-      </div>
+        <div class="col col-sm-4">
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.association :classroom, as: :select2_classroom, user: current_user %>
+          <% else %>
+            <%= f.association :classroom, as: :select2, elements: @classrooms, user: current_user %>
+          <% end %>
+        </div>
 
-      <div class="col col-sm-4">
-        <%= f.input :frequency_date %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col col-sm-4 discipline_absence_fields">
-        <div class="control-group required daily_frequency_discipline <%= @error_on_discipline ? 'error' : '' %>">
-          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-                classroom_id: @daily_frequency.classroom_id,
-                required: true %>
+        <div class="col col-sm-4">
+          <%= f.input :frequency_date %>
         </div>
       </div>
-      <div class="col col-sm-4 discipline_absence_fields">
-        <div class="control-group required daily_frequency_class_numbers <%= @error_on_class_numbers ? 'error' : '' %>">
-          <label class="select2 required control-label" for="daily_frequency_class_numbers">Aula <abbr title="obrigatório">*</abbr></label>
-          <%= hidden_field_tag :class_numbers,
-                @class_numbers.to_s,
-                class: 'form-control select2',
-                data:{
-                  multiple: true,
-                  elements: number_of_classes_elements(@number_of_classes),
-                  placeholder: 'Selecione uma ou mais aulas'
-                } %>
+      <div class="row">
+        <div class="col col-sm-4 discipline_absence_fields">
+          <div class="control-group required daily_frequency_discipline <%= @error_on_discipline ? 'error' : '' %>">
+            <% if current_user.current_role_is_admin_or_employee? %>
+              <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+                    classroom_id: @daily_frequency.classroom_id,
+                    required: true %>
+            <% else %>
+              <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user,
+                          classroom_id: @daily_frequency.classroom_id,
+                          required: true %>
+            <% end %>
+          </div>
+        </div>
+        <div class="col col-sm-4 discipline_absence_fields">
+          <div class="control-group required daily_frequency_class_numbers <%= @error_on_class_numbers ? 'error' : '' %>">
+            <label class="select2 required control-label" for="daily_frequency_class_numbers">Aula <abbr title="obrigatório">*</abbr></label>
+            <%= hidden_field_tag :class_numbers,
+                  @class_numbers.to_s,
+                  class: 'form-control select2',
+                  data:{
+                    multiple: true,
+                    elements: number_of_classes_elements(@number_of_classes),
+                    placeholder: 'Selecione uma ou mais aulas'
+                  } %>
+          </div>
         </div>
       </div>
-    </div>
 
-  </fieldset>
+    </fieldset>
 
-  <footer>
-    <%= f.submit 'Carregar', class: 'btn btn-primary' %>
-  </footer>
-<% end %>
+    <footer>
+      <%= f.submit 'Carregar', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
 </div>
