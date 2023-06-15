@@ -1,4 +1,4 @@
-class TeacherDisciplineClassroom < ActiveRecord::Base
+class TeacherDisciplineClassroom < ApplicationRecord
   include Audit
   include Discardable
 

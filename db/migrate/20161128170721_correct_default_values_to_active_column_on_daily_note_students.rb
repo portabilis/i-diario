@@ -1,4 +1,4 @@
-class CorrectDefaultValuesToActiveColumnOnDailyNoteStudents < ActiveRecord::Migration
+class CorrectDefaultValuesToActiveColumnOnDailyNoteStudents < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE daily_note_students SET active = (

@@ -1,4 +1,4 @@
-class RemoveDuplicatedRecoveryDiaryRecordStudents < ActiveRecord::Migration
+class RemoveDuplicatedRecoveryDiaryRecordStudents < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DO $$

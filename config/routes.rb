@@ -304,6 +304,7 @@ Rails.application.routes.draw do
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple
+        get :form
         put :create_or_update_multiple
         delete :destroy_multiple
       end
@@ -314,6 +315,7 @@ Rails.application.routes.draw do
         get :history_multiple
         get :fetch_frequency_type
         get :fetch_teacher_allocated
+        get :form
         put :create_or_update_multiple
         delete :destroy_multiple
       end

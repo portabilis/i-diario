@@ -47,7 +47,7 @@ module ExamPoster
                                                     .where(conceptual_exam_id: conceptual_exam_ids)
                                                     .where.not(discipline_id: exempted_discipline_ids)
                                                     .where(discipline_id: discipline_ids)
-                                                    .uniq
+                                                    .distinct
 
         conceptual_exam_values.each do |conceptual_exam_value|
           conceptual_exam = conceptual_exam_value.conceptual_exam

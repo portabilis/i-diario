@@ -27,7 +27,7 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
 
     shared_examples 'test_user_role_access' do
       before do
-        get :index, school_calendar_id: school_calendar.id, locale: 'pt-BR'
+        get :index, params: { school_calendar_id: school_calendar.id, locale: 'pt-BR' }
       end
 
       it 'lists all school calendar events by school calendar' do

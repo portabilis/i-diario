@@ -21,6 +21,7 @@ pt-BR:
         discipline: "Disciplina"
         disciplines: "Disciplinas"
         author: "Autor"
+        class_number: "Aula"
 
     errors:
       models:

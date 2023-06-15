@@ -1,4 +1,4 @@
-class InsertPermissionsToCustomRoundingTables < ActiveRecord::Migration
+class InsertPermissionsToCustomRoundingTables < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       INSERT INTO role_permissions(role_id, feature, permission, created_at, updated_at)

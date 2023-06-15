@@ -1,4 +1,4 @@
-class CreateDeficiencies < ActiveRecord::Migration
+class CreateDeficiencies < ActiveRecord::Migration[4.2]
   def change
     create_table :deficiencies do |t|
       t.string :api_code
