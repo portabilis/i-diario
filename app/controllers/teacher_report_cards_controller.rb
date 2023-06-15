@@ -41,6 +41,14 @@ class TeacherReportCardsController < ApplicationController
     end
   end
 
+  def set_grades_by_classroom
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    render json: classroom.grades
+  end
+
   protected
 
   def unities
