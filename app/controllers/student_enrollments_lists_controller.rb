@@ -47,10 +47,14 @@ class StudentEnrollmentsListsController < ApplicationController
   end
 
   def current_teacher_period
+    admin_or_teacher = current_user.current_role_is_admin_or_employee?
+    classroom_id = admin_or_teacher ? current_user.current_classroom_id : params[:filter][:classroom]
+    discipline_id = admin_or_teacher ? current_user.current_discipline_id : params[:filter][:discipline]
+
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user.current_classroom_id,
-      current_user.current_discipline_id
+      classroom_id,
+      discipline_id
     ).teacher_period
   end
 
