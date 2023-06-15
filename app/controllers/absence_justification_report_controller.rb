@@ -7,6 +7,7 @@ class AbsenceJustificationReportController < ApplicationController
     @absence_justification_report_form.unity_id = current_unity.id
     @absence_justification_report_form.current_teacher_id = current_teacher
     @absence_justification_report_form.classroom_id = current_user_classroom.id
+    @absence_justification_report_form.discipline_id = current_user_discipline.id
 
     set_options_by_user
   end
