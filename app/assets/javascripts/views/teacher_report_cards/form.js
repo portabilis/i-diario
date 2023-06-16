@@ -15,6 +15,9 @@ $(function () {
     if (!_.isEmpty(classroom_id)) {
       fetchDisciplines(classroom_id);
       getGrades(classroom_id);
+    } else {
+      $discipline.val('').trigger('change');
+      $grade.select2({ data: [] });
     }
   });
 
@@ -32,6 +35,9 @@ $(function () {
     });
 
     $discipline.select2({ data: selectedDisciplines });
+
+    // Define a primeira opção como selecionada por padrão
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
   };
 
   function handleFetchDisciplinesError() {
@@ -62,6 +68,9 @@ $(function () {
     });
 
     $grade.select2({ data: selectedGrade });
+
+    // Define a primeira opção como selecionada por padrão
+    $grade.val(selectedGrade[0].id).trigger('change');
   };
 
   function handleFetchGradesByClassroomError() {
