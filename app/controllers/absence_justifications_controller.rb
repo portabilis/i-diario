@@ -9,9 +9,10 @@ class AbsenceJustificationsController < ApplicationController
 
   def index
     set_options_by_user
-    @absence_justifications = fetch_absence_justifications_by_user
 
     author_type = (params[:search] || []).delete(:by_author)
+
+    @absence_justifications = fetch_absence_justifications_by_user
 
     if author_type.present?
       user_id = UserDiscriminatorService.new(current_user, current_user.current_role_is_admin_or_employee?).user_id
