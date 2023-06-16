@@ -27,6 +27,7 @@ class AbsenceJustificationReportController < ApplicationController
 
       send_pdf(t('routes.absence_justification'), absence_justification_report.render)
     else
+      set_options_by_user
       clear_invalid_dates
       render :form
     end
