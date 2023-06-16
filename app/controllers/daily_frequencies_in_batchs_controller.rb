@@ -633,7 +633,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     # Remove turmas que não estão no quadro de aulas
     @fetch_linked_by_teacher[:classrooms].each do |classroom|
       lesson_board = LessonsBoard.by_teacher(current_teacher)
-                                 .by_classrooms(classroom)
+                                 .by_classroom(classroom)
                                  .exists?
       @classrooms << classroom if lesson_board
     end
