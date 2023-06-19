@@ -160,6 +160,18 @@ class DailyNotesController < ApplicationController
     end
   end
 
+  def classrooms
+    set_options_by_user
+
+    render json: @classrooms
+  end
+
+  def disciplines
+    set_options_by_user
+
+    render json: @disciplines
+  end
+
   protected
 
   def fetch_student_enrollments
@@ -248,7 +260,8 @@ class DailyNotesController < ApplicationController
   private
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
+    if @admin_or_teacher
       @classrooms = Classroom.where(id: current_user_classroom)
       @disciplines = Discipline.where(id: current_user_discipline)
       @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)

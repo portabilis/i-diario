@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/daily_notes/new' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @daily_note, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
@@ -9,7 +13,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <% if current_user.current_role_is_admin_or_employee? %>
+          <% if @admin_or_teacher %>
             <%= f.input :classroom_id, as: :select2_classroom, user: current_user %>
           <% else %>
             <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user %>
@@ -17,7 +21,7 @@
         </div>
 
         <div class="col col-sm-4">
-        <% if current_user.current_role_is_admin_or_employee? %>
+        <% if @admin_or_teacher %>
           <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
                 classroom_id: @daily_note.classroom_id %>
         <% else %>
