@@ -7,8 +7,9 @@ class ExamRecordReportController < ApplicationController
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     )
+    @admin_or_teacher = @admin_or_teacher
 
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    fetch_linked_by_teacher unless @admin_or_teacher
     fetch_collections
   end
 
@@ -20,7 +21,7 @@ class ExamRecordReportController < ApplicationController
       exam_record_report = @school_calendar_classroom_steps.any? ? build_by_classroom_steps : build_by_school_steps
       send_pdf(t("routes.exam_record_report"), exam_record_report.render)
     else
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_linked_by_teacher unless @admin_or_teacher
       fetch_collections
       render :form
     end
@@ -31,8 +32,9 @@ class ExamRecordReportController < ApplicationController
 
     classroom = Classroom.find(params[:classroom_id])
     step_numbers = StepsFetcher.new(classroom)&.steps
+    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
-    render json: step_numbers.to_json
+    render json: steps.to_json
   end
 
   private
@@ -71,8 +73,8 @@ class ExamRecordReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
   end
 
   def fetch_collections

@@ -18,7 +18,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <% if current_user.current_role_is_admin_or_employee? %>
+          <% if @admin_or_teacher %>
             <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
                   input_html: { value: @exam_record_report_form.classroom_id } %>
           <% else %>
@@ -27,7 +27,7 @@
           <% end %>
         </div>
         <div class="col col-sm-4">
-          <% if current_user.current_role_is_admin_or_employee? %>
+          <% if @admin_or_teacher %>
             <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
                   classroom_id: @exam_record_report_form.classroom_id,
                   required: true, input_html: { value: @exam_record_report_form.discipline_id } %>
@@ -42,12 +42,12 @@
       <div class="row">
         <div class="col col-sm-4">
           <% if @school_calendar_classroom_steps.any? %>
-            <%= f.input :school_calendar_classroom_step_id, as: :select2, 
-                  elements: @school_calendar_classroom_steps, 
+            <%= f.input :school_calendar_classroom_step_id, as: :select2,
+                  elements: @school_calendar_classroom_steps,
                   input_html: { value: @exam_record_report_form.school_calendar_classroom_step_id }, required: true %>
           <% else %>
-            <%= f.input :school_calendar_step_id, as: :select2, 
-                  elements: @school_calendar_steps, 
+            <%= f.input :school_calendar_step_id, as: :select2,
+                  elements: @school_calendar_steps,
                   input_html: { value: @exam_record_report_form.school_calendar_step_id }, required: true %>
           <% end %>
         </div>
