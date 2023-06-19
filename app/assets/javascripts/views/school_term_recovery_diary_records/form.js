@@ -12,6 +12,7 @@ $(function () {
 
   $classroom.on('change', async function () {
     var classroom_id = $classroom.select2('val');
+
     if (!_.isEmpty(classroom_id)) {
       await getStep(classroom_id);
       await getNumberOfDecimalPlaces(classroom_id);
@@ -21,6 +22,15 @@ $(function () {
       $step.select2({ data: [] }).trigger('change');
     }
   });
+
+  let classroom_id = $classroom.val();
+  let discipline_id = $discipline.val();
+  let step_id = $step.val();
+  let date = $recorded_at.val();
+
+  if (classroom_id && discipline_id && step_id && date) {
+    checkPersistedDailyNote();
+  }
 
   async function getStep(classroom_id) {
     return $.ajax({
