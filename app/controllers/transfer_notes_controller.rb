@@ -126,8 +126,9 @@ class TransferNotesController < ApplicationController
   def find_step_number_by_classroom
     classroom = Classroom.find(params[:classroom_id])
     step_numbers = StepsFetcher.new(classroom)&.steps
+    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
-    render json: step_numbers.to_json
+    render json: steps.to_json
   end
 
   private
@@ -179,8 +180,8 @@ class TransferNotesController < ApplicationController
 
   def set_options_by_user
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = Classroom.where(id: current_user_classroom)
-      @disciplines = Discipline.where(id: current_user_discipline)
+      @classrooms = [current_user_classroom]
+      @disciplines = [current_user_discipline]
       @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
     else
       fetch_linked_by_teacher
