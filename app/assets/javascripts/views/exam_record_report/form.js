@@ -22,7 +22,7 @@ $(document).ready(function () {
       fetchDisciplines(classroom_id);
     } else {
       $discipline.val('').trigger('change');
-      $step.select2({ data: null }).trigger('change');
+      $step.select2({ data: [] }).trigger('change');
     }
   });
 
