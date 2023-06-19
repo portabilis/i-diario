@@ -179,9 +179,11 @@ class TransferNotesController < ApplicationController
   helper_method :students
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = [current_user_classroom]
-      @disciplines = [current_user_discipline]
+    @admin_or_teacher = current_user.current_role_is_admin_or_teacher?
+
+    if @admin_or_teacher
+      @classrooms ||= [current_user_classroom]
+      @disciplines ||= [current_user_discipline]
       @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
     else
       fetch_linked_by_teacher
@@ -190,8 +192,8 @@ class TransferNotesController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
   end
 
   def update_daily_note_student(daily_note_students_attributes)
