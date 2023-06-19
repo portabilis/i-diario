@@ -11,57 +11,82 @@ $(function () {
   let $submitButton = $('input[type=submit]');
 
   $classroom.on('change', async function () {
-    await getStep();
-    await getNumberOfDecimalPlaces();
+    var classroom_id = $classroom.select2('val');
+    if (!_.isEmpty(classroom_id)) {
+      await getStep(classroom_id);
+      await getNumberOfDecimalPlaces(classroom_id);
+      await fetchDisciplines(classroom_id);
+    } else {
+      $discipline.select2({ data: [] }).trigger('change');
+      $step.select2({ data: [] }).trigger('change');
+    }
   });
 
-  async function getStep() {
-    let classroom_id = $classroom.select2('val');
-
-    if (!_.isEmpty(classroom_id)) {
-      return $.ajax({
-        url: Routes.fetch_step_school_term_recovery_diary_records_pt_br_path({
-          classroom_id: classroom_id,
-          format: 'json'
-        }),
-        success: handleFetchStepByClassroomSuccess,
-        error: handleFetchStepByClassroomError
-      });
-    }
+  async function getStep(classroom_id) {
+    return $.ajax({
+      url: Routes.fetch_step_school_term_recovery_diary_records_pt_br_path({
+        classroom_id: classroom_id,
+        format: 'json'
+      }),
+      success: handleFetchStepByClassroomSuccess,
+      error: handleFetchStepByClassroomError
+    });
   }
 
   function handleFetchStepByClassroomSuccess(data) {
-    var first_step = data[0];
-
-    $step.select2('val', first_step);
+    let selectedSteps = data.map(function (step) {
+      return { id: step['id'], text: step['description'] };
+    });
+    $step.select2({ data: selectedSteps });
+    // Define a primeira opção como selecionada por padrão
+    $step.val(selectedSteps[0].id).trigger('change');
   };
 
   function handleFetchStepByClassroomError() {
     flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
   };
 
-  async function getNumberOfDecimalPlaces() {
-    let classroom_id = $classroom.select2('val');
-
-    if (!_.isEmpty(classroom_id)) {
-      return $.ajax({
-        url: Routes.fetch_number_of_decimal_places_school_term_recovery_diary_records_pt_br_path({
-          classroom_id: classroom_id,
-          format: 'json'
-        }),
-        success: handleFetchNumberOfDecimalByClassroomSuccess,
-        error: handleFetchNumberOfDecimalByClassroomError
-      });
-    }
+  async function getNumberOfDecimalPlaces(classroom_id) {
+    return $.ajax({
+      url: Routes.fetch_number_of_decimal_places_school_term_recovery_diary_records_pt_br_path({
+        classroom_id: classroom_id,
+        format: 'json'
+      }),
+      success: handleFetchNumberOfDecimalByClassroomSuccess,
+      error: handleFetchNumberOfDecimalByClassroomError
+    });
   }
 
-  function handleFetchNumberOfDecimalByClassroomSuccess(data) {
-    flashMessages.success('Configuração de avaliação validada com sucesso')
+  function handleFetchNumberOfDecimalByClassroomSuccess() {
   };
 
   function handleFetchNumberOfDecimalByClassroomError() {
     flashMessages.error('É necessário configurar uma avaliação numérica');
   };
+
+  async function fetchDisciplines(classroom_id) {
+    $.ajax({
+      url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      success: handleFetchDisciplinesSuccess,
+      error: handleFetchDisciplinesError
+    });
+  };
+
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var selectedDisciplines = disciplines.map(function (discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
+
+    $discipline.select2({ data: selectedDisciplines });
+
+    // Define a primeira opção como selecionada por padrão
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
+
 
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
@@ -89,7 +114,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   }
 
-  $recorded_at.on('focusin', function(){
+  $recorded_at.on('focusin', function () {
     $(this).data('oldDate', $(this).val());
   });
 
@@ -114,7 +139,7 @@ $(function () {
   }
 
   function handleFetchCheckPersistedDailyNoteSuccess(data) {
-    if(_.isEmpty(data.daily_notes)){
+    if (_.isEmpty(data.daily_notes)) {
       flashMessages.error('A turma selecionada não possui notas lançadas nesta etapa.');
     } else {
       flashMessages.pop('');
@@ -135,27 +160,27 @@ $(function () {
       hideNoItemMessage();
 
       $('#recovery-diary-record-students').children('tr').each(function () {
-        if (!$(this).hasClass('destroy')){
+        if (!$(this).hasClass('destroy')) {
           existing_ids.push(parseInt(this.id));
         }
       });
       existing_ids.shift();
 
-      if (_.isEmpty(existing_ids)){
-        _.each(students, function(student) {
+      if (_.isEmpty(existing_ids)) {
+        _.each(students, function (student) {
           let element_id = new Date().getTime() + element_counter++;
 
           buildStudentField(element_id, student);
         });
         loadDecimalMasks();
       } else {
-        $.each(students, function(index, student) {
+        $.each(students, function (index, student) {
           let fetched_id = student.id;
 
           fetched_ids.push(fetched_id);
 
           if ($.inArray(fetched_id, existing_ids) == -1) {
-            if($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
+            if ($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
               restoreStudent(fetched_id);
             } else {
               let element_id = new Date().getTime() + element_counter++;
@@ -180,7 +205,7 @@ $(function () {
       flashMessages.error('Nenhum aluno encontrado.');
     }
 
-    function buildStudentField(element_id, student, index = null){
+    function buildStudentField(element_id, student, index = null) {
       let html = JST['templates/school_term_recovery_diary_records/student_fields']({
         id: student.id,
         name: student.name,
@@ -199,7 +224,7 @@ $(function () {
       }
     }
 
-    function removeStudent(id){
+    function removeStudent(id) {
       $('#' + id).hide();
       $('#' + id).addClass('destroy');
       $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
@@ -231,15 +256,15 @@ $(function () {
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
-  $step.on('change', function() {
+  $step.on('change', function () {
     checkPersistedDailyNote();
   });
 
-  $recorded_at.on('change', function() {
+  $recorded_at.on('change', function () {
     checkPersistedDailyNote();
   });
 
-  $submitButton.on('click', function() {
+  $submitButton.on('click', function () {
     $recorded_at.unbind();
   });
 

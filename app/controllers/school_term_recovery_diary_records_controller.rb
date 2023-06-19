@@ -125,7 +125,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
   end
 
-    def history
+  def history
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id])
 
     authorize @school_term_recovery_diary_record
@@ -133,14 +133,14 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     respond_with @school_term_recovery_diary_record
   end
 
-
   def fetch_step
     return if params[:classroom_id].blank?
 
     classroom = Classroom.find(params[:classroom_id])
     step_numbers = StepsFetcher.new(classroom)&.steps
+    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
-    render json: step_numbers.to_json
+    render json: steps.to_json
   end
 
   def fetch_number_of_decimal_places
