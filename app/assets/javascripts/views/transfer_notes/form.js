@@ -11,43 +11,43 @@ $(function () {
   var $recordedAt = $('#transfer_note_recorded_at');
   var $student = $('#transfer_note_student_id');
 
-  window.classrooms = [];
-  window.disciplines = [];
 
-  var fetchDisciplines = function (params, callback) {
-    if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
-        window.disciplines = data;
-        callback(window.disciplines);
-      });
-    } else {
-      callback(window.disciplines);
-    }
-  };
+  $classroom.on('change', async function () {
+    var classroom_id = $classroom.select2('val');
 
-  $classroom.on('change', async function (e) {
-    await getStep();
-    
-    var params = {
-      classroom_id: e.val
-    };
-
-    window.disciplines = [];
     $discipline.val('').select2({ data: [] });
 
-    if (!_.isEmpty(e.val)) {
-
-      fetchDisciplines(params, function (disciplines) {
-        var selectedDisciplines = _.map(disciplines, function (discipline) {
-          return { id:discipline['id'], text: discipline['description'] };
-        });
-
-        $discipline.select2({
-          data: selectedDisciplines
-        });
-      });
+    if (!_.isEmpty(classroom_id)) {
+      await getStep();
+      await fetchDisciplines(classroom_id);
+    } else {
+      $discipline.val('').trigger('change');
+      $step.select2({ data: [] });
     }
   });
+
+  async function fetchDisciplines(classroom_id) {
+    $.ajax({
+      url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      success: handleFetchDisciplinesSuccess,
+      error: handleFetchDisciplinesError
+    });
+  };
+
+  function handleFetchDisciplinesSuccess(disciplines) {
+    let selectedDisciplines = disciplines.map(function (discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
+
+    $discipline.select2({ data: selectedDisciplines });
+
+    // Define a primeira opção como selecionada por padrão
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
 
   async function getStep() {
     let classroom_id = $classroom.select2('val');
@@ -65,10 +65,14 @@ $(function () {
   }
 
   function handleFetchStepByClassroomSuccess(data) {
-    var step = $("#transfer_note_step_id");
-    var first_step = data[0]
+    let selectedSteps = data.map(function (step) {
+      return { id: step['id'], text: step['description'] };
+    });
 
-    step.select2('data', first_step);
+    $step.select2({ data: selectedSteps });
+
+    // Define a primeira opção como selecionada por padrão
+    $step.val(selectedSteps[0].id).trigger('change');
   }
 
   function handleFetchStepByClassroomError() {
@@ -98,17 +102,17 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    var filteredSelectedStudents = data.students.filter(function(student) {
+    var filteredSelectedStudents = data.students.filter(function (student) {
       return !student['exempted_from_discipline'];
     });
 
-    var selectedStudents = _.map(filteredSelectedStudents, function(student) {
-        return { id: student['id'], text: student['name'] };
+    var selectedStudents = _.map(filteredSelectedStudents, function (student) {
+      return { id: student['id'], text: student['name'] };
     });
 
     $student.select2({ data: selectedStudents });
 
-    if (!selectedStudents.find(function(student) { return student.id == $student.select2('val') })) {
+    if (!selectedStudents.find(function (student) { return student.id == $student.select2('val') })) {
       $student.select2('val', '');
     }
   };
@@ -142,7 +146,7 @@ $(function () {
     if (!_.isEmpty(data.old_notes)) {
       $('.no_old_notes_found').hide();
 
-      _.each(data.old_notes, function(old_note) {
+      _.each(data.old_notes, function (old_note) {
         var html = JST['templates/transfer_notes/old_notes_row'](old_note);
         $('#old-notes-rows').append(html);
       });
@@ -181,7 +185,7 @@ $(function () {
       $('.no_current_notes_found').hide();
       var element_counter = 0;
 
-      _.each(data.transfer_notes, function(current_note) {
+      _.each(data.transfer_notes, function (current_note) {
         current_note.element_id = new Date().getTime() + element_counter++;
         var html = JST['templates/transfer_notes/current_notes_row'](current_note);
         $('#current-notes-rows').append(html);
@@ -205,13 +209,13 @@ $(function () {
     $('.no_current_notes_found').show();
   }
 
-  $('#transfer_note_copy_notes').on('click', function(){
-    $('#old-notes-rows tr').each(function(i){
+  $('#transfer_note_copy_notes').on('click', function () {
+    $('#old-notes-rows tr').each(function (i) {
       var note = $(this).find('td:eq(1)').text().trim();
       var recovery_note = $(this).find('td:eq(2)').text().trim();
-      var $equivalentLine = $('#current-notes-rows tr:eq('+i+')');
+      var $equivalentLine = $('#current-notes-rows tr:eq(' + i + ')');
 
-      if($equivalentLine.length){
+      if ($equivalentLine.length) {
         if (note.length) {
           $equivalentLine.find('input[id$=_note]').val(note > recovery_note ? note : recovery_note);
         }
@@ -228,21 +232,21 @@ $(function () {
     fetchStudentCurrentNotes();
   }
 
-  $step.on('change', function() {
+  $step.on('change', function () {
     reset();
     fetchStudents();
   });
 
-  $recordedAt.on('change', function() {
+  $recordedAt.on('change', function () {
     reset();
     fetchStudents();
   });
 
-  $student.on('change', function() {
+  $student.on('change', function () {
     reset();
   });
 
-  if(!$('form[id^=edit_transfer_note]').length){
+  if (!$('form[id^=edit_transfer_note]').length) {
     fetchStudentCurrentNotes();
   }
 
