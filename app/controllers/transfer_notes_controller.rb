@@ -179,7 +179,7 @@ class TransferNotesController < ApplicationController
   helper_method :students
 
   def set_options_by_user
-    @admin_or_teacher = current_user.current_role_is_admin_or_teacher?
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
 
     if @admin_or_teacher
       @classrooms ||= [current_user_classroom]
