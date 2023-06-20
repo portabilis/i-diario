@@ -41,8 +41,8 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
-    enrollment_classrooms = search_by_search_type(enrollment_classrooms)
-    enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
+    enrollment_classrooms = search_by_search_type(enrollment_classrooms) unless include_date_range
+    enrollment_classrooms = search_by_status_attending(enrollment_classrooms) unless show_inactive_enrollments
     enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
 
     enrollment_classrooms
@@ -72,8 +72,6 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range
-
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
     elsif search_type.eql?(:by_date_range)
@@ -86,14 +84,10 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def order_by_name_and_sequence(enrollment_classrooms)
-    return enrollment_classrooms if show_inactive_enrollments
-
-    enrollment_classrooms.ordered
+    enrollment_classrooms.order('sequence ASC, students.name ASC')
   end
 
   def search_by_status_attending(enrollment_classrooms)
-    return enrollment_classrooms if show_inactive_enrollments
-
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
 
