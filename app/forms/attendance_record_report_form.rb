@@ -42,9 +42,13 @@ class AttendanceRecordReportForm
       discipline_id: !global_absence? && discipline_id,
       class_numbers: !global_absence? && class_numbers
     ).group_by(&:frequency_date).map do |frequency_date, frequencies|
-      daily_frequency = frequencies.find { |f| f.period == Periods::FULL.to_i }
-      daily_frequency || frequencies.first
-    end
+      if frequencies.map(&:class_number).uniq.size > 1
+        frequencies
+      else
+        daily_frequency = frequencies.find { |f| f.period == Periods::FULL.to_i }
+        daily_frequency || frequencies.first
+      end
+    end.flatten
   end
 
   def school_calendar_events
