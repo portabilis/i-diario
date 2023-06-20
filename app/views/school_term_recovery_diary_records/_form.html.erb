@@ -16,7 +16,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <% if current_user.current_role_is_admin_or_employee? %>
+          <% if @admin_or_teacher %>
             <%= recovery_diary_record.association :classroom, as: :select2_classroom, user: current_user,
                 record: f.object %>
           <% else %>
@@ -26,7 +26,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <% if current_user.current_role_is_admin_or_employee? %>
+          <% if @admin_or_teacher %>
             <%= recovery_diary_record.association :discipline,
                 as: :select2_discipline,
                 user: current_user,

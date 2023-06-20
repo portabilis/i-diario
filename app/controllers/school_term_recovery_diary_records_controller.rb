@@ -11,17 +11,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     set_options_by_user
 
-    @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
-      .includes(
-        recovery_diary_record: [
-          :unity,
-          :classroom,
-          :discipline
-        ]
-      )
-      .by_classroom_id(@classrooms.map(&:id))
-      .by_discipline_id(@disciplines.map(&:id))
-      .ordered
+    @school_term_recovery_diary_records = set_school_term_recovery_diary_records
 
     if step_id.present?
       @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(
@@ -41,13 +31,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.classroom_id = current_user_classroom.id
     @school_term_recovery_diary_record.recovery_diary_record.discipline_id = current_user_discipline.id
 
-    if current_test_setting.blank? && current_user.current_role_is_admin_or_employee?
+    if current_test_setting.blank? && @admin_or_teacher
       flash[:error] = t('errors.avaliations.require_setting')
 
       redirect_to(school_term_recovery_diary_records_path)
     end
 
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    fetch_linked_by_teacher unless @admin_or_teacher
 
     return if performed?
 
@@ -65,7 +55,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      if current_user.current_role_is_admin_or_employee?
+      if @admin_or_teacher
         @number_of_decimal_places = current_test_setting.number_of_decimal_places
       else
         fetch_linked_by_teacher
@@ -285,9 +275,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = [current_user_classroom]
-      @disciplines = [current_user_discipline]
+    @admin_or_teacher = @admin_or_teacher
+    if @admin_or_teacher
+      @classrooms ||= [current_user_classroom]
+      @disciplines ||= [current_user_discipline]
     else
       fetch_linked_by_teacher
     end
@@ -299,7 +290,21 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       current_unity,
       current_school_year
     )
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+  end
+
+  def set_school_term_recovery_diary_records
+    apply_scopes(SchoolTermRecoveryDiaryRecord)
+      .includes(
+          recovery_diary_record: [
+            :unity,
+            :classroom,
+            :discipline
+          ]
+        )
+      .by_classroom_id(@classrooms.map(&:id))
+      .by_discipline_id(@disciplines.map(&:id))
+      .ordered
   end
 end
