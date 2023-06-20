@@ -127,6 +127,7 @@ $(function () {
 
   function checkPersistedDailyNote() {
     let step_id = $step.select2('val');
+    let classroom_id = $classroom.select2('val');
 
     let filter = {
       by_classroom_id: $classroom.select2('val'),
@@ -136,7 +137,7 @@ $(function () {
       with_daily_note_students: true
     };
 
-    if (!_.isEmpty(step_id)) {
+    if (!_.isEmpty(step_id) && !_.isEmpty(classroom_id)) {
       $.ajax({
         url: Routes.search_daily_notes_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchCheckPersistedDailyNoteSuccess,
