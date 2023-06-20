@@ -12,25 +12,23 @@ $(function () {
 
   $classroom.on('change', async function () {
     var classroom_id = $classroom.select2('val');
+    let discipline_id = $discipline.val();
+    let step_id = $step.val();
+    let date = $recorded_at.val();
 
     if (!_.isEmpty(classroom_id)) {
       await getStep(classroom_id);
       await getNumberOfDecimalPlaces(classroom_id);
       await fetchDisciplines(classroom_id);
+
+      if (discipline_id && step_id && date) {
+        checkPersistedDailyNote();
+      }
     } else {
       $discipline.select2({ data: [] }).trigger('change');
       $step.select2({ data: [] }).trigger('change');
     }
   });
-
-  let classroom_id = $classroom.val();
-  let discipline_id = $discipline.val();
-  let step_id = $step.val();
-  let date = $recorded_at.val();
-
-  if (classroom_id && discipline_id && step_id && date) {
-    checkPersistedDailyNote();
-  }
 
   async function getStep(classroom_id) {
     return $.ajax({
@@ -47,9 +45,8 @@ $(function () {
     let selectedSteps = data.map(function (step) {
       return { id: step['id'], text: step['description'] };
     });
+
     $step.select2({ data: selectedSteps });
-    // Define a primeira opção como selecionada por padrão
-    $step.val(selectedSteps[0].id).trigger('change');
   };
 
   function handleFetchStepByClassroomError() {
