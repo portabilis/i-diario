@@ -187,6 +187,7 @@ class DailyFrequenciesController < ApplicationController
               absence_justification.teacher = current_teacher
               absence_justification.user = current_user
               absence_justification.school_calendar = current_school_calendar
+              absence_justification.period = daily_frequency_attributes[:period]
 
               absence_justification.save
 
