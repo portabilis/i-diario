@@ -25,8 +25,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         classroom = classroom(teacher_discipline_classroom_record.turma_id)
         teacher = teacher(teacher_discipline_classroom_record.servidor_id)
 
-        next if classroom.discarded? || classroom.blank?
-        next if teacher.discarded? || teacher.blank?
+        next if classroom.blank? || classroom.discarded?
+        next if teacher.blank? || teacher.discarded?
 
         teacher_id = teacher.try(:id)
         classroom_id = classroom.try(:id)
@@ -147,8 +147,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       year: year
     )
 
-    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes)
-                                         .pluck(:id)
+    existing_disciplines_ids = Discipline.where(api_code: existing_discipline_api_codes).pluck(:id)
 
     return teacher_discipline_classrooms if teacher_discipline_classroom_record.deleted_at.present?
 
@@ -215,5 +214,12 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       link_teacher.save! if link_teacher.new_record?
     end
+
+    grouped_link_id = GroupedTeacherDisciplineClassrooms.where(
+      teacher_id: teacher_id,
+      classroom_id: classroom_id
+    ).map(&:link_id)
+
+    TeacherDisciplineClassroom.where(id: grouped_link_id).each(&:destroy)
   end
 end
