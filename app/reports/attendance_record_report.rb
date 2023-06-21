@@ -200,13 +200,12 @@ class AttendanceRecordReport < BaseReport
             end
 
             unless student_frequency.present?
-              absences = 1
-
-              if @do_not_send_justified_absence && student_frequency.absence_justification_student_id
+              absences = student_frequency.nil? ? 0 : 1
+              if @do_not_send_justified_absence && student_frequency&.absence_justification_student_id
                 absences = 0
               end
 
-              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + absences
+              students[student_enrollment_classroom.id][:absences] +=  absences
             end
 
             hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
