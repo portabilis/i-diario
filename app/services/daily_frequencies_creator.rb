@@ -60,6 +60,8 @@ class DailyFrequenciesCreator
         students: student_ids,
         date: daily_frequency.frequency_date,
         end_date: daily_frequency.frequency_date,
+        classroom: daily_frequency.classroom_id,
+        period: daily_frequency.period
       )
 
       student_enrollments.each do |student_enrollment|
