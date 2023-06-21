@@ -1,5 +1,8 @@
 class GroupChildEducations < EnumerateIt::Base
-  associate_values  :group_1,
+  associate_values  :nursery_1,
+                    :nursery_2,
+                    :preschool,
+                    :group_1,
                     :group_2,
                     :group_3,
                     :group_4,

@@ -1,6 +1,9 @@
 pt-BR:
   enumerations:
     group_child_educations:
+      nursery_1: Creche - 0 a 1 ano e 6 meses
+      nursery_2: Creche - 1 ano e 7 meses a 3 anos e 11 meses
+      preschool: Pré-escola - 4 a 5 anos
       group_1: Grupo 1 - Bebê (0 a 11 meses)
       group_2: Grupo 2 - CBP (1 ano a 1 anos 11 meses)
       group_3: Grupo 3 - CBP (2 anos a 2 anos e 11 meses)
