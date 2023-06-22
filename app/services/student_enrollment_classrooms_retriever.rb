@@ -72,6 +72,9 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
+    # Não filtra enturmações por data caso municipio tenha DATABASE
+    return enrollment_classrooms if enrollment_classrooms.show_as_inactive.present?
+
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
     elsif search_type.eql?(:by_date_range)
@@ -90,6 +93,8 @@ class StudentEnrollmentClassroomsRetriever
   def search_by_status_attending(enrollment_classrooms)
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
+      # pula reorganização de enturmação caso municipio tenha DATABASE
+      next if enrollment_classroom.show_as_inactive_when_not_in_date
 
       student_enrollment_for_student = enrollment_classrooms.select do |ec|
         ec.student_enrollment.student_id == student_id
