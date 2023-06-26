@@ -262,6 +262,8 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
+        get :classrooms
+        get :disciplines
       end
       member do
         post :exempt_students
