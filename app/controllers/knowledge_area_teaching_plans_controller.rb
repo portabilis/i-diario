@@ -146,6 +146,16 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     respond_with @knowledge_area_teaching_plan
   end
 
+  def set_knowledge_areas_by_classroom
+    return if params[:grade_id].blank?
+
+    classrooms = Grade.find(params[:grade_id]).classrooms
+
+    knowledge_areas = KnowledgeArea.by_classroom_id(classrooms.map(&:id))
+
+    render json: knowledge_areas.to_json
+  end
+
   private
 
   def content_ids
@@ -248,10 +258,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
   helper_method :objectives
 
-  def fetch_unities
-    @unities = Unity.by_teacher(current_teacher).ordered
-  end
-
   def fetch_grades
     if current_user.current_role_is_admin_or_employee?
       @grades ||= Grade.by_unity(current_unity)
@@ -280,7 +286,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
