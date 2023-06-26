@@ -28,12 +28,12 @@ class StudentEnrollmentClassroomsRetriever
   def call
     return if classrooms.blank? || disciplines.blank?
 
-    enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classrooms)
-                                                        .by_discipline(disciplines)
-                                                        .by_score_type(score_type, classrooms)
-                                                        .joins(student_enrollment: :student)
+    enrollment_classrooms ||= StudentEnrollmentClassroom.joins(student_enrollment: :student)
                                                         .includes(student_enrollment: :student)
                                                         .includes(student_enrollment: :dependences)
+                                                        .by_classroom(classrooms)
+                                                        .by_discipline(disciplines)
+                                                        .by_score_type(score_type, classrooms)
                                                         .active
 
     enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
@@ -109,6 +109,6 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def show_inactive_enrollments
-    @show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
 end
