@@ -42,7 +42,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)
-    where(<<-SQL.squish, end_at: end_at.to_date, start_at: start_at.to_date)
+    conditions = <<-SQL.squish
       (CASE
         WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
           student_enrollment_classrooms.joined_at <= :end_at
@@ -52,6 +52,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
           student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
       END)
     SQL
+
+    where(conditions, end_at: end_at.to_date, start_at: start_at.to_date)
   end
 
   def self.by_period(period)
