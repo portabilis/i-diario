@@ -80,15 +80,28 @@ class AttendanceRecordReportForm
   def enrollment_classrooms_list
     adjusted_period = period != Periods::FULL ? period : nil
 
-    @enrollment_classrooms_list ||= StudentEnrollmentsList.new(
-      classroom: classroom_id,
-      discipline: discipline_id,
+    enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: classroom_id,
+      disciplines: discipline_id,
       start_at: start_at,
       end_at: end_at,
       search_type: :by_date_range,
       show_inactive: false,
       period: adjusted_period
-    ).student_enrollment_classrooms
+    )
+
+    @enrollment_classrooms_list ||= enrollment_classrooms_list.map do |enrollment_classroom|
+      {
+        student_enrollment_id: enrollment_classroom.student_enrollment.id,
+        student_enrollment: enrollment_classroom.student_enrollment,
+        student_enrollment_classroom_id: enrollment_classroom.id,
+        student_enrollment_classroom: enrollment_classroom,
+        joined_at: enrollment_classroom.joined_at,
+        left_at: enrollment_classroom.left_at,
+        sequence: enrollment_classroom.sequence,
+        student: enrollment_classroom.student_enrollment.student
+      }
+    end
   end
 
   def student_enrollment_ids

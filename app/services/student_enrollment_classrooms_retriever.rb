@@ -41,8 +41,8 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
-    enrollment_classrooms = search_by_search_type(enrollment_classrooms)
-    enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
+    enrollment_classrooms = search_by_search_type(enrollment_classrooms) unless include_date_range
+    enrollment_classrooms = search_by_status_attending(enrollment_classrooms) unless show_inactive_enrollments
     enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
 
     enrollment_classrooms
@@ -72,7 +72,8 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range
+    # Não filtra enturmações por data caso municipio tenha DATABASE
+    return enrollment_classrooms if enrollment_classrooms.show_as_inactive.present?
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
@@ -86,15 +87,25 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def order_by_name_and_sequence(enrollment_classrooms)
-    return enrollment_classrooms if show_inactive_enrollments
-
-    enrollment_classrooms.ordered
+    enrollment_classrooms.order('sequence ASC, students.name ASC')
   end
 
   def search_by_status_attending(enrollment_classrooms)
-    return enrollment_classrooms if show_inactive_enrollments
+    enrollment_classrooms.each do |enrollment_classroom|
+      student_id = enrollment_classroom.student_enrollment.student_id
+      # pula reorganização de enturmação caso municipio tenha DATABASE
+      next if enrollment_classroom.show_as_inactive_when_not_in_date
 
-    enrollment_classrooms.status_attending
+      student_enrollment_for_student = enrollment_classrooms.select do |ec|
+        ec.student_enrollment.student_id == student_id
+      end
+
+      if student_enrollment_for_student.count > 1
+        enrollment_classrooms.delete(student_enrollment_for_student.first)
+      end
+    end
+
+    enrollment_classrooms
   end
 
   def show_inactive_enrollments
