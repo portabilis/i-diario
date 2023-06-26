@@ -42,19 +42,21 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)
-    where("(CASE
-              WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
-                student_enrollment_classrooms.joined_at <= :end_at
-              ELSE
-                student_enrollment_classrooms.joined_at <= :end_at AND
-                student_enrollment_classrooms.left_at >= :start_at AND
-                student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
-            END)", end_at: end_at.to_date, start_at: start_at.to_date)
+    where(<<-SQL.squish, end_at: end_at.to_date, start_at: start_at.to_date)
+      (CASE
+        WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
+          student_enrollment_classrooms.joined_at <= :end_at
+        ELSE
+          student_enrollment_classrooms.joined_at <= :end_at AND
+          student_enrollment_classrooms.left_at >= :start_at AND
+          student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
+      END)
+    SQL
   end
 
   def self.by_period(period)
     joins(classrooms_grade: :classroom).where(
-      <<-SQL, period: period
+      <<-SQL.squish, period: period
         CASE
           WHEN :period = 4 THEN TRUE
           WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
@@ -71,7 +73,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   def self.by_discipline_query(discipline_id)
     return if discipline_id.blank?
 
-    where(<<-SQL, discipline_id)
+    where(<<-SQL.squish, discipline_id)
       (
         not exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id)
         OR exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id
