@@ -40,9 +40,8 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
-
     enrollment_classrooms = search_by_search_type(enrollment_classrooms) unless include_date_range
-    enrollment_classrooms = search_by_status_attending(enrollment_classrooms) unless show_inactive_enrollments
+    enrollment_classrooms = reject_duplicated_students(enrollment_classrooms) unless show_inactive_enrollments
     enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
 
     enrollment_classrooms
@@ -72,7 +71,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    # Não filtra enturmações por data caso municipio tenha DATABASE
+    # Nao filtra enturmacoes por data caso municipio tenha DATABASE
     return enrollment_classrooms if enrollment_classrooms.show_as_inactive.present?
 
     if search_type.eql?(:by_date)
@@ -90,10 +89,10 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms.order('sequence ASC, students.name ASC')
   end
 
-  def search_by_status_attending(enrollment_classrooms)
+  def reject_duplicated_students(enrollment_classrooms)
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
-      # pula reorganização de enturmação caso municipio tenha DATABASE
+      # pula reorganizacao de enturmacao caso municipio tenha DATABASE
       next if enrollment_classroom.show_as_inactive_when_not_in_date
 
       student_enrollment_for_student = enrollment_classrooms.select do |ec|
