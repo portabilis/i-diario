@@ -54,29 +54,30 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   def self.by_period(period)
     joins(classrooms_grade: :classroom).where(
-      "CASE
-         WHEN :period = 4 THEN
-           TRUE
-         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
-           student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
-         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
-           student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
-         ELSE
-           COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
-      END", period: period
+      <<-SQL, period: period
+        CASE
+          WHEN :period = 4 THEN TRUE
+          WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
+            student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
+          WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
+            student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
+          ELSE
+            COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
+        END
+      SQL
     )
   end
 
   def self.by_discipline_query(discipline_id)
-    unless discipline_id.blank?
-      where("(not exists(select 1
-                           from student_enrollment_dependences
-                          where student_enrollment_dependences.student_enrollment_id = student_enrollments.id) OR
-                  exists(select 1
-                           from student_enrollment_dependences
-                          where student_enrollment_dependences.student_enrollment_id = student_enrollments.id and
-                                student_enrollment_dependences.discipline_id = ?))", discipline_id)
-    end
+    return if discipline_id.blank?
+
+    where(<<-SQL, discipline_id)
+      (
+        not exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id)
+        OR exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id
+        and student_enrollment_dependences.discipline_id = ?)
+      )
+    SQL
   end
 
   def self.by_score_type_query(score_type, classroom_id)
@@ -106,6 +107,6 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     return scoped.where(nil) if exam_rule_included && differentiated_exam_rule_included
     return none unless exam_rule_included || differentiated_exam_rule_included
 
-    scoped.joins(student_enrollment: :students).where(students: { uses_differentiated_exam_rule: differentiated_exam_rule_included })
+    scoped.where(students: { uses_differentiated_exam_rule: differentiated_exam_rule_included })
   end
 end
