@@ -41,8 +41,12 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
-    enrollment_classrooms = search_by_search_type(enrollment_classrooms)
-    enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
+
+    # Nao filtra as enturmacoes caso municipio tenha DATABASE
+    if enrollment_classrooms.show_as_inactive.blank?
+      enrollment_classrooms = search_by_search_type(enrollment_classrooms)
+      enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
+    end
 
     enrollment_classrooms.map do |enrollment_classroom|
       {
@@ -77,8 +81,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    # Nao filtra enturmacoes por data caso municipio tenha DATABASE
-    return enrollment_classrooms if enrollment_classrooms.show_as_inactive.present? || include_date_range
+    return enrollment_classrooms if include_date_range
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
@@ -92,7 +95,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def reject_duplicated_students(enrollment_classrooms)
-    return if show_inactive_enrollments || enrollment_classrooms.show_as_inactive.present?
+    return if show_inactive_enrollments
 
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
