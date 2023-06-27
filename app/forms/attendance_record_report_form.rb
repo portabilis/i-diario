@@ -80,7 +80,7 @@ class AttendanceRecordReportForm
   def enrollment_classrooms_list
     adjusted_period = period != Periods::FULL ? period : nil
 
-    enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom_id,
       disciplines: discipline_id,
       start_at: start_at,
@@ -89,24 +89,11 @@ class AttendanceRecordReportForm
       show_inactive: false,
       period: adjusted_period
     )
-
-    @enrollment_classrooms_list ||= enrollment_classrooms_list.map do |enrollment_classroom|
-      {
-        student_enrollment_id: enrollment_classroom.student_enrollment.id,
-        student_enrollment: enrollment_classroom.student_enrollment,
-        student_enrollment_classroom_id: enrollment_classroom.id,
-        student_enrollment_classroom: enrollment_classroom,
-        joined_at: enrollment_classroom.joined_at,
-        left_at: enrollment_classroom.left_at,
-        sequence: enrollment_classroom.sequence,
-        student: enrollment_classroom.student_enrollment.student
-      }
-    end
   end
 
   def student_enrollment_ids
     @student_enrollment_ids ||= @enrollment_classrooms_list.map { |student_enrollment|
-      student_enrollment[:student_enrollment_id]
+      student_enrollment[:student_enrollment].id
     }
   end
 
@@ -248,8 +235,10 @@ class AttendanceRecordReportForm
       frequency_date = daily_frequency.frequency_date
 
       enrollments_on_date = @enrollment_classrooms_list.select { |enrollment_classroom|
-        joined_at = enrollment_classroom[:joined_at].to_date
-        left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
+        joined_at = enrollment_classroom[:student_enrollment_classroom].joined_at.to_date
+        left_at = enrollment_classroom[:student_enrollment_classroom].left_at
+
+        left_at = left_at.empty? ? Date.current.end_of_year : left_at.to_date
 
         frequency_date >= joined_at && frequency_date < left_at
       }
