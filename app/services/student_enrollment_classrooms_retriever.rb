@@ -81,7 +81,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range
+    return enrollment_classrooms if include_date_range.present?
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
@@ -95,7 +95,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def reject_duplicated_students(enrollment_classrooms)
-    return if show_inactive_enrollments
+    return enrollment_classrooms if show_inactive_enrollments
 
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
