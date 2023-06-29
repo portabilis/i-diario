@@ -71,8 +71,9 @@ class StudentAverageCalculator
     end
 
     @scores = extract_note_avaliations(avaliations)
-
-    @scores.compact.reduce(:+)
+    multiplied_scores = @scores.map { |score| score * 100 }
+    total = multiplied_scores.compact.sum
+    total/100
   end
 
   def extract_weight_avaliations(avaliations)
