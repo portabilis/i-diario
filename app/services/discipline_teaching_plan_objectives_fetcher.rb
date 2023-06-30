@@ -13,7 +13,7 @@ class DisciplineTeachingPlanObjectivesFetcher < TeachingPlanObjectivesFetcher
     DisciplineTeachingPlan.includes(teaching_plan: :objectives)
                           .by_unity(@classroom.unity_id)
                           .by_grade(@classroom.grade_ids)
-                          .by_discipline(@discipline.id)
+                          .by_discipline(@discipline)
                           .by_year(school_calendar_year)
                           .by_school_term_type_step_id(school_term_type_steps_ids)
                           .order_by_school_term_type_step
