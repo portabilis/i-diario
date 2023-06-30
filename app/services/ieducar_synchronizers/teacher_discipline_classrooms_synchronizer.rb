@@ -91,10 +91,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       classroom_id: classroom_id
     )
 
-    TeacherDisciplineClassroom.unscoped.where(
-      api_code: teacher_discipline_classroom_record.id
-    ).where.not(classroom_id: classroom_id).each do |teacher_discipline_classroom|
-      teacher_discipline_classroom.destroy
+    if teacher_discipline_classrooms.blank?
+      # Busca os vinculos que nao pertencem mais a turma (cenario de edicao no iEducar)
+      link_modifiers = TeacherDisciplineClassroom.unscoped.where(
+        api_code: teacher_discipline_classroom_record.id
+      ).where.not(classroom_id: classroom_id).each(&:discard)
+
+      # Verifica se existe + vinculos de disciplinas agrupadoras e descarta os vinculos
+      classroom_old = link_modifiers.map(&:classroom_id).uniq
+      destroy_grouped_links(classroom_old, teacher_id)
     end
 
     teacher_discipline_classroom =
@@ -214,7 +219,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       link_teacher.save! if link_teacher.new_record?
     end
+    destroy_grouped_links(classroom_id, teacher_id)
+  end
 
+  def destroy_grouped_links(classroom_id, teacher_id)
     grouped_link_id = GroupedTeacherDisciplineClassrooms.where(
       teacher_id: teacher_id,
       classroom_id: classroom_id
