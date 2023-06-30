@@ -21,7 +21,7 @@ $(function() {
 
     if (!_.isEmpty(unity_id) && !_.isEmpty(grade_id)) {
       $.ajax({
-        url: Routes.search_disciplines_pt_br_path({
+        url: Routes.search_by_grade_and_unity_disciplines_pt_br_path({
           by_unity_id: unity_id,
           by_grade: grade_id,
           format: 'json'

@@ -182,7 +182,11 @@ Rails.application.routes.draw do
     get '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#copy'
     post '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#do_copy'
 
-    resources :knowledge_area_teaching_plans, concerns: :history
+    resources :knowledge_area_teaching_plans, concerns: :history do
+      collection do
+        get :set_knowledge_areas_by_classroom
+      end
+    end
     resources :learning_objectives_and_skills, concerns: :history do
       collection do
         get :contents
@@ -235,6 +239,7 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_by_grade_and_unity
         get :search_grouped_by_knowledge_area
         get :by_classroom
       end

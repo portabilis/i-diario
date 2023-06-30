@@ -49,6 +49,12 @@ class DisciplinesController < ApplicationController
     render json: @disciplines
   end
 
+  def search_by_grade_and_unity
+    @disciplines = apply_scopes(Discipline).where(teacher_discipline_classrooms: { teacher_id: current_user.teacher_id }).ordered.uniq
+
+    render json: @disciplines
+  end
+
   def search_grouped_by_knowledge_area
     disciplines = Discipline.by_teacher_and_classroom(params[:filter][:teacher_id], params[:filter][:classroom_id])
                             .grouped_by_knowledge_area
