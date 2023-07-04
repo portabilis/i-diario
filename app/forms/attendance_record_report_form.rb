@@ -243,7 +243,7 @@ class AttendanceRecordReportForm
         frequency_date >= joined_at && frequency_date < left_at
       }
 
-      enrollments_on_date_ids = enrollments_on_date.map { |enrollment| enrollment[:student_enrollment_id] }
+      enrollments_on_date_ids = enrollments_on_date.map { |enrollment| enrollment[:student_enrollment].id }
       not_enrrolled_on_the_date = student_enrollment_ids - enrollments_on_date_ids
 
       next if not_enrrolled_on_the_date.empty?
