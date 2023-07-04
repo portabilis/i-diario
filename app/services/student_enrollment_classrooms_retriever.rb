@@ -36,8 +36,8 @@ class StudentEnrollmentClassroomsRetriever
                                                         .by_score_type(score_type, classrooms)
                                                         .order('sequence ASC, students.name ASC')
                                                         .active
-    binding.pry
-                                                        enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
+
+    enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
