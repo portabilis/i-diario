@@ -20,7 +20,7 @@ class StudentEnrollmentClassroomsRetriever
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, nil)
-    @score_type = params.fetch(:score_type, nil)
+    @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH)
 
     ensure_has_valid_search_params
   end
