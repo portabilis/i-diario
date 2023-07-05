@@ -446,7 +446,10 @@ class ApplicationController < ActionController::Base
 
   def error_generic(expection)
     set_honeybadger_error(expection)
-    redirect_to :root
+
+    unless Rails.env.development?
+      redirect_to :root
+    end
   end
 
   def set_honeybadger_error(expection)
