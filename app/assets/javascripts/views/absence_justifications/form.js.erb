@@ -13,13 +13,14 @@ $(function () {
   // on change
   $classroom.on('change', function (e) {
     toggleStudent(e.val != '' && e.val != 'empty');
-    fetchStudents();
+
 
     var params = { classroom_id: e.val };
 
     if (!_.isEmpty(params)) {
       checkExamRule(params);
       fetchDisciplines();
+      fetchStudents();
     }
   });
 
