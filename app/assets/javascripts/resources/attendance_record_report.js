@@ -1,6 +1,7 @@
 $(function () {
   window.classrooms = [];
   window.disciplines = [];
+  const PERIOD_FULL = 4;
 
   var $hideWhenGlobalAbsence = $(".hide-when-global-absence"),
       $globalAbsence = $("#attendance_record_report_form_global_absence"),
@@ -65,7 +66,6 @@ $(function () {
     $discipline.val('').select2({ data: [] });
     $('#attendance_record_report_form_class_numbers').select2("val", "")
 
-
     if (!_.isEmpty(e.val)) {
       checkExamRule(params);
 
@@ -81,6 +81,71 @@ $(function () {
     }
   });
 
+  $discipline.on('change', async function () {
+    $('#attendance_record_report_form_period').select2('val', '');
+    await getPeriod();
+  });
+
+  async function getPeriod() {
+    let classroom_id = $('#attendance_record_report_form_classroom_id').select2('val');
+    let discipline_id  = $('#attendance_record_report_form_discipline_id').select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.period_attendance_record_report_pt_br_path({
+          classroom_id: classroom_id,
+          discipline_id: discipline_id,
+          format: 'json'
+        }),
+        success: handleFetchPeriodByClassroomSuccess,
+        error: handleFetchPeriodByClassroomError
+      });
+    }
+  }
+
+  function handleFetchPeriodByClassroomSuccess(data) {
+    let period = $('#attendance_record_report_form_period');
+
+    if (data != PERIOD_FULL) {
+      getNumberOfClasses();
+      period.select2('val', data);
+      period.attr('readonly', true)
+    } else {
+      period.attr('readonly', false)
+    }
+  };
+
+  function handleFetchPeriodByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar o período da turma.');
+  };
+
+  function getNumberOfClasses() {
+    let classroom_id = $('#attendance_record_report_form_classroom_id').select2('val');
+
+    $.ajax({
+      url: Routes.number_of_classes_attendance_record_report_pt_br_path({
+        classroom_id: classroom_id,
+        format: 'json'
+      }),
+      success: handleFetchNumberOfClassesByClassroomSuccess,
+      error: handleFetchNumberOfClassesByClassroomError
+    });
+  }
+
+  function handleFetchNumberOfClassesByClassroomSuccess(data) {
+    var elements = []
+
+    for (let i = 1; i <= data; i++){
+      elements.push({id: i, name: i, text: i})
+    }
+
+    $class_numbers.select2('data', elements);
+  }
+
+  function handleFetchNumberOfClassesByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar os numeros de aula da turma.');
+  }
+    
   $selectAllClasses.on('click', function(){
     var allElements = $.parseJSON($("#attendance_record_report_form_class_numbers").attr('data-elements'));
     var joinedElements = "";
