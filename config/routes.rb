@@ -393,6 +393,7 @@ Rails.application.routes.draw do
     post '/reports/knowledge_area_content_record', to: 'knowledge_area_lesson_plan_report#content_record_report', as: 'knowledge_area_content_record_report'
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
+    get '/reports/teacher_report_cards/set_grades_by_classroom', to: 'teacher_report_cards#set_grades_by_classroom', as: 'grade_teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
 
     resources :data_exportations, only: [:index, :create]
