@@ -44,7 +44,7 @@ class Users::SessionsController < Devise::SessionsController
   private
 
   def failed_login?
-    (options = env["warden.options"]) && options[:action] == "unauthenticated"
+    (options = request.env["warden.options"]) && options[:action] == "unauthenticated"
   end
 
   def credentials_discriminator(credentials)

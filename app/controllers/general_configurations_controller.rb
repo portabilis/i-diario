@@ -59,7 +59,8 @@ class GeneralConfigurationsController < ApplicationController
       :require_daily_activities_record,
       :remove_lesson_plan_objectives,
       :show_experience_fields,
-      :allows_copy_experience_fields_in_lesson_plans
+      :allows_copy_experience_fields_in_lesson_plans,
+      :group_children_education
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')
