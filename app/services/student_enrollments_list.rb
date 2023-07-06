@@ -40,12 +40,13 @@ class StudentEnrollmentsList
   end
 
   def student_enrollment_classrooms
-    students_enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classroom)
-                                                                 .by_discipline(discipline)
-                                                                 .by_score_type(score_type, classroom)
-                                                                 .joins(student_enrollment: :student)
+    students_enrollment_classrooms ||= StudentEnrollmentClassroom.joins(student_enrollment: :student)
                                                                  .includes(student_enrollment: :student)
                                                                  .includes(student_enrollment: :dependences)
+                                                                 .by_classroom(classroom)
+                                                                 .by_discipline(discipline)
+                                                                 .by_score_type(score_type, classroom)
+
 
     students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
 

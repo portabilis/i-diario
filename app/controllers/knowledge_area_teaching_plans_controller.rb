@@ -13,16 +13,13 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_teaching_plans = apply_scopes(
-      KnowledgeAreaTeachingPlan.includes(:knowledge_areas,
-                                         teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
-                               .by_unity(current_unity)
-                               .by_year(current_school_year)
-    )
+    @knowledge_area_teaching_plans = fetch_knowledge_area_teaching_plans
 
-    unless current_user_is_employee_or_administrator?
-      @knowledge_area_teaching_plans =
-        @knowledge_area_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
+    fetch_grades
+    fetch_knowledge_areas
+
+    unless current_user.current_role_is_admin_or_employee?
+      @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_grade(@grades.map(&:id))
     end
 
     if author_type.present?
@@ -31,9 +28,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     end
 
     authorize @knowledge_area_teaching_plans
-
-    fetch_grades
-    fetch_knowledge_areas
   end
 
   def show
@@ -41,7 +35,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_collections
+    fetch_knowledge_areas
 
     respond_with @knowledge_area_teaching_plan do |format|
       format.pdf do
@@ -58,12 +52,13 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new.localized
     @knowledge_area_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
+      grade: current_grade,
       unity: current_unity
     )
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_collections
+    fetch_knowledge_areas
   end
 
   def create
@@ -89,7 +84,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_collections
+      fetch_knowledge_areas
 
       render :new
     end
@@ -100,7 +95,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_collections
+    fetch_knowledge_areas
   end
 
   def update
@@ -127,7 +122,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_collections
+      fetch_knowledge_areas
 
       render :edit
     end
@@ -149,6 +144,16 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     respond_with @knowledge_area_teaching_plan
+  end
+
+  def set_knowledge_areas_by_classroom
+    return if params[:grade_id].blank?
+
+    classrooms = Grade.find(params[:grade_id]).classrooms
+
+    knowledge_areas = KnowledgeArea.by_classroom_id(classrooms.map(&:id))
+
+    render json: knowledge_areas.to_json
   end
 
   private
@@ -223,10 +228,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     )
   end
 
-  def fetch_collections
-    fetch_knowledge_areas
-  end
-
   def contents
     @contents = []
 
@@ -257,26 +258,55 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
   helper_method :objectives
 
-  def fetch_unities
-    @unities = Unity.by_teacher(current_teacher).ordered
-  end
-
   def fetch_grades
-    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
-
-    return if current_user_is_employee_or_administrator?
-
-    @grades = @grades.where(id: current_user_classroom.try(:grade_id)).ordered
+    if current_user.current_role_is_admin_or_employee?
+      @grades ||= Grade.by_unity(current_unity)
+                       .by_year(current_school_year)
+                       .where(id: current_user_classroom.try(:grade_id)).ordered
+    else
+      fetch_linked_by_teacher
+    end
   end
 
   def fetch_knowledge_areas
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
-    @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
+
+    if current_user.current_role_is_admin_or_employee?
+      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
+    else
+      fetch_linked_by_teacher
+      @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
+    end
 
     @knowledge_areas
   end
 
   def yearly_term_type_id
     @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
+  end
+
+  def fetch_knowledge_area_teaching_plans
+    apply_scopes(
+      KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan:
+                                  [:unity, :grade, :teaching_plan_attachments, :teacher,
+                                   :school_term_type, :school_term_type_step])
+                                .by_unity(current_unity)
+                                .by_year(current_school_year)
+    )
+  end
+
+  def current_grade
+    current_user_grade = ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
   end
 end

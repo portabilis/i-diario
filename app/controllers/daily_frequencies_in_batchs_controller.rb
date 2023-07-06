@@ -81,6 +81,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             absence_justification.teacher = current_teacher
             absence_justification.user = current_user
             absence_justification.school_calendar = current_school_calendar
+            absence_justification.period = daily_frequency_data[:period]
 
             absence_justification.save
 
@@ -225,7 +226,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
-    @absence_justifications = AbsenceJustifiedOnDate.call(students: student_ids, date: dates.first, end_date: dates.last)
+    @absence_justifications = AbsenceJustifiedOnDate.call(
+                                                          students: student_ids,
+                                                          date: dates.first,
+                                                          end_date: dates.last,
+                                                          classroom: current_user_classroom.id,
+                                                          period: @period
+                                                        )
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)

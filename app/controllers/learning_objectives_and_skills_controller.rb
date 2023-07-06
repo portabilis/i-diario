@@ -72,6 +72,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     query = LearningObjectivesAndSkill.ordered
     query = search_query('experience_fields', query) if params[:experience_fields].present?
     query = search_query('disciplines', query) if params[:disciplines].present?
+    query = search_query('group_child_schools', query) if params[:group_child_schools].present?
 
     query.each do |skill|
       @contents << {

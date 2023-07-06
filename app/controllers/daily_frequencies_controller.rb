@@ -6,11 +6,14 @@ class DailyFrequenciesController < ApplicationController
   before_action :require_valid_daily_frequency_classroom
 
   def new
+    set_options_by_user
+
     @daily_frequency = DailyFrequency.new.localized
     @daily_frequency.unity = current_unity
+    @daily_frequency.classroom = current_user_classroom
+    @daily_frequency.discipline = current_user_discipline
     @daily_frequency.frequency_date = Date.current
     @class_numbers = []
-    @period = current_teacher_period
 
     authorize @daily_frequency
   end
@@ -27,6 +30,7 @@ class DailyFrequenciesController < ApplicationController
       class_numbers: params[:class_numbers].split(',').sort
     )
   end
+
   def create
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
@@ -34,7 +38,8 @@ class DailyFrequenciesController < ApplicationController
     @class_numbers = params[:class_numbers].split(',').sort
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
-    @period = params[:daily_frequency][:period]
+
+    @period = @admin_or_teacher ? params[:daily_frequency][:period] :  set_options_by_classroom
 
     if @daily_frequency.valid?
       @frequency_type = current_frequency_type(@daily_frequency)
@@ -42,9 +47,9 @@ class DailyFrequenciesController < ApplicationController
       return if @frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
       redirect_to edit_multiple_daily_frequencies_path(
-                    daily_frequency: daily_frequency_params,
-                    class_numbers: @class_numbers
-                  )
+        daily_frequency: daily_frequency_params,
+        class_numbers: @class_numbers
+      )
     else
       render :new
     end
@@ -53,8 +58,11 @@ class DailyFrequenciesController < ApplicationController
   def edit_multiple
     @daily_frequencies = find_or_initialize_daily_frequencies(params[:class_numbers])
     @daily_frequency = @daily_frequencies.first
-    teacher_period = current_teacher_period
-    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+
+    @period = @admin_or_teacher ? current_teacher_period : set_options_by_classroom
+
+    @period = @period != Periods::FULL.to_i ? @period : nil
+
     @general_configuration = GeneralConfiguration.current
 
     authorize @daily_frequency
@@ -84,7 +92,13 @@ class DailyFrequenciesController < ApplicationController
     exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, step: step)
     active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
-    absence_justifications = AbsenceJustifiedOnDate.call(students: student_ids, date: frequency_date, end_date: frequency_date)
+    absence_justifications = AbsenceJustifiedOnDate.call(
+                                                      students: student_ids,
+                                                      date: frequency_date,
+                                                      end_date: frequency_date,
+                                                      classroom: @daily_frequency.classroom_id,
+                                                      period: @period
+                                                    )
 
     fetch_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
@@ -181,6 +195,7 @@ class DailyFrequenciesController < ApplicationController
               absence_justification.teacher = current_teacher
               absence_justification.user = current_user
               absence_justification.school_calendar = current_school_calendar
+              absence_justification.period = daily_frequency_attributes[:period]
 
               absence_justification.save
 
@@ -364,6 +379,14 @@ class DailyFrequenciesController < ApplicationController
     ).teacher_period
   end
 
+  def current_teacher_period_by_classroom(classroom, discipline)
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      classroom,
+      discipline
+    ).teacher_period
+  end
+
   def build_daily_frequency_students
     @daily_frequencies.each do |daily_frequency|
       current_student_ids = daily_frequency.students.map(&:student_id)
@@ -434,6 +457,7 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def require_valid_daily_frequency_classroom
+    return unless current_user.current_role_is_admin_or_employee?
     return unless params[:daily_frequency]
     return unless params[:daily_frequency][:classroom_id]
     return if current_user.current_classroom_id == params[:daily_frequency][:classroom_id].to_i
@@ -461,5 +485,31 @@ class DailyFrequenciesController < ApplicationController
 
   def show_inactive_enrollments
     @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
+  end
+
+  def set_options_by_classroom
+    classroom = @daily_frequency.classroom
+    discipline = @daily_frequency.discipline
+
+    @period = current_teacher_period_by_classroom(classroom, discipline)
+    @daily_frequency.period = @period
+  end
+
+  def set_options_by_user
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
+
+    if @admin_or_teacher
+      @classrooms ||= [current_user_classroom]
+      @disciplines ||= [current_user_discipline]
+      @period = current_teacher_period
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
   end
 end

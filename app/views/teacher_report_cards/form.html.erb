@@ -19,18 +19,35 @@
           <%= f.input :unity_id, as: :select2_unity, user: current_user %>
         </div>
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2_classroom, user: current_user, input_html: { value: @teacher_report_card_form.classroom_id } %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
+                  input_html: { value: @teacher_report_card_form.classroom_id } %>
+          <% else %>
+            <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user,
+                  input_html: { value: @teacher_report_card_form.classroom_id } %>
+          <% end %>
         </div>
         <div class="col col-sm-4">
-           <%= f.input :grade_id, as: :select2_grade, required: true, user: current_user,
-               input_html: { value: f.object.grade_id, data: { without_json_parser: true } }%>
-      </div>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.input :grade_id, as: :select2_grade, required: true, user: current_user,
+                  input_html: { value: f.object.grade_id, data: { without_json_parser: true } }%>
+          <% else %>
+            <%= f.input :grade_id, as: :select2, elements: @grades, required: true, user: current_user,
+                  input_html: { value: f.object.grade_id, data: { without_json_parser: true } }%>
+          <% end %>
+        </div>
       </div>
       <div class="row">
         <div class="col col-sm-4">
-        <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-              classroom_id: @teacher_report_card_form.classroom_id,
-              required: true, input_html: { value: @teacher_report_card_form.discipline_id } %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+                classroom_id: @teacher_report_card_form.classroom_id,
+                required: true, input_html: { value: @teacher_report_card_form.discipline_id } %>
+        <% else %>
+           <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user,
+                classroom_id: @teacher_report_card_form.classroom_id,
+                required: true, input_html: { value: @teacher_report_card_form.discipline_id } %>
+        <% end %>
         </div>
         <div class="col col-sm-4">
           <%= f.input :status, as: :select2, elements: TeacherReportCardStatus.to_select(false).to_json %>
