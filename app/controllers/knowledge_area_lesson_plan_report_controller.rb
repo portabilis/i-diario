@@ -3,7 +3,8 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
 
   def form
     @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(
-      unity_id: current_unity.id
+      unity_id: current_unity.id,
+      classroom_id: current_user_classroom.id
     )
     select_options_by_user
   end

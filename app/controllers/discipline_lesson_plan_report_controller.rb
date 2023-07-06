@@ -5,8 +5,11 @@ class DisciplineLessonPlanReportController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new
-    @discipline_lesson_plan_report_form.teacher_id = current_teacher_id
+    @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(
+      teacher_id: current_teacher_id,
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
     select_options_by_user
   end
 
