@@ -9,12 +9,13 @@ class TransferNotesController < ApplicationController
   def index
     step_id = (params[:filter] || []).delete(:by_step)
 
+    set_options_by_user
     @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
-                                                .by_classroom_id(current_user_classroom)
-                                                .by_discipline_id(current_user_discipline)
+                                                .by_classroom_id(@classrooms.map(&:id))
+                                                .by_discipline_id(@disciplines.map(&:id))
 
     if step_id.present?
-      @transfer_notes = @transfer_notes.by_step_id(current_user_classroom, step_id)
+      @transfer_notes = @transfer_notes.by_step_id(@classrooms.map(&:id), step_id)
       params[:filter][:by_step] = step_id
     end
 
@@ -22,8 +23,12 @@ class TransferNotesController < ApplicationController
   end
 
   def new
+    set_options_by_user
+
     @transfer_note = TransferNote.new(
-      unity_id: current_unity.id
+      unity_id: current_unity.id,
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id,
     ).localized
 
     authorize @transfer_note
@@ -42,6 +47,8 @@ class TransferNotesController < ApplicationController
 
       respond_with @transfer_note, location: transfer_notes_path
     else
+      set_options_by_user
+
       render :new
     end
   end
@@ -66,6 +73,8 @@ class TransferNotesController < ApplicationController
     if @transfer_note.save
       respond_with @transfer_note, location: transfer_notes_path
     else
+      set_options_by_user
+
       render :new
     end
   end
@@ -114,6 +123,14 @@ class TransferNotesController < ApplicationController
     respond_with(@transfer_note, location: transfer_notes_path)
   end
 
+  def find_step_number_by_classroom
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
+    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
+
+    render json: steps.to_json
+  end
+
   private
 
   def resource_params
@@ -147,8 +164,7 @@ class TransferNotesController < ApplicationController
     @classrooms ||= Classroom.by_unity_and_teacher(
       current_unity.id,
       current_teacher.id
-    )
-    .ordered
+    ).ordered
   end
   helper_method :classrooms
 
@@ -161,6 +177,24 @@ class TransferNotesController < ApplicationController
     @students = (@transfer_note.student_id.present? ? [@transfer_note.student] : [])
   end
   helper_method :students
+
+  def set_options_by_user
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
+
+    if @admin_or_teacher
+      @classrooms ||= [current_user_classroom]
+      @disciplines ||= [current_user_discipline]
+      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
 
   def update_daily_note_student(daily_note_students_attributes)
     ActiveRecord::Base.transaction do
