@@ -373,6 +373,8 @@ Rails.application.routes.draw do
     end
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
+    get '/reports/attendance_record/period', to: 'attendance_record_report#period', as: 'period_attendance_record_report'
+    get '/reports/attendance_record/number_of_classes', to: 'attendance_record_report#number_of_classes', as: 'number_of_classes_attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
     get '/reports/absence_justification', to: 'absence_justification_report#form', as: 'absence_justification_report'
