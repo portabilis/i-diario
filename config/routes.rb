@@ -398,6 +398,7 @@ Rails.application.routes.draw do
 
     get '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#form', as: 'knowledge_area_lesson_plan_report'
     post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#lesson_plan_report', as: 'knowledge_area_lesson_plan_report'
+    get '/reports/knowledge_area_lesson_plan/fetch_knowledge_areas', to: 'knowledge_area_lesson_plan_report#fetch_knowledge_areas', as: 'fetch_knowledge_areas_knowledge_area_lesson_plan_report'
     post '/reports/knowledge_area_content_record', to: 'knowledge_area_lesson_plan_report#content_record_report', as: 'knowledge_area_content_record_report'
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
