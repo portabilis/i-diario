@@ -14,11 +14,13 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
     @knowledge_area_lesson_plan_report_form.report_type = ContentRecordReportTypes::LESSON_PLAN
 
     if @knowledge_area_lesson_plan_report_form.valid?
-      knowledge_area_lesson_plan_report = KnowledgeAreaLessonPlanReport.build(current_entity_configuration,
-                                                                              @knowledge_area_lesson_plan_report_form.date_start,
-                                                                              @knowledge_area_lesson_plan_report_form.date_end,
-                                                                              @knowledge_area_lesson_plan_report_form.knowledge_area_lesson_plan,
-                                                                              current_teacher)
+      knowledge_area_lesson_plan_report = KnowledgeAreaLessonPlanReport.build(
+        current_entity_configuration,
+        @knowledge_area_lesson_plan_report_form.date_start,
+        @knowledge_area_lesson_plan_report_form.date_end,
+        @knowledge_area_lesson_plan_report_form.knowledge_area_lesson_plan,
+        current_teacher
+      )
       send_pdf(t("routes.knowledge_area_content_lesson_plan_records"), knowledge_area_lesson_plan_report.render)
     else
       @knowledge_area_lesson_plan_report_form
@@ -45,6 +47,14 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
       select_options_by_user
       render :form
     end
+  end
+
+  def fetch_knowledge_areas
+    return if params[:classroom_id].blank?
+
+    knowledge_areas = KnowledgeArea.by_teacher(current_teacher_id).by_classroom_id(params[:classroom_id]).ordered
+
+    render json: knowledge_areas.to_json
   end
 
   private
