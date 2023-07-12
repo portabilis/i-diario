@@ -26,17 +26,17 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def call
-    return if classrooms.blank? || disciplines.blank?
+    return if classrooms.blank?
 
     enrollment_classrooms ||= StudentEnrollmentClassroom.joins(student_enrollment: :student)
                                                         .includes(student_enrollment: :student)
                                                         .includes(student_enrollment: :dependences)
                                                         .by_classroom(classrooms)
-                                                        .by_discipline(disciplines)
                                                         .by_score_type(score_type, classrooms)
                                                         .order('sequence ASC, students.name ASC')
                                                         .active
 
+    enrollment_classrooms = enrollment_classrooms.by_discipline(disciplines) if disciplines.present?
     enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
