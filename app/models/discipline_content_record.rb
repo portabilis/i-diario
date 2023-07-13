@@ -91,14 +91,15 @@ class DisciplineContentRecord < ActiveRecord::Base
   end
 
   def uniqueness_of_class_number
-    discipline_content_record = DisciplineContentRecord.by_teacher_id(content_record.teacher_id)
-                                                       .by_classroom_id(content_record.classroom_id)
-                                                       .by_discipline_id(discipline_id)
-                                                       .by_date(content_record.record_date)
-                                                       .by_class_number(class_number)
-                                                       .exists?
+    relation = DisciplineContentRecord.by_teacher_id(content_record.teacher_id)
+                                      .by_classroom_id(content_record.classroom_id)
+                                      .by_discipline_id(discipline_id)
+                                      .by_date(content_record.record_date)
+                                      .by_class_number(class_number)
 
-    if discipline_content_record
+    relation = relation.where.not(id: id) if persisted?
+
+    if relation.exists?
       errors.add(:class_number, I18n.t('activerecord.errors.models.discipline_content_record.attributes.discipline_id.class_number_in_use'))
     end
   end

@@ -4,7 +4,7 @@ class DisciplineContentRecordsController < ApplicationController
 
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
-  before_action :set_number_of_classes, only: [:new, :create, :edit, :show]
+  before_action :set_number_of_classes
   before_action :allow_class_number, only: [:index, :new, :edit, :show]
 
   def index
@@ -66,7 +66,7 @@ class DisciplineContentRecordsController < ApplicationController
         return render :new if @discipline_content_record.invalid?
       end
 
-      multiple_content_creator = CreateMultipleContents.new(@class_numbers, @discipline_content_record)
+      multiple_content_creator = CreateOrUpdateMultipleContents.new(@class_numbers, @discipline_content_record, true)
 
       if multiple_content_creator.call
         respond_with @discipline_content_record, location: discipline_content_records_path
@@ -100,10 +100,37 @@ class DisciplineContentRecordsController < ApplicationController
 
     authorize @discipline_content_record
 
-    if @discipline_content_record.save
-      respond_with @discipline_content_record, location: discipline_content_records_path
+    if allow_class_number
+      @new_discipline_content_record = @discipline_content_record.dup
+      @new_discipline_content_record.content_record = @discipline_content_record.content_record.dup
+      @class_numbers = class_numbers_without_current(
+        resource_params[:class_number],
+        @discipline_content_record.class_number
+      )
+
+      @class_numbers.each do |class_number|
+        @new_discipline_content_record.class_number = class_number
+
+        if @new_discipline_content_record.invalid?
+          flash[:error] = I18n.t('activerecord.errors.models.discipline_content_record.not_editable_in_batch', lesson_number: class_number)
+
+          return render :edit
+        end
+      end
+
+      service = CreateOrUpdateMultipleContents.new(@class_numbers, @discipline_content_record, false)
+
+      if service.call
+        respond_with @discipline_content_record, location: discipline_content_records_path
+      else
+        render :new
+      end
     else
-      render :edit
+      if @discipline_content_record.save
+        respond_with @discipline_content_record, location: discipline_content_records_path
+      else
+        render :edit
+      end
     end
   end
 
@@ -134,6 +161,12 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   private
+
+  def class_numbers_without_current(class_numbers, current_class_number)
+    class_numbers.split(',').sort.reject do |class_number|
+      class_number == current_class_number.to_s
+    end
+  end
 
   def allow_class_number
     @allow_class_number ||= GeneralConfiguration.first.allow_class_number_on_content_records

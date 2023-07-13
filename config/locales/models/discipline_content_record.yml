@@ -17,6 +17,7 @@ pt-BR:
     errors:
       models:
         discipline_content_record:
+          not_editable_in_batch: "A nova aula selecionada já existe e não pode ser editada em lote. No entanto, você pode duplicar este registro para uma aula ainda não registrada. Aula selecionada já existente: %{lesson_number}"
           attributes:
             discipline_id:
               discipline_in_use: "já existe um registro de conteúdo para a disciplina informada"
