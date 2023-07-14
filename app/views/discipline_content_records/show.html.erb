@@ -29,7 +29,7 @@
 
         <% if @allow_class_number %>
           <div class="col col-sm-4">
-            <%= content_record.input :class_number, as: :select2, multiple: true,
+            <%= f.input :class_number, as: :select2, multiple: true,
                                      elements: number_of_classes_elements(@number_of_classes),
                                      placeholder: 'Selecione uma ou mais aulas',
                                      disabled: action_name == 'new' ? false : true  %>
