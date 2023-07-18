@@ -23,7 +23,7 @@ RSpec.describe Api::V2::ClassroomStudentsController, type: :controller do
         locale: "en"
       }
 
-      expect { xhr :get, :index, params }.to_not raise_error
+      expect { get :index, params: params, xhr: true }.to_not raise_error
 
       json = ActiveSupport::JSON.decode(response.body)
 
@@ -45,7 +45,7 @@ RSpec.describe Api::V2::ClassroomStudentsController, type: :controller do
         frequency_date: 1.business_days.after(frequency_start_at)
       }
 
-      expect { xhr :get, :index, params }.to_not raise_error
+      expect { get :index, params: params, xhr: true }.to_not raise_error
       json = ActiveSupport::JSON.decode(response.body)
 
       expect(json["classroom_students"].first["id"]).

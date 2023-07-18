@@ -1,33 +1,68 @@
+label.checkbox-frequency input[type=checkbox]:checked + i {
+  border-color: #28a745 !important;
+}
+
+label.checkbox-frequency input[type=checkbox]:checked + i::after {
+  color: #28a745;
+}
+
+label.checkbox-frequency input[type=checkbox]:checked:hover + i::after {
+  content: '\f00c' !important;
+}
+
+label.checkbox-frequency input[type=checkbox]:not(:checked) + i {
+  border-color: #dc3545 !important;
+}
+
+label.checkbox-frequency input[type=checkbox]:not(:checked) + i::after {
+  color: #dc3545 !important;
+  content: '\f00d' !important;
+  opacity: 1;
+}
+
+label.checkbox-frequency.partial-absence input[type=checkbox] + i {
+  border-color: #0779fb !important;
+}
+
+label.checkbox-frequency.partial-absence input[type=checkbox] + i::after {
+  color: #0779fb !important;
+}
+
+label.checkbox-frequency.justified input[type=checkbox]:not(:checked) + i {
+  border-color: #0779fb !important;
+}
+
+label.checkbox-frequency.justified input[type=checkbox]:not(:checked) + i::after {
+  color: #0779fb !important;
+  content: 'FJ' !important;
+  font: bold 12px/19px Arial, sans-serif;
+  letter-spacing: -1px;
+}
+
 .collapsed {
   width: 25px;
 }
 
-.checkbox-collapsed {
-  left: 3px;
+.frequency-legend {
+  display: flex;
+  padding: 20px;
+  flex-wrap: wrap;
+  justify-content: right;
+  align-items: center;
+  border-bottom: 1px solid #DDD;
 }
 
-.checkbox-frequency-in-batch {
-  border-color: #28a745 !important;
+.frequency-legend-item {
+  display: flex;
+  margin-left: 10px;
 }
-
-.checkbox-frequency-in-batch::after {
-  color: #28a745 !important;
+.frequency-legend-item .checkbox {
+  display: flex;
+  margin: -2px 5px 0 0;
+  padding: 0;
+  width: 20px;
+  height: 20px;
 }
-
-.half-checked {
-  border-color: #0779fb !important;
-}
-
-.half-checked::after {
-  color: #0779fb !important;
-}
-
-.unchecked {
-  border-color: #dc3545 !important;
-}
-
-.smart-form .checkbox input:not(:checked) + i.unchecked:after {
-  content: '\f00d' !important;
-  opacity: 1;
-  color: #dc3545 !important;
+.frequency-legend-button {
+  margin-left: 15px;
 }

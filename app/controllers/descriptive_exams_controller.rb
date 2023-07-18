@@ -235,9 +235,7 @@ class DescriptiveExamsController < ApplicationController
     end
 
     if @opinion_types.blank?
-      redirect_with_message(t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam'))
-
-      return
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam')) && return
     end
 
     @opinion_type = params.dig('descriptive_exam', 'opinion_type')

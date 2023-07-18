@@ -1,4 +1,4 @@
-class AvaliationRecoveryLowestNote < ActiveRecord::Base
+class AvaliationRecoveryLowestNote < ApplicationRecord
   include Audit
   include Stepable
   include Filterable
@@ -8,7 +8,7 @@ class AvaliationRecoveryLowestNote < ActiveRecord::Base
   audited
   has_associated_audits
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
 
   accepts_nested_attributes_for :recovery_diary_record
 

@@ -52,7 +52,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def create
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
-    @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.assign_attributes(resource_params.to_h)
     @school_term_recovery_diary_record.step_number = @school_term_recovery_diary_record.step.try(:step_number)
     @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
 
@@ -62,7 +62,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list
       render :new
     end
   end
@@ -96,7 +95,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def update
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-    @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.assign_attributes(resource_params.to_h)
     @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
     @school_term_recovery_diary_record.recovery_diary_record.current_user = current_user
 
@@ -114,7 +113,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def destroy
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id])
 
-    @school_term_recovery_diary_record.destroy
+    @school_term_recovery_diary_record.recovery_diary_record.destroy
 
     respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
   end

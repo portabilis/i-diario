@@ -1,4 +1,4 @@
-class CreateContentsContentRecords < ActiveRecord::Migration
+class CreateContentsContentRecords < ActiveRecord::Migration[4.2]
   def change
     create_table :contents_content_records do |t|
       t.integer :content_record_id, null: false, index: true

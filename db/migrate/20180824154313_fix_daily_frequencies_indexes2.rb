@@ -1,4 +1,4 @@
-class FixDailyFrequenciesIndexes2 < ActiveRecord::Migration
+class FixDailyFrequenciesIndexes2 < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

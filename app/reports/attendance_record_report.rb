@@ -54,18 +54,19 @@ class AttendanceRecordReport < BaseReport
     @enrollment_classrooms = enrollment_classrooms_list
     @events = events
     @school_calendar = school_calendar
-    @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
+    @second_teacher_signature = ActiveRecord::Type::Boolean.new.cast(second_teacher_signature)
     @show_legend_hybrid = false
     @show_legend_remote = false
     @exists_legend_hybrid = false
     @exists_legend_remote = false
     @students_frequency_percentage = students_frequencies_percentage
 
-    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
+    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
 
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
     @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
+    @do_not_send_justified_absence = @general_configuration.do_not_send_justified_absence
 
     header
     content
@@ -126,7 +127,7 @@ class AttendanceRecordReport < BaseReport
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
-    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
+    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.map(&:id)).to_a
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
@@ -199,7 +200,13 @@ class AttendanceRecordReport < BaseReport
             end
 
             unless student_frequency.present?
-              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + 1
+              absences = 1
+
+              if @do_not_send_justified_absence && student_frequency.absence_justification_student_id
+                absences = 0
+              end
+
+              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + absences
             end
 
             hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
@@ -348,7 +355,7 @@ class AttendanceRecordReport < BaseReport
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
+      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
 
       if index < sliced_frequencies_and_events.count - 1
         start_new_page

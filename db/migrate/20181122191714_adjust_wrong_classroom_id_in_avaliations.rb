@@ -1,4 +1,4 @@
-class AdjustWrongClassroomIdInAvaliations < ActiveRecord::Migration
+class AdjustWrongClassroomIdInAvaliations < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DO $$

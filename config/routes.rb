@@ -65,7 +65,6 @@ Rails.application.routes.draw do
     resources :students do
       collection do
         get :recovery_lowest_note
-        get :search_api
         get :in_recovery
         get :select2_remote
         get :search_autocomplete
@@ -305,6 +304,7 @@ Rails.application.routes.draw do
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple
+        get :form
         put :create_or_update_multiple
         delete :destroy_multiple
       end
@@ -313,6 +313,7 @@ Rails.application.routes.draw do
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
         get :history_multiple
+        get :form
         put :create_or_update_multiple
         delete :destroy_multiple
       end
@@ -320,7 +321,7 @@ Rails.application.routes.draw do
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history
-    resources :observation_diary_records, except: :show, concerns: :history
+    resources :observation_diary_records, concerns: :history
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage

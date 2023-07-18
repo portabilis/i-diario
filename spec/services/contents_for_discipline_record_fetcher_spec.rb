@@ -8,15 +8,22 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
   let(:classroom) {
     create(
       :classroom,
-      :with_teacher_discipline_classroom,
-      :with_classroom_semester_steps,
-      discipline: discipline,
-      teacher: teacher
+      :with_classroom_semester_steps
     )
   }
-  let!(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:teacher_discipline_classroom) {
+    create(
+      :teacher_discipline_classroom,
+      discipline: discipline,
+      teacher: teacher,
+      classroom: classroom,
+      grade: classrooms_grade.grade
+    )
+  }
 
   before do
+    teacher_discipline_classroom
     allow_any_instance_of(TeachingPlan).to receive(:yearly?).and_return(true)
   end
 

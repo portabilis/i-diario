@@ -1,13 +1,15 @@
 class ConceptualExamValueCreator
-  def self.create_empty_by(classroom_id, teacher_id)
-    new(classroom_id, teacher_id).create_empty
+  def self.create_empty_by(classroom_id, teacher_id, grade_id, discipline_id)
+    new(classroom_id, teacher_id, grade_id, discipline_id).create_empty
   end
 
-  def initialize(classroom_id, teacher_id)
-    raise ArgumentError if classroom_id.blank? || teacher_id.blank?
+  def initialize(classroom_id, teacher_id, grade_id, discipline_id)
+    raise ArgumentError if classroom_id.blank? || teacher_id.blank? || grade_id.blank? || discipline_id.blank?
 
     @classroom_id = classroom_id
     @teacher_id = teacher_id
+    @discipline_id = discipline_id
+    @grade_id = grade_id
   end
 
   def create_empty
@@ -23,7 +25,7 @@ class ConceptualExamValueCreator
           exempted_discipline: false
         ).find_or_create_by!(
           conceptual_exam_id: record.conceptual_exam_id,
-          discipline_id: record.discipline_id,
+          discipline_id: record.discipline_id
         )
       rescue ActiveRecord::RecordNotUnique
         retry
@@ -33,13 +35,15 @@ class ConceptualExamValueCreator
 
   private
 
-  attr_accessor :teacher_id, :classroom_id
+  attr_accessor :teacher_id, :classroom_id, :grade_id, :discipline_id
 
   def conceptual_exam_values_to_create
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
                               .joins(join_conceptual_exam_value)
                               .by_teacher_id(teacher_id)
                               .by_classroom(classroom_id)
+                              .by_discipline_id(discipline_id)
+                              .by_grade_id(grade_id)
                               .where(conceptual_exams: { classroom_id: classroom_id })
                               .where(conceptual_exam_values: { id: nil })
                               .select(

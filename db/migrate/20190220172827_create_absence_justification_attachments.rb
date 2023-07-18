@@ -1,4 +1,4 @@
-class CreateAbsenceJustificationAttachments < ActiveRecord::Migration
+class CreateAbsenceJustificationAttachments < ActiveRecord::Migration[4.2]
   def change
     create_table :absence_justification_attachments do |t|
       t.references :absence_justification,

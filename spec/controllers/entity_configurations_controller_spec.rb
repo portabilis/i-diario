@@ -56,18 +56,18 @@ RSpec.describe EntityConfigurationsController, type: :controller do
   describe 'PUT #update' do
     it 'does not update and returns error when params are wrong' do
       params[:entity_configuration][:address_attributes][:id] = 0
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response).to have_http_status(302)
     end
 
     it 'redirects to entity config edit page when params are correct' do
-      put :update, params
+      put :update, params: params
       expect(response).to redirect_to /#{edit_entity_configurations_path}/
     end
 
     it 'updates value when params are correct' do
       params[:entity_configuration][:entity_name] = 'new name'
-      put :update, params.merge(params)
+      put :update, params: params.merge(params)
       expect(response).to redirect_to /#{edit_entity_configurations_path}/
       expect(EntityConfiguration.current).to have_attributes(entity_name: 'new name')
     end

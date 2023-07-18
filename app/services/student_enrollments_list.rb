@@ -19,6 +19,7 @@ class StudentEnrollmentsList
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
     @include_date_range = params.fetch(:include_date_range, false)
     @period = params.fetch(:period, nil)
+    @status_attending = params.fetch(:status_attending, false)
     ensure_has_valid_params
 
     if search_type == :by_year && params[:year].blank?
@@ -57,6 +58,8 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = order_by_name(students_enrollment_classrooms)
 
+    students_enrollment_classrooms = enrollment_classrooms_by_status(students_enrollment_classrooms) unless show_inactive
+
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
     students_enrollment_classrooms.map do |student_enrollment_classroom|
@@ -77,7 +80,7 @@ class StudentEnrollmentsList
 
   attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
                 :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
-                :include_date_range, :period, :grade
+                :include_date_range, :period, :grade, :status_attending
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -96,6 +99,8 @@ class StudentEnrollmentsList
                                               .includes(:dependences)
                                               .includes(:student_enrollment_classrooms)
                                               .active
+
+    students_enrollments = students_enrollments.status_attending if status_attending
 
     students_enrollments = students_enrollments.by_grade(grade) if grade
 
@@ -140,6 +145,10 @@ class StudentEnrollmentsList
       end
     end
     unique_student_enrollments.uniq
+  end
+
+  def enrollment_classrooms_by_status(enrollment_classrooms)
+    enrollment_classrooms.status_attending if show_inactive_outside_step
   end
 
   def student_active?(student_enrollment)

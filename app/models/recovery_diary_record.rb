@@ -21,16 +21,16 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
-  has_one :school_term_recovery_diary_record
-  has_one :final_recovery_diary_record
-  has_one :avaliation_recovery_diary_record
-  has_one :avaliation_recovery_lowest_note
+  has_one :school_term_recovery_diary_record, dependent: :destroy
+  has_one :final_recovery_diary_record, dependent: :destroy
+  has_one :avaliation_recovery_diary_record, dependent: :destroy
+  has_one :avaliation_recovery_lowest_note, dependent: :destroy
 
   scope :by_teacher_id,
         lambda { |teacher_id|
           joins(discipline: :teacher_discipline_classrooms)
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
-            .uniq
+            .distinct
         }
 
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }

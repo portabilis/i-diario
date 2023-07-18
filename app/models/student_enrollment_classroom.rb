@@ -26,9 +26,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
+  scope :by_date_not_after, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grade).where(classrooms_grades: { grade_id: grade_id }) }
+  scope :by_classroom_grade, ->(classrooms_grade_id) { where(classrooms_grades: classrooms_grade_id) }
   scope :by_student, ->(student_id) { joins(student_enrollment: :student).where(students: { id: student_id }) }
   scope :by_student_enrollment, ->(student_enrollment_id) { where(student_enrollment_id: student_enrollment_id) }
   scope :active, lambda {
@@ -36,7 +38,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   }
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
-
+  scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
   delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)

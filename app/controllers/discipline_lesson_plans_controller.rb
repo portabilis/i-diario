@@ -5,6 +5,7 @@ class DisciplineLessonPlansController < ApplicationController
   before_action :require_current_classroom, only: [:new, :edit, :create, :update]
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
+  before_action :require_allows_copy_experience_fields_in_lesson_plans, only: [:new, :edit]
 
   def index
     params[:filter] ||= {}
@@ -78,6 +79,18 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.objective_ids = objective_ids
     @discipline_lesson_plan.lesson_plan.teacher = current_teacher
     @discipline_lesson_plan.teacher_id = current_teacher_id
+    @discipline_lesson_plan.lesson_plan.activities = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:activities], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.resources = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:resources], tags: ['b','br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u', 'p']
+    )
 
     authorize @discipline_lesson_plan
 
@@ -100,6 +113,18 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.content_ids = content_ids
     @discipline_lesson_plan.lesson_plan.objective_ids = objective_ids
     @discipline_lesson_plan.teacher_id = current_teacher_id
+    @discipline_lesson_plan.lesson_plan.activities = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:activities], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.resources = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:resources], tags: ['b','br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u', 'p']
+    )
 
     authorize @discipline_lesson_plan
 
@@ -284,5 +309,9 @@ class DisciplineLessonPlansController < ApplicationController
   def fetch_disciplines
     Discipline.where(id: current_user_discipline)
       .ordered
+  end
+
+  def require_allows_copy_experience_fields_in_lesson_plans
+    @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
   end
 end
