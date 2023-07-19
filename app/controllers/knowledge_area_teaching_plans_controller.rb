@@ -151,6 +151,14 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     respond_with @knowledge_area_teaching_plan
   end
 
+  def copy
+    redirect_to :knowledge_area_teaching_plans
+  end
+
+  def do_copy
+    redirect_to :knowledge_area_teaching_plans
+  end
+
   private
 
   def content_ids
