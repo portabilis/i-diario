@@ -1,10 +1,10 @@
 if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
   redis_config = {
     servers: [{
-      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_CACHE]}",
+      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SESSION]}",
       role: "master",
-      sentinels: Rails.application.secrets[:REDIS_SENTINEL],
-      namespace: "sessions"
+      sentinels: Rails.application.secrets[:REDIS_SENTINELS],
+      namespace: "sessions",
       expire_after: 2.days
     }],
   }

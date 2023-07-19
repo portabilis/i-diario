@@ -55,7 +55,7 @@ Rails.application.configure do
     config.cache_store = :redis_store, {
       url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_CACHE]}",
       role: "master",
-      sentinels: Rails.application.secrets[:REDIS_SENTINEL],
+      sentinels: Rails.application.secrets[:REDIS_SENTINELS],
       namespace: "cache",
       expires_in: 1.days
     }
