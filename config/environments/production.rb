@@ -102,8 +102,3 @@ Rails.application.configure do
     Rails.application.secrets[:trusted_proxies]&.split || []
   ).map { |proxy| IPAddr.new(proxy) }
 end
-
-
-
-
-sentinels: ENV.fetch("REDIS_SENTINEL_HOSTS", ""),
