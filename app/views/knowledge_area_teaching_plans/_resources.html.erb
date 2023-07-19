@@ -43,6 +43,13 @@
                 class: 'btn btn-info apply_tooltip',
                 target: '_blank',
                 data: { original_title: t('views.index.tooltips.print') }) %>
+          <% if current_user.can_change?(:copy_knowledge_area_teaching_plan) %>
+            <%= link_to(
+                  t('helpers.links.copy_html'),
+                  copy_knowledge_area_teaching_plans_path(knowledge_area_teaching_plan),
+                  class: 'btn btn-info apply_tooltip',
+                  data: { original_title: t('views.index.tooltips.copy') }) %>
+          <% end %>
           <%= link_to(
                 t('helpers.links.edit_html'),
                 edit_knowledge_area_teaching_plan_path(knowledge_area_teaching_plan),
