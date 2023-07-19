@@ -51,11 +51,13 @@ Rails.application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production.
+  config.cache_store = :dalli_store, Rails.application.secrets[:cache_store_url]
+
   if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
     config.cache_store = :redis_store, {
       url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_CACHE]}",
       role: "master",
-      sentinels: Rails.application.secrets[:REDIS_SENTINELS],
+      sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host,  port: 26379 }},
       namespace: "cache",
       expires_in: 1.days
     }
@@ -100,3 +102,8 @@ Rails.application.configure do
     Rails.application.secrets[:trusted_proxies]&.split || []
   ).map { |proxy| IPAddr.new(proxy) }
 end
+
+
+
+
+sentinels: ENV.fetch("REDIS_SENTINEL_HOSTS", ""),

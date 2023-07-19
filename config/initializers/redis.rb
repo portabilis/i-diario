@@ -1,5 +1,15 @@
-$REDIS_DB = if Rails.application.secrets[:redis_url]
-              Redis.new(url: Rails.application.secrets[:redis_url])
-            else
-              Redis.new
-            end
+config_redis = {
+    url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}",
+    role: "master",
+    sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host,  port: 26379 }}
+  }
+
+$REDIS_DB = Redis.new(config_redis)
+
+Sidekiq.configure_server do |config|
+    config.redis = config_redis
+end
+
+Sidekiq.configure_client do |config|
+    config.redis = config_redis
+end

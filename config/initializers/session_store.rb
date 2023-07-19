@@ -3,7 +3,7 @@ if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
     servers: [{
       url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SESSION]}",
       role: "master",
-      sentinels: Rails.application.secrets[:REDIS_SENTINELS],
+      sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host,  port: 26379 }},
       namespace: "sessions",
       expire_after: 2.days
     }],
@@ -17,5 +17,3 @@ else
     secure: false
   }
 end
-
-Educacao::Application.config.session_store :redis_store, redis_config
