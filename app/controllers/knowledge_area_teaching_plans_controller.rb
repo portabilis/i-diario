@@ -152,7 +152,18 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def copy
-    redirect_to :knowledge_area_teaching_plans
+    unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
+      flash[:error] = t('knowledge_area_teaching_plans.do.permission')
+      return redirect_to :knowledge_area_teaching_plans
+    end
+
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
+    @copy_knowledge_area_teaching_plan = CopyKnowledgeAreaTeachingPlanForm.new(
+      knowledge_area_teaching_plan: @knowledge_area_teaching_plan,
+      teaching_plan: @knowledge_area_teaching_plan.teaching_plan
+    )
+
+    fetch_collections
   end
 
   def do_copy
