@@ -51,13 +51,21 @@ Rails.application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production.
-  config.cache_store = :redis_store, {
-    url: "redis://mymaster/6",
-    role: "master",
-    sentinels: Rails.application.secrets[:redis_hosts].split(";").map { |host| { host: host,  port: 26379 } },
-    namespace: "cache",
-    expires_in: 1.days
-  }
+  if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
+    config.cache_store = :redis_store, {
+      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_CACHE]}",
+      role: "master",
+      sentinels: Rails.application.secrets[:REDIS_SENTINEL],
+      namespace: "cache",
+      expires_in: 1.days
+    }
+  else
+    config.cache_store = :redis_store, {
+      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_CACHE]}",
+      namespace: "cache",
+      expires_in: 1.days
+    }
+  end
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = "http://assets.example.com"

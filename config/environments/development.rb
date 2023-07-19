@@ -44,8 +44,6 @@ Rails.application.configure do
 
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.cache_store = :redis_store, "#{Rails.application.secrets[:redis_url]}/cache", { expires_in: 90.minutes }
-
   # Bullet configuration
   config.after_initialize do
     Bullet.enable = true
