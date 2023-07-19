@@ -8,7 +8,7 @@ else
   config_redis = {
     url: Rails.application.secrets[:REDIS_URL]
   }
-}
+end
 
 $REDIS_DB = Redis.new(config_redis)
 
