@@ -1,0 +1,4 @@
+pt-BR:
+  copy_knowledge_area_teaching_plan_worker:
+    title: 'Plano de ensino copiado com sucesso'
+    description: 'O plano de ensino foi copiado com sucesso para as escolas e séries selecionadas.'
