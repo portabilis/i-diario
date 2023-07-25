@@ -34,7 +34,7 @@
             <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
                   classroom_id: @descriptive_exam.classroom_id %>
           <% else %>
-            <%= f.input :discipline_id, as: :select2, elements: @discipline, user: current_user,
+            <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user,
                         classroom_id: @descriptive_exam.classroom_id %>
           <% end %>
         </div>
