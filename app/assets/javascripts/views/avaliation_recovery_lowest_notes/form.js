@@ -245,6 +245,10 @@ $(function () {
     }
   });
 
+  $discipline.on('change', function () {
+    $recorded_at.val(null).trigger('change');
+  });
+
   async function getStep() {
     let classroom_id = $classroom.select2('val');
 
@@ -261,9 +265,9 @@ $(function () {
   }
 
   function handleFetchStepByClassroomSuccess(data) {
-    var first_step = data[0];
-
-    $step.select2('val', first_step);
+    let steps = data[0]
+    // Define a primeira opção como selecionada por padrão
+    $step.val(steps.id).trigger('change');
   };
 
   function handleFetchStepByClassroomError() {
