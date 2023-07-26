@@ -312,6 +312,7 @@ Rails.application.routes.draw do
       collection do
         get :find
         get :opinion_types
+        get :find_step_number_by_classroom
       end
     end
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
