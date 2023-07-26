@@ -10,6 +10,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   def index
     step_id = (params[:filter] || []).delete(:by_step_id)
     set_options_by_user
+
     @lowest_note_recoverys = apply_scopes(AvaliationRecoveryLowestNote)
                                             .includes(
                                               recovery_diary_record: [
@@ -38,8 +39,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     @lowest_note_recovery = AvaliationRecoveryLowestNote.new.localized
     @lowest_note_recovery.build_recovery_diary_record(
-      classroom_id: @classrooms.map(&:id),
-      discipline_id: @disciplines.map(&:id)
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
     )
     @lowest_note_recovery.recovery_diary_record.unity = current_unity
     @students_lowest_note = StudentNotesInStepFetcher.new
