@@ -25,7 +25,7 @@ class DailyFrequenciesController < ApplicationController
         classroom_id: params[:classroom_id],
         frequency_date: params[:frequency_date],
         discipline_id: params[:discipline_id],
-        period: params[:period],
+        period: params[:period]
       },
       class_numbers: params[:class_numbers].split(',').sort
     )
@@ -93,12 +93,12 @@ class DailyFrequenciesController < ApplicationController
     active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
     absence_justifications = AbsenceJustifiedOnDate.call(
-                                                      students: student_ids,
-                                                      date: frequency_date,
-                                                      end_date: frequency_date,
-                                                      classroom: @daily_frequency.classroom_id,
-                                                      period: @period
-                                                    )
+      students: student_ids,
+      date: frequency_date,
+      end_date: frequency_date,
+      classroom: @daily_frequency.classroom_id,
+      period: @period
+    )
 
     fetch_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
@@ -115,21 +115,23 @@ class DailyFrequenciesController < ApplicationController
       @dependence_students ||= has_dependence
       @any_inactive_student ||= !activated_student
 
-      if activated_student || show_inactive_enrollments
-        @students_list << student
-        @students << {
-          student: student,
-          dependence: has_dependence,
-          active: activated_student,
-          exempted_from_discipline: has_exempted,
-          in_active_search: in_active_search,
-          absence_justification: absence_justification,
-          sequence: sequence
-        }
-      end
+      next unless activated_student || show_inactive_enrollments
+
+      @students_list << student
+      @students << {
+        student: student,
+        dependence: has_dependence,
+        active: activated_student,
+        exempted_from_discipline: has_exempted,
+        in_active_search: in_active_search,
+        absence_justification: absence_justification,
+        sequence: sequence
+      }
     end
 
-    if @students.blank?
+    all_inactive = @students.all? { |element| element[:active] == false }
+
+    if @students.blank? || all_inactive
       flash.now[:warning] = t('.warning_no_students')
 
       render :new
@@ -140,9 +142,7 @@ class DailyFrequenciesController < ApplicationController
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
-    if show_inactive_enrollments
-      @students = @students.sort_by { |student| student[:sequence] }
-    end
+    @students = @students.sort_by { |student| student[:sequence] } if show_inactive_enrollments
   end
 
   def create_or_update_multiple
@@ -180,27 +180,27 @@ class DailyFrequenciesController < ApplicationController
           )
 
           daily_frequency_students_params[:students_attributes].each_value do |daily_frequency_student|
-            if daily_frequency_student[:absence_justification_student_id].to_i.eql?(-1)
-              params = {
-                student_ids: [daily_frequency_student[:student_id]],
-                absence_date: daily_frequency_attributes[:frequency_date],
-                justification: nil,
-                absence_date_end: daily_frequency_attributes[:frequency_date],
-                unity_id: daily_frequency_attributes[:unity_id],
-                classroom_id: daily_frequency_attributes[:classroom_id],
-                class_number: daily_frequency_students_params[:class_number],
-              }
+            next unless daily_frequency_student[:absence_justification_student_id].to_i.eql?(-1)
 
-              absence_justification = AbsenceJustification.new(params)
-              absence_justification.teacher = current_teacher
-              absence_justification.user = current_user
-              absence_justification.school_calendar = current_school_calendar
-              absence_justification.period = daily_frequency_attributes[:period]
+            params = {
+              student_ids: [daily_frequency_student[:student_id]],
+              absence_date: daily_frequency_attributes[:frequency_date],
+              justification: nil,
+              absence_date_end: daily_frequency_attributes[:frequency_date],
+              unity_id: daily_frequency_attributes[:unity_id],
+              classroom_id: daily_frequency_attributes[:classroom_id],
+              class_number: daily_frequency_students_params[:class_number]
+            }
 
-              absence_justification.save
+            absence_justification = AbsenceJustification.new(params)
+            absence_justification.teacher = current_teacher
+            absence_justification.user = current_user
+            absence_justification.school_calendar = current_school_calendar
+            absence_justification.period = daily_frequency_attributes[:period]
 
-              daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
-            end
+            absence_justification.save
+
+            daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
 
           daily_frequency_record.assign_attributes(daily_frequency_students_params)

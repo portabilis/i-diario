@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   postgres:
-    image: postgres:12-alpine
+    image: postgres:alpine
     container_name: postgres-idiario
     ports:
       - 5432
@@ -14,7 +14,7 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
-    image: redis:4.0-alpine
+    image: redis:alpine
     container_name: redis-idiario
     ports:
       - 6379

@@ -76,6 +76,7 @@ pt-BR:
     lessons_boards: "Quadro de aulas"
     daily_frequencies_in_batchs: "Frequência em lote"
     copy_discipline_teaching_plan: "Copiar planos de ensino por disciplina"
+    copy_knowledge_area_teaching_plan: "Copiar planos de ensino por área de conhecimento"
 
   enumerations:
     features:

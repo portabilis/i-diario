@@ -95,7 +95,12 @@ class AbsenceJustificationsController < ApplicationController
 
     # Se vier da tela de lançamento de frequência em lote, redireciona para ela
     if valid && parameters[:start_date] && parameters[:end_date]
-      redirect_to form_daily_frequencies_in_batchs_path(start_date: parameters[:start_date], end_date: parameters[:end_date])
+      redirect_to form_daily_frequencies_in_batchs_path(
+        frequency_in_batch_form: {
+          start_date: parameters[:start_date],
+          end_date: parameters[:end_date]
+        }
+      )
     # Se vier da tela de lançamento de diário de frequência
     elsif valid && parameters[:frequency_date]
       redirect_to form_daily_frequencies_path(

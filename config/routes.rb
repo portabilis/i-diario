@@ -187,6 +187,11 @@ Rails.application.routes.draw do
         get :set_knowledge_areas_by_classroom
       end
     end
+    resources :knowledge_area_teaching_plans, concerns: :history
+
+    get '/knowledge_area_teaching_plans/:id/copy', as: :copy_knowledge_area_teaching_plans, to: 'knowledge_area_teaching_plans#copy'
+    post '/knowledge_area_teaching_plans/:id/copy', as: :copy_knowledge_area_teaching_plans, to: 'knowledge_area_teaching_plans#do_copy'
+
     resources :learning_objectives_and_skills, concerns: :history do
       collection do
         get :contents
