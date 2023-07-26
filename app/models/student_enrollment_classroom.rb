@@ -79,11 +79,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
       (
         not exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id)
         OR exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id
-        and student_enrollment_dependences.discipline_id = discipline_id)
+        and student_enrollment_dependences.discipline_id = :discipline_id)
       )
     SQL
 
-    where(conditions, discipline_id)
+    where(conditions, discipline_id: discipline_id)
   end
 
   def self.by_score_type_query(score_type, classroom_id)
