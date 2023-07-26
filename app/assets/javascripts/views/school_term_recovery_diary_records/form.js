@@ -12,23 +12,23 @@ $(function () {
 
   $classroom.on('change', async function () {
     var classroom_id = $classroom.select2('val');
-    let discipline_id = $discipline.val();
-    let step_id = $step.val();
-    let date = $recorded_at.val();
 
     if (!_.isEmpty(classroom_id)) {
       await getStep(classroom_id);
       await getNumberOfDecimalPlaces(classroom_id);
       await fetchDisciplines(classroom_id);
 
-      if (discipline_id && step_id && date) {
-        checkPersistedDailyNote();
-      }
+      $recorded_at.val(null).trigger('change');
     } else {
       $discipline.select2({ data: [] }).trigger('change');
       $step.select2({ data: [] }).trigger('change');
     }
   });
+
+  $discipline.on('change', async function () {
+    $recorded_at.val(null).trigger('change');
+  });
+
 
   async function getStep(classroom_id) {
     return $.ajax({
@@ -108,12 +108,14 @@ $(function () {
   }
 
   function handleFetchExamRuleSuccess(data) {
-    examRule = data.exam_rule;
+    if (!$.isEmptyObject(data)) {
+      examRule = data.exam_rule;
 
-    if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
-      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
-    } else {
-      flashMessages.pop('');
+      if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
+        flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
+      } else {
+        flashMessages.pop('');
+      }
     }
   }
 
