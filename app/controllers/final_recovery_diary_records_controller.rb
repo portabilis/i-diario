@@ -189,7 +189,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def number_of_decimal_places
-    classroom = @final_recovery_diary_record.school_calendar.steps.to_a.last
+    classroom = current_user_classroom
     schoool_calendar = @final_recovery_diary_record.school_calendar.steps.to_a.last
     test_setting = test_setting(classroom, schoool_calendar)
 
