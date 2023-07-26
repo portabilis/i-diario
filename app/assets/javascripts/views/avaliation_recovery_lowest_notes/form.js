@@ -240,6 +240,7 @@ $(function () {
         $discipline.select2({
           data: selectedDisciplines
         });
+        $recorded_at.val(null).trigger('change');
       });
     }
   });
