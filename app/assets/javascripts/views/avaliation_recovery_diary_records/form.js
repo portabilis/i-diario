@@ -61,7 +61,7 @@ $(function () {
     });
 
     $avaliation.select2({ data: selectedAvaliations });
-    console.log(data)
+    $avaliation.val(selectedAvaliations[0].id).trigger('change');
     flashMessages.success('Avaliação selecionada com sucesso.');
   };
 
@@ -239,12 +239,20 @@ $(function () {
   $classroom.on('change', function () {
     showNoItemMessage();
     fetchDisciplines();
+
     $avaliation.prop('readonly', true);
+    $recorded_at.val(null).trigger('change');
   });
 
   $discipline.on('change', function () {
     fetchAvaliations();
+
+    if (_.isEmpty($avaliation.val())) {
+      flashMessages.error('A turma selecionada não está configurada para utilizar este recurso.');
+    }
+
     $avaliation.prop('readonly', false);
+    $recorded_at.val(null).trigger('change');
   });
 
   $avaliation.on('change', function () {
