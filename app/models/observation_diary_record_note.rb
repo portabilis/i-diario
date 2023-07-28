@@ -16,6 +16,8 @@ class ObservationDiaryRecordNote < ActiveRecord::Base
 
   default_scope -> { kept }
 
+  scope :by_student_id, -> student_id { joins(:students).where(students: { id: student_id }) }
+
   validates :observation_diary_record, presence: true
   validates :description, presence: true
 

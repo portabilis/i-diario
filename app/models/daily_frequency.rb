@@ -13,9 +13,8 @@ class DailyFrequency < ActiveRecord::Base
     if valid_for_destruction?
       Student.unscoped do
         DailyFrequencyStudent.with_discarded
-                             .joins(:student)
                              .by_daily_frequency_id(id)
-                             .delete_all
+                             .destroy_all
       end
     end
   end
@@ -38,7 +37,7 @@ class DailyFrequency < ActiveRecord::Base
   validates :unity, :classroom, :school_calendar, :period, presence: true
   validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
-  validate :frequency_date_must_be_less_than_or_equal_to_today
+  # validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :frequency_must_be_global_or_discipline
   validate :ensure_belongs_to_step
 
@@ -64,15 +63,17 @@ class DailyFrequency < ActiveRecord::Base
             .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
             .uniq
         }
-
+  scope :by_owner_teacher_id, lambda { |teacher_id| where(owner_teacher_id: teacher_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_period, ->(period) { where(period: period) }
+  scope :by_period_or_by_teacher, ->(period, teacher) { where('period = ? OR owner_teacher_id = ?', period, teacher) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_frequency_date, lambda { |frequency_date| where(frequency_date: frequency_date.to_date) }
   scope :by_frequency_date_between, lambda { |start_at, end_at| where(frequency_date: start_at.to_date..end_at.to_date) }
   scope :by_class_number, lambda { |class_number| where(class_number: class_number) }
   scope :by_school_calendar_id, ->(school_calendar_id) { where(school_calendar_id: school_calendar_id) }
+  scope :by_not_poster, ->(poster_sent) { joins(:students).where("daily_frequency_students.updated_at > ?", poster_sent) }
   scope :general_frequency, lambda { where(discipline_id: nil, class_number: nil) }
   scope :has_frequency_for_student, lambda{ |student_id| joins(:students).merge(DailyFrequencyStudent.by_student_id(student_id)) }
   scope :order_by_student_name, -> { order('students.name') }

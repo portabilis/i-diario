@@ -1,7 +1,7 @@
 pt-BR:
   errors:
     general:
-      error: "Ocorreu um erro e os responsáveis já foram notificados. Tente novamente mais tarde"
+      error: "Ops! Ocorreu um erro. Tente recarregar a página e, se o problema persistir, entre em contato com a gestão da sua Escola ou a Secretaria de Educação do seu município para que o problema seja reportado ao Suporte."
       require_current_year: 'É necessário vincular um ano ao perfil atual para acessar esse cadastro'
       require_current_classroom: "É necessário vincular uma turma ao perfil atual para acessar esse cadastro"
       require_current_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

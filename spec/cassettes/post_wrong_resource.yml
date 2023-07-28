@@ -92,10 +92,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAzWNPQrDMAyFryK0eMkQ6FDIJXKAtgSRiBKoLSPZQwi5exS3
-        XYTex/vZUTIrDpjFCnaobFJ1ZiesSos4i/Y2HB779TgfPUDP2vd8b/cmEK50
-        gPTXa8wfjpwKLQSZlEBAea5q7v32Bi8uW/4NieLx6pDSNjU1tamilY8TwL4i
-        taIAAAA=
+        H4sIAAAAAAAAAzWNPQrDMAyFryK0eMkQ6FDIJXKAtgSRiBKoLSPZQwi5exS3XYTex/vZUTIrDpjFCnaobFJ1ZiesSos4i/Y2HB779TgfPUDP2vd8b/cmEK50gPTXa8wfjpwKLQSZlEBAea5q7v32Bi8uW/4NieLx6pDSNjU1tamilY8TwL4itaIAAAA=
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:18:00 GMT
 - request:
@@ -145,10 +142,62 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAzWNPQrDMAyFryK0eMkQ6FDIJXKAtgSRiBKoLSPZQwi5exS3
-        XYTex/vZUTIrDpjFCnaobFJ1ZiesSos4i/Y2HB779TgfPUDP2vd8b/cmEK50
-        gPTXa8wfjpwKLQSZlEBAea5q7v32Bi8uW/4NieLx6pDSNjU1tamilY8TwL4i
-        taIAAAA=
+        H4sIAAAAAAAAAzWNPQrDMAyFryK0eMkQ6FDIJXKAtgSRiBKoLSPZQwi5exS3XYTex/vZUTIrDpjFCnaobFJ1ZiesSos4i/Y2HB779TgfPUDP2vd8b/cmEK50gPTXa8wfjpwKLQSZlEBAea5q7v32Bi8uW/4NieLx6pDSNjU1tamilY8TwL4itaIAAAA=
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:30:07 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=errado&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '25'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 25 Jun 2022 05:16:51 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=6x3fbGKTAEIPzS4PX0TyK4jJgnsd1gzU7OPKYRZy; expires=Sat, 25-Jun-2022
+        07:16:51 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAy2MwQqDMBBEfyXdswd79epntEUWM6jQZsNuIojk302Dt5nHmzlJIpQGimKJOlKYZJ1RCVTZS2U/W4yG1/kPlY8r73AejmeYidvC/s59j+d38/yofjrivRel8umIwzG1NrWHpBnlAmuchap5AAAA
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:01:01 GMT
 recorded_with: VCR 3.0.0

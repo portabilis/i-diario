@@ -42,68 +42,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        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
+        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
     http_version: 
   recorded_at: Fri, 12 Sep 2014 14:29:46 GMT
 - request:
@@ -189,9 +128,130 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAx2MwQqDMBBEfyXdcwr26tXP0CKLGWxAs7KbCCL+e6O3mXnD
-        O0k2KLU0I5MnhUnRCXXIEsTevJQkVslqs1Hbn3eotPvxDhfgeIKZuJj2oTQN
-        PksM/Kr/fGy3BaqidH09cTrGp42PIWvB9QctYurwfgAAAA==
+        H4sIAAAAAAAAAx2MwQqDMBBEfyXdcwr26tXP0CKLGWxAs7KbCCL+e6O3mXnDO0k2KLU0I5MnhUnRCXXIEsTevJQkVslqs1Hbn3eotPvxDhfgeIKZuJj2oTQNPksM/Kr/fGy3BaqidH09cTrGp42PIWvB9QctYurwfgAAAA==
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:06:34 GMT
+- request:
+    method: get
+    uri: http://botucat.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - botucat.ieducar.com.br
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 25 Jun 2022 06:10:27 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Connection:
+      - keep-alive
+      Location:
+      - https://botucat.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC/module/Api/Aluno&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1&resource=todos-alunos&modified&oper=get
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body>\r\n<center><h1>301
+        Moved Permanently</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:00:46 GMT
+- request:
+    method: get
+    uri: http://botucat.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - botucat.ieducar.com.br
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 25 Jun 2022 06:17:20 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Connection:
+      - keep-alive
+      Location:
+      - https://botucat.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC/module/Api/Aluno&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1&resource=todos-alunos&modified&oper=get
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body>\r\n<center><h1>301
+        Moved Permanently</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:02:36 GMT
+- request:
+    method: get
+    uri: https://botucat.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - botucat.ieducar.com.br
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 25 Jun 2022 06:17:21 GMT
+      Content-Type:
+      - text/html; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:02:37 GMT
 recorded_with: VCR 3.0.0

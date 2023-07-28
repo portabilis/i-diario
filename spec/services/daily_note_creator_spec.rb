@@ -1,10 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe DailyNoteCreator, type: :service do
+  before(:each) do
+    SchoolCalendarDayValidator.any_instance.stub(:validate_each).and_return(true)
+  end
+
+  let(:classroom) { create(:classroom, :score_type_numeric) }
   let(:avaliation) {
     create(
       :avaliation,
-      :with_teacher_discipline_classroom
+      :with_teacher_discipline_classroom,
+      classroom: classroom
     )
   }
 
@@ -21,7 +27,7 @@ RSpec.describe DailyNoteCreator, type: :service do
 
     before do
       StudentEnrollmentClassroom.create!(
-        classroom: avaliation.classroom,
+        classrooms_grade: classroom.classrooms_grades.first,
         student_enrollment: student_enrollment,
         joined_at: Date.current.beginning_of_year,
         left_at: ''
@@ -29,6 +35,7 @@ RSpec.describe DailyNoteCreator, type: :service do
     end
 
     it 'create daily note students' do
+      StudentEnrollmentsList.any_instance.stub(:student_enrollments).and_return([student_enrollment])
       creator = described_class.new(
         avaliation_id: avaliation.id
       )

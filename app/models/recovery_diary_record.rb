@@ -21,9 +21,10 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
-  has_one :school_term_recovery_diary_record
-  has_one :final_recovery_diary_record
-  has_one :avaliation_recovery_diary_record
+  has_one :school_term_recovery_diary_record, dependent: :destroy
+  has_one :final_recovery_diary_record, dependent: :destroy
+  has_one :avaliation_recovery_diary_record, dependent: :destroy
+  has_one :avaliation_recovery_lowest_note, dependent: :destroy
 
   scope :by_teacher_id,
         lambda { |teacher_id|
@@ -47,9 +48,11 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   validates :recorded_at, presence: true, school_calendar_day: true, posting_date: true
 
   validate :at_least_one_assigned_student
-  validate :recorded_at_must_be_less_than_or_equal_to_today
+  # validate :recorded_at_must_be_less_than_or_equal_to_today
 
   before_validation :self_assign_to_students
+
+  attr_accessor :creator_type
 
   def school_calendar
     CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.try(:year)).fetch

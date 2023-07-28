@@ -9,11 +9,11 @@ class ExamRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 3
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -23,7 +23,9 @@ class ExamRecordReport < BaseReport
     @students_enrollments = students_enrollments
     @complementary_exams = complementary_exams
     @school_term_recoveries = school_term_recoveries
+    @recovery_lowest_notes = recovery_lowest_notes
     @active_search = false
+    @lowest_notes = lowest_notes
 
     header
     content
@@ -104,17 +106,26 @@ class ExamRecordReport < BaseReport
 
   def daily_notes_table
     averages = {}
+    recovery_lowest_note = {}
     school_term_recovery_scores = {}
     self.any_student_with_dependence = false
 
     @students_enrollments.each do |student_enrollment|
-      averages[student_enrollment.student_id] = StudentAverageCalculator.new(
+      averages[student_enrollment.id] = StudentAverageCalculator.new(
         student_enrollment.student
       ).calculate(
         classroom,
         discipline,
         @school_calendar_step
       )
+
+      if @lowest_notes
+        lowest_note = @lowest_notes[student_enrollment.student_id].to_s
+
+        if lowest_note.present?
+          recovery_lowest_note[student_enrollment.id] = lowest_note
+        end
+      end
     end
 
     exams = []
@@ -131,6 +142,10 @@ class ExamRecordReport < BaseReport
       end
     end
 
+    @school_term_recoveries.each do |school_term_recovery|
+      exams << school_term_recovery
+    end
+
     @complementary_exams.each do |complementary_exam|
       if complementary_exam.complementary_exam_setting.integral?
         integral_complementary_exams << complementary_exam
@@ -138,10 +153,6 @@ class ExamRecordReport < BaseReport
       end
 
       exams << complementary_exam
-    end
-
-    @school_term_recoveries.each do |school_term_recovery|
-      exams << school_term_recovery
     end
 
     integral_complementary_exams.each do |integral_exam|
@@ -181,7 +192,7 @@ class ExamRecordReport < BaseReport
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
-            averages[student_enrollment.student_id] = "D" if exempted_from_discipline
+            averages[student_enrollment.id] = "D" if exempted_from_discipline
           elsif in_active_search
             @active_search = true
 
@@ -194,7 +205,7 @@ class ExamRecordReport < BaseReport
           score = nil
 
           if exempted_from_discipline || avaliation_id.present?
-            averages[student_enrollment.student_id] = nil if exempted_from_discipline
+            averages[student_enrollment.id] = nil if exempted_from_discipline
 
             recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student_id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
@@ -207,19 +218,20 @@ class ExamRecordReport < BaseReport
 
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
 
-            school_term_recovery_scores[student_enrollment.student_id] = recovery_student.try(:score)
+            school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
 
           student = Student.find(student_id)
 
           self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
 
-          (students[student_id] ||= {})[:name] = student.to_s
+          (students[student_enrollment.id] ||= {})[:name] = student.to_s
 
-          students[student_id] = {} if students[student_id].nil?
-          students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
-          (students[student_id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
-          students[student_id][:social_name] = student.social_name
+          students[student_enrollment.id] = {} if students[student_enrollment.id].nil?
+          students[student_enrollment.id][:dependence] = students[student_enrollment.id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
+          (students[student_enrollment.id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
+          students[student_enrollment.id][:social_name] = student.social_name
+          students[student_enrollment.id][:student_id] = student.id
         end
       end
 
@@ -228,6 +240,12 @@ class ExamRecordReport < BaseReport
       average_header = make_cell(content: "Média", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
+
+      if @recovery_lowest_notes
+        lowest_note_header = make_cell(content: "Rec. geral", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
+        first_headers_and_cells << lowest_note_header
+      end
+
       (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 55) }
       first_headers_and_cells << average_header
 
@@ -245,11 +263,17 @@ class ExamRecordReport < BaseReport
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
-        (10 - data_column_count).times { student_cells << nil }
+        if @recovery_lowest_notes
+          student_cells << make_cell(content: "#{recovery_lowest_note[key]}", align: :center)
+        end
+
+        number_colums = 10
+
+        (number_colums - data_column_count).times { student_cells << nil }
 
         if daily_notes_slice == sliced_exams.last
           recovery_score = if school_term_recovery_scores[key]
-                             calculate_recovery_score(key, school_term_recovery_scores[key])
+                             calculate_recovery_score(value[:student_id], school_term_recovery_scores[key])
                            end
 
           recovery_average = SchoolTermAverageCalculator.new(classroom)
@@ -257,7 +281,7 @@ class ExamRecordReport < BaseReport
           averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
                                       .round(recovery_average)
 
-          average = localize_score(averages[key])
+          average = averages[key]
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)

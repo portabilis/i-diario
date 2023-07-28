@@ -64,25 +64,34 @@ module ExamPoster
           )
           teacher_score_fetcher.fetch!
 
-          student_scores = teacher_score_fetcher.scores
+          teacher_recovery_score_fetcher = StudentOnlyWithRecoveryFetcher.new(
+            teacher,
+            classroom,
+            discipline,
+            get_step(classroom)
+          )
+          teacher_recovery_score_fetcher.fetch!
+
+          student_scores = teacher_score_fetcher.scores + teacher_recovery_score_fetcher.scores
 
           student_scores.each do |student_score|
             exam_rule = exam_rule_definer(classroom, student_score)
             next if exempted_discipline(classroom, discipline.id, student_score.id)
             next unless correct_score_type(student_score.uses_differentiated_exam_rule,
                                            exam_rule)
+            next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score)
 
             exempted_discipline_ids =
               ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
 
             next if exempted_discipline_ids.include?(discipline.id)
 
-            school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             if (value = StudentAverageCalculator.new(student_score)
                                                 .calculate(classroom, discipline, get_step(classroom)))
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             end
 
+            school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             next unless school_term_recovery
 
             if (recovery_value = score_rounder.round(school_term_recovery))
@@ -94,6 +103,23 @@ module ExamPoster
       end
 
       scores
+    end
+
+    def exist_complementary_exam?(classroom, discipline, student_score)
+      start_at = get_step(classroom).start_at
+      end_at = get_step(classroom).end_at
+
+      ComplementaryExamStudent.by_complementary_exam_id(
+        ComplementaryExam.by_classroom_id(classroom)
+                         .by_discipline_id(discipline)
+                         .by_date_range(start_at, end_at)
+      ).by_student_id(student_score)
+    end
+
+    def numerical_or_school_term_recovery?(classroom, discipline, student_score)
+      numerical_exam = not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:numerical_exam]
+      school_term_recovery = not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:school_term_recovery]
+      numerical_exam || school_term_recovery
     end
 
     def correct_score_type(differentiated, exam_rule)
@@ -157,5 +183,6 @@ module ExamPoster
 
       false
     end
+
   end
 end

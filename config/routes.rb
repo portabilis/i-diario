@@ -64,9 +64,10 @@ Rails.application.routes.draw do
 
     resources :students do
       collection do
-        get :search_api
+        get :recovery_lowest_note
         get :in_recovery
         get :select2_remote
+        get :search_autocomplete
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end
@@ -225,6 +226,7 @@ Rails.application.routes.draw do
     end
     resources :classrooms, only: [:index, :show] do
       collection do
+        get :by_unity
         get :multi_grade
       end
       resources :students, only: [:index]
@@ -234,10 +236,15 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :search_grouped_by_knowledge_area
+        get :by_classroom
       end
     end
     resources :knowledge_areas, only: [:index]
-    resources :exam_rules, only: [:index]
+    resources :exam_rules, only: [:index] do
+      collection do
+        get :for_school_term_type_recovery
+      end
+    end
     resources :avaliations, concerns: :history do
       collection do
         get :search
@@ -275,6 +282,12 @@ Rails.application.routes.draw do
     end
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
+    resources :avaliation_recovery_lowest_notes, concerns: :history do
+      collection do
+        get :exists_recovery_on_step
+        get :recorded_at_in_selected_step
+      end
+    end
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines
@@ -306,7 +319,7 @@ Rails.application.routes.draw do
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history
-    resources :observation_diary_records, except: :show, concerns: :history
+    resources :observation_diary_records, concerns: :history
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage

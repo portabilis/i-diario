@@ -23,6 +23,7 @@ pt-BR:
     school_term_recovery_diary_records: 'diario-de-recuperacoes-de-etapas'
     final_recovery_diary_records: 'diario-de-recuperacoes-finais'
     avaliation_recovery_diary_records: 'diario-de-recuperacoes-de-avaliacoes'
+    avaliation_recovery_lowest_notes: 'diario-de-recuperacoes-de-avaliacoes-da-menor-nota'
     absence_justifications: 'justificativas-de-falta'
     observation_diary_records: 'diario-de-observacoes'
     conceptual_exams: 'diario-de-avaliacoes-conceituais'
@@ -88,7 +89,6 @@ pt-BR:
     cancel: 'cancelar'
     parents: 'pais'
     employees: 'servidores'
-    search_api: 'api'
     history: 'historico'
     confirm: "confirmar"
     preview: "pre-visualizar"

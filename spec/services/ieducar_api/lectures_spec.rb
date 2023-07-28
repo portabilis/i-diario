@@ -18,7 +18,6 @@ RSpec.describe IeducarApi::Lectures, type: :service do
 
     context 'all lectures' do
       it 'returns all lectures' do
-        skip
 
         VCR.use_cassette('lectures') do
           result = subject.fetch(escola_id: [30])

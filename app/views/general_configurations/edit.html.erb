@@ -34,6 +34,14 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :require_daily_activities_record do %>
+            <%= f.input_field :require_daily_activities_record, collection: RequireDailyActivitiesRecordTypes %>
+            <i></i>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :display_header_on_all_reports_pages, label: false, inline_label: true %>
         </div>
         <div class="col col-sm-6">
@@ -60,6 +68,21 @@
           <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :remove_lesson_plan_objectives, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_inactive_enrollments, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_percentage_on_attendance_record_report, label: false, inline_label: true %>
+        </div>
+      </div>
       <div class="row <%= 'hidden' unless Rails.application.secrets[:STUDENT_DOMAIN] %>">
         <div class="col col-sm-6">
           <%= f.input :create_users_for_students_when_synchronize, label: false, inline_label: true %>
@@ -80,7 +103,7 @@
           <div style="float:right;">
         </div>
         <%= f.input :types_of_teaching, as: :select2, elements: TypesOfTeaching.to_select(false).to_json, multiple: true, required: false,
-            input_html: { value: f.object.types_of_teaching.join(','), data: { without_json_parser: true } }  %>  
+            input_html: { value: f.object.types_of_teaching.join(','), data: { without_json_parser: true } }  %>
         </div>
       </div>
       <div class="row">

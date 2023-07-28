@@ -26,11 +26,11 @@ class AttendanceRecordReportController < ApplicationController
         @attendance_record_report_form.start_at,
         @attendance_record_report_form.end_at,
         @attendance_record_report_form.daily_frequencies,
-        @attendance_record_report_form.students_enrollments,
+        @attendance_record_report_form.enrollment_classrooms_list,
         @attendance_record_report_form.school_calendar_events,
         current_school_calendar,
         @attendance_record_report_form.second_teacher_signature,
-        @attendance_record_report_form.display_knowledge_area_as_discipline
+        @attendance_record_report_form.students_frequencies_percentage
       )
       send_pdf(t('routes.attendance_record'), attendance_record_report.render)
     else
@@ -58,8 +58,7 @@ class AttendanceRecordReportController < ApplicationController
                                                           :end_at,
                                                           :school_calendar_year,
                                                           :current_teacher_id,
-                                                          :second_teacher_signature,
-                                                          :display_knowledge_area_as_discipline)
+                                                          :second_teacher_signature)
   end
 
   def clear_invalid_dates

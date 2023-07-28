@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :complementary_exam do
     discipline
 
-    association :classroom, factory: [:classroom, :with_classroom_semester_steps]
+    association :classroom, factory: [:classroom, :with_classroom_semester_steps, :score_type_numeric]
     association :complementary_exam_setting, factory: [:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom]
     unity { classroom.unity }
 

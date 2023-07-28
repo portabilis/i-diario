@@ -1,0 +1,14 @@
+pt-BR:
+  avaliation_recovery_lowest_notes:
+    index:
+      by_classroom_id: 'Filtrar turma'
+      by_discipline_id: 'Filtrar disciplina'
+      by_step_id: 'Filtrar etapa'
+      by_recorded_at: 'Filtrar data'
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
+
+    form:
+      students: 'Alunos'
+      no_item_found: 'Nenhum aluno'
+      current_lowest_note: 'Menor nota válida'
+      exempted_students_from_discipline_legend: '**** Alunos dispensados da disciplina'

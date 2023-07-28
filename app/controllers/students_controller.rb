@@ -1,5 +1,4 @@
 class StudentsController < ApplicationController
-  skip_before_action :authenticate_user!, only: :search_api
 
   def index
     return render json: nil if params[:classroom_id].blank?
@@ -39,26 +38,43 @@ class StudentsController < ApplicationController
     render json: students
   end
 
-  def search_api
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_by_cpf(params[:document], params[:student_code])
+  def search_autocomplete
+    students = Student.search(params[:q]).ordered
+    structured_students = StudentDecorator.data_for_search_autocomplete(students)
+    render json: structured_students
+  end
 
-      render json: result["alunos"].to_json
-    rescue IeducarApi::Base::ApiError => e
-      render json: e.message, status: "404"
-    end
+  def recovery_lowest_note
+    return render json: nil if params[:classroom_id].blank? || params[:date].blank?
+
+
+    @students = StudentEnrollmentsList.new(
+      classroom: params[:classroom_id],
+      discipline: params[:discipline_id],
+      search_type: :by_date,
+      date: params[:date],
+      score_type: params[:score_type]
+    ).student_enrollments.map(&:student)
+
+
+    render(
+      json: @students,
+      each_serializer: StudentLowestNoteSerializer,
+      discipline: discipline,
+      classroom: classroom,
+      step: step,
+      number_of_decimal_places: test_setting(classroom, step).number_of_decimal_places
+    )
   end
 
   def in_recovery
     @students = StudentsInRecoveryFetcher.new(
-        configuration,
-        params[:classroom_id],
-        params[:discipline_id],
-        params[:step_id],
-        params[:date].to_date.to_s
-      )
-      .fetch
+      configuration,
+      params[:classroom_id],
+      params[:discipline_id],
+      params[:step_id],
+      params[:date].to_date.to_s
+    ).fetch
 
     render(
       json: @students,

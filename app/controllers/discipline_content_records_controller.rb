@@ -47,6 +47,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record.content_record.teacher = current_teacher
     @discipline_content_record.content_record.content_ids = content_ids
     @discipline_content_record.content_record.origin = OriginTypes::WEB
+    @discipline_content_record.content_record.creator_type = 'discipline_content_record'
     @discipline_content_record.content_record.teacher = current_teacher
     @discipline_content_record.teacher_id = current_teacher_id
 

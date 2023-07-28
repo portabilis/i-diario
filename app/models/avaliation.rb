@@ -35,7 +35,6 @@ class Avaliation < ActiveRecord::Base
   validates :classroom,         presence: true
   validates :discipline,        presence: true
   validates :test_date,         presence: true, school_calendar_day: true, posting_date: true
-  validates :classes,           presence: true
   validates :school_calendar,   presence: true
   validates :test_setting,      presence: true
   validates :test_setting_test, presence: true, if: :sum_calculation_type?
@@ -43,7 +42,6 @@ class Avaliation < ActiveRecord::Base
   validates :weight,            presence: true, if: :should_validate_weight?
   validates :grade_ids,         presence: true
 
-  validate :uniqueness_of_avaliation
   validate :unique_test_setting_test_per_step,    if: -> { sum_calculation_type? && !allow_break_up? }
   validate :test_setting_test_weight_available,   if: :allow_break_up?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
@@ -63,7 +61,6 @@ class Avaliation < ActiveRecord::Base
   scope :exclude_discipline_ids, lambda { |discipline_ids| where.not(discipline_id: discipline_ids) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date.try(:to_date)) }
   scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
-  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
   scope :by_description, lambda { |description| joins(arel_table.join(TestSettingTest.arel_table, Arel::Nodes::OuterJoin)
                                                                 .on(TestSettingTest.arel_table[:id]
                                                                 .eq(arel_table[:test_setting_test_id])).join_sources)
@@ -71,6 +68,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
+  scope :by_step, lambda { |classroom_id, step_id| by_step_id(classroom_id, step_id)   }
   scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_id, lambda { |id| where(id: id)   }
   scope :by_test_date_after, lambda { |date| where("test_date >= ?", date) }
@@ -101,10 +99,6 @@ class Avaliation < ActiveRecord::Base
     return school_calendar_classroom.classroom_step(test_date) if school_calendar_classroom.present?
 
     school_calendar.step(test_date)
-  end
-
-  def classes=(classes)
-    write_attribute(:classes, classes ? classes.split(',').sort.map(&:to_i) : classes)
   end
 
   def description_to_teacher
@@ -208,17 +202,6 @@ class Avaliation < ActiveRecord::Base
     steps_fetcher.step_by_date(test_date)
   end
 
-  def uniqueness_of_avaliation
-    avaliations = Avaliation.by_classroom_id(classroom_id)
-                            .by_grade_id(grade_ids)
-                            .by_discipline_id(discipline)
-                            .by_test_date(test_date)
-                            .by_classes(classes)
-    avaliations = avaliations.where.not(id: id) if persisted?
-
-    errors.add(:classes, :uniqueness_of_avaliation, count: classes.count) if avaliations.any?
-  end
-
   def unique_test_setting_test_per_step
     return unless step
 
@@ -240,6 +223,8 @@ class Avaliation < ActiveRecord::Base
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
+                            .uniq
+
     avaliations = avaliations.where.not(id: id) if persisted?
 
     total_weight_of_existing_avaliations = avaliations.any? ? avaliations.inject(0) { |sum, avaliation| avaliation.weight ? sum + avaliation.weight : 0 } : 0

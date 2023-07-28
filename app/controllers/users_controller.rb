@@ -3,6 +3,8 @@ class UsersController < ApplicationController
   has_scope :per, default: 10
 
   def index
+    params[:search][:by_name] = params[:search][:by_name].squish if params[:search].present?
+
     @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
     @search_by_name = params.dig(:search, :by_name)
@@ -27,14 +29,9 @@ class UsersController < ApplicationController
 
     authorize @user
 
-    password = params[:user][:password]
+    return render :edit unless valid_update
 
-    params[:user].delete :password if password.blank?
-
-    if weak_password?(password)
-      flash.now[:error] = t('errors.general.weak_password')
-      render :edit
-    elsif @user.update(user_params)
+    if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
       respond_with @user, location: users_path
@@ -115,8 +112,7 @@ class UsersController < ApplicationController
   def user_params
     params.require(:user).permit(
       :first_name, :last_name, :phone, :email, :cpf, :login, :status,
-      :authorize_email_and_sms, :student_id, :teacher_id, :password,
-      :expiration_date,
+      :authorize_email_and_sms, :student_id, :teacher_id, :password, :expiration_date, :admin,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
       ]
@@ -129,5 +125,27 @@ class UsersController < ApplicationController
     else
       {}
     end
+  end
+
+  def not_allow_admin?
+    return false if user_params[:admin] == "0" || !current_user.is_admin_email?
+
+    role_ids = user_params[:user_roles_attributes].values.map do |user_role|
+      user_role[:role_id] if user_role[:_destroy] == "false"
+    end
+
+    Role.where(id: role_ids).pluck(:access_level).exclude?("administrator")
+  end
+
+  def valid_update
+    password = params[:user][:password]
+    params[:user].delete :password if password.blank?
+
+    return true unless not_allow_admin? || weak_password?(password)
+
+    flash.now[:error] = t('users.not_allow_admin') if not_allow_admin?
+    flash.now[:error] = t('errors.general.weak_password') if weak_password?(password)
+
+    false
   end
 end

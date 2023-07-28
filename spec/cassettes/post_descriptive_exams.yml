@@ -47,9 +47,62 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAAzWMQQqEQAwEvzKbs37AV3hfFgmz0ctohrRzEPHvJoK3pqiu
-        k7SK0UBVsVNHJtBmWYKwSRYHPW+NS7+IcXFlxQIavmcM18ZXS5HgvyJlXRNa
-        FkA/ftiPGj0ngej6dcTbMYmZ2vREZi6Q6wZzUPMZjAAAAA==
+        H4sIAAAAAAAAAzWMQQqEQAwEvzKbs37AV3hfFgmz0ctohrRzEPHvJoK3pqiuk7SK0UBVsVNHJtBmWYKwSRYHPW+NS7+IcXFlxQIavmcM18ZXS5HgvyJlXRNaFkA/ftiPGj0ngej6dcTbMYmZ2vREZi6Q6wZzUPMZjAAAAA==
     http_version: 
   recorded_at: Thu, 02 Mar 2017 02:10:01 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=&instituicao_id=1&secret_key=
+    body:
+      encoding: UTF-8
+      string: etapa=1&pareceres=1&resource=pareceres-anual-geral&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '60'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 28 Jun 2022 16:25:21 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=UJ0ydbIuVrOEnnfa7s2GW48X5qWmwq4h9jkWXCWw; expires=Tue, 28-Jun-2022
+        18:25:21 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MQQqDMBBFr5LOWsFu3fYYbZEhfqyQZsJMIoh4dxN3/z8e7yBJUBopiWXqSGFS1KMRVnhU0HMsHPoFyqEqf1uMxvfRRtVeP97gZjj2MBO3xu1ThgHPsM78qH7eU8tBVZTOb0cc9+l+013IWnBe2j8YdYgAAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 05:02:56 GMT
 recorded_with: VCR 3.0.0
