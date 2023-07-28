@@ -24,6 +24,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   has_one :school_term_recovery_diary_record
   has_one :final_recovery_diary_record
   has_one :avaliation_recovery_diary_record
+  has_one :avaliation_recovery_lowest_note
 
   scope :by_teacher_id,
         lambda { |teacher_id|

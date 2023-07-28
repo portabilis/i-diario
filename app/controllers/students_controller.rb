@@ -8,6 +8,7 @@ class StudentsController < ApplicationController
     start_date = params[:start_date]
     end_date = params[:end_date]
     step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
+    transferred = params[:transferred] || false
 
     if step_id.present?
       step = steps_fetcher.steps.find(step_id)
@@ -15,18 +16,25 @@ class StudentsController < ApplicationController
       end_date ||= step.end_at
     end
 
-    include_date_range = start_date.present? && end_date.present?
+    include_date_range = start_date.present? && end_date.present? && !transferred
+    search_type = transferred ? :by_year : :by_date
 
-    student_enrollments = StudentEnrollmentsList.new(
+    student_enrollment_list = StudentEnrollmentsList.new(
       classroom: params[:classroom_id],
       discipline: params[:discipline_id],
       date: date,
-      search_type: :by_date,
+      search_type: search_type,
       include_date_range: include_date_range,
       start_at: start_date,
       end_at: end_date,
       score_type: params[:score_type]
-    ).student_enrollments
+    )
+
+    if transferred
+      student_enrollments = student_enrollment_list.students_transfer_notes
+    else
+      student_enrollments = student_enrollment_list.student_enrollments
+    end
 
     students = student_enrollments.map(&:student)
 
@@ -50,15 +58,37 @@ class StudentsController < ApplicationController
     end
   end
 
+  def recovery_lowest_note
+    return render json: nil if params[:classroom_id].blank? || params[:date].blank?
+
+
+    @students = StudentEnrollmentsList.new(
+      classroom: params[:classroom_id],
+      discipline: params[:discipline_id],
+      search_type: :by_date,
+      date: params[:date],
+      score_type: params[:score_type]
+    ).student_enrollments.map(&:student)
+
+
+    render(
+      json: @students,
+      each_serializer: StudentLowestNoteSerializer,
+      discipline: discipline,
+      classroom: classroom,
+      step: step,
+      number_of_decimal_places: test_setting(classroom, step).number_of_decimal_places
+    )
+  end
+
   def in_recovery
     @students = StudentsInRecoveryFetcher.new(
-        configuration,
-        params[:classroom_id],
-        params[:discipline_id],
-        params[:step_id],
-        params[:date].to_date.to_s
-      )
-      .fetch
+      configuration,
+      params[:classroom_id],
+      params[:discipline_id],
+      params[:step_id],
+      params[:date].to_date.to_s
+    ).fetch
 
     render(
       json: @students,

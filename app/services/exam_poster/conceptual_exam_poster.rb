@@ -52,6 +52,8 @@ module ExamPoster
         conceptual_exam_values.each do |conceptual_exam_value|
           conceptual_exam = conceptual_exam_value.conceptual_exam
 
+          next unless not_posted?({ classroom: classroom, student: conceptual_exam.student, discipline: conceptual_exam_value.discipline })[:conceptual_exam]
+
           if conceptual_exam_value.value.blank?
             student_name = conceptual_exam.student.name
             classroom_description = conceptual_exam.classroom.description

@@ -94,6 +94,11 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
     teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
 
+    if teacher_discipline_classroom.new_record?
+      cache_key = "last_teacher_discipline_classroom-#{classroom_id}-#{teacher_id}"
+      Rails.cache.delete(cache_key)
+    end
+
     teacher_discipline_classroom.discard_or_undiscard(false)
   end
 
