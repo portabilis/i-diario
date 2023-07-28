@@ -20,7 +20,7 @@ class Content < ApplicationRecord
   }
 
   scope :start_with_description, lambda { |description|
-    where("description ^@ ?", description).
+    where("description LIKE ?", "#{description.upcase}%").
       order(created_at: :desc)
   }
 
