@@ -5,7 +5,7 @@
     <div class="row">
 
       <div class="col col-sm-3">
-        <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classroom.unity.name }  %>
+        <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classrooms_grade.classroom.unity.name }  %>
       </div>
 
       <div class="col col-sm-3">
@@ -13,7 +13,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :classroom_id, label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: true, input_html: { value: f.object.classroom.description }  %>
+        <%= f.input :classroom_id, label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: true, input_html: { value: f.object.classrooms_grade.classroom.description }  %>
       </div>
 
       <div class="col col-sm-3" style="display: inline" id="period">
