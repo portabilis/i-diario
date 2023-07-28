@@ -38,7 +38,7 @@ class DailyFrequency < ActiveRecord::Base
   validates :unity, :classroom, :school_calendar, :period, presence: true
   validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
-  validate :frequency_date_must_be_less_than_or_equal_to_today
+  # validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :frequency_must_be_global_or_discipline
   validate :ensure_belongs_to_step
 

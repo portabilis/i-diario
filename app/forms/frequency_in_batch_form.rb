@@ -8,7 +8,7 @@ class FrequencyInBatchForm < ActiveRecord::Base
   validates :unity_id, :classroom_id, :period, presence: true
   validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
-  validate :frequency_date_must_be_less_than_or_equal_to_today
+  # validate :frequency_date_must_be_less_than_or_equal_to_today
 
 
   def frequency_date_must_be_less_than_or_equal_to_today
