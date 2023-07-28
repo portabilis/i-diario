@@ -15,6 +15,7 @@ class CustomRoundingTable < ActiveRecord::Base
 
   validates :name, uniqueness: true
   validates :name, :year, :unities, :courses, :grades, :rounded_avaliations, presence: true
+  validate :check_custom_rounding_table_values
 
   scope :by_name, ->(name) { where('name ilike ?', "%#{name}%") }
   scope :by_unity, ->(unity_id) { joins(:unities).where(custom_rounding_tables_unities: { unity_id: unity_id }) }
@@ -25,6 +26,7 @@ class CustomRoundingTable < ActiveRecord::Base
   scope :by_avaliation, ->(avaliation) { where('? = ANY(rounded_avaliations)', avaliation) }
   scope :by_year, ->(year) { where(year: year) }
   scope :ordered, -> { order(:name) }
+  scope :ordered_by_year, -> { order(arel_table[:year].desc) }
 
   def to_s
     name
@@ -32,5 +34,13 @@ class CustomRoundingTable < ActiveRecord::Base
 
   def values
     custom_rounding_table_values
+  end
+
+  def check_custom_rounding_table_values
+    actions = values.reject { |custom_rounding_table_value| custom_rounding_table_value.action.zero? }
+
+    return if actions.empty? || actions.size.eql?(10)
+
+    errors.add(:invalid_actions, 'O tipo de ação "Não utilizar arredondamento para esta casa decimal" não pode ser selecionado quando outras ações de arredondamento estiverem previstas.')
   end
 end

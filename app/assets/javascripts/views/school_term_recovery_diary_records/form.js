@@ -15,7 +15,7 @@ $(function () {
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
-        url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        url: Routes.for_school_term_type_recovery_exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
         success: handleFetchExamRuleSuccess,
         error: handleFetchExamRuleError
       });
@@ -192,5 +192,4 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
-  checkPersistedDailyNote();
 });

@@ -35,52 +35,52 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     }
 
     context 'when student uses_differentiated_exam_rule' do
-      skip
+      let!(:conceptual_exam) {
+        student = create(:student, uses_differentiated_exam_rule: true)
+        create(
+          :conceptual_exam,
+          :with_teacher_discipline_classroom,
+          :with_student_enrollment_classroom,
+          :with_one_value,
+          discipline: discipline,
+          classroom: classroom,
+          student: student
+        )
+      }
 
-      # let!(:conceptual_exam) {
-      #   student = create(:student, uses_differentiated_exam_rule: true)
-      #   create(
-      #     :conceptual_exam,
-      #     :with_teacher_discipline_classroom,
-      #     :with_student_enrollment_classroom,
-      #     :with_one_value,
-      #     discipline: discipline,
-      #     classroom: classroom,
-      #     student: student
-      #   )
-      # }
-      #
-      # it 'enqueue the requests' do
-      #   subject.post!
-      #
-      #   request = {
-      #     info: {
-      #       classroom: classroom.api_code,
-      #       student: conceptual_exam.student.api_code,
-      #       discipline: discipline.api_code
-      #     },
-      #     request: {
-      #       etapa: exam_posting.step.to_number,
-      #       resource: 'notas',
-      #       notas: {
-      #         classroom.api_code => {
-      #           conceptual_exam.student.api_code => {
-      #             discipline.api_code => {
-      #               nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-      #             }
-      #           }
-      #         }
-      #       }
-      #     }
-      #   }
-      #
-      #   expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
-      #     Entity.first.id,
-      #     exam_posting.id,
-      #     request[:request],
-      #     request[:info]
-      #   )
-      # end
+      it 'enqueue the requests' do
+        subject.post!
+
+        request = {
+          info: {
+            classroom: classroom.api_code,
+            student: conceptual_exam.student.api_code,
+            discipline: discipline.api_code
+          },
+          request: {
+            etapa: exam_posting.step.to_number,
+            resource: 'notas',
+            notas: {
+              classroom.api_code => {
+                conceptual_exam.student.api_code => {
+                  discipline.api_code => {
+                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request[:request],
+          request[:info],
+          "critical",
+          0
+        )
+      end
     end
   end
 
@@ -149,8 +149,6 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       }
 
       it 'enqueues the requests' do
-        skip
-
         subject.post!
 
         request = {
@@ -178,7 +176,9 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           Entity.first.id,
           exam_posting.id,
           request[:request],
-          request[:info]
+          request[:info],
+          "critical",
+          0
         )
       end
     end
@@ -237,7 +237,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     }
 
     it 'does not enqueue the requests' do
-      classroom.exam_rule.update(score_type: ScoreTypes::NUMERIC)
+      classroom.classrooms_grades.first.exam_rule.update(score_type: ScoreTypes::NUMERIC)
 
       subject.post!
 
@@ -281,8 +281,6 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     }
 
     it 'enqueues the requests' do
-      skip
-
       subject.post!
 
       request = {
@@ -310,7 +308,9 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         Entity.first.id,
         exam_posting.id,
         request[:request],
-        request[:info]
+        request[:info],
+        "critical",
+        0
       )
     end
   end

@@ -65,9 +65,9 @@ Rails.application.routes.draw do
     resources :students do
       collection do
         get :recovery_lowest_note
-        get :search_api
         get :in_recovery
         get :select2_remote
+        get :search_autocomplete
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end
@@ -240,7 +240,11 @@ Rails.application.routes.draw do
       end
     end
     resources :knowledge_areas, only: [:index]
-    resources :exam_rules, only: [:index]
+    resources :exam_rules, only: [:index] do
+      collection do
+        get :for_school_term_type_recovery
+      end
+    end
     resources :avaliations, concerns: :history do
       collection do
         get :search
@@ -315,7 +319,7 @@ Rails.application.routes.draw do
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history
-    resources :observation_diary_records, except: :show, concerns: :history
+    resources :observation_diary_records, concerns: :history
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage

@@ -10,7 +10,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -87,9 +87,27 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     end
   end
 
+  def classroom_grades_with_recovery_rule
+    return @classroom_grade if @classroom_grade.present?
+
+    @classroom_grade = []
+
+    classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
+
+    if @classroom_grade.empty?
+      classroom_grades
+    else
+      @classroom_grade
+    end
+  end
+
+  def classroom_grades
+    classroom.classrooms_grades.includes(:exam_rule)
+  end
+
   def recovery_type_must_allow_recovery_for_classroom
     return if recovery_diary_record.blank? || classroom.blank?
-    if classroom.first_exam_rule.recovery_type == RecoveryTypes::DONT_USE
+    if classroom_grades_with_recovery_rule.first.exam_rule.recovery_type == RecoveryTypes::DONT_USE
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery_for_classroom)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery_for_classroom)
     end
@@ -97,9 +115,9 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   def recovery_type_must_allow_recovery_for_step
     return if recovery_diary_record.blank? || classroom.blank? || step.blank?
-    return if classroom.first_exam_rule.recovery_type != RecoveryTypes::SPECIFIC
+    return if classroom_grades_with_recovery_rule.first.exam_rule.recovery_type != RecoveryTypes::SPECIFIC
 
-    if classroom.first_exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
+    if classroom_grades_with_recovery_rule.first.exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
       errors.add(:step_id, :recovery_type_must_allow_recovery_for_step)
     end
   end

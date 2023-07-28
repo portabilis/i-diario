@@ -22,6 +22,18 @@ class IeducarApiExamPosting < ActiveRecord::Base
 
   delegate :to_api, to: :ieducar_api_configuration
 
+  scope :by_teacher_id, lambda { |teacher_id| joins(:teacher).where(teacher_id: teacher_id) }
+  scope :by_school_calendar_classroom_steps,
+        lambda { |step_number|
+          joins(school_calendar_classroom_step: [school_calendar_classroom: [school_calendar: :unity]])
+            .where(school_calendar_classroom_steps: { step_number: step_number })
+        }
+  scope :by_school_calendar_step,
+        lambda { |step_number|
+          joins(school_calendar_step: [school_calendar: :unity])
+            .where(school_calendar_steps: { step_number: step_number })
+        }
+
   def warning_message
     super.presence || notices.texts
   end

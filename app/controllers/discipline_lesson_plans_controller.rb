@@ -10,12 +10,17 @@ class DisciplineLessonPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
+    discipline = if current_user_discipline.grouper?
+                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                 else
+                   current_user_discipline
+                 end
 
     @discipline_lesson_plans = apply_scopes(
       DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(current_user_classroom)
-                          .by_discipline_id(current_user_discipline)
+                          .by_discipline_id(discipline)
                           .uniq
                           .ordered
     ).select(
@@ -73,6 +78,18 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.objective_ids = objective_ids
     @discipline_lesson_plan.lesson_plan.teacher = current_teacher
     @discipline_lesson_plan.teacher_id = current_teacher_id
+    @discipline_lesson_plan.lesson_plan.activities = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:activities], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.resources = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:resources], tags: ['b','br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u', 'p']
+    )
 
     authorize @discipline_lesson_plan
 
@@ -95,6 +112,18 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.content_ids = content_ids
     @discipline_lesson_plan.lesson_plan.objective_ids = objective_ids
     @discipline_lesson_plan.teacher_id = current_teacher_id
+    @discipline_lesson_plan.lesson_plan.activities = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:activities], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.resources = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:resources], tags: ['b','br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u', 'p']
+    )
 
     authorize @discipline_lesson_plan
 

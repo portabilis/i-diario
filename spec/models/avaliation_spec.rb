@@ -13,7 +13,6 @@ RSpec.describe Avaliation, type: :model do
 
   describe 'attributes' do
     it { expect(subject).to respond_to(:weight) }
-    it { expect(subject).to respond_to(:classes) }
     it { expect(subject).to respond_to(:observations) }
   end
 
@@ -29,13 +28,17 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:classroom) }
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:school_calendar) }
-    it { expect(subject).to validate_presence_of(:test_setting) }
+    it {
+      allow_any_instance_of(Avaliation).to receive(:grades_belongs_to_test_setting).and_return(true)
+
+      expect(subject).to validate_presence_of(:test_setting)
+    }
     it { expect(subject).to validate_presence_of(:test_date) }
     it { expect(subject).to validate_school_calendar_day_of(:test_date) }
 
     context 'when classroom present' do
-      let(:exam_rule_with_concept_score_type) { build(:exam_rule, score_type: ScoreTypes::CONCEPT) }
-      let(:classroom_with_concept_score_type) { build(:classroom, exam_rule: exam_rule_with_concept_score_type) }
+      let(:exam_rule) { create(:exam_rule, score_type: ScoreTypes::CONCEPT) }
+      let(:classroom_with_concept_score_type) { build(:classroom, :score_type_concept, exam_rule: exam_rule) }
 
       subject do
         build(
@@ -48,35 +51,6 @@ RSpec.describe Avaliation, type: :model do
       it 'should validate that classroom score type is numeric' do
         expect(subject).to_not be_valid
         expect(subject.errors.messages[:classroom]).to include('o tipo de nota da regra de avaliação não é numérica')
-      end
-    end
-
-    context 'when there is already an avaliation with the classroom/discipline/test_date and class number' do
-      let(:another_avaliation) {
-        create(
-          :avaliation,
-          :with_teacher_discipline_classroom,
-          classroom: classroom,
-          test_date: step.first_school_calendar_date,
-          classes: '1'
-        )
-      }
-
-      subject do
-        build(
-          :avaliation,
-          :with_teacher_discipline_classroom,
-          classroom: another_avaliation.classroom,
-          discipline: another_avaliation.discipline,
-          test_date: another_avaliation.test_date,
-          classes: '1',
-          school_calendar: another_avaliation.school_calendar
-        )
-      end
-
-      it 'should not be valid' do
-        expect(subject).to_not be_valid
-        expect(subject.errors[:classes]).to include('já existe uma avaliação para a aula informada')
       end
     end
 
@@ -103,6 +77,7 @@ RSpec.describe Avaliation, type: :model do
           classroom: subject.classroom,
           test_setting: subject.test_setting,
           test_setting_test: subject.test_setting.tests.first,
+          grade_ids: subject.grade_ids,
           teacher_id: subject.teacher_id
         )
         subject.test_setting_test = another_avaliation.test_setting_test
@@ -165,6 +140,7 @@ RSpec.describe Avaliation, type: :model do
           test_setting: subject.test_setting,
           test_setting_test: subject.test_setting.tests.first,
           teacher_id: subject.teacher_id,
+          grade_ids: subject.grade_ids,
           weight: subject.test_setting.tests.first.weight / 2
         )
         subject.test_setting_test = another_avaliation.test_setting_test
@@ -183,6 +159,7 @@ RSpec.describe Avaliation, type: :model do
           test_setting: subject.test_setting,
           test_setting_test: subject.test_setting.tests.first,
           teacher_id: subject.teacher_id,
+          grade_ids: subject.grade_ids,
           weight: subject.test_setting.tests.first.weight
         )
         subject.test_setting_test = another_avaliation.test_setting_test

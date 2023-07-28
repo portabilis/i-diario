@@ -17,7 +17,7 @@ class StudentRecoveryAverageCalculator
   attr_accessor :student, :classroom, :discipline, :step
 
   def exam_rule
-    classroom.first_exam_rule
+    classroom.first_exam_rule_with_recovery
   end
 
   def steps_fetcher

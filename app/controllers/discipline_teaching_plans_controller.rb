@@ -12,17 +12,23 @@ class DisciplineTeachingPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
+    discipline = if current_user_discipline.grouper?
+                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
+                 else
+                   current_user_discipline
+                 end
 
     @discipline_teaching_plans = apply_scopes(
       DisciplineTeachingPlan.includes(:discipline,
                                       teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
+                            .by_discipline(discipline)
                             .by_unity(current_unity)
                             .by_year(current_school_year)
     )
 
     unless current_user_is_employee_or_administrator?
       @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
-                                                             .by_discipline(current_user_discipline)
+                                                             .by_discipline(discipline)
     end
 
     if author_type.present?
@@ -37,8 +43,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def show
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
 
     authorize @discipline_teaching_plan
 
@@ -73,6 +78,15 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
+    @discipline_teaching_plan.teaching_plan.methodology = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:methodology], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_teaching_plan.teaching_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:evaluation], tags: ['b',  'br', 'i', 'u', 'p']
+    )
+    @discipline_teaching_plan.teaching_plan.references = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:references], tags: ['b',  'br', 'i', 'u', 'p']
+    )
 
     authorize @discipline_teaching_plan
 
@@ -87,8 +101,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def edit
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
 
     authorize @discipline_teaching_plan
 
@@ -102,6 +115,15 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
     @discipline_teaching_plan.current_user = current_user
+    @discipline_teaching_plan.teaching_plan.methodology = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:methodology], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @discipline_teaching_plan.teaching_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:evaluation], tags: ['b',  'br', 'i', 'u', 'p' ]
+    )
+    @discipline_teaching_plan.teaching_plan.references = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:references], tags: ['b',  'br', 'i', 'u', 'p' ]
+    )
 
     authorize @discipline_teaching_plan
 
