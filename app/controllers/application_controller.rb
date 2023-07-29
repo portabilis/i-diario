@@ -446,6 +446,8 @@ class ApplicationController < ActionController::Base
   end
 
   def error_generic(expection)
+    Rails.logger.info expection.message
+    Rails.logger.info expection.backtrace.join("\n")
     set_honeybadger_error(expection)
     redirect_to :root
   end
