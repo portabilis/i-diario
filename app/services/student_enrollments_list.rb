@@ -118,6 +118,8 @@ class StudentEnrollmentsList
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
 
+    students_enrollments = remove_duplicate_student_enrollments(students_enrollments)
+
     students_enrollments = order_by_sequence_and_name(students_enrollments, as_relation)
 
     students_enrollments
@@ -265,5 +267,9 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = students_enrollment_classrooms.active.ordered_student
     students_enrollment_classrooms
+  end
+
+  def remove_duplicate_student_enrollments(students_enrollments)
+    students_enrollments.sort_by { |s| s.changed_at }.reverse.group_by { |s| s.student_id }.values.map(&:first)
   end
 end
