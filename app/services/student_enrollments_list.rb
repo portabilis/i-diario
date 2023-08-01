@@ -20,6 +20,7 @@ class StudentEnrollmentsList
     @include_date_range = params.fetch(:include_date_range, false)
     @period = params.fetch(:period, nil)
     @status_attending = params.fetch(:status_attending, false)
+    @remove_duplicate_student = params.fetch(:remove_duplicate_student, false)
     ensure_has_valid_params
 
     if search_type == :by_year && params[:year].blank?
@@ -118,7 +119,7 @@ class StudentEnrollmentsList
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
 
-    students_enrollments = remove_duplicate_student_enrollments(students_enrollments)
+    students_enrollments = remove_duplicate_student_enrollments(students_enrollments) if @remove_duplicate_student
 
     students_enrollments = order_by_sequence_and_name(students_enrollments, as_relation)
 

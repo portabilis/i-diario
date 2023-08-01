@@ -165,7 +165,8 @@ class DescriptiveExamsController < ApplicationController
       end_at: @descriptive_exam.step.try(:end_at),
       show_inactive_outside_step: false,
       search_type: :by_date_range,
-      period: @period
+      period: @period,
+      remove_duplicate_student: true
     ).student_enrollments
   end
 
