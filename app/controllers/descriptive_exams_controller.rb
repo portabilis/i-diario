@@ -6,7 +6,7 @@ class DescriptiveExamsController < ApplicationController
   before_action :view_data, only: [:edit, :show]
 
   def new
-    @descriptive_exam = DescriptiveExam.new(classroom_id: current_user_classroom.id)
+    @descriptive_exam = DescriptiveExam.new(classroom_id: current_user_classroom.id, discipline_id: current_user_discipline.id)
 
     set_options_by_user
 
