@@ -23,19 +23,6 @@
                 input_html: { value: @absence_justification_report_form.classroom_id } %>
         <% end %>
       </div>
-      <div class="col col-sm-4" data-discipline>
-        <% if current_user.current_role_is_admin_or_employee? %>
-          <%= f.input :discipline_id, as: :select2_discipline,
-                user: current_user,
-                classroom_id: @absence_justification_report_form.classroom_id,
-                required: true %>
-        <% else %>
-          <%= f.input :discipline_id, as: :select2, elements: @disciplines,
-                  user: current_user,
-                  classroom_id: @absence_justification_report_form.classroom_id,
-                  required: true %>
-        <% end %>
-      </div>
     </div>
 
     <div class="row">
