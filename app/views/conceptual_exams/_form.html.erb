@@ -23,7 +23,7 @@
 
       <div class="col col-sm-4">
         <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
-          readonly: @conceptual_exam.persisted?, required: true %>
+                    readonly: @conceptual_exam.persisted?, required: true %>
       </div>
     </div>
 
@@ -34,7 +34,7 @@
 
       <div class="col col-sm-4">
         <%= f.association :student, as: :select2, elements: @students,
-          readonly: @conceptual_exam.persisted? %>
+                          readonly: @conceptual_exam.persisted? %>
       </div>
     </div>
   </fieldset>
@@ -43,9 +43,9 @@
     <table class="table table-bordered table-condensed" id="conceptual_exam_values_table">
       <thead>
         <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
-        <% old_values.each do |step| %>
-          <th class="old_step_column"><%= step[:description] %></th>
-        <% end %>
+          <% old_values.each do |step| %>
+            <th class="old_step_column"><%= step[:description] %></th>
+          <% end %>
         <th width="20%"><%= ConceptualExamValue.human_attribute_name :value %></th>
       </thead>
 
@@ -81,7 +81,7 @@
   <footer>
     <%= link_to t('views.form.back'), conceptual_exams_path, class: 'btn btn-default' %>
     <%= link_to t('views.form.history'), history_conceptual_exam_path(@conceptual_exam),
-      class: 'btn btn-info' if @conceptual_exam.persisted? %>
+                class: 'btn btn-info' if @conceptual_exam.persisted? %>
     <%= f.submit t('views.form.save'), id: 'btn-save', class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
     <%= f.submit t('.save_and_go_to_the_next'), id: 'btn-save-and-next', class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
   </footer>
