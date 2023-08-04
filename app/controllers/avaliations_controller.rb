@@ -20,8 +20,8 @@ class AvaliationsController < ApplicationController
     end
 
     if current_user.current_role_is_admin_or_employee?
-      @classrooms = Classroom.where(id: current_user_classroom)
-      @disciplines = Discipline.where(id: current_user_discipline)
+      @classrooms = current_user_classroom
+      @disciplines = current_user_discipline
     else
       fetch_linked_by_teacher
     end
@@ -54,11 +54,7 @@ class AvaliationsController < ApplicationController
     return if score_types_redirect
     return if not_allow_numerical_exam
 
-    if current_user.current_role_is_admin_or_employee?
-      @disciplines = current_user_discipline
-    else
-      fetch_linked_by_teacher
-    end
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     set_avaliation_multiple_creator_by_user
 
@@ -70,7 +66,7 @@ class AvaliationsController < ApplicationController
   def set_avaliation_multiple_creator_by_user
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
-    @avaliation_multiple_creator_form.discipline_id = @disciplines.map(&:id)
+    @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
     @avaliation_multiple_creator_form.unity_id = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
   end
@@ -307,7 +303,6 @@ class AvaliationsController < ApplicationController
       fetch_linked_by_teacher
     end
   end
-  helper_method :disciplines_for_multiple_classrooms
 
   def classrooms_for_multiple_classrooms
     return [] if @avaliation_multiple_creator_form.discipline_id.blank?
@@ -385,15 +380,11 @@ class AvaliationsController < ApplicationController
 
     flash[:error] = t('errors.avaliations.require_setting')
 
-    false
+    false if current_user.current_role_is_admin_or_employee?
   end
 
   def test_settings
-    year_test_setting = TestSetting.where(year: current_user.classroom.year)
-
-    return unless year_test_setting && !current_user.current_role_is_admin_or_employee?
-
-    flash[:error] = t('errors.avaliations.require_setting') unless year_test_setting
+    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
 
     @test_settings ||= general_by_school_test_setting(year_test_setting) ||
                        general_test_setting(year_test_setting) ||
@@ -401,10 +392,10 @@ class AvaliationsController < ApplicationController
   end
 
   def general_by_school_test_setting(year_test_setting, classroom = nil)
-    classroom ||= classroom || current_user.classroom
+    classroom ||= classroom || current_user_classroom
 
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
-                     .by_unities(current_user.classroom.unity)
+                     .by_unities(classroom.unity)
                      .where(
                        "grades && ARRAY[?]::integer[] OR grades = '{}'",
                        classroom.grade_ids
