@@ -480,12 +480,6 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
-  end
-
   def check_status_and_step(step_id, status)
     if step_id.present?
       @conceptual_exams = @conceptual_exams.by_step_id(@classroom.map(&:id), step_id)
