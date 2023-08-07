@@ -4,7 +4,6 @@ class ConceptualExamsController < ApplicationController
 
   before_action :require_current_classroom
   before_action :require_current_teacher
-  before_action :adjusted_period
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
   before_action :view_data, only: [:edit, :show]
 
@@ -363,6 +362,8 @@ class ConceptualExamsController < ApplicationController
   end
 
   def student_enrollments(start_at, end_at)
+    @period = current_teacher_period != Periods::FULL.to_i ? current_teacher_period : nil
+
     StudentEnrollmentsList.new(
       classroom: current_user_classroom,
       discipline: current_user_discipline,
@@ -466,11 +467,6 @@ class ConceptualExamsController < ApplicationController
       current_user.current_classroom_id,
       current_user.current_discipline_id
     ).teacher_period
-  end
-
-  def adjusted_period
-    teacher_period = current_teacher_period
-    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
 
   def set_options_by_user
