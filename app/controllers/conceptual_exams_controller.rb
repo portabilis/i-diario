@@ -22,24 +22,26 @@ class ConceptualExamsController < ApplicationController
   end
 
   def new
-    if current_user.current_role_is_admin_or_employee?
-      discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
+    set_options_by_user
 
-      not_concept_score = discipline_score_types.none? { |discipline_score_type|
-        discipline_score_type == ScoreTypes::CONCEPT
-      }
+    discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
-      if not_concept_score
+    not_concept_score = discipline_score_types.none? { |discipline_score_type|
+      discipline_score_type == ScoreTypes::CONCEPT
+    }
+
+    if not_concept_score
+      if current_user.current_role_is_admin_or_employee?
         redirect_to(
           conceptual_exams_path,
-          alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
+          alert: t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
         )
       end
 
-      return if performed?
-    else
-      fetch_linked_by_teacher
+      flash.now[:alert] = t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
     end
+
+    return if performed?
 
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_unity.id,
