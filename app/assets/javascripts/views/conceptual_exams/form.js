@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
   'use strict';
 
   var $classroom = $('#conceptual_exam_classroom_id');
@@ -9,7 +9,7 @@ $(function() {
 
   $classroom.on('change', async function () {
     await getStep();
-    // await getDisciplineScoreTypes();
+    await getDisciplineScoreTypes();
   })
 
   async function getStep() {
@@ -28,38 +28,43 @@ $(function() {
   }
 
   function handleFetchStepByClassroomSuccess(data) {
-    var step = $("#conceptual_exam_step");
-    var first_step = data[0]['table']
-
-    step.select2('data', first_step);
+    let selectedSteps = data.map(function (step) {
+      return { id: step['id'], text: step['description'] };
+    });
+    $step.select2({ data: selectedSteps });
+    // Define a primeira opção como selecionada por padrão
+    $step.val(selectedSteps[0].id).trigger('change');
   }
 
   function handleFetchStepByClassroomError() {
     flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
   }
 
-  // async function getDisciplineScoreTypes(){
-  //   let classroom_id = $('#conceptual_exam_classroom_id').select2('val');
-  //
-  //   if (!_.isEmpty(classroom_id)) {
-  //     return $.ajax({
-  //       url: Routes.teacher_differentiated_discipline_score_types_pt_br_path({
-  //         classroom_id: classroom_id,
-  //         format: 'json'
-  //       }),
-  //       success: handleFetchDisciplineScoreTypeByClassroomSuccess,
-  //       error: handleFetchDisciplineScoreTypeByClassroomError
-  //     });
-  //   }
-  // }
-  //
-  // function handleFetchDisciplineScoreTypeByClassroomSuccess(data) {
-  //   console.log('Validar')
-  // }
-  // function handleFetchDisciplineScoreTypeByClassroomError(data) {
-  //   console.log('Validar')
-  // }
-  
+  async function getDisciplineScoreTypes() {
+    let classroom_id = $('#conceptual_exam_classroom_id').select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_score_type_conceptual_exams_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchDisciplineScoreTypeByClassroomSuccess,
+        error: handleFetchDisciplineScoreTypeByClassroomError
+      });
+    }
+  }
+
+  function handleFetchDisciplineScoreTypeByClassroomSuccess(data) {
+    if (data) {
+      flashMessages.error('A disciplina selecionada não possui nota conceitual');
+    }
+  }
+
+  function handleFetchDisciplineScoreTypeByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação');
+  }
+
   function fetchExamRule() {
     var classroom_id = $classroom.select2('val');
     var student_id = $student.select2('val');
@@ -84,11 +89,11 @@ $(function() {
     if (examRuleIsValid(data.exam_rule)) {
       if (!data.exam_rule.conceptual_rounding_table) {
         flashMessages.error('A regra de avaliação não possui tabela de arredondamento vinculada.');
-        return { }
+        return {}
       }
       window.examRule = data.exam_rule;
 
-      window.roundingTableValues = _.map(data.exam_rule.conceptual_rounding_table.rounding_table_values, function(rounding_table_value) {
+      window.roundingTableValues = _.map(data.exam_rule.conceptual_rounding_table.rounding_table_values, function (rounding_table_value) {
         return { id: rounding_table_value.value, text: rounding_table_value.to_s };
       });
     }
@@ -128,7 +133,7 @@ $(function() {
             step_id: step_id,
             format: 'json'
           })
-        ).done(function(){
+        ).done(function () {
           var filter = {
             classroom: classroom_id,
             discipline: discipline_id,
@@ -155,7 +160,7 @@ $(function() {
   function handleFetchStudentsSuccess(data) {
     var studentPreviouslySelectedExists = false;
 
-    var students = _.map(data.student_enrollments_lists, function(student_enrollment) {
+    var students = _.map(data.student_enrollments_lists, function (student_enrollment) {
       if (student_enrollment.student_id == window.studentPreviouslySelected) {
         studentPreviouslySelectedExists = true;
       }
@@ -194,11 +199,11 @@ $(function() {
               format: 'json'
             }
           )
-        ).done(function(data){
+        ).done(function (data) {
           old_values = data.old_steps_conceptual_values;
           makeOldValuesHeader();
         })
-      ).then(function(){
+      ).then(function () {
         $.ajax({
           url: Routes.disciplines_pt_br_path(
             {
@@ -217,7 +222,7 @@ $(function() {
   };
 
   function setTableColspans(colspans) {
-    $('#conceptual_exam_values_table [colspan]').each(function(){
+    $('#conceptual_exam_values_table [colspan]').each(function () {
       $(this).attr('colspan', colspans);
     });
   }
@@ -238,34 +243,34 @@ $(function() {
       hideNoItemMessage();
 
       disciplines = _.chain(disciplines)
-                     .sortBy('description')
-                     .sortBy('sequence')
-                     .sortBy('knowledge_area_description')
-                     .sortBy('knowledge_area_sequence')
-                     .value();
+        .sortBy('description')
+        .sortBy('sequence')
+        .sortBy('knowledge_area_description')
+        .sortBy('knowledge_area_sequence')
+        .value();
 
       var element_counter = 0;
-      var disciplinesGroupedByKnowledgeArea = _.groupBy(disciplines, function(discipline) {
+      var disciplinesGroupedByKnowledgeArea = _.groupBy(disciplines, function (discipline) {
         return discipline.knowledge_area_description;
       });
 
       $('#conceptual_exam_values').html('');
 
-      _.each(disciplinesGroupedByKnowledgeArea, function(disciplines, knowledge_area_sequence) {
+      _.each(disciplinesGroupedByKnowledgeArea, function (disciplines, knowledge_area_sequence) {
         var knowledge_area = disciplines[0].knowledge_area_description;
         var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="' +
-                                         (2 + old_values.length) + '"><strong>' + knowledge_area + '</strong></td></tr>';
+          (2 + old_values.length) + '"><strong>' + knowledge_area + '</strong></td></tr>';
         $('#conceptual_exam_values').append(knowledgeAreaTableRowHtml);
 
-        _.each(disciplines, function(discipline) {
+        _.each(disciplines, function (discipline) {
           var element_id = new Date().getTime() + element_counter++
 
           var html = JST['templates/conceptual_exams/conceptual_exam_value_fields']({
-              discipline_id: discipline.id,
-              discipline_description: discipline.description,
-              element_id: element_id,
-              old_values: old_values
-            });
+            discipline_id: discipline.id,
+            discipline_description: discipline.description,
+            element_id: element_id,
+            old_values: old_values
+          });
 
           $('#conceptual_exam_values').append(html);
         });
@@ -281,12 +286,12 @@ $(function() {
   };
 
   function loadSelect2ForConceptualExamValues() {
-    _.each($('input.conceptual-exam-value-select2'), function(element) {
+    _.each($('input.conceptual-exam-value-select2'), function (element) {
       $(element).select2({
-        formatResult: function(el) {
+        formatResult: function (el) {
           return "<div class='select2-user-result'>" + el.name + "</div>";
         },
-        formatSelection: function(el) {
+        formatSelection: function (el) {
           return el.name;
         },
         data: $(element).data('elements')
@@ -344,15 +349,15 @@ $(function() {
   function disableDisciplinesAccordingToExemptedDisciplinesSuccess(data) {
     var exempted_disciplines = data.conceptual_exams;
 
-    $('tr input[id$=discipline_id]').each(function() {
+    $('tr input[id$=discipline_id]').each(function () {
       var discipline_id = $(this).val();
 
-      if(exempted_disciplines.filter(function(item) { return item.discipline_id == discipline_id }).length > 0) {
+      if (exempted_disciplines.filter(function (item) { return item.discipline_id == discipline_id }).length > 0) {
         var item = $(this).closest('tr');
         var description = item.find('.discipline_description');
         description.html('****' + description.html().trim());
         description.addClass('exempted-student-from-discipline');
-        item.find('input[id$=_value]').attr('readonly','readonly');
+        item.find('input[id$=_value]').attr('readonly', 'readonly');
         item.find('input[id$=_exempted_discipline]').val('true');
         $('.exempted_students_from_discipline_legend').removeClass('hidden');
       }
@@ -375,7 +380,7 @@ $(function() {
     flashMessages.error(message);
   }
 
-  $student.on('change', function(){
+  $student.on('change', function () {
     $.get(
       Routes.find_conceptual_exam_by_student_conceptual_exams_pt_br_path(
         {
@@ -387,7 +392,7 @@ $(function() {
           }
         }
       )
-    ).done(function(conceptual_exam_id) {
+    ).done(function (conceptual_exam_id) {
       flashMessages.pop('');
       if (conceptual_exam_id) {
         exists_conceptual_exam(conceptual_exam_id);
@@ -401,11 +406,11 @@ $(function() {
     });
   });
 
-  if($('#current_action_').val() == 'new'){
+  if ($('#current_action_').val() == 'new') {
     $student.trigger('change');
   }
 
-  $step.on('change', function() {
+  $step.on('change', function () {
     fetchStudents();
     $student.select2('val', '');
     removeDisciplines();
@@ -413,7 +418,7 @@ $(function() {
 
   fetchExamRule();
 
-  $('#conceptual_exam_recorded_at').on('change', function(){
+  $('#conceptual_exam_recorded_at').on('change', function () {
     fetchStudents();
   })
 });
