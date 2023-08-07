@@ -14,11 +14,12 @@
       </div>
 
       <div class="col col-sm-4">
-      <% if current_user.current_role_is_admin_or_employee? %>
-        <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
-      <% else %>
-        <%= f.association :classroom, as: :select2, elements: @classrooms, user: current_user, record: f.object %>
-      <% end %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
+        <% else %>
+          <%= f.association :classroom, as: :select2, elements: @classrooms, user: current_user,
+                record: f.object, readonly: action_name.eql?("edit") %>
+        <% end %>
       </div>
 
       <div class="col col-sm-4">
@@ -34,7 +35,7 @@
 
       <div class="col col-sm-4">
         <%= f.association :student, as: :select2, elements: @students,
-                          readonly: @conceptual_exam.persisted? %>
+              readonly: @conceptual_exam.persisted? %>
       </div>
     </div>
   </fieldset>
