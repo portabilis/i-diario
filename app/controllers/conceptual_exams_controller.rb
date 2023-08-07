@@ -100,6 +100,7 @@ class ConceptualExamsController < ApplicationController
     if @conceptual_exam.save
       respond_to_save
     else
+      set_options_by_user
       fetch_collections
       mark_not_existing_disciplines_as_invisible
       mark_persisted_disciplines_as_invisible if @conceptual_exam.conceptual_exam_values.any? { |value| value.new_record? }
@@ -147,7 +148,6 @@ class ConceptualExamsController < ApplicationController
     else
       render json: nil, :status => 422
     end
-
   end
 
   def find_conceptual_exam_by_student
@@ -157,26 +157,37 @@ class ConceptualExamsController < ApplicationController
   def find_step_number_by_classroom
     classroom = Classroom.find(params[:classroom_id])
     step_numbers = StepsFetcher.new(classroom)&.steps
+    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
-    render json: step_numbers.to_json
+    render json: steps.to_json
+  end
+
+  def fetch_score_type
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    discipline_score_types = (teacher_differentiated_discipline_score_types(classroom) +
+    teacher_discipline_score_types(classroom)).uniq
+
+    not_concept_score = discipline_score_types.none? { |discipline_score_type|
+      discipline_score_type.eql?(ScoreTypes::CONCEPT)
+    }
+
+    render json: not_concept_score
+  end
+
+  def fetch_period
+    return if params[:classroom_id].blank?
+
+    render json: TeacherPeriodFetcher.new(
+                    current_teacher.id,
+                    params[:classroom_id],
+                    current_user_discipline
+                  ).teacher_period
   end
 
   private
-
-  def fetch_conceptual_exam_by_classroom
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
-                                                    .by_classroom(@classrooms.map(&:id))
-                                                    .by_teacher(current_teacher_id)
-                                                    .ordered_by_date_and_student
-  end
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
-  end
 
   def view_data
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
@@ -184,7 +195,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam.step_id = find_step_id
 
     authorize @conceptual_exam
-
+    set_options_by_user
     fetch_collections
     add_missing_disciplines
     mark_not_assigned_disciplines_for_destruction
@@ -365,7 +376,7 @@ class ConceptualExamsController < ApplicationController
     @period = current_teacher_period != Periods::FULL.to_i ? current_teacher_period : nil
 
     StudentEnrollmentsList.new(
-      classroom: current_user_classroom,
+      classroom: @conceptual_exam.classroom,
       discipline: current_user_discipline,
       start_at: start_at,
       end_at: end_at,
@@ -464,7 +475,7 @@ class ConceptualExamsController < ApplicationController
   def current_teacher_period
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user.current_classroom_id,
+      @conceptual_exam.classroom_id,
       current_user.current_discipline_id
     ).teacher_period
   end
@@ -480,21 +491,28 @@ class ConceptualExamsController < ApplicationController
 
   def check_status_and_step(step_id, status)
     if step_id.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(@classroom.map(&:id), step_id)
+      @conceptual_exams = @conceptual_exams.by_step_id(@classrooms, step_id)
       params[:filter][:by_step] = step_id
     end
 
     if status.present?
-      @conceptual_exams = @conceptual_exams.by_status(@classroom.map(&:id), current_teacher_id, status)
+      @conceptual_exams = @conceptual_exams.by_status(@classrooms.to_a, current_teacher_id, status)
       params[:filter][:by_status] = status
     end
   end
 
   def fetch_conceptual_exams
     apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
-                                                    .by_classroom(@classrooms.map(&:id))
-                                                    .by_teacher(current_teacher_id)
-                                                    .ordered_by_date_and_student
+                                .by_unity(current_unity)
+                                .by_classroom(@classrooms.map(&:id))
+                                .by_teacher(current_teacher_id)
+                                .ordered_by_date_and_student
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
   end
 end
