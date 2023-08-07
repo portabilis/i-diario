@@ -14,34 +14,34 @@ $(function () {
   var $student = $('#avaliation_exemption_student_id');
   var $avaliation_date = $('#avaliation_exemption_avaliation_date');
 
-  $course.on('change', function(){
+  $course.on('change', function () {
     fetchGrades();
   });
 
-  $grade.on('change', function(){
+  $grade.on('change', function () {
     fetchClassrooms();
   });
 
-  $classroom.on('change', function(){
+  $classroom.on('change', function () {
     fetchDisciplines();
     fetchAvaliationsSchoolStep();
     fetchAvaliationsClassroomStep();
   });
 
-  $discipline.on('change', function(){
+  $discipline.on('change', function () {
     fetchAvaliationsSchoolStep();
     fetchAvaliationsClassroomStep();
   });
 
-  $school_calendar_step.on('change', function(){
+  $school_calendar_step.on('change', function () {
     fetchAvaliationsSchoolStep();
   });
 
-  $school_calendar_classroom_step.on('change', function(){
+  $school_calendar_classroom_step.on('change', function () {
     fetchAvaliationsClassroomStep();
   });
 
-  $avaliation.on('change', function(){
+  $avaliation.on('change', function () {
     fetchAvaliationDate();
   });
 
@@ -54,8 +54,8 @@ $(function () {
     if (!_.isEmpty(unity_id)) {
       $.ajax({
         url: Routes.courses_pt_br_path({
-            filter: filter,
-            format: 'json'
+          filter: filter,
+          format: 'json'
         }),
         success: handleFetchCoursesSuccess,
         error: handleFetchCoursesError
@@ -64,7 +64,7 @@ $(function () {
   };
 
   function handleFetchCoursesSuccess(courses) {
-    var selectedCourses = _.map(courses, function(course) {
+    var selectedCourses = _.map(courses, function (course) {
       return { id: course['id'], text: course['description'] };
     });
 
@@ -96,7 +96,7 @@ $(function () {
   };
 
   function handleFetchGradesSuccess(grades) {
-    var selectedGrades = _.map(grades, function(grade) {
+    var selectedGrades = _.map(grades, function (grade) {
       return { id: grade['id'], text: grade['description'] };
     });
 
@@ -110,7 +110,7 @@ $(function () {
   function fetchClassrooms() {
     var unity_id = $unity.select2('val');
     var grade_id = $grade.select2('val');
-    var year     = $year.val();
+    var year = $year.val();
 
     if (!_.isEmpty(unity_id) && !_.isEmpty(grade_id)) {
       var filter = {
@@ -124,17 +124,19 @@ $(function () {
           format: 'json'
         }),
         success: handleFetchClasroomsSuccess,
-        error: handleFetchGradesError
+        error: handleFetchClassroomsError
       });
     }
   };
 
   function handleFetchClasroomsSuccess(classrooms) {
-    var selectedClassrooms = _.map(classrooms, function(classroom) {
+    var selectedClassrooms = _.map(classrooms, function (classroom) {
       return { id: classroom['id'], text: classroom['description'] };
     });
 
     $classroom.select2({ data: selectedClassrooms });
+    // Define a primeira opção como selecionada por padrão
+    $classroom.val(selectedClassrooms[0].id).trigger('change');
   };
 
   function handleFetchClassroomsError() {
@@ -145,12 +147,8 @@ $(function () {
     var classroom_id = $classroom.select2('val');
 
     if (!_.isEmpty(classroom_id)) {
-      var filter = {
-        by_classroom: classroom_id
-      };
       $.ajax({
-        url: '/disciplinas/busca',
-        data: filter,
+        url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError
       });
@@ -158,11 +156,13 @@ $(function () {
   };
 
   function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines['disciplines'], function(discipline) {
+    var selectedDisciplines = _.map(disciplines, function (discipline) {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
     $discipline.select2({ data: selectedDisciplines });
+    // Define a primeira opção como selecionada por padrão
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
   };
 
   function handleFetchDisciplinesError() {
@@ -189,11 +189,13 @@ $(function () {
   };
 
   function handleFetchAvaliationsSchoolStepSuccess(avaliations) {
-    var selectedAvaliations = _.map(avaliations['avaliations'], function(avaliation) {
+    var selectedAvaliations = _.map(avaliations['avaliations'], function (avaliation) {
       return { id: avaliation['id'], text: avaliation['description'] };
     });
-
     $avaliation.select2({ data: selectedAvaliations });
+
+    // Define a primeira opção como selecionada por padrão
+    $avaliation.val(selectedAvaliations[0].id).trigger('change');
   };
 
   function handleFetchAvaliationsSchoolStepError() {
@@ -220,7 +222,7 @@ $(function () {
   };
 
   function handleFetchAvaliationsSuccess(avaliations) {
-    var selectedAvaliations = _.map(avaliations['avaliations'], function(avaliation) {
+    var selectedAvaliations = _.map(avaliations['avaliations'], function (avaliation) {
       return { id: avaliation['id'], text: avaliation['description'] };
     });
 
@@ -285,7 +287,7 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(students) {
-    var selectedStudents = _.map(students.student_enrollments, function(student_enrollment) {
+    var selectedStudents = _.map(students.student_enrollments, function (student_enrollment) {
       return { id: student_enrollment.student.id, text: student_enrollment.student.name };
     });
 
