@@ -23,6 +23,10 @@ class AvaliationExemptionsController < ApplicationController
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(
       current_user_classroom
     )
+    @avaliation_exemption.build_avaliation
+    @avaliation_exemption.avaliation.classroom = current_user_classroom
+    @avaliation_exemption.avaliation.discipline = current_user_discipline
+
     set_options_by_user
 
     authorize @avaliation_exemption
