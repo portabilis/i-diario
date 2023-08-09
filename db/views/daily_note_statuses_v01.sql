@@ -1,5 +1,6 @@
 -- Essa view serve apenas para identificar e armazenar quais avaliações devem
--- conter o status `incomplete`.
+-- conter o status `incomplete` e `complete`, considerando:
+-- Nota de transferencia, Avaliação de isenção, Data de enturmação do aluno (entrada e saída)
 SELECT outer_daily_notes.id AS daily_note_id,
   CASE
     WHEN (
