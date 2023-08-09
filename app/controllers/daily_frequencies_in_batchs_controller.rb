@@ -558,12 +558,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def require_allocation_on_lessons_board
+    return if teacher_allocated
+
     @admin_or_teacher = current_user.current_role_is_admin_or_employee?
 
-    unless @admin_or_teacher && teacher_allocated
-      flash[:alert] = t('errors.daily_frequencies.require_lessons_board')
-      redirect_to root_path if @admin_or_teacher
-    end
+    flash[:alert] = t('errors.daily_frequencies.require_lessons_board')
+    redirect_to root_path if @admin_or_teacher
   end
 
   def set_options_by_user
@@ -631,7 +631,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @disciplines = []
     @classrooms = []
 
     # Remove turmas que não estão no quadro de aulas
@@ -641,5 +641,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                  .exists?
       @classrooms << classroom if lesson_board
     end
+
+    # Remove disciplinas que não estão no quadro de aulas
+    @fetch_linked_by_teacher[:disciplines].each do |discipline|
+      lesson_board = LessonsBoard.by_teacher(current_teacher)
+                                 .by_classroom(@classrooms)
+                                 .by_discipline(discipline)
+                                 .exists?
+      @disciplines << discipline if lesson_board
+    end
+    @disciplines.uniq
   end
 end
