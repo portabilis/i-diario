@@ -82,7 +82,7 @@ class ConceptualExamsController < ApplicationController
     end
 
     return if performed?
-
+    set_options_by_user
     fetch_collections
     mark_not_existing_disciplines_as_invisible
 
