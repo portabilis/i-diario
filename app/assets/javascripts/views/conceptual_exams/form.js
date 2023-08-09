@@ -330,6 +330,7 @@ $(function () {
   function disableDisciplinesAccordingToExemptedDisciplines() {
     var step_id = $step.select2('val');
     var student_id = $student.select2('val');
+    var classroom_id = $classroom.select2('val');
 
     if (!_.isEmpty(step_id) && !_.isEmpty(student_id)) {
       $.ajax({
@@ -337,6 +338,7 @@ $(function () {
           {
             step_id: step_id,
             student_id: student_id,
+            classroom_id: classroom_id,
             format: 'json'
           }
         ),

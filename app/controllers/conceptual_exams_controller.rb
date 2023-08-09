@@ -136,8 +136,9 @@ class ConceptualExamsController < ApplicationController
   end
 
   def exempted_disciplines
-    step = steps_fetcher.step_by_id(params[:step_id])
-    student_enrollments = student_enrollments(step.start_at, step.end_at)
+    classroom = Classroom.find(params[:classroom_id])
+    step = steps_fetcher.step_by_id(params[:step_id], classroom)
+    student_enrollments = student_enrollments(step.start_at, step.end_at, classroom)
 
     exempted_disciplines = student_enrollments.find do |item|
       item[:student_id] == params[:student_id].to_i
@@ -368,15 +369,16 @@ class ConceptualExamsController < ApplicationController
                    .grade_id
   end
 
-  def steps_fetcher
-    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+  def steps_fetcher(classroom)
+    @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 
-  def student_enrollments(start_at, end_at)
-    @period = current_teacher_period != Periods::FULL.to_i ? current_teacher_period : nil
+  def student_enrollments(start_at, end_at, classroom = nil)
+    classroom ||= @conceptual_exam.classroom
+    @period = current_teacher_period(classroom) != Periods::FULL.to_i ? current_teacher_period(classroom) : nil
 
     StudentEnrollmentsList.new(
-      classroom: @conceptual_exam.classroom,
+      classroom: classroom,
       discipline: current_user_discipline,
       start_at: start_at,
       end_at: end_at,
@@ -472,10 +474,12 @@ class ConceptualExamsController < ApplicationController
                         .any?
   end
 
-  def current_teacher_period
+  def current_teacher_period(classroom = nil)
+    classroom ||= @conceptual_exam.classroom
+
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      @conceptual_exam.classroom_id,
+      classroom.id,
       current_user.current_discipline_id
     ).teacher_period
   end
