@@ -28,6 +28,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end_date = params[:frequency_in_batch_form][:end_date].to_date
 
     @dates = [*start_date..end_date]
+    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
+    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
 
     return unless view_data
 
@@ -39,6 +41,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end_date = params[:frequency_in_batch_form][:end_date].to_date
 
     @dates = [*start_date..end_date]
+    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
+    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
 
     return unless view_data
 
@@ -70,7 +74,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                                 daily_frequency_data[:classroom_id],
                                                                 daily_frequency_data[:discipline_id],
                                                                 daily_frequency_data[:period])
-
 
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
@@ -132,6 +135,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
     flash[:success] = t('.daily_frequency_success')
 
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
+    @classroom = Classroom.includes(:unity).find(daily_frequency_attributes[:classroom_id])
+
+    if daily_frequency_attributes[:discipline_id].present?
+      @discipline = Discipline.find(daily_frequency_attributes[:discipline_id])
+    end
 
     view_data
 
@@ -194,9 +202,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @classroom = @frequency_in_batch_form.classroom.includes(:unity)
-    @discipline = @frequency_in_batch_form.discipline_id
-
     @period = current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
@@ -568,7 +573,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
     else
       fetch_linked_by_teacher
     end
-    teacher_allocated
   end
 
   def teacher_allocated
