@@ -15,14 +15,13 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
-              input_html: { value: @absence_justification_report_form.classroom_id } %>
-      </div>
-      <div class="col col-sm-4" data-discipline>
-        <%= f.input :discipline_id, as: :select2_discipline,
-              user: current_user,
-              classroom_id: @absence_justification_report_form.classroom_id,
-              required: true %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
+                input_html: { value: @absence_justification_report_form.classroom_id } %>
+        <% else %>
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user,
+                input_html: { value: @absence_justification_report_form.classroom_id } %>
+        <% end %>
       </div>
     </div>
 
