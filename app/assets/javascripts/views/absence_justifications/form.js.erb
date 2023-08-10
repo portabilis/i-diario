@@ -13,18 +13,17 @@ $(function () {
   // on change
   $classroom.on('change', function (e) {
     toggleStudent(e.val != '' && e.val != 'empty');
-    fetchStudents();
 
     var params = { classroom_id: e.val };
 
     if (!_.isEmpty(params)) {
       checkExamRule(params);
       fetchDisciplines();
+      fetchStudents();
     }
   });
 
   // fetchers
-
   var fetchExamRule = function (params, callback) {
     $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
       callback(data);
@@ -51,6 +50,8 @@ $(function () {
 
   function fetchStudents() {
     if (!isValidDate($absenceDate.val()) || !isValidDate($absenceDateEnd.val())) {
+      flashMessages.warning('Selecione a "Data inicial" e a "Data final" para buscar os alunos');
+      $("#absence_justification_student_ids").select2({ data: [], multiple: false });
       return;
     }
 
