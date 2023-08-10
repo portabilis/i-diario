@@ -8,15 +8,11 @@ class ComplementaryExamsController < ApplicationController
   def index
     step_id = (params[:filter] || []).delete(:by_step_id)
 
-    @complementary_exams =
-      apply_scopes(ComplementaryExam)
-      .includes(:complementary_exam_setting, :unity, :classroom, :discipline)
-      .by_unity_id(current_unity.id)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .ordered
+    @complementary_exams = fetch_complementary_exams
+    set_options_by_user
+
     if step_id
-      @complementary_exams = @complementary_exams.by_step_id(current_user_classroom, step_id)
+      @complementary_exams = @complementary_exams.by_step_id(@classroom.map(&:id), step_id)
       params[:filter][:by_step_id] = step_id
     end
 
@@ -29,6 +25,8 @@ class ComplementaryExamsController < ApplicationController
       classroom: current_user_classroom,
       discipline: current_user_discipline
     ).localized
+
+    set_options_by_user
   end
 
   def create
@@ -42,6 +40,7 @@ class ComplementaryExamsController < ApplicationController
     if @complementary_exam.save
       respond_with @complementary_exam, location: complementary_exams_path
     else
+      set_options_by_user
       render :new
     end
   end
@@ -50,7 +49,10 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exam = ComplementaryExam.find(params[:id])
     @complementary_exam.step_id = find_step_id
     @complementary_exam = @complementary_exam.localized
+
     authorize @complementary_exam
+
+    set_options_by_user
     reload_students_list
   end
 
@@ -67,6 +69,7 @@ class ComplementaryExamsController < ApplicationController
     if @complementary_exam.save
       respond_with @complementary_exam, location: complementary_exams_path
     else
+      set_options_by_user
       reload_students_list
       render :edit
     end
@@ -193,5 +196,29 @@ class ComplementaryExamsController < ApplicationController
 
       student.mark_for_destruction unless student_exists
     end
+  end
+
+  def fetch_complementary_exams
+    apply_scopes(ComplementaryExam).includes(:complementary_exam_setting, :unity, :classroom, :discipline)
+                                   .by_unity_id(current_unity.id)
+                                   .by_classroom_id(current_user_classroom)
+                                   .by_discipline_id(current_user_discipline)
+                                   .ordered
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms ||= [current_user_classroom]
+      @disciplines ||= [current_user_discipline]
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @exam_rules_ids ||= @fetch_linked_by_teacher[:classroom_grades].map(&:exam_rule_id)
   end
 end
