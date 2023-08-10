@@ -259,6 +259,9 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :multiple_classrooms
+        get :set_avaliation_setting
+        get :set_grades_by_classrooms
+        get :set_type_score_for_discipline
         post :create_multiple_classrooms
       end
     end
