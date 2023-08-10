@@ -5,6 +5,7 @@ class ConceptualExamsController < ApplicationController
   before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :allow_teacher_modify_prev_years, only: [:create, :update, :destroy]
   before_action :view_data, only: [:edit, :show]
 
   def index
@@ -69,7 +70,9 @@ class ConceptualExamsController < ApplicationController
   def create
     begin
       @conceptual_exam = find_or_initialize_conceptual_exam
+
       authorize @conceptual_exam
+
       @conceptual_exam.assign_attributes(resource_params)
       @conceptual_exam.merge_conceptual_exam_values
       @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
@@ -82,6 +85,7 @@ class ConceptualExamsController < ApplicationController
     end
 
     return if performed?
+
     set_options_by_user
     fetch_collections
     mark_not_existing_disciplines_as_invisible
@@ -518,5 +522,27 @@ class ConceptualExamsController < ApplicationController
     @classrooms = @fetch_linked_by_teacher[:classrooms]
     @disciplines = @fetch_linked_by_teacher[:disciplines]
     @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
+  end
+
+  def allow_teacher_modify_prev_years
+    return if current_user.current_role_is_admin_or_employee?
+
+    @classroom ||= Classroom.find(params[:conceptual_exam][:classroom_id])
+    start_date = current_year_steps.first.start_date_for_posting
+    end_date = current_year_steps.last.end_date_for_posting
+
+    return if (start_date..end_date).to_a.include?(Date.current)
+
+    flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
+    redirect_to root_path
+  end
+
+  def current_year_steps
+    @current_year_steps ||= begin
+      steps = steps_fetcher(@classroom).steps if @classroom.present?
+      year = current_school_year || current_school_calendar.year
+      steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
+      steps
+    end
   end
 end
