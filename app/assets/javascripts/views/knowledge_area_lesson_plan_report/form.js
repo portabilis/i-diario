@@ -8,9 +8,6 @@ $(function () {
   $classroom.on('change', async function () {
     var classroom_id = $classroom.select2('val');
 
-    $knowledge_area.select2('val', '');
-    $knowledge_area.select2({ data: [] });
-
     if (!_.isEmpty(classroom_id)) {
       fetchKnowledgeArea(classroom_id);
     } else {
