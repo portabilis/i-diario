@@ -222,6 +222,7 @@ class ApplicationController < ActionController::Base
 
   def require_allow_to_modify_prev_years
     return if can_change_school_year?
+    return unless current_user.current_role_is_admin_or_employee?
     return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
 
     flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
