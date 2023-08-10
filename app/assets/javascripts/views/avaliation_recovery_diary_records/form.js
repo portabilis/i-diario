@@ -22,6 +22,17 @@ $(function () {
     }
   };
 
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var selectedDisciplines = _.map(disciplines, function (discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
+    $discipline.select2({ data: selectedDisciplines });
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
+
   function fetchAvaliations() {
     var classroom_id = $classroom.select2('val');
     var discipline_id = $discipline.select2('val');
@@ -31,37 +42,29 @@ $(function () {
 
     if (!_.isEmpty(classroom_id) && !_.isEmpty(discipline_id)) {
       $.ajax({
-        url: Routes.search_avaliations_pt_br_path({filter: {
-                                              by_classroom_id: classroom_id,
-                                              by_discipline_id: discipline_id
-                                            },
-                                            format: 'json'
-                                            }),
+        url: Routes.search_avaliations_pt_br_path({
+          filter: {
+            by_classroom_id: classroom_id,
+            by_discipline_id: discipline_id
+          },
+          format: 'json'
+        }),
         success: handleFetchAvaliationsSuccess,
         error: handleFetchAvaliationsError
       });
     }
   };
 
-  function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines, function(discipline) {
-      return { id: discipline['id'], text: discipline['description'] };
-    });
-
-    $discipline.select2({ data: selectedDisciplines });
-  };
-
   function handleFetchAvaliationsSuccess(data) {
-    var selectedAvaliations = _.map(data.avaliations, function(avaliation) {
+    var selectedAvaliations = _.map(data.avaliations, function (avaliation) {
       return { id: avaliation['id'], text: avaliation['description_to_teacher'] };
     });
 
     $avaliation.select2({ data: selectedAvaliations });
+    $avaliation.val(selectedAvaliations[0].id).trigger('change');
+    flashMessages.success('Avaliação selecionada com sucesso.');
   };
 
-  function handleFetchDisciplinesError() {
-    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
-  };
 
   function handleFetchAvaliationsError() {
     flashMessages.error('Ocorreu um erro ao buscar as avaliações da turma selecionada.');
@@ -71,21 +74,21 @@ $(function () {
     var avaliation_id = $avaliation.select2('val');
     var recorded_at = $recorded_at.val();
 
-    if(!isValidDate(recorded_at)){
+    if (!isValidDate(recorded_at)) {
       return;
     }
 
-    if (!_.isEmpty(avaliation_id) && !_.isEmpty(recorded_at)){
+    if (!_.isEmpty(avaliation_id) && !_.isEmpty(recorded_at)) {
       $.ajax({
         url: Routes.dependence_daily_note_students_pt_br_path({
-            filter: {
-                by_avaliation: avaliation_id
-            },
-            search: {
-                recorded_at: recorded_at
-            },
-            format: 'json'
-          }),
+          filter: {
+            by_avaliation: avaliation_id
+          },
+          search: {
+            recorded_at: recorded_at
+          },
+          format: 'json'
+        }),
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
       });
@@ -104,14 +107,14 @@ $(function () {
       var last_item = _.last(daily_note_students);
 
       $('#recovery-diary-record-students').children('tr').each(function () {
-        if (!$(this).hasClass('destroy')){
+        if (!$(this).hasClass('destroy')) {
           existing_ids.push(parseInt(this.id));
         }
       });
       existing_ids.shift();
 
-      if (_.isEmpty(existing_ids)){
-        _.each(daily_note_students, function(daily_note_student) {
+      if (_.isEmpty(existing_ids)) {
+        _.each(daily_note_students, function (daily_note_student) {
           var element_id = new Date().getTime() + element_counter++;
 
           buildStudentField(element_id, daily_note_student);
@@ -119,13 +122,13 @@ $(function () {
 
         loadDecimalMasks();
       } else {
-        $.each(daily_note_students, function(index, daily_note_student) {
+        $.each(daily_note_students, function (index, daily_note_student) {
           var fetched_id = daily_note_student.id;
 
           fetched_ids.push(fetched_id);
 
           if ($.inArray(fetched_id, existing_ids) == -1) {
-            if($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')){
+            if ($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
               restoreStudent(fetched_id);
             } else {
               var element_id = new Date().getTime() + element_counter++;
@@ -155,7 +158,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os alunos.');
   };
 
-  function buildStudentField(element_id, daily_note_student, index = null){
+  function buildStudentField(element_id, daily_note_student, index = null) {
     var student_situation = 'multiline ';
     var student_name;
 
@@ -166,13 +169,13 @@ $(function () {
       student_situation = student_situation + 'inactive-student';
       student_name = '***' + daily_note_student.name
     } else if (daily_note_student.dependence) {
-        student_situation = student_situation + 'dependence-student';
-        student_name = '*' + daily_note_student.name
+      student_situation = student_situation + 'dependence-student';
+      student_name = '*' + daily_note_student.name
     } else if (daily_note_student.in_active_search) {
-          student_situation = student_situation + 'in-active-search';
-          student_name = '*****' + daily_note_student.name
+      student_situation = student_situation + 'in-active-search';
+      student_name = '*****' + daily_note_student.name
     } else {
-        student_name = daily_note_student.name
+      student_name = daily_note_student.name
     }
 
     var html = JST['templates/avaliation_recovery_diary_records/student_fields']({
@@ -195,13 +198,13 @@ $(function () {
     }
   }
 
-  function removeStudent(id){
+  function removeStudent(id) {
     $('#' + id).hide();
     $('#' + id).addClass('destroy');
     $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
   }
 
-  function restoreStudent(id){
+  function restoreStudent(id) {
     $('#' + id).show();
     $('#' + id).removeClass('destroy');
     $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
@@ -233,26 +236,37 @@ $(function () {
   }
 
   // On change
-  $classroom.on('change', function() {
+  $classroom.on('change', function () {
     showNoItemMessage();
     fetchDisciplines();
+
+    $avaliation.prop('readonly', true);
+    $recorded_at.val(null).trigger('change');
   });
 
-  $discipline.on('change', function() {
+  $discipline.on('change', function () {
     fetchAvaliations();
+
+    if (_.isEmpty($avaliation.val())) {
+      flashMessages.error('A turma selecionada não está configurada para utilizar este recurso.');
+    }
+
+    $avaliation.prop('readonly', false);
+    $recorded_at.val(null).trigger('change');
   });
-  $avaliation.on('change', function() {
+
+  $avaliation.on('change', function () {
     if (!_.isEmpty($recorded_at.val())) {
       showNoItemMessage();
       fetchStudents();
     }
   });
 
-  $recorded_at.on('focusin', function(){
+  $recorded_at.on('focusin', function () {
     $(this).data('oldDate', $(this).val());
   });
 
-  $recorded_at.on('change', function() {
+  $recorded_at.on('change', function () {
     if (!_.isEmpty($avaliation.select2('val'))) {
       showNoItemMessage();
       fetchStudents();
