@@ -61,7 +61,8 @@ class StepsFetcher
   def school_calendar_classroom
     return if school_calendar.blank?
 
-    @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: @classroom.id)
+    classroom_id = @classroom.is_a?(Classroom) ? @classroom.id : @classroom.pluck(:id)
+    @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: classroom_id)
   end
 
   def school_calendar_steps
