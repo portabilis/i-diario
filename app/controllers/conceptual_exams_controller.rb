@@ -5,7 +5,7 @@ class ConceptualExamsController < ApplicationController
   before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
-  before_action :allow_teacher_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :allow_teacher_modify_prev_years, only: [:create, :update]
   before_action :view_data, only: [:edit, :show]
 
   def index
@@ -118,6 +118,8 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
     @conceptual_exam.step_id = find_step_id
     @conceptual_exam.validation_type = :destroy
+    @classroom = @conceptual_exam.classroom
+    allow_teacher_modify_prev_years
 
     authorize @conceptual_exam
 
