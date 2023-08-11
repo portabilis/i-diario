@@ -228,7 +228,9 @@ class ConceptualExamsController < ApplicationController
   end
 
   def find_step_id
-    steps_fetcher.step(@conceptual_exam.step_number).try(:id)
+    classroom = Classroom.find(@conceptual_exam.classroom_id)
+
+    steps_fetcher(classroom).step(@conceptual_exam.step_number).try(:id)
   end
 
   def find_conceptual_exam
