@@ -116,9 +116,10 @@ class ConceptualExamsController < ApplicationController
   def destroy
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @classroom = @conceptual_exam.classroom
     @conceptual_exam.step_id = find_step_id
     @conceptual_exam.validation_type = :destroy
-    @classroom = @conceptual_exam.classroom
+
     allow_teacher_modify_prev_years
 
     authorize @conceptual_exam
@@ -199,6 +200,7 @@ class ConceptualExamsController < ApplicationController
   def view_data
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @classroom = @conceptual_exam.classroom
     @conceptual_exam.step_id = find_step_id
 
     authorize @conceptual_exam
@@ -228,9 +230,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def find_step_id
-    classroom = Classroom.find(@conceptual_exam.classroom_id)
-
-    steps_fetcher(classroom).step(@conceptual_exam.step_number).try(:id)
+    steps_fetcher(@classroom).step(@conceptual_exam.step_number).try(:id)
   end
 
   def find_conceptual_exam
