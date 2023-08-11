@@ -259,6 +259,9 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :multiple_classrooms
+        get :set_avaliation_setting
+        get :set_grades_by_classrooms
+        get :set_type_score_for_discipline
         post :create_multiple_classrooms
       end
     end
@@ -304,6 +307,8 @@ Rails.application.routes.draw do
       collection do
         get :exists_recovery_on_step
         get :recorded_at_in_selected_step
+        get :fetch_exam_setting_arithmetic
+        get :fetch_step
       end
     end
     resources :conceptual_exams, concerns: :history do
@@ -334,6 +339,8 @@ Rails.application.routes.draw do
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
         get :history_multiple
+        get :fetch_frequency_type
+        get :fetch_teacher_allocated
         get :form
         put :create_or_update_multiple
         delete :destroy_multiple

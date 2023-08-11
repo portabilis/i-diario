@@ -1,15 +1,9 @@
 $(function () {
-  window.classrooms = [];
-  var fetchClassrooms = function (params, callback) {
-    if (_.isEmpty(window.classrooms)) {
-      $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-        window.classrooms = data;
-        callback(window.classrooms);
-      });
-    } else {
-      callback(window.classrooms);
-    }
-  };
+
+  var $avaliation_setting = $('#avaliation_test_setting_test_id'),
+      $classroom_id = $('#avaliation_classroom_id'),
+      $discipline_id = $('#avaliation_discipline_id'),
+      flashMessages = new FlashMessages();
 
   window.disciplines = [];
   var fetchDisciplines = function (params, callback) {
@@ -35,61 +29,111 @@ $(function () {
     }
   };
 
-  $('#avaliation_unity_id').on('change', function (e) {
-    var $classroom = $('#avaliation_classroom_id'),
-        params = {
-          filter: {
-            by_unity: e.val
-          },
-          find_by_current_teacher: true
-        };
+  $('#avaliation_classroom_id').on('change', async function (e) {
+    await getTestSetting();
+    await getGrades();
 
-    window.classrooms = [];
-
-    if (_.isEmpty(e.val)) {
-      $classroom.val('');
-      $classroom.select2({
-        data: []
-      });
-
-    } else {
-      fetchClassrooms(params, function (classrooms) {
-        var selectedClassrooms = _.map(classrooms, function (classroom) {
-          return { id:classroom['id'], text: classroom['description'] };
-        });
-
-        $classroom.select2({
-          data: selectedClassrooms
-        });
-      });
-    }
-  });
-
-  $('#avaliation_classroom_id').on('change', function (e) {
-    var $discipline = $('#avaliation_discipline_id'),
-        params = {
-          classroom_id: e.val
-        };
+    var params = { classroom_id: e.val };
     window.disciplines = [];
 
-    if (_.isEmpty(e.val)) {
-      $discipline.val('');
-      $discipline.select2({
-        data: []
-      });
+    $discipline_id.val('').select2({ data: [] });
 
-    } else {
+    if (!_.isEmpty(e.val)) {
+
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
         });
 
-        $discipline.select2({
-          data: selectedDisciplines
-        });
+        $discipline_id.select2({ data: selectedDisciplines });
       });
     }
+   
   });
+
+  async function getTestSetting(){
+    let classroom_id = $classroom_id.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.set_avaliation_setting_avaliations_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchTestSettingsByClassroomSuccess,
+        error: handleFetchTestSettingsByClassroomError
+      });
+    }
+  }
+
+  function handleFetchTestSettingsByClassroomSuccess(data) {
+    var settings = data['avaliations']
+
+    var options = _.map(settings, function (settings) {
+      return { id:settings['id'], text: settings['description'] };
+    });
+
+    $avaliation_setting.select2({ data: options })
+  }
+  
+  function handleFetchTestSettingsByClassroomError() {
+    flashMessages.error('A regra de avaliação da turma informada não permite lançamentos de avaliações numéricas');
+  }
+
+  async function getGrades(){
+    let classroom_id = $('#avaliation_classroom_id').select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.set_grades_by_classrooms_avaliations_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchGradesByClassroomSuccess,
+        error: handleFetchGradesByClassroomError
+      });
+    }
+  }
+
+  function handleFetchGradesByClassroomSuccess(data) {
+    let grades_select2 = $('#avaliation_grade_ids');
+    var grades_by_classroom = data['avaliations']
+
+    var options = _.map(grades_by_classroom, function (grades_by_classroom) {
+      return { id: grades_by_classroom['id'], text: grades_by_classroom['description'] };
+    });
+
+    grades_select2.select2({data: options, multiple: true})
+  }
+  
+  function handleFetchGradesByClassroomError() {
+    flashMessages.error('Não foi encontrado nenhuma série vinculada nessa turma');
+  }
+
+  $('#avaliation_discipline_id').on('change', function (e) {
+    // verifica se a disciplina selecionada tem regra de avaliacao numerica
+    let classroom_id = $classroom_id.select2('val');
+    let discipline_id = $discipline_id.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.set_type_score_for_discipline_avaliations_pt_br_path({
+          classroom_id: classroom_id,
+          discipline_id: discipline_id,
+          format: 'json'
+        }),
+        success: handleFetchTypeScoreForDisciplineByClassroomSuccess,
+        error: handleFetchTypeScoreForDisciplineByClassroomError
+      });
+    };
+  });
+
+  function handleFetchTypeScoreForDisciplineByClassroomSuccess(data) {
+    flashMessages.success('Disciplina com regra de avaliação numérica');
+  }
+  function handleFetchTypeScoreForDisciplineByClassroomError() {
+    flashMessages.error('Essa disciplina não tem regra de avaliação numérica');
+  }
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
