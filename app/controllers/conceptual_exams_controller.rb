@@ -23,7 +23,6 @@ class ConceptualExamsController < ApplicationController
 
   def new
     set_options_by_user
-
     discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
     not_concept_score = discipline_score_types.none? { |discipline_score_type|
@@ -94,6 +93,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def update
+    set_options_by_user
     @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes(resource_params)
     @conceptual_exam.teacher_id = current_teacher_id
@@ -313,7 +313,12 @@ class ConceptualExamsController < ApplicationController
   def mark_exempted_disciplines
     return if @conceptual_exam.recorded_at.blank? || @conceptual_exam.step.blank?
 
-    @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
+    @student_enrollments ||= student_enrollments(
+      @conceptual_exam.step.start_at,
+      @conceptual_exam.step.end_at,
+      @conceptual_exam.classroom,
+      @conceptual_exam.discipline
+    )
 
     if current_student_enrollment = @student_enrollments.find { |item| item[:student_id] == @conceptual_exam.student_id }
       exempted_disciplines = current_student_enrollment.exempted_disciplines
@@ -381,13 +386,13 @@ class ConceptualExamsController < ApplicationController
     @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 
-  def student_enrollments(start_at, end_at, classroom = nil)
+  def student_enrollments(start_at, end_at, classroom = nil, discipline = current_user_discipline)
     classroom ||= @conceptual_exam.classroom
     @period = current_teacher_period(classroom) != Periods::FULL.to_i ? current_teacher_period(classroom) : nil
 
     StudentEnrollmentsList.new(
       classroom: classroom,
-      discipline: current_user_discipline,
+      discipline: discipline,
       start_at: start_at,
       end_at: end_at,
       score_type: StudentEnrollmentScoreTypeFilters::CONCEPT,
@@ -400,7 +405,12 @@ class ConceptualExamsController < ApplicationController
     @students = []
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present? && @conceptual_exam.step.present?
-      @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
+      @student_enrollments ||= student_enrollments(
+        @conceptual_exam.step.start_at,
+        @conceptual_exam.step.end_at,
+        @conceptual_exam.classroom,
+        @conceptual_exam.discipline
+      )
 
       if @conceptual_exam.student_id.present? &&
         @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
