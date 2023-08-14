@@ -407,8 +407,7 @@ class ConceptualExamsController < ApplicationController
       @student_enrollments ||= student_enrollments(
         @conceptual_exam.step.start_at,
         @conceptual_exam.step.end_at,
-        @conceptual_exam.classroom,
-        @conceptual_exam.discipline
+        @conceptual_exam.classroom
       )
 
       if @conceptual_exam.student_id.present? &&
