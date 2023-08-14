@@ -113,16 +113,16 @@ $(function () {
     var year = $year.val();
 
     if (!_.isEmpty(unity_id) && !_.isEmpty(grade_id)) {
-      var filter = {
-        by_unity: unity_id,
-        by_grade: grade_id,
-        by_year: year
+      var params = {
+        filter: {
+          by_unity: unity_id,
+          by_grade: grade_id,
+          by_year: year
+        },
+        find_by_current_teacher: true
       };
       $.ajax({
-        url: Routes.classrooms_pt_br_path({
-          filter: filter,
-          format: 'json'
-        }),
+        url: Routes.classrooms_pt_br_path(params),
         success: handleFetchClasroomsSuccess,
         error: handleFetchClassroomsError
       });
