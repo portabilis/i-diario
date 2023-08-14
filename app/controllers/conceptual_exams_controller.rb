@@ -68,6 +68,7 @@ class ConceptualExamsController < ApplicationController
 
   def create
     begin
+      set_options_by_user
       @conceptual_exam = find_or_initialize_conceptual_exam
 
       authorize @conceptual_exam
@@ -78,17 +79,15 @@ class ConceptualExamsController < ApplicationController
       @conceptual_exam.teacher_id = current_teacher_id
       @conceptual_exam.current_user = current_user
 
-      respond_to_save if @conceptual_exam.save
+      render :new and return unless @conceptual_exam.save
+      respond_to_save
     rescue ActiveRecord::RecordNotUnique
       retry
     end
-
     return if performed?
 
-    set_options_by_user
     fetch_collections
     mark_not_existing_disciplines_as_invisible
-
     render :new
   end
 
