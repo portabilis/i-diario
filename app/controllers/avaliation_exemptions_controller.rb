@@ -9,7 +9,6 @@ class AvaliationExemptionsController < ApplicationController
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
                              .includes(:avaliation)
                              .by_unity(current_unity)
-                             .by_grade_id(@grades.map(&:id))
                              .by_classroom(@classrooms.map(&:id))
                              .by_discipline(@disciplines.map(&:id))
 
