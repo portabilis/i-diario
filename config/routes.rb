@@ -315,6 +315,8 @@ Rails.application.routes.draw do
       collection do
         get :exempted_disciplines
         get :find_conceptual_exam_by_student
+        get :find_step_number_by_classroom
+        get :fetch_score_type
       end
     end
     resources :old_steps_conceptual_values, except: [:only]
