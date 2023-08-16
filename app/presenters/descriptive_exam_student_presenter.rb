@@ -14,7 +14,7 @@ class DescriptiveExamStudentPresenter < BasePresenter
   def student_name
     if dependence
       "*#{student.api_code} - #{student}"
-    elsif exempted_from_discipline
+    elsif exempted_from_discipline || active_student
       "****#{student.api_code} - #{student}"
     else
       "#{student.api_code} - #{student}"

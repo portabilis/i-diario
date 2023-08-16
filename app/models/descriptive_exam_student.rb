@@ -4,7 +4,7 @@ class DescriptiveExamStudent < ApplicationRecord
 
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
 
-  attr_accessor :exempted_from_discipline
+  attr_accessor :exempted_from_discipline, :active_student
 
   belongs_to :descriptive_exam
   belongs_to :student
