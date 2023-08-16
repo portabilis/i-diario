@@ -37,7 +37,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
     elsif recovery_diary_record.avaliation_recovery_diary_record.present?
       maximum_score_for_avaliation_recovery
     else
-      maximum_score_for_avaliation_recovery
+      maximum_score_for_final_recovery
     end
   end
 
@@ -78,7 +78,8 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   end
 
   def final_recovery?
-    recovery_diary_record.final_recovery_diary_record.present? ||
-      recovery_diary_record.creator_type.eql?('final_recovery_diary_record')
+    recovery_diary_record.final_recovery_diary_record.present? 
+    # ||
+      # recovery_diary_record.creator_type.eql?('final_recovery_diary_record')
   end
 end
