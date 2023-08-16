@@ -30,14 +30,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.unity = current_unity
     @school_term_recovery_diary_record.recovery_diary_record.classroom_id = current_user_classroom.id
     @school_term_recovery_diary_record.recovery_diary_record.discipline_id = current_user_discipline.id
+    set_options_by_user
 
     if current_test_setting.blank? && @admin_or_teacher
       flash[:error] = t('errors.avaliations.require_setting')
 
       redirect_to(school_term_recovery_diary_records_path)
     end
-
-    fetch_linked_by_teacher unless @admin_or_teacher
 
     return if performed?
 
@@ -69,6 +68,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
     step_number = @school_term_recovery_diary_record.step_number
     @school_term_recovery_diary_record.step_id = steps_fetcher.step(step_number).try(:id)
+    set_options_by_user
 
     if @school_term_recovery_diary_record.step_id.blank?
       recorded_at = @school_term_recovery_diary_record.recorded_at
@@ -275,7 +275,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_options_by_user
-    @admin_or_teacher = @admin_or_teacher
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
     if @admin_or_teacher
       @classrooms ||= [current_user_classroom]
       @disciplines ||= [current_user_discipline]
