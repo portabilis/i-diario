@@ -71,7 +71,8 @@ module IeducarApi
       request_params = {
         access_key: access_key,
         secret_key: secret_key,
-        instituicao_id: unity_id
+        instituicao_id: unity_id,
+        action: params[:resource]
       }
       payload = {}
       method == RequestMethods::GET ? request_params.reverse_merge!(params) : payload = params
