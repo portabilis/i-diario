@@ -29,9 +29,11 @@ class AvaliationExemptionsController < ApplicationController
     set_options_by_user
     # Filtra turmas e disciplinas de acordo com a serie para evitar que o usuario selecione uma turma
     # de outra serie
-    classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
-    @classrooms = @classrooms.by_grade(classroom_by_grade)
-    @disciplines = @disciplines.by_classroom_id(current_user_classroom)
+    unless current_user.current_role_is_admin_or_employee?
+      classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
+      @classrooms = @classrooms.by_grade(classroom_by_grade)
+      @disciplines = @disciplines.by_classroom_id(current_user_classroom)
+    end
 
     authorize @avaliation_exemption
   end
