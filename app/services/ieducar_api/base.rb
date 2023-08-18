@@ -71,8 +71,7 @@ module IeducarApi
       request_params = {
         access_key: access_key,
         secret_key: secret_key,
-        instituicao_id: unity_id,
-        action: params[:resource]
+        instituicao_id: unity_id
       }
       payload = {}
       method == RequestMethods::GET ? request_params.reverse_merge!(params) : payload = params
@@ -91,7 +90,7 @@ module IeducarApi
         result = if method == RequestMethods::GET
                    yield(endpoint, request_params)
                  else
-                   yield(endpoint, request_params, payload)
+                   yield(endpoint, request_params[:action] = params[:resource], payload)
                  end
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
