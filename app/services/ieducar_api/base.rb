@@ -90,6 +90,7 @@ module IeducarApi
         result = if method == RequestMethods::GET
                    yield(endpoint, request_params)
                  else
+                   request_params[:action] = params[:resource]
                    yield(endpoint, request_params, payload)
                  end
         result = JSON.parse(result)

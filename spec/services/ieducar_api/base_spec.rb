@@ -78,13 +78,11 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     context 'when on staging environment' do
-
       before do
         Rails.stub_chain(:env, staging?: true)
 
         subject.access_key = nil
         subject.secret_key = nil
-
         VCR.use_cassette('all_students') do
           subject.fetch(path: path, resource: resource)
         end
@@ -100,7 +98,6 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     context 'when is not in staging environment' do
-
       before do
         Rails.stub_chain(:env, staging?: false)
 
@@ -128,7 +125,6 @@ RSpec.describe IeducarApi::Base, type: :service do
 
     context 'invalid keys' do
       it 'returns an error when providing an invalid access_key' do
-
         subject = IeducarApi::Base.new(
           url: url,
           access_key: 'invalid',
@@ -243,7 +239,6 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     context 'do not assign staging secret keys when in production' do
-
       before do
         Rails.stub_chain(:env, production?: true)
         subject.access_key = nil
@@ -282,7 +277,6 @@ RSpec.describe IeducarApi::Base, type: :service do
 
     context 'invalid keys' do
       it 'returns an error when providing an invalid access_key' do
-
         subject = IeducarApi::Base.new(
           url: url,
           access_key: 'invalid',
@@ -299,7 +293,6 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     it 'returns an error when providing an invalid url' do
-
       subject = IeducarApi::Base.new(
         url: 'https://botucat.ieduca.com.br',
         access_key: access_key,
