@@ -252,7 +252,7 @@ RSpec.describe IeducarApi::Base, type: :service do
               etapa: 1,
               faltas: 1
             )
-          }.to raise_error('Usuário deve estar logado ou a chave de acesso deve ser enviada!')
+          }.to raise_error('Chave de acesso inválida!')
         end
       end
 
