@@ -90,7 +90,8 @@ module IeducarApi
         result = if method == RequestMethods::GET
                    yield(endpoint, request_params)
                  else
-                   yield(endpoint, request_params[:action] = params[:resource], payload)
+                   request_params[:action] = params[:resource]
+                   yield(endpoint, request_params, payload)
                  end
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
