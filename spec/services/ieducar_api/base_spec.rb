@@ -78,13 +78,11 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     context 'when on staging environment' do
-
       before do
         Rails.stub_chain(:env, staging?: true)
 
         subject.access_key = nil
         subject.secret_key = nil
-
         VCR.use_cassette('all_students') do
           subject.fetch(path: path, resource: resource)
         end
@@ -100,7 +98,6 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     context 'when is not in staging environment' do
-
       before do
         Rails.stub_chain(:env, staging?: false)
 
@@ -128,7 +125,6 @@ RSpec.describe IeducarApi::Base, type: :service do
 
     context 'invalid keys' do
       it 'returns an error when providing an invalid access_key' do
-
         subject = IeducarApi::Base.new(
           url: url,
           access_key: 'invalid',
@@ -243,7 +239,6 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     context 'do not assign staging secret keys when in production' do
-
       before do
         Rails.stub_chain(:env, production?: true)
         subject.access_key = nil
@@ -257,7 +252,7 @@ RSpec.describe IeducarApi::Base, type: :service do
               etapa: 1,
               faltas: 1
             )
-          }.to raise_error('Chave de acesso inválida!')
+          }.to raise_error('Usuário deve estar logado ou a chave de acesso deve ser enviada!')
         end
       end
 
@@ -293,7 +288,7 @@ RSpec.describe IeducarApi::Base, type: :service do
         VCR.use_cassette('post_invalid_access_key') do
           expect {
             subject.send_post(params)
-          }.to raise_error('Chave de acesso inválida!')
+          }.to raise_error('Usuário deve estar logado ou a chave de acesso deve ser enviada!')
         end
       end
     end
