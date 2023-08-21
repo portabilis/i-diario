@@ -277,7 +277,6 @@ RSpec.describe IeducarApi::Base, type: :service do
 
     context 'invalid keys' do
       it 'returns an error when providing an invalid access_key' do
-
         subject = IeducarApi::Base.new(
           url: url,
           access_key: 'invalid',
@@ -288,13 +287,12 @@ RSpec.describe IeducarApi::Base, type: :service do
         VCR.use_cassette('post_invalid_access_key') do
           expect {
             subject.send_post(params)
-          }.to raise_error('Usuário deve estar logado ou a chave de acesso deve ser enviada!')
+          }.to raise_error('Chave de acesso inválida!')
         end
       end
     end
 
     it 'returns an error when providing an invalid url' do
-
       subject = IeducarApi::Base.new(
         url: 'https://botucat.ieduca.com.br',
         access_key: access_key,
