@@ -163,8 +163,9 @@ class AttendanceRecordReport < BaseReport
             student_enrollment = enrollment_classroom[:student_enrollment]
             student = enrollment_classroom[:student]
             student_enrollment_classroom = enrollment_classroom[:student_enrollment_classroom]
-            joined_at = enrollment_classroom[:joined_at].to_date
-            left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
+            joined_at = enrollment_classroom[:student_enrollment_classroom].joined_at.to_date
+            left_at = get_left_at(enrollment_classroom[:student_enrollment_classroom].left_at)
+            sequence = enrollment_classroom[:student_enrollment_classroom].sequence
 
             if exempted_from_discipline?(all_exempts, student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
@@ -193,20 +194,19 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
-            students[student_enrollment_classroom.id][:sequence] ||= enrollment_classroom[:sequence] if @show_inactive_enrollments
+            students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
             end
 
             unless student_frequency.present?
-              absences = 1
-
-              if @do_not_send_justified_absence && student_frequency.absence_justification_student_id
+              absences = student_frequency.nil? ? 0 : 1
+              if @do_not_send_justified_absence && student_frequency&.absence_justification_student_id
                 absences = 0
               end
 
-              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + absences
+              students[student_enrollment_classroom.id][:absences] +=  absences
             end
 
             hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
@@ -241,12 +241,13 @@ class AttendanceRecordReport < BaseReport
             student_enrollment = enrollment_classroom[:student_enrollment]
             student = enrollment_classroom[:student]
             student_enrollment_classroom = enrollment_classroom[:student_enrollment_classroom]
+            sequence = enrollment_classroom[:student_enrollment_classroom].sequence
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
             students[student_enrollment_classroom.id][:absences] ||= 0
             students[student_enrollment_classroom.id][:social_name] = student.social_name
-            students[student_enrollment_classroom.id][:sequence] ||= enrollment_classroom[:sequence] if @show_inactive_enrollments
+            students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
@@ -402,6 +403,10 @@ class AttendanceRecordReport < BaseReport
         end
       end
     end
+  end
+
+  def get_left_at(left_at)
+    left_at.empty? ? Date.current.end_of_year : left_at.to_date
   end
 
   def event?(record)

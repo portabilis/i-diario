@@ -208,12 +208,27 @@ class LessonsBoardsController < ApplicationController
                              .empty?
   end
 
+  def not_exists_by_classroom_and_grade
+    return if params[:classroom_id].blank? || params[:grade_id].blank?
+
+    render json: LessonsBoard.by_classroom(params[:classroom_id])
+                              .by_grade(params[:grade_id])
+                              .empty?
+  end
+
   def not_exists_by_classroom_and_period
     return if params[:classroom_id].blank?
 
     render json: LessonsBoard.by_classroom(params[:classroom_id])
                              .by_period(params[:period])
                              .empty?
+  end
+
+  def classroom_multi_grade
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    render json: classroom.multi_grade?
   end
 
   def teacher_in_other_classroom

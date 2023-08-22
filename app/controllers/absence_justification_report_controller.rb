@@ -35,7 +35,6 @@ class AbsenceJustificationReportController < ApplicationController
     params.require(:absence_justification_report_form).permit(
       :unity,
       :classroom_id,
-      :discipline_id,
       :absence_date,
       :absence_date_end,
       :school_calendar_year,

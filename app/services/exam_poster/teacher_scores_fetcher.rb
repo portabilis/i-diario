@@ -83,7 +83,7 @@ module ExamPoster
                                   .active
       end
       student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
-      student_enrollments.flatten.map(&:student)
+      student_enrollments.flatten.map(&:student).compact
     end
 
     def current_test_setting
