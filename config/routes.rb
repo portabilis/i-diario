@@ -183,6 +183,10 @@ Rails.application.routes.draw do
     post '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#do_copy'
 
     resources :knowledge_area_teaching_plans, concerns: :history
+
+    get '/knowledge_area_teaching_plans/:id/copy', as: :copy_knowledge_area_teaching_plans, to: 'knowledge_area_teaching_plans#copy'
+    post '/knowledge_area_teaching_plans/:id/copy', as: :copy_knowledge_area_teaching_plans, to: 'knowledge_area_teaching_plans#do_copy'
+
     resources :learning_objectives_and_skills, concerns: :history do
       collection do
         get :contents
@@ -355,8 +359,10 @@ Rails.application.routes.draw do
         get :teachers_classroom_period
         get :not_exists_by_classroom
         get :not_exists_by_classroom_and_period
+        get :not_exists_by_classroom_and_grade
         get :teacher_in_other_classroom
         get :classroom_grade
+        get :classroom_multi_grade
       end
     end
 

@@ -151,6 +151,57 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     respond_with @knowledge_area_teaching_plan
   end
 
+  def copy
+    unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
+      flash[:error] = t('knowledge_area_teaching_plans.do.permission')
+      return redirect_to :knowledge_area_teaching_plans
+    end
+
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
+    @copy_knowledge_area_teaching_plan = CopyKnowledgeAreaTeachingPlanForm.new(
+      knowledge_area_teaching_plan: @knowledge_area_teaching_plan,
+      teaching_plan: @knowledge_area_teaching_plan.teaching_plan
+    )
+
+    fetch_collections
+  end
+
+  def do_copy
+    unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
+      flash[:error] = t('knowledge_area_teaching_plans.do.permission')
+      return redirect_to :knowledge_area_teaching_plans
+    end
+
+    form = params[:copy_knowledge_area_teaching_plan_form]
+
+    knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(form[:id])
+    @copy_knowledge_area_teaching_plan = CopyKnowledgeAreaTeachingPlanForm.new(
+      knowledge_area_teaching_plan: knowledge_area_teaching_plan,
+      teaching_plan: knowledge_area_teaching_plan.teaching_plan,
+      unities_ids: form[:unities_ids],
+      grades_ids: form[:grades_ids],
+      year: form[:year]
+    )
+
+    unless @copy_knowledge_area_teaching_plan.valid?
+      return render :copy
+    end
+
+    CopyKnowledgeAreaTeachingPlanWorker.perform_in(
+      1.second,
+      current_entity.id,
+      current_user.id,
+      form[:id],
+      form[:year],
+      form[:unities_ids].split(','),
+      form[:grades_ids].split(',')
+    )
+
+    flash[:success] = t('knowledge_area_teaching_plans.do_copy.copying')
+
+    redirect_to :knowledge_area_teaching_plans
+  end
+
   private
 
   def content_ids

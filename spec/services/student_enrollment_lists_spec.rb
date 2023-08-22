@@ -377,6 +377,28 @@ RSpec.describe StudentEnrollmentsList, type: :service do
 
         expect(subject.student_enrollments).to include(student_enrollment, enrollment_classroom_2.student_enrollment)
       end
+
+      it 'return only one student_enrollment  if has params remove_duplicate_student' do
+        enrollment_classroom_2.update_attribute(:left_at, '2017-12-12')
+        student_enrollment_2.update_attribute(:status, 4)
+        student_enrollment.update_attribute(:changed_at, '2018-01-06 08:46:35')
+
+        enrollment_classroom_3.update_attribute(:left_at, '2018-03-03')
+        student_enrollment_2.update_attribute(:changed_at, '2018-01-07 08:46:35')
+
+        subject = described_class.new(
+          classroom: classroom,
+          discipline: discipline,
+          search_type: :by_date_range,
+          start_at: '2017-01-01',
+          end_at: '2018-04-04',
+          show_inactive: true,
+          remove_duplicate_student: true
+        )
+
+        expect(subject.student_enrollments).to include(student_enrollment_2)
+        expect(subject.student_enrollments.length).to eql(1)
+      end
     end
   end
 

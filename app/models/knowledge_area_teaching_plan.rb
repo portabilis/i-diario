@@ -48,8 +48,6 @@ class KnowledgeAreaTeachingPlan < ApplicationRecord
   validates :teaching_plan, presence: true
   validates :knowledge_area_ids, presence: true
 
-  validate :uniqueness_of_knowledge_area_teaching_plan, if: :teaching_plan
-
   def optional_teacher
     true
   end
@@ -106,20 +104,5 @@ class KnowledgeAreaTeachingPlan < ApplicationRecord
           knowledge_area_id: knowledge_area
         }
       )
-  end
-
-  def uniqueness_of_knowledge_area_teaching_plan
-    return if teaching_plan.school_term_type.blank?
-
-    knowledge_area_teaching_plans = KnowledgeAreaTeachingPlan.by_year(teaching_plan.year)
-                                                             .by_unity(teaching_plan.unity)
-                                                             .by_teacher_id(teaching_plan.teacher_id)
-                                                             .by_grade(teaching_plan.grade)
-                                                             .by_school_term_type_step_id(teaching_plan.school_term_type_step_id)
-                                                             .by_knowledge_area(knowledge_areas.collect(&:id))
-
-    knowledge_area_teaching_plans = knowledge_area_teaching_plans.where.not(id: id) if persisted?
-
-    errors.add(:base, :uniqueness_of_knowledge_area_teaching_plan) if knowledge_area_teaching_plans.any?
   end
 end
