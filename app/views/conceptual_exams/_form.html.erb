@@ -38,7 +38,7 @@
         <% if @students.blank? %>
           <%= f.association :student, as: :select2, elements: @students,
                 readonly: @conceptual_exam.persisted? %>
-        <% <% end %>
+        <% end %>
       </div>
     </div>
   </fieldset>
