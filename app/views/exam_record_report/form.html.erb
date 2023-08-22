@@ -31,9 +31,13 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :school_calendar_step_id, as: :select2,
-                elements: @school_calendar_steps,
-                input_html: { value: @exam_record_report_form.school_calendar_step_id }, required: true %>
+          <% if @school_calendar_classroom_steps.any? %>
+            <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: @school_calendar_classroom_steps,
+                  input_html: { value: @exam_record_report_form.school_calendar_classroom_step_id }, required: true %>
+          <% else %>
+            <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps,
+                  input_html: { value: @exam_record_report_form.school_calendar_step_id }, required: true %>
+          <% end %>
         </div>
       </div>
     </fieldset>
