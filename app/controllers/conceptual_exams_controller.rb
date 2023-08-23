@@ -34,7 +34,7 @@ class ConceptualExamsController < ApplicationController
         redirect_to(
           conceptual_exams_path,
           alert: t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
-        )
+        ) && return
       end
 
       flash.now[:alert] = t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
@@ -48,9 +48,7 @@ class ConceptualExamsController < ApplicationController
       recorded_at: Date.current
     ).localized
 
-    if params[:conceptual_exam].present?
-      @conceptual_exam.assign_attributes(resource_params)
-    end
+    @conceptual_exam.assign_attributes(resource_params) if params[:conceptual_exam].present?
 
     authorize @conceptual_exam
 
