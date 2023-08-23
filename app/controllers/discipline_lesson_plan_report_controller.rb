@@ -7,6 +7,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   def form
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(
       teacher_id: current_teacher_id,
+      unity_id: current_user_unity.id,
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     )
@@ -56,11 +57,12 @@ class DisciplineLessonPlanReportController < ApplicationController
   private
 
   def select_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      fetch_collections
-    else
-      fetch_linked_by_teacher
-    end
+    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
+    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    fetch_collections
   end
 
   def fetch_linked_by_teacher
@@ -71,6 +73,10 @@ class DisciplineLessonPlanReportController < ApplicationController
 
   def fetch_collections
     @number_of_classes = current_school_calendar.number_of_classes
+    @classrooms ||= Classroom.by_unity(@discipline_lesson_plan_report_form.unity_id)
+                           .by_year(current_user_school_year || Date.current.year)
+                           .ordered
+    @disciplines ||= Discipline.by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
   end
 
   def resource_params
