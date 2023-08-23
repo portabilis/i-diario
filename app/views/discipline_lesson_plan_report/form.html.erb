@@ -19,7 +19,7 @@
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :unity_id, as: :select2, elements: @unities, user: current_user %>
+          <%= f.input :unity_id, as: :select2, elements: @unities, user: current_user, readonly: !current_user.admin? %>
         </div>
 
         <div class="col col-sm-4">
