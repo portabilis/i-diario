@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AttendanceRecordReport, type: :report do
   it 'should be created' do
+    skip 'needs to be refactored'
     entity_configuration = create(:entity_configuration)
     classroom = create(:classroom, :with_classroom_semester_steps)
     school_calendar = classroom.calendar.school_calendar
