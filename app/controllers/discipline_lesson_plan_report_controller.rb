@@ -56,14 +56,6 @@ class DisciplineLessonPlanReportController < ApplicationController
 
   private
 
-  def fetch_collections
-    @number_of_classes = current_school_calendar.number_of_classes
-    @classrooms ||= Classroom.by_unity(@discipline_lesson_plan_report_form.unity_id)
-                             .by_year(current_user_school_year || Date.current.year)
-                             .ordered
-    @disciplines ||= Discipline.by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
-  end
-
   def resource_params
     params.require(:discipline_lesson_plan_report_form).permit(
       :unity_id,
@@ -100,7 +92,15 @@ class DisciplineLessonPlanReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= Discipline.by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
+  end
+
+  def fetch_collections
+    @number_of_classes = current_school_calendar.number_of_classes
+    @classrooms ||= Classroom.by_unity(@discipline_lesson_plan_report_form.unity_id)
+                             .by_year(current_user_school_year || Date.current.year)
+                             .ordered
+    @disciplines ||= Discipline.by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
   end
 end
