@@ -11,12 +11,53 @@ $(document).ready(function () {
 
   var $classroom = $('#exam_record_report_form_classroom_id'),
     $discipline = $('#exam_record_report_form_discipline_id'),
-    $step = $('#exam_record_report_form_school_calendar_step_id');
+    $step = $('#exam_record_report_form_school_calendar_step_id'),
+    $unity = $('#exam_record_report_form_unity_id');
+
+  $unity.on('change', function () {
+    clearFields();
+    getClassrooms();
+  });
+
+  function clearFields() {
+    $classroom.val('').select2({ data: [] });
+    $discipline.val('').select2({ data: [] });
+  }
+
+  function getClassrooms() {
+    const unity_id = $unity.select2('val');
+
+    if (!_.isEmpty(unity_id)) {
+      $.ajax({
+        url: Routes.by_unity_classrooms_pt_br_path({
+          unity_id: unity_id,
+          format: 'json'
+        }),
+        success: handleFetchClassroomsSuccess,
+        error: handleFetchClassroomsError
+      });
+    }
+  }
+
+  function handleFetchClassroomsSuccess(data) {
+    let classrooms = _.map(data.classrooms, function (classroom) {
+      return { id: classroom.table.id, name: classroom.table.name, text: classroom.table.text };
+    });
+
+    classrooms.unshift({ id: 'all', name: '<option>Todas</option>', text: 'Todas' });
+
+    $classroom.select2({ data: classrooms })
+  }
+
+  function handleFetchClassroomsError() {
+    flashMessages.error('Ocorreu um erro ao buscar as turmas da escola selecionada.');
+  }
 
   $classroom.on('change', async function (e) {
     let classroom_id = $classroom.select2('val');
 
     $discipline.val('').select2({ data: [] });
+
     if (!_.isEmpty(classroom_id)) {
       await getStep();
       fetchDisciplines(classroom_id);
@@ -45,6 +86,7 @@ $(document).ready(function () {
     let selectedSteps = data.map(function (step) {
       return { id: step['id'], text: step['description'] };
     });
+
     $step.select2({ data: selectedSteps });
     // Define a primeira opção como selecionada por padrão
     $step.val(selectedSteps[0].id).trigger('change');
@@ -56,21 +98,27 @@ $(document).ready(function () {
 
   function fetchDisciplines(classroom_id) {
     $.ajax({
-      url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
       success: handleFetchDisciplinesSuccess,
       error: handleFetchDisciplinesError
     });
   };
 
-  function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = disciplines.map(function (discipline) {
-      return { id: discipline['id'], text: discipline['description'] };
-    });
+  function handleFetchDisciplinesSuccess(data) {
 
-    $discipline.select2({ data: selectedDisciplines });
+    if (_.isEmpty(data)) {
+      flashMessages.error('Não existem disciplinas para a turma selecionada.');
+      return;
+    } else {
+      var selectedDisciplines = data.disciplines.map(function (discipline) {
+        return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
+      });
 
-    // Define a primeira opção como selecionada por padrão
-    $discipline.val(selectedDisciplines[0].id).trigger('change');
+      $discipline.select2({ data: selectedDisciplines });
+
+      // Define a primeira opção como selecionada por padrão
+      $discipline.val(selectedDisciplines[0].id).trigger('change');
+    }
   };
 
   function handleFetchDisciplinesError() {

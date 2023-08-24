@@ -4,25 +4,24 @@ class ExamRecordReportController < ApplicationController
 
   def form
     @exam_record_report_form = ExamRecordReportForm.new(
+      unity_id: current_unity.id,
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     )
-    @admin_or_teacher = @admin_or_teacher
-
-    fetch_linked_by_teacher unless @admin_or_teacher
+    set_options_by_user
     fetch_collections
   end
 
   def report
     @exam_record_report_form = ExamRecordReportForm.new(resource_params)
-    fetch_collections
+    set_school_calendars
 
     if @exam_record_report_form.valid?
       exam_record_report = @school_calendar_classroom_steps.any? ? build_by_classroom_steps : build_by_school_steps
       send_pdf(t("routes.exam_record_report"), exam_record_report.render)
     else
-      fetch_linked_by_teacher unless @admin_or_teacher
-      fetch_collections
+      set_options_by_user
+      set_school_calendars
       render :form
     end
   end
@@ -38,6 +37,14 @@ class ExamRecordReportController < ApplicationController
   end
 
   private
+
+  def resource_params
+    params.require(:exam_record_report_form).permit(:unity_id,
+                                                    :classroom_id,
+                                                    :discipline_id,
+                                                    :school_calendar_step_id,
+                                                    :school_calendar_classroom_step_id)
+  end
 
   def build_by_school_steps
     ExamRecordReport.build(
@@ -82,11 +89,21 @@ class ExamRecordReportController < ApplicationController
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id).ordered
   end
 
-  def resource_params
-    params.require(:exam_record_report_form).permit(:unity_id,
-                                                    :classroom_id,
-                                                    :discipline_id,
-                                                    :school_calendar_step_id,
-                                                    :school_calendar_classroom_step_id)
+  def set_options_by_user
+    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
+    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+
+    fetch_linked_by_teacher
+  end
+
+  def set_school_calendars
+    school_calendar = CurrentSchoolCalendarFetcher.new(
+      Unity.find(@exam_record_report_form.unity_id),
+      Classroom.find(@exam_record_report_form.classroom_id),
+      current_school_year
+    ).fetch
+
+    @school_calendar_steps = SchoolCalendarStep.where(school_calendar: school_calendar).ordered
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(@exam_record_report_form.classroom_id).ordered
   end
 end
