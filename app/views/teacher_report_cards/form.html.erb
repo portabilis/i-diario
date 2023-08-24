@@ -19,12 +19,12 @@
          <%= f.input :unity_id, as: :select2, elements: @unities, user: current_user, readonly: !current_user.admin? %>
         </div>
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user,
-                input_html: { value: @teacher_report_card_form.classroom_id } %>
-        </div>
-        <div class="col col-sm-4">
           <%= f.input :grade_id, as: :select2, elements: @grades, required: true, user: current_user,
                 input_html: { value: f.object.grade_id, data: { without_json_parser: true } }%>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user,
+                input_html: { value: @teacher_report_card_form.classroom_id } %>
         </div>
       </div>
       <div class="row">
