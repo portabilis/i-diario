@@ -10,8 +10,8 @@ class TeacherReportCardsController < ApplicationController
     )
     @teacher_report_card_form.status = TeacherReportCardStatus::ALL
 
-    grades
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    fetch_grades
+    set_options_by_user
 
     authorize(TeacherReportCard, :show?)
   end
@@ -22,15 +22,14 @@ class TeacherReportCardsController < ApplicationController
     authorize(TeacherReportCard, :show?)
 
     if @teacher_report_card_form.valid?
-
       teacher_report_card = TeacherReportCard.new(current_configuration)
 
-      unity = current_unity
+      unity = Unity.find(@teacher_report_card_form.unity_id)
       discipline = Discipline.find(@teacher_report_card_form.discipline_id)
       classroom = Classroom.find(@teacher_report_card_form.classroom_id)
       grade = Grade.find(@teacher_report_card_form.grade_id)
       course = grade.course
-      year = current_school_calendar.year
+      year = current_user_school_year
 
       report = teacher_report_card.build({
         unity_id: unity.api_code,
@@ -82,7 +81,7 @@ class TeacherReportCardsController < ApplicationController
   end
   helper_method :disciplines
 
-  def grades
+  def fetch_grades
     @grades ||= current_user_classroom.classrooms_grades.map(&:grade)
   end
 
@@ -96,5 +95,18 @@ class TeacherReportCardsController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @disciplines = @fetch_linked_by_teacher[:disciplines]
     @classrooms = @fetch_linked_by_teacher[:classrooms]
+  end
+
+  def set_options_by_user
+    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
+    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms ||= Classroom.by_unity_id(@teacher_report_card_form.unity_id)
+                             .by_grade(@teacher_report_card_form.grade_id)
+                             .by_year(current_user_school_year || Date.current.year)
+                             .ordered
+    @disciplines ||= Discipline.by_classroom_id(@teacher_report_card_form.classroom_id)
   end
 end
