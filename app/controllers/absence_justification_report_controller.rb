@@ -15,7 +15,6 @@ class AbsenceJustificationReportController < ApplicationController
 
   def report
     @absence_justification_report_form = AbsenceJustificationReportForm.new(resource_params)
-    @absence_justification_report_form.unity_id = current_unity.id
     @absence_justification_report_form.current_teacher_id = current_teacher
     @absence_justification_report_form.user_id = user_id
     @absence_justification_report_form.school_calendar_year = fetch_school_calendar_by_user
@@ -38,7 +37,7 @@ class AbsenceJustificationReportController < ApplicationController
 
   def resource_params
     params.require(:absence_justification_report_form).permit(
-      :unity,
+      :unity_id,
       :classroom_id,
       :absence_date,
       :absence_date_end,
@@ -70,17 +69,21 @@ class AbsenceJustificationReportController < ApplicationController
   end
 
   def fetch_school_calendar_by_user
-    if current_user.current_role_is_admin_or_employee?
-      current_school_calendar
-    else
-      classroom = Classroom.find(@absence_justification_report_form.classroom_id)
+    classroom = Classroom.find_by(id: @absence_justification_report_form.classroom_id)
+    unity = Unity.find_by(id: @absence_justification_report_form.unity_id)
 
-      CurrentSchoolCalendarFetcher.new(current_unity, classroom, current_school_year).fetch
-    end
+    CurrentSchoolCalendarFetcher.new(unity, classroom, current_user_school_year).fetch
   end
 
   def set_options_by_user
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
+    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= Classroom.by_unity_id(@absence_justification_report_form.unity_id)
+                             .by_year(current_user_school_year || Date.current.year)
+                             .ordered
   end
 
   def fetch_linked_by_teacher
