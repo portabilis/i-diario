@@ -110,7 +110,7 @@ class TeacherReportCardsController < ApplicationController
     @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
 
     if @admin_or_teacher
-      fetch_options_by_admin_or_teacher
+      fetch_options_by_admin
     else
       fetch_linked_by_teacher
 
@@ -121,7 +121,7 @@ class TeacherReportCardsController < ApplicationController
     end
   end
 
-  def fetch_options_by_admin_or_teacher
+  def fetch_options_by_admin
     @classrooms ||= Classroom.by_unity_id(@teacher_report_card_form.unity_id)
                              .by_grade(@teacher_report_card_form.grade_id)
                              .by_year(current_user_school_year || Date.current.year)
