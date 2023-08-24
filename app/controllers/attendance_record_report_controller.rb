@@ -3,10 +3,6 @@ class AttendanceRecordReportController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
-    fetch_collections
-
     @attendance_record_report_form = AttendanceRecordReportForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
@@ -14,20 +10,23 @@ class AttendanceRecordReportController < ApplicationController
       discipline_id: current_user_discipline.id,
       period: current_teacher_period
     )
+
+    set_options_by_user
+    fetch_collections
   end
 
   def report
     @attendance_record_report_form = AttendanceRecordReportForm.new(resource_params)
     @attendance_record_report_form.school_calendar = SchoolCalendar.find_by(
-      unity: current_unity,
-      year: current_school_year
+      unity: @attendance_record_report_form.unity_id,
+      year: current_user_school_year
     )
 
     if @attendance_record_report_form.valid?
       attendance_record_report = AttendanceRecordReport.build(
         current_entity_configuration,
         current_teacher,
-        current_school_year,
+        current_user_school_year,
         @attendance_record_report_form.start_at,
         @attendance_record_report_form.end_at,
         @attendance_record_report_form.daily_frequencies,
@@ -41,8 +40,7 @@ class AttendanceRecordReportController < ApplicationController
     else
       @attendance_record_report_form.school_calendar_year = current_school_year
 
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
+      set_options_by_user
       fetch_collections
       clear_invalid_dates
       render :form
@@ -70,12 +68,6 @@ class AttendanceRecordReportController < ApplicationController
   end
 
   private
-
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
-  end
 
   def fetch_collections
     @number_of_classes = current_school_calendar.number_of_classes
@@ -116,5 +108,23 @@ class AttendanceRecordReportController < ApplicationController
       current_user.current_classroom_id,
       current_user.current_discipline_id
     ).teacher_period
+  end
+
+  def set_options_by_user
+    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
+    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms = Classroom.by_unity(@attendance_record_report_form.unity_id)
+                           .by_year(current_user_school_year || Date.current.year)
+                           .ordered
+    @disciplines = Discipline.by_classroom_id(@attendance_record_report_form.classroom_id)
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
   end
 end
