@@ -205,11 +205,11 @@ class AttendanceRecordReportForm
     active_searches = {}
 
     ActiveSearch.new.in_active_search_in_range(student_enrollment_ids, dates).each do |active_search|
-      next if active_search[:student_enrollment_ids].blank?
+      next if active_search[:student_id].blank?
 
-      active_search[:student_enrollment_ids].each do |student_enrollment|
-        active_searches[student_enrollment] ||= []
-        active_searches[student_enrollment] << active_search[:date]
+      active_search[:student_id].each do |student|
+        active_searches[student] ||= []
+        active_searches[student] << active_search[:date]
       end
     end
 
