@@ -83,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range.present?
+    return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
