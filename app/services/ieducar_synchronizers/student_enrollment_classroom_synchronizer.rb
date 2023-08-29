@@ -58,6 +58,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         if student_enrollment_classroom.changed?
           student_enrollment_classroom.save!
           changed_student_enrollment_classrooms << [student_enrollment.student_id, classroom_id]
+          remove_daily_note_students(student_enrollment_classroom, classroom_id, student_enrollment.student_id)
         end
 
         student_enrollment_classroom.entity_id = entity_id
@@ -84,5 +85,21 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         classroom_id
       )
     end
+  end
+
+  def remove_daily_note_students(student_enrollment_classroom, classroom_id, student_id)
+    joined_at = student_enrollment_classroom.joined_at.to_date
+    left_at = student_enrollment_classroom.left_at.to_date || Date.current
+
+    return if student_id.blank? || classroom_id.blank?
+
+    RemoveDailyNoteStudentsWorker.perform_in(
+      1.second,
+      entity_id,
+      joined_at,
+      left_at,
+      student_id,
+      classroom_id
+    )
   end
 end
