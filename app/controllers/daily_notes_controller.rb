@@ -180,8 +180,6 @@ class DailyNotesController < ApplicationController
   end
 
   def reload_students_list
-    students_enrollments = fetch_student_enrollments
-
     @students = []
 
     @daily_note.students.each_with_index do |note_student, index|
@@ -197,9 +195,6 @@ class DailyNotesController < ApplicationController
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
         note_student.active = student_active_on_date?(student_enrollment)
-        if !note_student.active
-          next if !student_displayable_as_inactive?(student_enrollment)
-        end
 
         @students << note_student
       end
