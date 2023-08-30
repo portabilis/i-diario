@@ -52,7 +52,7 @@ module ExamPoster
       teacher_discipline_classrooms.each do |tdc|
         classroom = tdc.classroom
         discipline = tdc.discipline
-        school_term_recovery_diary_record = school_term_recovery_diary_record(classroom, discipline, get_step(classroom).id)
+        @school_term_recovery_diary_record ||= school_term_recovery_diary_record(classroom, discipline, get_step(classroom).id)
 
         score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
@@ -68,7 +68,7 @@ module ExamPoster
 
         teacher_recovery_score_fetcher = StudentOnlyWithRecoveryFetcher.new(
           teacher_score_fetcher,
-          school_term_recovery_diary_record
+          @school_term_recovery_diary_record
         )
         teacher_recovery_score_fetcher.fetch!
 
@@ -129,12 +129,12 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      return unless school_term_recovery_diary_record
-      return unless enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
+      return unless @school_term_recovery_diary_record
+      return unless enrolled_on_date?(classroom, @school_term_recovery_diary_record, student)
 
       student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
                                                    .by_recovery_diary_record_id(
-                                                     school_term_recovery_diary_record.recovery_diary_record_id
+                                                    @school_term_recovery_diary_record.recovery_diary_record_id
                                                    )
                                                    .first
 
