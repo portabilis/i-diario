@@ -3,11 +3,7 @@ module ExamPoster
     attr_reader :recoveries
     attr_reader :scores
 
-    def initialize(teacher, classroom, discipline, step, students_with_daily_note, school_term_recovery_diary_record)
-      @teacher = teacher
-      @classroom = classroom
-      @discipline = discipline
-      @step = step
+    def initialize(students_with_daily_note, school_term_recovery_diary_record)
       @recoveries = []
       @scores = []
       @students_with_daily_note = students_with_daily_note
@@ -15,7 +11,7 @@ module ExamPoster
     end
 
     def fetch!
-      @recoveries = fetch_school_term_recovery_score(@classroom, @discipline, @step)
+      @recoveries = fetch_school_term_recovery_score
       @scores = Student.where(id: @recoveries.map(&:student_id)) if @recoveries.try(:any?)
     end
 

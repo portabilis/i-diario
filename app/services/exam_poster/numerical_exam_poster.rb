@@ -67,10 +67,6 @@ module ExamPoster
         teacher_score_fetcher.fetch!
 
         teacher_recovery_score_fetcher = StudentOnlyWithRecoveryFetcher.new(
-          teacher,
-          classroom,
-          discipline,
-          get_step(classroom),
           teacher_score_fetcher,
           school_term_recovery_diary_record
         )
