@@ -52,6 +52,7 @@ module ExamPoster
       teacher_discipline_classrooms.each do |tdc|
         classroom = tdc.classroom
         discipline = tdc.discipline
+        school_term_recovery_diary_record = school_term_recovery_diary_record(classroom, discipline, get_step(classroom).id)
 
         score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
@@ -182,6 +183,15 @@ module ExamPoster
 
       false
     end
+  end
 
+  def school_term_recovery_diary_record(classroom, discipline, step)
+    SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
+                                 .by_discipline_id(discipline)
+                                 .by_step_id(
+                                   classroom,
+                                   step
+                                 )
+                                 .first
   end
 end
