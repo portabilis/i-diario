@@ -35,14 +35,16 @@ module ExamPoster
                                             .by_test_date_between(@step.start_at, @step.end_at)
                                             .active
 
-      @scores = daily_note_students.each do |dns|
-        pending_exams = dns.select { |e| e.note.blank? && !e.exempted? }
+      @scores = daily_note_students.map do |dns|
+        pending_exam = dns if dns.note.blank? && !dns.exempted?
 
-        if pending_exams.any?
-          pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')
-          @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
+        if pending_exam.present?
+          pending_exam_string = pending_exam.daily_note.avaliation.description_to_teacher
+          @warning_messages << "O aluno #{dns.student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliação: #{pending_exam_string}."
         end
-      end
+
+        dns.student
+      end.uniq
     end
 
     def warnings?
