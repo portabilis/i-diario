@@ -3,13 +3,14 @@ module ExamPoster
     attr_reader :recoveries
     attr_reader :scores
 
-    def initialize(teacher, classroom, discipline, step)
+    def initialize(teacher, classroom, discipline, step, school_term_recovery_diary_record)
       @teacher = teacher
       @classroom = classroom
       @discipline = discipline
       @step = step
       @recoveries = []
       @scores = []
+      @school_term_recovery_diary_record = school_term_recovery_diary_record
     end
 
     def fetch!
@@ -20,12 +21,7 @@ module ExamPoster
     private
 
     def fetch_school_term_recovery_score(classroom, discipline, step)
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
-                                                                       .by_discipline_id(discipline)
-                                                                       .by_step_id(classroom, step.id)
-                                                                       .first
-
-      return unless school_term_recovery_diary_record
+      return unless @school_term_recovery_diary_record
 
       student_ids = students_with_daily_note.map(&:id)
       student_recoveries = RecoveryDiaryRecordStudent.by_recovery_diary_record_id(
