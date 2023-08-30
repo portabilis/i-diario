@@ -29,14 +29,14 @@ module ExamPoster
 
       students = fetch_student(daily_notes)
 
-      @scores = students.each do |student|
-        student_exams = DailyNoteStudent.by_classroom_id(@classroom)
-                                        .by_discipline_id(@discipline)
-                                        .by_student_id(student.id)
-                                        .by_test_date_between(@step.start_at, @step.end_at)
-                                        .active
+      daily_note_students = DailyNoteStudent.by_classroom_id(@classroom)
+                                            .by_discipline_id(@discipline)
+                                            .where(student: students)
+                                            .by_test_date_between(@step.start_at, @step.end_at)
+                                            .active
 
-        pending_exams = student_exams.select { |e| e.note.blank? && !e.exempted? }
+      @scores = daily_note_students.each do |dns|
+        pending_exams = dns.select { |e| e.note.blank? && !e.exempted? }
 
         if pending_exams.any?
           pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')
