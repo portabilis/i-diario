@@ -132,14 +132,6 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
-                                                                       .by_discipline_id(discipline)
-                                                                       .by_step_id(
-                                                                         classroom,
-                                                                         get_step(classroom).id
-                                                                       )
-                                                                       .first
-
       return unless school_term_recovery_diary_record
       return unless enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
 
