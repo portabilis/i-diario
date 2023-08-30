@@ -71,6 +71,7 @@ module ExamPoster
           classroom,
           discipline,
           get_step(classroom),
+          teacher_score_fetcher,
           school_term_recovery_diary_record
         )
         teacher_recovery_score_fetcher.fetch!
