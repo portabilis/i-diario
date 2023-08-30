@@ -42,13 +42,13 @@ module ExamPoster
 
     def post_by_classrooms
       scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
-      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
+      teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
+                                             .by_score_type([ScoreTypes::NUMERIC, nil])
+                                             .includes(:classroom, :discipline)
+                                             .distinct
+                                             .compact
 
       classroom_ids.each do |classroom|
-        teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
-                                               .by_classroom(classroom)
-                                               .by_score_type([ScoreTypes::NUMERIC, nil])
-
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
