@@ -45,6 +45,7 @@ module ExamPoster
 
       teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
                                              .by_score_type([ScoreTypes::NUMERIC, nil])
+                                             .by_year(@post_data.step.school_calendar.year)
                                              .includes(:classroom, :discipline)
                                              .distinct
                                              .compact
@@ -52,7 +53,8 @@ module ExamPoster
       teacher_discipline_classrooms.each do |tdc|
         classroom = tdc.classroom
         discipline = tdc.discipline
-        @school_term_recovery_diary_record ||= school_term_recovery_diary_record(classroom, discipline, get_step(classroom).id)
+        step_id = get_step(classroom).id
+        @school_term_recovery_diary_record ||= school_term_recovery_diary_record(classroom, discipline, step_id)
 
         score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
