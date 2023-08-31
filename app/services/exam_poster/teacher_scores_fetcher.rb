@@ -34,17 +34,24 @@ module ExamPoster
                                             .where(student: students)
                                             .by_test_date_between(@step.start_at, @step.end_at)
                                             .active
+      student_scores = {}
 
       @scores = daily_note_students.map do |dns|
         pending_exam = dns if dns.note.blank? && !dns.exempted?
 
         if pending_exam.present?
           pending_exam_string = pending_exam.daily_note.avaliation.description_to_teacher
-          @warning_messages << "O aluno #{dns.student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliação: #{pending_exam_string}."
+          student_scores[dns.student] ||= []
+          student_scores[dns.student] << pending_exam_string
         end
 
         dns.student
       end.uniq
+
+      student_scores.each do |student, pending_exams|
+        pending_exams_string = pending_exams.join(', ')
+        @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
+      end
     end
 
     def warnings?
