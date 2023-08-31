@@ -173,15 +173,15 @@ module ExamPoster
 
       false
     end
-  end
 
-  def school_term_recovery_diary_record(classroom, discipline, step)
-    SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
-                                 .by_discipline_id(discipline)
-                                 .by_step_id(
-                                   classroom,
-                                   step
-                                 )
-                                 .first
+    def school_term_recovery_diary_record(classroom, discipline, step)
+      SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
+                                   .by_discipline_id(discipline)
+                                   .by_step_id(
+                                     classroom,
+                                     step
+                                   )
+                                   .first
+    end
   end
 end
