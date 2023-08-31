@@ -54,7 +54,7 @@ module ExamPoster
         classroom = tdc.classroom
         discipline = tdc.discipline
         step_id = get_step(classroom).id
-        @school_term_recovery_diary_record ||= school_term_recovery_diary_record(classroom, discipline, step_id)
+        school_term_recovery_diary_record = school_term_recovery_diary_record(classroom, discipline, step_id)
 
         score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
@@ -70,7 +70,7 @@ module ExamPoster
 
         teacher_recovery_score_fetcher = StudentOnlyWithRecoveryFetcher.new(
           teacher_score_fetcher,
-          @school_term_recovery_diary_record
+          school_term_recovery_diary_record
         )
         teacher_recovery_score_fetcher.fetch!
 
@@ -93,7 +93,12 @@ module ExamPoster
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
           end
 
-          school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
+          school_term_recovery = fetch_school_term_recovery_score(
+            classroom,
+            discipline,
+            student_score.id,
+            school_term_recovery_diary_record
+          )
           next unless school_term_recovery
 
           if (recovery_value = score_rounder.round(school_term_recovery))
@@ -130,13 +135,13 @@ module ExamPoster
       score_types.include? exam_rule&.score_type
     end
 
-    def fetch_school_term_recovery_score(classroom, discipline, student)
-      return unless @school_term_recovery_diary_record
-      return unless enrolled_on_date?(classroom, @school_term_recovery_diary_record, student)
+    def fetch_school_term_recovery_score(classroom, discipline, student, school_term_recovery_diary_record)
+      return unless school_term_recovery_diary_record
+      return unless enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
 
       student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
                                                    .by_recovery_diary_record_id(
-                                                    @school_term_recovery_diary_record.recovery_diary_record_id
+                                                    school_term_recovery_diary_record.recovery_diary_record_id
                                                    )
                                                    .first
 
