@@ -20,7 +20,7 @@ module ExamPoster
     def fetch_school_term_recovery_score
       return unless @school_term_recovery_diary_record
 
-      student_ids = @students_with_daily_note.map(&:id)
+      student_ids = @students_with_daily_note.scores.map(&:id)
       student_recoveries = RecoveryDiaryRecordStudent.by_recovery_diary_record_id(
         @school_term_recovery_diary_record.recovery_diary_record_id
       )
