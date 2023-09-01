@@ -29,17 +29,6 @@ module ExamPoster
       end
     end
 
-    def exam_rule_definer(classroom, student)
-      student_enrrollment_classroom = StudentEnrollmentClassroom.by_student(student)
-                                                                .by_classroom(classroom)
-                                                                .by_date(Date.current)
-                                                                .first
-      return if student_enrrollment_classroom.nil?
-
-      grade_id = student_enrrollment_classroom.classrooms_grade&.grade_id
-      classroom.classrooms_grades.find_by(grade_id: grade_id).exam_rule
-    end
-
     def post_by_classrooms
       scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
