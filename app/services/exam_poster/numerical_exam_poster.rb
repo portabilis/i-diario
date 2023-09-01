@@ -75,12 +75,12 @@ module ExamPoster
         teacher_recovery_score_fetcher.fetch!
 
         student_scores = teacher_score_fetcher.scores + teacher_recovery_score_fetcher.scores
+        exam_rules = fetch_exam_rules(classroom, student_scores)
 
         student_scores.each do |student_score|
-          exam_rule = exam_rule_definer(classroom, student_score)
+          exam_rule = exam_rules[student_score.id].try([:exam_rule])
           next if exempted_discipline(classroom, discipline.id, student_score.id)
-          next unless correct_score_type(student_score.uses_differentiated_exam_rule,
-                                          exam_rule)
+          next unless correct_score_type(student_score.uses_differentiated_exam_rule, exam_rule)
           next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score)
 
           exempted_discipline_ids =
@@ -108,6 +108,27 @@ module ExamPoster
         end
       end
       scores
+    end
+
+    def fetch_exam_rules(classroom, students)
+      student_enrrollment_classrooms = StudentEnrollmentClassroom.by_student(students)
+                                                                 .by_classroom(classroom)
+                                                                 .by_date(Date.current)
+      enrollment_classrooms_exam_rules = {}
+
+      student_enrrollment_classrooms.each do |sec|
+        student_id = sec.student_enrollment.student_id
+
+        next if enrollment_classrooms_exam_rules.key?(student_id)
+
+        grade_id = sec.classrooms_grade&.grade_id
+
+        enrollment_classrooms_exam_rules[sec.student_id] = {
+          student: sec.student_enrollment.student,
+          student_enrollment_classroom: sec,
+          exam_rule: classroom.classrooms_grades.find_by(grade_id: grade_id).exam_rule
+        }
+      end
     end
 
     def exist_complementary_exam?(classroom, discipline, student_score)
