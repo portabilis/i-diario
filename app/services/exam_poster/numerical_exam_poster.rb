@@ -53,7 +53,7 @@ module ExamPoster
           teacher,
           classroom,
           discipline,
-          get_step(classroom)
+          step
         )
         teacher_score_fetcher.fetch!
 
@@ -71,15 +71,12 @@ module ExamPoster
           exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
           next if exempted_disciplines[student_score.id].present?
           next unless correct_score_type(student_score.uses_differentiated_exam_rule, exam_rule)
-          next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score)
-
-          exempted_discipline_ids =
-            ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+          next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score, step)
 
           next if exempted_discipline_ids.include?(discipline.id)
 
           if (value = StudentAverageCalculator.new(student_score)
-                                              .calculate(classroom, discipline, get_step(classroom)))
+                                              .calculate(classroom, discipline, step))
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
           end
 
@@ -126,9 +123,9 @@ module ExamPoster
       enrollment_classrooms_exam_rules
     end
 
-    def exist_complementary_exam?(classroom, discipline, student_score)
-      start_at = get_step(classroom).start_at
-      end_at = get_step(classroom).end_at
+    def exist_complementary_exam?(classroom, discipline, student_score, step)
+      start_at = step.start_at
+      end_at = step.end_at
 
       ComplementaryExamStudent.by_complementary_exam_id(
         ComplementaryExam.by_classroom_id(classroom)
@@ -151,7 +148,12 @@ module ExamPoster
       score_types.include? exam_rule&.score_type
     end
 
-    def fetch_school_term_recovery_score(classroom, discipline, student, school_term_recovery_diary_record)
+    def fetch_school_term_recovery_score(classroom,
+      discipline,
+      student,
+      school_term_recovery_diary_record,
+      step
+    )
       return unless school_term_recovery_diary_record
       return unless enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
 
@@ -169,7 +171,7 @@ module ExamPoster
           student,
           discipline.id,
           classroom.id,
-          get_step(classroom)
+          step
         ).calculate(score)
       end
 
