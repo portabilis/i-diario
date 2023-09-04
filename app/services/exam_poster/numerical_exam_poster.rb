@@ -127,11 +127,11 @@ module ExamPoster
       start_at = step.start_at
       end_at = step.end_at
 
-      ComplementaryExamStudent.by_complementary_exam_id(
-        ComplementaryExam.by_classroom_id(classroom)
-                         .by_discipline_id(discipline)
-                         .by_date_range(start_at, end_at)
-      ).by_student_id(student_score)
+      complementary_exams = ComplementaryExam.by_classroom_id(classroom)
+                                             .by_discipline_id(discipline)
+                                             .by_date_range(start_at, end_at)
+
+      ComplementaryExamStudent.by_complementary_exam_id(complementary_exams).by_student_id(student_score)
     end
 
     def numerical_or_school_term_recovery?(classroom, discipline, student_score)
