@@ -182,25 +182,25 @@ module ExamPoster
     end
 
     def exempt_discipline_students(classroom, discipline_id, students)
-      student_enrollment_classrooms = StudentEnrollmentClassroom.includes(
-        [student_enrollment: [:student, :exempted_disciplines]]
-      ).by_classroom(classroom.id).by_student(students).active
+      step_number = get_step(classroom).to_number
+      student_enrollments = StudentEnrollmentClassroom.includes(
+        [student_enrollment: [:student]]
+      ).by_classroom(classroom.id).by_student(students).active.map(&:student_enrollment).first
+      exempt_discipline_students = StudentEnrollmentExemptedDiscipline.includes(student_enrollments: :student).where(
+        student_enrollment: student_enrollments.map(&:student_enrollment),
+        discipline_id: discipline_id
+      ).by_step_number(step_number)
+
+      return if exempt_discipline_students.blank?
 
       student_exempted_in_disciplines = {}
 
-      student_enrollment_classrooms.each do |sec|
-        student_id = sec.student_enrollment.student_id
+      exempt_discipline_students.each do |exempt|
+        student_id = exempt.student_enrollment.student_id
 
         next if student_exempted_in_disciplines.key?(student_id)
 
-        step_number = get_step(classroom).to_number
-
-        exempted_discipline = sec.student_enrollment
-                                 .exempted_disciplines
-                                 .by_discipline(discipline_id)
-                                 .by_step_number(step_number)
-
-        student_exempted_in_disciplines[sec.student_id] = exempted_discipline
+        student_exempted_in_disciplines[student_id] = exempt
       end
 
       student_exempted_in_disciplines
