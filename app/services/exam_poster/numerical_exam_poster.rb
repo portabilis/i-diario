@@ -65,7 +65,9 @@ module ExamPoster
 
         student_scores = teacher_score_fetcher.scores + teacher_recovery_score_fetcher.scores
         exam_rules = fetch_exam_rules(classroom, student_scores)
-        exempted_disciplines = exempt_discipline_students(classroom, discipline.id, student_scores)
+        exempted_disciplines = exempt_discipline_students(classroom, discipline.id, student_scores, step)
+        exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
+        enrolled_on_date = school_term_recovery_diary_record ? enrolled_on_date?(classroom, school_term_recovery_diary_record, student_scores) : {}
 
         student_scores.each do |student_score|
           exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
