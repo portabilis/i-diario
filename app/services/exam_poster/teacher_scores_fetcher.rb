@@ -29,7 +29,8 @@ module ExamPoster
 
       students = fetch_student(daily_notes)
 
-      daily_note_students = DailyNoteStudent.by_classroom_id(@classroom)
+      daily_note_students = DailyNoteStudent.includes(:student)
+                                            .by_classroom_id(@classroom)
                                             .by_discipline_id(@discipline)
                                             .where(student: students)
                                             .by_test_date_between(@step.start_at, @step.end_at)
