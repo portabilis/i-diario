@@ -105,12 +105,11 @@ module ExamPoster
         student_enrollment: :student,
         classrooms_grade: :exam_rule
       ).by_student(students).by_classroom(classroom).by_date(Date.current)
+      classrooms_grades = classroom.classrooms_grades.where(
+        id: enrollment_classrooms.map(&:classrooms_grade).uniq
+      ).first
 
-      grade_id = classroom.classrooms_grades.find_by(
-        grade_id: enrollment_classrooms.map(&:classrooms_grade_id).uniq
-      )
-
-      return if grade_id.nil?
+      return {} if classrooms_grades.nil?
 
       enrollment_classrooms_exam_rules = {}
 
@@ -120,7 +119,7 @@ module ExamPoster
         next if enrollment_classrooms_exam_rules.key?(student_id)
 
         enrollment_classrooms_exam_rules[sec.student_id] = {
-          exam_rule: grade_id.exam_rule
+          exam_rule: classrooms_grades.exam_rule
         }
       end
 
