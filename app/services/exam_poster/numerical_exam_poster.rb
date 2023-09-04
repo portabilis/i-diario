@@ -69,7 +69,7 @@ module ExamPoster
 
         student_scores.each do |student_score|
           exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
-          next if exempted_disciplines[student_score.id]
+          next if exempted_disciplines[student_score.id].present?
           next unless correct_score_type(student_score.uses_differentiated_exam_rule, exam_rule)
           next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score)
 
