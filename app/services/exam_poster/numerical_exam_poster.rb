@@ -65,11 +65,11 @@ module ExamPoster
 
         student_scores = teacher_score_fetcher.scores + teacher_recovery_score_fetcher.scores
         exam_rules = fetch_exam_rules(classroom, student_scores)
-        exempted_disciplines = exempted_disciplines(classroom, discipline.id, student_scores)
+        exempted_disciplines = exempt_discipline_students(classroom, discipline.id, student_scores)
 
         student_scores.each do |student_score|
-          exam_rule = exam_rules[student_score.id].try([:exam_rule])
-          next exempted_disciplines[student_score.id] ? true : false
+          exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
+          next if exempted_disciplines[student_score.id]
           next unless correct_score_type(student_score.uses_differentiated_exam_rule, exam_rule)
           next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score)
 
@@ -108,17 +108,17 @@ module ExamPoster
 
       student_enrrollment_classrooms.each do |sec|
         student_id = sec.student_enrollment.student_id
-
         next if enrollment_classrooms_exam_rules.key?(student_id)
 
         grade_id = sec.classrooms_grade&.grade_id
 
         enrollment_classrooms_exam_rules[sec.student_id] = {
           student: sec.student_enrollment.student,
-          student_enrollment_classroom: sec,
           exam_rule: classroom.classrooms_grades.find_by(grade_id: grade_id).exam_rule
         }
       end
+
+      enrollment_classrooms_exam_rules
     end
 
     def exist_complementary_exam?(classroom, discipline, student_score)
@@ -175,7 +175,7 @@ module ExamPoster
       StudentEnrollmentClassroom.by_classroom(classroom).by_student(student).by_date(school_term_recovery_diary_record.recorded_at).any?
     end
 
-    def exempted_disciplines(classroom, discipline_id, students)
+    def exempt_discipline_students(classroom, discipline_id, students)
       student_enrollment_classrooms = StudentEnrollmentClassroom.includes(
         [student_enrollment: [:student, :exempted_disciplines]]
       ).by_classroom(classroom.id).by_student(students).active
@@ -196,6 +196,8 @@ module ExamPoster
 
         student_exempted_in_disciplines[sec.student_id] = exempted_discipline
       end
+
+      student_exempted_in_disciplines
     end
 
     def school_term_recovery_diary_record(classroom, discipline, step)
