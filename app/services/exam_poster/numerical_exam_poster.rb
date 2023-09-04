@@ -82,13 +82,17 @@ module ExamPoster
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
           end
 
-          school_term_recovery = fetch_school_term_recovery_score(
-            classroom,
-            discipline,
-            student_score.id,
-            school_term_recovery_diary_record
-          )
-          next unless school_term_recovery
+          if enrolled_on_date[student_score.id]
+            school_term_recovery = fetch_school_term_recovery_score(
+              classroom,
+              discipline,
+              student_score.id,
+              school_term_recovery_diary_record,
+              step
+            )
+
+            next unless school_term_recovery
+          end
 
           if (recovery_value = score_rounder.round(school_term_recovery))
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
@@ -157,7 +161,6 @@ module ExamPoster
       step
     )
       return unless school_term_recovery_diary_record
-      return unless enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
 
       student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
                                                    .by_recovery_diary_record_id(
@@ -180,12 +183,24 @@ module ExamPoster
       score
     end
 
-    def enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
-      StudentEnrollmentClassroom.by_classroom(classroom).by_student(student).by_date(school_term_recovery_diary_record.recorded_at).any?
+    def enrolled_on_date?(classroom, school_term_recovery_diary_record, students)
+      student_enrollment_classrooms = StudentEnrollmentClassroom.includes(student_enrollment: :student)
+                                                                .by_classroom(classroom)
+                                                                .by_student(students)
+                                                                .by_date(school_term_recovery_diary_record.recorded_at)
+      return {} if student_enrollment_classrooms.blank?
+
+      enrolled_on_date = {}
+
+      student_enrollment_classrooms.each do |sec|
+        enrolled_on_date[sec.student_id] = sec
+      end
+
+      enrolled_on_date
     end
 
-    def exempt_discipline_students(classroom, discipline_id, students)
-      step_number = get_step(classroom).to_number
+    def exempt_discipline_students(classroom, discipline_id, students, step)
+      step_number = step.to_number
       student_enrollments = StudentEnrollmentClassroom.includes(student_enrollment: [:student])
                                                       .by_classroom(classroom.id)
                                                       .by_student(students)
