@@ -67,7 +67,14 @@ module ExamPoster
         exam_rules = fetch_exam_rules(classroom, student_scores)
         exempted_disciplines = exempt_discipline_students(classroom, discipline.id, student_scores, step)
         exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
-        enrolled_on_date = school_term_recovery_diary_record ? enrolled_on_date?(classroom, school_term_recovery_diary_record, student_scores) : {}
+
+        if school_term_recovery_diary_record
+          enrolled_on_date = enrolled_on_date?(classroom, school_term_recovery_diary_record, student_scores)
+          recovery_diary_record = fecth_recovery_diary_record_students(student_scores, school_term_recovery_diary_record)
+        else
+          enrolled_on_date = {}
+          recovery_diary_record = {}
+        end
 
         student_scores.each do |student_score|
           exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
@@ -88,6 +95,7 @@ module ExamPoster
               discipline,
               student_score.id,
               school_term_recovery_diary_record,
+              recovery_diary_record[student_score.id],
               step
             )
 
@@ -179,15 +187,10 @@ module ExamPoster
       discipline,
       student,
       school_term_recovery_diary_record,
+      student_recovery,
       step
     )
       return unless school_term_recovery_diary_record
-
-      student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
-                                                   .by_recovery_diary_record_id(
-                                                    school_term_recovery_diary_record.recovery_diary_record_id
-                                                   )
-                                                   .first
 
       score = student_recovery.try(:score)
 
