@@ -14,7 +14,7 @@ class RemoveDailyNoteStudentsWorker
         date_avaliation = avaliations[avaliation_id].to_date
 
         daily_note_student.discard_or_undiscard(
-          date_avaliation <= joined_at || date_avaliation >= left_at
+          date_avaliation <= joined_at.to_date || date_avaliation >= left_at.to_date
         )
       end
     end

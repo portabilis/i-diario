@@ -88,8 +88,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
   end
 
   def remove_daily_note_students(student_enrollment_classroom, classroom_id, student_id)
-    joined_at = student_enrollment_classroom.joined_at.to_date
-    left_at = student_enrollment_classroom.left_at.to_date || Date.current
+    joined_at = student_enrollment_classroom.joined_at
+    left_at = student_enrollment_classroom.left_at || Date.current
 
     return if student_id.blank? || classroom_id.blank?
 
