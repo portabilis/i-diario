@@ -154,6 +154,27 @@ module ExamPoster
       score_types.include? exam_rule&.score_type
     end
 
+    def fecth_recovery_diary_record_students(students, school_term_recovery_diary_record)
+      recovery_diary_record_id = school_term_recovery_diary_record.recovery_diary_record_id
+
+      recovery_diary_records = RecoveryDiaryRecordStudent.by_student_id(students)
+                                                         .by_recovery_diary_record_id(recovery_diary_record_id)
+
+      return {} if recovery_diary_records.blank?
+
+      student_recovery_diary_records = {}
+
+      recovery_diary_records.each do |recovery_diary_record|
+        student_id = recovery_diary_record.student_id
+
+        next if student_recovery_diary_records.key?(student_id)
+
+        student_recovery_diary_records[recovery_diary_record.student_id] = recovery_diary_record
+      end
+
+      student_recovery_diary_records
+    end
+
     def fetch_school_term_recovery_score(classroom,
       discipline,
       student,
