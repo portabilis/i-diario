@@ -39,7 +39,38 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
   scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
+  scope :by_opinion_type, lambda { |opinion_type, classrooms| by_opinion_type_query(opinion_type, classrooms) }
+
   delegate :student_id, to: :student_enrollment, allow_nil: true
+
+  def self.by_opinion_type_query(opinion_type, classrooms)
+    return where(nil) unless opinion_type.present? && classrooms.present?
+
+    classrooms_grades = ClassroomsGrade.by_classroom_id(classrooms)
+                                       .includes(student_enrollment_classrooms: [student_enrollment: :student])
+                                       .includes(exam_rule: :differentiated_exam_rule)
+
+    students_by_opinion_type = []
+
+    classrooms_grades.each do |classroom_grade|
+      is_exam_rule_opinion_type = classroom_grade.exam_rule.opinion_type.eql?(opinion_type)
+      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule&.opinion_type.eql?(opinion_type) ||
+        is_exam_rule_opinion_type
+
+      classroom_grade.student_enrollment_classrooms.each do |student_enrollment_classroom|
+        differentiated = student_enrollment_classroom.student_enrollment
+                                                     .student
+                                                     .uses_differentiated_exam_rule
+        if differentiated && differentiated_exam_rule
+          students_by_opinion_type << student_enrollment_classroom.id
+        elsif is_exam_rule_opinion_type && !differentiated
+          students_by_opinion_type << student_enrollment_classroom.id
+        end
+      end
+    end
+
+    self.where(id: students_by_opinion_type)
+  end
 
   def self.by_date_range(start_at, end_at)
     conditions = <<-SQL.squish

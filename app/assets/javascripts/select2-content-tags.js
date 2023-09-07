@@ -57,6 +57,10 @@ $(function() {
             query.filter.by_description = term;
           }
 
+          if ($(element).attr('data-filter-start-with-description')) {
+            query.filter.start_with_description = term;
+          }
+
           return query;
         },
         results: function (data, page) {

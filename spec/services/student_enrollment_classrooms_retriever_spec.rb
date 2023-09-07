@@ -591,6 +591,45 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when with_recovery_note_in_step params exist'
+
+  context 'when have students and classroom with different exam rules' do
+    it 'should only return enrollment_classrooms with the differentiated exam rule' do
+      create_differentiated_exam_rule
+      create_student_with_differentiated_exam_rule
+
+      list_enrollment_classrooms = StudentEnrollmentClassroomsRetriever.call(
+        classrooms: classroom,
+        disciplines: discipline,
+        search_type: :by_date_range,
+        start_at: '2023-05-17',
+        end_at: '2023-10-03',
+        opinion_type: '3'
+      )
+
+      student_with_differentiated_exam_rule = list_enrollment_classrooms.map { |ec|
+        ec[:student_enrollment_classroom].student_enrollment.student.uses_differentiated_exam_rule
+      }
+      expect(student_with_differentiated_exam_rule).to eq([true])
+    end
+  end
+end
+
+def create_differentiated_exam_rule
+  differentiated_exam_rule = create(:exam_rule, opinion_type: '3')
+  exam_rule_default = create(:exam_rule, differentiated_exam_rule: differentiated_exam_rule)
+  classroom_grade.update(exam_rule: exam_rule_default)
+end
+
+def create_student_with_differentiated_exam_rule
+  student = create(:student, uses_differentiated_exam_rule: true)
+  student_enrollment = create(:student_enrollment, student: student)
+  enrollment_classroom = create(
+    :student_enrollment_classroom,
+    student_enrollment: student_enrollment,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-02-02',
+    left_at: ''
+  )
 end
 
 def create_student_enrollment_classrooms_with_status_and_date_base

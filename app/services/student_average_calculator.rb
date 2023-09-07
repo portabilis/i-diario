@@ -59,6 +59,7 @@ class StudentAverageCalculator
 
     daily_note_students.each do |daily_note_student|
       next if avaliation_exempted?(daily_note_student.daily_note.avaliation)
+      next if daily_note_student.note.blank? && daily_note_student.transfer_note.present?
 
       avaliations << { value: daily_note_student.recovered_note, avaliation_id: daily_note_student.daily_note.avaliation.id }
     end

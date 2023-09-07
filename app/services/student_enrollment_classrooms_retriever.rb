@@ -40,6 +40,8 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+    enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
+
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
     # Nao filtra as enturmacoes caso municipio tenha DATABASE
@@ -81,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range.present?
+    return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)

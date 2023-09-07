@@ -134,7 +134,7 @@ class AttendanceRecordReport < BaseReport
     end
 
     student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
-      student_enrollment[:student_enrollment_id]
+      student_enrollment[:student_enrollment].id
     }
 
     active_searches = active_searches_by_range(daily_frequencies, student_enrollment_ids)
@@ -487,7 +487,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def active_searches_by_range(daily_frequencies, student_enrollment_ids)
-    dates = daily_frequencies.map(&:frequency_date)
+    dates = daily_frequencies.map(&:frequency_date).uniq
 
     ActiveSearch.new.in_active_search_in_range(student_enrollment_ids, dates)
   end
