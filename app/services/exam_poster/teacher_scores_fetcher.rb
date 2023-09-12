@@ -67,6 +67,7 @@ module ExamPoster
 
     def validate_pending_exams(daily_notes, exams)
       number_of_exams = exams.count
+
       if daily_notes.count < number_of_exams
         pending_exams = exams.select { |exam| daily_notes.none? { |daily_note| daily_note.avaliation_id == exam.id } }
         pending_exams_string = pending_exams.map(&:description_to_teacher).join(', ')
