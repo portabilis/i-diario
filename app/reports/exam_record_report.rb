@@ -198,7 +198,8 @@ class ExamRecordReport < BaseReport
 
             student_note = ActiveSearchDailyNoteStudent.new
           elsif avaliation_id.present?
-            daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
+            note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
+            daily_note_student = student_transferred?(note_student) if note_student.present?
             student_note = daily_note_student || NullDailyNoteStudent.new
           end
 
@@ -325,6 +326,14 @@ class ExamRecordReport < BaseReport
 
       start_new_page if index < sliced_exams.count - 1
     end
+  end
+
+  def student_transferred?(note_student)
+    return note_student unless note_student.transfer_note_id
+
+    return note_student if note_student.note?
+
+    nil
   end
 
   def calculate_recovery_score(student_id, score)

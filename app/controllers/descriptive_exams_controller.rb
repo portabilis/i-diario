@@ -163,10 +163,10 @@ class DescriptiveExamsController < ApplicationController
     Date.current > date ? date : Date.current
   end
 
-  def fetch_student_enrollments
-    @student_enrollments = StudentEnrollmentsList.new(
-      classroom: @descriptive_exam.classroom,
-      discipline: @descriptive_exam.discipline,
+  def enrollment_classrooms_list
+    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: @descriptive_exam.classroom,
+      disciplines: @descriptive_exam.discipline,
       opinion_type: @descriptive_exam.opinion_type,
       start_at: @descriptive_exam.step.try(:start_at),
       end_at: @descriptive_exam.step.try(:end_at),
@@ -174,23 +174,24 @@ class DescriptiveExamsController < ApplicationController
       search_type: :by_date_range,
       period: @period,
       remove_duplicate_student: true
-    ).student_enrollments
+    )
   end
 
   def fetch_students
-    fetch_student_enrollments
-
     @students = []
 
-    @student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
-        exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
-        exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment)
-        regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
-        exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
-        @students << exam_student
-      end
+    enrollment_classrooms_list.each do |enrollment_classroom|
+      student = enrollment_classroom[:student]
+      student_enrollment = enrollment_classroom[:student_enrollment]
+      exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
+      exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
+      exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment)
+      regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
+      exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
+
+      left_at = enrollment_classroom[:student_enrollment_classroom].left_at.to_date
+      exam_student.active_student =  left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
+      @students << exam_student
     end
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
