@@ -82,7 +82,7 @@ module ExamPoster
       student_enrollment_classrooms = daily_notes.map do |daily_note|
         avaliation_id = daily_note.avaliation_id
         date_avaliation = avaliations[avaliation_id].to_date
-        student_with_transfer_note = daily_note.students.where.not(transfer_note: nil)
+        student_with_transfer_note << daily_note.students.where.not(transfer_note: nil)
 
         StudentEnrollmentClassroom.includes(student_enrollment: :student)
                                   .by_classroom(@classroom.id)
