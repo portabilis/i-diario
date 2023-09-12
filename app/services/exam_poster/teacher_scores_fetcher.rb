@@ -76,24 +76,33 @@ module ExamPoster
 
     def fetch_student(daily_notes, exams)
       avaliations = exams.pluck(:id, :test_date).to_h
-      daily_notes = daily_notes.where(avaliation_id: avaliations.keys)
-      student_with_transfer_note = []
+      filter_daily_notes = daily_notes.where(avaliation_id: avaliations.keys)
+      daily_note_students = filter_daily_notes.flat_map(&:students)
+                                              .select { |dns| dns.transfer_note_id.present? }
+      active_enrollment_classrooms = StudentEnrollmentClassroom.by_classroom(@classroom.id).active
 
-      student_enrollment_classrooms = daily_notes.map do |daily_note|
+      enrollment_classroom_on_date = []
+
+      filter_daily_notes.each do |daily_note|
         avaliation_id = daily_note.avaliation_id
         date_avaliation = avaliations[avaliation_id].to_date
-        student_with_transfer_note << daily_note.students.where.not(transfer_note: nil)
 
-        StudentEnrollmentClassroom.includes(student_enrollment: :student)
-                                  .by_classroom(@classroom.id)
-                                  .by_date(date_avaliation)
-                                  .active
+        enrollment_classroom_on_date += active_enrollment_classrooms.select do |sec|
+          left_at = sec.left_at&.to_date || Date.current
+
+          date_avaliation >= sec.joined_at.to_date && date_avaliation < left_at
+        end
       end
 
-      student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
-      students = student_enrollments.flatten.map(&:student).compact.flatten
-      students << student_with_transfer_note.map(&:student) if student_with_transfer_note.any?
-      students.flatten
+      students = Student.joins(student_enrollments: :student_enrollment_classrooms).where(
+        student_enrollment_classrooms: {
+          id: enrollment_classroom_on_date.flatten.map(&:id)
+        }
+      )
+
+      students += Student.where(id: daily_note_students.map(&:student_id).uniq)
+
+      students.flatten.uniq
     end
 
     def current_test_setting
