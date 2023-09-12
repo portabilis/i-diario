@@ -18,7 +18,8 @@ module ExamPoster
                         .by_test_date_between(@step.start_at, @step.end_at)
       number_of_exams = exams.count
 
-      daily_notes = DailyNote.by_classroom_id(@classroom.id)
+      daily_notes = DailyNote.includes(:students)
+                             .by_classroom_id(@classroom.id)
                              .by_discipline_id(@discipline.id)
                              .by_test_date_between(@step.start_at, @step.end_at)
                              .active
@@ -75,10 +76,13 @@ module ExamPoster
 
     def fetch_student(daily_notes, exams)
       avaliations = exams.pluck(:id, :test_date).to_h
+      daily_notes = daily_notes.where(avaliation_id: avaliations.keys)
+      student_with_transfer_note = []
 
-      student_enrollment_classrooms = daily_notes.where(avaliation_id: avaliations.keys).map do |daily_note|
+      student_enrollment_classrooms = daily_notes.map do |daily_note|
         avaliation_id = daily_note.avaliation_id
         date_avaliation = avaliations[avaliation_id].to_date
+        student_with_transfer_note = daily_note.students.where.not(transfer_note: nil)
 
         StudentEnrollmentClassroom.includes(student_enrollment: :student)
                                   .by_classroom(@classroom.id)
@@ -87,7 +91,9 @@ module ExamPoster
       end
 
       student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
-      student_enrollments.flatten.map(&:student).compact
+      students = student_enrollments.flatten.map(&:student).compact.flatten
+      students << student_with_transfer_note.map(&:student) if student_with_transfer_note.any?
+      students.flatten
     end
 
     def current_test_setting
