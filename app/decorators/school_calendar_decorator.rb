@@ -40,8 +40,9 @@ class SchoolCalendarDecorator
   def self.current_steps_by_classrooms(school_calendar, classrooms)
     classroom_ids = classrooms.map(&:id)
     school_calendar_classroom = school_calendar.classrooms.where(classroom_id: classroom_ids)
+
     if school_calendar_classroom.present?
-      school_calendar_classroom.classroom_steps
+      school_calendar_classroom.map(&:classroom_steps).flatten
     else
       school_calendar.steps
     end
