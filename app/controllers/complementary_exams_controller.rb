@@ -27,6 +27,10 @@ class ComplementaryExamsController < ApplicationController
     ).localized
 
     set_options_by_user
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@complementary_exam.classroom)
+    end
   end
 
   def create
@@ -50,10 +54,14 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exam.step_id = find_step_id
     @complementary_exam = @complementary_exam.localized
 
-    authorize @complementary_exam
-
     set_options_by_user
     reload_students_list
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@complementary_exam.classroom)
+    end
+
+    authorize @complementary_exam
   end
 
   def update

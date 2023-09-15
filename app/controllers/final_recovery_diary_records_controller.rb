@@ -24,6 +24,10 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_record.recovery_diary_record.classroom = current_user_classroom
     @final_recovery_diary_record.recovery_diary_record.discipline = current_user_discipline
 
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@final_recovery_diary_record.recovery_diary_record.classroom)
+    end
+
     number_of_decimal_places
   end
 
@@ -50,6 +54,10 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     set_options_by_user
 
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@final_recovery_diary_record.recovery_diary_record.classroom)
+    end
 
     authorize @final_recovery_diary_record
 

@@ -32,6 +32,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.discipline_id = current_user_discipline.id
     set_options_by_user
 
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@school_term_recovery_diary_record.recovery_diary_record.classroom)
+    end
+
     if current_test_setting.blank? && @admin_or_teacher
       flash[:error] = t('errors.avaliations.require_setting')
 
@@ -69,6 +73,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     step_number = @school_term_recovery_diary_record.step_number
     @school_term_recovery_diary_record.step_id = steps_fetcher.step(step_number).try(:id)
     set_options_by_user
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@school_term_recovery_diary_record.recovery_diary_record.classroom)
+    end
 
     if @school_term_recovery_diary_record.step_id.blank?
       recorded_at = @school_term_recovery_diary_record.recorded_at

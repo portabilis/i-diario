@@ -28,8 +28,12 @@ class TransferNotesController < ApplicationController
     @transfer_note = TransferNote.new(
       unity_id: current_unity.id,
       classroom_id: current_user_classroom.id,
-      discipline_id: current_user_discipline.id,
+      discipline_id: current_user_discipline.id
     ).localized
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
+    end
 
     authorize @transfer_note
   end
@@ -57,6 +61,10 @@ class TransferNotesController < ApplicationController
     @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.step_id = steps_fetcher.step(@transfer_note.step_number).try(:id)
     @students_ordered = @transfer_note.daily_note_students.ordered
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
+    end
 
     authorize @transfer_note
   end

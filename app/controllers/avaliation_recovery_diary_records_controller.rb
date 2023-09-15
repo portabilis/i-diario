@@ -25,6 +25,10 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @unities = fetch_unities
     @school_calendar_steps = current_school_calendar.steps
 
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom)
+    end
+
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
@@ -59,6 +63,12 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     set_options_by_user
 
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(
+        @avaliation_recovery_diary_record.recovery_diary_record.classroom
+      )
+    end
 
     authorize @avaliation_recovery_diary_record
 
