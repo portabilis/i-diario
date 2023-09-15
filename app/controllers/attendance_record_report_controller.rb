@@ -13,6 +13,12 @@ class AttendanceRecordReportController < ApplicationController
 
     set_options_by_user
     fetch_collections
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom_id(
+        @attendance_record_report_form.classroom_id
+      )
+    end
   end
 
   def report
