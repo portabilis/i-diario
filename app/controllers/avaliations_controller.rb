@@ -46,6 +46,10 @@ class AvaliationsController < ApplicationController
     @avaliation.grades = current_user_classroom.grades
     @avaliation.test_date = Time.zone.today
 
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+    end
+
     authorize resource
   end
 
@@ -111,9 +115,13 @@ class AvaliationsController < ApplicationController
 
     @avaliation = resource
 
-    authorize @avaliation
-
     test_settings
+
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+    end
+
+    authorize @avaliation
   end
 
   def update
