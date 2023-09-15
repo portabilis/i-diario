@@ -60,6 +60,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     fetch_unities
     set_options_by_user
+    @disciplines = @disciplines.by_grade(current_grade) unless current_user.current_role_is_admin_or_employee?
   end
 
   def create
@@ -92,12 +93,15 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def edit
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
-
-    authorize @discipline_teaching_plan
-
     fetch_unities
     set_options_by_user
+
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade)
+    end
+
+    authorize @discipline_teaching_plan
   end
 
   def update

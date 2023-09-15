@@ -40,8 +40,7 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
+    set_options_by_user
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.discipline = current_user_discipline
@@ -50,6 +49,11 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
     @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
+
+    unless current_user.current_role_is_admin_or_employee?
+      fetch_linked_by_teacher
+      @disciplines = @disciplines.by_classroom(@discipline_lesson_plan.lesson_plan.classroom)
+    end
 
     authorize @discipline_lesson_plan
   end
@@ -87,9 +91,12 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+
+    unless current_user.current_role_is_admin_or_employee?
+      fetch_linked_by_teacher
+      @disciplines = @disciplines.by_classroom(@discipline_lesson_plan.lesson_plan.classroom)
+    end
 
     authorize @discipline_lesson_plan
   end
