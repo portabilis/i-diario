@@ -39,6 +39,12 @@ class DisciplineContentRecordsController < ApplicationController
       classroom_id: current_user_classroom.id
     )
 
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom_id(
+        @discipline_content_record.content_record.classroom_id
+      )
+    end
+
     authorize @discipline_content_record
   end
 
