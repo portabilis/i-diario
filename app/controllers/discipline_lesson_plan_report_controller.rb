@@ -12,6 +12,11 @@ class DisciplineLessonPlanReportController < ApplicationController
       discipline_id: current_user_discipline.id
     )
     set_options_by_user
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom_id(
+        @discipline_lesson_plan_report_form.classroom_id
+      )
+    end
   end
 
   def lesson_plan_report
