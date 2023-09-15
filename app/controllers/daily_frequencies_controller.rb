@@ -15,6 +15,12 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency.frequency_date = Date.current
     @class_numbers = []
 
+    unless current_user.current_role_is_admin_or_employee?
+      @disciplines = @disciplines.by_classroom_id(
+        @daily_frequency.classroom
+      )
+    end
+
     authorize @daily_frequency
   end
 
