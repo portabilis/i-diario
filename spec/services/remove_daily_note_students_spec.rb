@@ -70,7 +70,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
     end
 
     context 'and is NOT in enrolled on the date' do
-      it 'should return an empty array, no modifications made' do
+      it 'should return an array with daily_note_student with discarded' do
         student_enrollment_classroom.update(left_at: '2017-02-25')
 
         expect(subject.map(&:discarded?)).to eq ([true])
