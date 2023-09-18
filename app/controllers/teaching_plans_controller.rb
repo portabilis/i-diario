@@ -7,7 +7,7 @@ class TeachingPlansController < ApplicationController
   def index
     @teaching_plans = apply_scopes(TeachingPlan).includes(:discipline, classroom: :unity)
                                                 .by_teacher(current_teacher.id)
-                                                .filter(filtering_params(params[:search]))
+                                                .filter_from_params(filtering_params(params[:search]))
 
     authorize @teaching_plans
 

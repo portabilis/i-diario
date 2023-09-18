@@ -20,7 +20,7 @@ class AbsenceJustificationsController < ApplicationController
                                                                .by_unity(current_unity)
                                                                .by_classroom(current_user_classroom)
                                                                .by_school_calendar(current_school_calendar)
-                                                               .filter(filtering_params(params[:search]))
+                                                               .filter_from_params(filtering_params(params[:search]))
                                                                .includes(:students).uniq.ordered)
 
     if author_type.present?
