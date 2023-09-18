@@ -8,6 +8,7 @@ class ExamRecordReportController < ApplicationController
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     )
+
     set_options_by_user
     fetch_collections
 
@@ -86,7 +87,9 @@ class ExamRecordReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom(@exam_record_report_form.classroom)
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom_id(
+      @exam_record_report_form.classroom_id
+    )
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
   end
 

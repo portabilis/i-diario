@@ -93,7 +93,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom(@discipline_lesson_plan_report_form.classroom)
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
   end
 
   def fetch_collections
