@@ -11,8 +11,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
     create(
       :avaliation,
       :with_teacher_discipline_classroom,
-      school_calendar: school_calendar,
-      test_date: '2017-03-01'
+      school_calendar: school_calendar
     )
   }
   let(:daily_note) { create(:daily_note, avaliation: avaliation) }
