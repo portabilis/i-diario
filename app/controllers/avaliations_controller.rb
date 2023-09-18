@@ -38,6 +38,7 @@ class AvaliationsController < ApplicationController
     return if not_allow_numerical_exam
 
     fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -446,13 +447,4 @@ class AvaliationsController < ApplicationController
       return false
     end
   end
-
-  def grades
-    if current_user.current_role_is_admin_or_employee?
-      @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
-    else
-      fetch_linked_by_teacher
-    end
-  end
-  helper_method :grades
 end
