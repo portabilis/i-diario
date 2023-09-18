@@ -86,7 +86,7 @@ class ExamRecordReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom(@exam_record_report_form.classroom)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
   end
 

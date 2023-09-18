@@ -41,7 +41,7 @@ class DisciplineContentRecordsController < ApplicationController
 
     unless current_user.current_role_is_admin_or_employee?
       @disciplines = @disciplines.by_classroom_id(
-        @discipline_content_record.content_record.classroom_id
+        @discipline_content_record.content_record.classroom
       )
     end
 

@@ -15,8 +15,8 @@ class AttendanceRecordReportController < ApplicationController
     fetch_collections
 
     unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom_id(
-        @attendance_record_report_form.classroom_id
+      @disciplines = @disciplines.by_classroom(
+        @attendance_record_report_form.classroom
       )
     end
   end
@@ -125,7 +125,7 @@ class AttendanceRecordReportController < ApplicationController
     @classrooms = Classroom.by_unity(@attendance_record_report_form.unity_id)
                            .by_year(current_user_school_year || Date.current.year)
                            .ordered
-    @disciplines = Discipline.by_classroom_id(@attendance_record_report_form.classroom_id)
+    @disciplines = Discipline.by_classroom(@attendance_record_report_form.classroom)
   end
 
   def fetch_linked_by_teacher
