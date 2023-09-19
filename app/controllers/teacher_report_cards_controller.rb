@@ -55,6 +55,33 @@ class TeacherReportCardsController < ApplicationController
     render json: classroom.grades
   end
 
+  def classrooms_filter
+    return if params[:grade_id].blank? && params[:unity_id].blank?
+
+    render json: classrooms_to_select2(params[:grade_id], params[:unity_id])
+  end
+
+  def classrooms_to_select2(grade_id, unity_id)
+    classrooms_to_select2 = []
+
+    classrooms = Classroom.by_unity(unity_id)
+                          .by_year(current_user_school_year)
+                          .by_teacher_id(current_teacher.id)
+                          .ordered
+
+    classrooms = classrooms.by_grade(grade_id) if grade_id.present?
+
+    classrooms.each do |classroom|
+      classrooms_to_select2 << OpenStruct.new(
+        id: classroom.id,
+        name: classroom.description.to_s,
+        text: classroom.description.to_s
+      )
+    end
+
+    classrooms_to_select2
+  end
+
   protected
 
   def unities

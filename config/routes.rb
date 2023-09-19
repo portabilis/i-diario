@@ -420,6 +420,7 @@ Rails.application.routes.draw do
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     get '/reports/teacher_report_cards/set_grades_by_classroom', to: 'teacher_report_cards#set_grades_by_classroom', as: 'grade_teacher_report_cards'
+    get '/reports/teacher_report_cards/classrooms_filter', to: 'teacher_report_cards#classrooms_filter', as: 'classrooms_filter_teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
 
     resources :data_exportations, only: [:index, :create]

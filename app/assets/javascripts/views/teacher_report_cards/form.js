@@ -56,7 +56,7 @@ $(function () {
 
     if (!_.isEmpty(grade_id) || !_.isEmpty(unity_id)) {
       $.ajax({
-        url: Routes.classrooms_filter_lessons_boards_pt_br_path({
+        url: Routes.classrooms_filter_teacher_report_cards_pt_br_path({
           unity_id: unity_id,
           grade_id: grade_id,
           format: 'json'
@@ -68,12 +68,12 @@ $(function () {
   }
 
   function handleFetchClassroomsSuccess(data) {
-    if (data.lessons_boards.length == 0) {
+    if (data.teacher_report_cards.length == 0) {
       flashMessages.error('Não há turmas para a unidade selecionada.')
       return;
     }
 
-    let classrooms = _.map(data.lessons_boards, function (classroom) {
+    let classrooms = _.map(data.teacher_report_cards, function (classroom) {
       return { id: classroom.table.id, name: classroom.table.name, text: classroom.table.text };
     });
 
