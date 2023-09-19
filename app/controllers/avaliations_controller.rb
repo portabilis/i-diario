@@ -88,7 +88,11 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+      unless current_user.current_role_is_admin_or_employee?
+        fetch_linked_by_teacher
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+      end
 
       render :multiple_classrooms
     end
@@ -104,8 +108,13 @@ class AvaliationsController < ApplicationController
       respond_to_save
     else
       @avaliation = resource
+
+      unless current_user.current_role_is_admin_or_employee?
+        fetch_linked_by_teacher
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+      end
+
       test_settings
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
       render :new
     end
@@ -139,6 +148,10 @@ class AvaliationsController < ApplicationController
 
       return render :edit
     else
+      unless current_user.current_role_is_admin_or_employee?
+        fetch_linked_by_teacher
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+      end
       flash.clear
     end
 
