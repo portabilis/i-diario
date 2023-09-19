@@ -53,6 +53,10 @@ class TransferNotesController < ApplicationController
     else
       set_options_by_user
 
+      unless current_user.current_role_is_admin_or_employee?
+        @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
+      end
+
       render :new
     end
   end
@@ -82,6 +86,10 @@ class TransferNotesController < ApplicationController
       respond_with @transfer_note, location: transfer_notes_path
     else
       set_options_by_user
+
+      unless current_user.current_role_is_admin_or_employee?
+        @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
+      end
 
       render :new
     end
