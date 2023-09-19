@@ -10,7 +10,6 @@ class TeacherReportCardsController < ApplicationController
     )
     @teacher_report_card_form.status = TeacherReportCardStatus::ALL
 
-    fetch_grades
     set_options_by_user
 
     authorize(TeacherReportCard, :show?)
