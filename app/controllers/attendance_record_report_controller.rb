@@ -125,7 +125,7 @@ class AttendanceRecordReportController < ApplicationController
     @classrooms = Classroom.by_unity(@attendance_record_report_form.unity_id)
                            .by_year(current_user_school_year || Date.current.year)
                            .ordered
-    @disciplines = Discipline.by_classroom(@attendance_record_report_form.classroom)
+    @disciplines = Discipline.by_classroom_id(@attendance_record_report_form.classroom_id)
   end
 
   def fetch_linked_by_teacher
