@@ -13,14 +13,6 @@ class TeacherReportCardsController < ApplicationController
     fetch_grades
     set_options_by_user
 
-    # Filtra turmas e disciplinas de acordo com a serie para evitar que o usuario selecione uma turma
-    # de outra serie
-    unless @admin_or_teacher
-      classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
-      @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(current_user_classroom)
-    end
-
     authorize(TeacherReportCard, :show?)
   end
 
@@ -51,6 +43,7 @@ class TeacherReportCardsController < ApplicationController
       })
       send_pdf(t("routes.teacher_report_cards"), report)
     else
+      set_options_by_user
       render :form
     end
   end
@@ -89,10 +82,6 @@ class TeacherReportCardsController < ApplicationController
   end
   helper_method :disciplines
 
-  def fetch_grades
-
-  end
-
   def resource_params
     params.require(:teacher_report_card_form).permit(
       :unity_id, :classroom_id, :grade_id, :discipline_id, :status
@@ -116,7 +105,7 @@ class TeacherReportCardsController < ApplicationController
 
       classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
       @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(current_user_classroom)
+      @disciplines = @disciplines.by_classroom_id(@teacher_report_card_form.classroom_id)
       @unities = [current_user_unity]
     end
   end
