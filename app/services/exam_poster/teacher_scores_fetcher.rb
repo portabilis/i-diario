@@ -18,7 +18,8 @@ module ExamPoster
                         .by_test_date_between(@step.start_at, @step.end_at)
       number_of_exams = exams.count
 
-      daily_notes = DailyNote.by_classroom_id(@classroom.id)
+      daily_notes = DailyNote.includes(:students)
+                             .by_classroom_id(@classroom.id)
                              .by_discipline_id(@discipline.id)
                              .by_test_date_between(@step.start_at, @step.end_at)
                              .active
@@ -66,6 +67,7 @@ module ExamPoster
 
     def validate_pending_exams(daily_notes, exams)
       number_of_exams = exams.count
+
       if daily_notes.count < number_of_exams
         pending_exams = exams.select { |exam| daily_notes.none? { |daily_note| daily_note.avaliation_id == exam.id } }
         pending_exams_string = pending_exams.map(&:description_to_teacher).join(', ')
@@ -75,19 +77,33 @@ module ExamPoster
 
     def fetch_student(daily_notes, exams)
       avaliations = exams.pluck(:id, :test_date).to_h
+      filter_daily_notes = daily_notes.where(avaliation_id: avaliations.keys)
+      daily_note_students = filter_daily_notes.flat_map(&:students)
+                                              .select { |dns| dns.transfer_note_id.present? }
+      active_enrollment_classrooms = StudentEnrollmentClassroom.by_classroom(@classroom.id).active
 
-      student_enrollment_classrooms = daily_notes.where(avaliation_id: avaliations.keys).map do |daily_note|
+      enrollment_classroom_on_date = []
+
+      filter_daily_notes.each do |daily_note|
         avaliation_id = daily_note.avaliation_id
         date_avaliation = avaliations[avaliation_id].to_date
 
-        StudentEnrollmentClassroom.includes(student_enrollment: :student)
-                                  .by_classroom(@classroom.id)
-                                  .by_date(date_avaliation)
-                                  .active
+        enrollment_classroom_on_date += active_enrollment_classrooms.select do |sec|
+          left_at = sec.left_at&.to_date || Date.current
+
+          date_avaliation >= sec.joined_at.to_date && date_avaliation < left_at
+        end
       end
 
-      student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
-      student_enrollments.flatten.map(&:student).compact
+      students = Student.joins(student_enrollments: :student_enrollment_classrooms).where(
+        student_enrollment_classrooms: {
+          id: enrollment_classroom_on_date.flatten.map(&:id)
+        }
+      )
+
+      students += Student.where(id: daily_note_students.map(&:student_id).uniq)
+
+      students.flatten.uniq
     end
 
     def current_test_setting
