@@ -48,7 +48,11 @@ class AvaliationsController < ApplicationController
     @avaliation.test_date = Time.zone.today
 
     unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+      if current_user_discipline.grouper?
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
+      else
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
+      end
     end
 
     authorize resource
@@ -91,7 +95,12 @@ class AvaliationsController < ApplicationController
 
       unless current_user.current_role_is_admin_or_employee?
         fetch_linked_by_teacher
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+
+        if current_user_discipline.grouper?
+          @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
+        else
+          @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
+        end
       end
 
       render :multiple_classrooms
@@ -111,7 +120,12 @@ class AvaliationsController < ApplicationController
 
       unless current_user.current_role_is_admin_or_employee?
         fetch_linked_by_teacher
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+
+        if current_user_discipline.grouper?
+          @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
+        else
+          @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
+        end
       end
 
       test_settings
@@ -128,7 +142,11 @@ class AvaliationsController < ApplicationController
     test_settings
 
     unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+      if current_user_discipline.grouper?
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
+      else
+        @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
+      end
     end
 
     authorize @avaliation
@@ -150,7 +168,12 @@ class AvaliationsController < ApplicationController
     else
       unless current_user.current_role_is_admin_or_employee?
         fetch_linked_by_teacher
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom)
+
+        if current_user_discipline.grouper?
+          @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
+        else
+          @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
+        end
       end
       flash.clear
     end
