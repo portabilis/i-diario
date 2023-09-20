@@ -1,21 +1,11 @@
 $(function () {
 
   var $avaliation_setting = $('#avaliation_test_setting_test_id'),
-      $classroom_id = $('#avaliation_classroom_id'),
-      $discipline_id = $('#avaliation_discipline_id'),
-      flashMessages = new FlashMessages();
+    $classroom_id = $('#avaliation_classroom_id'),
+    $discipline_id = $('#avaliation_discipline_id'),
+    flashMessages = new FlashMessages();
 
   window.disciplines = [];
-  var fetchDisciplines = function (params, callback) {
-    if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
-        window.disciplines = data;
-        callback(window.disciplines);
-      });
-    } else {
-      callback(window.disciplines);
-    }
-  };
 
   window.testSettingTests = []
   var fetchTestSettingTests = function (params, callback) {
@@ -33,25 +23,44 @@ $(function () {
     await getTestSetting();
     await getGrades();
 
-    var params = { classroom_id: e.val };
     window.disciplines = [];
 
     $discipline_id.val('').select2({ data: [] });
 
     if (!_.isEmpty(e.val)) {
-
-      fetchDisciplines(params, function (disciplines) {
-        var selectedDisciplines = _.map(disciplines, function (discipline) {
-          return { id:discipline['id'], text: discipline['description'] };
-        });
-
-        $discipline_id.select2({ data: selectedDisciplines });
-      });
+      fetchDisciplines(e.val);
     }
-   
+
   });
 
-  async function getTestSetting(){
+  function fetchDisciplines(classroom_id) {
+    $.ajax({
+      url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      success: handleFetchDisciplinesSuccess,
+      error: handleFetchDisciplinesError
+    });
+  };
+
+  function handleFetchDisciplinesSuccess(data) {
+    if (data.disciplines.length == 0) {
+      flashMessages.error('Não existem disciplinas para a turma selecionada.');
+      return;
+    }
+
+    var selectedDisciplines = data.disciplines.map(function (discipline) {
+      return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
+    });
+
+    $discipline_id.select2({ data: selectedDisciplines });
+    // Define a primeira opção como selecionada por padrão
+    $discipline_id.val(selectedDisciplines[0].id).trigger('change');
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
+
+  async function getTestSetting() {
     let classroom_id = $classroom_id.select2('val');
 
     if (!_.isEmpty(classroom_id)) {
@@ -70,17 +79,17 @@ $(function () {
     var settings = data['avaliations']
 
     var options = _.map(settings, function (settings) {
-      return { id:settings['id'], text: settings['description'] };
+      return { id: settings['id'], text: settings['description'] };
     });
 
     $avaliation_setting.select2({ data: options })
   }
-  
+
   function handleFetchTestSettingsByClassroomError() {
     flashMessages.error('A regra de avaliação da turma informada não permite lançamentos de avaliações numéricas');
   }
 
-  async function getGrades(){
+  async function getGrades() {
     let classroom_id = $('#avaliation_classroom_id').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
@@ -103,9 +112,9 @@ $(function () {
       return { id: grades_by_classroom['id'], text: grades_by_classroom['description'] };
     });
 
-    grades_select2.select2({data: options, multiple: true})
+    grades_select2.select2({ data: options, multiple: true })
   }
-  
+
   function handleFetchGradesByClassroomError() {
     flashMessages.error('Não foi encontrado nenhuma série vinculada nessa turma');
   }
@@ -122,22 +131,18 @@ $(function () {
           discipline_id: discipline_id,
           format: 'json'
         }),
-        success: handleFetchTypeScoreForDisciplineByClassroomSuccess,
         error: handleFetchTypeScoreForDisciplineByClassroomError
       });
     };
   });
 
-  function handleFetchTypeScoreForDisciplineByClassroomSuccess(data) {
-    flashMessages.success('Disciplina com regra de avaliação numérica');
-  }
   function handleFetchTypeScoreForDisciplineByClassroomError() {
     flashMessages.error('Essa disciplina não tem regra de avaliação numérica');
   }
 
-  var updateFieldsBasedOnTestSetting = function() {
-    $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
-      if ($.inArray(data.test_setting.exam_setting_type, ['general', 'general_by_school' ]) != -1){
+  var updateFieldsBasedOnTestSetting = function () {
+    $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function (data) {
+      if ($.inArray(data.test_setting.exam_setting_type, ['general', 'general_by_school']) != -1) {
         $('.avaliation_test_setting').hide();
       }
 
@@ -191,7 +196,7 @@ $(function () {
   });
 
   var $test_setting_input = $('#avaliation_test_setting_test_id');
-  $test_setting_input.on('change', function(e) {
+  $test_setting_input.on('change', function (e) {
     updateFieldsBaseOnTestSettingTest();
   });
 
@@ -199,7 +204,7 @@ $(function () {
   var $description_input = $('#avaliation_description');
   var $weight_input = $('#avaliation_weight');
 
-  var updateFieldsBaseOnTestSettingTest = function() {
+  var updateFieldsBaseOnTestSettingTest = function () {
     if (!document.getElementById('avaliation_test_setting_test_id') || _.isEmpty($test_setting_input.select2('val')) || $test_setting_input.select2('val') == 'empty') {
       $('.avaliation_description').hide();
       $('.avaliation_weight').hide();
@@ -207,7 +212,7 @@ $(function () {
       return;
     }
 
-    $.getJSON('/test_setting_tests/' + $test_setting_input.select2('val')).always(function(data) {
+    $.getJSON('/test_setting_tests/' + $test_setting_input.select2('val')).always(function (data) {
       if (data.allow_break_up) {
         $('.avaliation_description').show();
         $('.avaliation_weight').show();
@@ -232,7 +237,7 @@ $(function () {
     }
   }
 
-  $(document).ready(function(){
+  $(document).ready(function () {
     initFields();
   });
 });
