@@ -11,12 +11,7 @@ class ExamRecordReportController < ApplicationController
 
     set_options_by_user
     fetch_collections
-
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom_id(
-        @exam_record_report_form.classroom_id
-      )
-    end
+    fetch_disciplines_by_classroom
   end
 
   def report
@@ -29,6 +24,8 @@ class ExamRecordReportController < ApplicationController
     else
       set_options_by_user
       set_school_calendars
+      fetch_disciplines_by_classroom
+
       render :form
     end
   end
@@ -114,5 +111,18 @@ class ExamRecordReportController < ApplicationController
 
     @school_calendar_steps = SchoolCalendarStep.where(school_calendar: school_calendar).ordered
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(@exam_record_report_form.classroom_id).ordered
+  end
+
+  def fetch_disciplines_by_classroom
+    unless current_user.current_role_is_admin_or_employee?
+      classroom_id = @exam_record_report_form.classroom_id
+      @disciplines = @disciplines.by_classroom_id(classroom_id)
+
+      if current_user_discipline.grouper?
+        @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
+      else
+        @disciplines = @disciplines.not_descriptor
+      end
+    end
   end
 end

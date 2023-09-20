@@ -11,7 +11,19 @@ class DisciplineLessonPlanReportController < ApplicationController
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     )
+
     set_options_by_user
+
+    unless current_user.current_role_is_admin_or_employee?
+      classroom = @discipline_lesson_plan_report_form.classroom_id
+      @disciplines = @disciplines.by_classroom_id(classroom)
+
+      if current_user_discipline.grouper?
+        @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
+      else
+        @disciplines = @disciplines.not_descriptor
+      end
+    end
   end
 
   def lesson_plan_report

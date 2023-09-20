@@ -52,7 +52,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.discipline = current_user_discipline
     @discipline_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
-      grade: current_grade,
+      grade: current_grade.first.grade,
       unity: current_unity
     )
 
@@ -60,7 +60,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     fetch_unities
     set_options_by_user
-    @disciplines = @disciplines.by_grade(current_grade) unless current_user.current_role_is_admin_or_employee?
+    fetch_disciplines_by_grade
   end
 
   def create
@@ -87,19 +87,18 @@ class DisciplineTeachingPlansController < ApplicationController
       yearly_term_type_id
       fetch_unities
       set_options_by_user
+      fetch_disciplines_by_grade
 
       render :new
     end
   end
 
   def edit
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
+
     fetch_unities
     set_options_by_user
-
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_grade(@discipline_teaching_plan.teaching_plan.grade)
-    end
+    fetch_disciplines_by_grade
 
     authorize @discipline_teaching_plan
   end
@@ -129,6 +128,7 @@ class DisciplineTeachingPlansController < ApplicationController
       yearly_term_type_id
       fetch_unities
       set_options_by_user
+      fetch_disciplines_by_grade
 
       render :edit
     end
@@ -334,7 +334,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def current_grade
-    current_user_grade = ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
+    @current_user_grade ||= ClassroomsGrade.by_classroom_id(current_user_classroom.id)
   end
 
   def set_options_by_user
@@ -378,5 +378,18 @@ class DisciplineTeachingPlansController < ApplicationController
       current_user.current_school_year,
       current_user.current_unity_id
     ).to_json
+  end
+
+  def fetch_disciplines_by_grade
+    return if current_user.current_role_is_admin_or_employee?
+
+    @grades = current_grade.map(&:grade).uniq
+    @disciplines = @disciplines.by_grade(current_grade)
+
+    if current_user_discipline.grouper?
+      @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
+    else
+      @disciplines = @disciplines.not_descriptor
+    end
   end
 end

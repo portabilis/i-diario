@@ -27,10 +27,7 @@ class ComplementaryExamsController < ApplicationController
     ).localized
 
     set_options_by_user
-
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(@complementary_exam.classroom)
-    end
+    fetch_disciplines_by_classroom
   end
 
   def create
@@ -45,9 +42,8 @@ class ComplementaryExamsController < ApplicationController
       respond_with @complementary_exam, location: complementary_exams_path
     else
       set_options_by_user
-      unless current_user.current_role_is_admin_or_employee?
-        @disciplines = @disciplines.by_classroom(@complementary_exam.classroom)
-      end
+      fetch_disciplines_by_classroom
+
       render :new
     end
   end
@@ -58,11 +54,8 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exam = @complementary_exam.localized
 
     set_options_by_user
+    fetch_disciplines_by_classroom
     reload_students_list
-
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(@complementary_exam.classroom)
-    end
 
     authorize @complementary_exam
   end
@@ -81,10 +74,9 @@ class ComplementaryExamsController < ApplicationController
       respond_with @complementary_exam, location: complementary_exams_path
     else
       set_options_by_user
-      unless current_user.current_role_is_admin_or_employee?
-        @disciplines = @disciplines.by_classroom(@complementary_exam.classroom)
-      end
+      fetch_disciplines_by_classroom
       reload_students_list
+
       render :edit
     end
   end
@@ -238,5 +230,18 @@ class ComplementaryExamsController < ApplicationController
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @exam_rules_ids ||= @fetch_linked_by_teacher[:classroom_grades].map(&:exam_rule_id)
+  end
+
+  def fetch_disciplines_by_classroom
+    unless current_user.current_role_is_admin_or_employee?
+      classroom = @complementary_exam.classroom
+      @disciplines = @disciplines.by_classroom(classroom)
+
+      if current_user_discipline.grouper?
+        @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
+      else
+        @disciplines = @disciplines.not_descriptor
+      end
+    end
   end
 end

@@ -24,16 +24,13 @@ class TransferNotesController < ApplicationController
 
   def new
     set_options_by_user
+    fetch_disciplines_by_classroom
 
     @transfer_note = TransferNote.new(
       unity_id: current_unity.id,
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     ).localized
-
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
-    end
 
     authorize @transfer_note
   end
@@ -52,10 +49,7 @@ class TransferNotesController < ApplicationController
       respond_with @transfer_note, location: transfer_notes_path
     else
       set_options_by_user
-
-      unless current_user.current_role_is_admin_or_employee?
-        @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
-      end
+      fetch_disciplines_by_classroom
 
       render :new
     end
@@ -66,9 +60,7 @@ class TransferNotesController < ApplicationController
     @transfer_note.step_id = steps_fetcher.step(@transfer_note.step_number).try(:id)
     @students_ordered = @transfer_note.daily_note_students.ordered
 
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
-    end
+    fetch_disciplines_by_classroom
 
     authorize @transfer_note
   end
@@ -86,10 +78,7 @@ class TransferNotesController < ApplicationController
       respond_with @transfer_note, location: transfer_notes_path
     else
       set_options_by_user
-
-      unless current_user.current_role_is_admin_or_employee?
-        @disciplines = @disciplines.by_classroom(@transfer_note.classroom)
-      end
+      fetch_disciplines_by_classroom
 
       render :new
     end
@@ -233,5 +222,18 @@ class TransferNotesController < ApplicationController
     data = daily_note_students.values.map(&:any?)
 
     flash[:alert] = t('errors.daily_note.at_least_one_daily_note_student') if data.include?(false)
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @transfer_note.classroom
+    @disciplines = @disciplines.by_classroom(classroom)
+
+    if current_user_discipline.grouper?
+      @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
+    else
+      @disciplines = @disciplines.not_descriptor
+    end
   end
 end

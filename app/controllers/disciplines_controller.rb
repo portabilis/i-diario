@@ -39,7 +39,11 @@ class DisciplinesController < ApplicationController
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?
 
-    @disciplines
+    unless current_user.current_role_is_admin_or_employee?
+      is_grouper = current_user_discipline.grouper?
+      knowledge_area_id = @disciplines.knowledge_area_id
+      @disciplines = is_grouper ? @disciplines.where(knowledge_area_id: knowledge_area_id) : @disciplines.distinct.not_descriptor
+    end
   end
 
   def search
