@@ -43,8 +43,6 @@ class StudentsSynchronizer < BaseSynchronizer
   end
 
   def create_users(student_id)
-    entity_id = Entity.current&.id if entity_id.nil?
-
     UserForStudentCreatorWorker.perform_in(1.second, entity_id, student_id)
   end
 end
