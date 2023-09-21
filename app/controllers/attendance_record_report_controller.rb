@@ -13,12 +13,6 @@ class AttendanceRecordReportController < ApplicationController
 
     set_options_by_user
     fetch_collections
-
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom_id(
-        @attendance_record_report_form.classroom_id
-      )
-    end
   end
 
   def report
@@ -130,7 +124,7 @@ class AttendanceRecordReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines].by_classroom_id(@attendance_record_report_form.classroom_id)
     @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_classroom_id(@attendance_record_report_form.classroom_id).not_descriptor
   end
 end

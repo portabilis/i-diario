@@ -17,13 +17,7 @@ class DailyFrequenciesController < ApplicationController
 
     unless current_user.current_role_is_admin_or_employee?
       classroom = @daily_frequency.classroom
-      @disciplines = @disciplines.by_classroom(classroom)
-
-      if current_user_discipline.grouper?
-        @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-      else
-        @disciplines = @disciplines.not_descriptor
-      end
+      @disciplines = @disciplines.by_classroom(classroom).not_descriptor
     end
 
     authorize @daily_frequency

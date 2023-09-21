@@ -41,13 +41,7 @@ class DisciplineContentRecordsController < ApplicationController
 
     unless current_user.current_role_is_admin_or_employee?
       classroom_id = @discipline_content_record.content_record.classroom_id
-      @disciplines = @disciplines.by_classroom_id(classroom_id)
-
-      if current_user_discipline.grouper?
-        @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-      else
-        @disciplines = @disciplines.not_descriptor
-      end
+      @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
     end
 
     authorize @discipline_content_record

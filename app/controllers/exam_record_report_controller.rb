@@ -114,15 +114,9 @@ class ExamRecordReportController < ApplicationController
   end
 
   def fetch_disciplines_by_classroom
-    unless current_user.current_role_is_admin_or_employee?
-      classroom_id = @exam_record_report_form.classroom_id
-      @disciplines = @disciplines.by_classroom_id(classroom_id)
+    return if current_user.current_role_is_admin_or_employee?
 
-      if current_user_discipline.grouper?
-        @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-      else
-        @disciplines = @disciplines.not_descriptor
-      end
-    end
+    classroom_id = @exam_record_report_form.classroom_id
+    @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
   end
 end

@@ -131,7 +131,7 @@ class TeacherReportCardsController < ApplicationController
 
       classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
       @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(@teacher_report_card_form.classroom_id)
+      @disciplines = @disciplines.by_classroom_id(@teacher_report_card_form.classroom_id).not_descriptor
       @unities = [current_user_unity]
     end
   end

@@ -360,12 +360,6 @@ class DisciplineLessonPlansController < ApplicationController
 
     fetch_linked_by_teacher
     classroom = @discipline_lesson_plan.lesson_plan.classroom
-    @disciplines = @disciplines.by_classroom(classroom)
-
-    if current_user_discipline.grouper?
-      @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-    else
-      @disciplines = @disciplines.not_descriptor
-    end
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

@@ -384,12 +384,6 @@ class DisciplineTeachingPlansController < ApplicationController
     return if current_user.current_role_is_admin_or_employee?
 
     @grades = current_grade.map(&:grade).uniq
-    @disciplines = @disciplines.by_grade(current_grade)
-
-    if current_user_discipline.grouper?
-      @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-    else
-      @disciplines = @disciplines.not_descriptor
-    end
+    @disciplines = @disciplines.by_grade(current_grade).not_descriptor
   end
 end

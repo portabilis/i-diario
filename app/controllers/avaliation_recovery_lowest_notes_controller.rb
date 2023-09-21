@@ -45,11 +45,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @lowest_note_recovery.recovery_diary_record.unity = current_unity
     @students_lowest_note = StudentNotesInStepFetcher.new
 
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(
-        @lowest_note_recovery.recovery_diary_record.classroom
-      )
-    end
+    fetch_disciplines_by_classroom
 
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
@@ -74,6 +70,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       respond_with @lowest_note_recovery, location: avaliation_recovery_lowest_notes_path
     else
       set_options_by_user
+      fetch_disciplines_by_classroom
 
       @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
 
@@ -83,15 +80,11 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def edit
     set_options_by_user
+
     @lowest_note_recovery = AvaliationRecoveryLowestNote.find(params[:id]).localized
     step_number = @lowest_note_recovery.step_number
     @lowest_note_recovery.step_id = steps_fetcher.step(step_number).try(:id)
-
-    unless current_user.current_role_is_admin_or_employee?
-      @disciplines = @disciplines.by_classroom(
-        @lowest_note_recovery.recovery_diary_record.classroom
-      )
-    end
+    fetch_disciplines_by_classroom
 
     if @lowest_note_recovery.step_id.blank?
       recorded_at = @lowest_note_recovery.recorded_at
@@ -101,6 +94,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     end
 
     authorize @lowest_note_recovery
+
     fetch_data
   end
 
@@ -116,6 +110,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       respond_with @lowest_note_recovery, location: avaliation_recovery_lowest_notes_path
     else
       set_options_by_user
+      fetch_disciplines_by_classroom
 
       @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
 
@@ -335,5 +330,13 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     flash[:alert] = t('activerecord.errors.models.avaliation_recovery_lowest_note.test_setting_without_arithmetic_calculation_type')
 
     redirect_to root_path
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    @disciplines = @disciplines.by_classroom(
+      @lowest_note_recovery.recovery_diary_record.classroom
+    ).not_descriptor
   end
 end

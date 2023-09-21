@@ -47,13 +47,7 @@ class AvaliationsController < ApplicationController
     @avaliation.grades = current_user_classroom.grades
     @avaliation.test_date = Time.zone.today
 
-    unless current_user.current_role_is_admin_or_employee?
-      if current_user_discipline.grouper?
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
-      else
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
-      end
-    end
+    fetch_disciplines_by_classroom
 
     authorize resource
   end
@@ -92,16 +86,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
-
-      unless current_user.current_role_is_admin_or_employee?
-        fetch_linked_by_teacher
-
-        if current_user_discipline.grouper?
-          @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
-        else
-          @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
-        end
-      end
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
       render :multiple_classrooms
     end
@@ -117,16 +102,8 @@ class AvaliationsController < ApplicationController
       respond_to_save
     else
       @avaliation = resource
-
-      unless current_user.current_role_is_admin_or_employee?
-        fetch_linked_by_teacher
-
-        if current_user_discipline.grouper?
-          @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
-        else
-          @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
-        end
-      end
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
 
       test_settings
 
@@ -135,19 +112,12 @@ class AvaliationsController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @avaliation = resource
 
     test_settings
-
-    unless current_user.current_role_is_admin_or_employee?
-      if current_user_discipline.grouper?
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
-      else
-        @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
-      end
-    end
+    fetch_disciplines_by_classroom
 
     authorize @avaliation
   end
@@ -166,21 +136,14 @@ class AvaliationsController < ApplicationController
 
       return render :edit
     else
-      unless current_user.current_role_is_admin_or_employee?
-        fetch_linked_by_teacher
-
-        if current_user_discipline.grouper?
-          @disciplines = @disciplines.by_classroom(@avaliation.classroom).where(knowledge_area_id: @disciplines.knowledge_area_id)
-        else
-          @disciplines = @disciplines.by_classroom(@avaliation.classroom).not_descriptor
-        end
-      end
       flash.clear
     end
 
     if resource.save
       respond_to_save
     else
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
       test_settings
 
       render :edit
@@ -320,7 +283,7 @@ class AvaliationsController < ApplicationController
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
-    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
   end
 
   def respond_to_save
@@ -481,5 +444,12 @@ class AvaliationsController < ApplicationController
       flash.now[:alert] = t('avaliation.grades_not_allow_numeric_exam')
       return false
     end
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @avaliation.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

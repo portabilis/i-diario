@@ -222,12 +222,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     return if current_user.current_role_is_admin_or_employee?
 
     classroom = @final_recovery_diary_record.recovery_diary_record.classroom
-    @disciplines = @disciplines.by_classroom(classroom)
-
-    if current_user_discipline.grouper?
-      @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-    else
-      @disciplines = @disciplines.not_descriptor
-    end
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

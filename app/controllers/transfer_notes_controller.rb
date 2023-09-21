@@ -23,14 +23,14 @@ class TransferNotesController < ApplicationController
   end
 
   def new
-    set_options_by_user
-    fetch_disciplines_by_classroom
-
     @transfer_note = TransferNote.new(
       unity_id: current_unity.id,
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     ).localized
+
+    set_options_by_user
+    fetch_disciplines_by_classroom
 
     authorize @transfer_note
   end
@@ -228,12 +228,6 @@ class TransferNotesController < ApplicationController
     return if current_user.current_role_is_admin_or_employee?
 
     classroom = @transfer_note.classroom
-    @disciplines = @disciplines.by_classroom(classroom)
-
-    if current_user_discipline.grouper?
-      @disciplines = @disciplines.where(knowledge_area_id: @disciplines.knowledge_area_id)
-    else
-      @disciplines = @disciplines.not_descriptor
-    end
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end
