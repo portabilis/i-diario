@@ -92,6 +92,8 @@ $(function () {
   async function getGrades() {
     let classroom_id = $('#avaliation_classroom_id').select2('val');
 
+    $('#avaliation_grade_ids').val(null).trigger("change");
+
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
         url: Routes.set_grades_by_classrooms_avaliations_pt_br_path({
