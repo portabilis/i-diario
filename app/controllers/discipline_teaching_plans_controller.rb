@@ -383,7 +383,6 @@ class DisciplineTeachingPlansController < ApplicationController
   def fetch_disciplines_by_grade
     return if current_user.current_role_is_admin_or_employee?
 
-    @grades = current_grade.map(&:grade).uniq
-    @disciplines = @disciplines.by_grade(current_grade).not_descriptor
+    @disciplines = @disciplines.by_grade(current_grade.first.grade_id).not_descriptor
   end
 end
