@@ -149,11 +149,9 @@ class Avaliation < ApplicationRecord
   end
 
   def classroom_description
-    grades_by_classroom = classroom.classrooms_grades.map(&:grade)
+    return classroom if grades.count == 1
 
-    return classroom if grades_by_classroom.count == 1
-
-    "#{classroom} - #{grades_by_classroom.pluck(:description).join(', ')}"
+    "#{classroom} - #{grades.pluck(:description).join(', ')}"
   end
 
   private
