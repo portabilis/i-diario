@@ -217,13 +217,12 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
-        recovery_student = recovery_diary_record.students.detect { |student_recovery|
-          student_recovery.student_id == student.id
-        }
+        recovery_student = recovery_diary_record.students.where(student_id: student.id).first
         note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record)
+
         @students << note_student
       end
     end
