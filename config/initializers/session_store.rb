@@ -17,3 +17,5 @@ else
     secure: false
   }
 end
+
+Rails.application.config.session_store :redis_store, redis_config
