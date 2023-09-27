@@ -90,6 +90,21 @@ FactoryGirl.define do
       end
     end
 
+    trait :with_student_enrollment_classroom_with_date do
+      after(:create) do |classroom, evaluator|
+        student_enrollment = evaluator.student_enrollment
+        student_enrollment ||= create(:student_enrollment, student: evaluator.student || create(:student))
+        classrooms_grade = create(:classrooms_grade, classroom: classroom)
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade: classrooms_grade,
+          student_enrollment: student_enrollment,
+          joined_at: '2017-01-01',
+          left_at: '2017-04-01'
+        )
+      end
+    end
+
     trait :with_classroom_trimester_steps do
       after(:create) do |classroom, evaluator|
         school_calendar = evaluator.school_calendar || create(:school_calendar, unity: classroom.unity)

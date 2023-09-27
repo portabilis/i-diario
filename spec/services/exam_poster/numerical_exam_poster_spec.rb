@@ -7,7 +7,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     create(
       :classroom,
       :with_classroom_semester_steps,
-      :with_student_enrollment_classroom,
+      :with_student_enrollment_classroom_with_date,
       :score_type_numeric_and_concept_create_rule
     )
   }
