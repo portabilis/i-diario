@@ -14,6 +14,7 @@ class SchoolCalendarDayValidator < ActiveModel::EachValidator
       message = step ? I18n.t('errors.messages.not_school_calendar_day') : I18n.t('errors.messages.is_not_between_steps')
 
       break unless school_day
+    end
 
     record.errors.add(attribute, message) unless school_day
   end
