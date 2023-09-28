@@ -157,9 +157,9 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def enrollment_classrooms_list
-    @enrollment_classrooms_list ||= StudentEnrollmentsList.new(
-      classroom: @descriptive_exam.classroom,
-      discipline: @descriptive_exam.discipline,
+    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: @descriptive_exam.classroom,
+      disciplines: @descriptive_exam.discipline,
       opinion_type: @descriptive_exam.opinion_type,
       start_at: @descriptive_exam.step.try(:start_at),
       end_at: @descriptive_exam.step.try(:end_at),
@@ -167,7 +167,7 @@ class DescriptiveExamsController < ApplicationController
       search_type: :by_date_range,
       period: @period,
       remove_duplicate_student: true
-    ).student_enrollment_classrooms
+    )
   end
 
   def fetch_students

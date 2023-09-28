@@ -183,6 +183,5 @@ module ExamPoster
 
       false
     end
-
   end
 end
