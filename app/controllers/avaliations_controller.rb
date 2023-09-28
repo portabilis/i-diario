@@ -38,13 +38,15 @@ class AvaliationsController < ApplicationController
     return if not_allow_numerical_exam
 
     fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    @grades = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
     @avaliation.classroom = current_user_classroom
     @avaliation.discipline = current_user_discipline
-    @avaliation.grades = current_user_classroom.grades
     @avaliation.test_date = Time.zone.today
+
+    fetch_disciplines_by_classroom
 
     authorize resource
   end
@@ -84,6 +86,7 @@ class AvaliationsController < ApplicationController
     else
       test_settings
       fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
 
       render :multiple_classrooms
     end
@@ -99,21 +102,25 @@ class AvaliationsController < ApplicationController
       respond_to_save
     else
       @avaliation = resource
-      test_settings
       fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
+
+      test_settings
 
       render :new
     end
   end
 
   def edit
-    fetch_linked_by_teacher
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
     @avaliation = resource
-
-    authorize @avaliation
+    @grades = @avaliation.grades
 
     test_settings
+    fetch_disciplines_by_classroom
+
+    authorize @avaliation
   end
 
   def update
@@ -136,6 +143,8 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
       test_settings
 
       render :edit
@@ -275,8 +284,9 @@ class AvaliationsController < ApplicationController
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
-    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
-    @grades = @fetch_linked_by_teacher[:classroom_grades].by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
+    @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
+    @grades = @classroom_grades.map(&:grade).uniq
   end
 
   def respond_to_save
@@ -439,12 +449,11 @@ class AvaliationsController < ApplicationController
     end
   end
 
-  def grades
-    if current_user.current_role_is_admin_or_employee?
-      @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
-    else
-      fetch_linked_by_teacher
-    end
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @avaliation.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+    @grades = @classroom_grades.by_classroom_id(classroom.id).map(&:grade).uniq
   end
-  helper_method :grades
 end

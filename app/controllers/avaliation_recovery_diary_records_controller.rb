@@ -9,7 +9,9 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   def index
     set_options_by_user
     fetch_avaliation_recovery_diary_records_by_user
+
     authorize @avaliation_recovery_diary_records
+
     @school_calendar_steps = current_school_calendar.steps
   end
 
@@ -24,6 +26,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     @unities = fetch_unities
     @school_calendar_steps = current_school_calendar.steps
+
+    fetch_disciplines_by_classroom
 
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
@@ -47,6 +51,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
       set_options_by_user
+      fetch_disciplines_by_classroom
 
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       reload_students_list if daily_note_students.present?
@@ -59,6 +64,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     set_options_by_user
 
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
+
+    fetch_disciplines_by_classroom
 
     authorize @avaliation_recovery_diary_record
 
@@ -87,6 +94,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
       set_options_by_user
+      fetch_disciplines_by_classroom
 
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       reload_students_list if daily_note_students.present?
@@ -300,5 +308,12 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @avaliation_recovery_diary_record.recovery_diary_record.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

@@ -124,7 +124,7 @@ class AttendanceRecordReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
     @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_classroom_id(@attendance_record_report_form.classroom_id).not_descriptor
   end
 end

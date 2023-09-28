@@ -52,7 +52,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.discipline = current_user_discipline
     @discipline_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
-      grade: current_grade,
+      grade: current_grade.first.grade,
       unity: current_unity
     )
 
@@ -60,6 +60,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     fetch_unities
     set_options_by_user
+    fetch_disciplines_by_grade
   end
 
   def create
@@ -86,6 +87,7 @@ class DisciplineTeachingPlansController < ApplicationController
       yearly_term_type_id
       fetch_unities
       set_options_by_user
+      fetch_disciplines_by_grade
 
       render :new
     end
@@ -94,10 +96,11 @@ class DisciplineTeachingPlansController < ApplicationController
   def edit
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
 
-    authorize @discipline_teaching_plan
-
     fetch_unities
     set_options_by_user
+    fetch_disciplines_by_grade
+
+    authorize @discipline_teaching_plan
   end
 
   def update
@@ -125,6 +128,7 @@ class DisciplineTeachingPlansController < ApplicationController
       yearly_term_type_id
       fetch_unities
       set_options_by_user
+      fetch_disciplines_by_grade
 
       render :edit
     end
@@ -330,7 +334,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def current_grade
-    current_user_grade = ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
+    @current_user_grade ||= ClassroomsGrade.by_classroom_id(current_user_classroom.id)
   end
 
   def set_options_by_user
@@ -374,5 +378,11 @@ class DisciplineTeachingPlansController < ApplicationController
       current_user.current_school_year,
       current_user.current_unity_id
     ).to_json
+  end
+
+  def fetch_disciplines_by_grade
+    return if current_user.current_role_is_admin_or_employee?
+
+    @disciplines = @disciplines.by_grade(current_grade.first.grade_id).not_descriptor
   end
 end

@@ -15,14 +15,14 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def new
-    set_options_by_user
-
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.new.localized
     @final_recovery_diary_record.school_calendar = current_school_calendar
     @final_recovery_diary_record.build_recovery_diary_record
     @final_recovery_diary_record.recovery_diary_record.unity = current_unity
     @final_recovery_diary_record.recovery_diary_record.classroom = current_user_classroom
     @final_recovery_diary_record.recovery_diary_record.discipline = current_user_discipline
+    set_options_by_user
+    fetch_disciplines_by_classroom
 
     number_of_decimal_places
   end
@@ -41,6 +41,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       set_options_by_user
       number_of_decimal_places
       decorate_students(fetch_students_in_final_recovery)
+      fetch_disciplines_by_classroom
 
       render :new
     end
@@ -48,6 +49,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
   def edit
     set_options_by_user
+    fetch_disciplines_by_classroom
 
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
 
@@ -77,6 +79,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     else
       set_options_by_user
       number_of_decimal_places
+      fetch_disciplines_by_classroom
 
       render :edit
     end
@@ -155,7 +158,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     classroom_id = @final_recovery_diary_record.recovery_diary_record.classroom_id
     discipline_id = @final_recovery_diary_record.recovery_diary_record.discipline_id
 
-    return unless classroom_id && discipline_id
+    return unless classroom_id && discipline_id && student_id
 
     StudentsInFinalRecoveryFetcher.new(api_configuration).fetch(classroom_id, discipline_id, student_id)
   end
@@ -213,5 +216,12 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @final_recovery_diary_record.recovery_diary_record.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

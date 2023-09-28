@@ -8,8 +8,10 @@ class ExamRecordReportController < ApplicationController
       classroom_id: current_user_classroom.id,
       discipline_id: current_user_discipline.id
     )
+
     set_options_by_user
     fetch_collections
+    fetch_disciplines_by_classroom
   end
 
   def report
@@ -22,6 +24,8 @@ class ExamRecordReportController < ApplicationController
     else
       set_options_by_user
       set_school_calendars
+      fetch_disciplines_by_classroom
+
       render :form
     end
   end
@@ -80,7 +84,9 @@ class ExamRecordReportController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom_id(
+      @exam_record_report_form.classroom_id
+    )
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
   end
 
@@ -105,5 +111,12 @@ class ExamRecordReportController < ApplicationController
 
     @school_calendar_steps = SchoolCalendarStep.where(school_calendar: school_calendar).ordered
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(@exam_record_report_form.classroom_id).ordered
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom_id = @exam_record_report_form.classroom_id
+    @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
   end
 end

@@ -40,8 +40,6 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def new
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.discipline = current_user_discipline
@@ -50,6 +48,8 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
     @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
+
+    fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
   end
@@ -80,16 +80,16 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
 
       render :new
     end
   end
 
   def edit
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+
+    fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
   end
@@ -118,7 +118,7 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      fetch_disciplines_by_classroom
 
       render :edit
     end
@@ -353,5 +353,13 @@ class DisciplineLessonPlansController < ApplicationController
 
   def require_allows_copy_experience_fields_in_lesson_plans
     @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    fetch_linked_by_teacher
+    classroom = @discipline_lesson_plan.lesson_plan.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

@@ -31,6 +31,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.classroom_id = current_user_classroom.id
     @school_term_recovery_diary_record.recovery_diary_record.discipline_id = current_user_discipline.id
     set_options_by_user
+    fetch_disciplines_by_classroom
 
     if current_test_setting.blank? && @admin_or_teacher
       flash[:error] = t('errors.avaliations.require_setting')
@@ -59,6 +60,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       else
         fetch_linked_by_teacher
       end
+      fetch_disciplines_by_classroom
 
       render :new
     end
@@ -69,6 +71,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     step_number = @school_term_recovery_diary_record.step_number
     @school_term_recovery_diary_record.step_id = steps_fetcher.step(step_number).try(:id)
     set_options_by_user
+    fetch_disciplines_by_classroom
 
     if @school_term_recovery_diary_record.step_id.blank?
       recorded_at = @school_term_recovery_diary_record.recorded_at
@@ -101,8 +104,14 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      if @admin_or_teacher
+        @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      else
+        fetch_linked_by_teacher
+      end
       reload_students_list
+      fetch_disciplines_by_classroom
+
       render :edit
     end
   end
@@ -306,5 +315,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       .by_classroom_id(@classrooms.map(&:id))
       .by_discipline_id(@disciplines.map(&:id))
       .ordered
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @school_term_recovery_diary_record.recovery_diary_record.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

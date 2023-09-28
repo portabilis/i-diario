@@ -10,16 +10,7 @@ class TeacherReportCardsController < ApplicationController
     )
     @teacher_report_card_form.status = TeacherReportCardStatus::ALL
 
-    fetch_grades
     set_options_by_user
-
-    # Filtra turmas e disciplinas de acordo com a serie para evitar que o usuario selecione uma turma
-    # de outra serie
-    unless @admin_or_teacher
-      classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
-      @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(current_user_classroom)
-    end
 
     authorize(TeacherReportCard, :show?)
   end
@@ -51,6 +42,7 @@ class TeacherReportCardsController < ApplicationController
       })
       send_pdf(t("routes.teacher_report_cards"), report)
     else
+      set_options_by_user
       render :form
     end
   end
@@ -61,6 +53,33 @@ class TeacherReportCardsController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
 
     render json: classroom.grades
+  end
+
+  def classrooms_filter
+    return if params[:grade_id].blank? && params[:unity_id].blank?
+
+    render json: classrooms_to_select2(params[:grade_id], params[:unity_id])
+  end
+
+  def classrooms_to_select2(grade_id, unity_id)
+    classrooms_to_select2 = []
+
+    classrooms = Classroom.by_unity(unity_id)
+                          .by_year(current_user_school_year)
+                          .by_teacher_id(current_teacher.id)
+                          .ordered
+
+    classrooms = classrooms.by_grade(grade_id) if grade_id.present?
+
+    classrooms.each do |classroom|
+      classrooms_to_select2 << OpenStruct.new(
+        id: classroom.id,
+        name: classroom.description.to_s,
+        text: classroom.description.to_s
+      )
+    end
+
+    classrooms_to_select2
   end
 
   protected
@@ -89,10 +108,6 @@ class TeacherReportCardsController < ApplicationController
   end
   helper_method :disciplines
 
-  def fetch_grades
-
-  end
-
   def resource_params
     params.require(:teacher_report_card_form).permit(
       :unity_id, :classroom_id, :grade_id, :discipline_id, :status
@@ -116,7 +131,7 @@ class TeacherReportCardsController < ApplicationController
 
       classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
       @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(current_user_classroom)
+      @disciplines = @disciplines.by_classroom_id(@teacher_report_card_form.classroom_id).not_descriptor
       @unities = [current_user_unity]
     end
   end

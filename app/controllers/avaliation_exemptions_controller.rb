@@ -32,7 +32,7 @@ class AvaliationExemptionsController < ApplicationController
     unless current_user.current_role_is_admin_or_employee?
       classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
       @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(current_user_classroom)
+      @disciplines = @disciplines.by_classroom_id(current_user_classroom).not_descriptor
     end
 
     authorize @avaliation_exemption
