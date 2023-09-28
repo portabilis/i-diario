@@ -115,6 +115,7 @@ $(function () {
     });
 
     grades_select2.select2({ data: options, multiple: true })
+    grades_select2.val(options[0].id).trigger('change');
   }
 
   function handleFetchGradesByClassroomError() {
