@@ -30,19 +30,29 @@ module ExamPoster
 
       students = fetch_student(daily_notes, exams)
 
-      @scores = students.each do |student|
-        student_exams = DailyNoteStudent.by_classroom_id(@classroom)
-                                        .by_discipline_id(@discipline)
-                                        .by_student_id(student.id)
-                                        .by_test_date_between(@step.start_at, @step.end_at)
-                                        .active
+      daily_note_students = DailyNoteStudent.includes(:student)
+                                            .by_classroom_id(@classroom)
+                                            .by_discipline_id(@discipline)
+                                            .where(student: students)
+                                            .by_test_date_between(@step.start_at, @step.end_at)
+                                            .active
+      student_scores = {}
 
-        pending_exams = student_exams.select { |e| e.note.blank? && !e.exempted? }
+      @scores = daily_note_students.map do |dns|
+        pending_exam = dns if dns.note.blank? && !dns.exempted?
 
-        if pending_exams.any?
-          pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')
-          @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
+        if pending_exam.present?
+          pending_exam_string = pending_exam.daily_note.avaliation.description_to_teacher
+          student_scores[dns.student] ||= []
+          student_scores[dns.student] << pending_exam_string
         end
+
+        dns.student
+      end.uniq
+
+      student_scores.each do |student, pending_exams|
+        pending_exams_string = pending_exams.join(', ')
+        @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
       end
     end
 
@@ -107,7 +117,7 @@ module ExamPoster
     end
 
     def current_test_setting
-      TestSettingFetcher.current(@classroom, @step)
+      @current_test_setting ||= TestSettingFetcher.current(@classroom, @step)
     end
   end
 end

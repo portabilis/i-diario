@@ -70,13 +70,13 @@ class StudentEnrollmentsRetriever
   def search_by_dates(student_enrollments)
     enrollment_in_date = student_enrollments.by_date_range(start_at, end_at).by_date_not_before(start_at)
 
-    return student_enrollments unless enrollment_in_date.present?
+    return student_enrollments if enrollment_in_date.blank?
 
     enrollment_in_date
   end
 
   def search_by_search_type(student_enrollments)
-    return student_enrollments if include_date_range
+    return student_enrollments if include_date_range || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
       enrollments_on_period = student_enrollments.by_date(date)
