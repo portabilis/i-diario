@@ -92,9 +92,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
       CASE
         WHEN :period = 4 THEN TRUE
         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
-          student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
+          student_enrollment_classrooms.period NOT IN (2, 3)
+            OR student_enrollment_classrooms.period IS NULL
         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
-          student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
+          student_enrollment_classrooms.period NOT IN (1, 3)
+            OR student_enrollment_classrooms.period IS NULL
         ELSE
           COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
       END
