@@ -343,7 +343,7 @@ class DisciplineLessonPlansController < ApplicationController
       fetch_disciplines
 
       discipline = if current_user_discipline&.grouper?
-                     Discipline.where(knowledge_area_id: @disciplines.knowledge_area_id).all
+                     Discipline.where(knowledge_area_id: @disciplines.map(&:knowledge_area_id)).all
                    else
                      Discipline.where(id: @disciplines.map(&:id))
                    end
