@@ -50,8 +50,8 @@ class StepsFetcher
   end
 
   def school_calendar
-    unity_id = @classroom.is_a?(Classroom) ? @classroom.unity_id : @classroom.map(&:unity_id).first
-    year = @classroom.is_a?(Classroom) ? @classroom.year : @classroom.map(&:year).first
+    unity_id = @classroom.is_a?(Classroom) ? @classroom.unity_id : @classroom&.map(&:unity_id).first
+    year = @classroom.is_a?(Classroom) ? @classroom.year : @classroom&.map(&:year).first
 
     @school_calendar ||= SchoolCalendar.find_by(unity_id: unity_id, year: year)
   end
@@ -61,7 +61,7 @@ class StepsFetcher
   def school_calendar_classroom
     return if school_calendar.blank?
 
-    classroom_id = @classroom.is_a?(Classroom) ? @classroom.id : @classroom.pluck(:id)
+    classroom_id = @classroom.is_a?(Classroom) ? @classroom.id : @classroom&.map(:id)
     @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: classroom_id)
   end
 
