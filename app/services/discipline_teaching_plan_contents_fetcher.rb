@@ -11,8 +11,8 @@ class DisciplineTeachingPlanContentsFetcher < TeachingPlanContentsFetcher
 
   def base_query
     DisciplineTeachingPlan.includes(teaching_plan: :contents)
-                          .by_unity(@classroom.unity_id)
-                          .by_grade(@classroom.grade_ids)
+                          .by_unity(@classroom.map(&:unity_id))
+                          .by_grade(@classroom.map(&:grade_ids))
                           .by_discipline(@discipline)
                           .by_year(school_calendar_year)
                           .by_school_term_type_step_id(school_term_type_steps_ids)
