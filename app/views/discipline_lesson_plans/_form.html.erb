@@ -32,7 +32,7 @@
               classroom_id: @discipline_lesson_plan.lesson_plan.classroom_id %>
           <% else %>
             <%= f.association :discipline, as: :select2, elements: @disciplines,
-               user: current_user, record: f.object %>
+               user: current_user, record: f.object, readonly: action_name.eql?('show') %>
           <% end %>
         </div>
       </div>
