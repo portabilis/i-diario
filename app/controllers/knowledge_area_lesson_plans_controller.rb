@@ -338,7 +338,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= [current_user_classroom]
   end
 
   def fetch_knowledge_area
