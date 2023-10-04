@@ -25,6 +25,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def show
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id]).localized
 
+    set_options_by_user
+
     authorize @knowledge_area_content_record
   end
 
