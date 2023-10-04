@@ -342,7 +342,7 @@ class DisciplineTeachingPlansController < ApplicationController
       fetch_grades
       fetch_disciplines
 
-      discipline = current_user_discipline.grouper? ? Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all : [current_user_discipline]
+      discipline = current_user_discipline&.grouper? ? Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all : [current_user_discipline]
     else
       fetch_linked_by_teacher
     end

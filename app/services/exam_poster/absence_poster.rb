@@ -117,7 +117,11 @@ module ExamPoster
 
             value = absence_count_service.count(student, classroom, start_date, end_date, discipline)
 
+            knowledge_area = discipline.grouper? ? discipline.knowledge_area.api_code.to_i : nil
+            knowledge_area = knowledge_area.eql?(0) ? nil : knowledge_area
+
             absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
+            absences[classroom.api_code][student.api_code][discipline.api_code]['area_do_conhecimento'] = knowledge_area
           end
         end
       end
