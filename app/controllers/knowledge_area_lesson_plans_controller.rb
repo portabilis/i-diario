@@ -109,7 +109,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher fetch_linked_by_teacher
+    fetch_linked_by_teacher
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
@@ -338,7 +338,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= [current_user_classroom]
   end
 
   def fetch_knowledge_area

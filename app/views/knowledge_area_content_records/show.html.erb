@@ -17,7 +17,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :knowledge_area_ids, as: :select2, elements: knowledge_areas, multiple: true,
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
                       input_html: { data: { without_json_parser: true } }, readonly: f.object.persisted? %>
         </div>
       </div>

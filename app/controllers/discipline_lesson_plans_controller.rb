@@ -25,6 +25,8 @@ class DisciplineLessonPlansController < ApplicationController
   def show
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
+    set_options_by_user
+
     authorize @discipline_lesson_plan
 
     respond_with @discipline_lesson_plan do |format|
@@ -49,6 +51,7 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
     @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
 
+    set_options_by_user
     fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
@@ -89,6 +92,7 @@ class DisciplineLessonPlansController < ApplicationController
   def edit
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
+    set_options_by_user
     fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
@@ -194,7 +198,7 @@ class DisciplineLessonPlansController < ApplicationController
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(@classrooms.map(&:id))
                           .by_discipline_id(disciplines.map(&:id))
-                          .uniq
+                          .distinct
                           .ordered
     ).select(
       DisciplineLessonPlan.arel_table[Arel.sql('*')],
@@ -326,11 +330,11 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= [current_user_classroom]
   end
 
   def fetch_disciplines
-    @disciplines ||= Discipline.where(id: current_user_discipline).ordered
+    @disciplines ||= [current_user_discipline]
   end
 
   def set_options_by_user
@@ -339,7 +343,7 @@ class DisciplineLessonPlansController < ApplicationController
       fetch_disciplines
 
       discipline = if current_user_discipline&.grouper?
-                     Discipline.where(knowledge_area_id: @disciplines.knowledge_area_id).all
+                     Discipline.where(knowledge_area_id: @disciplines.map(&:knowledge_area_id)).all
                    else
                      Discipline.where(id: @disciplines.map(&:id))
                    end
