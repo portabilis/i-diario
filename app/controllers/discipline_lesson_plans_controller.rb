@@ -25,6 +25,8 @@ class DisciplineLessonPlansController < ApplicationController
   def show
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
+    set_options_by_user
+
     authorize @discipline_lesson_plan
 
     respond_with @discipline_lesson_plan do |format|
@@ -49,6 +51,7 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
     @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
 
+    set_options_by_user
     fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
@@ -89,6 +92,7 @@ class DisciplineLessonPlansController < ApplicationController
   def edit
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
+    set_options_by_user
     fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
@@ -194,7 +198,7 @@ class DisciplineLessonPlansController < ApplicationController
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(@classrooms.map(&:id))
                           .by_discipline_id(disciplines.map(&:id))
-                          .uniq
+                          .distinct
                           .ordered
     ).select(
       DisciplineLessonPlan.arel_table[Arel.sql('*')],
