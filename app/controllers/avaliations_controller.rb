@@ -454,8 +454,11 @@ class AvaliationsController < ApplicationController
   def fetch_disciplines_by_classroom
     return if current_user.current_role_is_admin_or_employee?
 
-    classroom = @avaliation.classroom
-    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
-    @grades = @classroom_grades.by_classroom_id(classroom.id).map(&:grade).uniq
+    classroom = [@avaliation&.classroom] if @avaliation&.classroom
+
+    classroom ||= @avaliation_multiple_creator_form.avaliations.map(&:classroom)
+
+    @disciplines = @disciplines.by_classroom_id(classroom.map(&:id)).not_descriptor
+    @grades = @classroom_grades.by_classroom_id(classroom.map(&:id)).map(&:grade).uniq
   end
 end
