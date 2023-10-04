@@ -326,11 +326,11 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= [current_user_classroom]
   end
 
   def fetch_disciplines
-    @disciplines ||= Discipline.where(id: current_user_discipline).ordered
+    @disciplines ||= [current_user_discipline]
   end
 
   def set_options_by_user
