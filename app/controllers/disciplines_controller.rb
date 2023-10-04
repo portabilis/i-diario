@@ -73,7 +73,7 @@ class DisciplinesController < ApplicationController
                             .not_descriptor
 
     if current_user.teacher?
-      disciplines.by_teacher_id(current_teacher.id)
+      disciplines = disciplines.by_teacher_id(current_teacher.id)
     end
 
     disciplines.map do |discipline|
