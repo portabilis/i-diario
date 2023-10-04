@@ -61,7 +61,7 @@ class StepsFetcher
   def school_calendar_classroom
     return if school_calendar.blank?
 
-    classroom_id = @classroom.is_a?(Classroom) ? @classroom.id : @classroom&.map(:id)
+    classroom_id = @classroom.is_a?(Classroom) ? @classroom.id : @classroom&.map(&:id)
     @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: classroom_id)
   end
 
