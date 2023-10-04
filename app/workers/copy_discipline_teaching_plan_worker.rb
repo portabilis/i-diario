@@ -36,7 +36,7 @@ class CopyDisciplineTeachingPlanWorker
           teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
             year: year,
             discipline_id: discipline_id,
-            classroom_id: classrooms_in_grade
+            classroom_id: classrooms_in_grade,
             grade_id: grade_id
           )
 
