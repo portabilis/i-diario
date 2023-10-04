@@ -1,48 +1,47 @@
-$(function() {
+$(function () {
   var flashMessages = new FlashMessages(),
-      $disciplineDiv = $("[data-discipline]"),
-      $studentDiv = $("[data-student]"),
-      $classroom = $("#absence_justification_classroom_id"),
-      $discipline = $("#absence_justification_discipline_ids"),
-      $absenceDate = $("#absence_justification_absence_date"),
-      $absenceDateEnd = $("#absence_justification_absence_date_end"),
-      $student = $("#absence_justification_student_ids");
+    $disciplineDiv = $("[data-discipline]"),
+    $studentDiv = $("[data-student]"),
+    $classroom = $("#absence_justification_classroom_id"),
+    $discipline = $("#absence_justification_discipline_ids"),
+    $absenceDate = $("#absence_justification_absence_date"),
+    $absenceDateEnd = $("#absence_justification_absence_date_end"),
+    $student = $("#absence_justification_student_ids");
 
   var teacherId = $('#teacher_id').val();
 
   // on change
-  $classroom.on('change', function(e) {
+  $classroom.on('change', function (e) {
     toggleStudent(e.val != '' && e.val != 'empty');
-    fetchStudents();
 
     var params = { classroom_id: e.val };
 
-    if(!_.isEmpty(params)) {
+    if (!_.isEmpty(params)) {
       checkExamRule(params);
-
       fetchDisciplines();
+      fetchStudents();
     }
   });
 
   // fetchers
-
   var fetchExamRule = function (params, callback) {
     $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
       callback(data);
     });
   };
 
-  var checkExamRule = function(params){
-    fetchExamRule(params, function(data){
+  var checkExamRule = function (params) {
+    fetchExamRule(params, function (data) {
       var examRule = data.exam_rule;
       if (!$.isEmptyObject(examRule)) {
         if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
           $disciplineDiv.show();
-        }else {
+        } else {
           $("#absence_justification_discipline_ids").select2("data", []);
           $disciplineDiv.hide();
+          FlashMessages.error('Não é possível justificar faltas para esta turma.');
         }
-      }else {
+      } else {
         $("#absence_justification_discipline_ids").select2("data", []);
         $disciplineDiv.hide();
       }
@@ -50,7 +49,9 @@ $(function() {
   }
 
   function fetchStudents() {
-    if(!isValidDate($absenceDate.val()) || !isValidDate($absenceDateEnd.val())){
+    if (!isValidDate($absenceDate.val()) || !isValidDate($absenceDateEnd.val())) {
+      flashMessages.warning('Selecione a "Data inicial" e a "Data final" para buscar os alunos');
+      $("#absence_justification_student_ids").select2({ data: [], multiple: false });
       return;
     }
 
@@ -81,7 +82,7 @@ $(function() {
   };
 
   function fetchStudentsSuccess(data) {
-    const students = (data.student_enrollments_lists||[]).map(studentEnrollment => {
+    const students = (data.student_enrollments_lists || []).map(studentEnrollment => {
       return { id: studentEnrollment['student']['id'], text: studentEnrollment['student']['name'] };
     });
 
@@ -98,11 +99,10 @@ $(function() {
     $discipline.select2('val', '');
     $discipline.select2({ data: [] });
 
-    if (!_.isEmpty(classroom_id) ) {
+    if (!_.isEmpty(classroom_id)) {
       $.ajax({
         url: Routes.disciplines_pt_br_path({
-          by_teacher_id: teacherId,
-          by_classroom: classroom_id,
+          classroom_id: classroom_id,
           format: 'json'
         }),
         success: fetchDisciplinesSucces,
@@ -112,7 +112,7 @@ $(function() {
   };
 
   function fetchDisciplinesSucces(disciplines) {
-    var disciplines = _.map(disciplines, function(discipline){
+    var disciplines = _.map(disciplines, function (discipline) {
       return { id: discipline.id, text: discipline.description };
     });
 
@@ -126,7 +126,7 @@ $(function() {
   // togglers
   if ($classroom.val() != '' && $classroom.val() != 'empty') {
     checkExamRule({ classroom_id: $classroom.val() });
-  }else {
+  } else {
     toggleDiscipline(false);
   }
 
@@ -135,7 +135,7 @@ $(function() {
   function toggleStudent(show) {
     if (show) {
       $studentDiv.show();
-    }else {
+    } else {
       $studentDiv.hide();
     }
   }
@@ -143,25 +143,25 @@ $(function() {
   function toggleDiscipline(show) {
     if (show) {
       $disciplineDiv.show();
-    }else {
+    } else {
       $("#absence_justification_discipline_ids").select2("data", []);
       $disciplineDiv.hide();
     }
   }
 
-  function onChangeFileElement(){
+  function onChangeFileElement() {
     if (this.files[0].size > 3145728) {
       $(this).closest(".control-group").find('span').remove();
       $(this).closest(".control-group").addClass("error");
       $(this).after('<span class="help-inline">tamanho máximo por arquivo: 3 MB</span>');
       $(this).val("");
-    }else {
+    } else {
       $(this).closest(".control-group").removeClass("error");
       $(this).closest(".control-group").find('span').remove();
     }
   }
 
-  $('#absence_justification').on('cocoon:after-insert', function(e, item) {
+  $('#absence_justification').on('cocoon:after-insert', function (e, item) {
     $(item).find('input.file').on('change', onChangeFileElement);
   });
 

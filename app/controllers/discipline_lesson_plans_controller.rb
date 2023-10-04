@@ -11,24 +11,8 @@ class DisciplineLessonPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
-    discipline = if current_user_discipline&.grouper?
-                   Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all
-                 else
-                   current_user_discipline
-                 end
 
-    @discipline_lesson_plans = apply_scopes(
-      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
-                          .by_unity_id(current_unity.id)
-                          .by_classroom_id(current_user_classroom)
-                          .by_discipline_id(discipline)
-                          .uniq
-                          .ordered
-    ).select(
-      DisciplineLessonPlan.arel_table[Arel.sql('*')],
-      LessonPlan.arel_table[:start_at],
-      LessonPlan.arel_table[:end_at]
-    )
+    set_options_by_user
 
     if author_type.present?
       @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
@@ -36,9 +20,6 @@ class DisciplineLessonPlansController < ApplicationController
     end
 
     authorize @discipline_lesson_plans
-
-    @classrooms = fetch_classrooms
-    @disciplines = fetch_disciplines
   end
 
   def show
@@ -61,14 +42,16 @@ class DisciplineLessonPlansController < ApplicationController
   def new
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
+    @discipline_lesson_plan.discipline = current_user_discipline
     @discipline_lesson_plan.lesson_plan.classroom = current_user_classroom
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
     @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
 
-    authorize @discipline_lesson_plan
+    fetch_disciplines_by_classroom
 
+    authorize @discipline_lesson_plan
   end
 
   def create
@@ -97,12 +80,16 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
+      fetch_disciplines_by_classroom
+
       render :new
     end
   end
 
   def edit
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+
+    fetch_disciplines_by_classroom
 
     authorize @discipline_lesson_plan
   end
@@ -131,6 +118,8 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
+      fetch_disciplines_by_classroom
+
       render :edit
     end
   end
@@ -160,10 +149,17 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def teaching_plan_contents
+    if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms
+      fetch_disciplines
+    else
+      fetch_linked_by_teacher
+    end
+
     @teaching_plan_contents = DisciplineTeachingPlanContentsFetcher.new(
       current_teacher,
-      current_user_classroom,
-      current_user_discipline,
+      @classrooms,
+      @disciplines.map(&:id),
       params[:start_date],
       params[:end_date]
     ).fetch
@@ -172,10 +168,17 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def teaching_plan_objectives
+    if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms
+      fetch_disciplines
+    else
+      fetch_linked_by_teacher
+    end
+
     @teaching_plan_objectives = DisciplineTeachingPlanObjectivesFetcher.new(
       current_teacher,
-      current_user_classroom,
-      current_user_discipline,
+      @classrooms,
+      @disciplines.map(&:id),
       params[:start_date],
       params[:end_date]
     ).fetch
@@ -184,6 +187,27 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   private
+
+  def fetch_discipline_lesson_plan(disciplines)
+    @discipline_lesson_plans = apply_scopes(
+      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+                          .by_unity_id(current_unity.id)
+                          .by_classroom_id(@classrooms.map(&:id))
+                          .by_discipline_id(disciplines.map(&:id))
+                          .uniq
+                          .ordered
+    ).select(
+      DisciplineLessonPlan.arel_table[Arel.sql('*')],
+      LessonPlan.arel_table[:start_at],
+      LessonPlan.arel_table[:end_at]
+    )
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+  end
 
   def content_ids
     param_content_ids = params[:discipline_lesson_plan][:lesson_plan_attributes][:content_ids] || []
@@ -302,16 +326,40 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-      .ordered
+    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_disciplines
-    Discipline.where(id: current_user_discipline)
-      .ordered
+    @disciplines ||= Discipline.where(id: current_user_discipline).ordered
+  end
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms
+      fetch_disciplines
+
+      discipline = if current_user_discipline&.grouper?
+                     Discipline.where(knowledge_area_id: @disciplines.knowledge_area_id).all
+                   else
+                     Discipline.where(id: @disciplines.map(&:id))
+                   end
+
+      fetch_discipline_lesson_plan(discipline)
+    else
+      fetch_linked_by_teacher
+      fetch_discipline_lesson_plan(@disciplines)
+    end
   end
 
   def require_allows_copy_experience_fields_in_lesson_plans
     @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    fetch_linked_by_teacher
+    classroom = @discipline_lesson_plan.lesson_plan.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
   end
 end

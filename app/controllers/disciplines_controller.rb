@@ -39,12 +39,18 @@ class DisciplinesController < ApplicationController
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?
 
-    @disciplines
+    @disciplines = @disciplines.distinct.not_descriptor unless current_user.current_role_is_admin_or_employee?
   end
 
   def search
     params[:filter][:by_teacher_id] = current_user.teacher_id if params[:use_user_teacher]
     @disciplines = apply_scopes(Discipline.grouper).ordered
+
+    render json: @disciplines
+  end
+
+  def search_by_grade_and_unity
+    @disciplines = apply_scopes(Discipline).where(teacher_discipline_classrooms: { teacher_id: current_user.teacher_id }).ordered.uniq
 
     render json: @disciplines
   end
