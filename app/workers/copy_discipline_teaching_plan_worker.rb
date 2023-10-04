@@ -37,6 +37,7 @@ class CopyDisciplineTeachingPlanWorker
             year: year,
             discipline_id: discipline_id,
             classroom_id: classrooms_in_grade
+            grade_id: grade_id
           )
 
           teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
