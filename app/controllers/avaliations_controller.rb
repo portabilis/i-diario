@@ -308,11 +308,13 @@ class AvaliationsController < ApplicationController
 
   def disciplines_for_multiple_classrooms
     if current_user.current_role_is_admin_or_employee?
-      @disciplines ||= Discipline.by_unity_id(current_unity.id).by_teacher_id(current_teacher.id).ordered
-    else
-      fetch_linked_by_teacher
+      return @disciplines ||= Discipline.by_unity_id(current_unity.id).by_teacher_id(current_teacher.id).ordered
     end
+
+    fetch_linked_by_teacher
+    @disciplines
   end
+  helper_method :disciplines_for_multiple_classrooms
 
   def classrooms_for_multiple_classrooms
     return [] if @avaliation_multiple_creator_form.discipline_id.blank?
