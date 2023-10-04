@@ -182,6 +182,11 @@ Rails.application.routes.draw do
     get '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#copy'
     post '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#do_copy'
 
+    resources :knowledge_area_teaching_plans, concerns: :history do
+      collection do
+        get :set_knowledge_areas_by_classroom
+      end
+    end
     resources :knowledge_area_teaching_plans, concerns: :history
 
     get '/knowledge_area_teaching_plans/:id/copy', as: :copy_knowledge_area_teaching_plans, to: 'knowledge_area_teaching_plans#copy'
@@ -239,6 +244,7 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_by_grade_and_unity
         get :search_grouped_by_knowledge_area
         get :by_classroom
       end
@@ -253,6 +259,9 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :multiple_classrooms
+        get :set_avaliation_setting
+        get :set_grades_by_classrooms
+        get :set_type_score_for_discipline
         post :create_multiple_classrooms
       end
     end
@@ -266,6 +275,8 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
+        get :classrooms
+        get :disciplines
       end
       member do
         post :exempt_students
@@ -278,10 +289,16 @@ Rails.application.routes.draw do
         get :dependence
       end
     end
-    resources :school_term_recovery_diary_records, concerns: :history
+    resources :school_term_recovery_diary_records, concerns: :history do
+      collection do
+        get :fetch_step
+        get :fetch_number_of_decimal_places
+      end
+    end
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
+        get :find_step_number_by_classroom
       end
     end
     resources :final_recovery_diary_records, concerns: :history
@@ -290,12 +307,16 @@ Rails.application.routes.draw do
       collection do
         get :exists_recovery_on_step
         get :recorded_at_in_selected_step
+        get :fetch_exam_setting_arithmetic
+        get :fetch_step
       end
     end
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines
         get :find_conceptual_exam_by_student
+        get :find_step_number_by_classroom
+        get :fetch_score_type
       end
     end
     resources :old_steps_conceptual_values, except: [:only]
@@ -303,6 +324,7 @@ Rails.application.routes.draw do
       collection do
         get :find
         get :opinion_types
+        get :find_step_number_by_classroom
       end
     end
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
@@ -317,6 +339,8 @@ Rails.application.routes.draw do
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
         get :history_multiple
+        get :fetch_frequency_type
+        get :fetch_teacher_allocated
         get :form
         put :create_or_update_multiple
         delete :destroy_multiple
@@ -367,12 +391,15 @@ Rails.application.routes.draw do
     end
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
+    get '/reports/attendance_record/period', to: 'attendance_record_report#period', as: 'period_attendance_record_report'
+    get '/reports/attendance_record/number_of_classes', to: 'attendance_record_report#number_of_classes', as: 'number_of_classes_attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
     get '/reports/absence_justification', to: 'absence_justification_report#form', as: 'absence_justification_report'
     post '/reports/absence_justification', to: 'absence_justification_report#report', as: 'absence_justification_report'
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
+    get '/reports/fetch_step', to: 'exam_record_report#fetch_step', as: 'fetch_step_exam_record_report'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
     get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'
@@ -388,9 +415,12 @@ Rails.application.routes.draw do
 
     get '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#form', as: 'knowledge_area_lesson_plan_report'
     post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#lesson_plan_report', as: 'knowledge_area_lesson_plan_report'
+    get '/reports/knowledge_area_lesson_plan/fetch_knowledge_areas', to: 'knowledge_area_lesson_plan_report#fetch_knowledge_areas', as: 'fetch_knowledge_areas_knowledge_area_lesson_plan_report'
     post '/reports/knowledge_area_content_record', to: 'knowledge_area_lesson_plan_report#content_record_report', as: 'knowledge_area_content_record_report'
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
+    get '/reports/teacher_report_cards/set_grades_by_classroom', to: 'teacher_report_cards#set_grades_by_classroom', as: 'grade_teacher_report_cards'
+    get '/reports/teacher_report_cards/classrooms_filter', to: 'teacher_report_cards#classrooms_filter', as: 'classrooms_filter_teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
 
     resources :data_exportations, only: [:index, :create]

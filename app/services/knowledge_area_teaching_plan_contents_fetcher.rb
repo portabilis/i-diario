@@ -1,7 +1,7 @@
 class KnowledgeAreaTeachingPlanContentsFetcher < TeachingPlanContentsFetcher
-  def initialize(teacher, classroom, knowledge_area_ids, start_date, end_date)
+  def initialize(teacher, classrooms, knowledge_area_ids, start_date, end_date)
     @teacher = teacher
-    @classroom = classroom
+    @classrooms = classrooms
     @knowledge_area_ids = knowledge_area_ids
     @start_date = start_date
     @end_date = end_date
@@ -11,8 +11,8 @@ class KnowledgeAreaTeachingPlanContentsFetcher < TeachingPlanContentsFetcher
 
   def base_query
     KnowledgeAreaTeachingPlan.includes(teaching_plan: :contents)
-                             .by_unity(@classroom.unity_id)
-                             .by_grade(@classroom.grade_ids)
+                             .by_unity(@classrooms.map(&:unity_id))
+                             .by_grade(@classrooms.map(&:grade_ids))
                              .by_knowledge_area(@knowledge_area_ids)
                              .by_year(school_calendar_year)
                              .by_school_term_type_step_id(school_term_type_steps_ids)
