@@ -84,7 +84,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def update
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
-    @avaliation_recovery_diary_record.assign_attributes(resource_params.to_h)
+
+    # Reorganiza resource_params quando temos alunos com enturmacoes ativas e inativas
+    reload_resource_params = list_students_by_active(resource_params.to_h)
+
+    @avaliation_recovery_diary_record.assign_attributes(reload_resource_params)
     @avaliation_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
     @avaliation_recovery_diary_record.recovery_diary_record.current_user = current_user
 
@@ -144,7 +148,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
           :id,
           :student_id,
           :score,
-          :_destroy
+          :_destroy,
+          :active
         ]
       ]
     )
@@ -230,16 +235,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return unless recovery_diary_record.recorded_at
 
     @students = []
-
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
-        recovery_student = recovery_diary_record.students.detect { |student_recovery|
-          student_recovery.student_id == student.id
-        }
+        recovery_student = recovery_diary_record.students.find_by(student_id: student.id)
         note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record)
+
         @students << note_student
       end
     end
@@ -293,6 +296,24 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def list_students_by_active(resource_params_hash)
+    group_students = resource_params_hash['recovery_diary_record_attributes']['students_attributes'].group_by { |key, value| value['id'] }
+
+    note_students_uniq = group_students.select { |_k, value| value.count == 1 }
+                                       .values
+                                       .flat_map { |student| student.map(&:second) }
+
+    note_students_active = group_students.reject { |_k, value| value.count == 1 }
+                                         .flat_map { |_k, value| value.map(&:second) }
+                                         .reject { |student| student['active'] == 'false' }
+
+    note_students_uniq.push(note_students_active)
+
+    resource_params_hash['recovery_diary_record_attributes']['students_attributes'] = note_students_uniq.flatten
+
+    resource_params_hash
   end
 
   def set_options_by_user
