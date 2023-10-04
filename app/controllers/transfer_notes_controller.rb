@@ -60,6 +60,7 @@ class TransferNotesController < ApplicationController
     @transfer_note.step_id = steps_fetcher.step(@transfer_note.step_number).try(:id)
     @students_ordered = @transfer_note.daily_note_students.ordered
 
+    set_options_by_user
     fetch_disciplines_by_classroom
 
     authorize @transfer_note
