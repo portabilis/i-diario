@@ -123,13 +123,14 @@ class DisciplineContentRecordsController < ApplicationController
   private
 
   def fetch_discipline_content_records_by_user
-    @discipline_content_records = apply_scopes(
-      DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
-                             .by_unity_id(current_unity.id)
-                             .by_classroom_id(@classrooms.map(&:id))
-                             .by_discipline_id(@disciplines.map(&:id))
-                             .ordered
-    )
+    @discipline_content_records =
+      apply_scopes(DisciplineContentRecord
+        .includes(:discipline, content_record: [:classroom])
+        .by_unity_id(current_unity.id)
+        .by_classroom_id(@classrooms.map(&:id))
+        .by_discipline_id(@disciplines.map(&:id))
+        .order_by_classroom
+        .ordered)
   end
 
   def content_ids

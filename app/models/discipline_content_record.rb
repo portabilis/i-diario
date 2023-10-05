@@ -58,6 +58,9 @@ class DisciplineContentRecord < ActiveRecord::Base
       joins(:content_record).merge(ContentRecord.where.not(teacher_id: current_teacher_id))
     end
   }
+  scope :order_by_classroom, lambda {
+    joins(content_record: :classroom).order(Classroom.arel_table[:description].desc)
+  }
 
   validates :content_record, presence: true
   validates :discipline, presence: true
