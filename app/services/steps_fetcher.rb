@@ -50,8 +50,8 @@ class StepsFetcher
   end
 
   def school_calendar
-    unity_id = @classroom.is_a?(Classroom) ? @classroom.unity_id : @classroom&.map(&:unity_id).first
-    year = @classroom.is_a?(Classroom) ? @classroom.year : @classroom&.map(&:year).first
+    unity_id = @classroom.is_a?(Classroom) ? @classroom.unity_id : @classroom&.map(&:unity_id)&.first
+    year = @classroom.is_a?(Classroom) ? @classroom.year : @classroom&.map(&:year)&.first
 
     @school_calendar ||= SchoolCalendar.find_by(unity_id: unity_id, year: year)
   end
