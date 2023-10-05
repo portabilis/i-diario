@@ -353,16 +353,17 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_knowledge_area_by_user
-    @knowledge_area_lesson_plans = apply_scopes(
-      KnowledgeAreaLessonPlan.includes(:knowledge_areas,
-                                       lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
-                             .by_classroom_id(@classrooms.map(&:id))
-                             .uniq
-                             .ordered
-    ).select(
-      KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-      LessonPlan.arel_table[:start_at],
-      LessonPlan.arel_table[:end_at]
-    )
+    @knowledge_area_lesson_plans =
+      apply_scopes(KnowledgeAreaLessonPlan
+        .includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+        .by_classroom_id(@classrooms.map(&:id))
+        .order_by_classrooms
+        .ordered
+        .distinct)
+      .select(
+        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
+      )
   end
 end
