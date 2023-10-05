@@ -362,6 +362,7 @@ class DisciplineTeachingPlansController < ApplicationController
                             .by_discipline(@disciplines.map(&:id))
                             .by_unity(current_unity)
                             .by_year(current_school_year)
+                            .order_by_grades
                             .order('teaching_plans.school_term_type_step_id')
     )
   end
