@@ -198,7 +198,7 @@ class DisciplineLessonPlansController < ApplicationController
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(@classrooms.map(&:id))
                           .by_discipline_id(disciplines.map(&:id))
-                          .distinct
+                          .order_by_classrooms
                           .ordered
     ).select(
       DisciplineLessonPlan.arel_table[Arel.sql('*')],
