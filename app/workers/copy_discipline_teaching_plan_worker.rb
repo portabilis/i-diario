@@ -33,18 +33,16 @@ class CopyDisciplineTeachingPlanWorker
       unities_ids.each do |unity_id|
         grades_ids.each do |grade_id|
           classrooms_in_grade = Classroom.by_unity(unity_id).by_grade(grade_id).pluck(:id)
-          teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
+          teachers = TeacherDisciplineClassroom.where(
             year: year,
             discipline_id: discipline_id,
             classroom_id: classrooms_in_grade,
             grade_id: grade_id
-          )
+          ).includes(:teacher).distinct.map(&:teacher).uniq
 
-          teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
-            teacher = teacher_discipline_classroom.teacher
+          next if teachers.any?
 
-            next unless teacher
-
+          teachers.each do |teacher|
             teaching_plan = model_teaching_plan.dup
             teaching_plan.unity_id = unity_id
             teaching_plan.grade_id = grade_id
