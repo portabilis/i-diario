@@ -358,8 +358,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         .includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
         .by_classroom_id(@classrooms.map(&:id))
         .order_by_classrooms
-        .ordered
-        .distinct)
+        .ordered)
       .select(
         KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
         LessonPlan.arel_table[:start_at],
