@@ -20,16 +20,34 @@ class DisciplineContentRecord < ActiveRecord::Base
 
   delegate :classroom_id, :classroom, to: :content_record
 
-  scope :by_unity_id, lambda { |unity_id| joins(content_record: :classroom).where(Classroom.arel_table[:unity_id].eq(unity_id) ) }
-  scope :by_teacher_id, lambda { |teacher_id| joins(:content_record).where(content_records: { teacher_id: teacher_id }) }
-  scope :by_classroom_id, lambda { |classroom_id| joins(:content_record).where(content_records: { classroom_id: classroom_id }) }
-  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id )}
-  scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%" ) }
+  scope :by_unity_id, lambda { |unity_id|
+    joins(content_record: :classroom).where(Classroom.arel_table[:unity_id].eq(unity_id))
+  }
+  scope :by_teacher_id, lambda { |teacher_id|
+    joins(:content_record).where(content_records: { teacher_id: teacher_id })
+  }
+  scope :by_classroom_id, lambda { |classroom_id|
+    joins(:content_record).where(content_records: { classroom_id: classroom_id })
+  }
+  scope :by_discipline_id, lambda { |discipline_id|
+    where(discipline_id: discipline_id)
+  }
+  scope :by_classroom_description, lambda { |description|
+    joins(content_record: :classroom).where(
+      'unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%"
+    )
+  }
   scope :by_discipline_description, lambda { |description|
     joins(:discipline).merge(Discipline.by_description(description))
   }
-  scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
-  scope :by_date_range, lambda { |start_at, end_at| joins(:content_record).where("content_records.record_date <= ? AND content_records.record_date >= ?", end_at, start_at) }
+  scope :by_date, lambda { |date|
+    joins(:content_record).where(content_records: { record_date: date.to_date })
+  }
+  scope :by_date_range, lambda { |start_at, end_at|
+    joins(:content_record).where(
+      'content_records.record_date <= ? AND content_records.record_date >= ?', end_at, start_at
+    )
+  }
 
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
   scope :order_by_content_record_date, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date]) }
