@@ -109,7 +109,9 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def steps_fetcher
-    @steps_fetcher ||= StepsFetcher.new(@descriptive_exam.classroom)
+    classroom = @descriptive_exam&.classroom || current_user_classroom
+
+    @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 
   def find_step_id

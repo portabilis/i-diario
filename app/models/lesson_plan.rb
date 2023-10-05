@@ -39,8 +39,8 @@ class LessonPlan < ApplicationRecord
   validate :no_retroactive_dates
   validate :at_least_one_assigned_content
 
-  delegate :unity, :unity_id, to: :classroom
-  delegate :grades, :grade_ids, :first_grade, to: :classroom
+  delegate :unity, :unity_id, to: :classroom, allow_nil: true
+  delegate :grades, :grade_ids, :first_grade, to: :classroom, allow_nil: true
 
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
