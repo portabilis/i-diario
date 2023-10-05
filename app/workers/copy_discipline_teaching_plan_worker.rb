@@ -40,7 +40,7 @@ class CopyDisciplineTeachingPlanWorker
             grade_id: grade_id
           ).includes(:teacher).distinct.map(&:teacher).uniq
 
-          next if teachers.any?
+          next unless teachers.any?
 
           teachers.each do |teacher|
             teaching_plan = model_teaching_plan.dup
@@ -60,6 +60,7 @@ class CopyDisciplineTeachingPlanWorker
             teaching_plan.year = year
             teaching_plan.save!(validate: false)
           end
+          binding.pry
         end
       end
 
