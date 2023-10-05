@@ -7,8 +7,12 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></td>
-            <td><%= f.input :by_knowledge_area_description, label: false, placeholder: t('.by_knowledge_area_description') %></td>
+            <td>
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
+              label: false, placeholder: t('.by_classroom_description') %></td>
+            <td>
+              <%= f.input :by_knowledge_area_id, as: :select2, elements: @knowledge_areas,
+               label: false, placeholder: t('.by_knowledge_area_description') %></td>
             <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
             <td>
               <%= f.input :by_author, as: :select2_plans, label: false %>
