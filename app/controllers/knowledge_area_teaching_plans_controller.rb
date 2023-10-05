@@ -354,6 +354,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
                                    :school_term_type, :school_term_type_step])
                                 .by_unity(current_unity)
                                 .by_year(current_school_year)
+                                .order_by_grades
+                                .order_by_school_term_type_step
     )
   end
 
