@@ -168,7 +168,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       teaching_plan: @knowledge_area_teaching_plan.teaching_plan
     )
 
-    fetch_collections
+    fetch_knowledge_areas
   end
 
   def do_copy
