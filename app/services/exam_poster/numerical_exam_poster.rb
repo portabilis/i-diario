@@ -230,7 +230,8 @@ module ExamPoster
                                                       .by_student(students)
                                                       .active
                                                       .map(&:student_enrollment)
-      exempt_discipline_students = StudentEnrollmentExemptedDiscipline.includes(student_enrollments: :student).where(
+
+      exempt_discipline_students = StudentEnrollmentExemptedDiscipline.includes(student_enrollment: :student).where(
         student_enrollment: student_enrollments,
         discipline_id: discipline_id
       ).by_step_number(step_number)
