@@ -73,7 +73,14 @@ class DailyNote < ApplicationRecord
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
   scope :order_by_avaliation_test_date_desc, -> { order('avaliations.test_date DESC') }
   scope :order_by_sequence, -> { joins(students: [student: :student_enrollments]).merge(StudentEnrollment.ordered) }
+  scope :order_by_classroom, lambda {
+    joins(avaliation: [teacher_discipline_classrooms: :classroom]).order(Classroom.arel_table[:description].desc)
+  }
   scope :active, -> { joins(:students).merge(DailyNoteStudent.active) }
+  scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id|
+    joins(avaliation: :teacher_discipline_classrooms).where(teacher_discipline_classrooms:
+      { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id })
+  }
 
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
   delegate :classroom, :classroom_id, :discipline, :discipline_id, to: :avaliation, allow_nil: true
