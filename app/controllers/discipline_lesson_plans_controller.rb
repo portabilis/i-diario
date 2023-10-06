@@ -152,18 +152,20 @@ class DisciplineLessonPlansController < ApplicationController
     flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
+  def valid_params
+    return if params[:classroom_id].blank? || params[:discipline_id].blank?
+
+    @classroom = Classroom.find_by(id: params[:classroom_id])
+    @discipline_id = params[:discipline_id]
+  end
+
   def teaching_plan_contents
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-      fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
+    valid_params
 
     @teaching_plan_contents = DisciplineTeachingPlanContentsFetcher.new(
       current_teacher,
-      @classrooms,
-      @disciplines.map(&:id),
+      @classroom,
+      @discipline_id,
       params[:start_date],
       params[:end_date]
     ).fetch
@@ -172,17 +174,12 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def teaching_plan_objectives
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-      fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
+    valid_params
 
     @teaching_plan_objectives = DisciplineTeachingPlanObjectivesFetcher.new(
       current_teacher,
-      @classrooms,
-      @disciplines.map(&:id),
+      @classroom,
+      @discipline_id,
       params[:start_date],
       params[:end_date]
     ).fetch
