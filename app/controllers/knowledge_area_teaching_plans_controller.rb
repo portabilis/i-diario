@@ -311,9 +311,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def fetch_grades
     if current_user.current_role_is_admin_or_employee?
-      @grades ||= Grade.by_unity(current_unity)
-                       .by_year(current_school_year)
-                       .where(id: current_user_classroom.try(:grade_id)).ordered
+      @grades ||= current_user_classroom.classrooms_grades.map(&:grade).uniq
     else
       fetch_linked_by_teacher
     end
@@ -354,6 +352,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
                                    :school_term_type, :school_term_type_step])
                                 .by_unity(current_unity)
                                 .by_year(current_school_year)
+                                .order_by_grades
+                                .order_by_school_term_type_step
     )
   end
 

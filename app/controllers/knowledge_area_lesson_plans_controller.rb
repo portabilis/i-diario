@@ -17,7 +17,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
     end
 
-    fetch_knowledge_area_by_user
+    @knowledge_area_lesson_plans = fetch_knowledge_area_by_user
 
     if author_type.present?
       @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
@@ -353,16 +353,14 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_knowledge_area_by_user
-    @knowledge_area_lesson_plans = apply_scopes(
-      KnowledgeAreaLessonPlan.includes(:knowledge_areas,
-                                       lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
-                             .by_classroom_id(@classrooms.map(&:id))
-                             .uniq
-                             .ordered
-    ).select(
-      KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-      LessonPlan.arel_table[:start_at],
-      LessonPlan.arel_table[:end_at]
-    )
+    apply_scopes(KnowledgeAreaLessonPlan
+      .includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+      .by_classroom_id(@classrooms.map(&:id))
+      .order_by_classrooms
+      .ordered).select(
+        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
+      )
   end
 end

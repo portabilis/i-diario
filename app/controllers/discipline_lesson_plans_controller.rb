@@ -193,18 +193,17 @@ class DisciplineLessonPlansController < ApplicationController
   private
 
   def fetch_discipline_lesson_plan(disciplines)
-    @discipline_lesson_plans = apply_scopes(
-      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
-                          .by_unity_id(current_unity.id)
-                          .by_classroom_id(@classrooms.map(&:id))
-                          .by_discipline_id(disciplines.map(&:id))
-                          .distinct
-                          .ordered
-    ).select(
-      DisciplineLessonPlan.arel_table[Arel.sql('*')],
-      LessonPlan.arel_table[:start_at],
-      LessonPlan.arel_table[:end_at]
-    )
+    apply_scopes(DisciplineLessonPlan
+      .includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+      .by_unity_id(current_unity.id)
+      .by_classroom_id(@classrooms.map(&:id))
+      .by_discipline_id(disciplines.map(&:id))
+      .order_by_classrooms
+      .ordered).select(
+        DisciplineLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
+      )
   end
 
   def fetch_linked_by_teacher
@@ -348,10 +347,10 @@ class DisciplineLessonPlansController < ApplicationController
                      Discipline.where(id: @disciplines.map(&:id))
                    end
 
-      fetch_discipline_lesson_plan(discipline)
+      @discipline_lesson_plans = fetch_discipline_lesson_plan(discipline)
     else
       fetch_linked_by_teacher
-      fetch_discipline_lesson_plan(@disciplines)
+      @discipline_lesson_plans = fetch_discipline_lesson_plan(@disciplines)
     end
   end
 

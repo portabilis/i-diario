@@ -12,7 +12,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
     set_options_by_user
 
-    fetch_knowledge_area_content_records_by_user
+    @knowledge_area_content_records = fetch_knowledge_area_content_records_by_user
 
     if author_type.present?
       @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
@@ -118,11 +118,11 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   private
 
   def fetch_knowledge_area_content_records_by_user
-    @knowledge_area_content_records = apply_scopes(
-      KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
-                                .by_classroom_id(@classrooms.map(&:id))
-                                .ordered
-    )
+    apply_scopes(KnowledgeAreaContentRecord
+      .includes(:knowledge_areas, content_record: [:classroom])
+      .by_classroom_id(@classrooms.map(&:id))
+      .order_by_classroom
+      .ordered)
   end
 
   def content_ids
