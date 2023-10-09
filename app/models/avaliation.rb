@@ -50,7 +50,10 @@ class Avaliation < ApplicationRecord
   validate :grades_belongs_to_test_setting
   validate :discipline_in_grade?
 
-  scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
+  scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id|
+    joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms:
+      { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id })
+  }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).distinct }
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
@@ -76,6 +79,9 @@ class Avaliation < ApplicationRecord
 
   scope :ordered, -> { order(test_date: :desc) }
   scope :ordered_asc, -> { order(:test_date) }
+  scope :order_by_classroom, lambda {
+    joins(teacher_discipline_classrooms: :classroom).order(Classroom.arel_table[:description].desc)
+  }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 

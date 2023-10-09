@@ -271,11 +271,14 @@ class AvaliationsController < ApplicationController
 
   def fetch_avaliations_by_user
     current_unity_id = current_unity.id if current_unity
-
     @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
                                            .by_unity_id(current_unity_id)
-                                           .by_classroom_id(@classrooms.map(&:id))
-                                           .by_discipline_id(@disciplines.map(&:id))
+                                           .teacher_avaliations(
+                                              current_teacher.id,
+                                              @classrooms.map(&:id),
+                                              @disciplines.map(&:id)
+                                            )
+                                           .order_by_classroom
                                            .ordered
 
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
