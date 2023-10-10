@@ -34,11 +34,8 @@
       </div>
 
       <div class="col col-sm-4">
-        <%# TODO: Identificar motivo de sobrescrita de mensagem de erro quando @students.blank? %>
-        <% if @students.blank? %>
-          <%= f.association :student, as: :select2, elements: @students,
-                readonly: @conceptual_exam.persisted? %>
-        <% end %>
+        <%= f.association :student, as: :select2, elements: @students,
+              readonly: @conceptual_exam.persisted? %>
       </div>
     </div>
   </fieldset>
