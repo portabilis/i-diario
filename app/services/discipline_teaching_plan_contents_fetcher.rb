@@ -10,8 +10,8 @@ class DisciplineTeachingPlanContentsFetcher < TeachingPlanContentsFetcher
   protected
 
   def base_query
-    DisciplineTeachingPlan.by_unity(@classroom.map(&:unity_id))
-                          .by_grade(@classroom.map(&:grade_ids))
+    DisciplineTeachingPlan.by_unity(@classroom.unity_id)
+                          .by_grade(@classroom.classrooms_grades.map(&:grade_id))
                           .by_discipline(@discipline)
                           .by_year(school_calendar_year)
                           .by_school_term_type_step_id(school_term_type_steps_ids)
