@@ -56,7 +56,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         student_enrollment_classroom.period = student_enrollment_classroom_record.turno_id
 
         if student_enrollment_classroom.changed?
-          if dates_changed?(student_enrollment_classroom)
+          if changes_in_dates?(student_enrollment_classroom)
             remove_daily_note_students(
               student_enrollment_classroom,
               classroom_id,
@@ -77,7 +77,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     delete_invalid_presence_records(changed_student_enrollment_classrooms)
   end
 
-  def date_changed?(sec)
+  def changes_in_dates?(sec)
     sec.attribute_changed?("joined_at") || sec.attribute_changed?("left_at")
   end
 
