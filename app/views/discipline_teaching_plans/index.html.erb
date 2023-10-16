@@ -9,7 +9,7 @@
               <%= f.input :by_grade, as: :select2, elements: @grades,
                     label: false, placeholder: t('.by_grade') %>
             </td>
-            <td>
+            <td colspan="2">
               <%= f.input :by_discipline, as: :select2, elements: @disciplines,
                     label: false, placeholder: t('.by_discipline') %>
             </td>
@@ -45,7 +45,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td id="pagination-tfoot" colspan="7">
+          <td id="pagination-tfoot" colspan="8">
             <%= render 'shared/pagination', records: @discipline_teaching_plans %>
           </td>
         </tfoot>
