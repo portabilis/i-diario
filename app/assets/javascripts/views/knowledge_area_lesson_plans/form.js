@@ -3,6 +3,8 @@ window['content_list_submodel_name'] = 'lesson_plan';
 
 $(function () {
   'use strict';
+  var $classroom = $('#knowledge_area_lesson_plan_lesson_plan_attributes_classroom_id');
+
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
   const copyObjectivesTeachingPlanLink = document.getElementById('copy-from-objectives-teaching-plan-link');
   const startAtInput = document.getElementById('knowledge_area_lesson_plan_lesson_plan_attributes_start_at');
@@ -14,11 +16,11 @@ $(function () {
   );
   const flashMessages = new FlashMessages();
 
-  $('#knowledge_area_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function(e){
-    if(e.val.length){
+  $('#knowledge_area_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
+    if (e.val.length) {
       var content_description = e.val.join(", ");
-      if(content_description.trim().length &&
-          !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
+      if (content_description.trim().length &&
+        !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
         var html = JST['templates/layouts/contents_list_manual_item']({
           description: content_description,
@@ -28,8 +30,8 @@ $(function () {
 
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var content_input = $('input[type=checkbox][data-content_description="'+content_description+'"]');
+      } else {
+        var content_input = $('input[type=checkbox][data-content_description="' + content_description + '"]');
         content_input.closest('li').show();
         content_input.prop('checked', true).trigger('change');
       }
@@ -39,11 +41,11 @@ $(function () {
     $(this).select2('val', '');
   });
 
-  $('#knowledge_area_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function(e){
-    if(e.val.length){
+  $('#knowledge_area_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
+    if (e.val.length) {
       var objective_description = e.val.join(", ");
-      if(objective_description.trim().length &&
-          !$('input[type=checkbox][data-objective_description="'+objective_description+'"]').length){
+      if (objective_description.trim().length &&
+        !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
           description: objective_description,
@@ -53,8 +55,8 @@ $(function () {
 
         $('#objectives-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var objective_input = $('input[type=checkbox][data-objective_description="'+objective_description+'"]');
+      } else {
+        var objective_input = $('input[type=checkbox][data-objective_description="' + objective_description + '"]');
         objective_input.closest('li').show();
         objective_input.prop('checked', true).trigger('change');
       }
@@ -65,7 +67,7 @@ $(function () {
   });
 
   const addElement = (description) => {
-    if(!$('li.list-group-item.active input[type=checkbox][data-content_description="'+description+'"]').length) {
+    if (!$('li.list-group-item.active input[type=checkbox][data-content_description="' + description + '"]').length) {
       const newLine = JST['templates/layouts/contents_list_manual_item']({
         description: description,
         model_name: window['content_list_model_name'],
@@ -101,20 +103,19 @@ $(function () {
       }
       const url = Routes.teaching_plan_contents_knowledge_area_lesson_plans_pt_br_path();
       const params = {
+        classroom_id: $classroom.val(),
         knowledge_area_ids: knowledgeAreasInput.value,
         start_date: startAtInput.value,
         end_date: endAtInput.value
       }
 
       $.getJSON(url, params)
-      .done(fillContents);
-
-
+        .done(fillContents);
       return false;
     });
   }
   const addObjectives = (description) => {
-    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
+    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + description + '"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
         description: description,
         model_name: window['content_list_model_name'],
@@ -150,13 +151,14 @@ $(function () {
       }
       const url = Routes.teaching_plan_objectives_knowledge_area_lesson_plans_pt_br_path();
       const params = {
+        classroom_id: $classroom.val(),
         knowledge_area_ids: knowledgeAreasInput.value,
         start_date: startAtInput.value,
         end_date: endAtInput.value
       }
 
       $.getJSON(url, params)
-      .done(fillObjectives);
+        .done(fillObjectives);
 
 
       return false;
@@ -164,7 +166,7 @@ $(function () {
   }
 
   if ($('#action_name').val() == 'show') {
-    $('.list-group.checked-list-box .list-group-item').each(function(){
+    $('.list-group.checked-list-box .list-group-item').each(function () {
       $(this).off('click');
     });
   }
@@ -175,25 +177,25 @@ $(function () {
 
   $('textarea[maxLength]').maxlength();
 
-  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_activities]" , {
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_activities]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
 
-  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_resources]" , {
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_resources]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
 
-  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_evaluation]" , {
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_evaluation]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
 
-  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_bibliography]" , {
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_bibliography]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
