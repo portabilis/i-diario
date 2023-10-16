@@ -10,7 +10,6 @@ class KnowledgeAreaTeachingPlanObjectivesFetcher < TeachingPlanObjectivesFetcher
   protected
 
   def base_query
-    binding.pry
     KnowledgeAreaTeachingPlan.includes(teaching_plan: :objectives)
                              .by_unity(@classroom.unity_id)
                              .by_grade(@classroom.classrooms_grades.map(&:grade_id))
