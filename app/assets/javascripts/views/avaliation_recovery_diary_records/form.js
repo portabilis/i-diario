@@ -61,7 +61,6 @@ $(function () {
     });
 
     $avaliation.select2({ data: selectedAvaliations });
-    $avaliation.val(selectedAvaliations[0].id).trigger('change');
     flashMessages.success('Avaliação selecionada com sucesso.');
   };
 
