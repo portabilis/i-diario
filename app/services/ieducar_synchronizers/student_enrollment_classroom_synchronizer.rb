@@ -77,8 +77,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     delete_invalid_presence_records(changed_student_enrollment_classrooms)
   end
 
-  def changes_in_dates?(sec)
-    sec.attribute_changed?("joined_at") || sec.attribute_changed?("left_at")
+  def changes_in_dates?(student_enrollment_classroom)
+    student_enrollment_classroom.attribute_changed?("joined_at") || student_enrollment_classroom.attribute_changed?("left_at")
   end
 
   def business
