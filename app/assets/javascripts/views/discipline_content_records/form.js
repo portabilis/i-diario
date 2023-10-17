@@ -41,7 +41,6 @@ $(function () {
   }
 
   var fetchContents = function (classroom_id, discipline_id, date) {
-    console.log('aaaa')
     var params = {
       classroom_id: classroom_id,
       discipline_id: discipline_id,
