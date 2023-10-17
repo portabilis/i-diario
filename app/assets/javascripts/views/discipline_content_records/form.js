@@ -8,7 +8,7 @@ $(function () {
   var $discipline = $('#discipline_content_record_discipline_id');
   var $recordDate = $('#discipline_content_record_content_record_attributes_record_date');
 
-  $classroom.on('change', function(){
+  $classroom.on('change', function () {
     var classroom_id = $classroom.select2('val');
 
     $discipline.select2('val', '');
@@ -21,10 +21,13 @@ $(function () {
   });
 
 
-  var handleFetchContentsSuccess = function(data){
+  var handleFetchContentsSuccess = function (data) {
+    // Limpar o campo
+    $('#contents-list').empty();
+
     if (!_.isEmpty(data.contents)) {
-      _.each(data.contents, function(content) {
-        if(!$('input[type=checkbox][data-content_description="'+content.description+'"]').length){
+      _.each(data.contents, function (content) {
+        if (!$('input[type=checkbox][data-content_description="' + content.description + '"]').length) {
           var html = JST['templates/discipline_content_records/contents_list_item'](content);
           $('#contents-list').append(html);
         }
@@ -33,11 +36,12 @@ $(function () {
     }
   }
 
-  var handleFetchContentsError = function(){
+  var handleFetchContentsError = function () {
     flashMessages.error('Ocorreu um erro ao buscar os conteúdos de acordo com filtros informados.');
   }
 
-  var fetchContents = function(classroom_id, discipline_id, date){
+  var fetchContents = function (classroom_id, discipline_id, date) {
+    console.log('aaaa')
     var params = {
       classroom_id: classroom_id,
       discipline_id: discipline_id,
@@ -53,27 +57,27 @@ $(function () {
 
   }
 
-  var loadContents = function(){
+  var loadContents = function () {
     var classroom_id = $classroom.select2('val');
     var discipline_id = $discipline.select2('val');
     var date = $recordDate.val();
     $('#contents-list .list-group-item:not(.manual)').remove();
 
     if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(discipline_id) &&
-        !_.isEmpty(date.match(dateRegex))) {
+      !_.isEmpty(discipline_id) &&
+      !_.isEmpty(date.match(dateRegex))) {
       fetchContents(classroom_id, discipline_id, date);
     }
   }
 
-  $discipline.on('change', function(){
+  $discipline.on('change', function () {
     loadContents();
   });
 
-  $recordDate.on('change', function(){
+  $recordDate.on('change', function () {
     loadContents();
   });
-  if(!$("#contents-list li").length){
+  if (!$("#contents-list li").length) {
     loadContents();
   }
 
@@ -86,7 +90,7 @@ $(function () {
   };
 
   function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines, function(discipline) {
+    var selectedDisciplines = _.map(disciplines, function (discipline) {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
@@ -97,11 +101,11 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   };
 
-  $('#discipline_content_record_content_record_attributes_contents_tags').on('change', function(e){
-    if(e.val.length){
+  $('#discipline_content_record_content_record_attributes_contents_tags').on('change', function (e) {
+    if (e.val.length) {
       var content_description = e.val.join(", ");
-      if(content_description.trim().length &&
-          !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
+      if (content_description.trim().length &&
+        !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
         var html = JST['templates/layouts/contents_list_manual_item']({
           description: content_description,
@@ -110,8 +114,8 @@ $(function () {
         });
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var content_input = $('input[type=checkbox][data-content_description="'+content_description+'"]');
+      } else {
+        var content_input = $('input[type=checkbox][data-content_description="' + content_description + '"]');
         content_input.closest('li').show();
         content_input.prop('checked', true).trigger('change');
       }
