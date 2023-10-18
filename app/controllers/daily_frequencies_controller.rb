@@ -13,6 +13,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency.classroom = current_user_classroom
     @daily_frequency.discipline = current_user_discipline
     @daily_frequency.frequency_date = Date.current
+    @period = @admin_or_teacher ? current_teacher_period : set_options_by_classroom
     @class_numbers = []
 
     unless current_user.current_role_is_admin_or_employee?
@@ -37,6 +38,8 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def create
+    set_options_by_user
+
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
     @daily_frequency.teacher_id = current_teacher_id
@@ -44,7 +47,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
 
-    @period = @admin_or_teacher ? params[:daily_frequency][:period] :  set_options_by_classroom
+    @period = @admin_or_teacher ? params[:daily_frequency][:period] : set_options_by_classroom
 
     if @daily_frequency.valid?
       @frequency_type = current_frequency_type(@daily_frequency)
@@ -61,9 +64,10 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def edit_multiple
+    set_options_by_user
+
     @daily_frequencies = find_or_initialize_daily_frequencies(params[:class_numbers])
     @daily_frequency = @daily_frequencies.first
-
     @period = @admin_or_teacher ? current_teacher_period : set_options_by_classroom
 
     @period = @period != Periods::FULL.to_i ? @period : nil
@@ -207,7 +211,6 @@ class DailyFrequenciesController < ApplicationController
 
             daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
-
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
           daily_frequency_record.save!
         end
