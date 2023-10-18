@@ -54,6 +54,11 @@ class Unity < ActiveRecord::Base
       '? BETWEEN start_date_for_posting AND end_date_for_posting', date.to_date
     )
   }
+  scope :by_posting_date_in_classroom, lambda { |date|
+    joins(school_calendars: { classrooms: :classroom_steps }).where(
+      '? BETWEEN start_date_for_posting AND end_date_for_posting', date.to_date
+    )
+  }
   scope :by_unity, -> unity { where(id: unity) }
   scope :by_user_id, ->(user_id) { joins(:user_roles).where(user_roles: { user_id: user_id }) }
   scope :by_infrequency_tracking_permission, lambda {
