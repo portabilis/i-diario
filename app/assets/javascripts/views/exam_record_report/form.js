@@ -124,4 +124,13 @@ $(document).ready(function () {
   function handleFetchDisciplinesError() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   };
+
+  $('form').submit(function (event) {
+    var tempoEspera = 2000;
+
+    // Define um timeout para habilitar o botão após o tempo de espera
+    setTimeout(function () {
+      $('#send-form').prop('disabled', false);
+    }, tempoEspera);
+  });
 });
