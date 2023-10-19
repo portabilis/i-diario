@@ -126,8 +126,7 @@ $(document).ready(function () {
   };
 
   $('form').submit(function (event) {
-    // Define o tempo (em milissegundos) para habilitar o botão novamente
-    var tempoEspera = 5000; // 5 segundos
+    var tempoEspera = 2000;
 
     // Define um timeout para habilitar o botão após o tempo de espera
     setTimeout(function () {
