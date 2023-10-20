@@ -4,14 +4,12 @@
 
 <div class="widget-body no-padding">
   <%= simple_form_for @daily_frequency, url: daily_frequencies_path, method: :post, html: { class: "smart-form" } do |f| %>
-    <% if current_user.current_role_is_admin_or_employee? %>
-      <%= f.hidden_field :period, value: @period %>
-        <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
-          <i class="fa fa-exclamation-circle fa-fw"></i>
-          <%= t('.exam_rule_not_found') %>
-        </div>
-      <%= f.error_notification %>
-    <% end %>
+    <%= f.hidden_field :period, value: @period %>
+    <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= t('.exam_rule_not_found') %>
+    </div>
+    <%= f.error_notification %>
 
     <fieldset>
       <div class="row">
