@@ -6,11 +6,17 @@ module Api
       def index
         return unless params[:teacher_id]
 
-        @unities = Unity.by_teacher(params[:teacher_id])
-                        .by_posting_date(Date.current)
+        unities_with_calendar = Unity.by_teacher(params[:teacher_id])
+                        .by_posting_date_in_classroom(Date.current)
                         .by_teacher_with_school_calendar_year
                         .ordered
-                        .uniq
+
+        unities_with_calendar_in_classroom = Unity.by_teacher(params[:teacher_id])
+                        .by_posting_date_in_classroom(Date.current)
+                        .by_teacher_with_school_calendar_year
+                        .ordered
+
+        @unities = (unities_with_calendar + unities_with_calendar_in_classroom).sort.uniq
       end
     end
   end
