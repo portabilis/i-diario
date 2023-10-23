@@ -7,7 +7,7 @@ module Api
         return unless params[:teacher_id]
 
         unities_with_calendar = Unity.by_teacher(params[:teacher_id])
-                        .by_posting_date_in_classroom(Date.current)
+                        .by_posting_date(Date.current)
                         .by_teacher_with_school_calendar_year
                         .ordered
 
