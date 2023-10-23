@@ -36,6 +36,7 @@ class StudentEnrollmentsRetriever
                                              .includes(:student)
                                              .includes(:dependences)
                                              .includes(:student_enrollment_classrooms)
+                                             .order('sequence ASC, students.name ASC')
                                              .active
 
     student_enrollments = student_enrollments.by_classroom_grades(classroom_grades) if classroom_grades
@@ -47,7 +48,6 @@ class StudentEnrollmentsRetriever
 
     student_enrollments = search_by_search_type(student_enrollments)
     student_enrollments = search_by_status_attending(student_enrollments)
-    student_enrollments = order_by_name_and_sequence(student_enrollments)
 
     student_enrollments
   end
@@ -87,12 +87,6 @@ class StudentEnrollmentsRetriever
     end
 
     enrollments_on_period
-  end
-
-  def order_by_name_and_sequence(student_enrollments)
-    return student_enrollments if show_inactive_enrollments
-
-    student_enrollments.ordered
   end
 
   def search_by_status_attending(student_enrollments)

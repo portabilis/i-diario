@@ -179,16 +179,18 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
+  def valid_params
+    return if params[:classroom_id].blank?
+
+    @classroom = Classroom.find_by(id: params[:classroom_id])
+  end
+
   def teaching_plan_contents
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-    else
-      fetch_linked_by_teacher
-    end
+    valid_params
 
     @teaching_plan_contents = KnowledgeAreaTeachingPlanContentsFetcher.new(
       current_teacher,
-      @classrooms,
+      @classroom,
       params[:knowledge_area_ids],
       params[:start_date],
       params[:end_date]
@@ -198,15 +200,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def teaching_plan_objectives
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-    else
-      fetch_linked_by_teacher
-    end
+    valid_params
 
     @teaching_plan_objectives = KnowledgeAreaTeachingPlanObjectivesFetcher.new(
       current_teacher,
-      @classrooms,
+      @classroom,
       params[:knowledge_area_ids],
       params[:start_date],
       params[:end_date]
@@ -216,6 +214,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   private
+
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms]
