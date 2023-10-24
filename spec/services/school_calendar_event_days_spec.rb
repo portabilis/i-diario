@@ -8,7 +8,6 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       :with_trimester_steps
     )
   }
-
   let(:list_classrooms) { create_list(:classroom, 3, unity: school_calendars.first.unity) }
   let(:list_classroom_grades) {
     list_classrooms.map do |classroom|
@@ -25,8 +24,6 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
         grade: list_classroom_grades.last.grade
       )
   }
-
-
 
   describe 'when to delete daily_frequencies' do
     context 'with coverage "by_grade" and event_type "extra_school_event_without_frequency"' do
@@ -67,7 +64,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
 
       it 'delete only the daily_frequency in the grade' do
-        expect{ subject }.to change{ DailyFrequency.count }.by(-1)
+        expect{ subject }.to change{ DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
       end
     end
 
@@ -81,7 +78,6 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
           )
         end
       }
-
       let!(:school_calendar_event) {
         build(
           :school_calendar_event,
@@ -121,7 +117,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
 
       it 'delete only the daily_frequency in the unity' do
-        expect{ subject }.to change{ DailyFrequency.count }.by(-1)
+        expect{ subject }.to change{ DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
       end
     end
 
@@ -135,7 +131,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
           event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY,
           grade_id: list_classroom_grades.last.grade_id,
           course_id: list_classroom_grades.last.grade.course_id,
-          classroom_id: list_classrooms.second,
+          classroom_id: list_classrooms.second.id,
           show_in_frequency_record: false,
           start_date: '2017-02-10',
           end_date: '2017-02-16'
@@ -163,7 +159,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
 
       it 'delete only the daily_frequency in the classroom' do
-        expect{ subject }.to change{ DailyFrequency.count }.by(-1)
+        expect{ subject }.to change{ DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
       end
     end
 
@@ -211,8 +207,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
 
       it 'delete only the daily_frequency in the course' do
-        binding.pry
-        expect{ subject }.to change{ DailyFrequency.count }.by(-1)
+        expect{ subject }.to change{ DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
       end
     end
   end
