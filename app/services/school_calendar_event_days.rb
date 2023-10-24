@@ -75,7 +75,7 @@ class SchoolCalendarEventDays
     end
 
     coverage = @events.map(&:coverage).uniq
-    classroom_ids = search_classrooms(coverage)
+    classroom_ids = search_classrooms(coverage, unities_ids.uniq)
 
     DailyFrequency.where(
       unity_id: unities_ids.uniq,
@@ -94,20 +94,21 @@ class SchoolCalendarEventDays
     end
   end
 
-  def search_classrooms(coverage)
+  def search_classrooms(coverage, unities_ids)
     classroom_ids = []
 
     if coverage.include?('by_grade')
       grade_ids = @events.map(&:grade_id).uniq
-      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).pluck(:classroom_id).uniq
+      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).map(&:classroom_id).uniq
     end
 
     classroom_ids += @events.map(&:classroom_id).uniq if coverage.include?('by_classroom')
+    classroom_ids += Classroom.where(unity_id: unities_ids).map(&:id).uniq if coverage.include?('by_unity')
 
     if coverage.include?('by_course')
       course_ids = @events.map(&:course_id).uniq
-      grade_ids = Grade.where(course_id: course_ids).pluck(:id).uniq
-      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).pluck(:classroom_id).uniq
+      grade_ids = Grade.where(course_id: course_ids).map(&:id).uniq
+      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).map(&:classroom_id).uniq
     end
 
     classroom_ids
