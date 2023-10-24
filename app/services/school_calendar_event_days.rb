@@ -77,7 +77,11 @@ class SchoolCalendarEventDays
     coverage = @events.map(&:coverage).uniq
     classroom_ids = search_classrooms(coverage)
 
-    DailyFrequency.where(unity_id: unities_ids, frequency_date: days_to_destroy).destroy_all
+    DailyFrequency.where(
+      unity_id: unities_ids.uniq,
+      classroom_id: classroom_ids,
+      frequency_date: days_to_destroy
+    ).destroy_all
   end
 
   def destroy_school_days(school_days)
