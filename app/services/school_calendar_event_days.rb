@@ -51,6 +51,9 @@ class SchoolCalendarEventDays
       end
     end
 
+    coverage = @events.map(&:coverage).uniq
+    classroom_ids = search_classrooms(coverage)
+
     DailyFrequency.where(unity_id: unities_ids, frequency_date: days_to_destroy).destroy_all
   end
 
@@ -62,5 +65,24 @@ class SchoolCalendarEventDays
         SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@events)
       end
     end
+  end
+
+  def search_classrooms(coverage)
+    classroom_ids = []
+
+    if coverage.include?('by_grade')
+      grade_ids = @events.map(&:grade_id).uniq
+      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).pluck(:classroom_id).uniq
+    end
+
+    classroom_ids += @events.map(&:classroom_id).uniq if coverage.include?('by_classroom')
+
+    if coverage.include?('by_course')
+      course_ids = @events.map(&:course_id).uniq
+      grade_ids = Grade.where(course_id: course_ids).pluck(:id).uniq
+      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).pluck(:classroom_id).uniq
+    end
+
+    classroom_ids
   end
 end
