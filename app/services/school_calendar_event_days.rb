@@ -28,33 +28,33 @@ class SchoolCalendarEventDays
     ).update_school_days
   end
 
-  def update_school_days(old_start_date = nil, old_end_date = nil)
-    events_and_days = []
+  def update_school_days
+    events_and_days = list_event_days
 
-    @events.each do |event|
-      event_type = [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(event.event_type)
-
-      events_and_days << [event_type, (event.start_date..event.end_date).to_a]
-    end
     events_and_days.each do |event_type, days|
-
       case @action_name
       when 'create'
         event_type ? create_school_days(days) : destroy_school_days(days)
       when 'destroy'
         event_type ? destroy_school_days(days) : create_school_days(days)
       when 'update'
-        old_days = (old_start_date..old_end_date).to_a
-
-        if event_type
-          create_school_days(days - old_days)
-          destroy_school_days(old_days - days)
-        else
-          create_school_days(old_days - days)
-          destroy_school_days(days - old_days)
-        end
+        update_school_days_for_event_type(event_type, days)
       end
     end
+  end
+
+  private
+
+  def list_event_days
+    list_of_days = []
+
+    @events.each do |event|
+      event_type = [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(event.event_type)
+
+      list_of_days << [event_type, (event.start_date..event.end_date).to_a]
+    end
+
+    list_of_days
   end
 
   def create_school_days(school_days)
@@ -107,5 +107,17 @@ class SchoolCalendarEventDays
     end
 
     classroom_ids
+  end
+
+  def update_school_days_for_event_type(event_type, days)
+    old_days = (@old_start_date..@old_end_date).to_a
+
+    if event_type
+      create_school_days(days - old_days)
+      destroy_school_days(old_days - days)
+    else
+      create_school_days(old_days - days)
+      destroy_school_days(days - old_days)
+    end
   end
 end
