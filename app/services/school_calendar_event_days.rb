@@ -1,8 +1,31 @@
 class SchoolCalendarEventDays
-  def initialize(school_calendars, events, action_name)
+  def initialize(
+    school_calendars,
+    events,
+    action_name,
+    old_start_date = nil,
+    old_end_date = nil
+  )
     @school_calendars = school_calendars
     @events = events
     @action_name = action_name
+    @old_start_date = old_start_date
+    @old_end_date = old_end_date
+  end
+
+  def self.update_school_days(
+    school_calendars,
+    events,
+    action_name,
+    old_start_date = nil,
+    old_end_date = nil
+  )
+    new(
+      school_calendars,
+      events, action_name,
+      old_start_date,
+      old_end_date
+    ).update_school_days
   end
 
   def update_school_days(old_start_date = nil, old_end_date = nil)
