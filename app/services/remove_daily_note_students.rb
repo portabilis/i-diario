@@ -22,7 +22,8 @@ class RemoveDailyNoteStudents
 
       next if daily_note_student.note.present?
 
-      daily_note_student.discard_or_undiscard(student_active_in_date)
+      daily_note_student.discard_or_undiscard(student_active_in_date?)
+      daily_note_student.active = !student_active_in_date?
     end
   end
 
