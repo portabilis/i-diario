@@ -46,14 +46,10 @@ class SchoolCalendarEventDays
   private
 
   def list_event_days
-    list_of_days = []
-
     @events.map do |event|
       event_type = [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(event.event_type)
       [event_type, (event.start_date..event.end_date).to_a]
     end
-
-    list_of_days
   end
 
   def create_school_days(school_days)
