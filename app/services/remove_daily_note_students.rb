@@ -20,7 +20,7 @@ class RemoveDailyNoteStudents
       avaliation_id = daily_note_student.daily_note.avaliation_id
       date_avaliation = avaliations[avaliation_id].to_date
 
-      next if daily_note_student.note.present?
+      next if daily_note_student.note.present? || daily_note_student.transfer_note_id.present?
 
       daily_note_student.discard_or_undiscard(student_active_in_date?)
       daily_note_student.active = !student_active_in_date?
