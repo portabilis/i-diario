@@ -51,7 +51,7 @@ class Avaliation < ApplicationRecord
   validate :discipline_in_grade?
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id|
-    joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms:
+    includes(:teacher_discipline_classrooms).where(teacher_discipline_classrooms:
       { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id })
   }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).distinct }
@@ -80,7 +80,7 @@ class Avaliation < ApplicationRecord
   scope :ordered, -> { order(test_date: :desc) }
   scope :ordered_asc, -> { order(:test_date) }
   scope :order_by_classroom, lambda {
-    joins(teacher_discipline_classrooms: :classroom).order(Classroom.arel_table[:description].desc)
+    joins(teacher_discipline_classrooms: :classroom).order(Classroom.arel_table[:description].asc)
   }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
