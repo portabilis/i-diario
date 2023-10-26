@@ -80,7 +80,7 @@ class Avaliation < ApplicationRecord
   scope :ordered, -> { order(test_date: :desc) }
   scope :ordered_asc, -> { order(:test_date) }
   scope :order_by_classroom, lambda {
-    joins(teacher_discipline_classrooms: :classroom).order(Classroom.arel_table[:description].asc)
+    joins(teacher_discipline_classrooms: :classroom).order(Classroom.arel_table[:description].desc)
   }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
