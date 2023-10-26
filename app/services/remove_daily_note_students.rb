@@ -22,10 +22,12 @@ class RemoveDailyNoteStudents
 
       next if daily_note_student.note.present?
 
-      daily_note_student.discard_or_undiscard(
-        date_avaliation < joined_at.to_date || date_avaliation >= left_at.to_date
-      )
+      daily_note_student.discard_or_undiscard(student_active_in_date)
     end
+  end
+
+  def student_active_in_date?
+    date_avaliation < joined_at.to_date || date_avaliation >= left_at.to_date
   end
 
   private
