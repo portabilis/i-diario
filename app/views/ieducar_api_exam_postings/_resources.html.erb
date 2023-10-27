@@ -82,12 +82,14 @@
 
 
     <td>
-      <% if api_posting && api_posting.synchronization_in_progress? %>
+      <% if api_posting.present? && api_posting.synchronization_in_progress? %>
         <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
       <% else %>
-        <%= link_to 'Enviar', ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last),
+        <%= link_to 'Enviar', ieducar_api_exam_postings_path(
+                      step_column => step.id, post_type: value.last
+                    ),
                     method: 'post',
-                    class: 'btn bg-color-red txt-color-white' %>
+                    class: 'btn bg-color-red txt-color-white', data: { disable_with: 'Enviando...' }  %>
       <% end %>
     </td>
   </tr>
