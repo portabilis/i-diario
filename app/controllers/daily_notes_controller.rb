@@ -269,15 +269,17 @@ class DailyNotesController < ApplicationController
   end
 
   def fetch_daily_notes_and_avaliations
-    @daily_notes = apply_scopes(DailyNote).includes(:avaliation)
-                                          .by_unity_id(current_unity)
-                                          .teacher_avaliations(
-                                            current_teacher.id,
-                                            @classrooms.map(&:id),
-                                            @disciplines.map(&:id)
-                                          )
-                                          .order_by_classroom
-                                          .order_by_avaliation_test_date_desc
+    @daily_notes = apply_scopes(DailyNote
+      .includes(:avaliation)
+      .by_unity_id(current_unity)
+      .teacher_avaliations(
+        current_teacher.id,
+        @classrooms.map(&:id),
+        @disciplines.map(&:id)
+      )
+      .order_by_classroom
+      .order_by_avaliation_test_date_desc
+    )
 
     @avaliations = Avaliation.by_classroom_id(@classrooms.map(&:id)).by_discipline_id(@disciplines.map(&:id))
   end
