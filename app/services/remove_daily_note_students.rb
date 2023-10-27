@@ -22,12 +22,12 @@ class RemoveDailyNoteStudents
 
       next if daily_note_student.note.present? || daily_note_student.transfer_note_id.present?
 
-      daily_note_student.discard_or_undiscard(student_active_in_date?)
-      daily_note_student.active = !student_active_in_date?
+      daily_note_student.discard_or_undiscard(student_inactive_in_date?)
+      daily_note_student.active = !student_inactive_in_date?
     end
   end
 
-  def student_active_in_date?
+  def student_inactive_in_date?
     @date_avaliation < joined_at.to_date || @date_avaliation >= left_at.to_date
   end
 
