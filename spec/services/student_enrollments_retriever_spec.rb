@@ -40,7 +40,6 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when the params are incorrect' do
-
     it 'should return ArgumentError to missing params @date' do
       expect {
         StudentEnrollmentsRetriever.call(
@@ -106,7 +105,6 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should return in the list student_enrollments actives' do
       expect(list_student_enrollments).to include(student_enrollments.first)
     end
-
   end
 
   context 'when there are enrollment_classrooms liked with student_enrollments' do
@@ -286,8 +284,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       )
     }
 
-    it 'should return return student_enrollment with attending status' do
-      student_enrollments_list = create_student_enrollments_with_status
+    it 'Is expected return more student_enrollment with for the same student' do
+      student_enrollments_list = create_student_enrollments_with_students_duplicated
 
       expect(student_enrollment_retriever).to include(student_enrollments_list.first, student_enrollments_list.last)
     end
@@ -304,10 +302,10 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       )
     }
 
-    it 'should not return student_enrollment with transferred status' do
-      student_enrollment_transferred = create_student_enrollments_with_status
+    it 'Is not expected to return more than one student_enrollments for the same student' do
+      student_enrollment_uniq = create_student_enrollments_with_students_duplicated
 
-      expect(student_enrollment_retriever).not_to include(student_enrollment_transferred.first)
+      expect(student_enrollment_retriever).not_to include(student_enrollment_uniq.last)
     end
   end
 
@@ -522,7 +520,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   context 'when with_recovery_note_in_step params exist'
 end
 
-def create_student_enrollments_with_status
+def create_student_enrollments_with_students_duplicated
   student_enrollment_list = []
 
   student = create(:student)
@@ -533,7 +531,7 @@ def create_student_enrollments_with_status
     classrooms_grade: classroom_grade,
     joined_at: '2023-04-04',
     left_at: '2023-03-12',
-    show_as_inactive_when_not_in_date: true
+    show_as_inactive_when_not_in_date: false
   )
 
   student_enrollment_list << enrollment_inactive
