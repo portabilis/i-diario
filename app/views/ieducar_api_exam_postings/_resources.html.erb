@@ -65,18 +65,18 @@
 
     <td class='<%= 'hidden' unless current_user.admin? || current_user.employee? || current_user.administrator? %>'>
         <span class="apply_tooltip" data-original-title="<%=t('ieducar_api_exam_postings.index.form.resend_posting') %>">
-        <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
-                    id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
-                    method: 'post',
-                    onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
-                    class: 'btn',
-                    style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
-          <div style="display: flex; justify-content: space-between; gap: 1rem">
-            <%= image_tag 'repetir_envio.svg', "data-svg-fallback" => asset_path('repetir_envio.svg') %>
+          <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
+                      id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
+                      method: 'post',
+                      onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
+                      class: 'btn',
+                      style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
+            <div style="display: flex; justify-content: space-between; gap: 1rem">
+              <%= image_tag 'repetir_envio.svg', "data-svg-fallback" => asset_path('repetir_envio.svg') %>
 
-            Repetir envio
-          </div>
-        <% end %>
+              Repetir envio
+            </div>
+          <% end %>
         </span>
     </td>
 
@@ -88,8 +88,8 @@
         <%= link_to 'Enviar', ieducar_api_exam_postings_path(
                       step_column => step.id, post_type: value.last
                     ),
-                    method: 'post',
-                    class: 'btn bg-color-red txt-color-white', data: { disable_with: 'Enviando...' }  %>
+                    id: 'send-button', method: 'post', class: 'btn bg-color-red txt-color-white',
+                    data: { disable_with: 'Enviando...' }  %>
       <% end %>
     </td>
   </tr>
