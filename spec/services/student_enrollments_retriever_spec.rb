@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe StudentEnrollmentsRetriever, type: :service do
   let(:exam_rule_both) { create(:exam_rule, score_type: ScoreTypes::NUMERIC_AND_CONCEPT) }
-  let(:classroom) { create(:classroom, period: Periods::VESPERTINE, year: '2023') }
-  let(:classroom_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule_both) }
-  let(:discipline) { create(:discipline) }
-  let(:student_enrollment_classrooms) {
+  let!(:classroom) { create(:classroom, period: Periods::VESPERTINE, year: '2023') }
+  let!(:classroom_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule_both) }
+  let!(:discipline) { create(:discipline) }
+  let!(:student_enrollment_classrooms) {
     create_list(
       :student_enrollment_classroom,
       3,
@@ -14,15 +14,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       left_at: '2023-12-12'
     )
   }
-  let(:student_enrollments) { student_enrollment_classrooms.map(&:student_enrollment) }
-
-  before do
-    classroom
-    classroom_grade
-    discipline
-    student_enrollment_classrooms
-    student_enrollments
-  end
+  let!(:student_enrollments) { student_enrollment_classrooms.map(&:student_enrollment) }
 
   context 'when the params are correct' do
     subject(:list_student_enrollments) {
@@ -42,10 +34,9 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(list_student_enrollments).to be_truthy
     end
 
-    it 'should return a student_enrollment relation' do
-      expect(list_student_enrollments.class).to eq(StudentEnrollment::ActiveRecord_Relation)
+    it 'should return a student_enrollment array' do
+      expect(list_student_enrollments.class).to eq(Array)
     end
-
   end
 
   context 'when the params are incorrect' do
