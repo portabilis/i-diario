@@ -46,8 +46,11 @@ class StudentEnrollmentsRetriever
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     student_enrollments = search_by_dates(student_enrollments) if include_date_range
 
-    student_enrollments = search_by_search_type(student_enrollments)
-    student_enrollments = search_by_status_attending(student_enrollments)
+    # Nao filtra as matriculas caso municipio tenha DATABASE
+    if student_enrollments.show_as_inactive.blank?
+      student_enrollments = search_by_search_type(student_enrollments)
+      student_enrollments = reject_duplicated_students(student_enrollments)
+    end
 
     student_enrollments
   end
@@ -89,10 +92,20 @@ class StudentEnrollmentsRetriever
     enrollments_on_period
   end
 
-  def search_by_status_attending(student_enrollments)
+  def reject_duplicated_students(student_enrollments)
     return student_enrollments if show_inactive_enrollments
 
-    student_enrollments.status_attending
+    student_enrollments.map do |student_enrollment|
+      student_id = student_enrollment.student_id
+
+      student_enrollment_for_student = student_enrollments.select do |enrollment|
+        enrollment.student_id == enrollment.student_id
+      end
+
+      if student_enrollment_for_student.count > 1
+        student_enrollments.delete(student_enrollment_for_student.first)
+      end
+    end
   end
 
   def show_inactive_enrollments
