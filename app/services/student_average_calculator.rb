@@ -12,7 +12,7 @@ class StudentAverageCalculator
     @recovery_lowest_note_in_step = student_notes_query.recovery_lowest_note_in_step(step)
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
-    return if daily_note_students.blank? && recovery_diary_records.blank?
+    return if daily_note_students.blank? && recovery_diary_records.blank? && recovery_lowest_note_in_step.blank?
 
     result = calculate_average_by_settings(test_setting)
 
@@ -84,7 +84,7 @@ class StudentAverageCalculator
   def extract_note_avaliations(avaliations)
     values = use_unique_avaliations(avaliations)
 
-    unless recovery_lowest_note_in_step.nil?
+    if recovery_lowest_note_in_step.present?
       lowest_note = nil
       index_lowest_note = 0
 
