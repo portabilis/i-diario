@@ -109,7 +109,7 @@ class StudentAverageCalculator
 
   def use_unique_avaliations(avaliations)
     values = []
-
+    values << 0 if avaliations.blank?
     avaliations.uniq.group_by { |k, v| k[:avaliation_id] }.each do |avaliation|
       value = 0
 
