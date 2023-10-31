@@ -147,10 +147,11 @@ $(function () {
     $(this).select2('val', '');
   });
 
-  const addElement = (description) => {
-    if (!$('li.list-group-item.active input[type=checkbox][data-content_description="' + description + '"]').length) {
+  const addElement = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-content_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/contents_list_manual_item']({
-        description: description,
+        id: content.id,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -162,7 +163,7 @@ $(function () {
 
   const fillContents = (data) => {
     if (data.discipline_lesson_plans.length) {
-      data.discipline_lesson_plans.forEach(content => addElement(content.description));
+      data.discipline_lesson_plans.forEach(content => addElement(content));
     } else {
       copyFromTeachingPlanAlert.style.display = 'block';
     }
@@ -193,10 +194,11 @@ $(function () {
     });
   }
 
-  const addObjectives = (description) => {
-    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + description + '"]').length) {
+  const addObjectives = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
-        description: description,
+        id: content.id,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -208,7 +210,7 @@ $(function () {
 
   const fillObjectives = (data) => {
     if (data.discipline_lesson_plans.length) {
-      data.discipline_lesson_plans.forEach(content => addObjectives(content.description));
+      data.discipline_lesson_plans.forEach(content => addObjectives(content));
     } else {
       copyFromObjectivesTeachingPlanAlert.style.display = 'block';
     }
