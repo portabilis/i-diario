@@ -76,14 +76,16 @@ class StudentsInRecoveryFetcher
     @student_enrollments ||= begin
       end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-      StudentEnrollmentsRetriever.call(
+      student_enrollments = StudentEnrollmentsRetriever.call(
         classrooms: classroom,
         disciplines: discipline,
         start_at: step.start_at,
         classroom_grades: classroom_grade_ids,
         end_at: end_at,
         search_type: :by_date_range
-      ).by_date_not_after(end_at)
+      )
+
+      StudentEnrollment.where(id: student_enrollments.map(&:id)).by_left_at_data(end_at)
     end
   end
 
