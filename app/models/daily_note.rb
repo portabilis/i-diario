@@ -78,7 +78,7 @@ class DailyNote < ApplicationRecord
   }
   scope :active, -> { joins(:students).merge(DailyNoteStudent.active) }
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id|
-    joins(avaliation: :teacher_discipline_classrooms).where(teacher_discipline_classrooms:
+    includes(avaliation: :teacher_discipline_classrooms).where(teacher_discipline_classrooms:
       { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id })
   }
 
