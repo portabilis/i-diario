@@ -71,7 +71,8 @@ class AbsenceJustificationsController < ApplicationController
 
   def create
     class_numbers = class_numbers(params[:absence_justification][:class_number]&.split(','))
-    @frequency_by_discipline, absence_justifications, @absence_justification = CreateAbsenceJustificationsService.call(
+    frequency_by_discipline?(resource_params[:classroom_id])
+    absence_justifications, @absence_justification = CreateAbsenceJustificationsService.call(
       class_numbers, resource_params, current_teacher, current_unity, current_school_calendar, current_user
     )
     absence_justifications.map{ |absence_justification| authorize absence_justification }
