@@ -206,7 +206,7 @@ class AbsenceJustificationsController < ApplicationController
   private
 
   def class_numbers(class_numbers)
-    [nil] if class_numbers.empty? || class_numbers.nil?
+    [nil] if class_numbers.blank? || class_numbers.empty?
   end
 
   def filtering_params(params)
