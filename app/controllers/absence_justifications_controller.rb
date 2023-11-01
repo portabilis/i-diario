@@ -31,7 +31,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.unity = current_unity
     @absence_justification.school_calendar = current_school_calendar
     @absence_justification.classroom = current_user_classroom
-    is_frequency_by_discipline?
+    frequency_by_discipline?(@absence_justification.classroom_id)
     set_options_by_user
     fetch_unities
     fetch_students
@@ -100,7 +100,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.unity = current_unity
     fetch_unities
     fetch_students
-    is_frequency_by_discipline?
+    frequency_by_discipline?(@absence_justification.classroom_id)
 
     authorize @absence_justification
   end
@@ -109,7 +109,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id])
     @absence_justification.assign_attributes resource_params_edit
     @absence_justification.current_user = current_user
-    is_frequency_by_discipline?
+    frequency_by_discipline?(@absence_justification.classroom_id)
 
     if @absence_justification.persisted? && @absence_justification.school_calendar.blank?
       @absence_justification.school_calendar = current_school_calendar
@@ -125,7 +125,7 @@ class AbsenceJustificationsController < ApplicationController
       clear_invalid_dates
       render :edit
       fetch_unities
-      is_frequency_by_discipline?
+      frequency_by_discipline?(@absence_justification.classroom_id)
     end
   end
 
@@ -239,18 +239,8 @@ class AbsenceJustificationsController < ApplicationController
     @configuration ||= IeducarApiConfiguration.current
   end
 
-  def is_frequency_by_discipline?
-    if @is_frequency_by_discipline.nil?
-      frequency_type_definer = FrequencyTypeDefiner.new(
-        @absence_justification.classroom,
-        current_teacher
-      )
-      frequency_type_definer.define!
-
-      @is_frequency_by_discipline = frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
-    end
-
-    @is_frequency_by_discipline
+  def frequency_by_discipline?(classroom_id)
+    @frequency_by_discipline = CheckTypeFrequencyIsByDiscipline.call(classroom_id, current_teacher)
   end
 
   def clear_invalid_dates

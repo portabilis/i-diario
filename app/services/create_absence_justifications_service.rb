@@ -40,15 +40,7 @@ class CreateAbsenceJustificationsService
   end
 
   def frequency_by_discipline?
-    classroom = Classroom.find_by(id: params[:classroom_id])
-
-    frequency_type_definer = FrequencyTypeDefiner.new(
-      classroom,
-      teacher
-    )
-    frequency_type_definer.define!
-
-    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    CheckTypeFrequencyIsByDiscipline.call(params[:classroom_id], teacher)
   end
 
   attr_reader :class_numbers, :teacher, :params, :user, :unity, :school_calendar
