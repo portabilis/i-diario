@@ -40,7 +40,7 @@ class CreateAbsenceJustificationsService
   end
 
   def frequency_by_discipline?
-    CheckTypeFrequencyIsByDiscipline.call(params[:classroom_id], teacher)
+    CheckTypeFrequencyByDisciplineService.call(params[:classroom_id], teacher)
   end
 
   attr_reader :class_numbers, :teacher, :params, :user, :unity, :school_calendar

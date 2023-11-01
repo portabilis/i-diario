@@ -240,7 +240,7 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def frequency_by_discipline?(classroom_id)
-    @frequency_by_discipline = CheckTypeFrequencyIsByDiscipline.call(classroom_id, current_teacher)
+    @frequency_by_discipline = CheckTypeFrequencyByDisciplineService.call(classroom_id, current_teacher)
   end
 
   def clear_invalid_dates

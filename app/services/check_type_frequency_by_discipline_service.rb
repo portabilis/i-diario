@@ -1,4 +1,4 @@
-class CheckTypeFrequencyIsByDiscipline
+class CheckTypeFrequencyByDisciplineService
   def self.call(*params)
     new(*params).call
   end
