@@ -1,6 +1,7 @@
 class CurrentSchoolYearFetcher
-  def initialize(unity)
+  def initialize(unity, classroom = nil)
     @unity = unity
+    @classroom = classroom
   end
 
   def fetch
@@ -10,8 +11,8 @@ class CurrentSchoolYearFetcher
   private
 
   def current_school_calendar
-    @current_school_calendar ||= CurrentSchoolCalendarFetcher.new(unity, nil).fetch
+    @current_school_calendar ||= CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
-  attr_accessor :unity
+  attr_accessor :unity, :classroom
 end
