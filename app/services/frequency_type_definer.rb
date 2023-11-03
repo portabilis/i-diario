@@ -19,11 +19,11 @@ class FrequencyTypeDefiner
   end
 
   def define!
-    return if @exam_rule.blank?
+    return if @exam_rule.blank? || @teacher_id.blank? || @classroom.blank?
 
     @frequency_type = @exam_rule.frequency_type
 
-    return if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE || @teacher_id.blank? || @classroom.blank?
+    return if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
 
     define_frequency_type
   end
