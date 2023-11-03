@@ -45,7 +45,7 @@ RSpec.describe CreateAbsenceJustificationsService, type: :service do
     it 'Is expected returns nil if any parameter is nil' do
       expect(CreateAbsenceJustificationsService.call(
         class_numbers, params, teacher, school_calendar.unity, nil, user
-      )).to nil
+      )).to be_nil
     end
   end
 end

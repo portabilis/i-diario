@@ -1,13 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe CheckTypeFrequencyByDisciplineService, type: :service do
+  let!(:school_calendar) { create(:school_calendar) }
   let(:exam_rule) { create(:exam_rule) }
-  let(:classroom) { create(:classroom, exam_rule: exam_rule) }
-  let(:teacher_discipline_classroom) {
+  let(:classroom) { create(:classroom, exam_rule: exam_rule, unity: school_calendar.unity) }
+  let!(:classroom_grades) { create(:classrooms_grade, classroom: classroom) }
+  let!(:teacher_discipline_classroom) {
     create(
       :teacher_discipline_classroom,
       allow_absence_by_discipline: 0,
-      classroom: classroom
+      classroom: classroom,
+      grade: classroom_grades.grade
     )
   }
 
@@ -18,18 +21,18 @@ RSpec.describe CheckTypeFrequencyByDisciplineService, type: :service do
       )
     }
 
-    context 'if frequencia do professor for por falta por disciplina' do
+    context 'and teacher has frequency is by absence by discipline' do
       before do
         teacher_discipline_classroom.update(allow_absence_by_discipline: 1)
       end
 
-      # it 'is_expected to return true' do
-      #   expect(frequency_by_discipline).to be_truthy
-      # end
+      it 'Is expected to return true' do
+        expect(frequency_by_discipline).to be_truthy
+      end
     end
 
-    context 'if frequencia do professor for por falta por aula' do
-      it 'is_expected to return false' do
+    context 'and teacher has frequency is by absence by class' do
+      it 'Is expected to return false' do
         expect(frequency_by_discipline).to be_falsey
       end
     end
@@ -43,9 +46,9 @@ RSpec.describe CheckTypeFrequencyByDisciplineService, type: :service do
     }
 
     it 'Is expected returns nil if any parameter is nil or invalid' do
-      expect{CheckTypeFrequencyByDisciplineService.call(
+      expect(CheckTypeFrequencyByDisciplineService.call(
         nil, teacher_discipline_classroom.teacher_id
-      )}.to nil
+      )).to be_nil
     end
   end
 end
