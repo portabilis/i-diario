@@ -95,17 +95,7 @@ class StudentEnrollmentsRetriever
   def reject_duplicated_students(student_enrollments)
     return student_enrollments if show_inactive_enrollments
 
-    unique_student_enrollments = []
-
-    student_enrollments.each do |student_enrollment|
-      student_id = student_enrollment.student_id
-
-      next if unique_student_enrollments&.map(&:student_id).include?(student_id)
-
-      unique_student_enrollments << student_enrollment
-    end
-
-    unique_student_enrollments
+    student_enrollments.uniq(&:student_id)
   end
 
   def show_inactive_enrollments
