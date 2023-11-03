@@ -46,7 +46,7 @@ class FrequencyTypeDefiner
   end
 
   def current_year
-    @year || CurrentSchoolYearFetcher.new(unity).fetch
+    @year || CurrentSchoolYearFetcher.new(unity, @classroom).fetch
   end
 
   def unity
