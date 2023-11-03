@@ -15,6 +15,12 @@ class CreateAbsenceJustificationsService
   end
 
   def call
+    return if school_calendar.blank? ||
+              teacher.blank? ||
+              unity.blank? ||
+              user.blank? ||
+              class_numbers.blank?
+
     [
       absence_justifications,
       @absence_justification
