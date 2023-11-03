@@ -95,10 +95,10 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
+    $('#recovery-diary-record-students').empty();
+
     if (_.isEmpty(data)) {
       $recorded_at.val($recorded_at.data('oldDate'));
-
-      $('#recovery-diary-record-students').empty();
 
       flashMessages.error('Nenhum aluno encontrado.');
     } else {
