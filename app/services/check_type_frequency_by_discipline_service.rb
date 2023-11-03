@@ -9,18 +9,15 @@ class CheckTypeFrequencyByDisciplineService
   end
 
   def call
-    return if classroom_id.blank? || teacher.blank?
+    return if classroom_id.blank? || teacher_id.blank?
 
     classroom = Classroom.find_by(id: classroom_id)
 
-    frequency_type_definer = FrequencyTypeDefiner.new(
+    FrequencyTypeDefiner.allow_frequency_by_discipline?(
       classroom,
       teacher_id
     )
-    frequency_type_definer.define!
-
-    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
 
-  attr_reader :classroom_id, :teacher
+  attr_reader :classroom_id, :teacher_id
 end
