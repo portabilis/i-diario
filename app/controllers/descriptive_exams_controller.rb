@@ -232,30 +232,12 @@ class DescriptiveExamsController < ApplicationController
     @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule) if action_name.eql?('new')
   end
 
-  def set_options_by_user(classroom = nil)
-    if current_user.current_role_is_admin_or_employee?
-      exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
-
-      redirect_with_message(t('descriptive_exams.new.exam_rule_not_found')) if exam_rules.blank?
-    else
-      fetch_linked_by_teacher
-
-      exam_rules = if classroom.present?
-                     classroom.classrooms_grades.map(&:exam_rule)
-                   else
-                     @classroom_grades.map(&:exam_rule)
-                   end
-    end
-
-    if exam_rules.blank?
-      redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
-
-      return
-    end
+  def select_opinion_types
+    redirect_with_message(t('descriptive_exams.new.exam_rule_not_found')) if @exam_rules.blank?
 
     @opinion_types = []
 
-    descriptive_exam_opinion_type = exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
+    descriptive_exam_opinion_type = @exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
 
     if descriptive_exam_opinion_type.present?
       @opinion_types << OpenStruct.new(id: descriptive_exam_opinion_type,
@@ -263,7 +245,7 @@ class DescriptiveExamsController < ApplicationController
                                        name: 'Avaliação padrão (regular)')
     end
 
-    differentiated_opinion_type = exam_rules.find do |exam_rule|
+    differentiated_opinion_type = @exam_rules.find do |exam_rule|
       exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
         exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
     end&.differentiated_exam_rule&.opinion_type
