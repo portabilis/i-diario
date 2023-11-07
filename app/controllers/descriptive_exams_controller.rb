@@ -30,7 +30,7 @@ class DescriptiveExamsController < ApplicationController
 
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      select_options_by_user
+      select_options_by_user(@descriptive_exam.classroom_id)
       select_opinion_types
 
       render :new
@@ -54,7 +54,7 @@ class DescriptiveExamsController < ApplicationController
       respond_with @descriptive_exam, location: new_descriptive_exam_path
     else
       fetch_students
-      select_options_by_user
+      select_options_by_user(@descriptive_exam.classroom_id)
       select_opinion_types
 
       render :edit
@@ -244,7 +244,10 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def select_opinion_types
-    redirect_with_message(t('descriptive_exams.new.exam_rule_not_found')) if @exam_rules.blank?
+    if @exam_rules.blank?
+      flash[:error] = t('descriptive_exams.new.exam_rule_not_found')
+      redirect_to new_descriptive_exam_path && return
+    end
 
     @opinion_types = []
 
