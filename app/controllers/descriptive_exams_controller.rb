@@ -6,9 +6,13 @@ class DescriptiveExamsController < ApplicationController
   before_action :view_data, only: [:edit, :show]
 
   def new
-    @descriptive_exam = DescriptiveExam.new(classroom_id: current_user_classroom.id, discipline_id: current_user_discipline.id)
+    @descriptive_exam = DescriptiveExam.new(
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
 
     select_options_by_user
+    select_opinion_types
 
     authorize @descriptive_exam
   end
@@ -27,6 +31,7 @@ class DescriptiveExamsController < ApplicationController
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
       select_options_by_user
+      select_opinion_types
 
       render :new
     end
@@ -49,6 +54,8 @@ class DescriptiveExamsController < ApplicationController
       respond_with @descriptive_exam, location: new_descriptive_exam_path
     else
       fetch_students
+      select_options_by_user
+      select_opinion_types
 
       render :edit
     end
@@ -70,6 +77,7 @@ class DescriptiveExamsController < ApplicationController
     step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
     select_options_by_user
+    select_opinion_types
 
     descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
                                          .by_discipline_id(discipline_id)
@@ -81,7 +89,9 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def opinion_types
-    select_options_by_user(Classroom.find(params[:classroom_id]))
+    classroom = Classroom.find(params[:classroom_id])
+    select_options_by_user(classroom)
+    select_opinion_types
 
     render json: @opinion_types.to_json
   end
@@ -207,10 +217,10 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def require_teacher
-    unless current_teacher
-      flash[:alert] = t('errors.descriptive_exams.require_teacher')
-      redirect_to root_path
-    end
+    return if current_teacher
+
+    flash[:alert] = t('errors.descriptive_exams.require_teacher')
+    redirect_to root_path
   end
 
   def select_options_by_user(classroom = nil)
