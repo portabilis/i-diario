@@ -224,9 +224,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def select_options_by_user(classroom = nil)
-    @is_admin = current_user.current_role_is_admin_or_employee?
-
-    if @is_admin
+    if current_user.current_role_is_admin_or_employee?
       @classrooms = [current_user_classroom]
       @discipline = [current_user_discipline]
     else
