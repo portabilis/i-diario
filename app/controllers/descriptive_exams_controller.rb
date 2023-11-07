@@ -71,26 +71,30 @@ class DescriptiveExamsController < ApplicationController
 
   def find
     return render json: nil if params[:opinion_type].blank? ||
-                               (params[:step_id].blank? && !opinion_type_by_year?(params[:opinion_type]))
+                               (params[:step_id].blank? && !opinion_type_by_year?(params[:opinion_type])) ||
+                               params[:classroom_id].blank?
 
+    classroom_id = params[:classroom_id].to_i
     discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
     step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
-    select_options_by_user
+    select_options_by_user(classroom_id)
     select_opinion_types
 
-    descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
+    descriptive_exam_id = DescriptiveExam.by_classroom_id(classroom_id)
                                          .by_discipline_id(discipline_id)
+    if step_id
+      classroom = Classroom.find(classroom_id)
+      descriptive_exam_id = descriptive_exam_id.by_step_id(classroom, step_id)
+    end
 
-    descriptive_exam_id = descriptive_exam_id.by_step_id(current_user_classroom, step_id) if step_id
     descriptive_exam_id = descriptive_exam_id.first&.id
 
     render json: descriptive_exam_id
   end
 
   def opinion_types
-    classroom = Classroom.find(params[:classroom_id])
-    select_options_by_user(classroom)
+    select_options_by_user(params[:classroom_id])
     select_opinion_types
 
     render json: @opinion_types.to_json
@@ -223,18 +227,17 @@ class DescriptiveExamsController < ApplicationController
     redirect_to root_path
   end
 
-  def select_options_by_user(classroom = nil)
+  def select_options_by_user(classroom_id = nil)
     if current_user.current_role_is_admin_or_employee?
       @classrooms = [current_user_classroom]
       @discipline = [current_user_discipline]
     else
       fetch_linked_by_teacher
 
-      @exam_rules = if classroom.present?
-                      classroom.classrooms_grades.map(&:exam_rule)
-                    else
-                      @classroom_grades.map(&:exam_rule) unless action_name.eql?('new')
-                    end
+      if classroom_id.present?
+        classroom = Classroom.find(classroom_id)
+        @exam_rules = classroom.classrooms_grades.map(&:exam_rule)
+      end
     end
 
     @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule) if action_name.eql?('new')
