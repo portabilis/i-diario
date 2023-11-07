@@ -8,7 +8,7 @@ class DescriptiveExamsController < ApplicationController
   def new
     @descriptive_exam = DescriptiveExam.new(classroom_id: current_user_classroom.id, discipline_id: current_user_discipline.id)
 
-    set_options_by_user
+    select_options_by_user
 
     authorize @descriptive_exam
   end
@@ -26,7 +26,7 @@ class DescriptiveExamsController < ApplicationController
 
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      set_options_by_user
+      select_options_by_user
 
       render :new
     end
@@ -69,7 +69,7 @@ class DescriptiveExamsController < ApplicationController
     discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
     step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
-    set_options_by_user
+    select_options_by_user
 
     descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
                                          .by_discipline_id(discipline_id)
@@ -81,7 +81,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def opinion_types
-    set_options_by_user(Classroom.find(params[:classroom_id]))
+    select_options_by_user(Classroom.find(params[:classroom_id]))
 
     render json: @opinion_types.to_json
   end
@@ -192,7 +192,7 @@ class DescriptiveExamsController < ApplicationController
       exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
 
       left_at = enrollment_classroom[:student_enrollment_classroom].left_at.to_date
-      exam_student.active_student =  left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
+      exam_student.active_student = left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
       @students << exam_student
     end
 
@@ -201,7 +201,7 @@ class DescriptiveExamsController < ApplicationController
     @dependence_students = []
 
     @students.each do |student|
-      @normal_students << student if !student.dependence?
+      @normal_students << student unless student.dependence?
       @dependence_students << student if student.dependence?
     end
   end
@@ -213,6 +213,25 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
+  def select_options_by_user(classroom = nil)
+    @is_admin = current_user.current_role_is_admin_or_employee?
+
+    if @is_admin
+      @classrooms = [current_user_classroom]
+      @discipline = [current_user_discipline]
+    else
+      fetch_linked_by_teacher
+
+      @exam_rules = if classroom.present?
+                      classroom.classrooms_grades.map(&:exam_rule)
+                    else
+                      @classroom_grades.map(&:exam_rule) unless action_name.eql?('new')
+                    end
+    end
+
+    @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule) if action_name.eql?('new')
+  end
+
   def set_options_by_user(classroom = nil)
     if current_user.current_role_is_admin_or_employee?
       exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
@@ -221,11 +240,11 @@ class DescriptiveExamsController < ApplicationController
     else
       fetch_linked_by_teacher
 
-      if classroom.present?
-        exam_rules = classroom.classrooms_grades.map(&:exam_rule)
-      else
-        exam_rules = @classroom_grades.map(&:exam_rule)
-      end
+      exam_rules = if classroom.present?
+                     classroom.classrooms_grades.map(&:exam_rule)
+                   else
+                     @classroom_grades.map(&:exam_rule)
+                   end
     end
 
     if exam_rules.blank?
@@ -244,10 +263,10 @@ class DescriptiveExamsController < ApplicationController
                                        name: 'Avaliação padrão (regular)')
     end
 
-    differentiated_opinion_type = exam_rules.find { |exam_rule|
+    differentiated_opinion_type = exam_rules.find do |exam_rule|
       exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
         exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
-    }&.differentiated_exam_rule&.opinion_type
+    end&.differentiated_exam_rule&.opinion_type
 
     if differentiated_opinion_type.present?
       @opinion_types << OpenStruct.new(
@@ -275,8 +294,8 @@ class DescriptiveExamsController < ApplicationController
       step_number = @descriptive_exam.step.to_number
 
       return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                                    .by_step_number(step_number)
-                                                    .any?
+                               .by_step_number(step_number)
+                               .any?
     end
 
     false
