@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class AbsenceJustifiedOnDate
+  attr_reader :date, :end_date, :classroom, :students, :period
+
   def self.call(params)
     new(params).call
   end
@@ -14,12 +16,16 @@ class AbsenceJustifiedOnDate
   end
 
   def call
-    periods = [@period, Periods::FULL.to_i, nil].uniq
+    periods = period.nil? ? all_period_values : period
 
+    absence_justified_on_date(periods)
+  end
+
+  def absence_justified_on_date(periods)
     absence_justifications = AbsenceJustification.includes(:absence_justifications_students)
-                                                 .by_date_range(@date, @end_date)
-                                                 .by_student_id(@students)
-                                                 .by_classroom(@classroom)
+                                                 .by_date_range(date, end_date)
+                                                 .by_student_id(students)
+                                                 .by_classroom(classroom)
                                                  .by_period(periods)
 
     absence_justified = {}
@@ -38,5 +44,14 @@ class AbsenceJustifiedOnDate
     end
 
     absence_justified
+  end
+
+  def all_period_values
+    [
+      Periods::FULL.to_i,
+      Periods::MATUTINAL.to_i,
+      Periods::VESPERTINE.to_i,
+      Periods::NIGHTLY.to_i,
+    ]
   end
 end
