@@ -42,12 +42,17 @@ $(function () {
   });
 
   $('#knowledge_area_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
+
+      var uniqueId = 'customId_' + idCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
+          id: uniqueId,
           description: objective_description,
           model_name: 'knowledge_area_lesson_plan',
           submodel_name: 'lesson_plan'
@@ -114,9 +119,10 @@ $(function () {
       return false;
     });
   }
-  const addObjectives = (description) => {
-    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + description + '"]').length) {
+  const addObjectives = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
+        id: content.id,
         description: description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']

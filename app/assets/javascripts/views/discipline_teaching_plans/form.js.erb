@@ -99,12 +99,16 @@ $(function () {
   });
 
   $('#discipline_teaching_plan_teaching_plan_attributes_objectives_tags').on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
+      var uniqueId = 'customId_' + idCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
+          id: uniqueId,
           description: objective_description,
           model_name: 'discipline_teaching_plan',
           submodel_name: 'teaching_plan'
