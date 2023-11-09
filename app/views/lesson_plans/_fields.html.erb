@@ -10,56 +10,60 @@
     Não foi possível copiar do(a) <%= Translator.t('navigation.teaching_plans_menu').downcase %>
     pois não existem registros para a data informada.
   </div>
+
   <% if f.object.errors[:contents].any? %>
     <div class="alert alert-danger fade in">
       <i class="fa-fw fa fa-times"></i>
       <%= f.object.errors[:contents].first %>
     </div>
   <% end %>
-    <% if action_name != 'show' %>
-      <a href="#" id="copy-from-teaching-plan-link">
-        Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
-      </a>
-    <% end %>
-    <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
-      <ul class="list-group checked-list-box" id="contents-list">
 
-        <% contents.each do |content| %>
-          <li class="list-group-item manual" style="display: flex;" id="lesson_plan_<%= content.id %>">
-            <%= check_box_tag("#{model.class.model_name.singular}[lesson_plan_attributes][content_ids][]",
-                content.id, content.id.in?(model.contents.collect(&:id)),
-                hidden: true, 'data-content_description': content.to_s ) %>
-            <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
-            <% if content.is_editable && action_name != 'show' %>
-              <div style="width: 80px;">
-                <a class="btn new-btn-success" onclick="editContent('lesson_plan_<%= content.id %>')">
-                  <i class="fa fa-pencil"></i>
-                </a>
-                <a class="btn new-btn-danger" onclick="removeContent('lesson_plan_<%= content.id %>')">
-                  <i class="fa fa-trash"></i>
-                </a>
-              </div>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-    <% if action_name != 'show' %>
-      <div class="row textarea">
-        <div class="col col-sm-12 contents-select2-container">
-          <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
-          <%= f.input :contents_tags,
-              as: :string,
-              label: "Adicionar #{translation}",
-              input_html: {
-                'data-content-type': 'conteúdo',
-                class: 'select2-tags',
-                value: ''
-              }
-          %>
-        </div>
+  <% if action_name != 'show' %>
+    <a href="#" id="copy-from-teaching-plan-link">
+      Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
+    </a>
+  <% end %>
+
+  <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
+    <ul class="list-group checked-list-box" id="contents-list">
+
+      <% contents.each do |content| %>
+        <li class="list-group-item manual" style="display: flex;" id="lesson_plan_<%= content.id %>">
+          <%= check_box_tag("#{model.class.model_name.singular}[lesson_plan_attributes][content_ids][]",
+              content.id, content.id.in?(model.contents.collect(&:id)),
+              hidden: true, 'data-content_description': content.to_s ) %>
+          <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
+          <% if content.is_editable && action_name != 'show' %>
+            <div style="width: 80px;">
+              <a class="btn new-btn-success" onclick="editContent('lesson_plan_<%= content.id %>')">
+                <i class="fa fa-pencil"></i>
+              </a>
+              <a class="btn new-btn-danger" onclick="removeContent('lesson_plan_<%= content.id %>')">
+                <i class="fa fa-trash"></i>
+              </a>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <% if action_name != 'show' %>
+    <div class="row textarea">
+      <div class="col col-sm-12 contents-select2-container">
+        <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
+        <%= f.input :contents_tags,
+            as: :string,
+            label: "Adicionar #{translation}",
+            input_html: {
+              'data-content-type': 'conteúdo',
+              class: 'select2-tags',
+              value: ''
+            }
+        %>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 </fieldset>
 
 <% unless f.object.decorator.removed_objectives? %>
@@ -76,12 +80,14 @@
       Não foi possível copiar do(a) <%= Translator.t('navigation.teaching_plans_menu').downcase %>
       pois não existem registros para a data informada.
     </div>
+
     <% if f.object.errors[:objectives].any? %>
       <div class="alert alert-danger fade in">
         <i class="fa-fw fa fa-times"></i>
         <%= f.object.errors[:objectives].first %>
       </div>
     <% end %>
+
     <% if action_name != 'show' %>
       <a href="#" id="copy-from-objectives-teaching-plan-link">
         Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
@@ -95,6 +101,7 @@
         </a>
       <% end %>
     <% end %>
+
     <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
       <ul class="list-group checked-list-box" id="objectives-list">
 
