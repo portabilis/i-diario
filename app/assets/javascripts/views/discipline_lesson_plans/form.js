@@ -98,12 +98,16 @@ $(function () {
   };
 
   $('#discipline_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
+        var uniqueId = 'customId_' + idCounter++;
         var html = JST['templates/layouts/contents_list_manual_item']({
+          id: uniqueId,
           description: content_description,
           model_name: 'discipline_lesson_plan',
           submodel_name: 'lesson_plan'
@@ -123,12 +127,17 @@ $(function () {
   });
 
   $('#discipline_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
+
+      var uniqueId = 'customId_' + idCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
+          id: uniqueId,
           description: objective_description,
           model_name: 'discipline_lesson_plan',
           submodel_name: 'lesson_plan'
@@ -147,10 +156,11 @@ $(function () {
     $(this).select2('val', '');
   });
 
-  const addElement = (description) => {
-    if (!$('li.list-group-item.active input[type=checkbox][data-content_description="' + description + '"]').length) {
+  const addElement = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-content_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/contents_list_manual_item']({
-        description: description,
+        id: content.id,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -162,7 +172,7 @@ $(function () {
 
   const fillContents = (data) => {
     if (data.discipline_lesson_plans.length) {
-      data.discipline_lesson_plans.forEach(content => addElement(content.description));
+      data.discipline_lesson_plans.forEach(content => addElement(content));
     } else {
       copyFromTeachingPlanAlert.style.display = 'block';
     }
@@ -193,10 +203,11 @@ $(function () {
     });
   }
 
-  const addObjectives = (description) => {
-    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + description + '"]').length) {
+  const addObjectives = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
-        description: description,
+        id: content.id,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -208,7 +219,7 @@ $(function () {
 
   const fillObjectives = (data) => {
     if (data.discipline_lesson_plans.length) {
-      data.discipline_lesson_plans.forEach(content => addObjectives(content.description));
+      data.discipline_lesson_plans.forEach(content => addObjectives(content));
     } else {
       copyFromObjectivesTeachingPlanAlert.style.display = 'block';
     }
