@@ -7,7 +7,6 @@
           <tr>
             <td></td>
             <td>
-
               <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
                             label: false, placeholder: t('.by_classroom_id') %>
             </td>
@@ -26,8 +25,6 @@
               <%= link_to t('.new_html'), new_avaliation_recovery_lowest_note_path, class: 'btn btn-primary pull-right' %>
             </td>
           </tr>
-
-
         </thead>
 
         <%= render 'resources' %>
