@@ -74,12 +74,16 @@ $(function () {
   validate_attachment_size($('#discipline_teaching_plan'));
 
   $('#discipline_teaching_plan_teaching_plan_attributes_contents_tags').on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
+      var uniqueId = 'customId_' + idCounter++;
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
         var html = JST['templates/layouts/contents_list_manual_item']({
+          id: uniqueId,
           description: content_description,
           model_name: 'discipline_teaching_plan',
           submodel_name: 'teaching_plan'
