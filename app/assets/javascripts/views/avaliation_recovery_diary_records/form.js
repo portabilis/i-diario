@@ -95,61 +95,68 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    var daily_note_students = data.daily_note_students
-    if (!_.isEmpty(daily_note_students)) {
-      var element_counter = 0;
-      var existing_ids = [];
-      var fetched_ids = [];
+    $('#recovery-diary-record-students').empty();
 
-      hideNoItemMessage();
-
-      var last_item = _.last(daily_note_students);
-
-      $('#recovery-diary-record-students').children('tr').each(function () {
-        if (!$(this).hasClass('destroy')) {
-          existing_ids.push(parseInt(this.id));
-        }
-      });
-      existing_ids.shift();
-
-      if (_.isEmpty(existing_ids)) {
-        _.each(daily_note_students, function (daily_note_student) {
-          var element_id = new Date().getTime() + element_counter++;
-
-          buildStudentField(element_id, daily_note_student);
-        });
-
-        loadDecimalMasks();
-      } else {
-        $.each(daily_note_students, function (index, daily_note_student) {
-          var fetched_id = daily_note_student.id;
-
-          fetched_ids.push(fetched_id);
-
-          if ($.inArray(fetched_id, existing_ids) == -1) {
-            if ($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
-              restoreStudent(fetched_id);
-            } else {
-              var element_id = new Date().getTime() + element_counter++;
-
-              buildStudentField(element_id, daily_note_student, index);
-            }
-            existing_ids.push(fetched_id);
-          }
-        });
-
-        loadDecimalMasks();
-
-        _.each(existing_ids, function (existing_id) {
-          if ($.inArray(existing_id, fetched_ids) == -1) {
-            removeStudent(existing_id);
-          }
-        });
-      }
-    } else {
+    if (_.isEmpty(data)) {
       $recorded_at.val($recorded_at.data('oldDate'));
 
       flashMessages.error('Nenhum aluno encontrado.');
+    } else {
+      var daily_note_students = data.daily_note_students
+
+      if (!_.isEmpty(daily_note_students)) {
+        var element_counter = 0;
+        var existing_ids = [];
+        var fetched_ids = [];
+
+        hideNoItemMessage();
+
+        $('#recovery-diary-record-students').children('tr').each(function () {
+          if (!$(this).hasClass('destroy')) {
+            existing_ids.push(parseInt(this.id));
+          }
+        });
+        existing_ids.shift();
+
+        if (_.isEmpty(existing_ids)) {
+          _.each(daily_note_students, function (daily_note_student) {
+            var element_id = new Date().getTime() + element_counter++;
+
+            buildStudentField(element_id, daily_note_student);
+          });
+
+          loadDecimalMasks();
+        } else {
+          $.each(daily_note_students, function (index, daily_note_student) {
+            var fetched_id = daily_note_student.id;
+
+            fetched_ids.push(fetched_id);
+
+            if ($.inArray(fetched_id, existing_ids) == -1) {
+              if ($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
+                restoreStudent(fetched_id);
+              } else {
+                var element_id = new Date().getTime() + element_counter++;
+
+                buildStudentField(element_id, daily_note_student, index);
+              }
+              existing_ids.push(fetched_id);
+            }
+          });
+
+          loadDecimalMasks();
+
+          _.each(existing_ids, function (existing_id) {
+            if ($.inArray(existing_id, fetched_ids) == -1) {
+              removeStudent(existing_id);
+            }
+          });
+        }
+      } else {
+        $recorded_at.val($recorded_at.data('oldDate'));
+
+        flashMessages.error('Nenhum aluno encontrado.');
+      }
     }
   };
 
