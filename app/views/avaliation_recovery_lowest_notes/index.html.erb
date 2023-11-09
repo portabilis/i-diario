@@ -25,6 +25,15 @@
               <%= link_to t('.new_html'), new_avaliation_recovery_lowest_note_path, class: 'btn btn-primary pull-right' %>
             </td>
           </tr>
+
+          <tr>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :unity %></th>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :classroom %></th>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :discipline %>
+            <th width="16%"><%= AvaliationRecoveryLowestNote.human_attribute_name :step %></th>
+            <th width="10%"><%= RecoveryDiaryRecord.human_attribute_name :recorded_at %></th>
+            <td width="160px"></td>
+          </tr>
         </thead>
 
         <%= render 'resources' %>
