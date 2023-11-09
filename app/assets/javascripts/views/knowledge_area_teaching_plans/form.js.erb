@@ -24,12 +24,16 @@ $(function () {
   validate_attachment_size($('#knowledge_area_teaching_plan'));
 
   contents_tags.on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
+      var uniqueId = 'customId_' + idCounter++;
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
         var html = JST['templates/layouts/contents_list_manual_item']({
+          id: uniqueId,
           description: content_description,
           model_name: 'knowledge_area_teaching_plan',
           submodel_name: 'teaching_plan'
@@ -49,12 +53,17 @@ $(function () {
   });
 
   objectives_tags.on('change', function (e) {
+    var idCounter = 1;
+
     if (e.val.length) {
+
+      var uniqueId = 'customId_' + idCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
+          id: uniqueId,
           description: objective_description,
           model_name: 'knowledge_area_teaching_plan',
           submodel_name: 'teaching_plan'
