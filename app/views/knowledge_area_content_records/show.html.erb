@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'list-contents' %>
+<% end %>
+
 <%= simple_form_for @knowledge_area_content_record, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
@@ -52,13 +56,13 @@
         <ul class="list-group checked-list-box" id="contents-list">
 
           <% contents.each do |content| %>
-            <li class="list-group-item manual list-group-item-info active initialized" style="display: flex;" id="content_record_<%= content.id %>">
-              <span class="state-icon fa fa-check"></span>
-              <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]",
-                                content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
-                                hidden: true, 'data-content_description': content.to_s ) %>
-              <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
-            </li>
+            <li class="list-group-item manual" style="display: flex;" id="content_record_<%= content.id %>">
+                <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]",
+                    content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
+                    hidden: true, 'data-content_description': content.to_s ) %>
+                <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
+
+              </li>
           <% end %>
         </ul>
       </div>
