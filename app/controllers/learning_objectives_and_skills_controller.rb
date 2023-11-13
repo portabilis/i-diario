@@ -83,6 +83,15 @@ class LearningObjectivesAndSkillsController < ApplicationController
     respond_with(contents: @contents)
   end
 
+  def fetch_grades
+    return if params[:step].blank?
+    return unless params[:step].eql?('adult_and_youth_education')
+
+    grades = AdultAndYouthEducations.to_select(false)
+
+    render json: grades
+  end
+
   private
 
   def learning_objectives_and_skills_params
