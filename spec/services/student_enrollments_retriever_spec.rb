@@ -34,7 +34,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(list_student_enrollments).to be_truthy
     end
 
-    it 'should return a student_enrollment array' do
+    it 'should return a student_enrollment relation' do
       expect(list_student_enrollments.class).to eq(Array)
     end
   end
@@ -158,7 +158,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
     it 'should not return student_enrollments in dependence on another discipline' do
       student_enrollment_dependence = create_list(:student_enrollment_dependence, 3)
-      student_enrollments_ids = list_student_enrollments.pluck(:id)
+
+      student_enrollments_ids = list_student_enrollments.map(&:id)
 
       expect(student_enrollments_ids).not_to include(student_enrollment_dependence.map(&:student_enrollment_id))
     end
@@ -302,10 +303,11 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       )
     }
 
-    it 'Is not expected to return more than one student_enrollments for the same student' do
+    it 'Is expected to return only one active student_enrollment per student' do
       student_enrollment_uniq = create_student_enrollments_with_students_duplicated
 
-      expect(student_enrollment_retriever).not_to include(student_enrollment_uniq.last)
+      expect(student_enrollment_retriever).not_to include(student_enrollment_uniq.first)
+      expect(student_enrollment_retriever).to include(student_enrollment_uniq.last)
     end
   end
 
