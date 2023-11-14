@@ -11,8 +11,6 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def new
     @learning_objectives_and_skill = LearningObjectivesAndSkill.new
 
-    @grades = nil
-
     authorize @learning_objectives_and_skill
   end
 
@@ -24,6 +22,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     if @learning_objectives_and_skill.save
       respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path
     else
+      fetch_grades_by_step
       render :new
     end
   end
@@ -31,11 +30,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def edit
     @learning_objectives_and_skill = LearningObjectivesAndSkill.find(params[:id])
 
-    if @learning_objectives_and_skill.adult_and_youth_education?
-      @grades = AdultAndYouthEducations.to_select.to_json
-    else
-      @grades = ElementaryEducations.to_select.to_json
-    end
+    fetch_grades_by_step
 
     authorize @learning_objectives_and_skill
   end
@@ -48,6 +43,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     if @learning_objectives_and_skill.update(learning_objectives_and_skills_params)
       respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path
     else
+      fetch_grades_by_step
       render :edit
     end
   end
@@ -94,11 +90,17 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def fetch_grades
     return if params[:step].blank?
 
+    group_children_education = GeneralConfiguration.current.group_children_education
+
+    return GroupChildEducations.to_select(false) if group_children_education
+
     grades = case params[:step]
              when 'adult_and_youth_education'
                AdultAndYouthEducations.to_select(false)
              when 'elementary_school'
                ElementaryEducations.to_select(false)
+             when 'child_school'
+               ChildEducations.to_select(false)
              end
 
     render json: grades
@@ -117,10 +119,9 @@ class LearningObjectivesAndSkillsController < ApplicationController
       :grades
     )
 
-    child_educations = params.require(:learning_objectives_and_skill)[:child_educations]
-    elementary_educations = params.require(:learning_objectives_and_skill)[:elementary_educations]
+    return parameters if parameters[:step].blank?
 
-    parameters[:grades] = elementary_educations.split(',') + child_educations.split(',')
+    parameters[:grades] = params.require(:learning_objectives_and_skill)[:grades].split(',')
     parameters
   end
 
@@ -155,5 +156,20 @@ class LearningObjectivesAndSkillsController < ApplicationController
     end
 
     query.where(query_builder, *params_builder)
+  end
+
+  def fetch_grades_by_step
+    group_children_education = GeneralConfiguration.current.group_children_education
+
+    return @grades = GroupChildEducations.to_select.to_json if group_children_education
+
+    @grades = case @learning_objectives_and_skill.step
+              when 'adult_and_youth_education'
+                AdultAndYouthEducations.to_select.to_json
+              when 'elementary_school'
+                ElementaryEducations.to_select.to_json
+              when 'child_school'
+                ChildEducations.to_select.to_json
+              end
   end
 end
