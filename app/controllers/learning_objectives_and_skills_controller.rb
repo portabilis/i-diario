@@ -100,20 +100,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def fetch_grades
     return if params[:step].blank?
 
-    group_children_education = GeneralConfiguration.current.group_children_education
-
-    return GroupChildEducations.to_select(false) if group_children_education
-
-    grades = case params[:step]
-             when 'adult_and_youth_education'
-               AdultAndYouthEducations.to_select(false)
-             when 'elementary_school'
-               ElementaryEducations.to_select(false)
-             when 'child_school'
-               ChildEducations.to_select(false)
-             end
-
-    render json: grades
+    render json: ListGradesByStepForBNCCService.call(params[:step], nil, false)
   end
 
   private
@@ -169,17 +156,9 @@ class LearningObjectivesAndSkillsController < ApplicationController
   end
 
   def fetch_grades_by_step
-    group_children_education = GeneralConfiguration.current.group_children_education
-
-    return @grades = GroupChildEducations.to_select.to_json if group_children_education
-
-    @grades = case @learning_objectives_and_skill.step
-              when 'adult_and_youth_education'
-                AdultAndYouthEducations.to_select.to_json
-              when 'elementary_school'
-                ElementaryEducations.to_select.to_json
-              when 'child_school'
-                ChildEducations.to_select.to_json
-              end
+    @grades = ListGradesByStepForBNCCService.call(
+      @learning_objectives_and_skill.step,
+      @learning_objectives_and_skill
+    ).to_json
   end
 end
