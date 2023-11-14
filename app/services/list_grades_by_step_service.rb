@@ -9,7 +9,7 @@ class ListGradesByStepService
 
   def call(to_json = true)
     grades = fetch_grades(to_json)
-    grades || group_children_education(to_json)
+    group_children_education(to_json) || grades
   end
 
   private
