@@ -11,6 +11,8 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def new
     @learning_objectives_and_skill = LearningObjectivesAndSkill.new
 
+    @grades = nil
+
     authorize @learning_objectives_and_skill
   end
 
@@ -28,6 +30,12 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
   def edit
     @learning_objectives_and_skill = LearningObjectivesAndSkill.find(params[:id])
+
+    if @learning_objectives_and_skill.adult_and_youth_education?
+      @grades = AdultAndYouthEducations.to_select.to_json
+    else
+      @grades = ElementaryEducations.to_select.to_json
+    end
 
     authorize @learning_objectives_and_skill
   end
@@ -85,9 +93,13 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
   def fetch_grades
     return if params[:step].blank?
-    return unless params[:step].eql?('adult_and_youth_education')
 
-    grades = AdultAndYouthEducations.to_select(false)
+    grades = case params[:step]
+             when 'adult_and_youth_education'
+               AdultAndYouthEducations.to_select(false)
+             when 'elementary_school'
+               ElementaryEducations.to_select(false)
+             end
 
     render json: grades
   end
