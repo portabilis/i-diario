@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleFetchGradesError(){
-
+    flashMessages.error('Ocorreu um erro ao buscar as séries da etapa selecionada.');
   }
 
   // select2 doesnt fire javascript event, only jquery event
