@@ -32,7 +32,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     if @learning_objectives_and_skill.save
       respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path
     else
-      fetch_grades_by_step
+      @grades = ListGradesByStepService.call(@learning_objectives_and_skill.step).to_json
       render :new
     end
   end
@@ -40,7 +40,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def edit
     @learning_objectives_and_skill = LearningObjectivesAndSkill.find(params[:id])
 
-    fetch_grades_by_step
+    @grades = ListGradesByStepService.call(@learning_objectives_and_skill.step).to_json
 
     authorize @learning_objectives_and_skill
   end
@@ -53,7 +53,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     if @learning_objectives_and_skill.update(learning_objectives_and_skills_params)
       respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path
     else
-      fetch_grades_by_step
+      @grades = ListGradesByStepService.call(@learning_objectives_and_skill.step).to_json
       render :edit
     end
   end
@@ -100,7 +100,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def fetch_grades
     return if params[:step].blank?
 
-    render json: ListGradesByStepForBNCCService.call(params[:step], nil, false)
+    render json: ListGradesByStepService.call(params[:step], nil, false)
   end
 
   private
@@ -153,12 +153,5 @@ class LearningObjectivesAndSkillsController < ApplicationController
     end
 
     query.where(query_builder, *params_builder)
-  end
-
-  def fetch_grades_by_step
-    @grades = ListGradesByStepForBNCCService.call(
-      @learning_objectives_and_skill.step,
-      @learning_objectives_and_skill
-    ).to_json
   end
 end
