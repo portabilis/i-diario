@@ -5,6 +5,16 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def index
     @learning_objectives_and_skills = apply_scopes(LearningObjectivesAndSkill.ordered)
 
+    group_children_education = GeneralConfiguration.current.group_children_education
+
+    if group_children_education
+      @grades = GroupChildEducations.to_select + ElementaryEducations.to_select[1..-1]
+    else
+      @grades =
+        ChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
+        AdultAndYouthEducations.to_select[1..-1]
+    end
+
     authorize @learning_objectives_and_skills
   end
 
