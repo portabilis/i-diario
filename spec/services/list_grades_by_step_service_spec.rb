@@ -5,7 +5,7 @@ RSpec.describe ListGradesByStepService, type: :service do
   let(:step_child_education) { 'child_school' }
   let(:step_elementary_education) { 'elementary_school' }
 
-  describe '#call' do
+  describe '#fetch_grades' do
     shared_examples 'returns correct list of grades' do |step, expected_elements_count, *expected_elements|
       before { @list_grades = ListGradesByStepService.call(step) }
 
@@ -42,6 +42,29 @@ RSpec.describe ListGradesByStepService, type: :service do
                        { id: 'second_year', name: '2º ano', text: '2º ano' },
                        { id: 'third_year', name: '3º ano', text: '3º ano' },
                        { id: 'fourth_year', name: '4º ano', text: '4º ano' }
+    end
+  end
+
+  describe '#group_children_education' do
+    context 'when group_children_education is true' do
+      before do
+        GeneralConfiguration.current.update(group_children_education: true)
+        @list_grades = ListGradesByStepService.call('adult_and_youth_education')
+      end
+
+      it 'returns list of grades with group_child_education' do
+        elements_count = [
+          { id: 'nursery_1', name: 'Creche - 0 a 1 ano e 6 meses',
+            text: 'Creche - 0 a 1 ano e 6 meses' },
+          { id: 'group_1', name: 'Grupo 1 - Bebê (0 a 11 meses)',
+            text: 'Grupo 1 - Bebê (0 a 11 meses)' },
+          { id: 'group_4', name: 'Grupo 4 - CBP (3 anos a 3 anos e 11 meses)',
+            text: 'Grupo 4 - CBP (3 anos a 3 anos e 11 meses)' }
+        ]
+
+        expect(@list_grades.size).to eq(10)
+        expect(@list_grades).to include(*elements_count)
+      end
     end
   end
 end
