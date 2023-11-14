@@ -28,16 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
       grades_child_educations.select2("data", "");
       field_of_experience.select2("data", "");
 
-      if (step == 'adult_and_youth_education') {
-        return $.ajax({
-          url: Routes.fetch_grades_learning_objectives_and_skills_pt_br_path({
-            step: step,
-            format: 'json'
-          }),
-          success: handleFetchGradesSuccess,
-          error: handleFetchGradesError
-        });
-      }
+      return fetchGrades(step)
+    }
+  };
+
+  function fetchGrades(step) {
+    if (_.isEmpty(window.disciplines)) {
+      $.ajax({
+        url: Routes.fetch_grades_learning_objectives_and_skills_pt_br_path({
+          step: step,
+          format: 'json'
+        }),
+        success: handleFetchGradesSuccess,
+        error: handleFetchGradesError
+      });
     }
   };
 
