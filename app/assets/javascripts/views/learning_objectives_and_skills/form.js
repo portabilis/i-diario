@@ -5,12 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const onlyElementarySchool = document.querySelectorAll('form .only-elementary-school');
   const hideContainer = container => container.style.display = 'none';
   const showContainer = container => container.style.display = 'block';
-  var grades_elementary_educations = $("#learning_objectives_and_skill_elementary_educations"),
+  var $grades = $("#learning_objectives_and_skill_grades"),
   disciplines = $("#learning_objectives_and_skill_discipline"),
   thematic_unit = $("#learning_objectives_and_skill_thematic_unit"),
-  grades_child_educations = $("#learning_objectives_and_skill_thematic_unit"),
   field_of_experience = $("#learning_objectives_and_skill_field_of_experience")
-
 
   const checkStepRelatedVisibility = () => {
     stepRelatedContainers.forEach(hideContainer);
@@ -18,22 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (step == 'child_school') {
       onlyChildSchool.forEach(showContainer);
-      grades_elementary_educations.select2("data", "");
       disciplines.select2("data", "");
       thematic_unit.val("");
     }
 
     if (step == 'elementary_school' || step == 'adult_and_youth_education') {
       onlyElementarySchool.forEach(showContainer);
-      grades_child_educations.select2("data", "");
       field_of_experience.select2("data", "");
-
-      return fetchGrades(step)
     }
   };
 
   function fetchGrades(step) {
-    if (_.isEmpty(window.disciplines)) {
+    if (!_.isEmpty(step)) {
       $.ajax({
         url: Routes.fetch_grades_learning_objectives_and_skills_pt_br_path({
           step: step,
@@ -47,12 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleFetchGradesSuccess(data){
     if (!_.isArray(data)) {
-      grades_elementary_educations.val(null).trigger('change');
+      $grades.val(null).trigger('change');
 
-      let grades = data['learning_objectives_and_skills']
-
-      grades_elementary_educations.select2({
-        data: grades
+      let options = data['learning_objectives_and_skills']
+      $grades.select2({
+        data: options,
+        multiple: true
       });
     }
   }
@@ -62,7 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // select2 doesnt fire javascript event, only jquery event
-  $(stepInput).on('change', checkStepRelatedVisibility);
+  $(stepInput).on('change', function (e) {
+    var step = e.target.value;
+
+    checkStepRelatedVisibility();
+    fetchGrades(step)
+  });
 
   checkStepRelatedVisibility();
 });
