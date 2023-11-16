@@ -107,9 +107,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def fetch_grades
     return if params[:step].blank?
 
-    render json: ListGradesByStepService.call(
-      params[:step], nil, false
-    )
+    render json: ListGradesByStepService.call(params[:step], false)
   end
 
   private
