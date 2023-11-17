@@ -8,8 +8,7 @@ class ListGradesByStepService
   end
 
   def call(to_json = true)
-    grades = fetch_grades(to_json)
-    group_children_education(to_json) || grades
+    fetch_grades(to_json)
   end
 
   private
@@ -21,13 +20,11 @@ class ListGradesByStepService
     when 'elementary_school'
       to_json ? ElementaryEducations.to_select : ElementaryEducations.to_select(false)
     when 'child_school'
-      to_json ? ChildEducations.to_select : ChildEducations.to_select(false)
+      if GeneralConfiguration.current.group_children_education
+        to_json ? GroupChildEducations.to_select : GroupChildEducations.to_select(false)
+      else
+        to_json ? ChildEducations.to_select : ChildEducations.to_select(false)
+      end
     end
-  end
-
-  def group_children_education(to_json)
-    return nil unless GeneralConfiguration.current.group_children_education
-
-    to_json ? GroupChildEducations.to_select : GroupChildEducations.to_select(false)
   end
 end

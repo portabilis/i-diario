@@ -49,7 +49,7 @@ RSpec.describe ListGradesByStepService, type: :service do
     context 'when group_children_education is true' do
       before do
         GeneralConfiguration.current.update(group_children_education: true)
-        @list_grades = ListGradesByStepService.call('adult_and_youth_education')
+        @list_grades = ListGradesByStepService.call('child_school')
       end
 
       it 'returns list of grades with group_child_education' do
@@ -63,13 +63,13 @@ RSpec.describe ListGradesByStepService, type: :service do
     context 'when group_children_education is false' do
       before do
         GeneralConfiguration.current.update(group_children_education: false)
-        @list_grades = ListGradesByStepService.call('adult_and_youth_education')
+        @list_grades = ListGradesByStepService.call('child_school')
       end
 
       it 'returns list of grades with group_child_education' do
         grades_adult_and_youth = grades_adult_and_youth_education
 
-        expect(@list_grades.size).to eq(10)
+        expect(@list_grades.size).to eq(4)
         expect(@list_grades).to include(*grades_adult_and_youth)
       end
     end
