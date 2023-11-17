@@ -1,0 +1,12 @@
+pt-BR:
+  enumerations:
+    adult_and_youth_educations:
+      eja_first_year: 1º ano - EJA
+      eja_second_year: 2º ano - EJA
+      eja_third_year: 3º ano - EJA
+      eja_fourth_year: 4º ano - EJA
+      eja_fifth_year: 5º ano - EJA
+      eja_sixth_year: 6º ano - EJA
+      eja_seventh_year: 7º ano - EJA
+      eja_eighth_year: 8º ano - EJA
+      eja_ninth_year: 9º ano - EJA
