@@ -43,6 +43,6 @@ class ListGradesByStepBuilder
   end
 
   def undefined_method
-    raise StandardError
+    raise EventsNotCreatedError
   end
 end
