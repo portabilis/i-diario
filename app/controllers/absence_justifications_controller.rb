@@ -80,12 +80,25 @@ class AbsenceJustificationsController < ApplicationController
 
     parameters = params[:absence_justification]
 
-    # Se vier da tela de lancamento de frequência em lote, redireciona para ela
-    redirect_to_daily_frequencies_in_batchs(valid, parameters)
-    # Se vier da tela de lancamento de diário de frequência
-    redirect_to_daily_frequencies(valid, parameters)
-
-    if valid
+    # Se vier da tela de lançamento de frequência em lote, redireciona para ela
+    if valid && parameters[:start_date] && parameters[:end_date]
+      redirect_to form_daily_frequencies_in_batchs_path(
+        frequency_in_batch_form: {
+          start_date: parameters[:start_date],
+          end_date: parameters[:end_date]
+        }
+      )
+    # Se vier da tela de lançamento de diário de frequência
+    elsif valid && parameters[:frequency_date]
+      redirect_to form_daily_frequencies_path(
+        unity_id: parameters[:unity_id],
+        classroom_id: parameters[:classroom_id],
+        frequency_date: parameters[:frequency_date],
+        discipline_id: parameters[:discipline_id],
+        period: parameters[:period],
+        class_numbers: parameters[:class_numbers_original]
+      )
+    elsif valid
       respond_with @absence_justification, location: absence_justifications_path
     else
       clear_invalid_dates
@@ -146,30 +159,6 @@ class AbsenceJustificationsController < ApplicationController
     respond_with @absence_justification
   end
 
-  def redirect_to_daily_frequencies_in_batchs(valid, parameters)
-    return if valid.blank? && parameters.blank?
-
-    redirect_to form_daily_frequencies_in_batchs_path(
-      frequency_in_batch_form: {
-        start_date: parameters[:start_date],
-        end_date: parameters[:end_date]
-      }
-    ) && return
-  end
-
-  def redirect_to_daily_frequencies(valid, parameters)
-    return if valid.blank? && parameters[:frequency_date].blank?
-
-    redirect_to form_daily_frequencies_path(
-      unity_id: parameters[:unity_id],
-      classroom_id: parameters[:classroom_id],
-      frequency_date: parameters[:frequency_date],
-      discipline_id: parameters[:discipline_id],
-      period: parameters[:period],
-      class_numbers: parameters[:class_numbers_original]
-    ) && return
-  end
-
   protected
 
   def resource_params
@@ -207,7 +196,9 @@ class AbsenceJustificationsController < ApplicationController
   private
 
   def class_numbers(class_numbers)
-    [nil] if class_numbers.blank? || class_numbers.empty?
+    return [nil] if class_numbers.blank? || class_numbers.empty?
+
+    class_numbers
   end
 
   def filtering_params(params)
