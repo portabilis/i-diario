@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe ListGradesByStepService, type: :service do
+RSpec.describe ListGradesByStepBuilder, type: :service do
   let(:step_adult_and_youth) { 'adult_and_youth_education' }
   let(:step_child_education) { 'child_school' }
   let(:step_elementary_education) { 'elementary_school' }
 
   describe '#fetch_grades' do
     shared_examples 'returns correct list of grades' do |step, expected_elements_count, *expected_elements|
-      before { @list_grades = ListGradesByStepService.call(step) }
+      before { @list_grades = ListGradesByStepBuilder.call(step) }
 
       it "returns list of grades for #{step}" do
         expect(@list_grades.size).to eq(expected_elements_count),
@@ -49,7 +49,7 @@ RSpec.describe ListGradesByStepService, type: :service do
     context 'when group_children_education is true' do
       before do
         GeneralConfiguration.current.update(group_children_education: true)
-        @list_grades = ListGradesByStepService.call('child_school')
+        @list_grades = ListGradesByStepBuilder.call('child_school')
       end
 
       it 'returns list of grades with group_child_education' do
@@ -63,7 +63,7 @@ RSpec.describe ListGradesByStepService, type: :service do
     context 'when group_children_education is false' do
       before do
         GeneralConfiguration.current.update(group_children_education: false)
-        @list_grades = ListGradesByStepService.call('child_school')
+        @list_grades = ListGradesByStepBuilder.call('child_school')
       end
 
       it 'returns list of grades with group_child_education' do
