@@ -67,10 +67,10 @@ RSpec.describe ListGradesByStepService, type: :service do
       end
 
       it 'returns list of grades with group_child_education' do
-        grades_adult_and_youth = grades_adult_and_youth_education
+        grades_children_education = grades_children_education
 
         expect(@list_grades.size).to eq(4)
-        expect(@list_grades).to include(*grades_adult_and_youth)
+        expect(@list_grades).to include(*grades_children_education)
       end
     end
   end
@@ -86,12 +86,14 @@ RSpec.describe ListGradesByStepService, type: :service do
     ]
   end
 
-  def grades_adult_and_youth_education
+  def grades_children_education
     [
-      { id: 'eja_first_year', name: '1º ano - EJA', text: '1º ano - EJA' },
-      { id: 'eja_second_year', name: '2º ano - EJA', text: '2º ano - EJA' },
-      { id: 'eja_third_year', name: '3º ano - EJA', text: '3º ano - EJA' },
-      { id: 'eja_fourth_year', name: '4º ano - EJA', text: '4º ano - EJA' }
+      { id: 'nursery_1', name: 'Creche - 0 a 1 ano e 6 meses',
+        text: 'Creche - 0 a 1 ano e 6 meses' },
+      { id: 'nursery_2', name: 'Creche - 1 ano e 7 meses a 3 anos e 11 meses',
+        text: 'Creche - 1 ano e 7 meses a 3 anos e 11 meses' },
+      { id: 'preschool', name: 'Pré-escola - 4 a 5 anos',
+        text: 'Pré-escola - 4 a 5 anos' }
     ]
   end
 end
