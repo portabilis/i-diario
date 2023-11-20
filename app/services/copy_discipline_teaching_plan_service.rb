@@ -59,32 +59,26 @@ class CopyDisciplineTeachingPlanService
 
   def fetch_teacher_discipline_classrooms(teaching_plan, discipline_id, thematic_unit)
     new_discipline_teaching_plans = []
-    teacher_grades = {}
-
-    teacher_discipline_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
-      year: year,
-      discipline_id: discipline_id,
-      grade_id: grades_ids
-    )
-
-    teacher_discipline_classrooms.each do |tdc|
-      teacher_id = tdc.teacher_id
-      grade_id = tdc.grade_id
-
-      teacher_grades[teacher_id] ||= []
-
-      next if teacher_grades[teacher_id].include?(grade_id)
-
-      teacher_grades[teacher_id] << grade_id
-    end
 
     unities_ids.each do |unity_id|
-      teacher_grades.each do |key, values|
-        values.each do |grade_id|
+      grades_ids.each do |grade_id|
+        classroom_ids = Classroom.by_unity(unities_ids).by_grade(grades_ids).pluck(:id)
+        teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
+          year: year,
+          discipline_id: discipline_id,
+          classroom_id: classroom_ids
+        ).group_by(&:grade_id)
+         .flat_map { |_key, value| value.group_by(&:teacher_id).map{ |key, value| value.first} }
+
+        teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
+          teacher = teacher_discipline_classroom.teacher
+
+          next unless teacher
+
           new_discipline_teaching_plans << create_copies_discipline_teaching_plans(
             teaching_plan,
             discipline_id,
-            key,
+            teacher,
             grade_id,
             unity_id,
             thematic_unit
@@ -99,7 +93,7 @@ class CopyDisciplineTeachingPlanService
   def create_copies_discipline_teaching_plans(
     teaching_plan,
     discipline_id,
-    teacher_id,
+    teacher,
     grade_id,
     unity_id,
     thematic_unit
@@ -117,7 +111,7 @@ class CopyDisciplineTeachingPlanService
       thematic_unit: thematic_unit
     )
 
-    copy_teaching_plan.teacher_id = teacher_id
+    copy_teaching_plan.teacher = teacher
     copy_teaching_plan.save!(validate: false)
 
     copy_teaching_plan.discipline_teaching_plan
