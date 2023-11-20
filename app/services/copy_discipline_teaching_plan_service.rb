@@ -1,27 +1,26 @@
 class CopyDisciplineTeachingPlanService
-  attr_reader :user_id, :discipline_teaching_plan_id, :year, :unities_ids, :grades_ids
+  class CopyDisciplineTeachingPlanError < StandardError; end
+  attr_reader :discipline_teaching_plan_id, :year, :unities_ids, :grades_ids
 
   def self.call(*params)
     new(*params).call
   end
 
   def initialize(
-    user_id,
     discipline_teaching_plan_id,
     year,
     unities_ids,
     grades_ids
   )
-    @user_id = user_id
     @discipline_teaching_plan_id = discipline_teaching_plan_id
     @year = year
     @unities_ids = unities_ids
     @grades_ids = grades_ids
+
+    check_required_params
   end
 
   def call
-    return if unities_ids.blank? || grades_ids.blank?
-
     model_discipline_teaching_plan = DisciplineTeachingPlan.find(discipline_teaching_plan_id)
     model_teaching_plan = model_discipline_teaching_plan.teaching_plan
     discipline_id = model_discipline_teaching_plan.discipline_id
@@ -29,11 +28,13 @@ class CopyDisciplineTeachingPlanService
 
     fetch_contents_and_objectives(model_teaching_plan)
 
-    copy_discipline_teaching_plan_worker(
+    new_discipline_teaching_plans = fetch_teacher_discipline_classrooms(
       model_teaching_plan,
-      thematic_unit,
-      discipline_id
+      discipline_id,
+      thematic_unit
     )
+
+    new_discipline_teaching_plans
   end
 
   private
@@ -51,43 +52,75 @@ class CopyDisciplineTeachingPlanService
     end
 
     teaching_plan.objectives_teaching_plans.each do |objective_teaching_plan, index|
-      @objectives_created_at_position[objective_teaching_plan.objective_id] = index
+      objectives_created_at_position[objective_teaching_plan.objective_id] = index
       @objective_ids << objective_teaching_plan.objective_id
     end
   end
 
-  def copy_discipline_teaching_plan_worker(teaching_plan, thematic_unit, discipline_id)
+  def fetch_teacher_discipline_classrooms(teaching_plan, discipline_id, thematic_unit)
+    new_discipline_teaching_plans = []
+
     unities_ids.each do |unity_id|
       grades_ids.each do |grade_id|
-        classrooms_in_grade = Classroom.by_unity(unity_id).by_grade(grade_id).map(&:id)
         teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
           year: year,
           discipline_id: discipline_id,
-          classroom_id: classrooms_in_grade
-        )
+          grade_id: grade_id
+        ).group_by(&:grade_id).map { |_key, value| value.first }
 
         teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
           teacher = teacher_discipline_classroom.teacher
 
           next unless teacher
 
-          teaching_plan = teaching_plan.dup
-          teaching_plan.unity_id = unity_id
-          teaching_plan.grade_id = grade_id
-          teaching_plan.contents_created_at_position = @contents_created_at_position
-          teaching_plan.objectives_created_at_position = @objectives_created_at_position
-          teaching_plan.content_ids = @content_ids
-          teaching_plan.objective_ids = @objective_ids
-
-          teaching_plan.build_discipline_teaching_plan(
-            discipline_id: discipline_id,
-            thematic_unit: thematic_unit
+          new_discipline_teaching_plans << create_copies_discipline_teaching_plans(
+            teaching_plan,
+            discipline_id,
+            teacher,
+            grade_id,
+            unity_id,
+            thematic_unit
           )
-
-          teaching_plan.teacher = teacher
-          teaching_plan.save!(validate: false)
         end
       end
     end
+
+    new_discipline_teaching_plans
+  end
+
+  def create_copies_discipline_teaching_plans(
+    teaching_plan,
+    discipline_id,
+    teacher,
+    grade_id,
+    unity_id,
+    thematic_unit
+  )
+    copy_teaching_plan = teaching_plan.dup
+    copy_teaching_plan.unity_id = unity_id
+    copy_teaching_plan.grade_id = grade_id
+    copy_teaching_plan.contents_created_at_position = @contents_created_at_position
+    copy_teaching_plan.objectives_created_at_position = @objectives_created_at_position
+    copy_teaching_plan.content_ids = @content_ids
+    copy_teaching_plan.objective_ids = @objective_ids
+
+    copy_teaching_plan.build_discipline_teaching_plan(
+      discipline_id: discipline_id,
+      thematic_unit: thematic_unit
+    )
+
+    copy_teaching_plan.teacher = teacher
+    copy_teaching_plan.save!(validate: false)
+
+    copy_teaching_plan.discipline_teaching_plan
+  end
+
+  def check_required_params
+    required_params_missing = unities_ids.blank? ||
+                              grades_ids.blank? ||
+                              discipline_teaching_plan_id.blank? ||
+                              year.blank?
+
+    raise CopyDisciplineTeachingPlanError, 'Missing required parameters' if required_params_missing
   end
 end
