@@ -580,6 +580,7 @@ class AttendanceRecordReport < BaseReport
 
   def set_teacher(teacher, classroom_id, current_user)
     return teacher unless current_user.current_role_is_admin_or_employee?
+    return teacher if teacher.daily_frequencies.where(classroom_id: classroom_id).any?
 
     Classroom.find(classroom_id).teacher_discipline_classrooms.first.teacher
   end
