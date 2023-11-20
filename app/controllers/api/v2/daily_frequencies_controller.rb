@@ -87,7 +87,7 @@ module Api
       end
 
       def user_id
-        @user_id ||= params[:user_id] || 1
+        @user_id ||= params[:user_id] || User.find_by_teacher_id(params[:teacher_id])&.id || 1
       end
 
       def period
