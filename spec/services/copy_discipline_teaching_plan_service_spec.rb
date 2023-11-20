@@ -3,25 +3,6 @@ require 'rails_helper'
 RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
   let(:user) { create(:user, :with_user_role_administrator) }
   let(:unity) { create(:unity) }
-  # vinculo para o professor turmas diferentes, mesma disciplina, escola e ano
-  # let(:classroom_2) { create(:classroom, unity: unity) }
-  # let(:classroom_grades_2) {
-  #   create(
-  #     :classrooms_grade,
-  #     classroom: classroom_2,
-  #     grade: classroom_grades.grade
-  #   )
-  # }
-  # let!(:teacher_discipline_classroom_2) {
-  #   create(
-  #     :teacher_discipline_classroom,
-  #     teacher: current_teacher,
-  #     classroom: classroom_2,
-  #     discipline: discipline,
-  #     grade: classroom_grades.grade
-  #   )
-  # }
-
   let(:discipline) { create(:discipline) }
   let(:classroom) { create(:classroom, unity: unity) }
   let(:current_teacher) { create(:teacher) }
@@ -215,3 +196,22 @@ def create_setup_only_teacher_other_grade
   )
   other_classroom_grades.grade
 end
+
+# Para criar outro cenário - Criar vinculo para o professor turmas diferentes, mesma disciplina, escola e ano
+# let(:classroom_2) { create(:classroom, unity: unity) }
+# let(:classroom_grades_2) {
+#   create(
+#     :classrooms_grade,
+#     classroom: classroom_2,
+#     grade: classroom_grades.grade
+#   )
+# }
+# let!(:teacher_discipline_classroom_2) {
+#   create(
+#     :teacher_discipline_classroom,
+#     teacher: current_teacher,
+#     classroom: classroom_2,
+#     discipline: discipline,
+#     grade: classroom_grades.grade
+#   )
+# }
