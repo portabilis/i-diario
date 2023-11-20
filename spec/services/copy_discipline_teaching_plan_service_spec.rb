@@ -2,10 +2,54 @@ require 'rails_helper'
 
 RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
   let(:user) { create(:user, :with_user_role_administrator) }
+  # vinculo para o professor turmas diferentes, mesma disciplina e ano
+  let(:classroom_2) { create(:classroom, :score_type_numeric) }
+  let(:classroom_grades_2) {
+    create(
+      :classrooms_grade,
+      classroom: classroom_2,
+      grade: classroom_grades.grade
+    )
+  }
+  let!(:teacher_discipline_classroom_2) {
+    create(
+      :teacher_discipline_classroom,
+      teacher: current_teacher,
+      classroom: classroom_2,
+      discipline: discipline,
+      grade: classroom_grades.grade
+    )
+  }
+  # vinculo outro professor com outra turma, mesma disciplina e ano
+  let(:other_teacher) { create(:teacher) }
+  let(:other_classroom) { create(:classroom, :score_type_numeric) }
+  let!(:other_classroom_grades) { create(:classrooms_grade, classroom: other_classroom, grade: classroom_grades.grade) }
+  let!(:teacher_discipline_classroom) {
+    create(
+      :teacher_discipline_classroom,
+      teacher: other_teacher,
+      classroom: other_classroom,
+      discipline: discipline,
+      grade: classroom_grades.grade
+    )
+  }
+  # vinculo para o professor com outra turma, outra série mesma disciplina e ano
+  let(:classroom_3) { create(:classroom, :score_type_numeric) }
+  let!(:classroom_grades_3) { create(:classrooms_grade, classroom: classroom_3) }
+  let!(:teacher_discipline_classroom_3) {
+    create(
+      :teacher_discipline_classroom,
+      teacher: current_teacher,
+      classroom: classroom_3,
+      discipline: discipline,
+      grade: classroom_grades_3.grade
+    )
+  }
+
   let(:discipline) { create(:discipline) }
   let(:classroom) { create(:classroom, :score_type_numeric) }
-  let(:classroom_grades) { create(:classrooms_grade, classroom: classroom) }
   let(:current_teacher) { create(:teacher) }
+  let(:classroom_grades) { create(:classrooms_grade, classroom: classroom) }
   let(:school_term_type) { create(:school_term_type, description: 'Anual') }
   let(:school_term_type_step) { create(:school_term_type_step, school_term_type: school_term_type) }
   let(:teaching_plan) {
@@ -25,7 +69,7 @@ RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
     create(
       :discipline_teaching_plan,
       discipline: discipline,
-      teaching_plan: teaching_plan,
+      teaching_plan: teaching_plan
     )
   }
 
@@ -74,7 +118,7 @@ RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
   describe '#copy_discipline_teaching_plan_worker' do
     subject(:copy_discipline_teaching_plan) {
       CopyDisciplineTeachingPlanService.call(
-        discipline_teaching_plan.id, classroom.year, [classroom.unity_id], [classroom_grades.grade_id]
+        discipline_teaching_plan.id, classroom.year, [classroom.unity_id], [classroom_grades.grade_id, classroom_grades_3.grade_id]
       )
     }
 
