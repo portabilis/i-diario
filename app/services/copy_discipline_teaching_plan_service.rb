@@ -79,12 +79,12 @@ class CopyDisciplineTeachingPlanService
     end
 
     unities_ids.each do |unity_id|
-      teacher_grades.each do |teacher_id, grades_ids|
-        grades_ids.each do |grade_id|
+      teacher_grades.each do |key, values|
+        values.each do |grade_id|
           new_discipline_teaching_plans << create_copies_discipline_teaching_plans(
             teaching_plan,
             discipline_id,
-            teacher_id,
+            key,
             grade_id,
             unity_id,
             thematic_unit
