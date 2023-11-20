@@ -195,6 +195,7 @@ Rails.application.routes.draw do
     resources :learning_objectives_and_skills, concerns: :history do
       collection do
         get :contents
+        get :fetch_grades
       end
     end
 

@@ -16,26 +16,11 @@
       </div>
     </div>
     <div class="row">
-      <% if GeneralConfiguration.current.group_children_education %>
-        <div class="col col-sm-4 only-child-school" style="display: none;">
-          <%= f.input :child_educations, as: :select2, elements: GroupChildEducations.to_select.to_json, multiple: true,
-            required: true, input_html: { id: 'learning_objectives_and_skill_child_educations',
-            value: f.object.grades.join(','), data: { without_json_parser: true } } %>
-        </div>
-      <% else %>
-        <div class="col col-sm-4 only-child-school" style="display: none;">
-          <%= f.input :child_educations, as: :select2, elements: ChildEducations.to_select.to_json, multiple: true,
-            required: true, input_html: { id: 'learning_objectives_and_skill_child_educations',
-            value: f.object.grades.join(','), data: { without_json_parser: true } } %>
-        </div>
-      <% end %>
-
-      <div class="col col-sm-4 only-elementary-school" style="display: none;">
-        <%= f.input :elementary_educations, as: :select2, elements: ElementaryEducations.to_select.to_json,
-          required: true, multiple: true, input_html: { id: 'learning_objectives_and_skill_elementary_educations',
-          value: f.object.grades.join(','), data: { without_json_parser: true } } %>
+      <div class="col col-sm-4">
+        <%= f.input :grades, as: :select2, elements: @grades, multiple: true,
+                    required: true, input_html: { value: f.object.grades.join(','),
+                    data: { without_json_parser: true } } %>
       </div>
-
       <div class="col col-sm-4 only-child-school" style="display: none;">
         <%= f.input :field_of_experience, as: :select2, elements: BnccExperienceFields.to_select.to_json %>
       </div>
