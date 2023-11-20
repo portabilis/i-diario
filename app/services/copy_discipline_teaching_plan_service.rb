@@ -61,29 +61,28 @@ class CopyDisciplineTeachingPlanService
     new_discipline_teaching_plans = []
 
     unities_ids.each do |unity_id|
-      grades_ids.each do |grade_id|
-        classroom_ids = Classroom.by_unity(unities_ids).by_grade(grades_ids).pluck(:id)
-        teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
-          year: year,
-          discipline_id: discipline_id,
-          classroom_id: classroom_ids
-        ).group_by(&:grade_id)
-         .flat_map { |_key, value| value.group_by(&:teacher_id).map{ |key, value| value.first} }
+      classroom_ids = Classroom.by_unity(unities_ids).by_grade(grades_ids).pluck(:id)
+      teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
+        year: year,
+        discipline_id: discipline_id,
+        classroom_id: classroom_ids
+      ).group_by(&:grade_id)
+       .flat_map { |_key, value| value.group_by(&:teacher_id).map{ |key, value| value.first} }
 
-        teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
-          teacher = teacher_discipline_classroom.teacher
+       teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
+        teacher = teacher_discipline_classroom.teacher
+        grade_id = teacher_discipline_classroom.grade_id
 
-          next unless teacher
+        next unless teacher
 
-          new_discipline_teaching_plans << create_copies_discipline_teaching_plans(
-            teaching_plan,
-            discipline_id,
-            teacher,
-            grade_id,
-            unity_id,
-            thematic_unit
-          )
-        end
+        new_discipline_teaching_plans << create_copies_discipline_teaching_plans(
+          teaching_plan,
+          discipline_id,
+          teacher,
+          grade_id,
+          unity_id,
+          thematic_unit
+        )
       end
     end
 
