@@ -52,31 +52,39 @@ class CopyDisciplineTeachingPlanService
     end
 
     teaching_plan.objectives_teaching_plans.each do |objective_teaching_plan, index|
-      objectives_created_at_position[objective_teaching_plan.objective_id] = index
+      @objectives_created_at_position[objective_teaching_plan.objective_id] = index
       @objective_ids << objective_teaching_plan.objective_id
     end
   end
 
   def fetch_teacher_discipline_classrooms(teaching_plan, discipline_id, thematic_unit)
     new_discipline_teaching_plans = []
+    teacher_grades = {}
+
+    teacher_discipline_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
+      year: year,
+      discipline_id: discipline_id,
+      grade_id: grades_ids
+    )
+
+    teacher_discipline_classrooms.each do |tdc|
+      teacher_id = tdc.teacher_id
+      grade_id = tdc.grade_id
+
+      teacher_grades[teacher_id] ||= []
+
+      next if teacher_grades[teacher_id].include?(grade_id)
+
+      teacher_grades[teacher_id] << grade_id
+    end
 
     unities_ids.each do |unity_id|
-      grades_ids.each do |grade_id|
-        teacher_disciplines_classrooms = TeacherDisciplineClassroom.includes(:teacher).where(
-          year: year,
-          discipline_id: discipline_id,
-          grade_id: grade_id
-        ).group_by(&:grade_id).map { |_key, value| value.first }
-
-        teacher_disciplines_classrooms.each do |teacher_discipline_classroom|
-          teacher = teacher_discipline_classroom.teacher
-
-          next unless teacher
-
+      teacher_grades.each do |teacher_id, grades_ids|
+        grades_ids.each do |grade_id|
           new_discipline_teaching_plans << create_copies_discipline_teaching_plans(
             teaching_plan,
             discipline_id,
-            teacher,
+            teacher_id,
             grade_id,
             unity_id,
             thematic_unit
@@ -91,7 +99,7 @@ class CopyDisciplineTeachingPlanService
   def create_copies_discipline_teaching_plans(
     teaching_plan,
     discipline_id,
-    teacher,
+    teacher_id,
     grade_id,
     unity_id,
     thematic_unit
@@ -109,7 +117,7 @@ class CopyDisciplineTeachingPlanService
       thematic_unit: thematic_unit
     )
 
-    copy_teaching_plan.teacher = teacher
+    copy_teaching_plan.teacher_id = teacher_id
     copy_teaching_plan.save!(validate: false)
 
     copy_teaching_plan.discipline_teaching_plan
