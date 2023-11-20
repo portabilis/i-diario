@@ -2,8 +2,9 @@ require 'rails_helper'
 
 RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
   let(:user) { create(:user, :with_user_role_administrator) }
-  # vinculo para o professor turmas diferentes, mesma disciplina e ano
-  let(:classroom_2) { create(:classroom, :score_type_numeric) }
+  let(:unity) { create(:unity) }
+  # vinculo para o professor turmas diferentes, mesma disciplina, escola e ano
+  let(:classroom_2) { create(:classroom, unity: unity) }
   let(:classroom_grades_2) {
     create(
       :classrooms_grade,
@@ -22,7 +23,7 @@ RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
   }
   # vinculo outro professor com outra turma, mesma disciplina e ano
   let(:other_teacher) { create(:teacher) }
-  let(:other_classroom) { create(:classroom, :score_type_numeric) }
+  let(:other_classroom) { create(:classroom, unity: unity) }
   let!(:other_classroom_grades) { create(:classrooms_grade, classroom: other_classroom, grade: classroom_grades.grade) }
   let!(:teacher_discipline_classroom) {
     create(
@@ -34,7 +35,7 @@ RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
     )
   }
   # vinculo para o professor com outra turma, outra série mesma disciplina e ano
-  let(:classroom_3) { create(:classroom, :score_type_numeric) }
+  let(:classroom_3) { create(:classroom, unity: unity) }
   let!(:classroom_grades_3) { create(:classrooms_grade, classroom: classroom_3) }
   let!(:teacher_discipline_classroom_3) {
     create(
@@ -47,7 +48,7 @@ RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
   }
 
   let(:discipline) { create(:discipline) }
-  let(:classroom) { create(:classroom, :score_type_numeric) }
+  let(:classroom) { create(:classroom, unity: unity) }
   let(:current_teacher) { create(:teacher) }
   let(:classroom_grades) { create(:classrooms_grade, classroom: classroom) }
   let(:school_term_type) { create(:school_term_type, description: 'Anual') }
@@ -57,7 +58,7 @@ RSpec.describe CopyDisciplineTeachingPlanService, type: :service do
       :teaching_plan,
       :with_teacher_discipline_classroom,
       teacher: current_teacher,
-      unity: classroom.unity,
+      unity: unity,
       discipline: discipline,
       year: classroom.year,
       grade: classroom_grades.grade,
