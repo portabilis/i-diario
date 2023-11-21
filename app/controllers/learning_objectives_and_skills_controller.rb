@@ -97,6 +97,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     query.each do |skill|
       @contents << {
+        id: skill.id,
         description: "(#{skill.code}) #{skill.description}"
       }
     end
