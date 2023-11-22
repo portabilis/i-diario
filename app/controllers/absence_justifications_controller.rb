@@ -35,6 +35,7 @@ class AbsenceJustificationsController < ApplicationController
     set_options_by_user
     fetch_unities
     fetch_students
+    @period = search_teacher_period_in_classroom(current_user_classroom)
 
     authorize @absence_justification
   end
@@ -174,6 +175,16 @@ class AbsenceJustificationsController < ApplicationController
     respond_with @absence_justification
   end
 
+  def valid_teacher_period_in_classroom
+    return if params[:classroom_id].blank? || params[:classroom_id].eql?('empty')
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    return if classroom.blank?
+
+    render json: search_teacher_period_in_classroom(classroom)
+  end
+
   protected
 
   def resource_params
@@ -294,5 +305,13 @@ class AbsenceJustificationsController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @exam_rules_ids ||= @fetch_linked_by_teacher[:classroom_grades].map(&:exam_rule_id)
+  end
+
+  def search_teacher_period_in_classroom(classroom)
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      classroom,
+      nil
+    ).teacher_period
   end
 end
