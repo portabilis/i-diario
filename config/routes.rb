@@ -349,7 +349,11 @@ Rails.application.routes.draw do
     end
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
-    resources :absence_justifications, concerns: :history
+    resources :absence_justifications, concerns: :history do
+      collection do
+        get :valid_teacher_period_in_classroom
+      end
+    end
     resources :observation_diary_records, concerns: :history
     resources :ieducar_api_exam_postings do
       member do
