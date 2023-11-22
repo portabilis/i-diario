@@ -41,7 +41,8 @@
         <div class="col col-sm-4">
           <% if current_user.current_role_is_admin_or_employee? %>
             <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
-                                             readonly: action_name.eql?('show')  %>
+                                               selected: @knowledge_area_teaching_plan.teaching_plan.grade_id,
+                                               readonly: action_name.eql?('show')  %>
           <% else %>
             <%= teaching_plan_form.association :grade, as: :select2, elements: @grades,
                                                selected: @knowledge_area_teaching_plan.teaching_plan.grade_id,
