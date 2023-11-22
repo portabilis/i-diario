@@ -25,7 +25,7 @@
           <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
         <% else %>
           <%= f.association :classroom, as: :select2, elements: @classrooms,
-                user: current_user, record: f.object, readonly: (params[:action] == "show")
+                user: current_user, record: f.object, readonly: readonly
                 %>
         <% end %>
       </div>
