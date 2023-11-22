@@ -32,7 +32,7 @@ $(function () {
   }
 
   function handleFetchPeriodSuccess(data) {
-    if (!_.isEmpty(data)) {
+    if (data != '') {
       if (data != PERIOD_FULL) {
         $period.select2('val', data);
         $period.attr('readonly', true)
