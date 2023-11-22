@@ -1,10 +1,12 @@
 $(function () {
+  const PERIOD_FULL = 4;
   var flashMessages = new FlashMessages(),
     $studentDiv = $("[data-student]"),
     $classroom = $("#absence_justification_classroom_id"),
     $absenceDate = $("#absence_justification_absence_date"),
     $absenceDateEnd = $("#absence_justification_absence_date_end"),
-    $student = $("#absence_justification_student_ids");
+    $student = $("#absence_justification_student_ids"),
+    $period = $("#absence_justification_period");
 
   // on change
   $classroom.on('change', function (e) {
@@ -14,8 +16,37 @@ $(function () {
 
     if (!_.isEmpty(params)) {
       fetchStudents();
+      fetchPeriod(params);
     }
   });
+
+  function fetchPeriod(params) {
+    $.ajax({
+      url: Routes.valid_teacher_period_in_classroom_absence_justifications_pt_br_path({
+        classroom_id: params.classroom_id,
+        format: 'json'
+      }),
+      success: handleFetchPeriodSuccess,
+      error: handleFetchPeriodError
+    });
+  }
+
+  function handleFetchPeriodSuccess(data) {
+    if (!_.isEmpty(data)) {
+      if (data != PERIOD_FULL) {
+        $period.select2('val', data);
+        $period.attr('readonly', true)
+      } else {
+        $period.attr('readonly', false)
+      }
+    } else {
+      $period.select2('val', data);
+    }
+  };
+
+  function handleFetchPeriodError() {
+    flashMessages.error('Ocorreu um erro ao buscar o período da turma.');
+  };
 
   function fetchStudents() {
     if (!isValidDate($absenceDate.val()) || !isValidDate($absenceDateEnd.val())) {
