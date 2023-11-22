@@ -129,6 +129,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id]).localized
     @absence_justification.unity = current_unity
     fetch_unities
+    set_options_by_user
     fetch_students
     is_frequency_by_discipline?
 
