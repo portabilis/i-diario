@@ -121,4 +121,10 @@ $(function () {
 
   $absenceDate.on('change', fetchStudents);
   $absenceDateEnd.on('change', fetchStudents);
+
+  if ($period.val() == '') {
+    var params = {classroom_id: $classroom.val() };
+    fetchPeriod(params)
+  }
+
 });
