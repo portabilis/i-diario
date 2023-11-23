@@ -26,7 +26,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
-  scope :by_date_not_after, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
+  scope :by_left_at_data, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grade).where(classrooms_grades: { grade_id: grade_id }) }
@@ -92,9 +92,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
       CASE
         WHEN :period = 4 THEN TRUE
         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
-          student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
+          student_enrollment_classrooms.period NOT IN (2, 3)
+            OR student_enrollment_classrooms.period IS NULL
         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
-          student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
+          student_enrollment_classrooms.period NOT IN (1, 3)
+            OR student_enrollment_classrooms.period IS NULL
         ELSE
           COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
       END

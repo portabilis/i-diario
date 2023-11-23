@@ -20,7 +20,7 @@ module ColumnsLockable
   private
 
   def can_update?
-    return if validation_type == :destroy || not_validate_columns
+    return if validation_type == :destroy || not_validate_columns || !current_user.current_role_is_admin_or_employee?
 
     self.class.not_updatable_columns.each do |not_updatable_column|
       column_value = self.send(not_updatable_column)

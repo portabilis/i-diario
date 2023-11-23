@@ -68,6 +68,7 @@ class ConceptualExamValueCreator
   def student_enrollment_id(student_id, classroom_id, recorded_at)
     StudentEnrollment.by_student(student_id)
                      .by_classroom(classroom_id)
+                     .by_grade(grade_id)
                      .by_date(recorded_at)
                      .first
                      .try(:id)

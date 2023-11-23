@@ -2,5 +2,5 @@ pt-BR:
   avaliation:
       grades_avoid_destroy: "já foram efetuados lançamentos"
       recovery_avoid_destroy: "existe uma recuperação desta avaliação"
-      numeric_exam_absence: 'A disciplina selecionada não possui nota numérica'
-      grades_not_allow_numeric_exam: 'As séries da turma não possuem nota numérica'
+      numeric_exam_absence: 'A disciplina selecionada selecionada no perfil não possui nota numérica'
+      grades_not_allow_numeric_exam: 'As séries da turma selecionada no perfil não possuem nota numérica'

@@ -1,9 +1,13 @@
 class UserForStudentCreator
-  def self.create!(student)
-    new.create!(student)
+  def self.create!(student_id)
+    new.create!(student_id)
   end
 
-  def create!(student)
+  def create!(student_id)
+    student = Student.find(student_id)
+
+    return if student.blank?
+
     create_user(student)
   end
 

@@ -6,9 +6,13 @@ class DescriptiveExamsController < ApplicationController
   before_action :view_data, only: [:edit, :show]
 
   def new
-    @descriptive_exam = DescriptiveExam.new
+    @descriptive_exam = DescriptiveExam.new(
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
 
-    set_opinion_types
+    select_options_by_user
+    select_opinion_types
 
     authorize @descriptive_exam
   end
@@ -26,7 +30,8 @@ class DescriptiveExamsController < ApplicationController
 
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      set_opinion_types
+      select_options_by_user(@descriptive_exam.classroom_id)
+      select_opinion_types
 
       render :new
     end
@@ -49,6 +54,8 @@ class DescriptiveExamsController < ApplicationController
       respond_with @descriptive_exam, location: new_descriptive_exam_path
     else
       fetch_students
+      select_options_by_user(@descriptive_exam.classroom_id)
+      select_opinion_types
 
       render :edit
     end
@@ -62,28 +69,42 @@ class DescriptiveExamsController < ApplicationController
     respond_with @descriptive_exam
   end
 
+  def find
+    return render json: nil if params[:opinion_type].blank? ||
+                               (params[:step_id].blank? && !opinion_type_by_year?(params[:opinion_type])) ||
+                               params[:classroom_id].blank?
+
+    classroom_id = params[:classroom_id].to_i
+    discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
+    step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
+
+    select_options_by_user(classroom_id)
+    select_opinion_types
+
+    descriptive_exam_id = DescriptiveExam.by_classroom_id(classroom_id)
+                                         .by_discipline_id(discipline_id)
+    if step_id
+      classroom = Classroom.find(classroom_id)
+      descriptive_exam_id = descriptive_exam_id.by_step_id(classroom, step_id)
+    end
+
+    descriptive_exam_id = descriptive_exam_id.first&.id
+
+    render json: descriptive_exam_id
+  end
+
   def opinion_types
-    set_opinion_types(Classroom.find(params[:classroom_id]))
+    select_options_by_user(params[:classroom_id])
+    select_opinion_types
 
     render json: @opinion_types.to_json
   end
 
-  def find
-    return render json: nil if params[:opinion_type].blank? ||
-                               (params[:step_id].blank? && !opinion_type_by_year?(params[:opinion_type]))
+  def find_step_number_by_classroom
+    classroom = Classroom.find(params[:classroom_id])
+    step_numbers = StepsFetcher.new(classroom)&.steps
 
-    discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
-    step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
-
-    set_opinion_types
-
-    descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
-                                         .by_discipline_id(discipline_id)
-
-    descriptive_exam_id = descriptive_exam_id.by_step_id(current_user_classroom, step_id) if step_id
-    descriptive_exam_id = descriptive_exam_id.first&.id
-
-    render json: descriptive_exam_id
+    render json: step_numbers.to_json
   end
 
   protected
@@ -102,7 +123,9 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def steps_fetcher
-    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+    classroom = @descriptive_exam&.classroom || current_user_classroom
+
+    @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 
   def find_step_id
@@ -183,7 +206,7 @@ class DescriptiveExamsController < ApplicationController
       exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
 
       left_at = enrollment_classroom[:student_enrollment_classroom].left_at.to_date
-      exam_student.active_student =  left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
+      exam_student.active_student = left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
       @students << exam_student
     end
 
@@ -192,30 +215,43 @@ class DescriptiveExamsController < ApplicationController
     @dependence_students = []
 
     @students.each do |student|
-      @normal_students << student if !student.dependence?
+      @normal_students << student unless student.dependence?
       @dependence_students << student if student.dependence?
     end
   end
 
   def require_teacher
-    unless current_teacher
-      flash[:alert] = t('errors.descriptive_exams.require_teacher')
-      redirect_to root_path
-    end
+    return if current_teacher
+
+    flash[:alert] = t('errors.descriptive_exams.require_teacher')
+    redirect_to root_path
   end
 
-  def set_opinion_types
-    exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+  def select_options_by_user(classroom_id = nil)
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms = [current_user_classroom]
+      @discipline = [current_user_discipline]
+    else
+      fetch_linked_by_teacher
 
-    if exam_rules.blank?
-      redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
+      if classroom_id.present?
+        classroom = Classroom.find(classroom_id)
+        @exam_rules = classroom.classrooms_grades.map(&:exam_rule)
+      end
+    end
 
-      return
+    @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule) if action_name.eql?('new')
+  end
+
+  def select_opinion_types
+    if @exam_rules.blank?
+      flash[:error] = t('descriptive_exams.new.exam_rule_not_found')
+      redirect_to new_descriptive_exam_path && return
     end
 
     @opinion_types = []
 
-    descriptive_exam_opinion_type = exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
+    descriptive_exam_opinion_type = @exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
 
     if descriptive_exam_opinion_type.present?
       @opinion_types << OpenStruct.new(id: descriptive_exam_opinion_type,
@@ -223,10 +259,10 @@ class DescriptiveExamsController < ApplicationController
                                        name: 'Avaliação padrão (regular)')
     end
 
-    differentiated_opinion_type = exam_rules.find { |exam_rule|
+    differentiated_opinion_type = @exam_rules.find do |exam_rule|
       exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
         exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
-    }&.differentiated_exam_rule&.opinion_type
+    end&.differentiated_exam_rule&.opinion_type
 
     if differentiated_opinion_type.present?
       @opinion_types << OpenStruct.new(
@@ -254,8 +290,8 @@ class DescriptiveExamsController < ApplicationController
       step_number = @descriptive_exam.step.to_number
 
       return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                                    .by_step_number(step_number)
-                                                    .any?
+                               .by_step_number(step_number)
+                               .any?
     end
 
     false
@@ -285,6 +321,17 @@ class DescriptiveExamsController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @classroom_grades ||= @fetch_linked_by_teacher[:classroom_grades]
+  end
 
   def view_data
     @descriptive_exam = DescriptiveExam.find(params[:id]).localized

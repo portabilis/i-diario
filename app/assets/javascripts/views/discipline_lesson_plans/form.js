@@ -21,20 +21,20 @@ $(function () {
 
   $(".lesson_plan_attachment").on('change', onChangeFileElement);
 
-  function onChangeFileElement(){
+  function onChangeFileElement() {
     // escopado para permitir arquivos menores que 3MB(3145728 bytes)
     if (this.files[0].size > 3145728) {
       $(this).closest(".control-group").find('span').remove();
       $(this).closest(".control-group").addClass("error");
       $(this).after('<span class="help-inline">tamanho máximo por arquivo: 3 MB</span>');
       $(this).val("");
-    }else {
+    } else {
       $(this).closest(".control-group").removeClass("error");
       $(this).closest(".control-group").find('span').remove();
     }
   }
 
-  $('#discipline_lesson_plan').on('cocoon:after-insert', function(e, item) {
+  $('#discipline_lesson_plan').on('cocoon:after-insert', function (e, item) {
     $(item).find('input.file').on('change', onChangeFileElement);
   });
 
@@ -64,7 +64,7 @@ $(function () {
   };
 
   function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines, function(discipline) {
+    var selectedDisciplines = _.map(disciplines, function (discipline) {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
@@ -97,13 +97,17 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   };
 
-  $('#discipline_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function(e){
-    if(e.val.length){
-      var content_description = e.val.join(", ");
-      if(content_description.trim().length &&
-          !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
+  $('#discipline_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
+    var idCounter = 1;
 
+    if (e.val.length) {
+      var content_description = e.val.join(", ");
+      if (content_description.trim().length &&
+        !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
+
+        var uniqueId = 'customId_' + idCounter++;
         var html = JST['templates/layouts/contents_list_manual_item']({
+          id: uniqueId,
           description: content_description,
           model_name: 'discipline_lesson_plan',
           submodel_name: 'lesson_plan'
@@ -111,8 +115,8 @@ $(function () {
 
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var content_input = $('input[type=checkbox][data-content_description="'+content_description+'"]');
+      } else {
+        var content_input = $('input[type=checkbox][data-content_description="' + content_description + '"]');
         content_input.closest('li').show();
         content_input.prop('checked', true).trigger('change');
       }
@@ -122,13 +126,18 @@ $(function () {
     $(this).select2('val', '');
   });
 
-  $('#discipline_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function(e){
-    if(e.val.length){
+  $('#discipline_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
+    var idCounter = 1;
+
+    if (e.val.length) {
+
+      var uniqueId = 'customId_' + idCounter++;
       var objective_description = e.val.join(", ");
-      if(objective_description.trim().length &&
-          !$('input[type=checkbox][data-objective_description="'+objective_description+'"]').length){
+      if (objective_description.trim().length &&
+        !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
+          id: uniqueId,
           description: objective_description,
           model_name: 'discipline_lesson_plan',
           submodel_name: 'lesson_plan'
@@ -136,8 +145,8 @@ $(function () {
 
         $('#objectives-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var objective_input = $('input[type=checkbox][data-objective_description="'+objective_description+'"]');
+      } else {
+        var objective_input = $('input[type=checkbox][data-objective_description="' + objective_description + '"]');
         objective_input.closest('li').show();
         objective_input.prop('checked', true).trigger('change');
       }
@@ -147,10 +156,11 @@ $(function () {
     $(this).select2('val', '');
   });
 
-  const addElement = (description) => {
-    if(!$('li.list-group-item.active input[type=checkbox][data-content_description="'+description+'"]').length) {
+  const addElement = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-content_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/contents_list_manual_item']({
-        description: description,
+        id: content.id,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -162,7 +172,7 @@ $(function () {
 
   const fillContents = (data) => {
     if (data.discipline_lesson_plans.length) {
-      data.discipline_lesson_plans.forEach(content => addElement(content.description));
+      data.discipline_lesson_plans.forEach(content => addElement(content));
     } else {
       copyFromTeachingPlanAlert.style.display = 'block';
     }
@@ -179,22 +189,25 @@ $(function () {
       }
       const url = Routes.teaching_plan_contents_discipline_lesson_plans_pt_br_path();
       const params = {
+        classroom_id: $classroom.val(),
+        discipline_id: $discipline.val(),
         start_date: startAtInput.value,
         end_date: endAtInput.value
       }
 
       $.getJSON(url, params)
-      .done(fillContents);
+        .done(fillContents);
 
 
       return false;
     });
   }
 
-  const addObjectives = (description) => {
-    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
+  const addObjectives = (content) => {
+    if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
-        description: description,
+        id: content.id,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -206,7 +219,7 @@ $(function () {
 
   const fillObjectives = (data) => {
     if (data.discipline_lesson_plans.length) {
-      data.discipline_lesson_plans.forEach(content => addObjectives(content.description));
+      data.discipline_lesson_plans.forEach(content => addObjectives(content));
     } else {
       copyFromObjectivesTeachingPlanAlert.style.display = 'block';
     }
@@ -223,19 +236,21 @@ $(function () {
       }
       const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
       const params = {
+        classroom_id: $classroom.val(),
+        discipline_id: $discipline.val(),
         start_date: startAtInput.value,
         end_date: endAtInput.value
       }
 
       $.getJSON(url, params)
-      .done(fillObjectives);
+        .done(fillObjectives);
 
       return false;
     });
   }
 
   if ($('#action_name').val() == 'show') {
-    $('.list-group.checked-list-box .list-group-item').each(function(){
+    $('.list-group.checked-list-box .list-group-item').each(function () {
       $(this).off('click');
     });
   }
@@ -244,22 +259,22 @@ $(function () {
 $(function () {
   $('textarea[maxLength]').maxlength();
 
-  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_activities]" , {
+  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_activities]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_resources]" , {
+  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_resources]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_evaluation]" , {
+  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_evaluation]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_bibliography]" , {
+  createSummerNote("textarea[id^=discipline_lesson_plan_lesson_plan_attributes_bibliography]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
