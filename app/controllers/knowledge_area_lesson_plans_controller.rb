@@ -11,17 +11,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_lesson_plans = apply_scopes(
-      KnowledgeAreaLessonPlan.includes(:knowledge_areas,
-                                       lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
-                             .by_classroom_id(current_user_classroom)
-                             .uniq
-                             .ordered
-    ).select(
-      KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-      LessonPlan.arel_table[:start_at],
-      LessonPlan.arel_table[:end_at]
-    )
+    if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms
+    else
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    end
+
+    @knowledge_area_lesson_plans = fetch_knowledge_area_by_user
 
     if author_type.present?
       @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
@@ -30,11 +26,12 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plans
 
-    @classrooms = fetch_classrooms
     @knowledge_areas = fetch_knowledge_area
   end
 
   def show
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
     authorize @knowledge_area_lesson_plan
@@ -56,6 +53,12 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def new
+    if current_user.current_role_is_admin_or_employee?
+      fetch_classrooms
+    else
+      fetch_linked_by_teacher
+    end
+
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
     @knowledge_area_lesson_plan.lesson_plan.classroom = current_user_classroom
@@ -66,8 +69,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plan
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms
+    fetch_unities
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -98,8 +100,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
+      fetch_unities
+      fetch_classrooms
       @knowledge_areas = fetch_knowledge_area
 
       render :new
@@ -107,12 +109,14 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def edit
+    fetch_linked_by_teacher
+
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
     authorize @knowledge_area_lesson_plan
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms
+    fetch_unities
+    fetch_classrooms if current_user.current_role_is_admin_or_employee?
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -141,8 +145,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
+      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+      fetch_unities
+      fetch_classrooms if current_user.current_role_is_admin_or_employee?
       @knowledge_areas = fetch_knowledge_area
 
       render :edit
@@ -173,10 +179,18 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
+  def valid_params
+    return if params[:classroom_id].blank?
+
+    @classroom = Classroom.find_by(id: params[:classroom_id])
+  end
+
   def teaching_plan_contents
+    valid_params
+
     @teaching_plan_contents = KnowledgeAreaTeachingPlanContentsFetcher.new(
       current_teacher,
-      current_user_classroom,
+      @classroom,
       params[:knowledge_area_ids],
       params[:start_date],
       params[:end_date]
@@ -186,9 +200,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def teaching_plan_objectives
+    valid_params
+
     @teaching_plan_objectives = KnowledgeAreaTeachingPlanObjectivesFetcher.new(
       current_teacher,
-      current_user_classroom,
+      @classroom,
       params[:knowledge_area_ids],
       params[:start_date],
       params[:end_date]
@@ -198,6 +214,12 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   private
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @disciplines = @fetch_linked_by_teacher[:disciplines]
+  end
 
   def content_ids
     param_content_ids = params[:knowledge_area_lesson_plan][:lesson_plan_attributes][:content_ids] || []
@@ -311,17 +333,33 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   helper_method :objectives
 
   def fetch_unities
-    Unity.by_teacher(current_teacher.id).ordered
+    @unities ||= Unity.by_teacher(current_teacher.id).ordered
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom).ordered
+    @classrooms ||= [current_user_classroom]
   end
 
   def fetch_knowledge_area
     knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
-    knowledge_areas = knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
 
+    knowledge_areas = if current_user.current_role_is_admin_or_employee?
+                        knowledge_areas.by_classroom_id(current_user_classroom.id)
+                      else
+                        knowledge_areas.by_classroom_id(@classrooms.map(&:id))
+                      end
     knowledge_areas
+  end
+
+  def fetch_knowledge_area_by_user
+    apply_scopes(KnowledgeAreaLessonPlan
+      .includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
+      .by_classroom_id(@classrooms.map(&:id))
+      .order_by_classrooms
+      .ordered).select(
+        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
+      )
   end
 end

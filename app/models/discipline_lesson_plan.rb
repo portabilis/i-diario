@@ -34,6 +34,7 @@ class DisciplineLessonPlan < ApplicationRecord
     joins(:lesson_plan).where('start_at <= ? AND end_at >= ?', end_at.to_date, start_at.to_date)
   }
   scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:start_at].desc) }
+  scope :order_by_classrooms, -> { joins(lesson_plan: :classroom).order(Classroom.arel_table[:description].desc) }
   scope :order_by_lesson_plan_date, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:start_at]) }
   scope :by_author, lambda { |author_type, current_teacher_id|
     if author_type == PlansAuthors::MY_PLANS

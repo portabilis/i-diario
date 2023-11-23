@@ -10,6 +10,19 @@ $(function () {
   let $recorded_at = $('#avaliation_recovery_lowest_note_recorded_at');
   let $submitButton = $('input[type=submit]');
 
+  window.disciplines = [];
+
+  var fetchDisciplines = function (params, callback) {
+    if (_.isEmpty(window.disciplines)) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
+        window.disciplines = data;
+        callback(window.disciplines);
+      });
+    } else {
+      callback(window.disciplines);
+    }
+  };
+
   function fetchExamRule() {
     let classroom_id = $classroom.select2('val');
 
@@ -32,7 +45,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   }
 
-  $recorded_at.on('focusin', function(){
+  $recorded_at.on('focusin', function () {
     $(this).data('oldDate', $(this).val());
   });
 
@@ -57,7 +70,7 @@ $(function () {
   }
 
   function handleFetchCheckPersistedDailyNoteSuccess(data) {
-    if(_.isEmpty(data.daily_notes)){
+    if (_.isEmpty(data.daily_notes)) {
       flashMessages.error('A turma selecionada não possui notas lançadas nesta etapa.');
     } else {
       flashMessages.pop('');
@@ -98,7 +111,7 @@ $(function () {
 
       $('#recovery-diary-record-students').empty();
 
-      _.each(students, function(student) {
+      _.each(students, function (student) {
         let element_id = new Date().getTime() + element_counter++;
         buildStudentField(element_id, student);
       });
@@ -110,7 +123,7 @@ $(function () {
       flashMessages.error('Nenhum aluno encontrado.');
     }
 
-    function buildStudentField(element_id, student, index = null){
+    function buildStudentField(element_id, student, index = null) {
       let html = JST['templates/avaliation_recovery_lowest_notes/student_fields']({
         id: student.id,
         name: student.name,
@@ -201,10 +214,103 @@ $(function () {
 
   $recorded_at.on('change', validDateOnStep);
 
-  $submitButton.on('click', function() {
+  $submitButton.on('click', function () {
     $recorded_at.unbind();
   });
 
   fetchExamRule();
   loadDecimalMasks();
+
+  $classroom.on('change', async function (e) {
+    await getExamSetting();
+    await getStep();
+
+    var params = {
+      classroom_id: e.val
+    };
+
+    window.disciplines = [];
+
+    if (!_.isEmpty(e.val)) {
+      fetchDisciplines(params, function (disciplines) {
+        var selectedDisciplines = _.map(disciplines, function (discipline) {
+          return { id: discipline['id'], text: discipline['description'] };
+        });
+
+        $discipline.select2({
+          data: selectedDisciplines
+        });
+        $recorded_at.val(null).trigger('change');
+      });
+    }
+  });
+
+  $discipline.on('change', function () {
+    $recorded_at.val(null).trigger('change');
+  });
+
+  async function getStep() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_step_avaliation_recovery_lowest_notes_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchStepByClassroomSuccess,
+        error: handleFetchStepByClassroomError
+      });
+    }
+  }
+
+  function handleFetchStepByClassroomSuccess(data) {
+    let steps = data[0]
+    // Define a primeira opção como selecionada por padrão
+    $step.val(steps.id).trigger('change');
+  };
+
+  function handleFetchStepByClassroomError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
+  };
+
+  async function getExamSetting() {
+    let classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      return $.ajax({
+        url: Routes.fetch_exam_setting_arithmetic_avaliation_recovery_lowest_notes_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleFetchExamSettingArithmeticByClassroomSuccess,
+        error: handleFetchExamSettingArithmeticByClassroomError
+      });
+    }
+  }
+
+  function handleFetchExamSettingArithmeticByClassroomSuccess(data) {
+    var readOnly = true;
+    var successMessage = 'Configuração de avaliação validada com sucesso'
+    var errorMessage = `A turma selecionada não está configurada com o tipo de cálculo de média compatível com o recurso.
+    Para utilizar o mesmo, o tipo de cálculo deverá ser \'aritmético\'.`
+
+    if (data === true) {
+      readOnly = false;
+      flashMessages.success(successMessage)
+    } else {
+      flashMessages.error(errorMessage);
+    }
+
+    $discipline.prop('readonly', readOnly);
+    $step.prop('readonly', readOnly);
+    $recorded_at.prop('readonly', readOnly);
+  };
+
+  function handleFetchExamSettingArithmeticByClassroomError() {
+    flashMessages.error('É necessário configurar uma avaliação numérica');
+    $discipline.prop('readonly', true);
+    $step.prop('readonly', true);
+  };
+
 });

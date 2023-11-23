@@ -18,7 +18,8 @@ module ExamPoster
                         .by_test_date_between(@step.start_at, @step.end_at)
       number_of_exams = exams.count
 
-      daily_notes = DailyNote.by_classroom_id(@classroom.id)
+      daily_notes = DailyNote.includes(:students)
+                             .by_classroom_id(@classroom.id)
                              .by_discipline_id(@discipline.id)
                              .by_test_date_between(@step.start_at, @step.end_at)
                              .active
@@ -29,19 +30,29 @@ module ExamPoster
 
       students = fetch_student(daily_notes, exams)
 
-      @scores = students.each do |student|
-        student_exams = DailyNoteStudent.by_classroom_id(@classroom)
-                                        .by_discipline_id(@discipline)
-                                        .by_student_id(student.id)
-                                        .by_test_date_between(@step.start_at, @step.end_at)
-                                        .active
+      daily_note_students = DailyNoteStudent.includes(:student)
+                                            .by_classroom_id(@classroom)
+                                            .by_discipline_id(@discipline)
+                                            .where(student: students)
+                                            .by_test_date_between(@step.start_at, @step.end_at)
+                                            .active
+      student_scores = {}
 
-        pending_exams = student_exams.select { |e| e.note.blank? && !e.exempted? }
+      @scores = daily_note_students.map do |dns|
+        pending_exam = dns if dns.note.blank? && !dns.exempted?
 
-        if pending_exams.any?
-          pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')
-          @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
+        if pending_exam.present?
+          pending_exam_string = pending_exam.daily_note.avaliation.description_to_teacher
+          student_scores[dns.student] ||= []
+          student_scores[dns.student] << pending_exam_string
         end
+
+        dns.student
+      end.uniq
+
+      student_scores.each do |student, pending_exams|
+        pending_exams_string = pending_exams.join(', ')
+        @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
       end
     end
 
@@ -66,6 +77,7 @@ module ExamPoster
 
     def validate_pending_exams(daily_notes, exams)
       number_of_exams = exams.count
+
       if daily_notes.count < number_of_exams
         pending_exams = exams.select { |exam| daily_notes.none? { |daily_note| daily_note.avaliation_id == exam.id } }
         pending_exams_string = pending_exams.map(&:description_to_teacher).join(', ')
@@ -75,23 +87,37 @@ module ExamPoster
 
     def fetch_student(daily_notes, exams)
       avaliations = exams.pluck(:id, :test_date).to_h
+      filter_daily_notes = daily_notes.where(avaliation_id: avaliations.keys)
+      daily_note_students = filter_daily_notes.flat_map(&:students)
+                                              .select { |dns| dns.transfer_note_id.present? }
+      active_enrollment_classrooms = StudentEnrollmentClassroom.by_classroom(@classroom.id).active
 
-      student_enrollment_classrooms = daily_notes.where(avaliation_id: avaliations.keys).map do |daily_note|
+      enrollment_classroom_on_date = []
+
+      filter_daily_notes.each do |daily_note|
         avaliation_id = daily_note.avaliation_id
         date_avaliation = avaliations[avaliation_id].to_date
 
-        StudentEnrollmentClassroom.includes(student_enrollment: :student)
-                                  .by_classroom(@classroom.id)
-                                  .by_date(date_avaliation)
-                                  .active
+        enrollment_classroom_on_date += active_enrollment_classrooms.select do |sec|
+          left_at = sec.left_at&.to_date || Date.current
+
+          date_avaliation >= sec.joined_at.to_date && date_avaliation < left_at
+        end
       end
 
-      student_enrollments = student_enrollment_classrooms.flatten.map(&:student_enrollment)
-      student_enrollments.flatten.map(&:student).compact
+      students = Student.joins(student_enrollments: :student_enrollment_classrooms).where(
+        student_enrollment_classrooms: {
+          id: enrollment_classroom_on_date.flatten.map(&:id)
+        }
+      )
+
+      students += Student.where(id: daily_note_students.map(&:student_id).uniq)
+
+      students.flatten.uniq
     end
 
     def current_test_setting
-      TestSettingFetcher.current(@classroom, @step)
+      @current_test_setting ||= TestSettingFetcher.current(@classroom, @step)
     end
   end
 end

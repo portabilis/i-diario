@@ -36,6 +36,7 @@ class StudentEnrollmentsRetriever
                                              .includes(:student)
                                              .includes(:dependences)
                                              .includes(:student_enrollment_classrooms)
+                                             .order('sequence ASC, students.name ASC')
                                              .active
 
     student_enrollments = student_enrollments.by_classroom_grades(classroom_grades) if classroom_grades
@@ -45,9 +46,11 @@ class StudentEnrollmentsRetriever
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     student_enrollments = search_by_dates(student_enrollments) if include_date_range
 
-    student_enrollments = search_by_search_type(student_enrollments)
-    student_enrollments = search_by_status_attending(student_enrollments)
-    student_enrollments = order_by_name_and_sequence(student_enrollments)
+    # Nao filtra as matriculas caso municipio tenha DATABASE
+    if student_enrollments.show_as_inactive.blank?
+      student_enrollments = search_by_search_type(student_enrollments)
+      student_enrollments = reject_duplicated_students(student_enrollments)
+    end
 
     student_enrollments
   end
@@ -70,13 +73,13 @@ class StudentEnrollmentsRetriever
   def search_by_dates(student_enrollments)
     enrollment_in_date = student_enrollments.by_date_range(start_at, end_at).by_date_not_before(start_at)
 
-    return student_enrollments unless enrollment_in_date.present?
+    return student_enrollments if enrollment_in_date.blank?
 
     enrollment_in_date
   end
 
   def search_by_search_type(student_enrollments)
-    return student_enrollments if include_date_range
+    return student_enrollments if include_date_range || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
       enrollments_on_period = student_enrollments.by_date(date)
@@ -89,16 +92,18 @@ class StudentEnrollmentsRetriever
     enrollments_on_period
   end
 
-  def order_by_name_and_sequence(student_enrollments)
+  def reject_duplicated_students(student_enrollments)
     return student_enrollments if show_inactive_enrollments
 
-    student_enrollments.ordered
-  end
+    unique_student_enrollments = {}
 
-  def search_by_status_attending(student_enrollments)
-    return student_enrollments if show_inactive_enrollments
+    student_enrollments.each do |student_enrollment|
+      student_id = student_enrollment.student_id
 
-    student_enrollments.status_attending
+      unique_student_enrollments[student_id] = student_enrollment
+    end
+
+    unique_student_enrollments.values
   end
 
   def show_inactive_enrollments

@@ -9,24 +9,16 @@
               <%= f.input :by_grade, as: :select2, elements: @grades,
                     label: false, placeholder: t('.by_grade') %>
             </td>
-            <td>
+            <td colspan="2">
               <%= f.input :by_discipline, as: :select2, elements: @disciplines,
                     label: false, placeholder: t('.by_discipline') %>
             </td>
             <td>
-              <%= f.input :by_school_term_type_id, as: :select2,
-                    elements: SchoolTermType.to_select2(
-                      current_user.current_school_year,
-                      current_user.current_unity_id
-                    ).to_json,
+              <%= f.input :by_school_term_type_id, as: :select2, elements: @school_term_type,
                     label: false, placeholder: t('.by_school_term_type') %>
             </td>
             <td>
-              <%= f.input :by_school_term_type_step_id, as: :select2,
-                    elements: SchoolTermTypeStep.to_select2(
-                      current_user.current_school_year,
-                      current_user.current_unity_id
-                    ).to_json,
+              <%= f.input :by_school_term_type_step_id, as: :select2, elements: @school_term_type_step,
                     label: false, placeholder: t('.by_school_term_type_step') %>
             </td>
             <td>
@@ -53,7 +45,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td id="pagination-tfoot" colspan="7">
+          <td id="pagination-tfoot" colspan="8">
             <%= render 'shared/pagination', records: @discipline_teaching_plans %>
           </td>
         </tfoot>

@@ -45,13 +45,23 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
-                                             readonly: action_name.eql?('show')  %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
+                                               readonly: action_name.eql?('show')  %>
+          <% else %>
+            <%= teaching_plan_form.association :grade, as: :select2, elements: @grades, user: current_user,
+                                               readonly: action_name.eql?('show')  %>
+          <% end %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
-                grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
+                              grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
+          <% else %>
+            <%= f.association :discipline, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+                              grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
+          <% end %>
         </div>
       </div>
 

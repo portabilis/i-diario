@@ -95,12 +95,16 @@ $(function () {
   };
 
   $('#knowledge_area_content_record_content_record_attributes_contents_tags').on('change', function(e){
+    var idCounter = 1;
+
     if(e.val.length){
+      var uniqueId = 'customId_' + idCounter++;
       var content_description = e.val.join(", ");
       if(content_description.trim().length &&
           !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
 
         var html = JST['templates/layouts/contents_list_manual_item']({
+          id: uniqueId,
           description: content_description,
           model_name: 'knowledge_area_content_record',
           submodel_name: 'content_record'

@@ -68,8 +68,18 @@ module SchoolCalendarEventBatchManager
     end
 
     def school_calendars_days(school_calendar_event_batch, action_name)
-      SchoolCalendarEventDays.new(school_calendars(school_calendar_event_batch), school_calendar_event_batch.school_calendar_events, action_name)
-                             .update_school_days(school_calendar_event_batch.start_date, school_calendar_event_batch.end_date)
+      school_calendars = school_calendars(school_calendar_event_batch)
+      events = school_calendar_event_batch.school_calendar_events
+      start_date = school_calendar_event_batch.start_date
+      end_date = school_calendar_event_batch.end_date
+
+      SchoolCalendarEventDays.update_school_days(
+        school_calendars,
+        events,
+        action_name,
+        start_date,
+        end_date
+      )
     end
 
     def school_calendars(school_calendar_event_batch)

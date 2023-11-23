@@ -77,11 +77,15 @@ module Api
           content_ids << content_id if content_id.present?
         end
 
-        if content_ids.present?
-          @content_record.content_ids = content_ids
-          @content_record.save
-        elsif @content_record.persisted?
-          @content_record.destroy
+        user = User.find_by_teacher_id(teacher_id)
+
+        Audited.audit_class.as_user(user) do
+          if content_ids.present?
+            @content_record.content_ids = content_ids
+            @content_record.save
+          elsif @content_record.persisted?
+            @content_record.destroy
+          end
         end
 
         true

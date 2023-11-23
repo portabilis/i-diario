@@ -18,6 +18,8 @@ class LearningObjectivesAndSkillDecorator
 
     return ChildEducations.t(grade) if component.child_school?
 
+    return AdultAndYouthEducations.t(grade) if component.adult_and_youth_education?
+
     ElementaryEducations.t(grade)
   end
 
