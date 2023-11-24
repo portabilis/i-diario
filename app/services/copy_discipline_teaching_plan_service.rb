@@ -51,7 +51,7 @@ class CopyDisciplineTeachingPlanService
       @content_ids << content_teaching_plan.content_id
     end
 
-    teaching_plan.objectives_teaching_plans.each do |objective_teaching_plan, index|
+    teaching_plan.objectives_teaching_plans.each_with_index do |objective_teaching_plan, index|
       @objectives_created_at_position[objective_teaching_plan.objective_id] = index
       @objective_ids << objective_teaching_plan.objective_id
     end
