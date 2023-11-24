@@ -240,7 +240,9 @@ class DescriptiveExamsController < ApplicationController
       end
     end
 
-    @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule) if action_name.eql?('new')
+    if action_name.eql?('new') || action_name.eql?('find')
+      @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+    end
   end
 
   def select_opinion_types
@@ -281,8 +283,8 @@ class DescriptiveExamsController < ApplicationController
 
   def student_has_dependence?(student_enrollment, discipline)
     StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
-                               .by_discipline(discipline)
-                               .any?
+      .by_discipline(discipline)
+      .any?
   end
 
   def student_exempted_from_discipline?(student_enrollment)
@@ -290,8 +292,8 @@ class DescriptiveExamsController < ApplicationController
       step_number = @descriptive_exam.step.to_number
 
       return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                               .by_step_number(step_number)
-                               .any?
+        .by_step_number(step_number)
+        .any?
     end
 
     false
