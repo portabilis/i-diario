@@ -172,7 +172,7 @@ end
 # Cria vinculo para o outro professor com outra turma e escola, mesma disciplina, mesma serie e ano
 def create_setup_other_classroom_and_unity
   other_classroom = create(:classroom)
-  other_classroom_grades = create(:classrooms_grade, classroom: other_classroom)
+  other_classroom_grades = create(:classrooms_grade, classroom: other_classroom, grade: classroom_grades.grade)
   create(
     :teacher_discipline_classroom,
     teacher: current_teacher,
