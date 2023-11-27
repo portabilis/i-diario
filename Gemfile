@@ -70,8 +70,7 @@ group :development do
   gem 'rack-mini-profiler', '~> 2.3.4'
   gem 'meta_request', '0.7.2'
   gem 'pry-byebug', '3.4.2'
-  gem 'pry-remote', '0.1.8'
-  gem 'rubocop', '0.59.2', require: false
+  gem 'rubocop', '1.10', require: false
   gem 'spring', '2.0.2'
   gem 'spring-commands-rspec', '1.0.4'
   gem 'letter_opener_web', '~> 1.3.4'
