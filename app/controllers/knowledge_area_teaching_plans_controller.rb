@@ -59,6 +59,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     fetch_knowledge_areas
+
+    @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
   end
 
   def create

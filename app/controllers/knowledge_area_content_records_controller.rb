@@ -33,6 +33,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def new
     set_options_by_user
 
+    @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
+
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new.localized
     @knowledge_area_content_record.build_content_record(
       record_date: Time.zone.now,
@@ -212,6 +214,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    binding.pry
     @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
   end
 end
