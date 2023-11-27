@@ -68,10 +68,10 @@ instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
   gem 'rack-mini-profiler', '~> 2.3.4'
-  gem 'meta_request', '0.7.2'
+  gem 'meta_request', '0.7.4'
   gem 'pry-byebug', '3.4.2'
   gem 'rubocop', '1.10', require: false
-  gem 'spring', '2.0.2'
+  gem 'spring', '2.1.1'
   gem 'spring-commands-rspec', '1.0.4'
   gem 'letter_opener_web', '~> 1.3.4'
   gem 'listen', '~> 3.0.5'
