@@ -40,20 +40,19 @@ class CopyDisciplineTeachingPlanService
   private
 
   def fetch_contents_and_objectives(teaching_plan)
-    @content_ids = []
-    @objective_ids = []
+    objectives = teaching_plan.objectives_teaching_plans
+    contents = teaching_plan.contents_teaching_plans
 
-    @contents_created_at_position = {}
-    @objectives_created_at_position = {}
-
-    teaching_plan.contents_teaching_plans.each_with_index do |content_teaching_plan, index|
+    @content_ids = contents.map.with_index do |content_teaching_plan, index|
+      @contents_created_at_position ||= {}
       @contents_created_at_position[content_teaching_plan.content_id] = index
-      @content_ids << content_teaching_plan.content_id
+      content_teaching_plan.content_id
     end
 
-    teaching_plan.objectives_teaching_plans.each_with_index do |objective_teaching_plan, index|
+    @objective_ids = objectives.map.with_index do |objective_teaching_plan, index|
+      @objectives_created_at_position ||= {}
       @objectives_created_at_position[objective_teaching_plan.objective_id] = index
-      @objective_ids << objective_teaching_plan.objective_id
+      objective_teaching_plan.objective_id
     end
   end
 
