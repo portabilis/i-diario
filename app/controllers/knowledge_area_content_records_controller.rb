@@ -196,15 +196,10 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
   helper_method :unities
 
-  def classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_unity.id, current_teacher.id).ordered
-  end
-  helper_method :classrooms
-
   def set_options_by_user
     return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
-    @classrooms = Classroom.where(id: current_user_classroom.id)
+    @classrooms = [current_user_classroom]
   end
 
   def set_knowledge_area_by_classroom(classroom_id)
