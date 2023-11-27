@@ -24,9 +24,9 @@ class DailyNotesController < ApplicationController
   end
 
   def new
-    set_options_by_user
-
     @daily_note = DailyNote.new
+
+    set_options_by_user
 
     authorize @daily_note
   end
@@ -161,16 +161,10 @@ class DailyNotesController < ApplicationController
     end
   end
 
-  def classrooms
+  def fetch_classrooms
     set_options_by_user
 
     render json: @classrooms
-  end
-
-  def disciplines
-    set_options_by_user
-
-    render json: @disciplines
   end
 
   protected
@@ -259,13 +253,12 @@ class DailyNotesController < ApplicationController
 
   def set_options_by_user
     @admin_or_teacher = current_user.current_role_is_admin_or_employee?
-    if @admin_or_teacher
-      @classrooms = Classroom.where(id: current_user_classroom)
-      @disciplines = Discipline.where(id: current_user_discipline)
-      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
-    else
-      fetch_linked_by_teacher
-    end
+
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms = Classroom.where(id: current_user_classroom)
+    @disciplines = Discipline.where(id: current_user_discipline)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def fetch_daily_notes_and_avaliations
