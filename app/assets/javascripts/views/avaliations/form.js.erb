@@ -19,7 +19,7 @@ $(function () {
     }
   };
 
-  $('#avaliation_classroom_id').on('change', async function (e) {
+  $classroom_id.on('change', async function (e) {
     await getTestSetting();
     await getGrades();
 
