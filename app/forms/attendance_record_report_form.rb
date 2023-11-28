@@ -162,7 +162,7 @@ class AttendanceRecordReportForm
         if absence && count_day
           absences_by_student[student_enrollment_id] ||= { :absences => 0, :count_days => 0 }
 
-          unless @do_not_send_justified_absence && absence_justification.present?
+          if apply_absence?(absence_justification)
             absences_by_student[student_enrollment_id][:absences] += 1
           end
         end
@@ -174,6 +174,12 @@ class AttendanceRecordReportForm
     end
 
     absences_by_student
+  end
+
+  def apply_absence?(absence_justification)
+    return false if @do_not_send_justified_absence && absence_justification.present?
+
+    true
   end
 
   def calculate_percentage(frequency_days, absences_student)
