@@ -7,16 +7,17 @@ $(function () {
   var $classroom = $('#knowledge_area_content_record_content_record_attributes_classroom_id');
   var $knowledgeArea = $('#knowledge_area_content_record_knowledge_area_ids');
   var $recordDate = $('#knowledge_area_content_record_content_record_attributes_record_date');
+  var $contents = $('#knowledge_area_content_record_content_record_attributes_contents_tags');
 
   $classroom.on('change', function(){
     var classroom_id = $classroom.select2('val');
 
-    /*$knowledgeArea.select2('val', '');
+    $knowledgeArea.select2('val', '');
     $knowledgeArea.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id)) {
       fetchKnowledgeAreas(classroom_id);
-    }*/
+    }
     loadContents();
   });
 
@@ -94,7 +95,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as áreas de conhecimento da turma selecionada.');
   };
 
-  $('#knowledge_area_content_record_content_record_attributes_contents_tags').on('change', function(e){
+  $contents.on('change', function(e){
     var idCounter = 1;
 
     if(e.val.length){
