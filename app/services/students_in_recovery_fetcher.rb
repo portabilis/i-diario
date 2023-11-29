@@ -83,11 +83,12 @@ class StudentsInRecoveryFetcher
       classrooms: classroom,
       disciplines: discipline,
       start_at: step.start_at,
-      classroom_grades: classroom_grade_ids,
       end_at: end_at,
-      search_type: :by_date_range
+      classroom_grades: classroom_grade_ids,
+      search_type: :by_date_range,
+      left_at: true
     )
-    StudentEnrollment.where(id: student_enrollments.map(&:id)).by_left_at_data(end_at)
+    StudentEnrollment.where(id: student_enrollments.map(&:id))
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)
