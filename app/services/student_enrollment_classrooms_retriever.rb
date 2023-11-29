@@ -99,19 +99,29 @@ class StudentEnrollmentClassroomsRetriever
   def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
+    enrollment_classrooms_unique = []
+
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
 
-      student_enrollment_for_student = enrollment_classrooms.select do |ec|
+      enrollment_classrooms_for_student = enrollment_classrooms.select do |ec|
         ec.student_enrollment.student_id == student_id
       end
 
-      if student_enrollment_for_student.count > 1
-        enrollment_classrooms.delete(student_enrollment_for_student.first)
+      if enrollment_classrooms_for_student.count > 1
+        add_enrollment_classrooms(enrollment_classrooms_unique, enrollment_classrooms_for_student)
+      else
+        enrollment_classrooms_unique << enrollment_classrooms_for_student
       end
     end
 
-    enrollment_classrooms
+    enrollment_classrooms_unique = enrollment_classrooms_unique.flatten
+  end
+
+  def add_enrollment_classrooms(enrollment_classrooms, enrollment_classrooms_for_student)
+    return if enrollment_classrooms.include?(enrollment_classrooms_for_student.last)
+
+    enrollment_classrooms << enrollment_classrooms_for_student.last
   end
 
   def show_inactive_enrollments
