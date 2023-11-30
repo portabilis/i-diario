@@ -204,9 +204,10 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= fetch_classrooms
-      @disciplines ||= fetch_disciplines
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= fetch_classrooms
+    @disciplines ||= fetch_disciplines
     else
       fetch_linked_by_teacher
     end
