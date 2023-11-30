@@ -154,13 +154,25 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     Discipline.where(id: current_user_discipline.id).ordered
   end
 
-  def fetch_students_in_final_recovery(student_id = nil)
-    classroom_id = @final_recovery_diary_record.recovery_diary_record.classroom_id
-    discipline_id = @final_recovery_diary_record.recovery_diary_record.discipline_id
+  def fetch_final_recoveries_by_classroom
+    return unless @final_recovery_diary_record.recovery_diary_record.classroom_id && @final_recovery_diary_record.recovery_diary_record.discipline_id
 
-    return unless classroom_id && discipline_id && student_id
+    StudentsInFinalRecoveryFetcher.new(api_configuration)
+      .fetch(
+        @final_recovery_diary_record.recovery_diary_record.classroom_id,
+        @final_recovery_diary_record.recovery_diary_record.discipline_id
+      )
+  end
 
-    StudentsInFinalRecoveryFetcher.new(api_configuration).fetch(classroom_id, discipline_id, student_id)
+  def fetch_student_in_final_recovery(student_id)
+    return unless @final_recovery_diary_record.recovery_diary_record.classroom_id && @final_recovery_diary_record.recovery_diary_record.discipline_id
+
+    StudentInFinalRecoveryFetcher.new(api_configuration)
+      .fetch(
+        @final_recovery_diary_record.recovery_diary_record.classroom_id,
+        @final_recovery_diary_record.recovery_diary_record.discipline_id,
+        student_id
+      )
   end
 
   def add_missing_students(students_in_final_recovery)
@@ -208,9 +220,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     @classrooms ||= fetch_classrooms
     @disciplines ||= fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
   end
 
   def fetch_linked_by_teacher
