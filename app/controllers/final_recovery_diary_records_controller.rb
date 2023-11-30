@@ -39,23 +39,25 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
       set_options_by_user
-      number_of_decimal_places
-      decorate_students(fetch_students_in_final_recovery)
       fetch_disciplines_by_classroom
+      number_of_decimal_places
+
+      students_in_final_recovery = fetch_final_recoveries_by_classroom
+      decorate_students(students_in_final_recovery)
 
       render :new
     end
   end
 
   def edit
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
+
     set_options_by_user
     fetch_disciplines_by_classroom
 
-    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
-
     authorize @final_recovery_diary_record
 
-    students_in_final_recovery = fetch_students_in_final_recovery
+    students_in_final_recovery = fetch_final_recoveries_by_classroom
     add_missing_students(students_in_final_recovery)
     @final_recovery_diary_record.recovery_diary_record.students.each do |record_student|
       record_student.student = fetch_student_in_final_recovery(record_student.student.id)
@@ -72,7 +74,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     authorize @final_recovery_diary_record
 
-    students_in_final_recovery = fetch_students_in_final_recovery
+    students_in_final_recovery = fetch_final_recoveries_by_classroom
 
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
