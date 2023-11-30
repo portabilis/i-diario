@@ -58,7 +58,9 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     authorize @final_recovery_diary_record
 
     students_in_final_recovery = fetch_final_recoveries_by_classroom
+
     add_missing_students(students_in_final_recovery)
+
     @final_recovery_diary_record.recovery_diary_record.students.each do |record_student|
       record_student.student = fetch_student_in_final_recovery(record_student.student.id)
     end
@@ -74,7 +76,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     authorize @final_recovery_diary_record
 
-    students_in_final_recovery = fetch_final_recoveries_by_classroom
+    fetch_final_recoveries_by_classroom
 
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
@@ -157,7 +159,10 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_final_recoveries_by_classroom
-    return unless @final_recovery_diary_record.recovery_diary_record.classroom_id && @final_recovery_diary_record.recovery_diary_record.discipline_id
+    classroom_id = @final_recovery_diary_record.recovery_diary_record.classroom_id
+    discipline_id = @final_recovery_diary_record.recovery_diary_record.discipline_id
+
+    return unless classroom_id && discipline_id
 
     StudentsInFinalRecoveryFetcher.new(api_configuration)
       .fetch(
@@ -167,7 +172,10 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_student_in_final_recovery(student_id)
-    return unless @final_recovery_diary_record.recovery_diary_record.classroom_id && @final_recovery_diary_record.recovery_diary_record.discipline_id
+    classroom_id = @final_recovery_diary_record.recovery_diary_record.classroom_id
+    discipline_id = @final_recovery_diary_record.recovery_diary_record.discipline_id
+
+    return unless classroom_id && discipline_id
 
     StudentInFinalRecoveryFetcher.new(api_configuration)
       .fetch(
