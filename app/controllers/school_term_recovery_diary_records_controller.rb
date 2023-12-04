@@ -314,6 +314,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
         )
       .by_classroom_id(@classrooms.map(&:id))
       .by_discipline_id(@disciplines.map(&:id))
+      .by_teacher_id(current_teacher.id)
       .ordered
   end
 
