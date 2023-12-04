@@ -15,8 +15,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     @knowledge_area_teaching_plans = fetch_knowledge_area_teaching_plans
 
-    fetch_grades
-    fetch_knowledge_areas
+    set_options_by_user
+    set_knowledge_area_by_classroom(@classrooms.map(&:id))
 
     unless current_user.current_role_is_admin_or_employee?
       @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_grade(@grades.map(&:id))
@@ -35,7 +35,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_knowledge_areas
+    set_options_by_user
+    set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
 
     respond_with @knowledge_area_teaching_plan do |format|
       format.pdf do
@@ -58,7 +59,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_knowledge_areas
+    set_options_by_user
+    set_knowledge_area_by_classroom(current_user_classroom.id)
   end
 
   def create
@@ -84,7 +86,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_knowledge_areas
+      set_options_by_user
+      set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
 
       render :new
     end
@@ -95,7 +98,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    fetch_knowledge_areas
+    set_options_by_user
+    set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
   end
 
   def update
@@ -122,7 +126,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
       yearly_term_type_id
-      fetch_knowledge_areas
+      set_options_by_user
+      set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
 
       render :edit
     end
@@ -146,15 +151,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     respond_with @knowledge_area_teaching_plan
   end
 
-  def set_knowledge_areas_by_classroom
-    return if params[:grade_id].blank?
-
-    classrooms = Grade.find(params[:grade_id]).classrooms
-
-    knowledge_areas = KnowledgeArea.by_classroom_id(classrooms.map(&:id))
-
-    render json: knowledge_areas.to_json
-  end
 
   def copy
     unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
@@ -309,25 +305,17 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
   helper_method :objectives
 
-  def fetch_grades
-    if current_user.current_role_is_admin_or_employee?
-      @grades ||= current_user_classroom.classrooms_grades.map(&:grade).uniq
-    else
-      fetch_linked_by_teacher
-    end
+  def set_options_by_user
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @grades ||= current_user_classroom.classrooms_grades.map(&:grade).uniq
+    @classrooms ||= [current_user_classroom]
   end
 
-  def fetch_knowledge_areas
-    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
-
-    if current_user.current_role_is_admin_or_employee?
-      @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id)
-    else
-      fetch_linked_by_teacher
-      @knowledge_areas = @knowledge_areas.by_classroom_id(@classrooms.map(&:id))
-    end
-
-    @knowledge_areas
+  def set_knowledge_area_by_classroom(classroom_id)
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher)
+                                    .by_classroom_id(classroom_id)
+                                    .ordered
   end
 
   def yearly_term_type_id
