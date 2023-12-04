@@ -22,6 +22,7 @@ class StudentEnrollmentsRetriever
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, nil)
     @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH)
     @classroom_grades = params.fetch(:classrooms_grade_ids, nil)
+    @filter_by_left_at = params.fetch(:filter_by_left_at, false)
 
     ensure_has_valid_search_params
   end
@@ -38,14 +39,13 @@ class StudentEnrollmentsRetriever
                                              .includes(:student_enrollment_classrooms)
                                              .order('sequence ASC, students.name ASC')
                                              .active
-
     student_enrollments = student_enrollments.by_classroom_grades(classroom_grades) if classroom_grades
     student_enrollments = student_enrollments.by_grade(grade) if grade
     student_enrollments = student_enrollments.by_period(period) if period
     student_enrollments = student_enrollments.by_opinion_type(opinion_type, classrooms) if opinion_type
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+    student_enrollments = student_enrollments.by_left_at_date(end_at) if filter_by_left_at
     student_enrollments = search_by_dates(student_enrollments) if include_date_range
-
     # Nao filtra as matriculas caso municipio tenha DATABASE
     if student_enrollments.show_as_inactive.blank?
       student_enrollments = search_by_search_type(student_enrollments)
@@ -58,7 +58,8 @@ class StudentEnrollmentsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type, :classroom_grades,
-                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type
+                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type,
+                :filter_by_left_at
 
   def ensure_has_valid_search_params
     if search_type.eql?(:by_date)
