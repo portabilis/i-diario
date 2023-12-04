@@ -151,15 +151,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     respond_with @knowledge_area_teaching_plan
   end
 
-  def set_knowledge_areas_by_classroom
-    return if params[:grade_id].blank?
-
-    classrooms = Grade.find(params[:grade_id]).classrooms
-
-    knowledge_areas = KnowledgeArea.by_teacher(current_teacher).by_classroom_id(classrooms.map(&:id))
-
-    render json: knowledge_areas.to_json
-  end
 
   def copy
     unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
