@@ -50,6 +50,7 @@ $(function () {
 
   async function getStep() {
     let classroom_id = $('#descriptive_exam_classroom_id').select2('val');
+    $step.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
@@ -64,10 +65,15 @@ $(function () {
   }
 
   function handleFetchStepByClassroomSuccess(data) {
-    var step = $("#descriptive_exam_step");
-    var first_step = data[0]['table']
+    if (data) {
+      let selectedSteps = data.map(function (step) {
+        return { id: step['id'], text: step['description'] };
+      });
 
-    step.select2('data', first_step);
+      $step.select2({ data: selectedSteps });
+      // Define a primeira opção como selecionada por padrão
+      $step.val(selectedSteps[0].id).trigger('change');
+    }
   }
 
   function handleFetchStepByClassroomError() {
