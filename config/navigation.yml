@@ -218,7 +218,9 @@ navigation:
         - menu:
             type: "partial_score_record_report"
             path: "partial_score_record_report_path"
-
+        - menu:
+            type: "attendance_record_report_by_student"
+            path: "attendance_record_report_by_student_path"
   - menu:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"
