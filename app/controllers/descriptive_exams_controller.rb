@@ -14,11 +14,6 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user
     select_opinion_types
 
-    unless current_user.current_role_is_admin_or_employee?
-      classroom_id = @descriptive_exam.classroom_id
-      @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
-    end
-
     authorize @descriptive_exam
   end
 
@@ -106,13 +101,10 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find_step_number_by_classroom
-    return if params[:classroom_id].blank?
-
     classroom = Classroom.find(params[:classroom_id])
     step_numbers = StepsFetcher.new(classroom)&.steps
-    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
-    render json: steps.to_json
+    render json: step_numbers.to_json
   end
 
   protected
