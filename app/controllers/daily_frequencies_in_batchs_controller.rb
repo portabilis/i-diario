@@ -203,7 +203,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @period = current_teacher_period
+    @period = current_teacher_period != Periods::FULL.to_i ? current_teacher_period : nil
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
@@ -258,12 +258,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
     @absence_justifications = AbsenceJustifiedOnDate.call(
-                                                          students: student_ids,
-                                                          date: dates.first,
-                                                          end_date: dates.last,
-                                                          classroom: current_user_classroom.id,
-                                                          period: @period
-                                                        )
+      students: student_ids,
+      date: dates.first,
+      end_date: dates.last,
+      classroom: current_user_classroom.id,
+      period: @period
+    )
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
@@ -574,12 +574,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def set_options_by_user
-    if @admin_or_teacher
-      @classrooms ||= [current_user_classroom]
-      @disciplines ||= [current_user_discipline]
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
   end
 
   def teacher_allocated
