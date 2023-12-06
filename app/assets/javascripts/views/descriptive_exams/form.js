@@ -19,6 +19,7 @@ $(function () {
   $classroom_id.on('change', async function () {
     await getOpinionType();
     await getStep();
+    await getDisciplines();
     setFields()
   })
 
@@ -79,6 +80,37 @@ $(function () {
   function handleFetchStepByClassroomError() {
     flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
   }
+
+  async function getDisciplines() {
+    let classroom_id = $('#descriptive_exam_classroom_id').select2('val');
+
+    if (!_.isEmpty($classroom_id.val())) {
+      $.ajax({
+        url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        success: handleFetchDisciplinesSuccess,
+        error: handleFetchDisciplinesError
+      });
+    }
+  };
+
+  function handleFetchDisciplinesSuccess(data) {
+    if (data.disciplines.length == 0) {
+      blockFields();
+      flashMessages.error('Não existem disciplinas para a turma selecionada.');
+      return;
+    } else {
+      var selectedDisciplines = data.disciplines.map(function (discipline) {
+        return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
+      });
+
+      $discipline.select2({ data: selectedDisciplines });
+      $discipline.val(selectedDisciplines[0].id).trigger('change');
+    }
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
 
   function setFields() {
     var opinionType = $opinionType.val();
