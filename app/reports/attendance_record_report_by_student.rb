@@ -1,2 +1,2 @@
-class AttendanceRecordReportbyStudent < BaseReport
+class AttendanceRecordReportByStudent < BaseReport
 end
