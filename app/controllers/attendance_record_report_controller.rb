@@ -122,11 +122,14 @@ class AttendanceRecordReportController < ApplicationController
                            .by_year(current_user_school_year || Date.current.year)
                            .ordered
     @disciplines = Discipline.by_classroom_id(@attendance_record_report_form.classroom_id)
+                             .not_descriptor
   end
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines].by_classroom_id(@attendance_record_report_form.classroom_id).not_descriptor
+    classroom_id = @attendance_record_report_form.classroom_id
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_classroom_id(classroom_id)
+                                                         .not_descriptor
   end
 end

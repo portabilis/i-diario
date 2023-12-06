@@ -111,5 +111,6 @@ class DisciplineLessonPlanReportController < ApplicationController
                              .by_year(current_user_school_year || Date.current.year)
                              .ordered
     @disciplines ||= Discipline.by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
+                               .not_descriptor
   end
 end
