@@ -14,6 +14,11 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user
     select_opinion_types
 
+    unless current_user.current_role_is_admin_or_employee?
+      classroom_id = @descriptive_exam.classroom_id
+      @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
+    end
+
     authorize @descriptive_exam
   end
 
