@@ -95,8 +95,8 @@
                             data: { without_json_parser: true }
                           } %>
       </div>
-
-        <div class="col col-sm-4" style="style="<%= @is_frequency_by_discipline ? 'display: table-cell;' : 'display: none;' %>">
+      <% if @frequency_by_discipline %>
+        <div class="col col-sm-4">
           <%= f.input :class_number, as: :select2, multiple: true,
                       hint: "O não preenchimento do campo 'Aula' vincula a justificativa de falta com todas as aulas do período selecionado.",
                       elements: number_of_classes_elements(@absence_justification.school_calendar.number_of_classes),
@@ -107,7 +107,8 @@
                         data: { without_json_parser: true }
                       } %>
         </div>
-      </div>
+      <% end %>
+    </div>
     <% end %>
 
     <div class="row">
