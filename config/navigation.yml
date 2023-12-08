@@ -201,8 +201,8 @@ navigation:
             type: "attendance_record_report"
             path: "attendance_record_report_path"
         - menu:
-            type: "attendance_record_report_by_student"
-            path: "attendance_record_report_by_student_path"
+            type: "attendance_record_report_by_students"
+            path: "attendance_record_report_by_students_path"
         - menu:
             type: "observation_record_report"
             path: "observation_record_report_path"

@@ -77,7 +77,7 @@ pt-BR:
     daily_frequencies_in_batchs: "Frequência em lote"
     copy_discipline_teaching_plan: "Copiar planos de ensino por disciplina"
     copy_knowledge_area_teaching_plan: "Copiar planos de ensino por área de conhecimento"
-    attendance_record_report_by_student: "Registro de frequência por aluno"
+    attendance_record_report_by_students: "Registro de frequência por aluno"
 
   enumerations:
     features:
@@ -95,4 +95,4 @@ pt-BR:
       observation_record_report: "Relatório de registro de observações"
       absence_justification_report: "Relatório de registro de justificativa de faltas"
       attendance_record_report: "Relatório de registro de frequência"
-      attendance_record_report_by_student: "Relatório de registro de frequência por aluno"
+      attendance_record_report_by_students: "Relatório de registro de frequência por aluno"
