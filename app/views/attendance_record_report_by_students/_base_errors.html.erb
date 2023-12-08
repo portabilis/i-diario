@@ -1,0 +1,10 @@
+<div class='alert alert-danger hidden' id='exam-rule-not-found-alert'>
+  <i class='fa fa-exclamation-circle fa-fw'></i>
+</div>
+
+<%= f.error_notification unless @attendance_record_report_by_student_form.errors[:daily_frequencies].any? %>
+
+<div class="alert alert-danger <%= 'hidden' unless @attendance_record_report_by_student_form.errors[:daily_frequencies].any? %>">
+  <i class='fa fa-exclamation-circle fa-fw'></i>
+  <%= @attendance_record_report_by_student_form.errors[:daily_frequencies].first %>
+</div>
