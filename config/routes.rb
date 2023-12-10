@@ -392,6 +392,7 @@ Rails.application.routes.draw do
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
     get '/reports/attendance_record_report_by_students', to: 'attendance_record_report_by_students#form', as: 'attendance_record_report_by_students'
+    post '/reports/attendance_record_report_by_students', to: 'attendance_record_report_by_students#report', as: 'attendance_record_report_by_students'
 
     get '/reports/absence_justification', to: 'absence_justification_report#form', as: 'absence_justification_report'
     post '/reports/absence_justification', to: 'absence_justification_report#report', as: 'absence_justification_report'
