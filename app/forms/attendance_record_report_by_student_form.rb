@@ -17,4 +17,34 @@ class AttendanceRecordReportByStudentForm
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
   validates :period, presence: true
+  validates :start_at, presence: true
+  validates :end_at, presence: true
+  validates :school_calendar_year, presence: true
+
+  def fetch_daily_frequencies
+    @daily_frequencies ||= DailyFrequencyQuery.call(
+      classroom_id: classroom_id,
+      period: period,
+      frequency_date: start_at..end_at
+    )
+  end
+
+  def enrollment_classrooms_list
+    adjusted_period = period != Periods::FULL ? period : nil
+
+    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: classroom_id,
+      disciplines: nil,
+      start_at: start_at,
+      end_at: end_at,
+      search_type: :by_date_range,
+      show_inactive: false,
+      period: adjusted_period
+    )
+  end
+
+  def students_frequencies_percentage
+    percentage_by_student = {}
+  end
+
 end
