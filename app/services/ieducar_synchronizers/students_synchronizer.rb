@@ -40,7 +40,9 @@ class StudentsSynchronizer < BaseSynchronizer
         student.discard_or_undiscard(discarded)
 
         if student.discarded?
-          student_enrollments = StudentEnrollment.where(student_id: student.id).each(&:discard)
+          student_enrollments = StudentEnrollment.where(student_id: student.id)
+          student_enrollments.each(&:discard)
+
           student_enrollment_classrooms = StudentEnrollmentClassroom.where(
             student_enrollment_id: student_enrollments.map(&:id)
           ).each(&:discard)
