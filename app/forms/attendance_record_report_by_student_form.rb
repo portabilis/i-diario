@@ -6,7 +6,8 @@ class AttendanceRecordReportByStudentForm
                 :period,
                 :start_at,
                 :end_at,
-                :school_calendar_year
+                :school_calendar_year,
+                :school_calendar
 
   validates :start_at, presence: true, date: true, timeliness: {
     on_or_before: :end_at, type: :date, on_or_before_message: I18n.t('errors.messages.on_or_before_message')
@@ -20,6 +21,7 @@ class AttendanceRecordReportByStudentForm
   validates :start_at, presence: true
   validates :end_at, presence: true
   validates :school_calendar_year, presence: true
+  validates :school_calendar, presence: true
 
   def fetch_daily_frequencies
     @daily_frequencies ||= DailyFrequencyQuery.call(
@@ -33,7 +35,7 @@ class AttendanceRecordReportByStudentForm
   def enrollment_classrooms_list
     adjusted_period = period != Periods::FULL ? period : nil
 
-    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+    enrollment_classrooms_list = StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom_id,
       disciplines: nil,
       start_at: start_at,
@@ -42,6 +44,10 @@ class AttendanceRecordReportByStudentForm
       show_inactive: false,
       period: adjusted_period
     )
+
+    @students ||= enrollment_classrooms_list.map { |student_enrollment|
+      student_enrollment[:student]
+    }
   end
 
   def students_frequencies_percentage
