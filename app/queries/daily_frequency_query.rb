@@ -33,7 +33,7 @@ class DailyFrequencyQuery
     end
 
     def by_discipline_id(discipline_id, all_students_frequencies = false)
-      return self unless all_students_frequencies
+      return self if all_students_frequencies
       return self.where(discipline_id: nil) if discipline_id.blank?
 
       where(discipline_id: discipline_id)
