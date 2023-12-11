@@ -17,21 +17,13 @@ class AttendanceRecordReportByStudentsController < ApplicationController
 
   def report
     @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(report_params)
+    @attendance_record_report_by_student_form.school_calendar = SchoolCalendar.find_by(
+      unity: @attendance_record_report_by_student_form.unity_id,
+      year: current_user_school_year
+    )
 
     if @attendance_record_report_by_student_form.valid?
-
-      attendance_record_report_by_student = AttendanceRecordReportByStudent.build(
-        @attendance_record_report_by_student_form.start_at,
-        @attendance_record_report_by_student_form.end_at,
-        @attendance_record_report_by_student_form.fetch_daily_frequencies,
-        @attendance_record_report_by_student_form.enrollment_classrooms_list,
-        @attendance_record_report_by_student_form.students_frequencies_percentage,
-        current_entity_configuration,
-        current_teacher,
-        current_user,
-        report_params[:classroom_id]
-      )
-      send_pdf(t('routes.attendance_record'), attendance_record_report_by_student.render)
+      fetch_collections
     else
       @attendance_record_report_by_student_form.school_calendar_year = current_school_year
 
@@ -42,6 +34,14 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   end
 
   private
+
+  def fetch_collections
+    @unity = @attendance_record_report_by_student_form.fetch_daily_frequencies.first.classroom.unity
+    @grade = @attendance_record_report_by_student_form.fetch_daily_frequencies.first.classroom.grades.first
+    @classroom = @attendance_record_report_by_student_form.fetch_daily_frequencies.first.classroom
+    @school_calendar_year = @attendance_record_report_by_student_form.school_calendar_year
+    @students = @attendance_record_report_by_student_form.enrollment_classrooms_list
+  end
 
   def clear_invalid_dates
     @attendance_record_report_form.start_at = parse_date(report_params[:start_at])
