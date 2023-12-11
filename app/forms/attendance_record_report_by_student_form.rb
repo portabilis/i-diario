@@ -25,7 +25,8 @@ class AttendanceRecordReportByStudentForm
     @daily_frequencies ||= DailyFrequencyQuery.call(
       classroom_id: classroom_id,
       period: period,
-      frequency_date: start_at..end_at
+      frequency_date: start_at..end_at,
+      all_students_frequencies: false
     )
   end
 
@@ -45,6 +46,8 @@ class AttendanceRecordReportByStudentForm
 
   def students_frequencies_percentage
     percentage_by_student = {}
+    fetch_daily_frequencies
+
   end
 
 end
