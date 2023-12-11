@@ -16,22 +16,22 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   end
 
   def report
-    @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(resource_params)
-    @attendance_record_report_by_student_form.fetch_daily_frequencies
+    @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(report_params)
 
     if @attendance_record_report_by_student_form.valid?
-      # attendance_record_report_by_student_form = AttendanceRecordReportByStudent.build(
-      #   current_entity_configuration,
-      #   current_teacher,
-      #   current_user_school_year,
-      #   @attendance_record_report_by_student_form.start_at,
-      #   @attendance_record_report_by_student_form.end_at,
-      #   @attendance_record_report_by_student_form.fetch_daily_frequencies,
-      #   @attendance_record_report_by_student_form.enrollment_classrooms_list,
-      #   @attendance_record_report_by_student_form.students_frequencies_percentage,
-      #   current_user,
-      #   resource_params[:classroom_id]
-      # )
+
+      attendance_record_report_by_student = AttendanceRecordReportByStudent.build(
+        @attendance_record_report_by_student_form.start_at,
+        @attendance_record_report_by_student_form.end_at,
+        @attendance_record_report_by_student_form.fetch_daily_frequencies,
+        @attendance_record_report_by_student_form.enrollment_classrooms_list,
+        @attendance_record_report_by_student_form.students_frequencies_percentage,
+        current_entity_configuration,
+        current_teacher,
+        current_user,
+        report_params[:classroom_id]
+      )
+      send_pdf(t('routes.attendance_record'), attendance_record_report_by_student.render)
     else
       @attendance_record_report_by_student_form.school_calendar_year = current_school_year
 
@@ -44,8 +44,8 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   private
 
   def clear_invalid_dates
-    @attendance_record_report_form.start_at = parse_date(resource_params[:start_at])
-    @attendance_record_report_form.end_at = parse_date(resource_params[:end_at])
+    @attendance_record_report_form.start_at = parse_date(report_params[:start_at])
+    @attendance_record_report_form.end_at = parse_date(report_params[:end_at])
   end
 
   def parse_date(date_string)
@@ -74,7 +74,7 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     ).teacher_period
   end
 
-  def resource_params
+  def report_params
     params.require(:attendance_record_report_by_student_form).permit(
       :unity_id,
       :classroom_id,
