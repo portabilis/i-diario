@@ -36,7 +36,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     set_options_by_user
-    set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
+    @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
 
     respond_with @knowledge_area_teaching_plan do |format|
       format.pdf do
@@ -87,7 +87,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     else
       yearly_term_type_id
       set_options_by_user
-      set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
+      @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
 
       render :new
     end
@@ -127,7 +127,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     else
       yearly_term_type_id
       set_options_by_user
-      set_knowledge_area_by_classroom(@knowledge_area_teaching_plan.classroom_id)
+      @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
 
       render :edit
     end
