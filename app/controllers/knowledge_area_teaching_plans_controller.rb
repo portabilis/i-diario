@@ -95,11 +95,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def edit
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
-
-    authorize @knowledge_area_teaching_plan
+    @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
 
     set_options_by_user
-    @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
+
+    authorize @knowledge_area_teaching_plan
   end
 
   def update
