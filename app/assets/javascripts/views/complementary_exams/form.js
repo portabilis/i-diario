@@ -8,6 +8,7 @@ $(function () {
   var $step = $('#complementary_exam_step_id');
   var $recorded_at = $('#complementary_exam_recorded_at');
   var with_recovery_note_in_step = false;
+  var save_button = document.getElementById('exam-save');
 
   function fetchSettings() {
     var classroom_id = $classroom.val();
@@ -31,11 +32,18 @@ $(function () {
   };
 
   function handleFetchSettingsSuccess(data) {
-    var selectedSettings = _.map(data.complementary_exams, function (setting) {
-      return { id: setting['id'], text: setting['description'] };
-    });
+    if (_.isEmpty(data['complementary_exams'])) {
+      save_button.disabled = true;
+      flashMessages.error('A turma selecionada não foi configurada para avaliações complementares');
+    } else {
+      var selectedSettings = _.map(data.complementary_exams, function (setting) {
+        return { id: setting['id'], text: setting['description'] };
+      });
 
-    $setting.select2({ data: selectedSettings });
+      $setting.select2({ data: selectedSettings });
+      $setting.val(selectedSettings[0].id).trigger('change');
+      save_button.disabled = false;
+    }
   };
 
   function handleFetchSettingsError() {
@@ -282,4 +290,8 @@ $(function () {
 
   // On load
   loadDecimalMasks();
+
+  if (_.isEmpty($setting.val())) {
+    save_button.disabled = true;
+  }
 });
