@@ -187,13 +187,22 @@ class DescriptiveExamsController < ApplicationController
     Date.current > date ? date : Date.current
   end
 
+  def fetch_dates_for_opinion_type_by_year
+    return unless opinion_type_by_year?
+
+    @start_at = steps_fetcher.steps.first.start_at
+    @end_at = steps_fetcher.steps.last.end_at
+  end
+
   def enrollment_classrooms_list
+    fetch_dates_for_opinion_type_by_year
+
     @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: @descriptive_exam.classroom,
       disciplines: @descriptive_exam.discipline,
       opinion_type: @descriptive_exam.opinion_type,
-      start_at: @descriptive_exam.step.try(:start_at),
-      end_at: @descriptive_exam.step.try(:end_at),
+      start_at: @start_at || @descriptive_exam.step.try(:start_at),
+      end_at: @end_at || @descriptive_exam.step.try(:end_at),
       show_inactive_outside_step: false,
       search_type: :by_date_range,
       period: @period,
