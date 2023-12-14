@@ -180,7 +180,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def fetch_dates_for_opinion_type_by_year
-    return nil unless opinion_type_by_year?
+    return unless opinion_type_by_year?
 
     @start_at = steps_fetcher.steps.first.start_at
     @end_at = steps_fetcher.steps.last.end_at
