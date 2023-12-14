@@ -3,8 +3,10 @@ pt-BR:
     index:
       by_classroom: 'Filtrar turma'
       by_discipline: 'Filtrar disciplina'
+      by_student: 'Filtrar aluno'
       by_date: 'Filtrar data'
       new_html: '<i class="fa fa-plus"></i> Novo lançamento'
+      student: 'Nome aluno(a)'
 
     form:
       add_note: 'Adicionar observação'

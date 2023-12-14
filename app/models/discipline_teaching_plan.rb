@@ -69,6 +69,12 @@ class DisciplineTeachingPlan < ActiveRecord::Base
 
     discipline_teaching_plans = discipline_teaching_plans.where.not(id: id) if persisted?
 
+    if discipline_teaching_plans.any?
+      Rails.logger.info "\nRemovendo os planos de ensino existentes."
+      discipline_teaching_plans.destroy_all
+      Rails.logger.info "\nPlanos de ensino removidos com sucesso."
+    end
+    
     errors.add(:base, :uniqueness_of_discipline_teaching_plan) if discipline_teaching_plans.any?
   end
 end

@@ -4,11 +4,21 @@ FactoryGirl.define do
     school_calendar { classroom.calendar.try(:school_calendar) || create(:school_calendar, :with_one_step) }
 
     contents { [create(:content)] }
+    objectives { [create(:objective)] }
 
     before(:create) do |lesson_plan, evaluator|
       lesson_plan.contents_created_at_position = {}
+
       evaluator.contents.each_with_index do |content, index|
         lesson_plan.contents_created_at_position[content.id] = index
+      end
+    end
+
+    before(:create) do |lesson_plan, evaluator|
+      lesson_plan.objectives_created_at_position = {}
+
+      evaluator.objectives.each_with_index do |objective, index|
+        lesson_plan.objectives_created_at_position[objective.id] = index
       end
     end
 
@@ -19,6 +29,7 @@ FactoryGirl.define do
 
     trait :without_contents do
       contents []
+      objectives []
     end
 
     after(:build) do |lesson_plan, evaluator|

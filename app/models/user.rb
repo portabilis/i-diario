@@ -114,7 +114,8 @@ class User < ActiveRecord::Base
       'Status',
       'Aluno vinculado',
       'Professor Vinculado',
-      'Permissões'
+      'Permissões',
+      'Data de expiração'
     ]
 
     CSV.generate(headers: true) do |csv|
@@ -131,7 +132,8 @@ class User < ActiveRecord::Base
           I18n.t("enumerations.user_status.#{user.status}"),
           user.student,
           user.teacher,
-          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact },
+          user.expiration_date&.strftime("%d/%m/%Y")
         ]
       end
     end

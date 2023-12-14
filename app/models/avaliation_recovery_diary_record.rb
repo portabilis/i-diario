@@ -8,7 +8,7 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
   belongs_to :avaliation
   belongs_to :unity
   belongs_to :classroom

@@ -7,8 +7,8 @@ module Stepable
     validates_date :recorded_at
     validates :classroom_id, :recorded_at, :step_number, presence: true
     validates :step_id, presence: true, unless: :ignore_step
-    validates :recorded_at, not_in_future: true, unless: :ignore_date_validates
-    validates :recorded_at, posting_date: true, unless: :ignore_date_validates
+    # validates :recorded_at, not_in_future: true, unless: :ignore_date_validates
+    # validates :recorded_at, posting_date: true, unless: :ignore_date_validates
     validate :recorded_at_is_in_selected_step, unless: :ignore_date_validates
     validate :ensure_is_school_day, unless: :ignore_date_validates
 

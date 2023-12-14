@@ -179,12 +179,22 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     experience_fields_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.experience_fields')
     contents_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents')
     objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
+
+    methodology_label_translation = Translation.find_by(key: 'navigation.methodology_by_knowledge_area', group: 'teaching_plans').translation
+    methodology_label = methodology_label_translation.present? ? methodology_label_translation : 'Metodologia'
+
+    evaluation_label_translation = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'teaching_plans').translation
+    evaluation_label = evaluation_label_translation.present? ? evaluation_label_translation : 'Avaliação'
+
+    references_label_translation = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'teaching_plans').translation
+    references_label = references_label_translation.present? ? references_label_translation : 'Referências'
+
     text_box_truncate(experience_fields_label, experience_fields) if experience_fields
     text_box_truncate(contents_label, content)
     text_box_truncate(objectives_label, objectives)
-    text_box_truncate('Metodologia', methodology)
-    text_box_truncate('Avaliação', evaluation)
-    text_box_truncate('Referências', references)
+    text_box_truncate(methodology_label, methodology)
+    text_box_truncate(evaluation_label, evaluation)
+    text_box_truncate(references_label, references)
   end
 
   def teaching_plan

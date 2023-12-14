@@ -57,6 +57,8 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = order_by_name(students_enrollment_classrooms)
 
+    students_enrollment_classrooms = enrollment_classrooms_by_status(students_enrollment_classrooms) unless show_inactive
+
     students_enrollment_classrooms = remove_not_displayable_classrooms(students_enrollment_classrooms)
 
     students_enrollment_classrooms.map do |student_enrollment_classroom|
@@ -140,6 +142,10 @@ class StudentEnrollmentsList
       end
     end
     unique_student_enrollments.uniq
+  end
+
+  def enrollment_classrooms_by_status(enrollment_classrooms)
+    enrollment_classrooms.status_attending if show_inactive_outside_step
   end
 
   def student_active?(student_enrollment)

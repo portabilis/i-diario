@@ -192,5 +192,4 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
-  checkPersistedDailyNote();
 });

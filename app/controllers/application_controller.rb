@@ -222,6 +222,7 @@ class ApplicationController < ActionController::Base
 
   def require_allow_to_modify_prev_years
     return if can_change_school_year?
+    return if current_user.can_change?('ieducar_api_exam_posting_without_restrictions')
     return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
 
     flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
@@ -445,6 +446,8 @@ class ApplicationController < ActionController::Base
   end
 
   def error_generic(expection)
+    Rails.logger.info expection.message
+    Rails.logger.info expection.backtrace.join("\n")
     set_honeybadger_error(expection)
     redirect_to :root
   end

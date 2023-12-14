@@ -24,7 +24,7 @@ class DailyNote < ActiveRecord::Base
   validates :discipline, presence: true
   validates :avaliation, presence: true
 
-  validate :avaliation_date_must_be_less_than_or_equal_to_today
+  # validate :avaliation_date_must_be_less_than_or_equal_to_today
   validate :avaliation_test_date_must_be_valid_posting_date
 
   before_destroy :ensure_not_has_avaliation_recovery

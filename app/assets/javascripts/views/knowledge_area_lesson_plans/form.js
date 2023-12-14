@@ -169,3 +169,33 @@ $(function () {
     });
   }
 });
+
+
+$(function () {
+
+  $('textarea[maxLength]').maxlength();
+
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_activities]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_resources]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_evaluation]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+
+  createSummerNote("textarea[id^=knowledge_area_lesson_plan_lesson_plan_attributes_bibliography]" , {
+    toolbar: [
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+    ]
+  })
+});

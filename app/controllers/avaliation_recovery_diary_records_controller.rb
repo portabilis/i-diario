@@ -107,7 +107,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   def destroy
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id])
 
-    @avaliation_recovery_diary_record.destroy
+    @avaliation_recovery_diary_record.recovery_diary_record.destroy
 
     respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
   end

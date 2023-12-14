@@ -56,7 +56,7 @@
       </thead>
 
       <tbody id="units-conversion-items">
-        <%= f.simple_fields_for :custom_rounding_table_values, f.object.custom_rounding_table_values.ordered_asc do |item| %>
+        <%= f.simple_fields_for :custom_rounding_table_values, @custom_rounding_table_values do |item| %>
           <%= render 'custom_rounding_table_values_fields', f: item %>
         <% end %>
       </tbody>

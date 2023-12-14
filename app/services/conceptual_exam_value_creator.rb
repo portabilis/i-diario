@@ -1,45 +1,70 @@
 class ConceptualExamValueCreator
-  def self.create_empty_by(classroom_id, teacher_id)
-    new(classroom_id, teacher_id).create_empty
+  def self.create_empty_by(classroom_id, teacher_id, grade_in_disciplines)
+    new(classroom_id, teacher_id, grade_in_disciplines).create_empty
   end
 
-  def initialize(classroom_id, teacher_id)
-    raise ArgumentError if classroom_id.blank? || teacher_id.blank?
+  def initialize(classroom_id, teacher_id, grade_in_disciplines)
+    raise ArgumentError if classroom_id.blank? || teacher_id.blank? || grade_in_disciplines.blank?
 
     @classroom_id = classroom_id
     @teacher_id = teacher_id
+    @grade_in_disciplines = grade_in_disciplines
   end
 
   def create_empty
-    conceptual_exam_values_to_create.each do |record|
-      student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
+    @grade_in_disciplines.each do |grade, disciplines|
+      next if grade.blank?
 
-      next if student_enrollment_id.blank?
-      next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
+      conceptual_exam_values_to_create(grade).each do |record|
+        student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
 
-      begin
-        ConceptualExamValue.create_with(
-          value: nil,
-          exempted_discipline: false
-        ).find_or_create_by!(
-          conceptual_exam_id: record.conceptual_exam_id,
-          discipline_id: record.discipline_id,
-        )
-      rescue ActiveRecord::RecordNotUnique
-        retry
+        next if student_enrollment_id.blank?
+        next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
+        next if ConceptualExamValue.find_by(conceptual_exam_id: record.conceptual_exam_id, discipline_id: record.discipline_id)
+        next if disciplines.include?(record.discipline_id)
+
+        begin
+          ConceptualExamValue.create_with(
+            value: nil,
+            exempted_discipline: false
+          ).find_or_create_by!(
+            conceptual_exam_id: record.conceptual_exam_id,
+            discipline_id: record.discipline_id
+          )
+        rescue ActiveRecord::RecordNotUnique
+          retry
+        end
       end
     end
   end
 
   private
 
-  attr_accessor :teacher_id, :classroom_id
+  attr_accessor :teacher_id, :classroom_id, :grade_id
 
-  def conceptual_exam_values_to_create
+  def search_disciplines_related_to_grades(classroom_id, grade)
+    classroom = Classroom.find(classroom_id)
+    step_fetcher = StepsFetcher.new(classroom)
+
+    return if step_fetcher.school_calendar.blank?
+
+    school_calendar = step_fetcher.school_calendar
+
+    SchoolCalendarDisciplineGrade.where(
+      school_calendar_id: school_calendar.id,
+      grade_id: grade
+    ).pluck(:discipline_id)
+  end
+
+
+  def conceptual_exam_values_to_create(grade)
+    disciplines = search_disciplines_related_to_grades(classroom_id, grade)
+
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
                               .joins(join_conceptual_exam_value)
                               .by_teacher_id(teacher_id)
                               .by_classroom(classroom_id)
+                              .by_discipline_id(disciplines)
                               .where(conceptual_exams: { classroom_id: classroom_id })
                               .where(conceptual_exam_values: { id: nil })
                               .select(

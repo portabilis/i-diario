@@ -1,16 +1,27 @@
 <tbody id="resources-tbody">
   <% if @observation_diary_records.empty? %>
     <tr>
-      <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @observation_diary_records.each do |observation_diary_record| %>
       <tr>
         <td><%= observation_diary_record.unity %></td>
         <td><%= observation_diary_record.classroom %></td>
+        <td class="<%= params[:filter]&.fetch(:by_student_id).present? ? 'student-name-cell' : '' %>">
+          <span>
+            <%= observation_diary_record.decorator.students_labels(params[:filter]&.fetch(:by_student_id)&.to_i) %>
+          </span>
+        </td>
         <td><%= observation_diary_record.discipline %></td>
         <td><%= l(observation_diary_record.date) %></td>
-        <td class="actions">
+        <td class="actions" style="white-space: nowrap;">
+          <%= link_to(
+                t('helpers.links.print_html'),
+                observation_diary_record_path(observation_diary_record, format: :pdf),
+                class: 'btn btn-info apply_tooltip',
+                target: '_blank',
+                data: { original_title: t('views.index.tooltips.show_report') }) %>
           <%= link_to t('views.index.edit'),
                 edit_observation_diary_record_path(observation_diary_record),
                 class: 'btn btn-success' %>

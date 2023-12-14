@@ -92,18 +92,27 @@ class BaseReport
     draw_text(title, size: 8, style: :bold, at: [5, cursor - 10])
 
     begin
-      text_height = height_of(information, width: bounds.width - 10, size: 10) + 30
+      if information.class.eql?(Array)
+        text_formatted = []
+
+        text_formatted << information.map { |text| text[:text] }
+
+        information = text_formatted.join(" ")
+      end
+
+      text_height = height_of(information, width: bounds.width - 10, size: 10) + 180
       box_height = (text_height > cursor ? cursor : text_height)
 
       bounding_box([0, cursor], width: bounds.width, height: box_height - 5) do
         line_width 0.5
         stroke_bounds
         information = text_box(
-          information,
+          information.gsub("</p>", "</p><br>"),
           width: bounds.width - 10,
           overflow: :truncate,
           size: 10,
-          at: [5, box_height - 20]
+          at: [5, box_height - 20],
+          inline_format: true
         )
       end
 
@@ -113,13 +122,22 @@ class BaseReport
 
   def text_box_overflow_to_new_page(information, size, at, width, height)
     begin
+      if information.class.eql?(Array)
+        text_formatted = []
+
+        text_formatted << information.map { |text| text[:text] }
+
+        information = text_formatted.join(" ")
+      end
+
       information = text_box(
         information,
         size: size,
         at: at,
         width: width,
         height: height,
-        overflow: :truncate
+        overflow: :truncate,
+        inline_format: true
       )
 
       if information.present?

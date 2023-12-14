@@ -58,6 +58,7 @@ class CopyDisciplineTeachingPlanWorker
             )
 
             teaching_plan.teacher = teacher
+            teaching_plan.year = year
             teaching_plan.save!(validate: false)
           end
         end

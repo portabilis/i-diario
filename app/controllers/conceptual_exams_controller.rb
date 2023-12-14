@@ -295,7 +295,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_collections
-    if @conceptual_exam.step_id.present?
+    if @conceptual_exam.step_id.present? && @conceptual_exam.student_id.present?
       fetch_unities_classrooms_disciplines_by_teacher
       fetch_students
     end

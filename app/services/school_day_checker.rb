@@ -128,10 +128,11 @@ class SchoolDayChecker
       return false if any_classroom_event?(not_allowed_events, @grade_id, @classroom_id)
       return true if any_classroom_event?(allowed_events, @grade_id, @classroom_id)
 
+
       return false if any_grade_event?(not_allowed_events.by_period(classroom.period), @grade_id)
       return true if any_grade_event?(allowed_events.by_period(classroom.period), @grade_id)
-      return false if any_course_event?(not_allowed_events.by_period(classroom.period), grade_course_ids)
-      return true if any_course_event?(allowed_events.by_period(classroom.period), grade_course_ids)
+      # return false if any_course_event?(not_allowed_events.by_period(classroom.period), grade_course_ids)
+      # return true if any_course_event?(allowed_events.by_period(classroom.period), grade_course_ids)
 
       return false if any_global_event?(not_allowed_events.by_period(classroom.period))
       return true if any_global_event?(allowed_events.by_period(classroom.period))

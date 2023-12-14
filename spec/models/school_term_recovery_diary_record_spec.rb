@@ -12,7 +12,7 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
   end
 
   describe 'associations' do
-    it { expect(subject).to belong_to(:recovery_diary_record).dependent(:destroy) }
+    it { expect(subject).to belong_to(:recovery_diary_record) }
   end
 
   describe 'validations' do

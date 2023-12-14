@@ -1,4 +1,9 @@
 <div class="widget-body no-padding">
+  <% content_for :help_button_tag do %>
+    <a href="https://form.jotform.com/230033071798656" class="help-link" target="_blank">
+      Estou com problemas ou dúvidas sobre a tela
+    </a>
+  <% end %>
   <%= simple_form_for :filter, { url: observation_diary_records_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
     <div class="table-responsive">
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
@@ -6,24 +11,26 @@
           <tr>
             <td></td>
             <td><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></td>
+            <td width="400px"><%= f.input :by_student_id, as: :select2, elements: @students, label: false, placeholder: t('.by_student') %></td>
             <td><%= f.input :by_discipline, as: :select2, elements: disciplines, label: false, placeholder: t('.by_discipline') %></td>
-            <td width="135px"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
-            <td width="160px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></td>
+            <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
+            <td width="215px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
 
           <tr>
             <th><%= ObservationDiaryRecord.human_attribute_name :unity %></th>
             <th><%= ObservationDiaryRecord.human_attribute_name :classroom %></th>
+            <th><%= t('.student') %></th>
             <th><%= ObservationDiaryRecord.human_attribute_name :discipline %>
             <th><%= ObservationDiaryRecord.human_attribute_name :date %></th>
-            <th></td>
+            <th>
           </tr>
         </thead>
 
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="5">
+          <td colspan="6">
             <div id="page_entries_info" class="pull-left hidden-xs">
               <%= page_entries_info @observation_diary_records %>
             </div>

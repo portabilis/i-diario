@@ -30,9 +30,9 @@ class DailyFrequenciesController < ApplicationController
       return if @frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
       redirect_to edit_multiple_daily_frequencies_path(
-        daily_frequency: daily_frequency_params,
-        class_numbers: @class_numbers
-      )
+                    daily_frequency: daily_frequency_params,
+                    class_numbers: @class_numbers
+                  )
     else
       render :new
     end
@@ -57,9 +57,13 @@ class DailyFrequenciesController < ApplicationController
       student_enrollment[:student_enrollment_id]
     }
 
-    dependencies = student_has_dependence?(student_enrollment_ids, @daily_frequency.discipline)
-    exempt = student_has_exempt_from_discipline?(@daily_frequency, student_enrollment_ids)
-    active = active_student_on_date?(@daily_frequency.frequency_date, student_enrollment_ids)
+    step = @daily_frequency.school_calendar.step(@daily_frequency.frequency_date).try(:to_number)
+    discipline = @daily_frequency.discipline
+    frequency_date = @daily_frequency.frequency_date
+
+    dependencies = StudentsInDependency.call(student_enrollments: student_enrollment_ids, disciplines: discipline)
+    exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, step: step)
+    active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
 
     fetch_enrollment_classrooms.each do |enrollment_classroom|
@@ -353,19 +357,6 @@ class DailyFrequenciesController < ApplicationController
     ).student_enrollment_classrooms
   end
 
-  def active_student_on_date?(frequency_date, student_enrollments)
-    inactive_on_date = {}
-    student_enrollment_classrooms = StudentEnrollmentClassroom.by_student_enrollment(student_enrollments)
-                                                              .by_date(frequency_date)
-
-    student_enrollment_classrooms.each do |enrollment_classroom|
-      inactive_on_date[enrollment_classroom.id] ||= []
-      inactive_on_date[enrollment_classroom.id] << frequency_date
-    end
-
-    inactive_on_date
-  end
-
   def set_number_of_classes
     @number_of_classes = current_school_calendar.number_of_classes
   end
@@ -379,45 +370,6 @@ class DailyFrequenciesController < ApplicationController
 
   def in_active_searches(student_enrollment_ids, frequency_date)
     @in_active_searches ||= ActiveSearch.new.enrollments_in_active_search?(student_enrollment_ids, frequency_date)
-  end
-
-  def student_has_dependence?(student_enrollments, discipline)
-    return {} unless discipline
-
-    student_enrollment_dependencies = StudentEnrollmentDependence.where(
-      student_enrollment_id: student_enrollments,
-      discipline_id: discipline
-    )
-
-    dependencies = {}
-
-    student_enrollment_dependencies.each do |student_enrollment_dependence|
-      student_enrollment_id = student_enrollment_dependence.student_enrollment_id
-      discipline_id = student_enrollment_dependence.discipline_id
-
-      dependencies[student_enrollment_id] ||= []
-      dependencies[student_enrollment_id] << discipline_id
-    end
-    dependencies
-  end
-
-  def student_has_exempt_from_discipline?(daily_frequency, student_enrollments)
-    return {} if daily_frequency.discipline_id.blank?
-
-    discipline_id = daily_frequency.discipline_id
-    exempts_from_discipline = {}
-
-    step = daily_frequency.school_calendar.step(daily_frequency.frequency_date).try(:to_number)
-
-    StudentEnrollmentExemptedDiscipline.by_discipline(discipline_id)
-                                       .by_step_number(step)
-                                       .by_student_enrollment(student_enrollments)
-                                       .includes(student_enrollment: [:student])
-                                       .each do |student_exempted|
-      exempts_from_discipline[student_exempted.student_enrollment_id] ||= step
-    end
-
-    exempts_from_discipline
   end
 
   def class_numbers_from_params

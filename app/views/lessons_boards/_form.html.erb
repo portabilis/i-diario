@@ -8,9 +8,9 @@
       <div class="col col-sm-3">
         <% if action_name == "new" %>
           <%= f.input :unity, as: :select2, elements: unities, hide_empty_element: true, label: t('lessons_boards.index.unity'),
-                      placeholder: t('lessons_boards.index.unity'), readonly: !can_change_unity?, input_html: { value: !can_change_unity? ? unities.first.id : ''  }, required: true  %>
+                      placeholder: t('lessons_boards.index.unity'), readonly: false, input_html: { value: unities.first.id }, required: true  %>
         <% else %>
-          <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classroom.unity.name }, required: true  %>
+          <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classrooms_grade.classroom.unity.name }, required: true  %>
         <% end %>
       </div>
 

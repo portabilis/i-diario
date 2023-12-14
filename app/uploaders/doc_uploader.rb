@@ -17,8 +17,8 @@ class DocUploader < CarrierWave::Uploader::Base
 
   def aws_credentials
     {
-      access_key_id:     Rails.application.secrets['DOC_UPLOADER_AWS_ACCESS_KEY_ID'],
-      secret_access_key: Rails.application.secrets['DOC_UPLOADER_AWS_SECRET_ACCESS_KEY'],
+      access_key_id:     Rails.application.secrets['AWS_ACCESS_KEY_ID'],
+      secret_access_key: Rails.application.secrets['AWS_SECRET_ACCESS_KEY'],
       region:            Rails.application.secrets['DOC_UPLOADER_AWS_REGION'],
       stub_responses:    Rails.env.test?
     }

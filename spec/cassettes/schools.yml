@@ -1,0 +1,300 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola=1&instituicao_id=1&modified&oper=get&resource=notas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 11 Nov 2022 14:36:25 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1&escola=1&resource=notas&modified&oper=get
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body>\r\n<center><h1>301
+        Moved Permanently</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:09:54 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola=1&instituicao_id=1&modified&oper=get&resource=notas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 11 Nov 2022 14:36:26 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=dwiRaZtH1gKpnDgrgtzfk2UA9IPZxEwU38LJEcoT; expires=Fri, 11
+        Nov 2022 16:36:26 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MwQ5AMBBEf6X27MDV1WcgsmGChK7sthKR/rtym3l5Mw/JCaWGFgQqSWESdUIGXgJbRoctRk33fCHjduULbobjCWbiNn/1sapQ79vMRfbDfX5zqIpSGkpif49/G/+HoBHpBRtT9YF3AAAA
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:09:55 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola=1&instituicao_id=1&modified&oper=get&resource=info-escolas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 11 Nov 2022 14:37:37 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1&escola=1&resource=info-escolas&modified&oper=get
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body>\r\n<center><h1>301
+        Moved Permanently</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:11:05 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola=1&instituicao_id=1&modified&oper=get&resource=info-escolas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 11 Nov 2022 14:37:37 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=Ra0QhLp4Pgxljgonm7ODlnhfLJ5EJt6BoxG8ndX9; expires=Fri, 11
+        Nov 2022 16:37:37 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MwQqDMBBEfyXdswW9eu1nVJElTm1As7KbCCL+u9HbzLzhHSQrlFqakKgihUlWjzKE+JM3zMvMVshik1H7Pe5Q6OfPG9wIxx5m4kLculzXaOYw8qv8077eFqiK0tlXxHEfnjY8hqQZ5wVfcHxRfgAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:11:06 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=2Me9freQ6gpneyCOlWRcVSx2huwa3X&escola=1&instituicao_id=1&modified&oper=get&resource=info-escolas&secret_key=7AWURgchB84ZeY7q8voyIuJeATOsny
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 11 Nov 2022 15:04:54 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Escola?access_key=2Me9freQ6gpneyCOlWRcVSx2huwa3X&secret_key=7AWURgchB84ZeY7q8voyIuJeATOsny&instituicao_id=1&escola=1&resource=info-escolas&modified&oper=get
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body>\r\n<center><h1>301
+        Moved Permanently</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:38:22 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Escola?access_key=2Me9freQ6gpneyCOlWRcVSx2huwa3X&escola=1&instituicao_id=1&modified&oper=get&resource=info-escolas&secret_key=7AWURgchB84ZeY7q8voyIuJeATOsny
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 11 Nov 2022 15:04:55 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=Va6ser0qDDCKp8wP9oaKvtCjWwLHZ2BslF4J6hLB; expires=Fri, 11
+        Nov 2022 17:04:55 GMT; Max-Age=7200; path=/; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:38:24 GMT
+recorded_with: VCR 3.0.0

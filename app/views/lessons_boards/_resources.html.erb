@@ -6,10 +6,10 @@
 <% else %>
   <% @lessons_boards.each do |lesson_board| %>
     <tr>
-      <td><%= lesson_board.classroom.year %></td>
-      <td><%= lesson_board.classroom.unity.name %></td>
+      <td><%= lesson_board.classrooms_grade.classroom.year %></td>
+      <td><%= lesson_board.classrooms_grade.classroom.unity.name %></td>
       <td><%= lesson_board.classrooms_grade.grade.description %></td>
-      <td><%= lesson_board.classroom.description %></td>
+      <td><%= lesson_board.classrooms_grade.classroom.description %></td>
       <td><%= Periods.translate(Periods.key_for(lesson_board.period.to_s)) %></td>
       <td class="actions" style="width: 120px">
         <%= link_to t('helpers.links.show_html'), lessons_board_path(lesson_board),
