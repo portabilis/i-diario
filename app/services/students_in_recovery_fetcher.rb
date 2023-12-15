@@ -1,3 +1,9 @@
+# OPTIMIZE: Performance na pagina diario-de-recuperacoes-de-etapas/novo
+# A pagina diario-de-recuperacoes-de-etapas/novo demora para carregar por
+# conta desse service, toda a filtragem é feita via cadeia de transformação,
+# trazendo os dados para a memoria e tratando aqui. Para diminuir o tempo de
+# carregamento e o custi de infra, o ideal seria refatorar essa classe e delegar
+# mais filtros ao postgres antes de transformar os dados em memoria
 class StudentsInRecoveryFetcher
   def initialize(ieducar_api_configuration, classroom_id, discipline_id, step_id, date)
     @ieducar_api_configuration = ieducar_api_configuration
@@ -20,7 +26,7 @@ class StudentsInRecoveryFetcher
 
     @students.uniq!
 
-    @students
+    @students.sort_by(&:name)
   end
 
   private
