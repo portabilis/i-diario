@@ -26,7 +26,7 @@ class StudentsInRecoveryFetcher
 
     @students.uniq!
 
-    @students.sort_by(&:name)
+    @students
   end
 
   private
@@ -94,7 +94,7 @@ class StudentsInRecoveryFetcher
       search_type: :by_date_range,
       left_at: true
     )
-    StudentEnrollment.where(id: student_enrollments.map(&:id))
+    StudentEnrollment.includes(:student).where(id: student_enrollments.map(&:id)).order('students.name ASC')
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)
