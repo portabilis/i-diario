@@ -1,0 +1,61 @@
+<% @classrooms.each do |classroom| %>
+  <table>
+    <thead>
+      <tr>
+        <th style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'
+          colspan='2'
+        >
+          Identificação
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan='2' style='padding: 5px;'>
+          <b style='font-size: 10px'> Unidade </b>
+          <br> <%= @unity.name %>
+        </td>
+      </tr>
+      <tr>
+        <td style='width: 50%'>
+          <b style='font-size: 10px'> Turma </b>
+          <br> <%= classroom.description %>
+          </td>
+          <td colspan='2' style='width: 50%'>
+            <b style='font-size: 10px'> Período </b>
+            <br> <%= @range_dates %>
+          </td>
+      </tr>
+      <tr>
+        <td colspan='2' style='padding: 5px;'>
+          <b style='font-size: 10px'> Ano letivo </b>
+          <br> <%= @school_calendar_year %>
+        </td>
+      </tr>
+      <table>
+        <thead>
+          <tr>
+            <th style='text-align: center' colspan='5'><%= "Série: #{classroom.grades.first.description}" %></th>
+          </tr>
+        </thead>
+        <thead>
+          <tr>
+            <td style='width: 1%'><b>Nº</b></td>
+            <td><b>Nome do aluno</b></td>
+            <td><b>Frequência</b></td>
+          </tr>
+        </thead>
+        <tbody>
+          <%# @students.each do |student| %>
+            <tr>
+              <td><%#= student[:sequence] %></td>
+              <td><%#= student[:student_name] %></td>
+              <td><%#= student[:percentage] %></td>
+              <td><%#= student[:classroom] %></td>
+            </tr>
+          <%# end %>
+        </tbody>
+      </table>
+    </tbody>
+  </table>
+<% end %>
