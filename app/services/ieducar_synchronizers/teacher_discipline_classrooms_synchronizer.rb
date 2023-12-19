@@ -217,7 +217,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discipline_id: fake_discipline.id,
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
-        classroom_api_code: "grouper:#{fake_discipline.id}"
+        classroom_api_code: "grouper:#{fake_discipline.id}",
+        period: teacher_discipline_classroom.period
       )
 
       link_teacher.undiscard if link_teacher.discarded?
