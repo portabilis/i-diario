@@ -50,6 +50,11 @@ class DescriptiveExamsController < ApplicationController
 
     regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
+      value_by_student = resource_params[:students_attributes].values.detect do
+        |student| student[:student_id] == exam_student.student_id.to_s
+      end
+      exam_student.value = value_by_student['value']
+
       exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
     end
 
