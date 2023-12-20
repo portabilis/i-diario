@@ -9,7 +9,7 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       period: @period,
       current_user_id: current_user.id
     )
-    @period = current_teacher_period
+    @period = current_teacher_period(current_user_classroom.id)
 
     set_options_by_user
   end
@@ -29,6 +29,16 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       set_options_by_user
       render :form
     end
+  end
+
+  def fetch_period_by_classroom
+    return if params[:classroom_id].blank?
+
+    classroom_id = Classroom.find_by(id: params[:classroom_id])&.id
+
+    return if classroom_id.blank?
+
+    render json: current_teacher_period(classroom_id)
   end
 
   private
@@ -90,10 +100,10 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     @disciplines = Discipline.by_classroom_id(@attendance_record_report_by_student_form.classroom_id)
   end
 
-  def current_teacher_period
+  def current_teacher_period(classroom_id)
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user_classroom.id,
+      classroom_id,
       nil
     ).teacher_period
   end
