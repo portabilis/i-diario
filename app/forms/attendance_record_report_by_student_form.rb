@@ -55,14 +55,14 @@ class AttendanceRecordReportByStudentForm
   end
 
   def fetch_daily_frequencies
-    classroom_id = set_all_classrooms
+    classrooms = set_all_classrooms
 
-    @daily_frequencies ||= DailyFrequencyQuery.call(
-      classroom_id: classroom_id.map(&:id),
+    @daily_frequencies = DailyFrequencyQuery.call(
+      classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
       period: period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
-    ).order(:owner_teacher_id)
+    ).order(:classroom_id)
   end
 
   def enrollment_classrooms_list
