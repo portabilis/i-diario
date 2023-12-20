@@ -67,17 +67,17 @@ class AttendanceRecordReportByStudentForm
 
   def enrollment_classrooms_list
     adjusted_period = period != Periods::FULL ? period : nil
-    classroom_id = set_all_classrooms
+    classrooms = set_all_classrooms
 
-    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
-      classrooms: classroom_id,
-      disciplines: nil,
-      start_at: start_at,
-      end_at: end_at,
-      search_type: :by_date_range,
-      show_inactive: false,
-      period: adjusted_period
-    )
+    @enrollment_classrooms_list = StudentEnrollmentClassroom
+      .includes(student_enrollment: :student)
+      .includes(classrooms_grade: :classroom)
+      .by_classroom(classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id)
+      .by_date_range(start_at, end_at)
+      .by_period(adjusted_period)
+      .distinct
+      .order('classrooms_grades.classroom_id')
+
   end
 
   # def students_frequencies_percentage
