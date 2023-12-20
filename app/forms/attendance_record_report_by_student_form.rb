@@ -19,8 +19,6 @@ class AttendanceRecordReportByStudentForm
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
   validates :period, presence: true
-  validates :start_at, presence: true
-  validates :end_at, presence: true
   validates :school_calendar_year, presence: true
   validates :current_user_id, presence: true
   validates :school_calendar, presence: true

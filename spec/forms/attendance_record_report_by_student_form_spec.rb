@@ -17,16 +17,26 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
     it { expect(subject).to validate_presence_of(:start_at) }
     it { expect(subject).to validate_presence_of(:end_at) }
 
-    context 'should validate if date end is lower than today' do
+    context 'should validate date range' do
       subject(:attendance_record_report_by_student_form) {
         AttendanceRecordReportByStudentForm.new(
           unity_id: unity.id,
-          classroom_id: classroom.id
-
+          classroom_id: classroom.id,
+          period: Periods::MATUTINAL,
+          school_calendar_year: school_calendar_year,
+          school_calendar: school_calendar,
+          current_user_id: current_user_admin.id,
         )
       }
-    end
-    context "should validate if start_at isn't greater than date end" do
+
+      it 'return error message when end_at is lower than start_at' do
+        subject.start_at = '2023-02-02'
+        subject.end_at = '2023-01-01'
+
+        expect(subject).to_not be_valid
+        expect(subject.errors.messages[:start_at]).to include('não pode ser maior que a Data final')
+        expect(subject.errors.messages[:end_at]).to include('deve ser maior ou igual a Data inicial')
+      end
     end
   end
 end
