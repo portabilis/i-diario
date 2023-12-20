@@ -27,7 +27,6 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       @attendance_record_report_by_student_form.school_calendar_year = current_school_year
 
       set_options_by_user
-      clear_invalid_dates
       render :form
     end
   end
@@ -77,17 +76,6 @@ class AttendanceRecordReportByStudentsController < ApplicationController
 
   def show_inactive_enrollments
     show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
-  end
-
-  def clear_invalid_dates
-    @attendance_record_report_form.start_at = parse_date(report_params[:start_at])
-    @attendance_record_report_form.end_at = parse_date(report_params[:end_at])
-  end
-
-  def parse_date(date_string)
-    Date.parse(date_string)
-  rescue ArgumentError
-    ''
   end
 
   def set_options_by_user
