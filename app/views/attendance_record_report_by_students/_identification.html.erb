@@ -46,14 +46,16 @@
           </tr>
         </thead>
         <tbody>
-          <%# @students.each do |student| %>
+          <% @students.each do |student| %>
             <tr>
-              <td><%#= student[:sequence] %></td>
-              <td><%#= student[:student_name] %></td>
-              <td><%#= student[:percentage] %></td>
-              <td><%#= student[:classroom] %></td>
+              <td><%= student[:sequence] %></td>
+              <td><%= student[:student_name] %></td>
+              <td><%= student[:percentage] %></td>
+              <% if student[:classroom_id].eql?(classroom.id) %>
+                <td><%= student[:classroom_id] %></td>
+              <% end %>
             </tr>
-          <%# end %>
+          <% end %>
         </tbody>
       </table>
     </tbody>
