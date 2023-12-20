@@ -24,15 +24,11 @@ class AttendanceRecordReportByStudentForm
   validates :school_calendar, presence: true
 
   def unity
-    return unless unity_id.present?
-
-    unity = Unity.find(unity_id)
+    unity = Unity.find(unity_id) unless unity_id.present?
   end
 
   def current_user
-    return unless current_user_id.present?
-
-    user = User.find(current_user_id)
+    user = User.find(current_user_id) unless current_user_id.present?
   end
 
   def set_grades
