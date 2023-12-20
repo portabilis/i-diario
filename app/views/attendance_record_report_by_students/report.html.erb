@@ -1,74 +1,25 @@
-<div style='width: 100%; display: flex; flex-direction: column'>
-  <div style='font-size: 15px; background-color: #DEDEDE; font-weight: bold;
-    text-align: center; margin: 5mm; border: 1px solid #000000'
-  >
-    Registro de Frequência por aluno
-  </div>
-
-  <div style='font-size: 12px; text-align: center; margin: 5mm'>
-    <%= @unity.name %>
-  </div>
-</div>
-
 <table>
   <thead>
     <tr>
-      <th style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'
-        colspan='2'
-      >
-        Identificação
+      <th style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'>
+        Registro de Frequência por aluno
       </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td colspan='2' style='padding: 5px;'>
-        <b style='font-size: 10px'> Unidade </b>
-        <br> <%= @unity.name %>
-      </td>
-    </tr>
-    <tr>
-      <td style='width: 50%'>
-        <b style='font-size: 10px'> Turma </b>
-        <br> <%= @classroom.description %>
-      </td>
-      <td colspan='2' style='width: 50%'>
-        <b style='font-size: 10px'> Período </b>
-        <br> 01/01/2023 a 31/12/2023
-      </td>
-    </tr>
-     <tr>
-      <td colspan='2' style='padding: 5px;'>
-        <b style='font-size: 10px'> Ano letivo </b>
-        <br> <%= @school_calendar_year %>
+      <td style='text-align: center;margin: 5px'>
+        <br><%= current_entity_configuration.logo.url %>
+        <br><%= current_entity_configuration.entity_name %>
+        <br><%= current_entity_configuration.organ_name %>
+        <br><%= @unity.name %>
       </td>
     </tr>
   </tbody>
 </table>
 
-<table>
-  <thead>
-    <tr>
-      <th style='text-align: center' colspan='5'><%= "Série: #{@grade.description}" %></th>
-    </tr>
-  </thead>
-  <thead>
-    <tr>
-      <td><b>Nome do aluno</b></td>
-      <td><b>Frequência</b></td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Juliana</td>
-      <td>90%</td>
-    </tr>
-    <tr>
-      <td>Juliana</td>
-      <td>90%</td>
-    </tr>
-  </tbody>
-</table>
+<%= render partial: 'identification' %>
+
 <style>
   table {
     border-collapse: collapse;
