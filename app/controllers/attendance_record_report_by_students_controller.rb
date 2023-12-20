@@ -4,12 +4,11 @@ class AttendanceRecordReportByStudentsController < ApplicationController
 
   def form
     @period ||= current_teacher_period
-
     @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
-      classroom_id: current_user_classroom.id,
-      period: @period
+      period: @period,
+      current_user_id: current_user.id
     )
 
     set_options_by_user
@@ -36,11 +35,26 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   private
 
   def fetch_collections
-    @unity = @attendance_record_report_by_student_form.fetch_daily_frequencies.first.classroom.unity
-    @grade = @attendance_record_report_by_student_form.fetch_daily_frequencies.first.classroom.grades.first
-    @classroom = @attendance_record_report_by_student_form.fetch_daily_frequencies.first.classroom
+    @unity = @attendance_record_report_by_student_form.unity
+    @classrooms = @attendance_record_report_by_student_form.set_all_classrooms
     @school_calendar_year = @attendance_record_report_by_student_form.school_calendar_year
-    @students = @attendance_record_report_by_student_form.enrollment_classrooms_list
+    # percentage_by_student = @attendance_record_report_by_student_form.students_frequencies_percentage
+    @range_dates = "De #{report_params[:start_at]} à #{report_params[:end_at]}"
+
+    @students = @attendance_record_report_by_student_form.enrollment_classrooms_list.map do |student_enrollment_classroom|
+      student = student_enrollment_classroom[:student]
+      sequence = student_enrollment_classroom[:student_enrollment_classroom].sequence
+      classroom_id = student_enrollment_classroom[:student_enrollment_classroom].classrooms_grade.classroom_id
+      percentage = percentage_by_student[student.id]
+
+      {
+        student_id: student.id,
+        student_name: student.name,
+        sequence: sequence,
+        percentage: percentage,
+        classroom_id: classroom_id
+      }
+    end
   end
 
   def clear_invalid_dates
@@ -82,7 +96,8 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       :start_at,
       :end_at,
       :school_calendar_year,
-      :current_teacher_id
+      :current_teacher_id,
+      :current_user_id
     )
   end
 end
