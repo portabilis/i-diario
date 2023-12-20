@@ -22,6 +22,7 @@ class AttendanceRecordReportByStudentForm
   validates :start_at, presence: true
   validates :end_at, presence: true
   validates :school_calendar_year, presence: true
+  validates :current_user_id, presence: true
   validates :school_calendar, presence: true
 
   def unity
