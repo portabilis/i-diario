@@ -26,20 +26,20 @@ class AttendanceRecordReportByStudentForm
   def unity
     return unless unity_id.present?
 
-    unity ||= Unity.find(unity_id)
+    unity = Unity.find(unity_id)
   end
 
   def current_user
     return unless current_user_id.present?
 
-    user ||= User.find(current_user_id)
+    user = User.find(current_user_id)
   end
 
   def set_grades
     return unless classroom_id.eql?('all')
 
     classroom_ids = set_all_classrooms
-    grades ||= ClassroomsGrade.includes(:grade)
+    grades = ClassroomsGrade.includes(:grade)
                               .by_classroom_id(classroom_ids)
                               .map(&:grade)
                               .uniq
@@ -47,9 +47,11 @@ class AttendanceRecordReportByStudentForm
 
   def set_all_classrooms
     return classroom_id unless classroom_id.eql?('all')
-    return Classroom.by_unity(unity_id).distinct if current_user.teacher?
+    return Classroom.by_unity(unity_id).distinct.includes(:grades).order(:id) unless current_user.teacher?
 
-    Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id).distinct
+    Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id)
+             .includes(:grades)
+             .distinct.order(:id)
   end
 
   def fetch_daily_frequencies
