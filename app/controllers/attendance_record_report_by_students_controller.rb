@@ -3,13 +3,13 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    @period ||= current_teacher_period
     @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
       period: @period,
       current_user_id: current_user.id
     )
+    @period = current_teacher_period
 
     set_options_by_user
   end
@@ -69,8 +69,8 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   end
 
   def set_options_by_user
-    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
-    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
+    @unities = @admin_or_teacher ? Unity.ordered : [current_user_unity]
 
     return fetch_linked_by_teacher unless @admin_or_teacher
 
