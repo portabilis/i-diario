@@ -24,11 +24,11 @@ class AttendanceRecordReportByStudentForm
   validates :school_calendar, presence: true
 
   def unity
-    unity = Unity.find(unity_id) unless unity_id.present?
+    unity = Unity.find(unity_id) if unity_id.present?
   end
 
   def current_user
-    user = User.find(current_user_id) unless current_user_id.present?
+    user = User.find(current_user_id) if current_user_id.present?
   end
 
   def select_all_classrooms
@@ -41,19 +41,24 @@ class AttendanceRecordReportByStudentForm
              .order(:id)
   end
 
+  def adjusted_period
+    return if period.eql?('all') || period.eql?(Periods::FULL)
+
+    period
+  end
+
   def fetch_daily_frequencies
     classrooms = select_all_classrooms
 
     @daily_frequencies = DailyFrequencyQuery.call(
       classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
-      period: period,
+      period: adjusted_period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
     ).order(:classroom_id)
   end
 
   def enrollment_classrooms_list
-    adjusted_period = period != Periods::FULL ? period : nil
     classrooms = select_all_classrooms
 
     @enrollment_classrooms_list = StudentEnrollmentClassroom
