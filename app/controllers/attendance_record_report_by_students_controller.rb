@@ -36,25 +36,47 @@ class AttendanceRecordReportByStudentsController < ApplicationController
 
   def fetch_collections
     @unity = @attendance_record_report_by_student_form.unity
-    @classrooms = @attendance_record_report_by_student_form.set_all_classrooms
     @school_calendar_year = @attendance_record_report_by_student_form.school_calendar_year
-    # percentage_by_student = @attendance_record_report_by_student_form.students_frequencies_percentage
     @range_dates = "De #{report_params[:start_at]} à #{report_params[:end_at]}"
+    checkbox_show_inactive_enrollments = show_inactive_enrollments
 
-    @students = @attendance_record_report_by_student_form.enrollment_classrooms_list.map do |student_enrollment_classroom|
-      student = student_enrollment_classroom[:student]
-      sequence = student_enrollment_classroom[:student_enrollment_classroom].sequence
-      classroom_id = student_enrollment_classroom[:student_enrollment_classroom].classrooms_grade.classroom_id
-      percentage = percentage_by_student[student.id]
+    info_students = @attendance_record_report_by_student_form.enrollment_classrooms_list.map do |student_enrollment_classroom|
+      student = student_enrollment_classroom.student_enrollment.student
+      sequence = student_enrollment_classroom.sequence if checkbox_show_inactive_enrollments
+      classroom_id = student_enrollment_classroom.classrooms_grade.classroom_id
 
       {
         student_id: student.id,
         student_name: student.name,
         sequence: sequence,
-        percentage: percentage,
         classroom_id: classroom_id
       }
     end
+
+    classrooms = @attendance_record_report_by_student_form.set_all_classrooms
+    @students_by_classrooms = classrooms.map do |classroom|
+      students = info_students.select{ |student| student[:classroom_id].eql?(classroom.id) }
+
+      next if students.empty?
+
+      {
+        classroom.id => {
+          classroom_name: classroom.description,
+          grade_name: classroom.grades.first.description,
+          students: students.map do |student|
+            {
+              student_id: student[:student_id],
+              student_name: student[:student_name],
+              sequence: student[:sequence]
+            }
+          end
+        }
+      }
+    end.compact.reduce(&:merge)
+  end
+
+  def show_inactive_enrollments
+    show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
   end
 
   def clear_invalid_dates
