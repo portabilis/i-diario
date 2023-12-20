@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'attendance_record_report_by_student' %>
+<% end %>
+
 <div class='widget-body no-padding'>
   <%= simple_form_for @attendance_record_report_by_student_form,
       url: attendance_record_report_by_students_path,
@@ -24,6 +28,7 @@
 
       <div class="row">
         <%= f.input :school_calendar_year, as: :hidden %>
+        <%= f.hidden_field :current_user_id, value: current_user.id %>
 
         <div class='col col-sm-4'>
           <%= f.input :start_at, as: :date %>
