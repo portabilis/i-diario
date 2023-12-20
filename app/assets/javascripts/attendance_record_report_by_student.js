@@ -1,9 +1,10 @@
 $(function () {
   'use strict';
-
-  let flashMessages = new FlashMessages();
-  let $unity = $('#attendance_record_report_by_student_form_unity_id');
-  let $classroom = $('#attendance_record_report_by_student_form_classroom_id');
+  const PERIOD_FULL = 4;
+  let flashMessages = new FlashMessages(),
+      $unity = $('#attendance_record_report_by_student_form_unity_id'),
+      $classroom = $('#attendance_record_report_by_student_form_classroom_id'),
+      $period = $('#attendance_record_report_by_student_form_period');
 
   $(document).ready(function() {
     getClassrooms();
@@ -53,6 +54,43 @@ $(function () {
     if ($unity.val() !== '' && $classroom.val() !== '') {
       $('#send-form').attr("disabled", false);
     }
+    getPeriod();
   });
+
+  function getPeriod() {
+    const classroom_id = $classroom.select2('val');
+    let periodOptions = [{ id: 'all', name: '<option>Todas</option>', text: 'Todas' }];
+
+    if (!_.isEmpty(classroom_id)) {
+      if (classroom_id === 'all') {
+        $period.val('all')
+        $period.select2({ data: periodOptions, val: ['all'] })
+      } else {
+        $.ajax({
+          url: Routes.fetch_period_by_classroom_attendance_record_report_by_students_pt_br_path({
+            classroom_id: classroom_id,
+            format: 'json'
+          }),
+          success: handleFetchPeriodSuccess,
+          error: handleFetchPeriodError
+        });
+      }
+    }
+  }
+
+  function handleFetchPeriodSuccess(data) {
+    if (data != PERIOD_FULL) {
+      $period.select2('val', data);
+      $period.attr('readonly', true)
+    } else {
+      $period.attr('readonly', false)
+    }
+
+    $period.select2({ data: selectedPeriod });
+  }
+
+  function handleFetchPeriodError(data) {
+    flashMessages.error('Ocorreu um erro ao buscar o período da turma selecionada.');
+  }
 
 });
