@@ -31,27 +31,18 @@ class AttendanceRecordReportByStudentForm
     user = User.find(current_user_id) unless current_user_id.present?
   end
 
-  def set_grades
-    return unless classroom_id.eql?('all')
-
-    classroom_ids = set_all_classrooms
-    grades = ClassroomsGrade.includes(:grade)
-                              .by_classroom_id(classroom_ids)
-                              .map(&:grade)
-                              .uniq
-  end
-
-  def set_all_classrooms
+  def select_all_classrooms
     return classroom_id unless classroom_id.eql?('all')
     return Classroom.by_unity(unity_id).distinct.includes(:grades).order(:id) unless current_user.teacher?
 
     Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id)
              .includes(:grades)
-             .distinct.order(:id)
+             .distinct
+             .order(:id)
   end
 
   def fetch_daily_frequencies
-    classrooms = set_all_classrooms
+    classrooms = select_all_classrooms
 
     @daily_frequencies = DailyFrequencyQuery.call(
       classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
@@ -63,7 +54,7 @@ class AttendanceRecordReportByStudentForm
 
   def enrollment_classrooms_list
     adjusted_period = period != Periods::FULL ? period : nil
-    classrooms = set_all_classrooms
+    classrooms = select_all_classrooms
 
     @enrollment_classrooms_list = StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
@@ -73,7 +64,6 @@ class AttendanceRecordReportByStudentForm
       .by_period(adjusted_period)
       .distinct
       .order('classrooms_grades.classroom_id')
-
   end
 
   # def students_frequencies_percentage
