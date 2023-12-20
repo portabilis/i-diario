@@ -62,7 +62,7 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       }
     end
 
-    classrooms = @attendance_record_report_by_student_form.set_all_classrooms
+    classrooms = @attendance_record_report_by_student_form.select_all_classrooms
     @students_by_classrooms = classrooms.map do |classroom|
       students = info_students.select{ |student| student[:classroom_id].eql?(classroom.id) }
 
