@@ -66,7 +66,7 @@
       <div class="col col-sm-4">
         <%= f.association :grades, as: :select2, elements: @grades, multiple: true, required: true,
                           input_html: {
-                            value: f.object.grade_ids.join(',').presence || grades.map{ |g| g.id },
+                            value: f.object.grade_ids.join(',').presence || @grades.map{ |g| g.id }.sort.join(','),
                             data: { without_json_parser: true }
                           }%>
       </div>
