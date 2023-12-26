@@ -8,12 +8,6 @@ class AbsenceJustificationReport < BaseReport
     @absence_justifications = absence_justification_report_form.absence_justifications
     @absence_justification_report_form = absence_justification_report_form
 
-    if absence_justification_report_form.frequence_type_by_discipline?
-      @discipline_description = Discipline.find_by(
-        id: @absence_justification_report_form.discipline_id
-      ).try(:to_s)
-    end
-
     @teacher_name = Teacher.find_by(id: @absence_justification_report_form.current_teacher_id).try(:name)
 
     header

@@ -1,4 +1,4 @@
-class AdjustThematicUnitTranslationKey < ActiveRecord::Migration
+class AdjustThematicUnitTranslationKey < ActiveRecord::Migration[4.2]
   def up
     execute <<-SQL
       UPDATE translations

@@ -30,7 +30,7 @@ class StudentEnrollmentClassroomBusinesses
   end
 
   def student_enrollment_last(student_enrollment)
-    enrollments_in_year = StudentEnrollment.active.by_year(year).by_student(student_enrollment.student.try(:id)).uniq
+    enrollments_in_year = StudentEnrollment.active.by_year(year).by_student(student_enrollment.student.try(:id)).distinct
 
     if enrollments_in_year.size > 1
       enrollments_in_year.last

@@ -19,6 +19,8 @@ class StudentEnrollmentsList
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
     @include_date_range = params.fetch(:include_date_range, false)
     @period = params.fetch(:period, nil)
+    @status_attending = params.fetch(:status_attending, false)
+    @remove_duplicate_student = params.fetch(:remove_duplicate_student, false)
     ensure_has_valid_params
 
     if search_type == :by_year && params[:year].blank?
@@ -39,14 +41,14 @@ class StudentEnrollmentsList
   end
 
   def student_enrollment_classrooms
-    students_enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classroom)
-                                                                 .by_discipline(discipline)
-                                                                 .by_score_type(score_type, classroom)
-                                                                 .joins(student_enrollment: :student)
+    students_enrollment_classrooms ||= StudentEnrollmentClassroom.joins(student_enrollment: :student)
                                                                  .includes(student_enrollment: :student)
                                                                  .includes(student_enrollment: :dependences)
+                                                                 .by_classroom(classroom)
+                                                                 .by_discipline(discipline)
+                                                                 .by_score_type(score_type, classroom)
 
-    students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
+    students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade.present?
 
     if include_date_range
       students_enrollment_classrooms = students_enrollment_classrooms.by_date_range(start_at, end_at)
@@ -79,7 +81,7 @@ class StudentEnrollmentsList
 
   attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
                 :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
-                :include_date_range, :period, :grade
+                :include_date_range, :period, :grade, :status_attending
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -99,6 +101,8 @@ class StudentEnrollmentsList
                                               .includes(:student_enrollment_classrooms)
                                               .active
 
+    students_enrollments = students_enrollments.status_attending if status_attending
+
     students_enrollments = students_enrollments.by_grade(grade) if grade
 
     if include_date_range
@@ -113,6 +117,8 @@ class StudentEnrollmentsList
     students_enrollments = reject_duplicated_students(students_enrollments) unless show_inactive
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
+
+    students_enrollments = remove_duplicate_student_enrollments(students_enrollments) if @remove_duplicate_student
 
     students_enrollments = order_by_sequence_and_name(students_enrollments, as_relation)
 
@@ -261,5 +267,9 @@ class StudentEnrollmentsList
 
     students_enrollment_classrooms = students_enrollment_classrooms.active.ordered_student
     students_enrollment_classrooms
+  end
+
+  def remove_duplicate_student_enrollments(students_enrollments)
+    students_enrollments.sort_by { |s| s.changed_at }.reverse.group_by { |s| s.student_id }.values.map(&:first)
   end
 end

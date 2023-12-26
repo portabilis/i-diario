@@ -1,4 +1,4 @@
-class LearningObjectivesAndSkill < ActiveRecord::Base
+class LearningObjectivesAndSkill < ApplicationRecord
   include Audit
 
   audited
@@ -20,14 +20,5 @@ class LearningObjectivesAndSkill < ActiveRecord::Base
 
   validates :description, presence: true
   validates :step, presence: true
-  validates :child_educations, presence: true, if: :child_school?
-  validates :elementary_educations, presence: true, if: :elementary_school?
-
-  def child_educations
-    grades
-  end
-
-  def elementary_educations
-    grades
-  end
+  validates :grades, presence: true
 end

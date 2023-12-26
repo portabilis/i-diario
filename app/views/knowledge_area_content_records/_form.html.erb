@@ -17,12 +17,17 @@
 
 
         <div class="col col-sm-4">
-          <%= content_record.association :classroom, as: :select2_classroom, user: current_user,
-              record: f.object %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= content_record.association :classroom, as: :select2_classroom, user: current_user,
+                                           record: f.object %>
+          <% else %>
+            <%= content_record.association :classroom, as: :select2, elements: @classrooms,
+                                           user: current_user, record: f.object, readonly: f.object.persisted? %>
+          <% end %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :knowledge_area_ids, as: :select2, elements: knowledge_areas, multiple: true,
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
                 input_html: { data: { without_json_parser: true } }, readonly: f.object.persisted? %>
         </div>
       </div>
@@ -31,6 +36,11 @@
         <div class="col col-sm-4">
           <%= content_record.input :record_date, as: :date %>
         </div>
+        <% if f.object.decorator.show_experience_fields %>
+          <div class="col col-sm-4">
+            <%= f.input :experience_fields %>
+          </div>
+        <% end %>
       </div>
 
       <div class="row">
@@ -84,7 +94,7 @@
                   data: {
                     url: contents_path,
                     data: content_record.object.contents_tags,
-                    :'filter-by-description' => 1
+                    :'filter-start-with-description' => 1
                   }
                 }
             %>

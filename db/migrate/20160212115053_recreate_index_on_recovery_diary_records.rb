@@ -1,4 +1,4 @@
-class RecreateIndexOnRecoveryDiaryRecords < ActiveRecord::Migration
+class RecreateIndexOnRecoveryDiaryRecords < ActiveRecord::Migration[4.2]
   def change
     remove_index :recovery_diary_records, name: 'idx_unity_id_and_classroom_id_and_discipline_id_and_recorded_at'
 

@@ -1,4 +1,4 @@
-class CreateCheckToKeepUniqueDescriptiveExamsByStepNumber < ActiveRecord::Migration
+class CreateCheckToKeepUniqueDescriptiveExamsByStepNumber < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       ALTER TABLE descriptive_exams

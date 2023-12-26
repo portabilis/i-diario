@@ -16,7 +16,8 @@
 
     <fieldset>
       <% if action_name != 'show' %>
-        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'experience_fields' %>
+      <% school_type = GeneralConfiguration.current.group_children_education ? 'group_child_schools' : 'experience_fields' %>
+        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: school_type, modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-btn' %>
       <% end %>
 
       <div class="row">
@@ -38,7 +39,7 @@
       </div>
     </fieldset>
 
-    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan } %>
+    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan, modal_id: '#confirm-copy-objectives-modal', } %>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 

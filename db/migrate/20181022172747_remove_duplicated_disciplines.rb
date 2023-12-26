@@ -1,4 +1,4 @@
-class RemoveDuplicatedDisciplines < ActiveRecord::Migration
+class RemoveDuplicatedDisciplines < ActiveRecord::Migration[4.2]
   def change
     duplicated_api_codes = Discipline.all
                                      .group(:api_code)

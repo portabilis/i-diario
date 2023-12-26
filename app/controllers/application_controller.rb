@@ -9,18 +9,18 @@ class ApplicationController < ActionController::Base
 
   include BootstrapFlashHelper
   include Pundit
-  skip_around_filter :set_locale_from_url
+  skip_around_action :set_locale_from_url
   around_action :handle_customer
   before_action :set_honeybadger_context
-  around_filter :set_user_current
-  around_filter :set_thread_origin_type
+  around_action :set_user_current
+  around_action :set_thread_origin_type
 
   respond_to :html, :json
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   #protect_from_forgery with: :exception
-  protect_from_forgery with: :null_session
+  protect_from_forgery with: :null_session, prepend: true
 
   before_action :check_entity_status
   before_action :authenticate_user!
@@ -222,6 +222,7 @@ class ApplicationController < ActionController::Base
 
   def require_allow_to_modify_prev_years
     return if can_change_school_year?
+    return unless current_user.current_role_is_admin_or_employee?
     return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
 
     flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
@@ -241,10 +242,10 @@ class ApplicationController < ActionController::Base
     ).valid?
   end
 
-  def teacher_discipline_score_types
+  def teacher_discipline_score_types(classroom = current_user_classroom)
     score_types = []
 
-    current_user_classroom.classrooms_grades.each do |classroom_grade|
+    classroom.classrooms_grades.each do |classroom_grade|
       score_types << teacher_discipline_score_type_by_exam_rule(classroom_grade.exam_rule)
     end
 
@@ -255,10 +256,13 @@ class ApplicationController < ActionController::Base
     current_user.assumed_teacher_id.blank? && current_user.current_role_is_admin_or_employee?
   end
 
-  def teacher_differentiated_discipline_score_types
+  def teacher_differentiated_discipline_score_types(classroom = nil, discipline = nil)
+    classroom ||= current_user_classroom
+    discipline ||= current_user_discipline
+
     score_types = []
 
-    current_user_classroom.classrooms_grades.each do |classroom_grade|
+    classroom.classrooms_grades.each do |classroom_grade|
       exam_rule = classroom_grade.exam_rule
 
       next if exam_rule.blank?
@@ -266,7 +270,7 @@ class ApplicationController < ActionController::Base
       differentiated_exam_rule = exam_rule.differentiated_exam_rule
 
       if differentiated_exam_rule.blank? || !classroom_grade.classroom.has_differentiated_students?
-        score_types << teacher_discipline_score_type_by_exam_rule(exam_rule)
+        score_types << teacher_discipline_score_type_by_exam_rule(exam_rule, classroom, discipline)
       end
 
       score_types << teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
@@ -275,16 +279,16 @@ class ApplicationController < ActionController::Base
     score_types
   end
 
-  def teacher_discipline_score_type_by_exam_rule(exam_rule)
+  def teacher_discipline_score_type_by_exam_rule(exam_rule, classroom = nil, discipline = nil)
     return if exam_rule.blank?
     return unless (score_type = exam_rule.score_type)
     return if score_type == ScoreTypes::DONT_USE
     return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
 
     TeacherDisciplineClassroom.find_by(
-      classroom: current_user_classroom,
+      classroom: classroom,
       teacher: current_teacher,
-      discipline: current_user_discipline
+      discipline: discipline
     ).score_type
   end
 
@@ -446,7 +450,10 @@ class ApplicationController < ActionController::Base
 
   def error_generic(expection)
     set_honeybadger_error(expection)
-    redirect_to :root
+
+    unless Rails.env.development?
+      redirect_to :root
+    end
   end
 
   def set_honeybadger_error(expection)

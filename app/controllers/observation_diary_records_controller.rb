@@ -52,7 +52,7 @@ class ObservationDiaryRecordsController < ApplicationController
   end
 
   def create
-    @observation_diary_record = ObservationDiaryRecord.new(resource_params)
+    @observation_diary_record = ObservationDiaryRecord.new(resource_params.to_unsafe_h)
     @observation_diary_record.teacher = current_teacher
 
     authorize @observation_diary_record
@@ -78,7 +78,7 @@ class ObservationDiaryRecordsController < ApplicationController
   def update
     @observation_diary_record = ObservationDiaryRecord.find(params[:id])
     @observation_diary_record.current_user = current_user
-    @observation_diary_record.assign_attributes(resource_params)
+    @observation_diary_record.assign_attributes(resource_params.to_unsafe_h)
 
     authorize @observation_diary_record
 

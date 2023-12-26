@@ -1,4 +1,4 @@
-class Content < ActiveRecord::Base
+class Content < ApplicationRecord
   include Audit
 
   audited
@@ -18,6 +18,12 @@ class Content < ActiveRecord::Base
     where("contents.document_tokens @@ plainto_tsquery('portuguese', ?)", description).
       order("ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) desc")
   }
+
+  scope :start_with_description, lambda { |description|
+    where("description LIKE ?", "#{description.upcase}%").
+      order(created_at: :desc)
+  }
+
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_id, -> { order(id: :asc) }
   scope :find_and_order_by_id_sequence, lambda { |ids|

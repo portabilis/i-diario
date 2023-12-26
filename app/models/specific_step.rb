@@ -1,4 +1,4 @@
-class SpecificStep < ActiveRecord::Base
+class SpecificStep < ApplicationRecord
   include Discardable
 
   audited

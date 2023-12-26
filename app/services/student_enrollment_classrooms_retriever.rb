@@ -20,32 +20,43 @@ class StudentEnrollmentClassroomsRetriever
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, nil)
-    @score_type = params.fetch(:score_type, nil)
+    @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH)
 
     ensure_has_valid_search_params
   end
 
   def call
-    return if classrooms.blank? || disciplines.blank?
+    return if classrooms.blank?
 
-    enrollment_classrooms ||= StudentEnrollmentClassroom.by_classroom(classrooms)
-                                                        .by_discipline(disciplines)
-                                                        .by_score_type(score_type, classrooms)
-                                                        .joins(student_enrollment: :student)
+    enrollment_classrooms ||= StudentEnrollmentClassroom.joins(student_enrollment: :student)
                                                         .includes(student_enrollment: :student)
                                                         .includes(student_enrollment: :dependences)
+                                                        .by_classroom(classrooms)
+                                                        .by_score_type(score_type, classrooms)
+                                                        .order('sequence ASC, students.name ASC')
                                                         .active
 
+    enrollment_classrooms = enrollment_classrooms.by_discipline(disciplines) if disciplines.present?
     enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+    enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
+
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
-    enrollment_classrooms = search_by_search_type(enrollment_classrooms)
-    enrollment_classrooms = search_by_status_attending(enrollment_classrooms)
-    enrollment_classrooms = order_by_name_and_sequence(enrollment_classrooms)
+    # Nao filtra as enturmacoes caso municipio tenha DATABASE
+    if enrollment_classrooms.show_as_inactive.blank?
+      enrollment_classrooms = search_by_search_type(enrollment_classrooms)
+      enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
+    end
 
-    enrollment_classrooms
+    enrollment_classrooms.map do |enrollment_classroom|
+      {
+        student_enrollment: enrollment_classroom.student_enrollment,
+        student_enrollment_classroom: enrollment_classroom,
+        student: enrollment_classroom.student_enrollment.student
+      }
+    end
   end
 
   private
@@ -72,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range
+    return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
@@ -85,19 +96,35 @@ class StudentEnrollmentClassroomsRetriever
     enrollments_on_period
   end
 
-  def order_by_name_and_sequence(enrollment_classrooms)
+  def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    enrollment_classrooms.ordered
+    enrollment_classrooms_unique = []
+
+    enrollment_classrooms.each do |enrollment_classroom|
+      student_id = enrollment_classroom.student_enrollment.student_id
+
+      enrollment_classrooms_for_student = enrollment_classrooms.select do |ec|
+        ec.student_enrollment.student_id == student_id
+      end
+
+      if enrollment_classrooms_for_student.count > 1
+        add_enrollment_classrooms(enrollment_classrooms_unique, enrollment_classrooms_for_student)
+      else
+        enrollment_classrooms_unique << enrollment_classrooms_for_student
+      end
+    end
+
+    enrollment_classrooms_unique = enrollment_classrooms_unique.flatten
   end
 
-  def search_by_status_attending(enrollment_classrooms)
-    return enrollment_classrooms if show_inactive_enrollments
+  def add_enrollment_classrooms(enrollment_classrooms, enrollment_classrooms_for_student)
+    return if enrollment_classrooms.include?(enrollment_classrooms_for_student.last)
 
-    enrollment_classrooms.status_attending
+    enrollment_classrooms << enrollment_classrooms_for_student.last
   end
 
   def show_inactive_enrollments
-    @show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
 end

@@ -18,7 +18,8 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
-      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: 'experience_fields' %>
+      <% school_type = GeneralConfiguration.current.group_children_education ? 'group_child_schools' : 'experience_fields' %>
+      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: school_type, modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-btn'  %>
 
       <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
         <i class='fa-fw fa fa-info'></i>
@@ -38,8 +39,16 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
-                                             readonly: action_name.eql?('show')  %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
+                                               selected: @knowledge_area_teaching_plan.teaching_plan.grade_id,
+                                               readonly: ['show', 'edit'].include?(action_name)  %>
+          <% else %>
+            <%= teaching_plan_form.association :grade, as: :select2, elements: @grades,
+                                               selected: @knowledge_area_teaching_plan.teaching_plan.grade_id,
+                                               user: current_user,
+                                               readonly: ['show', 'edit'].include?(action_name)  %>
+          <% end %>
         </div>
 
         <div class="col col-sm-4">
@@ -141,7 +150,7 @@
           <% end %>
 
           <% if !action_name.eql?('show') %>
-            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+            <a href="#" data-toggle="modal" data-target="#confirm-copy-objectives-modal">
               Copiar objetivos/habilidades por área
             </a>
           <% end %>

@@ -42,7 +42,7 @@ $(function () {
     let period = $('#lessons_number_classroom_id').val();
 
     if (period != PERIOD_FULL) {
-      checkNotExistsLessonsBoard();
+      checkMultiGrade();
     }
 
     period_div.show();
@@ -214,6 +214,51 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar o período da turma.');
   };
 
+  function checkMultiGrade() {
+    let classroom_id = $('#lessons_board_classroom_id').select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      $.ajax({
+        url: Routes.classroom_multi_grade_lessons_boards_pt_br_path({
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: handleMultiGradeSuccess,
+        error: handleMultiGradeError
+      });
+    }
+  }
+
+  function handleMultiGradeSuccess(data) {
+    if (data) {
+      checkNotExistsLessonsBoardByClassroomGrade();
+    } else {
+      checkNotExistsLessonsBoard()
+    }
+  }
+
+  function handleMultiGradeError() {
+    flashMessages.error('Ocorreu um erro ao buscar a turma.');
+  };
+
+
+  function checkNotExistsLessonsBoardByClassroomGrade() {
+    let classroom_id = $('#lessons_board_classroom_id').select2('val');
+    let grade_id = $('#lessons_board_grade').select2('val');
+
+    if (!_.isEmpty(classroom_id) && !_.isEmpty(grade_id)) {
+      $.ajax({
+        url: Routes.not_exists_by_classroom_and_grade_lessons_boards_pt_br_path({
+          classroom_id: classroom_id,
+          grade_id: grade_id,
+          format: 'json'
+        }),
+        success: handleNotExistsLessonsBoardSuccess,
+        error: handleNotExistsLessonsBoardError
+      });
+    }
+  }
+
   function checkNotExistsLessonsBoard() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
 
@@ -279,11 +324,13 @@ $(function () {
 
   async function getTeachersFromClassroom() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
+    let grade_id = $('#lessons_board_grade').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
         url: Routes.teachers_classroom_lessons_boards_pt_br_path({
           classroom_id: classroom_id,
+          grade_id: grade_id,
           format: 'json'
         }),
         success: handleFetchTeachersFromTheClassroomSuccess,
@@ -295,11 +342,13 @@ $(function () {
   function getTeachersFromClassroomAndPeriod() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
     let period = $('#lessons_board_period').select2('val');
+    let grade_id = $('#lessons_board_grade').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
         url: Routes.teachers_classroom_period_lessons_boards_pt_br_path({
           classroom_id: classroom_id,
+          grade_id: grade_id,
           period: period,
           format: 'json'
         }),

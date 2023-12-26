@@ -31,13 +31,24 @@ class AttendanceRecordReportForm
   validate :must_have_daily_frequencies
 
   def daily_frequencies
-    @daily_frequencies ||= DailyFrequencyQuery.call(
+    @daily_frequencies ||= fetch_daily_frequencies
+  end
+
+  def fetch_daily_frequencies
+    DailyFrequencyQuery.call(
       classroom_id: classroom_id,
       period: period,
       frequency_date: start_at..end_at,
       discipline_id: !global_absence? && discipline_id,
       class_numbers: !global_absence? && class_numbers
-    )
+    ).group_by(&:frequency_date).map do |frequency_date, frequencies|
+      if frequencies.map(&:class_number).uniq.size > 1
+        frequencies
+      else
+        daily_frequency = frequencies.find { |f| f.period == Periods::FULL.to_i }
+        daily_frequency || frequencies.first
+      end
+    end.flatten
   end
 
   def school_calendar_events
@@ -69,20 +80,20 @@ class AttendanceRecordReportForm
   def enrollment_classrooms_list
     adjusted_period = period != Periods::FULL ? period : nil
 
-    @enrollment_classrooms_list ||= StudentEnrollmentsList.new(
-      classroom: classroom_id,
-      discipline: discipline_id,
+    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: classroom_id,
+      disciplines: discipline_id,
       start_at: start_at,
       end_at: end_at,
       search_type: :by_date_range,
       show_inactive: false,
       period: adjusted_period
-    ).student_enrollment_classrooms
+    )
   end
 
   def student_enrollment_ids
     @student_enrollment_ids ||= @enrollment_classrooms_list.map { |student_enrollment|
-      student_enrollment[:student_enrollment_id]
+      student_enrollment[:student_enrollment].id
     }
   end
 
@@ -101,9 +112,8 @@ class AttendanceRecordReportForm
 
   def days_enrollment
     days = daily_frequencies.map(&:frequency_date)
-    students_ids = daily_frequencies.map do |daily_frequency|
-      daily_frequency.students.map(&:student_id)
-    end.flatten.uniq
+
+    students_ids = daily_frequencies.flat_map(&:students).map(&:student_id).uniq
 
     EnrollmentFromStudentFetcher.new.current_enrollments(students_ids, classroom_id, days)
   end
@@ -132,6 +142,7 @@ class AttendanceRecordReportForm
     absences_by_student = {}
     count_days = {}
     enrollments = days_enrollment
+    @do_not_send_justified_absence = GeneralConfiguration.current.do_not_send_justified_absence
 
     daily_frequencies.each do |daily_frequency|
       daily_frequency.students.each do |daily_frequency_student|
@@ -146,10 +157,14 @@ class AttendanceRecordReportForm
         count_day = count_day?(daily_frequency, student_enrollment_id)
         count_days[student_id] += 1 if count_day
         absence = !daily_frequency_student.present
+        absence_justification = daily_frequency_student.absence_justification_student_id
 
         if absence && count_day
           absences_by_student[student_enrollment_id] ||= { :absences => 0, :count_days => 0 }
-          absences_by_student[student_enrollment_id][:absences] += 1
+
+          if apply_absence?(absence_justification)
+            absences_by_student[student_enrollment_id][:absences] += 1
+          end
         end
 
         if absences_by_student.present? && absences_by_student[student_enrollment_id]
@@ -159,6 +174,10 @@ class AttendanceRecordReportForm
     end
 
     absences_by_student
+  end
+
+  def apply_absence?(absence_justification)
+    true unless @do_not_send_justified_absence && absence_justification.present?
   end
 
   def calculate_percentage(frequency_days, absences_student)
@@ -190,16 +209,16 @@ class AttendanceRecordReportForm
   end
 
   def in_active_searches
-    dates = daily_frequencies.pluck(:frequency_date).uniq
+    dates = daily_frequencies.map(&:frequency_date).uniq
 
     active_searches = {}
 
     ActiveSearch.new.in_active_search_in_range(student_enrollment_ids, dates).each do |active_search|
-      next if active_search[:student_enrollment_ids].blank?
+      next if active_search[:student_id].blank?
 
-      active_search[:student_enrollment_ids].each do |student_enrollment|
-        active_searches[student_enrollment] ||= []
-        active_searches[student_enrollment] << active_search[:date]
+      active_search[:student_id].each do |student|
+        active_searches[student] ||= []
+        active_searches[student] << active_search[:date]
       end
     end
 
@@ -225,13 +244,15 @@ class AttendanceRecordReportForm
       frequency_date = daily_frequency.frequency_date
 
       enrollments_on_date = @enrollment_classrooms_list.select { |enrollment_classroom|
-        joined_at = enrollment_classroom[:joined_at].to_date
-        left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
+        joined_at = enrollment_classroom[:student_enrollment_classroom].joined_at.to_date
+        left_at = enrollment_classroom[:student_enrollment_classroom].left_at
+
+        left_at = left_at.empty? ? Date.current.end_of_year : left_at.to_date
 
         frequency_date >= joined_at && frequency_date < left_at
       }
 
-      enrollments_on_date_ids = enrollments_on_date.map { |enrollment| enrollment[:student_enrollment_id] }
+      enrollments_on_date_ids = enrollments_on_date.map { |enrollment| enrollment[:student_enrollment].id }
       not_enrrolled_on_the_date = student_enrollment_ids - enrollments_on_date_ids
 
       next if not_enrrolled_on_the_date.empty?

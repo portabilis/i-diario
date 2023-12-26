@@ -35,6 +35,9 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
       joins(:content_record).merge(ContentRecord.where.not(teacher_id: current_teacher_id))
     end
   }
+  scope :order_by_classroom, lambda {
+    joins(content_record: :classroom).order(Classroom.arel_table[:description].desc)
+  }
 
   validates :content_record, presence: true
   validates :knowledge_area_ids, presence: true
@@ -86,7 +89,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
                   content_record.school_calendar.present? &&
                   record_date.present?
 
-    unless content_record.school_calendar.school_day?(record_date, grades.first, classroom)
+    unless content_record.school_calendar.school_day?(record_date, grades.first, classroom_id)
       errors.add(:base, "")
       content_record.errors.add(:record_date, :not_school_calendar_day)
     end

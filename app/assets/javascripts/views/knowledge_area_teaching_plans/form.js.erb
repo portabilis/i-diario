@@ -1,7 +1,7 @@
 window['content_list_model_name'] = 'knowledge_area_teaching_plan';
 window['content_list_submodel_name'] = 'teaching_plan';
 
-$(function() {
+$(function () {
   'use strict';
 
   var $unity = $('#knowledge_area_teaching_plan_teaching_plan_attributes_unity_id');
@@ -11,8 +11,10 @@ $(function() {
   var $schoolTermContainer = $('#school-term-container');
   var $schoolTerm = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term_type_step_id');
   var flashMessages = new FlashMessages();
+  var contents_tags = $('#knowledge_area_teaching_plan_teaching_plan_attributes_contents_tags');
+  var objectives_tags = $('#knowledge_area_teaching_plan_teaching_plan_attributes_objectives_tags');
 
-  $schoolTermType.on('change', function() {
+  $schoolTermType.on('change', function () {
     updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
     $('#copy_plan_info').show();
   });
@@ -21,13 +23,17 @@ $(function() {
 
   validate_attachment_size($('#knowledge_area_teaching_plan'));
 
-  $('#knowledge_area_teaching_plan_teaching_plan_attributes_contents_tags').on('change', function(e){
-    if(e.val.length){
+  contents_tags.on('change', function (e) {
+    var idCounter = 1;
+
+    if (e.val.length) {
+      var uniqueId = 'customId_' + idCounter++;
       var content_description = e.val.join(", ");
-      if(content_description.trim().length &&
-          !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
+      if (content_description.trim().length &&
+        !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
         var html = JST['templates/layouts/contents_list_manual_item']({
+          id: uniqueId,
           description: content_description,
           model_name: 'knowledge_area_teaching_plan',
           submodel_name: 'teaching_plan'
@@ -35,8 +41,8 @@ $(function() {
 
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var content_input = $('input[type=checkbox][data-content_description="'+content_description+'"]');
+      } else {
+        var content_input = $('input[type=checkbox][data-content_description="' + content_description + '"]');
         content_input.closest('li').show();
         content_input.prop('checked', true).trigger('change');
       }
@@ -46,13 +52,18 @@ $(function() {
     $(this).select2('val', '');
   });
 
-  $('#knowledge_area_teaching_plan_teaching_plan_attributes_objectives_tags').on('change', function(e){
-    if(e.val.length){
+  objectives_tags.on('change', function (e) {
+    var idCounter = 1;
+
+    if (e.val.length) {
+
+      var uniqueId = 'customId_' + idCounter++;
       var objective_description = e.val.join(", ");
-      if(objective_description.trim().length &&
-          !$('input[type=checkbox][data-objective_description="'+objective_description+'"]').length){
+      if (objective_description.trim().length &&
+        !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
 
         var html = JST['templates/layouts/objectives_list_manual_item']({
+          id: uniqueId,
           description: objective_description,
           model_name: 'knowledge_area_teaching_plan',
           submodel_name: 'teaching_plan'
@@ -60,8 +71,8 @@ $(function() {
 
         $('#objectives-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-      }else{
-        var objective_input = $('input[type=checkbox][data-objective_description="'+objective_description+'"]');
+      } else {
+        var objective_input = $('input[type=checkbox][data-objective_description="' + objective_description + '"]');
         objective_input.closest('li').show();
         objective_input.prop('checked', true).trigger('change');
       }
@@ -72,26 +83,63 @@ $(function() {
   });
 
   if ($('#action_name').val() == 'show') {
-    $('.list-group.checked-list-box .list-group-item').each(function(){
+    $('.list-group.checked-list-box .list-group-item').each(function () {
       $(this).off('click');
     });
   }
+
+  $grade.on('change', function () {
+    let grade_id = $grade.select2('val');
+    let unity_id = $unity.select2('val');
+    $knowledgeAreas.select2({ data: [] });
+
+    if ($grade.val()) {
+      return $.ajax({
+        url: Routes.knowledge_areas_pt_br_path({
+          grade_id: grade_id,
+          unity_id: unity_id,
+          format: 'json'
+        }),
+        success: handleFetchKnowledgeAreasByGradeSuccess,
+        error: handleFetchKnowledgeAreasByGradeError
+      });
+    }
+  });
+
+
+  function handleFetchKnowledgeAreasByGradeSuccess(data) {
+    let knowledge_areas = data;
+
+    let selectedKnowledgeAreas = _.map(knowledge_areas, function (knowledge_area) {
+      return { id: knowledge_area['id'], text: knowledge_area['description'] };
+    });
+
+    $knowledgeAreas.select2({ data: selectedKnowledgeAreas });
+
+    // Define a primeira opção como selecionada por padrão
+    $knowledgeAreas.val(selectedKnowledgeAreas[0].id).trigger('change');
+  };
+
+  function handleFetchKnowledgeAreasByGradeError() {
+    flashMessages.error('Ocorreu um erro ao buscar as áreas de conhecimento da turma selecionada.');
+  };
+
 });
 
 $(function () {
   $('textarea[maxLength]').maxlength();
 
-  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_methodology]" , {
+  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_methodology]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_evaluation]" , {
+  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_evaluation]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
   })
-  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_references]" , {
+  createSummerNote("textarea[id^=knowledge_area_teaching_plan_teaching_plan_attributes_references]", {
     toolbar: [
       ['font', ['bold', 'italic', 'underline', 'clear']],
     ]
