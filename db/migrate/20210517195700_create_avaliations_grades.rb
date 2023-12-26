@@ -1,4 +1,4 @@
-class CreateAvaliationsGrades < ActiveRecord::Migration
+class CreateAvaliationsGrades < ActiveRecord::Migration[4.2]
   def change
     create_table :avaliations_grades do |t|
       t.belongs_to :avaliation

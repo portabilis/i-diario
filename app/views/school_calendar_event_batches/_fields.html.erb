@@ -3,10 +3,10 @@
     <%= f.input :year, as: :select2, elements: school_calendar_years %>
   </div>
   <div class="col col-sm-3">
-    <%= f.input :start_date, as: :date %>
+    <%= f.input :start_date, as: :date, input_html: { value: formatted_date(f.object, f.object.start_date) } %>
   </div>
   <div class="col col-sm-3">
-    <%= f.input :end_date, as: :date%>
+    <%= f.input :end_date, as: :date, input_html: { value: formatted_date(f.object, f.object.end_date) } %>
   </div>
   <div class="col col-sm-4">
     <%= f.input :description %>

@@ -52,18 +52,38 @@ class DailyFrequenciesCreator
 
   def find_or_create_daily_frequency_students
     @daily_frequencies.each do |daily_frequency|
-      student_ids = daily_frequency.students.map(&:student_id)
+      not_student_ids = daily_frequency.students.map(&:student_id)
+      student_enrollments = student_enrollments(not_student_ids)
+      student_ids = student_enrollments.map(&:student_id)
 
-      student_enrollments(student_ids).each do |student_enrollment|
-        find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+      absence_justifications = AbsenceJustifiedOnDate.call(
+        students: student_ids,
+        date: daily_frequency.frequency_date,
+        end_date: daily_frequency.frequency_date,
+        classroom: daily_frequency.classroom_id,
+        period: daily_frequency.period
+      )
+
+      student_enrollments.each do |student_enrollment|
+        find_or_create_daily_frequency_student(daily_frequency, student_enrollment, absence_justifications)
       end
     end
   end
 
-  def find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+  def find_or_create_daily_frequency_student(daily_frequency, student_enrollment, absence_justifications)
     daily_frequency.students.find_or_create_by(student_id: student_enrollment.student_id) do |daily_frequency_student|
+      absence_justification = absence_justifications[daily_frequency_student.student_id] || {}
+      absence_justification = absence_justification[daily_frequency.frequency_date] || {}
+      absence_justification_student_id = absence_justification[0] || absence_justification[daily_frequency.class_number]
+
+      if absence_justification_student_id
+        daily_frequency_student.present = false
+        daily_frequency_student.absence_justification_student_id = absence_justification_student_id
+      elsif
+        daily_frequency_student.present = true
+      end
+
       daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
-      daily_frequency_student.present = true
       daily_frequency_student.active = true
     end
   rescue ActiveRecord::RecordNotUnique

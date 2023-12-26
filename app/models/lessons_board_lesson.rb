@@ -1,4 +1,5 @@
 class LessonsBoardLesson < ActiveRecord::Base
+  include Audit
   include Discardable
 
   audited

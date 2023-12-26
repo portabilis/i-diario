@@ -58,9 +58,7 @@ class ScoreRounder
 
   def decimal_part(value)
     parts = value.to_s.split('.')
-    decimal_part = parts.count > 1 ? parts[1][0].to_s : 0
-
-    decimal_part
+    parts.count > 1 ? parts[1][0].to_s : 0
   end
 
   def round_to_exact_decimal(score, exact_decimal_place)
@@ -75,11 +73,34 @@ class ScoreRounder
     score.floor
   end
 
+  def number_of_decimal_places
+    TestSettingFetcher.current(@classroom).number_of_decimal_places
+  end
+
   def truncate_score(score)
     parts = score.to_s.split('.')
     integer_part = parts[0]
-    decimal_part = parts[1][0]
+    decimal_part = decimal_parts(parts[1])
 
     "#{integer_part}.#{decimal_part}".to_f
+  end
+
+  def decimal_parts(part)
+    return if part.nil?
+
+    decimal_places = number_of_decimal_places - 1
+
+    decimal_part = part[0..decimal_places]
+
+    if number_of_decimal_places > decimal_part.size
+      missing = number_of_decimal_places - decimal_part.size
+      decimal_part = decimal_part + count_zeros(missing)
+    end
+
+    decimal_part
+  end
+
+  def count_zeros(missing)
+    "0" * missing
   end
 end

@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::ExamRules, type: :service do
 
   describe '#fetch' do
     it 'returns all exam rules' do
-      skip
 
       VCR.use_cassette('all_exam_rules') do
         result = subject.fetch

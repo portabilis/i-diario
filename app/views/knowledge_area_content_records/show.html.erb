@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'list-contents' %>
+<% end %>
+
 <%= simple_form_for @knowledge_area_content_record, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
@@ -17,7 +21,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :knowledge_area_ids, as: :select2, elements: knowledge_areas, multiple: true,
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
                       input_html: { data: { without_json_parser: true } }, readonly: f.object.persisted? %>
         </div>
       </div>
@@ -25,6 +29,11 @@
       <div class="row">
         <div class="col col-sm-4">
           <%= content_record.input :record_date, as: :date, readonly: true %>
+        </div>
+        <div class="col col-sm-4">
+          <% if f.object.decorator.show_experience_fields %>
+            <%= f.input :experience_fields, readonly: true %>
+          <% end %>
         </div>
       </div>
 
@@ -47,13 +56,13 @@
         <ul class="list-group checked-list-box" id="contents-list">
 
           <% contents.each do |content| %>
-            <li class="list-group-item manual list-group-item-info active initialized" style="display: flex;" id="content_record_<%= content.id %>">
-              <span class="state-icon fa fa-check"></span>
-              <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]",
-                                content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
-                                hidden: true, 'data-content_description': content.to_s ) %>
-              <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
-            </li>
+            <li class="list-group-item manual" style="display: flex;" id="content_record_<%= content.id %>">
+                <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]",
+                    content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
+                    hidden: true, 'data-content_description': content.to_s ) %>
+                <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
+
+              </li>
           <% end %>
         </ul>
       </div>

@@ -1,5 +1,5 @@
 pt-BR:
   registrations:
-    students: 'Notificamos o responsável da sua unidade escolar sobre sua solicitação. Em breve você receberá um e-mail com o seu acesso.'
+    students: 'Sua conta foi criada com sucesso. Assim que ela for ativada e o acesso estiver disponível, você receberá uma notificação por email.'
     tooltip:
       student_code: 'Informe o código do aluno que consta no boletim escolar ao lado do nome do aluno. Se ainda não existir nenhum aluno matriculado ou não souber o código, clique na opção ao lado.'

@@ -1,4 +1,4 @@
-class AddDiscardToUnities < ActiveRecord::Migration
+class AddDiscardToUnities < ActiveRecord::Migration[4.2]
   def change
     return if Unity.column_names.include?('discarded_at')
 

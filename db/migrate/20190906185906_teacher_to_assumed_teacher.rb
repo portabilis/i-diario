@@ -1,4 +1,4 @@
-class TeacherToAssumedTeacher < ActiveRecord::Migration
+class TeacherToAssumedTeacher < ActiveRecord::Migration[4.2]
   def up
     execute <<-SQL
       UPDATE users

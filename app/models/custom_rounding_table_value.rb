@@ -1,8 +1,8 @@
-class CustomRoundingTableValue < ActiveRecord::Base
+class CustomRoundingTableValue < ApplicationRecord
   acts_as_copy_target
 
   include Audit
-  audited
+  audited associated_with: :custom_rounding_table
   has_associated_audits
 
   belongs_to :custom_rounding_table
@@ -13,6 +13,8 @@ class CustomRoundingTableValue < ActiveRecord::Base
   validates_presence_of :exact_decimal_place, if: :action_exact_decimal_place
 
   scope :ordered, -> { order(arel_table[:label].desc) }
+
+  scope :ordered_asc, -> { order(arel_table[:label].asc) }
 
   def to_s
     label

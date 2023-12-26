@@ -1,4 +1,4 @@
-class UpdatePeriodOnDailyFrequencies < ActiveRecord::Migration
+class UpdatePeriodOnDailyFrequencies < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       UPDATE daily_frequencies

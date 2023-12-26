@@ -1,0 +1,27 @@
+<tbody id='resources-tbody'>
+  <% if @lowest_note_recoverys.empty? %>
+    <tr>
+      <td class='no_record_found' colspan='6'>
+        <%= t('views.index.no_record_found')%>
+      </td>
+    </tr>
+  <% else %>
+    <% @lowest_note_recoverys.each do |avaliation_recovery_lowest_note| %>
+      <tr>
+        <td><%= avaliation_recovery_lowest_note.recovery_diary_record.unity %></td>
+        <td><%= avaliation_recovery_lowest_note.recovery_diary_record.classroom %></td>
+        <td><%= avaliation_recovery_lowest_note.recovery_diary_record.discipline %></td>
+        <td><%= avaliation_recovery_lowest_note.step %></td>
+        <td><%= l(avaliation_recovery_lowest_note.recovery_diary_record.recorded_at) %></td>
+        <td class='actions'>
+          <%= link_to t('views.index.edit'),
+                      edit_avaliation_recovery_lowest_note_path(avaliation_recovery_lowest_note),
+            class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'),
+                      avaliation_recovery_lowest_note_path(avaliation_recovery_lowest_note),
+            class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm_deletion') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

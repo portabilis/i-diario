@@ -31,19 +31,28 @@ class DisciplinesController < ApplicationController
         grade_id: student_grade_id
       ).pluck(:discipline_id)
 
-      @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, params[:student_id])
+      @disciplines = @disciplines.not_grouper
+                                 .by_score_type(ScoreTypes::CONCEPT, params[:student_id])
                                  .where(id: disciplines_in_grade_ids)
 
     end
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?
 
-    @disciplines
+    unless current_user.current_role_is_admin_or_employee? || params[:conceptual]
+      @disciplines = @disciplines.distinct.not_descriptor
+    end
   end
 
   def search
     params[:filter][:by_teacher_id] = current_user.teacher_id if params[:use_user_teacher]
-    @disciplines = apply_scopes(Discipline).ordered
+    @disciplines = apply_scopes(Discipline.grouper).ordered
+
+    render json: @disciplines
+  end
+
+  def search_by_grade_and_unity
+    @disciplines = apply_scopes(Discipline).where(teacher_discipline_classrooms: { teacher_id: current_user.teacher_id }).ordered.uniq
 
     render json: @disciplines
   end
@@ -53,5 +62,28 @@ class DisciplinesController < ApplicationController
                             .grouped_by_knowledge_area
 
     render json: disciplines.as_json
+  end
+
+  def by_classroom
+    return nil if params[:classroom_id].blank?
+
+    render json: disciplines_to_select2(params[:classroom_id])
+  end
+
+  def disciplines_to_select2(classroom_id)
+    disciplines = Discipline.by_classroom_id(classroom_id)
+                            .not_descriptor
+
+    if current_user.teacher?
+      disciplines = disciplines.by_teacher_id(current_teacher.id)
+    end
+
+    disciplines.map do |discipline|
+      OpenStruct.new(
+        id: discipline.id,
+        name: discipline.description.to_s,
+        text: discipline.description.to_s
+      )
+    end
   end
 end

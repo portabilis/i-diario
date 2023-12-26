@@ -1,4 +1,4 @@
-class CreateIeducarApiExamPostings < ActiveRecord::Migration
+class CreateIeducarApiExamPostings < ActiveRecord::Migration[4.2]
   def change
     create_table :ieducar_api_exam_postings do |t|
       t.integer :ieducar_api_configuration_id

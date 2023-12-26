@@ -1,4 +1,4 @@
-class KnowledgeAreaTeachingPlan < ActiveRecord::Base
+class KnowledgeAreaTeachingPlan < ApplicationRecord
   include Audit
   include TeacherRelationable
   include Translatable
@@ -45,10 +45,12 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
     joins(:teaching_plan).order('teaching_plans.school_term_type_step_id IS NULL')
   }
 
+  scope :order_by_grades, lambda {
+    joins(teaching_plan: :grade).order(Grade.arel_table[:description].desc)
+  }
+
   validates :teaching_plan, presence: true
   validates :knowledge_area_ids, presence: true
-
-  validate :uniqueness_of_knowledge_area_teaching_plan, if: :teaching_plan
 
   def optional_teacher
     true
@@ -96,7 +98,7 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
               .eq(teacher)
             .and(TeacherDisciplineClassroom.arel_table[:active]
               .eq('t')))
-      .uniq
+      .distinct
   end
 
   def self.by_knowledge_area(knowledge_area)
@@ -106,20 +108,5 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
           knowledge_area_id: knowledge_area
         }
       )
-  end
-
-  def uniqueness_of_knowledge_area_teaching_plan
-    return if teaching_plan.school_term_type.blank?
-
-    knowledge_area_teaching_plans = KnowledgeAreaTeachingPlan.by_year(teaching_plan.year)
-                                                             .by_unity(teaching_plan.unity)
-                                                             .by_teacher_id(teaching_plan.teacher_id)
-                                                             .by_grade(teaching_plan.grade)
-                                                             .by_school_term_type_step_id(teaching_plan.school_term_type_step_id)
-                                                             .by_knowledge_area(knowledge_areas.collect(&:id))
-
-    knowledge_area_teaching_plans = knowledge_area_teaching_plans.where.not(id: id) if persisted?
-
-    errors.add(:base, :uniqueness_of_knowledge_area_teaching_plan) if knowledge_area_teaching_plans.any?
   end
 end

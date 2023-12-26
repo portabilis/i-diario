@@ -32,8 +32,49 @@
     </div>
   </table>
 
-  <%= simple_form_for :frequency_in_batch_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
+  <%= simple_form_for @frequency_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
                       html: { class: 'smart-form daily_frequency' } do |f| %>
+
+    <div class="frequency-legend">
+      <strong>Legenda:</strong>
+
+      <div class="frequency-legend-item">
+        <label class="checkbox checkbox-frequency">
+          <input type="checkbox" checked disabled>
+          <i></i>
+        </label>
+        Presente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox checkbox-frequency partial-absence">
+          <input type="checkbox" checked disabled>
+          <i></i>
+        </label>
+        Falta parcial
+      </div>
+
+      <div class="frequency-legend-item">
+        <label class="checkbox checkbox-frequency">
+          <input type="checkbox" disabled>
+          <i></i>
+        </label>
+        Ausente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox checkbox-frequency justified">
+          <input type="checkbox" disabled>
+          <i></i>
+        </label>
+        Falta justificada
+      </div>
+
+      <a href="#" class="btn btn-primary frequency-legend-button no-confirm" data-toggle="modal" data-target="#absence-justification-modal">
+        Inserir falta justificada por período
+      </a>
+    </div>
+
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
       <th style="width: 20px; text-align: center;">Seq.</th>
@@ -136,6 +177,12 @@
       <div class="pull-right">
         <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
       </div>
+      <div class="pull-right" style="margin-right: 10px;">
+        <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+      </div>
     </footer>
   <% end %>
+
+  <%= render 'absence_justification' %>
+
 </div>

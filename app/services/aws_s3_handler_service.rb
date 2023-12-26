@@ -1,9 +1,7 @@
 class AwsS3HandlerService
   def initialize
-    aws_access_key_id = Rails.application.secrets[:DOC_UPLOADER_AWS_ACCESS_KEY_ID] ||
-      Rails.application.secrets[:AWS_ACCESS_KEY_ID]
-    aws_secret_access_key = Rails.application.secrets[:DOC_UPLOADER_AWS_SECRET_ACCESS_KEY] ||
-      Rails.application.secrets[:AWS_SECRET_ACCESS_KEY]
+    aws_access_key_id = Rails.application.secrets[:AWS_ACCESS_KEY_ID]
+    aws_secret_access_key = Rails.application.secrets[:AWS_SECRET_ACCESS_KEY]
     aws_region = Rails.application.secrets[:DOC_UPLOADER_AWS_REGION] || Rails.application.secrets[:AWS_REGION]
 
     aws_credentials = Aws::Credentials.new(aws_access_key_id, aws_secret_access_key)
@@ -18,6 +16,7 @@ class AwsS3HandlerService
     rescue Exception => error
       Honeybadger.context(object_name: object.class, object_id: object.id, source: uri_escape(source), target: target)
       Honeybadger.notify(error)
+      raise
     end
   end
 

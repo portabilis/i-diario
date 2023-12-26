@@ -34,6 +34,14 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :require_daily_activities_record do %>
+            <%= f.input_field :require_daily_activities_record, collection: RequireDailyActivitiesRecordTypes %>
+            <i></i>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :display_header_on_all_reports_pages, label: false, inline_label: true %>
         </div>
         <div class="col col-sm-6">
@@ -57,7 +65,38 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :allows_copy_experience_fields_in_lesson_plans, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :remove_lesson_plan_objectives, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_experience_fields, label: false, inline_label: true %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_inactive_enrollments, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_percentage_on_attendance_record_report, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :do_not_send_justified_absence, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row <%= 'hidden' unless Rails.application.secrets[:STUDENT_DOMAIN] %>">
@@ -75,12 +114,17 @@
           <%= f.input :type_of_teaching, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :group_children_education, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
       <div class="row margin-top-10" id="types_of_teaching_container">
         <div class='col col-xs-12 col-sm-12 col-md-6'>
           <div style="float:right;">
         </div>
         <%= f.input :types_of_teaching, as: :select2, elements: TypesOfTeaching.to_select(false).to_json, multiple: true, required: false,
-            input_html: { value: f.object.types_of_teaching.join(','), data: { without_json_parser: true } }  %>  
+            input_html: { value: f.object.types_of_teaching.join(','), data: { without_json_parser: true } }  %>
         </div>
       </div>
       <div class="row">

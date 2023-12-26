@@ -64,6 +64,9 @@ class AvaliationExemption < ActiveRecord::Base
     joins(avaliation: [{ classroom: { classrooms_grades: :grade } }])
     .where('unaccent(grades.description) ILIKE unaccent(?)', "%#{grade_description}%" )
   }
+  scope :by_grade_id, lambda { |grade_ids|
+    joins(avaliation: [{ classroom: { classrooms_grades: :grade } }]).where(grades: { id: grade_ids })
+  }
 
   scope :by_classroom_description, lambda { |classroom_description|
     joins(avaliation: :classroom)

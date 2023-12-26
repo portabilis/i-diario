@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   acts_as_copy_target
 
   audited allow_mass_assignment: true,
@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   after_save :update_fullname_tokens
+  before_save :remove_spaces_from_name
 
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
@@ -84,7 +85,7 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name)}%") }
+  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name.squish)}%") }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :by_cpf, lambda { |cpf|
@@ -113,7 +114,8 @@ class User < ActiveRecord::Base
       'Status',
       'Aluno vinculado',
       'Professor Vinculado',
-      'Permissões'
+      'Permissões',
+      'Data de expiração'
     ]
 
     CSV.generate(headers: true) do |csv|
@@ -130,7 +132,8 @@ class User < ActiveRecord::Base
           I18n.t("enumerations.user_status.#{user.status}"),
           user.student,
           user.teacher,
-          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact },
+          user.expiration_date&.strftime("%d/%m/%Y")
         ]
       end
     end
@@ -417,6 +420,10 @@ class User < ActiveRecord::Base
     @access_levels ||= roles.map(&:access_level).uniq
   end
 
+  def is_admin_email?
+    email.eql?(Rails.application.secrets.admin_email)
+  end
+
   protected
 
   def teacher_access_level?
@@ -492,5 +499,10 @@ class User < ActiveRecord::Base
                             .any?
       errors.add(:email, :invalid_email)
     end
+  end
+
+  def remove_spaces_from_name
+    write_attribute(:first_name, first_name.squish) if first_name.present?
+    write_attribute(:last_name, last_name.squish) if last_name.present?
   end
 end

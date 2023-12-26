@@ -15,25 +15,25 @@
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+          <%= f.input :unity_id, as: :select2, elements: @unities, user: current_user, readonly: !current_user.admin? %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
-                input_html: { value: @attendance_record_report_form.classroom_id } %>
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user,
+                input_html: { value: @attendance_record_report_form.classroom_id }%>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :period, as: :select2_period, user: current_user %>
+          <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2 3]).to_json,
+                label: "Período", readonly: @period != Periods::FULL %>
         </div>
       </div>
-
 
       <div class="row hide-when-global-absence">
         <%= f.input :current_teacher_id, as: :hidden, input_html: { value: current_teacher.try(:id) } %>
 
         <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines, user: current_user,
                 classroom_id: @attendance_record_report_form.classroom_id,
                 required: true, input_html: { value: @attendance_record_report_form.discipline_id } %>
         </div>
@@ -43,7 +43,9 @@
             <a href="#" style="text-decoration:none;" id="select-all-classes"><%= t('.select_all') %></a>
             <a href="#" style="display: none;text-decoration:none;" id="deselect-all-classes"><%= t('.deselect_all') %></a>
           </div>
-          <%= f.input :class_numbers, as: :select2, multiple: true, elements: number_of_classes_elements(@number_of_classes), label_html: { class: 'required' }, input_html: { value: @attendance_record_report_form.class_numbers, data: { without_json_parser: true } } %>
+          <%= f.input :class_numbers, as: :select2, multiple: true, elements: number_of_classes_elements(@number_of_classes),
+                label_html: { class: 'required' },
+                input_html: { value: @attendance_record_report_form.class_numbers, data: { without_json_parser: true } } %>
         </div>
       </div>
 
@@ -66,10 +68,7 @@
 
     <footer>
       <div class="pull-right">
-        <%= f.submit 'Imprimir', class: 'btn btn-primary pull-right' %>
-      </div>
-      <div class="pull-right" style="margin-right: 10px;">
-        <%= f.input :display_knowledge_area_as_discipline, as: :boolean, label: false, inline_label: true %>
+        <%= f.submit 'Imprimir', class: 'btn btn-primary pull-right', id: 'send-form' %>
       </div>
     </footer>
   <% end %>

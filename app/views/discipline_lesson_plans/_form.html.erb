@@ -1,5 +1,6 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
+  <%= javascript_include_tag 'summernote' %>
   <%= javascript_include_tag 'views/discipline_lesson_plans/form' %>
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
@@ -15,7 +16,10 @@
 
     <fieldset>
     <% if action_name != 'show' %>
-      <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'disciplines' %>
+      <%= render 'teaching_plans/diciplines_modal', f: lesson_plan %>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        <%= render 'teaching_plans/experience_fields_modal', f: lesson_plan %>
+      <% end %>
     <% end %>
       <div class="row">
         <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
@@ -23,8 +27,13 @@
         <%= render partial: 'lesson_plans/classroom_field', locals: { f: lesson_plan } %>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user,
-                classroom_id: @discipline_lesson_plan.lesson_plan.classroom_id %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.association :discipline, as: :select2_discipline, user: current_user,
+              classroom_id: @discipline_lesson_plan.lesson_plan.classroom_id %>
+          <% else %>
+            <%= f.association :discipline, as: :select2, elements: @disciplines,
+               user: current_user, record: f.object, readonly: ['show', 'edit'].include?(action_name) %>
+          <% end %>
         </div>
       </div>
 
@@ -36,7 +45,7 @@
         </div>
       </div>
     </fieldset>
-    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan } %>
+    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan, modal_id: '#disciplines-modal' } %>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 

@@ -7,33 +7,44 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       example.run
     end
   end
+  before(:each) do
+    TeachingPlan.any_instance.stub(:yearly?).and_return(false)
+  end
   let(:user) do
     create(
       :user_with_user_role,
       admin: false,
       teacher_id: current_teacher.id,
-      current_unity_id: unity.id,
+      current_unity_id: classroom.unity_id,
       current_school_year: classroom.year,
       current_classroom_id: classroom.id,
       current_discipline_id: discipline.id
     )
   end
+  let(:school_calendar) do
+    create(
+      :school_calendar,
+      year: classroom.year,
+      unity: classroom.unity
+    )
+  end
   let(:user_role) { user.user_roles.first }
-  let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
   let(:other_teacher) { create(:teacher) }
-  let(:classroom) { create(:classroom) }
+  let(:classroom) { create(:classroom, :score_type_numeric) }
   let(:discipline) { create(:discipline) }
-  let(:school_term_type) { create(:school_term_type) }
-  let(:school_term_type_step) { create(:school_term_type_step) }
+  let(:school_term_type) { create(:school_term_type, description: 'Anual') }
+  let(:school_term_type_step) { create(:school_term_type_step, school_term_type: school_term_type) }
   let(:current_teacher_teaching_plan) {
     create(
       :teaching_plan,
       :with_teacher_discipline_classroom,
       teacher: current_teacher,
-      unity: unity,
+      unity: classroom.unity,
       year: classroom.year,
-      grade: classroom.grade
+      grade: classroom.classrooms_grades.first.grade,
+      school_term_type: school_term_type,
+      school_term_type_step: school_term_type_step
     )
   }
   let(:other_teacher_teaching_plan) {
@@ -41,9 +52,11 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       :teaching_plan,
       :with_teacher_discipline_classroom,
       teacher: other_teacher,
-      unity: unity,
+      unity: classroom.unity,
       year: classroom.year,
-      grade: classroom.grade
+      grade: classroom.classrooms_grades.first.grade,
+      school_term_type: school_term_type,
+      school_term_type_step: school_term_type_step
     )
   }
   let(:current_teacher_discipline_teaching_plan) {
@@ -60,12 +73,13 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       discipline: discipline
     )
   }
-  let!(:teacher_discipline_classroom) {
+  let(:teacher_discipline_classroom) {
     create(
       :teacher_discipline_classroom,
       teacher: current_teacher,
       discipline: discipline,
-      classroom: classroom
+      classroom: classroom,
+      grade: classroom.classrooms_grades.first.grade
     )
   }
   let(:params) {
@@ -76,8 +90,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
         teaching_plan_attributes: {
           id: '',
           year: classroom.year,
-          unity_id: unity.id,
-          grade_id: classroom.grade.id,
+          unity_id: classroom.unity_id,
+          grade_id: classroom.classrooms_grades.first.grade_id,
           school_term_type_id: school_term_type.id,
           school_term_type_step_id: school_term_type_step.id,
           teacher_id: current_teacher.id,
@@ -90,9 +104,11 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   }
 
   before do
-    skip
-
-    user_role.unity = unity
+    school_term_type
+    school_term_type_step
+    school_calendar
+    teacher_discipline_classroom
+    user_role.unity = classroom.unity
     user_role.save!
 
     user.current_user_role = user_role
@@ -105,7 +121,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     request.env['REQUEST_PATH'] = '/discipline_teaching_plans'
   end
 
-  describe 'GET discipline_teaching_plans#index' do
+  describe 'POST discipline_teaching_plans#index' do
     before(:each) do
       allow(controller).to receive(:fetch_grades).and_return([])
       allow(controller).to receive(:fetch_disciplines).and_return([])
@@ -113,7 +129,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
     context 'without author filter' do
       before do
-        get :index, locale: 'pt-BR', filter: { by_author: '' }
+        post :index, params: { locale: 'pt-BR', filter: { by_author: '' } }
       end
 
       it 'lists all plans' do
@@ -127,7 +143,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     context 'with author filter' do
       context 'when the author is the current teacher' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::MY_PLANS }
+          get :index, params: { locale: 'pt-BR', filter: { by_author: PlansAuthors::MY_PLANS } }
         end
 
         it 'lists the current teacher plans' do
@@ -137,7 +153,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
       context 'when the author is other teacher' do
         before do
-          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::OTHERS }
+          get :index, params: { locale: 'pt-BR', filter: { by_author: PlansAuthors::OTHERS } }
         end
 
         it 'lists the other teachers plans' do
@@ -151,15 +167,16 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     context 'without success' do
       it 'fails to create and renders the new template' do
         allow(controller).to receive(:fetch_collections).and_return([])
+        allow(controller).to receive(:yearly_term_type_id).and_return(1)
         params[:discipline_teaching_plan][:discipline_id] = nil
-        expect { post :create, params.merge(params) }.to_not change(DisciplineTeachingPlan, :count)
+        expect { post :create, params: params.merge(params) }.to_not change(DisciplineTeachingPlan, :count)
         expect(response).to render_template(:new)
       end
     end
 
     context 'with success' do
       it 'creates and redirects to discipline_teaching_plans#index' do
-        expect { post :create, params.merge(params) }.to change(DisciplineTeachingPlan, :count).by(1)
+        expect { post :create, params: params.merge(params)  }.to change(DisciplineTeachingPlan, :count).by(1)
         expect(response).to redirect_to(discipline_teaching_plans_path)
       end
     end

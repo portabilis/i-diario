@@ -14,12 +14,45 @@
       <td><%= @daily_frequencies.first.classroom.unity %></td>
       <td><%= @daily_frequencies.first.classroom %></td>
       <td><%= @daily_frequencies.first.discipline || 'Todas' %></td>
-      <td><%= @daily_frequencies.first.frequency_date %></td>
+      <td><%= l(@daily_frequencies.first.frequency_date) %></td>
     </tbody>
   </table>
 
   <%= simple_form_for @daily_frequency, url: create_or_update_multiple_daily_frequencies_path, method: :put,
     html: { class: 'smart-form daily_frequency' } do |f| %>
+
+    <div class="frequency-legend">
+      <strong>Legenda:</strong>
+
+      <div class="frequency-legend-item">
+        <label class="checkbox checkbox-frequency">
+          <input type="checkbox" checked disabled>
+          <i></i>
+        </label>
+        Presente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label class="checkbox checkbox-frequency">
+          <input type="checkbox" disabled>
+          <i></i>
+        </label>
+        Ausente
+      </div>
+
+      <div class="frequency-legend-item">
+        <label title="" class="checkbox checkbox-frequency justified">
+          <input type="checkbox" disabled>
+          <i></i>
+        </label>
+        Falta justificada
+      </div>
+
+      <a href="#" class="btn btn-primary frequency-legend-button no-confirm" data-toggle="modal" data-target="#absence-justification-modal">
+        Inserir falta justificada por período
+      </a>
+    </div>
+
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
         <th style="width: 65px;">Sequencial</th>
@@ -44,28 +77,23 @@
         <%= f.hidden_field :discipline_id %>
         <%= f.hidden_field :period %>
         <% sequence = 0 %>
-        <% @normal_students.each do |normal_student| %>
-          <% sequence += 1 %>
-          <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline],
-            student: normal_student[:student], sequence: sequence, dependence: false,
-            active: normal_student[:active],
-            in_active_search: normal_student[:in_active_search]
-          %>
-        <% end %>
-
-        <% sequence = 0 %>
-        <% if @dependence_students.any? %>
-          <% @dependence_students.each do |dependence_student| %>
-            <% sequence += 1 %>
-            <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline],
-              student: dependence_student[:student], sequence: sequence, dependence: true,
-              active: dependence_student[:active],
-              in_active_search: dependence_student[:in_active_search]
-            %>
+          <% @students.each do |student| %>
+            <% if student[:sequence] %>
+              <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+                student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
+                active: student[:active], in_active_search: student[:in_active_search],
+                absence_justification: student[:absence_justification]
+              %>
+            <% else %>
+              <% sequence += 1 %>
+              <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+                student: student[:student], sequence: sequence, dependence: student[:dependence],
+                active: student[:active], in_active_search: student[:in_active_search],
+                absence_justification: student[:absence_justification]
+              %>
+            <% end %>
           <% end %>
-        <% end %>
-
-        <% if @dependence_students.any? %>
+        <% if @dependence_students %>
           <tr>
             <td colspan="<%= 2 + @daily_frequencies.count %>">
               <span class="daily-note-student-legend">
@@ -73,8 +101,7 @@
               </span>
             </td>
           </tr>
-        <% end %>
-
+      <% end %>
         <% if @any_inactive_student %>
           <tr>
             <td colspan="<%= 2 + @daily_frequencies.count %>">
@@ -152,4 +179,7 @@
       </div>
     </footer>
   <% end %>
+
+  <%= render 'absence_justification' %>
+
 </div>

@@ -1,4 +1,4 @@
-class AddFinalRecoveryMaximumScoreOnExamRules < ActiveRecord::Migration
+class AddFinalRecoveryMaximumScoreOnExamRules < ActiveRecord::Migration[4.2]
   def change
     add_column :exam_rules, :final_recovery_maximum_score, :integer
 
