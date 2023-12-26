@@ -1,7 +1,6 @@
 class DescriptiveExamsController < ApplicationController
   before_action :require_current_classroom
   before_action :require_teacher
-  before_action :adjusted_period, only: [:edit, :update]
   before_action :require_allow_to_modify_prev_years, only: :update
   before_action :view_data, only: [:edit, :show]
 
@@ -47,10 +46,11 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam.assign_attributes(resource_params)
     @descriptive_exam.step_id = find_step_id unless opinion_type_by_year?
     @descriptive_exam.teacher_id = current_teacher_id
+    adjusted_period
 
     regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
-      value_by_student = resource_params[:students_attributes].values.detect do |student| 
+      value_by_student = resource_params[:students_attributes].values.detect do |student|
         student[:student_id] == exam_student.student_id.to_s
       end
       exam_student.value = value_by_student['value']
@@ -325,16 +325,19 @@ class DescriptiveExamsController < ApplicationController
     (@students || []).any?(&:exempted_from_discipline)
   end
 
-  def current_teacher_period
+  def current_teacher_period(classroom_id, discipline_id)
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user.current_classroom_id,
-      current_user.current_discipline_id
+      classroom_id,
+      discipline_id
     ).teacher_period
   end
 
   def adjusted_period
-    teacher_period = current_teacher_period
+    teacher_period = current_teacher_period(
+      @descriptive_exam.classroom_id,
+      @descriptive_exam.discipline_id,
+    )
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
 
@@ -362,6 +365,7 @@ class DescriptiveExamsController < ApplicationController
 
     authorize @descriptive_exam
 
+    adjusted_period
     fetch_students
   end
 end
