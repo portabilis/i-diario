@@ -40,6 +40,8 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
     enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+    enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
+
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
     # Nao filtra as enturmacoes caso municipio tenha DATABASE
@@ -81,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def search_by_search_type(enrollment_classrooms)
-    return enrollment_classrooms if include_date_range.present?
+    return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
       enrollments_on_period = enrollment_classrooms.by_date(date)
@@ -97,19 +99,29 @@ class StudentEnrollmentClassroomsRetriever
   def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
+    enrollment_classrooms_unique = []
+
     enrollment_classrooms.each do |enrollment_classroom|
       student_id = enrollment_classroom.student_enrollment.student_id
 
-      student_enrollment_for_student = enrollment_classrooms.select do |ec|
+      enrollment_classrooms_for_student = enrollment_classrooms.select do |ec|
         ec.student_enrollment.student_id == student_id
       end
 
-      if student_enrollment_for_student.count > 1
-        enrollment_classrooms.delete(student_enrollment_for_student.first)
+      if enrollment_classrooms_for_student.count > 1
+        add_enrollment_classrooms(enrollment_classrooms_unique, enrollment_classrooms_for_student)
+      else
+        enrollment_classrooms_unique << enrollment_classrooms_for_student
       end
     end
 
-    enrollment_classrooms
+    enrollment_classrooms_unique = enrollment_classrooms_unique.flatten
+  end
+
+  def add_enrollment_classrooms(enrollment_classrooms, enrollment_classrooms_for_student)
+    return if enrollment_classrooms.include?(enrollment_classrooms_for_student.last)
+
+    enrollment_classrooms << enrollment_classrooms_for_student.last
   end
 
   def show_inactive_enrollments

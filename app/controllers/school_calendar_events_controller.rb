@@ -24,7 +24,16 @@ class SchoolCalendarEventsController < ApplicationController
 
     authorize resource
 
-    SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days(resource.start_date, resource.end_date) if resource.valid?
+    if resource.valid?
+      SchoolCalendarEventDays.update_school_days(
+        [school_calendar],
+        [resource],
+        action_name,
+        resource.start_date,
+        resource.end_date
+      )
+    end
+
     if resource.save
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
@@ -50,8 +59,15 @@ class SchoolCalendarEventsController < ApplicationController
     end
 
     if resource.save
-      SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days(old_start_date, old_end_date) if dates_changed
-
+      if dates_changed
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendar],
+          [resource],
+          action_name,
+          old_start_date,
+          old_end_date
+        )
+      end
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates
@@ -62,7 +78,10 @@ class SchoolCalendarEventsController < ApplicationController
   def destroy
     authorize resource
 
-    SchoolCalendarEventDays.new([school_calendar], [resource], action_name).update_school_days
+    SchoolCalendarEventDays.update_school_days(
+      [school_calendar], [resource], action_name
+    )
+
     resource.destroy
 
     respond_with resource, location: school_calendar_school_calendar_events_path

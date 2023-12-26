@@ -26,7 +26,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
-  scope :by_date_not_after, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
+  scope :by_left_at_date, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grade).where(classrooms_grades: { grade_id: grade_id }) }
@@ -39,7 +39,38 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
   scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
+  scope :by_opinion_type, lambda { |opinion_type, classrooms| by_opinion_type_query(opinion_type, classrooms) }
+
   delegate :student_id, to: :student_enrollment, allow_nil: true
+
+  def self.by_opinion_type_query(opinion_type, classrooms)
+    return where(nil) unless opinion_type.present? && classrooms.present?
+
+    classrooms_grades = ClassroomsGrade.by_classroom_id(classrooms)
+                                       .includes(student_enrollment_classrooms: [student_enrollment: :student])
+                                       .includes(exam_rule: :differentiated_exam_rule)
+
+    students_by_opinion_type = []
+
+    classrooms_grades.each do |classroom_grade|
+      is_exam_rule_opinion_type = classroom_grade.exam_rule.opinion_type.eql?(opinion_type)
+      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule&.opinion_type.eql?(opinion_type) ||
+        is_exam_rule_opinion_type
+
+      classroom_grade.student_enrollment_classrooms.each do |student_enrollment_classroom|
+        differentiated = student_enrollment_classroom.student_enrollment
+                                                     .student
+                                                     .uses_differentiated_exam_rule
+        if differentiated && differentiated_exam_rule
+          students_by_opinion_type << student_enrollment_classroom.id
+        elsif is_exam_rule_opinion_type && !differentiated
+          students_by_opinion_type << student_enrollment_classroom.id
+        end
+      end
+    end
+
+    self.where(id: students_by_opinion_type)
+  end
 
   def self.by_date_range(start_at, end_at)
     conditions = <<-SQL.squish
@@ -61,9 +92,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
       CASE
         WHEN :period = 4 THEN TRUE
         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
-          student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
+          student_enrollment_classrooms.period NOT IN (2, 3)
+            OR student_enrollment_classrooms.period IS NULL
         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
-          student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
+          student_enrollment_classrooms.period NOT IN (1, 3)
+            OR student_enrollment_classrooms.period IS NULL
         ELSE
           COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
       END

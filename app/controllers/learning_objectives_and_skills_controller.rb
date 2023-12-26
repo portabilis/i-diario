@@ -5,6 +5,16 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def index
     @learning_objectives_and_skills = apply_scopes(LearningObjectivesAndSkill.ordered)
 
+    group_children_education = GeneralConfiguration.current.group_children_education
+
+    if group_children_education
+      @grades = GroupChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
+                AdultAndYouthEducations.to_select[1..-1]
+    else
+      @grades = ChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
+                AdultAndYouthEducations.to_select[1..-1]
+    end
+
     authorize @learning_objectives_and_skills
   end
 
@@ -22,12 +32,19 @@ class LearningObjectivesAndSkillsController < ApplicationController
     if @learning_objectives_and_skill.save
       respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path
     else
+      @grades = ListGradesByStepBuilder.call(
+        @learning_objectives_and_skill.step
+      ).to_json
       render :new
     end
   end
 
   def edit
     @learning_objectives_and_skill = LearningObjectivesAndSkill.find(params[:id])
+
+    @grades = ListGradesByStepBuilder.call(
+      @learning_objectives_and_skill.step
+    ).to_json
 
     authorize @learning_objectives_and_skill
   end
@@ -40,6 +57,10 @@ class LearningObjectivesAndSkillsController < ApplicationController
     if @learning_objectives_and_skill.update(learning_objectives_and_skills_params)
       respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path
     else
+      @grades = ListGradesByStepBuilder.call(
+        @learning_objectives_and_skill.step
+      ).to_json
+
       render :edit
     end
   end
@@ -76,11 +97,18 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     query.each do |skill|
       @contents << {
+        id: skill.id,
         description: "(#{skill.code}) #{skill.description}"
       }
     end
 
     respond_with(contents: @contents)
+  end
+
+  def fetch_grades
+    return if params[:step].blank?
+
+    render json: ListGradesByStepBuilder.call(params[:step], false)
   end
 
   private
@@ -96,10 +124,9 @@ class LearningObjectivesAndSkillsController < ApplicationController
       :grades
     )
 
-    child_educations = params.require(:learning_objectives_and_skill)[:child_educations]
-    elementary_educations = params.require(:learning_objectives_and_skill)[:elementary_educations]
+    return parameters if parameters[:step].blank?
 
-    parameters[:grades] = elementary_educations.split(',') + child_educations.split(',')
+    parameters[:grades] = params.require(:learning_objectives_and_skill)[:grades].split(',')
     parameters
   end
 

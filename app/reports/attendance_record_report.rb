@@ -16,7 +16,9 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    students_frequencies_percentage
+    students_frequencies_percentage,
+    current_user,
+    classroom_id
   )
     new(:landscape)
       .build(entity_configuration,
@@ -29,7 +31,10 @@ class AttendanceRecordReport < BaseReport
              events,
              school_calendar,
              second_teacher_signature,
-             students_frequencies_percentage)
+             students_frequencies_percentage,
+             current_user,
+             classroom_id)
+
   end
 
   def build(
@@ -43,10 +48,12 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    students_frequencies_percentage
+    students_frequencies_percentage,
+    current_user,
+    classroom_id
   )
     @entity_configuration = entity_configuration
-    @teacher = teacher
+    @teacher = set_teacher(teacher, classroom_id, current_user)
     @year = year
     @start_at = start_at
     @end_at = end_at
@@ -134,7 +141,7 @@ class AttendanceRecordReport < BaseReport
     end
 
     student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
-      student_enrollment[:student_enrollment_id]
+      student_enrollment[:student_enrollment].id
     }
 
     active_searches = active_searches_by_range(daily_frequencies, student_enrollment_ids)
@@ -487,7 +494,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def active_searches_by_range(daily_frequencies, student_enrollment_ids)
-    dates = daily_frequencies.map(&:frequency_date)
+    dates = daily_frequencies.map(&:frequency_date).uniq
 
     ActiveSearch.new.in_active_search_in_range(student_enrollment_ids, dates)
   end
@@ -569,5 +576,12 @@ class AttendanceRecordReport < BaseReport
     return true if @events.empty?
 
     @events.detect { |event| event[:date].eql?(date) && event[:type].eql?(EventTypes::NO_SCHOOL) }.blank?
+  end
+
+  def set_teacher(teacher, classroom_id, current_user)
+    return teacher unless current_user.current_role_is_admin_or_employee?
+    return teacher if teacher.daily_frequencies.where(classroom_id: classroom_id).any?
+
+    Classroom.find(classroom_id).teacher_discipline_classrooms.first.teacher
   end
 end

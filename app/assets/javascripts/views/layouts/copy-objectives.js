@@ -22,10 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const addElement = (description) => {
-    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
+  const addElement = (content) => {
+    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+content['description']+'"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
-        description: description,
+        id: content['id'],
+        description: content['description'],
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -54,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     requestContents(selectedItens).then(data => {
       data['contents'].forEach(content => {
-        addElement(content['description']);
+        addElement(content);
       });
 
       $('#confirm-copy-objectives-modal').modal('hide');
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     requestContents(selectedItens, 'disciplines').then(data => {
       data['contents'].forEach(content => {
-        addElement(content['description']);
+        addElement(content);
       });
 
       $('#disciplines-modal').modal('hide');
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     requestContents(selectedItens, 'experience').then(data => {
       data['contents'].forEach(content => {
-        addElement(content['description']);
+        addElement(content);
       });
 
       $('#experience-modal').modal('hide');

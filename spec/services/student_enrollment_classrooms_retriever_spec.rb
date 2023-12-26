@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   let(:exam_rule_both) { create(:exam_rule, score_type: ScoreTypes::NUMERIC_AND_CONCEPT) }
-  let(:classroom) { create(:classroom, period: Periods::VESPERTINE, year: '2023') }
-  let(:classroom_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule_both) }
-  let(:discipline) { create(:discipline) }
-  let(:student_enrollment_classrooms) {
+  let!(:classroom) { create(:classroom, period: Periods::VESPERTINE, year: '2023') }
+  let!(:classroom_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule_both) }
+  let!(:discipline) { create(:discipline) }
+  let!(:student_enrollment_classrooms) {
     create_list(
       :student_enrollment_classroom,
       3,
@@ -14,13 +14,6 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       left_at: '2023-12-12'
     )
   }
-
-  before do
-    classroom
-    classroom_grade
-    discipline
-    student_enrollment_classrooms
-  end
 
   context 'when the params are correct' do
     subject(:list_enrollment_classrooms) {
@@ -289,7 +282,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
   end
 
-  describe 'the client works with DATA BASE' do
+  describe 'when the client works with DATA BASE' do
     before do
       # DATA BASE=(show_as_inactive_when_not_in_date:TRUE)
       create_student_enrollment_classrooms_with_status_and_date_base
@@ -354,7 +347,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
   end
 
-  describe 'the client does not works with DATA BASE' do
+  describe 'when the client does not works with DATA BASE' do
     before do
       # DATA BASE=(show_as_inactive_when_not_in_date:FALSE)
       create_student_enrollment_classrooms_with_status_without_date_base
@@ -411,10 +404,9 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       }
 
       it 'should return student_enrollment_classrooms with all status' do
-        transferred = @enrollment_classroom_inactive.student_enrollment.status
         studying = @enrollment_classroom_active.student_enrollment.status
 
-        expect(status).to match_array([studying, transferred])
+        expect(status).to match_array([studying])
       end
     end
   end
@@ -591,6 +583,45 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when with_recovery_note_in_step params exist'
+
+  context 'when have students and classroom with different exam rules' do
+    it 'should only return enrollment_classrooms with the differentiated exam rule' do
+      create_differentiated_exam_rule
+      create_student_with_differentiated_exam_rule
+
+      list_enrollment_classrooms = StudentEnrollmentClassroomsRetriever.call(
+        classrooms: classroom,
+        disciplines: discipline,
+        search_type: :by_date_range,
+        start_at: '2023-05-17',
+        end_at: '2023-10-03',
+        opinion_type: '3'
+      )
+
+      student_with_differentiated_exam_rule = list_enrollment_classrooms.map { |ec|
+        ec[:student_enrollment_classroom].student_enrollment.student.uses_differentiated_exam_rule
+      }
+      expect(student_with_differentiated_exam_rule).to eq([true])
+    end
+  end
+end
+
+def create_differentiated_exam_rule
+  differentiated_exam_rule = create(:exam_rule, opinion_type: '3')
+  exam_rule_default = create(:exam_rule, differentiated_exam_rule: differentiated_exam_rule)
+  classroom_grade.update(exam_rule: exam_rule_default)
+end
+
+def create_student_with_differentiated_exam_rule
+  student = create(:student, uses_differentiated_exam_rule: true)
+  student_enrollment = create(:student_enrollment, student: student)
+  enrollment_classroom = create(
+    :student_enrollment_classroom,
+    student_enrollment: student_enrollment,
+    classrooms_grade: classroom_grade,
+    joined_at: '2023-02-02',
+    left_at: ''
+  )
 end
 
 def create_student_enrollment_classrooms_with_status_and_date_base

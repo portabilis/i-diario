@@ -79,9 +79,14 @@ class ConceptualExam < ActiveRecord::Base
     discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
                                                .by_teacher_id(teacher_id)
                                                .pluck(:discipline_id)
-    incomplete_conceptual_exams_ids = ConceptualExamValue.joins(:conceptual_exam).active
-                                                         .where(value: nil)
+
+    exempted_discipline_ids = SpecificStep.where(classroom_id: classroom_id)
+                                          .where.not(used_steps: '')
+                                          .pluck(:discipline_id)
+
+    incomplete_conceptual_exams_ids = ConceptualExamValue.joins(:conceptual_exam).active.where(value: nil)
                                                          .where(conceptual_exams: { classroom_id: classroom_id })
+                                                         .where.not(discipline_id: exempted_discipline_ids)
                                                          .by_discipline_id(discipline_ids)
                                                          .group(:conceptual_exam_id)
                                                          .pluck(:conceptual_exam_id)
@@ -93,6 +98,7 @@ class ConceptualExam < ActiveRecord::Base
       where.not(arel_table[:id].in(incomplete_conceptual_exams_ids))
     end
   end
+
 
   def status
     discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)

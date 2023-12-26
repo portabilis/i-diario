@@ -20,14 +20,5 @@ class LearningObjectivesAndSkill < ApplicationRecord
 
   validates :description, presence: true
   validates :step, presence: true
-  validates :child_educations, presence: true, if: :child_school?
-  validates :elementary_educations, presence: true, if: :elementary_school?
-
-  def child_educations
-    grades
-  end
-
-  def elementary_educations
-    grades
-  end
+  validates :grades, presence: true
 end

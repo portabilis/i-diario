@@ -15,9 +15,11 @@
     <td class="old_step_column"><%= step[:values]["#{f.object.discipline_id}"] || '-' %></td>
   <% end %>
   <td>
-    <%= f.input :value, as: :select2,
-          elements: f.object.decorator.data_for_select2,
-          label_html: { class: 'hidden' },
-          readonly: (f.object.exempted_discipline.to_s == 'true') || action_name == "show" %>
+    <% if @conceptual_exam.student.present? %>
+      <%= f.input :value, as: :select2,
+            elements: f.object.decorator.data_for_select2,
+            label_html: { class: 'hidden' },
+            readonly: (f.object.exempted_discipline.to_s == 'true') || action_name == "show" %>
+    <% end %>
   </td>
 </tr>

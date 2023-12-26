@@ -21,12 +21,22 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
+        <% else %>
+          <%= f.association :classroom, as: :select2, elements: @classrooms,
+                            user: current_user, record: f.object, readonly: action_name.eql?('edit') %>
+        <% end %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
-                classroom_id: @avaliation.classroom_id %>
+        <% if current_user.current_role_is_admin_or_employee? %>
+          <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
+                            classroom_id: @avaliation.classroom_id %>
+        <% else %>
+          <%= f.association :discipline, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+                             classroom_id: @avaliation.classroom_id, readonly: action_name.eql?('edit')%>
+        <% end %>
       </div>
     </div>
 
@@ -54,11 +64,11 @@
 
     <div class="row">
       <div class="col col-sm-4">
-           <%= f.association :grades, as: :select2, elements: grades, multiple: true, required: true,
-               input_html: {
-                 value: f.object.grade_ids.join(',').presence || grades.first.id,
-                 data: { without_json_parser: true }
-            }%>
+        <%= f.association :grades, as: :select2, elements: @grades, multiple: true, required: true,
+                          input_html: {
+                            value: f.object.grade_ids.join(',').presence || @grades.map{ |g| g.id }.sort.join(','),
+                            data: { without_json_parser: true }
+                          }%>
       </div>
     </div>
 
