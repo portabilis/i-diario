@@ -8,6 +8,7 @@ pt-BR:
       edit: "Editar"
       delete: "Excluir"
       confirm: "Ao excluir, a frequência vinculada será alterada para falta nas aulas e dias definidos na justificativa.Você tem certeza?"
+      confirm_deletion: Tem certeza que deseja excluir? Ao prosseguir todos os dados vinculados ao registro serão permanentemente removidos.
 
       tooltips:
         print: "Imprimir"

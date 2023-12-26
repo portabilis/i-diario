@@ -39,24 +39,28 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
       set_options_by_user
-      number_of_decimal_places
-      decorate_students(fetch_students_in_final_recovery)
       fetch_disciplines_by_classroom
+      number_of_decimal_places
+
+      students_in_final_recovery = fetch_final_recoveries_by_classroom
+      decorate_students(students_in_final_recovery)
 
       render :new
     end
   end
 
   def edit
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
+
     set_options_by_user
     fetch_disciplines_by_classroom
 
-    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
-
     authorize @final_recovery_diary_record
 
-    students_in_final_recovery = fetch_students_in_final_recovery
+    students_in_final_recovery = fetch_final_recoveries_by_classroom
+
     add_missing_students(students_in_final_recovery)
+
     @final_recovery_diary_record.recovery_diary_record.students.each do |record_student|
       record_student.student = fetch_student_in_final_recovery(record_student.student.id)
     end
@@ -72,7 +76,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     authorize @final_recovery_diary_record
 
-    students_in_final_recovery = fetch_students_in_final_recovery
+    fetch_final_recoveries_by_classroom
 
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
@@ -154,13 +158,31 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     Discipline.where(id: current_user_discipline.id).ordered
   end
 
-  def fetch_students_in_final_recovery(student_id = nil)
+  def fetch_final_recoveries_by_classroom
     classroom_id = @final_recovery_diary_record.recovery_diary_record.classroom_id
     discipline_id = @final_recovery_diary_record.recovery_diary_record.discipline_id
 
-    return unless classroom_id && discipline_id && student_id
+    return unless classroom_id && discipline_id
 
-    StudentsInFinalRecoveryFetcher.new(api_configuration).fetch(classroom_id, discipline_id, student_id)
+    StudentsInFinalRecoveryFetcher.new(api_configuration)
+      .fetch(
+        @final_recovery_diary_record.recovery_diary_record.classroom_id,
+        @final_recovery_diary_record.recovery_diary_record.discipline_id
+      )
+  end
+
+  def fetch_student_in_final_recovery(student_id)
+    classroom_id = @final_recovery_diary_record.recovery_diary_record.classroom_id
+    discipline_id = @final_recovery_diary_record.recovery_diary_record.discipline_id
+
+    return unless classroom_id && discipline_id
+
+    StudentInFinalRecoveryFetcher.new(api_configuration)
+      .fetch(
+        @final_recovery_diary_record.recovery_diary_record.classroom_id,
+        @final_recovery_diary_record.recovery_diary_record.discipline_id,
+        student_id
+      )
   end
 
   def add_missing_students(students_in_final_recovery)
@@ -204,12 +226,10 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= fetch_classrooms
-      @disciplines ||= fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= fetch_classrooms
+    @disciplines ||= fetch_disciplines
   end
 
   def fetch_linked_by_teacher

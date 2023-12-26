@@ -19,7 +19,7 @@ $(function () {
     }
   };
 
-  $('#avaliation_classroom_id').on('change', async function (e) {
+  $classroom_id.on('change', async function (e) {
     await getTestSetting();
     await getGrades();
 
@@ -226,7 +226,7 @@ $(function () {
     });
   }
 
-  if ($('#avaliation_grade_ids').data('elements').length == 2) {
+  if ($('#avaliation_grade_ids').data('elements').length <= 2){
     $('.avaliation_grades').hide();
   }
 

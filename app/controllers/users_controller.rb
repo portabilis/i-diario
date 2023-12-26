@@ -103,7 +103,7 @@ class UsersController < ApplicationController
   private
 
   def roles
-    return Role.ordered if current_user.has_administrator_access_level? || current_user.admin?
+    return list_roles_permission if current_user.has_administrator_access_level? || current_user.admin?
 
     Role.exclude_administrator_roles.ordered
   end
@@ -125,6 +125,14 @@ class UsersController < ApplicationController
     else
       {}
     end
+  end
+
+  def list_roles_permission
+    admin_roles = Rails.application.secrets.admin_roles || []
+
+    return Role.ordered if current_user.roles.map(&:name).eql?(admin_roles)
+
+    [Role.exclude_administrator_roles.ordered + current_user.roles].flatten
   end
 
   def not_allow_admin?
