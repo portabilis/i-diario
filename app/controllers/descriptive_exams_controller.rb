@@ -14,6 +14,11 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user
     select_opinion_types
 
+    unless current_user.current_role_is_admin_or_employee?
+      classroom_id = @descriptive_exam.classroom_id
+      @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
+    end
+
     authorize @descriptive_exam
   end
 
@@ -45,6 +50,11 @@ class DescriptiveExamsController < ApplicationController
 
     regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
+      value_by_student = resource_params[:students_attributes].values.detect do |student| 
+        student[:student_id] == exam_student.student_id.to_s
+      end
+      exam_student.value = value_by_student['value']
+
       exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
     end
 
@@ -101,10 +111,13 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find_step_number_by_classroom
+    return if params[:classroom_id].blank?
+
     classroom = Classroom.find(params[:classroom_id])
     step_numbers = StepsFetcher.new(classroom)&.steps
+    steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
-    render json: step_numbers.to_json
+    render json: steps.to_json
   end
 
   protected
@@ -179,13 +192,22 @@ class DescriptiveExamsController < ApplicationController
     Date.current > date ? date : Date.current
   end
 
+  def fetch_dates_for_opinion_type_by_year
+    return unless opinion_type_by_year?
+
+    @start_at = steps_fetcher.steps.first.start_at
+    @end_at = steps_fetcher.steps.last.end_at
+  end
+
   def enrollment_classrooms_list
+    fetch_dates_for_opinion_type_by_year
+
     @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: @descriptive_exam.classroom,
       disciplines: @descriptive_exam.discipline,
       opinion_type: @descriptive_exam.opinion_type,
-      start_at: @descriptive_exam.step.try(:start_at),
-      end_at: @descriptive_exam.step.try(:end_at),
+      start_at: @start_at || @descriptive_exam.step.try(:start_at),
+      end_at: @end_at || @descriptive_exam.step.try(:end_at),
       show_inactive_outside_step: false,
       search_type: :by_date_range,
       period: @period,
@@ -240,7 +262,9 @@ class DescriptiveExamsController < ApplicationController
       end
     end
 
-    @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule) if action_name.eql?('new')
+    if action_name.eql?('new') || action_name.eql?('find')
+      @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+    end
   end
 
   def select_opinion_types
@@ -281,8 +305,8 @@ class DescriptiveExamsController < ApplicationController
 
   def student_has_dependence?(student_enrollment, discipline)
     StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
-                               .by_discipline(discipline)
-                               .any?
+      .by_discipline(discipline)
+      .any?
   end
 
   def student_exempted_from_discipline?(student_enrollment)
@@ -290,8 +314,8 @@ class DescriptiveExamsController < ApplicationController
       step_number = @descriptive_exam.step.to_number
 
       return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                               .by_step_number(step_number)
-                               .any?
+        .by_step_number(step_number)
+        .any?
     end
 
     false

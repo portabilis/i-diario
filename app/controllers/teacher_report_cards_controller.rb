@@ -116,24 +116,20 @@ class TeacherReportCardsController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
+    classroom_id = @teacher_report_card_form.classroom_id
+    @disciplines = @fetch_linked_by_teacher[:disciplines].by_classroom_id(classroom_id).not_descriptor
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_grade(classroom_by_grade)
     @grades = @fetch_linked_by_teacher[:classroom_grades].map(&:grade)
+    @unities = [current_user_unity]
   end
 
   def set_options_by_user
     @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
 
-    if @admin_or_teacher
-      fetch_options_by_admin
-    else
-      fetch_linked_by_teacher
+    return fetch_options_by_admin if @admin_or_teacher
 
-      classroom_by_grade = current_user_classroom.classrooms_grades.first.grade_id
-      @classrooms = @classrooms.by_grade(classroom_by_grade)
-      @disciplines = @disciplines.by_classroom_id(@teacher_report_card_form.classroom_id).not_descriptor
-      @unities = [current_user_unity]
-    end
+    fetch_linked_by_teacher
   end
 
   def fetch_options_by_admin
@@ -141,7 +137,7 @@ class TeacherReportCardsController < ApplicationController
                              .by_grade(@teacher_report_card_form.grade_id)
                              .by_year(current_user_school_year || Date.current.year)
                              .ordered
-    @disciplines ||= Discipline.by_classroom_id(@teacher_report_card_form.classroom_id)
+    @disciplines ||= Discipline.by_classroom_id(@teacher_report_card_form.classroom_id).not_descriptor
     @grades ||= current_user_classroom.classrooms_grades.map(&:grade)
     @unities = Unity.ordered
   end

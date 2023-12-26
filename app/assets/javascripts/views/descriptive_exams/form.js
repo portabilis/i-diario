@@ -19,6 +19,7 @@ $(function () {
   $classroom_id.on('change', async function () {
     await getOpinionType();
     await getStep();
+    await getDisciplines();
     setFields()
   })
 
@@ -50,6 +51,7 @@ $(function () {
 
   async function getStep() {
     let classroom_id = $('#descriptive_exam_classroom_id').select2('val');
+    $step.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id)) {
       return $.ajax({
@@ -64,15 +66,51 @@ $(function () {
   }
 
   function handleFetchStepByClassroomSuccess(data) {
-    var step = $("#descriptive_exam_step");
-    var first_step = data[0]['table']
+    if (data) {
+      let selectedSteps = data.map(function (step) {
+        return { id: step['id'], text: step['description'] };
+      });
 
-    step.select2('data', first_step);
+      $step.select2({ data: selectedSteps });
+      // Define a primeira opção como selecionada por padrão
+      $step.val(selectedSteps[0].id).trigger('change');
+    }
   }
 
   function handleFetchStepByClassroomError() {
     flashMessages.error('Ocorreu um erro ao buscar a etapa da turma.');
   }
+
+  async function getDisciplines() {
+    let classroom_id = $('#descriptive_exam_classroom_id').select2('val');
+
+    if (!_.isEmpty($classroom_id.val())) {
+      $.ajax({
+        url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        success: handleFetchDisciplinesSuccess,
+        error: handleFetchDisciplinesError
+      });
+    }
+  };
+
+  function handleFetchDisciplinesSuccess(data) {
+    if (data.disciplines.length == 0) {
+      blockFields();
+      flashMessages.error('Não existem disciplinas para a turma selecionada.');
+      return;
+    } else {
+      var selectedDisciplines = data.disciplines.map(function (discipline) {
+        return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
+      });
+
+      $discipline.select2({ data: selectedDisciplines });
+      $discipline.val(selectedDisciplines[0].id).trigger('change');
+    }
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
 
   function setFields() {
     var opinionType = $opinionType.val();

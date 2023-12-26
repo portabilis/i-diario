@@ -90,15 +90,14 @@ $(function () {
 
   $grade.on('change', function () {
     let grade_id = $grade.select2('val');
+    let unity_id = $unity.select2('val');
+    $knowledgeAreas.select2({ data: [] });
 
-    if (!$grade.val()) {
-      // Limpa o campo de areas de conhecimento
-      $knowledgeAreas.select2({ data: [] });
-    } else {
-      // Busca as areas de conhecimento
+    if ($grade.val()) {
       return $.ajax({
-        url: Routes.set_knowledge_areas_by_classroom_knowledge_area_teaching_plans_pt_br_path({
+        url: Routes.knowledge_areas_pt_br_path({
           grade_id: grade_id,
+          unity_id: unity_id,
           format: 'json'
         }),
         success: handleFetchKnowledgeAreasByGradeSuccess,
