@@ -17,9 +17,3 @@ pt-BR:
         contents_tags: "Conteúdos"
         contents: "Conteúdos"
         experience_fields: "Campos de experiência"
-    errors:
-      models:
-        knowledge_area_teaching_plan:
-          attributes:
-            base:
-              uniqueness_of_knowledge_area_teaching_plan: "Já existe um plano de ensino para o período informado"

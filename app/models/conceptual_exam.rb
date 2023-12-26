@@ -72,7 +72,7 @@ class ConceptualExam < ActiveRecord::Base
   def self.by_teacher(teacher_id)
     active.where(
       TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id)
-    ).uniq
+    ).distinct
   end
 
   def self.by_status(classroom_id, teacher_id, status)
@@ -151,7 +151,7 @@ class ConceptualExam < ActiveRecord::Base
   private
 
   def student_must_have_conceptual_exam_score_type
-    return if student.blank? || classroom.blank?
+    return if student.blank? || classroom.blank? || validation_type.eql?(:destroy)
 
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
     classroom_grade = ClassroomsGrade.by_student_id(student.id).by_classroom_id(classroom.id)&.first

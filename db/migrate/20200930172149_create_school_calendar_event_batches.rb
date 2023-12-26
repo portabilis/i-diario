@@ -1,4 +1,4 @@
-class CreateSchoolCalendarEventBatches < ActiveRecord::Migration
+class CreateSchoolCalendarEventBatches < ActiveRecord::Migration[4.2]
   def change
     create_table :school_calendar_event_batches do |t|
       t.integer :year, null: false

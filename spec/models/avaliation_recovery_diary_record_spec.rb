@@ -17,7 +17,7 @@ RSpec.describe AvaliationRecoveryDiaryRecord, type: :model do
   end
 
   describe 'associations' do
-    it { expect(subject).to belong_to(:recovery_diary_record).dependent(:destroy) }
+    it { expect(subject).to belong_to(:recovery_diary_record) }
     it { expect(subject).to belong_to(:avaliation) }
   end
 

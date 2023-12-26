@@ -1,6 +1,7 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'attachemnt_size_validator' %>
+  <%= javascript_include_tag 'summernote' %>
   <%= javascript_include_tag 'views/teaching_plans/shared' %>
   <%= javascript_include_tag 'views/knowledge_area_teaching_plans/form' %>
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
@@ -17,7 +18,8 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
-      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: 'experience_fields' %>
+      <% school_type = GeneralConfiguration.current.group_children_education ? 'group_child_schools' : 'experience_fields' %>
+      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: school_type, modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-btn'  %>
 
       <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
         <i class='fa-fw fa fa-info'></i>
@@ -52,14 +54,14 @@
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.association :school_term_type, as: :select2, required: true,
-                elements: SchoolTermType.to_select2(
-                  current_user.current_school_year,
-                  current_user.current_unity_id,
-                  add_empty_element: false
-                ).to_json,
-                input_html: { value: teaching_plan_form.object.school_term_type_id,
-                              data: { without_json_parser: true } },
-                readonly: action_name.eql?('show') %>
+            elements: SchoolTermType.to_select2(
+              current_user.current_school_year,
+              current_user.current_unity_id,
+              add_empty_element: false
+            ).to_json,
+            input_html: { value: teaching_plan_form.object.school_term_type_id,
+                          data: { without_json_parser: true } },
+            readonly: action_name.eql?('show') %>
         </div>
 
         <div id="school-term-container" class="col col-sm-4">
@@ -140,7 +142,7 @@
           <% end %>
 
           <% if !action_name.eql?('show') %>
-            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+            <a href="#" data-toggle="modal" data-target="#confirm-copy-objectives-modal">
               Copiar objetivos/habilidades por área
             </a>
           <% end %>
@@ -193,23 +195,27 @@
         </div>
       <% end %>
 
+      <% @methodology_translation = Translation.find_by(key: 'navigation.methodology_by_knowledge_area', group: 'teaching_plans').translation %>
+      <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'teaching_plans').translation %>
+      <% @references_translation = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'teaching_plans').translation %>
+
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :methodology, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :evaluation, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :references, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>

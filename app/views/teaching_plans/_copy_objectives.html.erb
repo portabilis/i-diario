@@ -1,4 +1,4 @@
-<div class="modal fade" tabindex="-1" role="dialog" id="copy-objectives-modal" aria-hidden="true">
+<div class="modal fade" tabindex="-1" role="dialog" id="<%= modal_id %>" aria-hidden="true">
   <div class="modal-dialog" style="<%= 'width: 800px;' if type != 'disciplines' %>">
     <div class="modal-content">
       <div class="modal-header">
@@ -42,7 +42,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">
           Cancelar
         </button>
-        <button type="button" data-type="<%= type %>" id="confirm-copy-objectives-modal" class="btn btn-primary">
+        <button type="button" data-type="<%= type %>" id="<%= confirm_btn %>" class="btn btn-primary">
           Confirmar
         </button>
       </div>

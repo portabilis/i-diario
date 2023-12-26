@@ -9,18 +9,18 @@ class ApplicationController < ActionController::Base
 
   include BootstrapFlashHelper
   include Pundit
-  skip_around_filter :set_locale_from_url
+  skip_around_action :set_locale_from_url
   around_action :handle_customer
   before_action :set_honeybadger_context
-  around_filter :set_user_current
-  around_filter :set_thread_origin_type
+  around_action :set_user_current
+  around_action :set_thread_origin_type
 
   respond_to :html, :json
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   #protect_from_forgery with: :exception
-  protect_from_forgery with: :null_session
+  protect_from_forgery with: :null_session, prepend: true
 
   before_action :check_entity_status
   before_action :authenticate_user!
@@ -446,7 +446,10 @@ class ApplicationController < ActionController::Base
 
   def error_generic(expection)
     set_honeybadger_error(expection)
-    redirect_to :root
+
+    unless Rails.env.development?
+      redirect_to :root
+    end
   end
 
   def set_honeybadger_error(expection)

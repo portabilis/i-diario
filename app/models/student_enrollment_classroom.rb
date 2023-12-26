@@ -26,9 +26,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
+  scope :by_date_not_after, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grade).where(classrooms_grades: { grade_id: grade_id }) }
+  scope :by_classroom_grade, ->(classrooms_grade_id) { where(classrooms_grades: classrooms_grade_id) }
   scope :by_student, ->(student_id) { joins(student_enrollment: :student).where(students: { id: student_id }) }
   scope :by_student_enrollment, ->(student_enrollment_id) { where(student_enrollment_id: student_enrollment_id) }
   scope :active, lambda {
@@ -36,45 +38,52 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   }
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
-
+  scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
   delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)
-    where("(CASE
-              WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
-                student_enrollment_classrooms.joined_at <= :end_at
-              ELSE
-                student_enrollment_classrooms.joined_at <= :end_at AND
-                student_enrollment_classrooms.left_at >= :start_at AND
-                student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
-            END)", end_at: end_at.to_date, start_at: start_at.to_date)
+    conditions = <<-SQL.squish
+      (CASE
+        WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
+          student_enrollment_classrooms.joined_at <= :end_at
+        ELSE
+          student_enrollment_classrooms.joined_at <= :end_at AND
+          student_enrollment_classrooms.left_at >= :start_at AND
+          student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
+      END)
+    SQL
+
+    where(conditions, end_at: end_at.to_date, start_at: start_at.to_date)
   end
 
   def self.by_period(period)
-    joins(classrooms_grade: :classroom).where(
-      "CASE
-         WHEN :period = 4 THEN
-           TRUE
-         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
-           student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
-         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
-           student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
-         ELSE
-           COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
-      END", period: period
-    )
+    conditions = <<-SQL.squish
+      CASE
+        WHEN :period = 4 THEN TRUE
+        WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
+          student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
+        WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
+          student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
+        ELSE
+          COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
+      END
+    SQL
+
+    joins(classrooms_grade: :classroom).where(conditions, period: period)
   end
 
   def self.by_discipline_query(discipline_id)
-    unless discipline_id.blank?
-      where("(not exists(select 1
-                           from student_enrollment_dependences
-                          where student_enrollment_dependences.student_enrollment_id = student_enrollments.id) OR
-                  exists(select 1
-                           from student_enrollment_dependences
-                          where student_enrollment_dependences.student_enrollment_id = student_enrollments.id and
-                                student_enrollment_dependences.discipline_id = ?))", discipline_id)
-    end
+    return if discipline_id.blank?
+
+    conditions = <<-SQL.squish
+      (
+        not exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id)
+        OR exists ( select 1 from student_enrollment_dependences where student_enrollment_dependences.student_enrollment_id = student_enrollments.id
+        and student_enrollment_dependences.discipline_id = :discipline_id)
+      )
+    SQL
+
+    where(conditions, discipline_id: discipline_id)
   end
 
   def self.by_score_type_query(score_type, classroom_id)
@@ -104,6 +113,6 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     return scoped.where(nil) if exam_rule_included && differentiated_exam_rule_included
     return none unless exam_rule_included || differentiated_exam_rule_included
 
-    scoped.joins(student_enrollment: :students).where(students: { uses_differentiated_exam_rule: differentiated_exam_rule_included })
+    scoped.where(students: { uses_differentiated_exam_rule: differentiated_exam_rule_included })
   end
 end

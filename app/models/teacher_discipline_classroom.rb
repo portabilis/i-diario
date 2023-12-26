@@ -1,4 +1,4 @@
-class TeacherDisciplineClassroom < ActiveRecord::Base
+class TeacherDisciplineClassroom < ApplicationRecord
   include Audit
   include Discardable
 
@@ -9,6 +9,7 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   belongs_to :teacher
   belongs_to :discipline
   belongs_to :classroom
+  belongs_to :grade
 
   delegate :knowledge_area, to: :discipline
 
@@ -24,7 +25,7 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   scope :by_score_type, ->(score_type) { where(score_type: score_type) }
   scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
-  scope :by_grade_id, ->(grade_id) { joins(:classroom).merge(Classroom.by_grade(grade_id)) }
+  scope :by_grade_id, ->(grade_id) { where(grade_id: grade_id) }
   scope :by_year, ->(year) { where(year: year) }
   scope :by_knowledge_area_id, ->(knowledge_area_id) {
     joins(:discipline).where(disciplines: { knowledge_area_id: knowledge_area_id })

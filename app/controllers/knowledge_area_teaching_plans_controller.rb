@@ -73,6 +73,15 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan.teaching_plan.objective_ids = objective_ids
     @knowledge_area_teaching_plan.teacher_id = current_teacher_id
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
+    @knowledge_area_teaching_plan.teaching_plan.methodology = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:methodology], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @knowledge_area_teaching_plan.teaching_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u', 'p' ]
+    )
+    @knowledge_area_teaching_plan.teaching_plan.references = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:references], tags: ['b', 'br', 'i', 'u', 'p' ]
+    )
 
     authorize @knowledge_area_teaching_plan
 
@@ -96,12 +105,21 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def update
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
-    @knowledge_area_teaching_plan.assign_attributes(resource_params)
+    @knowledge_area_teaching_plan.assign_attributes(resource_params.to_h)
     @knowledge_area_teaching_plan.teaching_plan.content_ids = content_ids
     @knowledge_area_teaching_plan.teaching_plan.objective_ids = objective_ids
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_teaching_plan.teacher_id = current_teacher_id
     @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher_id
+    @knowledge_area_teaching_plan.teaching_plan.methodology = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:methodology], tags: ['b', 'br', 'i', 'u', 'p']
+    )
+    @knowledge_area_teaching_plan.teaching_plan.evaluation = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:evaluation], tags: ['b', 'br', 'i', 'u', 'p' ]
+    )
+    @knowledge_area_teaching_plan.teaching_plan.references = ActionController::Base.helpers.sanitize(
+      resource_params[:teaching_plan_attributes][:references], tags: ['b', 'br', 'i', 'u', 'p' ]
+    )
 
     authorize @knowledge_area_teaching_plan
 
@@ -131,6 +149,57 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     respond_with @knowledge_area_teaching_plan
+  end
+
+  def copy
+    unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
+      flash[:error] = t('knowledge_area_teaching_plans.do.permission')
+      return redirect_to :knowledge_area_teaching_plans
+    end
+
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
+    @copy_knowledge_area_teaching_plan = CopyKnowledgeAreaTeachingPlanForm.new(
+      knowledge_area_teaching_plan: @knowledge_area_teaching_plan,
+      teaching_plan: @knowledge_area_teaching_plan.teaching_plan
+    )
+
+    fetch_collections
+  end
+
+  def do_copy
+    unless current_user.can_change?(:copy_knowledge_area_teaching_plan)
+      flash[:error] = t('knowledge_area_teaching_plans.do.permission')
+      return redirect_to :knowledge_area_teaching_plans
+    end
+
+    form = params[:copy_knowledge_area_teaching_plan_form]
+
+    knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(form[:id])
+    @copy_knowledge_area_teaching_plan = CopyKnowledgeAreaTeachingPlanForm.new(
+      knowledge_area_teaching_plan: knowledge_area_teaching_plan,
+      teaching_plan: knowledge_area_teaching_plan.teaching_plan,
+      unities_ids: form[:unities_ids],
+      grades_ids: form[:grades_ids],
+      year: form[:year]
+    )
+
+    unless @copy_knowledge_area_teaching_plan.valid?
+      return render :copy
+    end
+
+    CopyKnowledgeAreaTeachingPlanWorker.perform_in(
+      1.second,
+      current_entity.id,
+      current_user.id,
+      form[:id],
+      form[:year],
+      form[:unities_ids].split(','),
+      form[:grades_ids].split(',')
+    )
+
+    flash[:success] = t('knowledge_area_teaching_plans.do_copy.copying')
+
+    redirect_to :knowledge_area_teaching_plans
   end
 
   private

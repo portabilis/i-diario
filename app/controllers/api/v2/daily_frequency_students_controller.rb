@@ -22,15 +22,38 @@ module Api
         )
         creator.find_or_create!
 
+        frequency_date = params[:frequency_date]
+        student_id = params[:student_id]
+
         daily_frequency = creator.daily_frequencies[0]
+
+        absence_justifications = AbsenceJustifiedOnDate.call(
+          students: [params[:student_id]],
+          date: frequency_date,
+          end_date: frequency_date,
+          classroom: params[:classroom_id],
+          period: period
+        )
 
         if daily_frequency
           begin
             daily_frequency_student = DailyFrequencyStudent.find_or_initialize_by(
               daily_frequency_id: daily_frequency.id,
-              student_id: params[:student_id]
+              student_id: student_id
             )
-            daily_frequency_student.assign_attributes(present: params[:present], active: true)
+
+            absence_justification = absence_justifications[student_id] || {}
+            absence_justification = absence_justification[frequency_date] || {}
+            absence_justification_student_id = absence_justification[0] || absence_justification[daily_frequency.class_number]
+
+            if absence_justification_student_id
+              daily_frequency_student.present = false
+              daily_frequency_student.absence_justification_student_id = absence_justification_student_id
+            elsif
+              daily_frequency_student.present = params[:present]
+            end
+
+            daily_frequency_student.active = true
             daily_frequency_student.save
           rescue ActiveRecord::RecordNotUnique
             retry

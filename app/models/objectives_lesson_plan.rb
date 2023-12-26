@@ -1,4 +1,4 @@
-class ObjectivesLessonPlan < ActiveRecord::Base
+class ObjectivesLessonPlan < ApplicationRecord
   audited except: [:lesson_plan_id],
           allow_mass_assignment: true,
           associated_with: [:lesson_plan, :objective]

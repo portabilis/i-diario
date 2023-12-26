@@ -1,4 +1,4 @@
-class AddSchoolCalendarTo < ActiveRecord::Migration
+class AddSchoolCalendarTo < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       update absence_justifications

@@ -93,7 +93,7 @@ class DisciplineContentRecord < ActiveRecord::Base
                   record_date.present?
 
     grades.each do |grade|
-      unless content_record.school_calendar.school_day?(record_date, grade, classroom, discipline)
+      unless content_record.school_calendar.school_day?(record_date, grade, classroom_id, discipline)
         errors.add(:base, "")
         content_record.errors.add(:record_date, :not_school_calendar_day)
       end

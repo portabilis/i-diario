@@ -71,9 +71,10 @@ class AvaliationsController < ApplicationController
 
   def create_multiple_classrooms
     authorize Avaliation.new
+    params_avaliation_multiple = params[:avaliation_multiple_creator_form].to_unsafe_h
 
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new(
-      params[:avaliation_multiple_creator_form].merge(teacher_id: current_teacher_id)
+      params_avaliation_multiple.merge(teacher_id: current_teacher_id)
     )
 
     if @avaliation_multiple_creator_form.save
@@ -218,7 +219,6 @@ class AvaliationsController < ApplicationController
       :classroom_id,
       :discipline_id,
       :test_date,
-      :classes,
       :description,
       :test_setting_test_id,
       :weight,

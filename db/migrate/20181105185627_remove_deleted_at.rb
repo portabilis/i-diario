@@ -1,4 +1,4 @@
-class RemoveDeletedAt < ActiveRecord::Migration
+class RemoveDeletedAt < ActiveRecord::Migration[4.2]
   def change
     remove_column :teacher_discipline_classrooms, :deleted_at, :datetime
 

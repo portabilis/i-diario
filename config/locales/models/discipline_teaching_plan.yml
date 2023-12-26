@@ -17,9 +17,3 @@ pt-BR:
         contents_tags: "Conteúdos"
         contents: "Conteúdos"
         thematic_unit: "Unidade temática"
-    errors:
-      models:
-        discipline_teaching_plan:
-          attributes:
-            base:
-              uniqueness_of_discipline_teaching_plan: "Já existe um plano de ensino para o período informado"

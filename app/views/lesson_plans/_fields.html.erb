@@ -62,41 +62,47 @@
     <% end %>
 </fieldset>
 
-<fieldset>
-  <legend style="margin-bottom: -10px;">
-    <%= model.class.human_attribute_name(:objectives) %>
-  </legend>
+<% unless f.object.decorator.removed_objectives? %>
+  <fieldset>
+    <legend style="margin-bottom: -10px;">
+      <%= model.class.human_attribute_name(:objectives) %>
+    </legend>
 
-  <div class="alert alert-danger"
-       id="lesson_plan_copy_from_objectives_teaching_plan_alert"
-       style="display: none;"
-  >
-    <i class="fa-fw fa fa-times"></i>
-    Não foi possível copiar do(a) <%= Translator.t('navigation.teaching_plans_menu').downcase %>
-    pois não existem registros para a data informada.
-  </div>
-  <% if f.object.errors[:objectives].any? %>
-    <div class="alert alert-danger fade in">
+    <div class="alert alert-danger"
+         id="lesson_plan_copy_from_objectives_teaching_plan_alert"
+         style="display: none;"
+    >
       <i class="fa-fw fa fa-times"></i>
-      <%= f.object.errors[:objectives].first %>
+      Não foi possível copiar do(a) <%= Translator.t('navigation.teaching_plans_menu').downcase %>
+      pois não existem registros para a data informada.
     </div>
-  <% end %>
-  <% if action_name != 'show' %>
-    <a href="#" id="copy-from-objectives-teaching-plan-link">
-      Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
-    </a>|
-    <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
-      Copiar objetivos/habilidades por área
-    </a>
-  <% end %>
+    <% if f.object.errors[:objectives].any? %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:objectives].first %>
+      </div>
+    <% end %>
+    <% if action_name != 'show' %>
+      <a href="#" id="copy-from-objectives-teaching-plan-link">
+        Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
+      </a>|
+      <a href="#" data-toggle="modal" data-target="<%= modal_id %>">
+        Copiar objetivos/habilidades por área
+      </a>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        |<a href="#" data-toggle="modal" data-target="#experience-modal">
+          Copiar objetivos por campos de experiência
+        </a>
+      <% end %>
+    <% end %>
     <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
       <ul class="list-group checked-list-box" id="objectives-list">
 
         <% objectives.each do |objective| %>
           <li class="list-group-item manual" style="display: flex;" id="lesson_plan_<%= objective.id %>">
             <%= check_box_tag("#{model.class.model_name.singular}[lesson_plan_attributes][objective_ids][]",
-                objective.id, objective.id.in?(model.objectives.collect(&:id)),
-                hidden: true, 'data-objective_description': objective.to_s ) %>
+                              objective.id, objective.id.in?(model.objectives.collect(&:id)),
+                              hidden: true, 'data-objective_description': objective.to_s ) %>
             <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= objective %></span>
             <% if objective.is_editable && action_name != 'show' %>
               <div style="width: 80px;">
@@ -117,45 +123,57 @@
         <div class="col col-sm-12 objectives-select2-container">
           <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.objectives") %>
           <%= f.input :objectives_tags,
-              as: :string,
-              label: "Adicionar #{translation}",
-              input_html: {
-                class: 'select2-content-tags-ajax',
-                value: '',
-                data: {
-                  url: contents_path,
-                  data: []
-                }
-              }
-            %>
+                      as: :string,
+                      label: "Adicionar #{translation}",
+                      input_html: {
+                        class: 'select2-content-tags-ajax',
+                        value: '',
+                        data: {
+                          url: contents_path,
+                          data: []
+                        }
+                      }
+          %>
         </div>
       </div>
     <% end %>
-</fieldset>
-
+  </fieldset>
+<% end %>
 <fieldset>
 
+  <% if @discipline_lesson_plan.present? %>
+    <% @methodology_translation = Translation.find_by(key: 'navigation.actives_methodology_by_discipline', group: 'lesson_plans').translation %>
+    <% @resources_translation = Translation.find_by(key: 'navigation.resources_by_discipline', group: 'lesson_plans').translation %>
+    <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'lesson_plans').translation %>
+    <% @references_translation = Translation.find_by(key: 'navigation.references_by_discipline', group: 'lesson_plans').translation %>
+  <% else @knowledge_area_lesson_plan.present? %>
+    <% @methodology_translation= Translation.find_by(key: 'navigation.actives_methodology_by_knowledge_area', group: 'lesson_plans').translation %>
+    <% @resources_translation = Translation.find_by(key: 'navigation.resources_by_knowledge_area', group: 'lesson_plans').translation %>
+    <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_knowledge_area', group: 'lesson_plans').translation %>
+    <% @references_translation = Translation.find_by(key: 'navigation.references_by_knowledge_area', group: 'lesson_plans').translation %>
+  <% end %>
+
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :activities, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
+    <%= f.input :activities, label: @methodology_translation, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :resources, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
+    <%= f.input :resources, label: @resources_translation, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :evaluation, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
+    <%= f.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :bibliography, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
+    <%= f.input :bibliography, label: @references_translation, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 

@@ -1,4 +1,4 @@
-class UpdateGeneralConfigurationInfo < ActiveRecord::Migration
+class UpdateGeneralConfigurationInfo < ActiveRecord::Migration[4.2]
   def change
     general_configuration = GeneralConfiguration.current
 

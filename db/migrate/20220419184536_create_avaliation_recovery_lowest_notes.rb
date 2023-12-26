@@ -1,4 +1,4 @@
-class CreateAvaliationRecoveryLowestNotes < ActiveRecord::Migration
+class CreateAvaliationRecoveryLowestNotes < ActiveRecord::Migration[4.2]
   def change
     create_table :avaliation_recovery_lowest_notes do |t|
       t.references :recovery_diary_record, index: { name: 'idx_recovery_diary_record_id_on_recovery_lowest_note' },
