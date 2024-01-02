@@ -65,7 +65,9 @@
             <td class="no_item_found" colspan="3" style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
           </tr>
 
-          <%= recovery_diary_record.association :students, collection: recovery_diary_record.object.students.sort_by { |student| student.student.name.upcase } do |student| %>
+          <%= recovery_diary_record.association :students,
+              collection: recovery_diary_record.object.students.sort_by { |student|
+                student.student.name.upcase } do |student| %>
             <%= render 'student_fields', f: student %>
           <% end %>
         </tbody>
