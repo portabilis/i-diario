@@ -33,7 +33,11 @@ class ExamRulesSynchronizer < BaseSynchronizer
         exam_rule.parallel_exams_calculation_type =
           exam_rule_record.tipo_calculo_recuperacao_paralela.to_i ||
           ParallelExamsCalculationTypes::SUBSTITUTION
-        exam_rule.save! if exam_rule.changed?
+
+        if exam_rule.changed?
+          update_descriptive_exams(exam_rule)
+          exam_rule.save!
+        end
 
         if exam_rule_record.regra_diferenciada_id.present?
           differentiated_exam_rules << [
@@ -54,6 +58,19 @@ class ExamRulesSynchronizer < BaseSynchronizer
         exam_rule.differentiated_exam_rule_id = exam_rule(differentiated_api_code).try(:id)
         exam_rule.save! if exam_rule.changed?
       end
+    end
+  end
+
+  def update_descriptive_exams(exam_rule)
+    return unless exam_rule.attribute_changed?("opinion_type")
+
+    classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id).map(&:classroom_id).uniq
+
+    descriptive_exams = DescriptiveExam.where(classroom_id: classroom_ids)
+                                      &.where.not(opinion_type: exam_rule.opinion_type)
+
+    descriptive_exams.each do |descriptive_exam|
+      descriptive_exam.update(:opinion_type, exam_rule.opinion_type)
     end
   end
 end
