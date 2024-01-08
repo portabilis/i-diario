@@ -69,58 +69,6 @@ class AttendanceRecordReportByStudentForm
       .by_period(adjusted_period)
       .distinct
       .order('classrooms_grades.classroom_id')
-    return unless unity_id.present?
-
-    unity ||= Unity.find(unity_id)
-  end
-
-  def current_user
-    return unless current_user_id.present?
-
-    user ||= User.find(current_user_id)
-  end
-
-  def set_grades
-    return unless classroom_id.eql?('all')
-
-    classroom_ids = set_all_classrooms
-    grades ||= ClassroomsGrade.includes(:grade)
-                              .by_classroom_id(classroom_ids)
-                              .map(&:grade)
-                              .uniq
-  end
-
-  def set_all_classrooms
-    return classroom_id unless classroom_id.eql?('all')
-    return Classroom.by_unity(unity_id).distinct unless current_user.teacher?
-
-    Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id).distinct
-  end
-
-  def fetch_daily_frequencies
-    classroom_id = set_all_classrooms
-
-    @daily_frequencies ||= DailyFrequencyQuery.call(
-      classroom_id: classroom_id.map(&:id),
-      period: period,
-      frequency_date: start_at..end_at,
-      all_students_frequencies: true
-    ).order(:owner_teacher_id)
-  end
-
-  def enrollment_classrooms_list
-    adjusted_period = period != Periods::FULL ? period : nil
-    classroom_id = set_all_classrooms
-
-    @enrollment_classrooms_list ||= StudentEnrollmentClassroomsRetriever.call(
-      classrooms: classroom_id,
-      disciplines: nil,
-      start_at: start_at,
-      end_at: end_at,
-      search_type: :by_date_range,
-      show_inactive: false,
-      period: adjusted_period
-    )
   end
 
   def students_frequencies_percentage
