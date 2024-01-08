@@ -85,6 +85,7 @@
             class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', id: 'exam-save',
+          data: { disable_with: 'Salvando...'} %>
   </footer>
 <% end %>

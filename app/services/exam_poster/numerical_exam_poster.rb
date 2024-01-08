@@ -33,6 +33,7 @@ module ExamPoster
       scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
+                                             .where.not(grade_id: nil)
                                              .by_score_type([ScoreTypes::NUMERIC, nil])
                                              .by_year(@post_data.step.school_calendar.year)
                                              .includes(:classroom, :discipline)
