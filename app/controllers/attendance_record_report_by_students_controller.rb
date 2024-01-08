@@ -7,7 +7,8 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
       period: @period,
-      current_user_id: current_user.id
+      current_user_id: current_user.id,
+      classroom_id: current_user_classroom.id
     )
     @period = current_teacher_period(current_user_classroom.id)
 
