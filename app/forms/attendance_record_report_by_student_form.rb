@@ -67,8 +67,10 @@ class AttendanceRecordReportByStudentForm
       .by_classroom(classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id)
       .by_date_range(start_at, end_at)
       .by_period(adjusted_period)
+      .where(classrooms_grade: { classrooms: { year: school_calendar_year } })
       .distinct
       .order('classrooms_grades.classroom_id')
+      .order('sequence ASC, students.name ASC')
   end
 
   def students_frequencies_percentage
