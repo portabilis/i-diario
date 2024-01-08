@@ -42,7 +42,7 @@ class AttendanceRecordReportByStudentForm
   end
 
   def adjusted_period
-    return if period.eql?('all') || period.eql?(Periods::FULL)
+    return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
 
     period
   end
