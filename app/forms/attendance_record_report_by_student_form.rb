@@ -32,7 +32,7 @@ class AttendanceRecordReportByStudentForm
   end
 
   def select_all_classrooms
-    return classroom_id unless classroom_id.eql?('all')
+    return Classroom.where(id: classroom_id) unless classroom_id.eql?('all')
     return Classroom.by_unity(unity_id).distinct.includes(:grades).order(:id) unless current_user.teacher?
 
     Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id)
