@@ -93,4 +93,8 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar o período da turma selecionada.');
   }
 
+  if ($period.val() == '') {
+    getPeriod()
+  }
+
 });
