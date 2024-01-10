@@ -97,88 +97,36 @@ class AttendanceRecordReportByStudentForm
   end
 
   def fetch_daily_frequencies(student_id, classroom_id)
-    #  todas as frequencias do periodo e da turma selecionada
-    daily_frequencies = DailyFrequencyQuery.call(
+    daily_frequencies_by_classroom = DailyFrequencyQuery.call(
       classroom_id: classroom_id,
       period: adjusted_period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
-    ).order(:classroom_id)
+    ).order(:classroom_id).group_by(&:classroom_id)
 
-    # método para converter a frequencias em geral
-    frequencies = convert_frequency_in_global(daily_frequencies)
+    daily_frequencies_by_classroom.map do |classroom_id, daily_frequencies|
+      {
+        classroom: classroom_id,
+        students: daily_frequencies.flat_map do |daily_frequency|
+          daily_frequency.students
+        end.group_by(&:student_id).map do |key, daily_frequency_student|
+          total_daily_frequency_students = daily_frequency_student.count.to_f
+          total_presence = daily_frequency_student.map { |dfs| dfs if dfs.present }.compact.count.to_f
+          frequency = ((total_presence / total_daily_frequency_students) * 100).round(2)
 
-    # array de todas frequencias tratadas
-    todas_as_frequencias = frequencies + daily_frequencies
-
-    # método para verificar total de aulas dadas e total de faltas aluno
-    totais = totais(todas_as_frequencias.map(&:students))
-
-    # calcular porcentagem frequencia do aluno
-    multiplicacao = faltas_do_aluno * 100
-    resultado = 100 - (multiplicacao / count_dias_frequencia).to_s + '%'
-
-
-    { student: student_id, frequency: (((total.to_f - faltas.to_f) * 100) / total.to_f).to_f.round(2) }
+          {
+            student_id: daily_frequency_student.first.student_id,
+            frequency: frequency
+          }
+        end
+      }
+    end
   end
 
   def adjusted_period
     return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
 
     period
-  end
-
-  def convert_frequency_in_global(daily_frequencies)
-    return if daily_frequencies.map(&:discipline_id).uniq.compact.empty?
-
-    frequencies_by_discipline = daily_frequencies
-      .where.not(discipline_id: nil, class_number: nil)
-  end
-
-
-
-  def students_frequencies_percentage
-    percentage_by_student = Hash.new(0)
-    daily_frequency_by_student = Hash.new { |hash, key| hash[key] = Set.new }
-
-    percentage_by_student = fetch_daily_frequencies.flat_map do |daily_frequency|
-      frequency_date = daily_frequency.frequency_date
-      classroom_id = daily_frequency.classroom_id
-
-      {
-        classroom_id => {
-          students: daily_frequency.students.map do |daily_frequency_student|
-            student_id = daily_frequency_student.student_id
-
-            next if daily_frequency_by_student[student_id].include?(frequency_date)
-
-            infrequency_count = daily_frequency_student.present? ? 0 : 1
-            infrequency_count += 1 if daily_frequency_student.present?
-
-            {
-              student_id: student_id,
-              infrequency: infrequency_count
-            }.tap do
-              daily_frequency_by_student[student_id].add(frequency_date)
-            end
-          end.compact
-        }
-      }
-    end.compact
-
-    total_school_days = UnitySchoolDay.by_unity_id(unity_id)
-                                      .by_year(school_calendar_year)
-                                      .by_date_between(start_at, end_at)
-                                      .count
-
-    percentage_by_student.each do |key, values|
-      next if key.eql?('classroom_id')
-      multiplication = (total_school_days - values) * 100
-      result = multiplication / total_school_days
-      percentage_by_student[key] = result.negative? ? 0.to_s + '%' : result.to_s + '%'
-    end
-
-    percentage_by_student
   end
 
   def show_inactive_enrollments
