@@ -76,6 +76,7 @@ class AttendanceRecordReportByStudentForm
   def students_by_classrooms
     select_all_classrooms.map do |classroom|
       students = enrollment_classrooms_list.select{ |student| student[:classroom_id].eql?(classroom.id) }
+      # frequencies_by_classroom = calculate_percentage_of_presence.select{ |student| student[:classroom].eql?(classroom.id)}
 
       next if students.empty?
 
@@ -88,7 +89,7 @@ class AttendanceRecordReportByStudentForm
               student_id: student[:student_id],
               student_name: student[:student_name],
               sequence: student[:sequence]
-              # frequency: student[:frequency]
+              # frequency:
             }
           end
         }
@@ -97,14 +98,16 @@ class AttendanceRecordReportByStudentForm
   end
 
   def fetch_daily_frequencies(student_id, classroom_id)
-    daily_frequencies_by_classroom = DailyFrequencyQuery.call(
+    @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
       classroom_id: classroom_id,
       period: adjusted_period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
     ).order(:classroom_id).group_by(&:classroom_id)
+  end
 
-    daily_frequencies_by_classroom.map do |classroom_id, daily_frequencies|
+  def calculate_percentage_of_presence
+    @daily_frequencies_by_classroom.map do |classroom_id, daily_frequencies|
       {
         classroom: classroom_id,
         students: daily_frequencies.flat_map do |daily_frequency|
