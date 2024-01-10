@@ -48,7 +48,7 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     @unity = @attendance_record_report_by_student_form.unity
     @school_calendar_year = @attendance_record_report_by_student_form.school_calendar_year
     @range_dates = "De #{report_params[:start_at]} à #{report_params[:end_at]}"
-    @students_by_classrooms = @attendance_record_report_by_student_form.students_by_classrooms
+    @students_by_classrooms ||= @attendance_record_report_by_student_form.students_by_classrooms
   end
 
   def set_options_by_user
