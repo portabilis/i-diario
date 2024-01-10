@@ -99,7 +99,6 @@ class AttendanceRecordReportByStudentForm
         }
       }
     end.compact.reduce(&:merge)
-
   end
 
   def fetch_daily_frequencies(classroom_id)
