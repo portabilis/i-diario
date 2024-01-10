@@ -59,20 +59,16 @@ class AttendanceRecordReportByStudentForm
   end
 
   def info_students(enrollment_classrooms)
-    checkbox_show_inactive_enrollments = show_inactive_enrollments
-
     enrollment_classrooms.map do |student_enrollment_classroom|
       student = student_enrollment_classroom.student_enrollment.student
-      sequence = student_enrollment_classroom.sequence if checkbox_show_inactive_enrollments
+      sequence = student_enrollment_classroom.sequence if @show_inactive_enrollments
       classroom_id = student_enrollment_classroom.classrooms_grade.classroom_id
-      # frequency = fetch_daily_frequencies(student.id, classroom_id)
 
       {
         student_id: student.id,
         student_name: student.name,
         sequence: sequence,
         classroom_id: classroom_id
-        # frequency_porcentage_by_student: frequency
       }
     end
   end
@@ -186,7 +182,6 @@ class AttendanceRecordReportByStudentForm
   end
 
   def show_inactive_enrollments
-    show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
+    @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
-
 end
