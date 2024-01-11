@@ -44,7 +44,7 @@ class AttendanceRecordReportByStudentForm
   def enrollment_classrooms_list
     classrooms = select_all_classrooms
 
-    enrollment_classrooms = StudentEnrollmentClassroom
+    @enrollment_classrooms ||= StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
       .includes(classrooms_grade: :classroom)
       .by_classroom(classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id)
@@ -55,11 +55,11 @@ class AttendanceRecordReportByStudentForm
       .order('classrooms_grades.classroom_id')
       .order('sequence ASC, students.name ASC')
 
-    info_students(enrollment_classrooms)
+    info_students
   end
 
-  def info_students(enrollment_classrooms)
-    enrollment_classrooms.map do |student_enrollment_classroom|
+  def info_students
+    @enrollment_classrooms.map do |student_enrollment_classroom|
       student = student_enrollment_classroom.student_enrollment.student
       sequence = student_enrollment_classroom.sequence if @show_inactive_enrollments
       classroom_id = student_enrollment_classroom.classrooms_grade.classroom_id
@@ -76,10 +76,11 @@ class AttendanceRecordReportByStudentForm
   def students_by_classrooms
     select_all_classrooms.map do |classroom|
       students = enrollment_classrooms_list.select{ |student| student[:classroom_id].eql?(classroom.id) }
-      frequencies_by_classroom = calculate_percentage_of_presence(classroom.id).select do |student|
+      frequencies_by_classroom = calculate_percentage_of_presence.select do |student|
         student[:classroom].eql?(classroom.id)
       end.first
 
+      next if frequencies_by_classroom.blank?
       next if students.empty?
 
       {
@@ -101,17 +102,23 @@ class AttendanceRecordReportByStudentForm
     end.compact.reduce(&:merge)
   end
 
-  def fetch_daily_frequencies(classroom_id)
+  def fetch_daily_frequencies
+    classrooms = select_all_classrooms
+
     @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
-      classroom_id: classroom_id,
+      classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
       period: adjusted_period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
     ).order(:classroom_id).group_by(&:classroom_id)
   end
 
-  def calculate_percentage_of_presence(classroom_id)
-    fetch_daily_frequencies(classroom_id).map do |classroom_id, daily_frequencies|
+  def calculate_percentage_of_presence
+    daily_frequencies = fetch_daily_frequencies
+
+    return if daily_frequencies.blank?
+
+    daily_frequencies.map do |classroom_id, daily_frequencies|
       {
         classroom: classroom_id,
         students: daily_frequencies.flat_map do |daily_frequency|
