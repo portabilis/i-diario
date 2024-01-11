@@ -12,13 +12,13 @@
         <br><%= current_entity_configuration.logo.url %>
         <br><%= current_entity_configuration.entity_name %>
         <br><%= current_entity_configuration.organ_name %>
-        <br><%= @unity.name %>
       </td>
     </tr>
   </tbody>
 </table>
 
 <%= render partial: 'identification' %>
+<%= render partial: 'student_fields' %>
 
 <style>
   table {
