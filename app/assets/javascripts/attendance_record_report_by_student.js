@@ -81,8 +81,19 @@ $(function () {
   function handleFetchPeriodSuccess(data) {
     $period.empty().trigger('change');
 
+    let options = [
+      { id: 1, name: 'Matutino', text: 'Matutino' },
+      { id: 2, name: 'Vespertino', text: 'Vespertino' },
+      { id: 3, name: 'Noturno', text: 'Noturno' },
+    ];
+
+    $period.select2({ data: options, val: [data] });
+    let selectedOption = options.find(option => option.id === parseInt(data));
+
     if (data != PERIOD_FULL) {
-      $period.select2('val', data);
+      if (selectedOption) {
+        $period.val(selectedOption.id).trigger('change');
+      }
     }
   }
 
