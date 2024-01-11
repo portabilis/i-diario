@@ -59,10 +59,10 @@ $(function () {
 
   function getPeriod() {
     const classroom_id = $classroom.select2('val');
-    let periodOptions = [{ id: 'all', name: '<option>Todas</option>', text: 'Todas' }];
 
     if (!_.isEmpty(classroom_id)) {
       if (classroom_id === 'all') {
+        let periodOptions = [{ id: 'all', name: '<option>Todas</option>', text: 'Todas' }];
         $period.val('all')
         $period.select2({ data: periodOptions, val: ['all'] })
       } else {
@@ -79,14 +79,11 @@ $(function () {
   }
 
   function handleFetchPeriodSuccess(data) {
+    $period.empty().trigger('change');
+
     if (data != PERIOD_FULL) {
       $period.select2('val', data);
-      $period.attr('readonly', true)
-    } else {
-      $period.attr('readonly', false)
     }
-
-    $period.select2({ data: selectedPeriod });
   }
 
   function handleFetchPeriodError(data) {
