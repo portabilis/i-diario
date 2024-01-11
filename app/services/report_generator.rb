@@ -2,7 +2,6 @@
 
 class ReportGenerator
   def self.call(html, driver: :chrome)
-    binding.pry
     RestClient.post(Rails.application.secrets.report_html_url, {
       html: html,
       driver: driver
