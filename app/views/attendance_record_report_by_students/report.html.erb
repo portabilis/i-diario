@@ -1,15 +1,17 @@
 <table>
   <thead>
     <tr>
-      <th style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'>
+      <th colspan='2' style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'>
         Registro de Frequência por aluno
       </th>
     </tr>
   </thead>
   <tbody>
     <tr>
+      <td style='text-align: center;'>
+        <br><%= image_tag(current_entity_configuration.logo.url) if current_entity_configuration.logo %>
+      </td>
       <td style='text-align: center;margin: 5px'>
-        <br><%= current_entity_configuration.logo.url %>
         <br><%= current_entity_configuration.entity_name %>
         <br><%= current_entity_configuration.organ_name %>
       </td>
