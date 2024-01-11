@@ -23,6 +23,10 @@ class AttendanceRecordReportByStudentForm
   validates :current_user_id, presence: true
   validates :school_calendar, presence: true
 
+  def filename
+    "#{Time.current.to_i}.pdf"
+  end
+
   def unity
     @unity ||= Unity.find(unity_id) if unity_id.present?
   end
