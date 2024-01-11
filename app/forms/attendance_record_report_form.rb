@@ -108,6 +108,22 @@ class AttendanceRecordReportForm
     percentage_by_student
   end
 
+  def school_days
+    school_days = 0
+
+    days = [*start_at.to_date..end_at.to_date]
+
+    days.each do |day|
+      if global_absence?
+        school_days += 1 if SchoolDayChecker.new(school_calendar, day, nil, classroom_id, nil).school_day?
+      else
+        school_days += 1 if SchoolDayChecker.new(school_calendar, day, nil, classroom_id, discipline_id).school_day?
+      end
+    end
+
+    @school_days ||= school_days
+  end
+
   private
 
   def days_enrollment

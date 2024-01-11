@@ -5,6 +5,7 @@ pt-BR:
       require_current_year: 'É necessário vincular um ano ao perfil atual para acessar esse cadastro'
       require_current_classroom: "É necessário vincular uma turma ao perfil atual para acessar esse cadastro"
       require_current_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+      require_specific_teacher: "Este recurso foi desenvolvido apenas para professores de áreas especificas"
       require_current_teacher_discipline_classrooms: "É necessário ter turmas vinculadas ao professor atual para acessar esta funcionalidade"
       school_calendar_steps_more_than_limit: "Verificamos que o calendário letivo da escola: %{unity}, possui uma quantidade de etapas acima do permitido."
       calendar_step_not_found: "Não foi localizada uma etapa para a data %{date}."

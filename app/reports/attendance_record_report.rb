@@ -18,7 +18,8 @@ class AttendanceRecordReport < BaseReport
     second_teacher_signature,
     students_frequencies_percentage,
     current_user,
-    classroom_id
+    classroom_id,
+    school_days
   )
     new(:landscape)
       .build(entity_configuration,
@@ -33,7 +34,8 @@ class AttendanceRecordReport < BaseReport
              second_teacher_signature,
              students_frequencies_percentage,
              current_user,
-             classroom_id)
+             classroom_id,
+             school_days)
 
   end
 
@@ -50,7 +52,8 @@ class AttendanceRecordReport < BaseReport
     second_teacher_signature,
     students_frequencies_percentage,
     current_user,
-    classroom_id
+    classroom_id,
+    school_days
   )
     @entity_configuration = entity_configuration
     @teacher = set_teacher(teacher, classroom_id, current_user)
@@ -67,6 +70,7 @@ class AttendanceRecordReport < BaseReport
     @exists_legend_hybrid = false
     @exists_legend_remote = false
     @students_frequency_percentage = students_frequencies_percentage
+    @school_days = school_days
 
     self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
 
@@ -334,6 +338,8 @@ class AttendanceRecordReport < BaseReport
           columns = @show_percentage_on_attendance ? 45 : 44
           students_cells_slice <<
             [{ content: "Aulas dadas: #{daily_frequencies.count}", colspan: columns, align: :center }]
+          students_cells_slice <<
+            [{ content: "Dias letivos no período: #{@school_days}", colspan: columns, align: :center }]
         end
 
         data.concat(students_cells_slice)

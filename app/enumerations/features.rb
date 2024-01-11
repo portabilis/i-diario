@@ -52,6 +52,5 @@ class Features < EnumerateIt::Base
                    :daily_frequencies_in_batchs,
                    :avaliation_recovery_lowest_notes
 
-
   sort_by :translation
 end

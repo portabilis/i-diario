@@ -32,4 +32,17 @@ module ConceptualExamHelper
                       ]
                     }
   end
+
+  def any_conceptual_exam_with_exempted_student?
+    @conceptual_exams.any? do |conceptual_exam|
+      conceptual_exam.conceptual_exam_values.any? { |value| value.exempted_discipline.to_s == 'true' }
+    end
+  end
+
+  def first_conceptual_exam_by_params(conceptual_exam, discipline_id)
+    ConceptualExam.where(
+      step_number: conceptual_exam.step_number,
+      classroom_id: conceptual_exam.classroom_id
+    ).by_discipline(discipline_id).first
+  end
 end

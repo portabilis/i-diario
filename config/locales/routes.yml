@@ -27,6 +27,7 @@ pt-BR:
     absence_justifications: 'justificativas-de-falta'
     observation_diary_records: 'diario-de-observacoes'
     conceptual_exams: 'diario-de-avaliacoes-conceituais'
+    conceptual_exams_in_batchs: 'diario-de-avaliacoes-conceituais-em-lote'
     descriptive_exams: 'avaliacoes-descritivas'
     disabled_entity: 'acesso-suspenso'
     reports: 'relatorios'

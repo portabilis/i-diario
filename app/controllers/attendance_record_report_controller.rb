@@ -36,7 +36,8 @@ class AttendanceRecordReportController < ApplicationController
         @attendance_record_report_form.second_teacher_signature,
         @attendance_record_report_form.students_frequencies_percentage,
         current_user,
-        resource_params[:classroom_id]
+        resource_params[:classroom_id],
+        @attendance_record_report_form.school_days
       )
       send_pdf(t('routes.attendance_record'), attendance_record_report.render)
     else

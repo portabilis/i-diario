@@ -1,0 +1,67 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'beta_function' %>
+<% end %>
+
+<%= simple_form_for @conceptual_exams.first, url: create_or_update_multiple_conceptual_exams_in_batchs_path, method: :put,
+                    html: { class: 'smart-form conceptual_exam' } do |f| %>
+  <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
+
+  <fieldset>
+    <% first_conceptual_exam = @conceptual_exams.first %>
+    <div class="row">
+      <div class="col col-sm-3">
+        <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :classroom_id, as: :select2, elements: [first_conceptual_exam.classroom], readonly: true,
+                    input_html: { value: first_conceptual_exam.classroom_id },
+                    label: t('lessons_boards.index.classroom') %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :step_id, as: :select2_step, classroom: first_conceptual_exam.classroom, readonly: true,
+                    input_html: { value: first_conceptual_exam.step.id } %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :recorded_at, input_html: { value: I18n.l(first_conceptual_exam.recorded_at || @recorded_at) }, readonly: true %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <table class="table table-bordered table-condensed" id="conceptual_exam_values_table">
+      <thead>
+      <th><%= ConceptualExam.human_attribute_name :student_id %></th>
+      <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
+      <% if old_values.present? %>
+        <% more_old_values_position ||= old_values.max_by { |old_value| old_value.length }[0] %>
+        <% old_values[more_old_values_position].each do |old_value| %>
+          <th class="old_step_column"><%= old_value[:description] %></th>
+        <% end %>
+      <% end %>
+      <th width="20%"><%= ConceptualExamValue.human_attribute_name :value %></th>
+      </thead>
+
+      <% @conceptual_exam_values.each do |conceptual_exam_value| %>
+        <%= f.simple_fields_for :conceptual_exam_values, conceptual_exam_value do |conceptual_exam_value_form| %>
+          <%= render 'conceptual_exam_value_fields', f: conceptual_exam_value_form, student: conceptual_exam_value.conceptual_exam.student %>
+        <% end %>
+      <% end %>
+
+      <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless any_conceptual_exam_with_exempted_student? %>'>
+        <tr>
+          <td colspan="<%= old_values.count + 2 %>">
+                      <span class="conceptual-exam-student-legend">
+                        <%= t('.exempted_students_from_discipline_legend') %>
+                      </span>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+<div class="pull-right">
+  <%= f.submit t('.save'), class: 'btn new-save-style' %>
+</div>
+</fieldset>
+<% end %>
