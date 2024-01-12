@@ -26,7 +26,7 @@ class AttendanceRecordReportByStudentsController < ApplicationController
       fetch_collections
       response = ReportGenerator.call(render_to_string(action: :report, layout: "report"))
       send_data response.body, filename: @attendance_record_report_by_student_form.filename,
-        type: "application/pdf", disposition: "inline"
+        type: "application/pdf", disposition: "attachment"
     else
       @attendance_record_report_by_student_form.school_calendar_year = current_school_year
 
