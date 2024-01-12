@@ -1,23 +1,39 @@
 class AttendanceRecordReportByStudent < BaseReport
-  def self.build(
-    select_all_classrooms,
-    enrollment_classrooms_list
+
+  attr_accessor :classrooms, :enrollment_classrooms_list, :period, :start_at, :end_at
+
+  def self.call(
+    classrooms,
+    enrollment_classrooms_list,
+    period,
+    start_at,
+    end_at
   )
-    new(:landscape).build(
-      select_all_classrooms,
-      enrollment_classrooms_list
-    )
+    new(
+      classrooms,
+      enrollment_classrooms_list,
+      period,
+      start_at,
+      end_at
+    ).call
   end
 
-  def build(
-    select_all_classrooms,
-    enrollment_classrooms_list
+  def initialize(
+    classrooms,
+    enrollment_classrooms_list,
+    period,
+    start_at,
+    end_at
   )
+    @classrooms = classrooms,
+    @enrollment_classrooms_list = enrollment_classrooms_list,
+    @period = period,
+    @start_at = start_at,
+    @end_at = end_at
+  end
 
-  private
-
-  def students_by_classrooms
-    select_all_classrooms.map do |classroom|
+  def call
+    classrooms.map do |classroom|
       students = enrollment_classrooms_list.select{ |student| student[:classroom_id].eql?(classroom.id) }
       frequencies_by_classroom = calculate_percentage_of_presence.select do |student|
         student[:classroom].eql?(classroom.id)
@@ -45,11 +61,11 @@ class AttendanceRecordReportByStudent < BaseReport
     end.compact.reduce(&:merge)
   end
 
-  def fetch_daily_frequencies
-    classrooms = select_all_classrooms
+  private
 
+  def fetch_daily_frequencies
     @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
-      classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
+      classroom_id: classrooms.map(&:id),
       period: adjusted_period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
@@ -78,5 +94,11 @@ class AttendanceRecordReportByStudent < BaseReport
         end
       }
     end
+  end
+
+  def adjusted_period
+    return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
+
+    period
   end
 end
