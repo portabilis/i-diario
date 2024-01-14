@@ -29,6 +29,13 @@ class StepsFetcher
     school_calendar_steps.find_by(id: step_id)
   end
 
+  def last_step_by_year
+    return if school_calendar.blank?
+
+    school_calendar_steps.last
+  end
+
+
   def current_step
     step_by_date(Date.current)
   end

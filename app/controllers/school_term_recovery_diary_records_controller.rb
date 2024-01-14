@@ -32,8 +32,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.discipline_id = current_user_discipline.id
     set_options_by_user
     fetch_disciplines_by_classroom
+    current_year_last_step = StepsFetcher.new(current_user_classroom).last_step_by_year
 
-    if current_test_setting.blank? && @admin_or_teacher
+    if current_test_setting.blank? && @admin_or_teacher && current_year_last_step.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
       redirect_to(school_term_recovery_diary_records_path)
@@ -41,7 +42,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     return if performed?
 
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @number_of_decimal_places = current_test_setting.number_of_decimal_places ||
+      current_test_setting_step(current_year_last_step)&.number_of_decimal_places
   end
 
   def create
@@ -69,7 +71,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def edit
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
     step_number = @school_term_recovery_diary_record.step_number
-    @school_term_recovery_diary_record.step_id = steps_fetcher.step(step_number).try(:id)
+    step = steps_fetcher.step(step_number)
+    @school_term_recovery_diary_record.step_id = step.try(:id)
     set_options_by_user
     fetch_disciplines_by_classroom
 
@@ -90,7 +93,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     add_missing_students(students_in_recovery)
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @number_of_decimal_places = current_test_setting.number_of_decimal_places ||
+      current_test_setting_step(step)&.number_of_decimal_places
   end
 
   def update
