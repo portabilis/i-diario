@@ -64,16 +64,6 @@ idiario     | * Listening on tcp://0.0.0.0:3000
 idiario     | Use Ctrl-C to stop
 ```
 
-Após finalizada a instalação, descubra em qual endereço o i-Diário está rodando, basta executar o comando:
-
-```
-docker-compose port app 3000
-```
-
-Acesse o endereço que será exibido após rodar o comando acima.
-
-O usuário padrão é: `admin` / A senha padrão é: `123456789`
-
 #### Personalizando a instalação via Docker
 
 Você pode criar um arquivo `docker-compose.override.yml` para personalizar sua instalação do i-Diário, mudando as portas
