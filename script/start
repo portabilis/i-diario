@@ -15,8 +15,8 @@ if ! test -f ".setup"; then
 
   bundle exec rake db:create
   bundle exec rake db:migrate
-  bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=idiario
-  bundle exec rake entity:admin:create NAME=prefeitura ADMIN_PASSWORD=A123456789$
+  bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
+  bundle exec rake entity:admin:create NAME=prefeitura ADMIN_PASSWORD=123456789
 
   cp public/404.html.sample public/404.html
   cp public/500.html.sample public/500.html

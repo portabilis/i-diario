@@ -47,7 +47,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td id="pagination-tfoot" colspan="6">
+          <td id="pagination-tfoot" colspan="<%= @allow_class_number ? 6 : 5 %>">
             <%= render 'shared/pagination', records: @discipline_content_records %>
           </td>
         </tfoot>
