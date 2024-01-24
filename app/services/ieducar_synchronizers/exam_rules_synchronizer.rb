@@ -64,13 +64,13 @@ class ExamRulesSynchronizer < BaseSynchronizer
   def update_descriptive_exams(exam_rule)
     return unless exam_rule.attribute_changed?("opinion_type")
 
-    classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id).map(&:classroom_id).uniq
+    classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id)
+                                   .pluck(&:classroom_id)
+                                   .uniq
 
-    descriptive_exams = DescriptiveExam.where(classroom_id: classroom_ids)
-                                      &.where.not(opinion_type: exam_rule.opinion_type)
+    DescriptiveExam.where(classroom_id: classroom_ids)
+                  &.where.not(opinion_type: exam_rule.opinion_type)
+                   .destroy_all
 
-    descriptive_exams.each do |descriptive_exam|
-      descriptive_exam.update(:opinion_type, exam_rule.opinion_type)
-    end
   end
 end
