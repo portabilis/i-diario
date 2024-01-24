@@ -69,7 +69,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
                                    .uniq
 
     DescriptiveExam.where(classroom_id: classroom_ids)
-                  &.where.not(opinion_type: exam_rule.opinion_type)
+                   .where.not(opinion_type: exam_rule.opinion_type)
                    .destroy_all
 
   end
