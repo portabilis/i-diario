@@ -311,7 +311,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
             :discipline
           ]
         )
-      .by_teacher_id(current_teacher.id)
       .by_classroom_id(@classrooms.map(&:id))
       .by_discipline_id(@disciplines.map(&:id))
       .ordered
