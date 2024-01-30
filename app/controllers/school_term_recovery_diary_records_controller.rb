@@ -12,7 +12,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     set_options_by_user
 
     set_school_term_recovery_diary_records
-    binding.pry
 
     if step_id.present?
       @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(
