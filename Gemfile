@@ -101,6 +101,7 @@ group :test do
   gem 'vcr', '3.0.0'
   gem 'webdrivers', '3.6.0'
   gem 'webmock', '3.14.0'
+  gem 'simplecov', require: false
 end
 
 group :test, :development do
