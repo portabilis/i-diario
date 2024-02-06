@@ -53,7 +53,7 @@ class AttendanceRecordReportByStudentForm
       .includes(classrooms_grade: :classroom)
       .by_classroom(classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id)
       .by_date_range(start_at, end_at)
-      .by_period(adjusted_period)
+      .by_period(period)
       .where(classrooms_grade: { classrooms: { year: school_calendar_year } })
       .distinct
       .order('classrooms_grades.classroom_id')
@@ -77,41 +77,12 @@ class AttendanceRecordReportByStudentForm
     end
   end
 
-  def students_by_classrooms
-    select_all_classrooms.map do |classroom|
-      students = enrollment_classrooms_list.select{ |student| student[:classroom_id].eql?(classroom.id) }
-      frequencies_by_classroom = calculate_percentage_of_presence.select do |student|
-        student[:classroom].eql?(classroom.id)
-      end.first
-
-      next if frequencies_by_classroom.blank?
-      next if students.empty?
-
-      {
-        classroom.id => {
-          classroom_name: classroom.description,
-          grade_name: classroom.grades.first.description,
-          students: students.map do |student|
-            {
-              student_id: student[:student_id],
-              student_name: student[:student_name],
-              sequence: student[:sequence],
-              frequency: frequencies_by_classroom[:students].select do |frequency_by_student|
-                frequency_by_student[:percentage_frequency] if frequency_by_student[:student_id] == student[:student_id]
-              end.first
-            }
-          end
-        }
-      }
-    end.compact.reduce(&:merge)
-  end
-
   def fetch_daily_frequencies
     classrooms = select_all_classrooms
 
     @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
       classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
-      period: adjusted_period,
+      period: period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
     ).order(:classroom_id).group_by(&:classroom_id)
@@ -139,12 +110,6 @@ class AttendanceRecordReportByStudentForm
         end
       }
     end
-  end
-
-  def adjusted_period
-    return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
-
-    period
   end
 
   def show_inactive_enrollments

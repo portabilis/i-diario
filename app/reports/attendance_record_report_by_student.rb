@@ -65,7 +65,7 @@ class AttendanceRecordReportByStudent < BaseReport
   def query_daily_frequencies
     @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
       classroom_id: classrooms.map(&:id),
-      period: adjusted_period,
+      period: period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
     ).order(:classroom_id).group_by(&:classroom_id)
@@ -93,11 +93,5 @@ class AttendanceRecordReportByStudent < BaseReport
         end
       }
     end
-  end
-
-  def adjusted_period
-    return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
-
-    period
   end
 end
