@@ -1,5 +1,4 @@
 class AttendanceRecordReportByStudent < BaseReport
-
   attr_accessor :classrooms, :enrollment_classrooms_list, :period, :start_at, :end_at
 
   def self.call(
@@ -25,10 +24,10 @@ class AttendanceRecordReportByStudent < BaseReport
     start_at,
     end_at
   )
-    @classrooms = classrooms,
-    @enrollment_classrooms_list = enrollment_classrooms_list,
-    @period = period,
-    @start_at = start_at,
+    @classrooms = classrooms
+    @enrollment_classrooms_list = enrollment_classrooms_list
+    @period = period
+    @start_at = start_at
     @end_at = end_at
   end
 
@@ -63,7 +62,7 @@ class AttendanceRecordReportByStudent < BaseReport
 
   private
 
-  def fetch_daily_frequencies
+  def query_daily_frequencies
     @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
       classroom_id: classrooms.map(&:id),
       period: adjusted_period,
@@ -73,7 +72,7 @@ class AttendanceRecordReportByStudent < BaseReport
   end
 
   def calculate_percentage_of_presence
-    daily_frequencies = fetch_daily_frequencies
+    daily_frequencies = query_daily_frequencies
 
     return if daily_frequencies.blank?
 
