@@ -6,7 +6,7 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
-      period: @period,
+      period: adjusted_period,
       current_user_id: current_user.id,
       classroom_id: current_user_classroom.id
     )
@@ -73,6 +73,12 @@ class AttendanceRecordReportByStudentsController < ApplicationController
                            .by_year(current_user_school_year || Date.current.year)
                            .ordered
     @disciplines = Discipline.by_classroom_id(@attendance_record_report_by_student_form.classroom_id)
+  end
+
+  def adjusted_period
+    return Periods::FULL if @period.eql?('all') || @period.eql?(Periods::FULL)
+
+    @period
   end
 
   def current_teacher_period(classroom_id)
