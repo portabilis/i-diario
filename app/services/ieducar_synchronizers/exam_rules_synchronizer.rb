@@ -34,7 +34,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule_record.tipo_calculo_recuperacao_paralela.to_i ||
           ParallelExamsCalculationTypes::SUBSTITUTION
 
-        if exam_rule.changed?
+        if exam_rule.changed? && exam_rule.id.present?
           update_descriptive_exams(exam_rule)
           exam_rule.save!
         end
@@ -63,9 +63,10 @@ class ExamRulesSynchronizer < BaseSynchronizer
 
   def update_descriptive_exams(exam_rule)
     return unless exam_rule.attribute_changed?("opinion_type")
+    binding.pry
 
     classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id)
-                                   .pluck(&:classroom_id)
+                                   .pluck(:classroom_id)
                                    .uniq
 
     DescriptiveExam.where(classroom_id: classroom_ids)
