@@ -95,7 +95,7 @@ group :test do
   gem 'rspec-sidekiq', '3.0.3'
   gem 'rspec-wait', '0.0.9'
   gem 'selenium-webdriver', '~> 3.0'
-  gem 'shoulda-matchers', '~> 4.4', '>= 4.4.1'
+  gem 'shoulda-matchers', '~> 3.1', '>= 3.1.0'
   gem 'timecop', '0.8.1'
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
