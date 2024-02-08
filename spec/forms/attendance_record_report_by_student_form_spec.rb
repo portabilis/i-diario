@@ -6,6 +6,8 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
   let(:school_calendar) { create(:school_calendar, unity: unity) }
   let(:school_calendar_year) { school_calendar.year }
   let(:current_user_admin) { create(:user, :with_user_role_administrator) }
+  let(:teacher) { create(:teacher) }
+  let(:current_user_teacher) { create(:user, :with_user_role_teacher, teacher: teacher) }
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:school_calendar_year) }
@@ -55,7 +57,7 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
 
     describe '#unity' do
       context 'when unity_id param is present' do
-        it 'returns a unity' do
+        it 'return a unity' do
           report = AttendanceRecordReportByStudentForm.new(unity_id: unity.id)
 
           expect(report.unity).to eq(unity)
@@ -67,6 +69,68 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
           report = AttendanceRecordReportByStudentForm.new(unity_id: nil)
 
           expect(report.unity).to eq(nil)
+        end
+      end
+    end
+
+    describe '#current_user' do
+      context 'when current_user_id param is present' do
+        it 'return a current_user' do
+          report = AttendanceRecordReportByStudentForm.new(current_user_id: current_user_admin.id)
+
+          expect(report.current_user).to eq(current_user_admin)
+        end
+      end
+
+      context 'when current_user_id param is not present' do
+        it 'return nil' do
+          report = AttendanceRecordReportByStudentForm.new(current_user_id: nil)
+
+          expect(report.current_user).to eq(nil)
+        end
+      end
+    end
+
+    describe '#select_all_classrooms' do
+      let!(:other_unity) { create(:unity) }
+      let!(:classrooms) { create_list(:classroom, 3, year: '2023', unity: unity) }
+      let!(:teacher_discipline_classrooms) {
+        create(
+          :teacher_discipline_classroom,
+          year: '2023',
+          classroom: classroom,
+          teacher: teacher
+        )
+      }
+
+      context "when classroom_id param is not equal to 'all'" do
+        it 'return only one classroom' do
+          report = AttendanceRecordReportByStudentForm.new(classroom_id: classroom.id)
+          expect(report.select_all_classrooms).to eq([classroom])
+        end
+      end
+
+      context "when classroom_id param is equal to 'all' and current_user is admin?" do
+        it 'returns linked classrooms at unity' do
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: unity.id,
+            classroom_id: 'all',
+            current_user_id: current_user_admin.id
+          )
+
+          expect(report.select_all_classrooms).to eq(classrooms)
+        end
+      end
+
+      context "when classroom_id param is equal to 'all' and current_user is teacher?" do
+        it 'return linked classrooms at teacher' do
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: unity.id,
+            classroom_id: 'all',
+            current_user_id: current_user_teacher.id
+          )
+
+          expect(report.select_all_classrooms).to eq([classroom])
         end
       end
     end
