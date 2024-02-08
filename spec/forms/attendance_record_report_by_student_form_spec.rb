@@ -39,4 +39,25 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
       end
     end
   end
+
+  describe 'methods' do
+    describe '#filename' do
+      it 'returns a filename with the current timestamp and .pdf extension' do
+        frozen_time = Time.new(2024, 2, 8, 12, 0, 0)
+
+        Timecop.freeze(frozen_time) do
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: unity.id,
+            classroom_id: classroom.id,
+            period: Periods::MATUTINAL,
+            school_calendar_year: school_calendar_year,
+            school_calendar: school_calendar,
+            current_user_id: current_user_admin.id
+          )
+          filename = report.filename
+          expect(filename).to eq("#{frozen_time.to_i}.pdf")
+        end
+      end
+    end
+  end
 end
