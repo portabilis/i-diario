@@ -35,8 +35,13 @@ class AttendanceRecordReportByStudentForm
     @user ||= User.find(current_user_id) if current_user_id.present?
   end
 
+  def classroom
+    @classroom ||= Classroom.find(classroom_id) if classroom_id.present?
+  end
+
   def select_all_classrooms
-    return Classroom.where(id: classroom_id) unless classroom_id.eql?('all')
+    return nil if unity_id.blank? || current_user.blank?
+    return [classroom] unless classroom_id.eql?('all')
     return Classroom.by_unity(unity_id).distinct.includes(:grades).order(:id) unless current_user.teacher?
 
     Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id)
