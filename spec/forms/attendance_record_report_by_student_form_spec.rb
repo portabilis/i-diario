@@ -46,16 +46,27 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
         frozen_time = Time.new(2024, 2, 8, 12, 0, 0)
 
         Timecop.freeze(frozen_time) do
-          report = AttendanceRecordReportByStudentForm.new(
-            unity_id: unity.id,
-            classroom_id: classroom.id,
-            period: Periods::MATUTINAL,
-            school_calendar_year: school_calendar_year,
-            school_calendar: school_calendar,
-            current_user_id: current_user_admin.id
-          )
+          report = AttendanceRecordReportByStudentForm.new()
           filename = report.filename
           expect(filename).to eq("#{frozen_time.to_i}.pdf")
+        end
+      end
+    end
+
+    describe '#unity' do
+      context 'when unity_id param is present' do
+        it 'returns a unity' do
+          report = AttendanceRecordReportByStudentForm.new(unity_id: unity.id)
+
+          expect(report.unity).to eq(unity)
+        end
+      end
+
+      context 'when unity_id param is not present' do
+        it 'return nil' do
+          report = AttendanceRecordReportByStudentForm.new(unity_id: nil)
+
+          expect(report.unity).to eq(nil)
         end
       end
     end
