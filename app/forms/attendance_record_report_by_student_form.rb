@@ -58,7 +58,7 @@ class AttendanceRecordReportByStudentForm
       .includes(classrooms_grade: :classroom)
       .by_classroom(classrooms.map(&:id))
       .by_date_range(start_at, end_at)
-      .by_period(period)
+      .by_period(adjusted_period)
       .where(classrooms_grade: { classrooms: { year: school_calendar_year } })
       .distinct
       .order('classrooms_grades.classroom_id')
