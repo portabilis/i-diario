@@ -56,7 +56,7 @@ class AttendanceRecordReportByStudentForm
     @enrollment_classrooms ||= StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
       .includes(classrooms_grade: :classroom)
-      .by_classroom(classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id)
+      .by_classroom(classrooms.map(&:id))
       .by_date_range(start_at, end_at)
       .by_period(period)
       .where(classrooms_grade: { classrooms: { year: school_calendar_year } })
@@ -64,7 +64,7 @@ class AttendanceRecordReportByStudentForm
       .order('classrooms_grades.classroom_id')
       .order('sequence ASC, students.name ASC')
 
-    info_students
+      info_students
   end
 
   def info_students
@@ -86,8 +86,8 @@ class AttendanceRecordReportByStudentForm
     classrooms = select_all_classrooms
 
     @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
-      classroom_id: classroom_id.eql?('all') ? classrooms.map(&:id) : classroom_id,
-      period: period,
+      classroom_id: classrooms.map(&:id),
+      period: adjusted_period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
     ).order(:classroom_id).group_by(&:classroom_id)
@@ -119,5 +119,11 @@ class AttendanceRecordReportByStudentForm
 
   def show_inactive_enrollments
     @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
+  end
+
+  def adjusted_period
+    return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
+
+    period
   end
 end
