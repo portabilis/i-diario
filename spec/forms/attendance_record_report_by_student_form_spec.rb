@@ -3,11 +3,22 @@ require 'rails_helper'
 RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
   let(:unity) { create(:unity) }
   let!(:classroom) { create(:classroom, year: '2023', unity: unity) }
-  let(:school_calendar) { create(:school_calendar, unity: unity) }
+  let(:classroom_grades) { create(:classrooms_grade, classroom: classroom) }
+  let(:school_calendar) { create(:school_calendar, unity: unity, year: 2023) }
   let(:school_calendar_year) { school_calendar.year }
   let(:current_user_admin) { create(:user, :with_user_role_administrator) }
   let(:teacher) { create(:teacher) }
   let(:current_user_teacher) { create(:user, :with_user_role_teacher, teacher: teacher) }
+  let!(:other_unity) { create(:unity) }
+  let!(:classrooms) { create_list(:classroom, 3, year: '2023', unity: other_unity) }
+  let!(:teacher_discipline_classrooms) {
+    create(
+      :teacher_discipline_classroom,
+      year: '2023',
+      classroom: classrooms.first,
+      teacher: teacher
+    )
+  }
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:school_calendar_year) }
@@ -92,17 +103,6 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
     end
 
     describe '#select_all_classrooms' do
-      let!(:other_unity) { create(:unity) }
-      let!(:classrooms) { create_list(:classroom, 3, year: '2023', unity: other_unity) }
-      let!(:teacher_discipline_classrooms) {
-        create(
-          :teacher_discipline_classroom,
-          year: '2023',
-          classroom: classrooms.first,
-          teacher: teacher
-        )
-      }
-
       context "when classroom_id param is not equal to 'all'" do
         it 'return only one classroom' do
           report = AttendanceRecordReportByStudentForm.new(
@@ -149,6 +149,63 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
     end
 
     describe '#enrollment_classrooms_list' do
+      let(:students) { create_list(:student, 2) }
+      let(:student_enrollments) {
+        students.map { |student| create(:student_enrollment, student: student) }
+      }
+      let!(:student_enrollment_classrooms) {
+        student_enrollments.map { |student_enrollment|
+          create(
+            :student_enrollment_classroom,
+            student_enrollment: student_enrollment,
+            classrooms_grade: classroom_grades
+          )
+        }
+      }
+
+      context "when method 'select_all_classrooms' is nil" do
+        it 'returns nil' do
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: unity.id,
+            period: 'all',
+            classroom_id: 'all',
+            current_user_id: current_user_teacher.id,
+            start_at: '2023-01-01',
+            end_at: '2023-12-31'
+          )
+          expect(report.enrollment_classrooms_list).to be_empty
+        end
+      end
+
+      context "when method 'select_all_classrooms' is not nil" do
+        it 'returns list of students' do
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: unity.id,
+            classroom_id: 'all',
+            period: 'all',
+            school_calendar_year: school_calendar_year,
+            current_user_id: current_user_admin.id,
+            start_at: '2023-01-01',
+            end_at: '2023-12-31'
+          )
+
+          list_students = [
+            { student_id: students.last.id, student_name: students.last.name,
+            sequence: nil, classroom_id: classroom.id},
+            { student_id: students.first.id, student_name: students.first.name,
+            sequence: nil, classroom_id: classroom.id}
+          ]
+
+          expect(report.enrollment_classrooms_list).to eq(list_students)
+        end
+
+      end
+      context "when period is equal 'all'" do
+
+      end
+      context "when period not is equal 'all'" do
+
+      end
     end
   end
 end
