@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    params[:search][:by_name] = params[:search][:by_name].squish if params[:search].present?
+    params[:search][:by_name] = params[:search][:by_name]&.squish if params[:search].present?
 
     @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
