@@ -3,14 +3,15 @@ class AttendanceRecordReportByStudentsController < ApplicationController
   before_action :require_current_teacher
 
   def form
+    @period = current_teacher_period(current_user_classroom.id)
+
     @attendance_record_report_by_student_form = AttendanceRecordReportByStudentForm.new(
       unity_id: current_unity.id,
       school_calendar_year: current_school_year,
-      period: adjusted_period,
+      period: adjusted_period(@period),
       current_user_id: current_user.id,
       classroom_id: current_user_classroom.id
     )
-    @period = current_teacher_period(current_user_classroom.id)
 
     set_options_by_user
   end
@@ -49,15 +50,17 @@ class AttendanceRecordReportByStudentsController < ApplicationController
 
   def fetch_collections
     @unity = @attendance_record_report_by_student_form.unity
+    period = @attendance_record_report_by_student_form.period
     @school_calendar_year = @attendance_record_report_by_student_form.school_calendar_year
     @range_dates = "De #{report_params[:start_at]} à #{report_params[:end_at]}"
 
     classrooms = @attendance_record_report_by_student_form.select_all_classrooms
     enrollment_classrooms_list = @attendance_record_report_by_student_form.enrollment_classrooms_list
+
     @students_by_classrooms ||= AttendanceRecordReportByStudent.call(
       classrooms,
       enrollment_classrooms_list,
-      @attendance_record_report_by_student_form.period,
+      adjusted_period(period),
       @attendance_record_report_by_student_form.start_at,
       @attendance_record_report_by_student_form.end_at
     )
@@ -75,10 +78,10 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     @disciplines = Discipline.by_classroom_id(@attendance_record_report_by_student_form.classroom_id)
   end
 
-  def adjusted_period
-    return Periods::FULL if @period.eql?('all') || @period.eql?(Periods::FULL)
+  def adjusted_period(period)
+    return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
 
-    @period
+    period
   end
 
   def current_teacher_period(classroom_id)
