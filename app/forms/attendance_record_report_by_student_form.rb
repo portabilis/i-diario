@@ -40,8 +40,8 @@ class AttendanceRecordReportByStudentForm
   end
 
   def select_all_classrooms
-    return nil if unity_id.blank? || current_user.blank?
     return [classroom] unless classroom_id.eql?('all')
+    return if unity_id.blank? || current_user.blank?
     return Classroom.by_unity(unity_id).distinct.includes(:grades).order(:id) unless current_user.teacher?
 
     Classroom.by_unity_and_teacher(unity_id, current_user.teacher_id)
@@ -52,13 +52,14 @@ class AttendanceRecordReportByStudentForm
 
   def enrollment_classrooms_list
     classrooms = select_all_classrooms
+    period = adjusted_period
 
     @enrollment_classrooms ||= StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
       .includes(classrooms_grade: :classroom)
       .by_classroom(classrooms.map(&:id))
       .by_date_range(start_at, end_at)
-      .by_period(adjusted_period)
+      .by_period(period)
       .where(classrooms_grade: { classrooms: { year: school_calendar_year } })
       .distinct
       .order('classrooms_grades.classroom_id')
@@ -82,39 +83,6 @@ class AttendanceRecordReportByStudentForm
     end
   end
 
-  def fetch_daily_frequencies
-    classrooms = select_all_classrooms
-
-    @daily_frequencies_by_classroom ||= DailyFrequencyQuery.call(
-      classroom_id: classrooms.map(&:id),
-      period: adjusted_period,
-      frequency_date: start_at..end_at,
-      all_students_frequencies: true
-    ).order(:classroom_id).group_by(&:classroom_id)
-  end
-
-  def calculate_percentage_of_presence
-    daily_frequencies = fetch_daily_frequencies
-
-    return if daily_frequencies.blank?
-
-    daily_frequencies.map do |classroom_id, daily_frequencies|
-      {
-        classroom: classroom_id,
-        students: daily_frequencies.flat_map do |daily_frequency|
-          daily_frequency.students
-        end.group_by(&:student_id).map do |key, daily_frequency_student|
-          total_daily_frequency_students = daily_frequency_student.count.to_f
-          total_presence = daily_frequency_student.map { |dfs| dfs if dfs.present }.compact.count.to_f
-          percentage_frequency = ((total_presence / total_daily_frequency_students) * 100).round(2)
-
-          {
-            student_id: daily_frequency_student.first.student_id,
-            percentage_frequency: percentage_frequency
-          }
-        end
-      }
-    end
   end
 
   def show_inactive_enrollments
