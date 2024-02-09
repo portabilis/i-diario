@@ -164,8 +164,8 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
       }
 
       context "when method 'select_all_classrooms' and 'period' is nil" do
-        it 'returns nil' do
-          report = AttendanceRecordReportByStudentForm.new(
+        subject(:report) {
+          AttendanceRecordReportByStudentForm.new(
             unity_id: unity.id,
             classroom_id: 'all',
             school_calendar_year: school_calendar_year,
@@ -173,6 +173,9 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
             start_at: '2023-01-01',
             end_at: '2023-12-31'
           )
+        }
+
+        it 'returns nil' do
           expect(report.enrollment_classrooms_list).to be_empty
         end
       end
