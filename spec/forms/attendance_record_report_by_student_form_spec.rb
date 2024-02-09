@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
   let(:unity) { create(:unity) }
-  let(:classroom) { create(:classroom, year: '2023', unity: unity) }
+  let!(:classroom) { create(:classroom, year: '2023', unity: unity) }
   let(:school_calendar) { create(:school_calendar, unity: unity) }
   let(:school_calendar_year) { school_calendar.year }
   let(:current_user_admin) { create(:user, :with_user_role_administrator) }
@@ -93,20 +93,35 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
 
     describe '#select_all_classrooms' do
       let!(:other_unity) { create(:unity) }
-      let!(:classrooms) { create_list(:classroom, 3, year: '2023', unity: unity) }
+      let!(:classrooms) { create_list(:classroom, 3, year: '2023', unity: other_unity) }
       let!(:teacher_discipline_classrooms) {
         create(
           :teacher_discipline_classroom,
           year: '2023',
-          classroom: classroom,
+          classroom: classrooms.first,
           teacher: teacher
         )
       }
 
       context "when classroom_id param is not equal to 'all'" do
         it 'return only one classroom' do
-          report = AttendanceRecordReportByStudentForm.new(classroom_id: classroom.id)
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: unity.id,
+            current_user_id: current_user_admin,
+            classroom_id: classroom.id
+          )
           expect(report.select_all_classrooms).to eq([classroom])
+        end
+      end
+
+      context "when classroom_id param is not equal to 'all' and current_user is teacher?" do
+        it 'return only one classroom linked to the teacher' do
+          report = AttendanceRecordReportByStudentForm.new(
+            unity_id: other_unity.id,
+            current_user_id: current_user_teacher.id,
+            classroom_id: classrooms.first.id
+          )
+          expect(report.select_all_classrooms).to eq([classrooms.first])
         end
       end
 
@@ -117,22 +132,23 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
             classroom_id: 'all',
             current_user_id: current_user_admin.id
           )
-
-          expect(report.select_all_classrooms).to eq(classrooms)
+          expect(report.select_all_classrooms).to eq([classroom])
         end
       end
 
       context "when classroom_id param is equal to 'all' and current_user is teacher?" do
         it 'return linked classrooms at teacher' do
           report = AttendanceRecordReportByStudentForm.new(
-            unity_id: unity.id,
+            unity_id: other_unity.id,
             classroom_id: 'all',
             current_user_id: current_user_teacher.id
           )
-
-          expect(report.select_all_classrooms).to eq([classroom])
+          expect(report.select_all_classrooms).to eq([classrooms.first])
         end
       end
+    end
+
+    describe '#enrollment_classrooms_list' do
     end
   end
 end
