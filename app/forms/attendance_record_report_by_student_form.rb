@@ -83,8 +83,6 @@ class AttendanceRecordReportByStudentForm
     end
   end
 
-  end
-
   def show_inactive_enrollments
     @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
