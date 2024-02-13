@@ -1,5 +1,6 @@
 class KnowledgeAreaLessonPlanReportController < ApplicationController
   before_action :require_current_teacher
+  before_action :require_current_classroom, only: [:form, :lesson_plan_report, :content_record_report]
 
   def form
     @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(
