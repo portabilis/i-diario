@@ -3,6 +3,7 @@ class DisciplineContentRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
+  before_action :require_current_classroom, only: [:index, :new, :create, :edit, :update]
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
