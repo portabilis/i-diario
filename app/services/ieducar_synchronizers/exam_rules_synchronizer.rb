@@ -36,7 +36,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
 
         if exam_rule.changed?
           exam_rule.save!
-          update_descriptive_exams(exam_rule) if exam_rule.id.present?
+          update_descriptive_exams(exam_rule) if exam_rule.persisted?
         end
 
         if exam_rule_record.regra_diferenciada_id.present?
