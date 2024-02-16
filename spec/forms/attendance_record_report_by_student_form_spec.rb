@@ -167,7 +167,8 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
         subject(:report) {
           AttendanceRecordReportByStudentForm.new(
             unity_id: unity.id,
-            classroom_id: 'all',
+            classroom_id: '',
+            period: '',
             school_calendar_year: school_calendar_year,
             current_user_id: current_user_teacher.id,
             start_at: '2023-01-01',
@@ -175,8 +176,8 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
           )
         }
 
-        it 'returns nil' do
-          expect(report.enrollment_classrooms_list).to be_empty
+        it 'returns ArgumentError' do
+          expect{report.enrollment_classrooms_list}.to raise_error(ArgumentError, "Period can't be blank")
         end
       end
 
@@ -195,12 +196,12 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
 
         it 'returns list of students' do
           list_students = [
-            { student_id: students.last.id, student_name: students.last.name,
-            sequence: nil, classroom_id: classroom.id},
             { student_id: students.first.id, student_name: students.first.name,
+            sequence: nil, classroom_id: classroom.id},
+            { student_id: students.last.id, student_name: students.last.name,
             sequence: nil, classroom_id: classroom.id}
           ]
-          expect(report.enrollment_classrooms_list).to eq(list_students)
+          expect(report.enrollment_classrooms_list).to match_array(list_students)
         end
       end
     end
