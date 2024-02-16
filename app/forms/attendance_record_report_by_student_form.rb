@@ -89,6 +89,7 @@ class AttendanceRecordReportByStudentForm
 
   def adjusted_period
     return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
+    raise ArgumentError, "Period can't be blank" if period.blank?
 
     period
   end
