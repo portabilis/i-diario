@@ -38,8 +38,7 @@ class AttendanceRecordReportByStudent < BaseReport
         student[:classroom].eql?(classroom.id)
       end.first
 
-      next if frequencies_by_classroom.blank?
-      next if students.empty?
+      next if frequencies_by_classroom.blank? || students.empty?
 
       {
         classroom.id => {
