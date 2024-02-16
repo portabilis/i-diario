@@ -68,7 +68,8 @@ $(function () {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
-    $discipline.select2({ data: selectedDisciplines });
+    $discipline.select2({ data: selectedDisciplines});
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
   };
 
   function handleFetchDisciplinesError() {
@@ -183,6 +184,11 @@ $(function () {
       event.preventDefault();
       copyFromTeachingPlanAlert.style.display = 'none';
 
+      if (!$classroom.val() || !$discipline.val()) {
+        flashMessages.error('É necessário preenchimento das disciplinas e turmas para realizar a cópia.');
+        return false;
+      }
+
       if (!startAtInput.value || !endAtInput.value) {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
         return false;
@@ -234,6 +240,12 @@ $(function () {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
         return false;
       }
+
+      if (!$classroom.val() || !$discipline.val()) {
+        flashMessages.error('É necessário preenchimento das disciplinas e turmas para realizar a cópia.');
+        return false;
+      }
+
       const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
       const params = {
         classroom_id: $classroom.val(),
