@@ -34,9 +34,9 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule_record.tipo_calculo_recuperacao_paralela.to_i ||
           ParallelExamsCalculationTypes::SUBSTITUTION
 
-        if exam_rule.changed? && exam_rule.id.present?
-          update_descriptive_exams(exam_rule)
+        if exam_rule.changed?
           exam_rule.save!
+          update_descriptive_exams(exam_rule) if exam_rule.id.present?
         end
 
         if exam_rule_record.regra_diferenciada_id.present?
