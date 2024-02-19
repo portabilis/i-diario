@@ -40,8 +40,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     end
 
     return if performed?
-
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
   def create
@@ -56,7 +54,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       if @admin_or_teacher
-        @number_of_decimal_places = current_test_setting.number_of_decimal_places
+        @number_of_decimal_places = current_test_setting.blank? ? decimal_places : current_test_setting.number_of_decimal_places
       else
         fetch_linked_by_teacher
       end
@@ -90,7 +88,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     add_missing_students(students_in_recovery)
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @number_of_decimal_places = current_test_setting.blank? ? decimal_places : current_test_setting.number_of_decimal_places
   end
 
   def update
@@ -105,7 +103,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       if @admin_or_teacher
-        @number_of_decimal_places = current_test_setting.number_of_decimal_places
+        @number_of_decimal_places = current_test_setting.blank? ? decimal_places : current_test_setting.number_of_decimal_places
       else
         fetch_linked_by_teacher
       end

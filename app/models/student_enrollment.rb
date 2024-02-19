@@ -133,6 +133,7 @@ class StudentEnrollment < ActiveRecord::Base
         differentiated = student_enrollment_classroom.student_enrollment
                                                      .student
                                                      .uses_differentiated_exam_rule
+        
         if differentiated && differentiated_exam_rule
           students_by_opinion_type << student_enrollment_classroom.id
         elsif exam_rule && !differentiated
