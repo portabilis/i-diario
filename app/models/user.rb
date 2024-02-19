@@ -203,7 +203,7 @@ class User < ApplicationRecord
   end
 
   def update_last_activity_at
-    update_column :last_activity_at, Date.current
+    self.last_activity_at = Date.current
   end
 
   def can_show?(feature)
