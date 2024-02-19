@@ -21,7 +21,7 @@ class User < ApplicationRecord
 
   after_save :update_fullname_tokens
   before_save :remove_spaces_from_name
-  before_save :status_changed
+  after_validation :status_changed
 
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
@@ -203,7 +203,7 @@ class User < ApplicationRecord
   end
 
   def update_last_activity_at
-    update_column :last_activity_at, Date.current
+    self.last_activity_at = Date.current
   end
 
   def can_show?(feature)
