@@ -217,6 +217,8 @@ class DailyFrequenciesController < ApplicationController
       end
     rescue ActiveRecord::RecordNotUnique
       retry
+    rescue ActiveRecord::RecordInvalid => e
+      render :edit_multiple
     end
 
     flash[:success] = t('.daily_frequency_success')
