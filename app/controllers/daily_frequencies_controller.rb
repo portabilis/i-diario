@@ -212,13 +212,15 @@ class DailyFrequenciesController < ApplicationController
             daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
+
           daily_frequency_record.save!
         end
       end
     rescue ActiveRecord::RecordNotUnique
       retry
     rescue ActiveRecord::RecordInvalid => e
-      render :new
+      flash[:error] = e.message
+      return redirect_to new_daily_frequency_path
     end
 
     flash[:success] = t('.daily_frequency_success')
