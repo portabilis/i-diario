@@ -12,13 +12,9 @@ class DisciplineContentRecordsController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @discipline_content_records = apply_scopes(
-      DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
-                             .by_unity_id(current_unity.id)
-                             .by_classroom_id(current_user_classroom)
-                             .by_discipline_id(current_user_discipline)
-                             .ordered
-    )
+    set_options_by_user
+
+    fetch_discipline_content_records_by_user
 
     if author_type.present?
       @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
@@ -35,12 +31,21 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def new
+    set_options_by_user
+
     @discipline_content_record = DisciplineContentRecord.new.localized
+    @discipline_content_record.discipline_id = current_user_discipline.id
     @discipline_content_record.build_content_record(
       record_date: Time.zone.now,
-      unity_id: current_unity.id
+      unity_id: current_unity.id,
+      classroom_id: current_user_classroom.id
     )
     @class_numbers = []
+
+    unless current_user.current_role_is_admin_or_employee?
+      classroom_id = @discipline_content_record.content_record.classroom_id
+      @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
+    end
 
     authorize @discipline_content_record
   end
@@ -85,6 +90,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def edit
+    set_options_by_user
+
     @discipline_content_record = DisciplineContentRecord.find(params[:id]).localized
 
     authorize @discipline_content_record
@@ -103,6 +110,8 @@ class DisciplineContentRecordsController < ApplicationController
     if @discipline_content_record.save
       respond_with @discipline_content_record, location: discipline_content_records_path
     else
+      set_options_by_user
+
       render :edit
     end
   end
@@ -242,4 +251,19 @@ class DisciplineContentRecordsController < ApplicationController
     @disciplines
   end
   helper_method :disciplines
+
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms ||= Classroom.where(id: current_user_classroom)
+      @disciplines ||= Discipline.where(id: current_user_discipline)
+    else
+      fetch_linked_by_teacher
+    end
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
 end
