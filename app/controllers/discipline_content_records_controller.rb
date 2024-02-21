@@ -61,31 +61,16 @@ class DisciplineContentRecordsController < ApplicationController
 
     authorize @discipline_content_record
 
-    if allow_class_number
-      @class_numbers = resource_params[:class_number].split(',').sort
-      @discipline_content_record.class_number = @class_numbers.first
+    return render_content_with_multiple_class_numbers if allow_class_number
 
-      @class_numbers.each do |class_number|
-        @discipline_content_record.class_number = class_number
+    if @discipline_content_record.save
+      return unless validate_class_numbers
 
-        return render :new if @discipline_content_record.invalid?
-      end
-
-      multiple_content_creator = CreateMultipleContents.new(@class_numbers, @discipline_content_record)
-
-      if multiple_content_creator.call
-        respond_with @discipline_content_record, location: discipline_content_records_path
-      else
-        render :new
-      end
+      respond_with @discipline_content_record, location: discipline_content_records_path
     else
-      if @discipline_content_record.save
-        return unless validate_class_numbers
+      set_options_by_user
 
-        respond_with @discipline_content_record, location: discipline_content_records_path
-      else
-        render :new
-      end
+      render :new
     end
   end
 
@@ -143,6 +128,38 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   private
+
+  def render_content_with_multiple_class_numbers
+    @class_numbers = resource_params[:class_number].split(',').sort
+    @discipline_content_record.class_number = @class_numbers.first
+
+    @class_numbers.each do |class_number|
+      @discipline_content_record.class_number = class_number
+
+      return render :new if @discipline_content_record.invalid?
+    end
+
+    multiple_content_creator = CreateMultipleContents.new(@class_numbers, @discipline_content_record)
+
+    if multiple_content_creator.call
+      respond_with @discipline_content_record, location: discipline_content_records_path
+    else
+      set_options_by_user
+
+      render :new
+    end
+  end
+
+  def fetch_discipline_content_records_by_user
+    @discipline_content_records =
+      apply_scopes(DisciplineContentRecord
+        .includes(:discipline, content_record: [:classroom])
+        .by_unity_id(current_unity.id)
+        .by_classroom_id(@classrooms.map(&:id))
+        .by_discipline_id(@disciplines.map(&:id))
+        .order_by_classroom
+        .ordered)
+  end
 
   def allow_class_number
     @allow_class_number ||= GeneralConfiguration.first.allow_class_number_on_content_records
