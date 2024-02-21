@@ -2,6 +2,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   DISCIPLINE_LESSON_PLAN_REPORT = "1"
   DISCIPLINE_CONTENT_RECORD = "2"
 
+  before_action :require_current_classroom, only: [:form, :lesson_plan_report, :content_record_report]
   before_action :require_current_teacher
 
   def form
