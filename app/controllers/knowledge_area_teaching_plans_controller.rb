@@ -164,7 +164,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       teaching_plan: @knowledge_area_teaching_plan.teaching_plan
     )
 
-    fetch_knowledge_areas
+    set_options_by_user
+    set_knowledge_area_by_classroom(@classrooms.map(&:id))
   end
 
   def do_copy
