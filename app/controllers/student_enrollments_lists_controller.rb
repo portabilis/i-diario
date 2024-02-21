@@ -8,12 +8,13 @@ class StudentEnrollmentsListsController < ApplicationController
       discipline: params[:filter][:discipline],
       score_type: params[:filter][:score_type],
       opinion_type: params[:filter][:opinion_type],
-      show_inactive: ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:filter][:show_inactive]),
-      with_recovery_note_in_step: ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      show_inactive: ActiveRecord::Type::Boolean.new.cast(params[:filter][:show_inactive]),
+      with_recovery_note_in_step: ActiveRecord::Type::Boolean.new.cast(
         params[:filter][:with_recovery_note_in_step]
       ),
       date: params[:filter][:date],
-      period: @period
+      period: @period,
+      status_attending: params[:filter][:status_attending]
     ).student_enrollments
 
     render json: student_enrollments
@@ -28,7 +29,7 @@ class StudentEnrollmentsListsController < ApplicationController
       score_type: params[:filter][:score_type],
       opinion_type: params[:filter][:opinion_type],
       search_type: :by_date_range,
-      show_inactive: ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:filter][:show_inactive]),
+      show_inactive: ActiveRecord::Type::Boolean.new.cast(params[:filter][:show_inactive]),
       period: @period
     ).student_enrollments
 
@@ -46,10 +47,14 @@ class StudentEnrollmentsListsController < ApplicationController
   end
 
   def current_teacher_period
+    admin_or_teacher = current_user.current_role_is_admin_or_employee?
+    classroom_id = admin_or_teacher ? current_user.current_classroom_id : params[:filter][:classroom]
+    discipline_id = admin_or_teacher ? current_user.current_discipline_id : params[:filter][:discipline]
+
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user.current_classroom_id,
-      current_user.current_discipline_id
+      classroom_id,
+      discipline_id
     ).teacher_period
   end
 

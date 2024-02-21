@@ -65,9 +65,25 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :allows_copy_experience_fields_in_lesson_plans, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :remove_lesson_plan_objectives, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :show_experience_fields, label: false, inline_label: true %>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col col-sm-6">
           <%= f.input :show_inactive_enrollments, label: false, inline_label: true %>
@@ -76,6 +92,11 @@
       <div class="row">
         <div class="col col-sm-6">
           <%= f.input :show_percentage_on_attendance_record_report, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :do_not_send_justified_absence, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row <%= 'hidden' unless Rails.application.secrets[:STUDENT_DOMAIN] %>">
@@ -96,6 +117,11 @@
       <div class="row">
         <div class="col col-sm-6">
           <%= f.input :allow_class_number_on_content_records, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :group_children_education, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row margin-top-10" id="types_of_teaching_container">

@@ -12,7 +12,7 @@ class StudentAverageCalculator
     @recovery_lowest_note_in_step = student_notes_query.recovery_lowest_note_in_step(step)
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
-    return if daily_note_students.blank? && recovery_diary_records.blank?
+    return if daily_note_students.blank? && recovery_diary_records.blank? && recovery_lowest_note_in_step.blank?
 
     result = calculate_average_by_settings(test_setting)
 
@@ -59,6 +59,7 @@ class StudentAverageCalculator
 
     daily_note_students.each do |daily_note_student|
       next if avaliation_exempted?(daily_note_student.daily_note.avaliation)
+      next if daily_note_student.note.blank? && daily_note_student.transfer_note.present?
 
       avaliations << { value: daily_note_student.recovered_note, avaliation_id: daily_note_student.daily_note.avaliation.id }
     end
@@ -71,8 +72,9 @@ class StudentAverageCalculator
     end
 
     @scores = extract_note_avaliations(avaliations)
-
-    @scores.compact.reduce(:+)
+    multiplied_scores = @scores.map { |score| score * 100 }
+    total = multiplied_scores.compact.sum
+    total/100
   end
 
   def extract_weight_avaliations(avaliations)
@@ -82,7 +84,7 @@ class StudentAverageCalculator
   def extract_note_avaliations(avaliations)
     values = use_unique_avaliations(avaliations)
 
-    unless recovery_lowest_note_in_step.nil?
+    if recovery_lowest_note_in_step.present?
       lowest_note = nil
       index_lowest_note = 0
 
@@ -107,7 +109,7 @@ class StudentAverageCalculator
 
   def use_unique_avaliations(avaliations)
     values = []
-
+    values << 0 if avaliations.blank?
     avaliations.uniq.group_by { |k, v| k[:avaliation_id] }.each do |avaliation|
       value = 0
 

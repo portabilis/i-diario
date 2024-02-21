@@ -56,6 +56,14 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         student_enrollment_classroom.period = student_enrollment_classroom_record.turno_id
 
         if student_enrollment_classroom.changed?
+          if changes_in_dates?(student_enrollment_classroom)
+            remove_daily_note_students(
+              student_enrollment_classroom,
+              classroom_id,
+              student_enrollment.student_id
+            )
+          end
+
           student_enrollment_classroom.save!
           changed_student_enrollment_classrooms << [student_enrollment.student_id, classroom_id]
         end
@@ -67,6 +75,10 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     end
 
     delete_invalid_presence_records(changed_student_enrollment_classrooms)
+  end
+
+  def changes_in_dates?(student_enrollment_classroom)
+    student_enrollment_classroom.attribute_changed?("joined_at") || student_enrollment_classroom.attribute_changed?("left_at")
   end
 
   def business
@@ -84,5 +96,21 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         classroom_id
       )
     end
+  end
+
+  def remove_daily_note_students(student_enrollment_classroom, classroom_id, student_id)
+    joined_at = student_enrollment_classroom.joined_at
+    left_at = student_enrollment_classroom.left_at.blank? ? Date.current : student_enrollment_classroom.left_at
+
+    return if student_id.blank? || classroom_id.blank?
+
+    RemoveDailyNoteStudentsWorker.perform_in(
+      1.second,
+      entity_id,
+      joined_at,
+      left_at,
+      student_id,
+      classroom_id
+    )
   end
 end

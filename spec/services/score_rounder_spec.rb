@@ -4,7 +4,8 @@ require 'enumerate_it'
 RSpec.describe ScoreRounder, type: :service do
   let(:exam_rule) { double(:exam_rule, rounding_table: rounding_table) }
   let(:unity) { create(:unity) }
-  let(:classroom) { double(:classroom, year: 2017, unity: unity, unity_id: unity.id, grade_ids: 871, exam_rule: exam_rule) }
+  let(:grade) { create(:grade) }
+  let(:classroom) { create(:classroom, year: 2017, unity: unity, unity_id: unity.id, grades: [grade], exam_rule: exam_rule) }
   let(:rounding_table) { double(:rounding_table, values: rounding_table_values, id: 1) }
   let(:rounding_table_value) do
     double(:rounding_table_value, label: label, action: action, exact_decimal_place: exact_decimal_place)
@@ -154,7 +155,7 @@ RSpec.describe ScoreRounder, type: :service do
       .and_return(CustomRoundingTable)
 
     allow(CustomRoundingTable).to receive(:by_grade)
-      .with(871)
+      .with([grade.id])
       .and_return(CustomRoundingTable)
 
     allow(CustomRoundingTable).to receive(:by_avaliation)

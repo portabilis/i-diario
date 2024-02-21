@@ -9,10 +9,12 @@ on:
 
 jobs:
   default:
-
+    
     name: Unit and Integration
-
-    runs-on: self-hosted
+    
+    if: '! github.event.pull_request.draft'
+    
+    runs-on: ubuntu-latest
 
     env:
       RAILS_ENV: test

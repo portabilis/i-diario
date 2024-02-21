@@ -21,6 +21,9 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_grade, lambda { |grade_id|
     joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_grade(grade_id))
   }
+  scope :by_classroom_grades, lambda { |classrooms_grade_id|
+    joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom_grade(classrooms_grade_id))
+  }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :by_opinion_type, lambda {|opinion_type, classroom_id| by_opinion_type_query(opinion_type, classroom_id)}
@@ -31,11 +34,26 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at)) }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }
+  scope :by_left_at_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_left_at_date(date)) }
   scope :by_period, lambda { |period| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_period(period)) }
   scope :show_as_inactive, lambda { joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.show_as_inactive) }
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
   scope :active, -> { where(active: 1) }
   scope :ordered, -> { joins(:student, :student_enrollment_classrooms).order('sequence ASC, students.name ASC') }
+  scope :status_attending, lambda {
+    where(
+      student_enrollments: {
+        status: [
+          StudentEnrollmentStatus::STUDYING,
+          StudentEnrollmentStatus::APPROVED,
+          StudentEnrollmentStatus::APPROVED_WITH_DEPENDENCY,
+          StudentEnrollmentStatus::RECLASSIFIED,
+          StudentEnrollmentStatus::APPROVE_BY_COUNCIL,
+          StudentEnrollmentStatus::REPPROVED
+        ]
+      }
+    )
+  }
 
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?
@@ -45,7 +63,7 @@ class StudentEnrollment < ActiveRecord::Base
                   exists(select 1
                            from student_enrollment_dependences
                           where student_enrollment_dependences.student_enrollment_id = student_enrollments.id and
-                                student_enrollment_dependences.discipline_id = ?))", discipline_id)
+                                student_enrollment_dependences.discipline_id IN (?)))", discipline_id)
     end
   end
 

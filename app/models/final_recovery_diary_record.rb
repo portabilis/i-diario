@@ -1,4 +1,4 @@
-class FinalRecoveryDiaryRecord < ActiveRecord::Base
+class FinalRecoveryDiaryRecord < ApplicationRecord
   include Audit
   include Filterable
 
@@ -9,7 +9,7 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
   belongs_to :school_calendar
 
   accepts_nested_attributes_for :recovery_diary_record

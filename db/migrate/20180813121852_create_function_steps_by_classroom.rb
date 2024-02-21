@@ -1,4 +1,4 @@
-class CreateFunctionStepsByClassroom < ActiveRecord::Migration
+class CreateFunctionStepsByClassroom < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       CREATE OR REPLACE FUNCTION steps_by_classroom(

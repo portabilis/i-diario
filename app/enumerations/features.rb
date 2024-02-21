@@ -11,6 +11,7 @@ class Features < EnumerateIt::Base
                    :complementary_exams,
                    :conceptual_exams,
                    :copy_discipline_teaching_plan,
+                   :copy_knowledge_area_teaching_plan,
                    :custom_rounding_tables,
                    :daily_frequencies,
                    :daily_notes,

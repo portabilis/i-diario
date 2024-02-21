@@ -1,4 +1,4 @@
-class AddUniqueTeacherIdIdxToUsers < ActiveRecord::Migration
+class AddUniqueTeacherIdIdxToUsers < ActiveRecord::Migration[4.2]
   def up
     add_index :users, :teacher_id, unique: true, name: :unique_index_users_on_teacher_id
     remove_index :users, name: :index_users_on_teacher_id

@@ -1,4 +1,4 @@
-class RemoveUnneededIndexObservationDiaryRecordsOnSchoolCalendarId < ActiveRecord::Migration
+class RemoveUnneededIndexObservationDiaryRecordsOnSchoolCalendarId < ActiveRecord::Migration[4.2]
   def change
     remove_index :observation_diary_records, name: "index_observation_diary_records_on_school_calendar_id"
   end

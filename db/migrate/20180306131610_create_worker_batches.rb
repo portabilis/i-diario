@@ -1,4 +1,4 @@
-class CreateWorkerBatches < ActiveRecord::Migration
+class CreateWorkerBatches < ActiveRecord::Migration[4.2]
   def change
     create_table :worker_batches do |t|
       t.string :main_job_class, null: false

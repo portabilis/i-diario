@@ -16,6 +16,8 @@ class StudentsSynchronizer < BaseSynchronizer
   end
 
   def update_students(students)
+    allow_create_users_for_students = GeneralConfiguration.current.create_users_for_students_when_synchronize
+
     students.each do |student_record|
       next if student_record.nome_aluno.blank?
 
@@ -25,19 +27,32 @@ class StudentsSynchronizer < BaseSynchronizer
         student.avatar_url = student_record.foto_aluno
         student.birth_date = student_record.data_nascimento
         student.api = true
+
         student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
-        student.save! if student.changed?
+
+        if student.changed?
+          student.save!
+          create_users(student.id) if allow_create_users_for_students
+        end
 
         discarded = student_record.deleted_at.present?
 
         student.discard_or_undiscard(discarded)
+
+        if student.discarded?
+          student_enrollments = StudentEnrollment.where(student_id: student.id)
+          student_enrollment_classrooms = StudentEnrollmentClassroom.where(
+            student_enrollment_id: student_enrollments.map(&:id)
+          )
+
+          student_enrollments.each(&:discard)
+          student_enrollment_classrooms.each(&:discard)
+        end
       end
     end
-
-    create_users if GeneralConfiguration.current.create_users_for_students_when_synchronize
   end
 
-  def create_users
-    UserForStudentCreatorWorker.perform_in(1.second, entity_id)
+  def create_users(student_id)
+    UserForStudentCreatorWorker.perform_in(1.second, entity_id, student_id)
   end
 end

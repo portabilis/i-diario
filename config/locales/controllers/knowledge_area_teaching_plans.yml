@@ -1,0 +1,6 @@
+pt-BR:
+  knowledge_area_teaching_plans:
+    do:
+      permission: "Você não tem permissão para copiar planos de ensino por área de conhecimento"
+    do_copy:
+      copying: "Os planos de ensino estão sendo copiados, aguarde alguns minutos."

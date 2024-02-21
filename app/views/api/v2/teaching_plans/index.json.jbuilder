@@ -11,6 +11,8 @@ json.unities @unities do |unity|
                                  .includes(:unity)
 
     json.plans teaching_plans do |teaching_plan|
+      next if teaching_plan.discipline_teaching_plan.nil? && teaching_plan.knowledge_area_teaching_plan.nil?
+
       json.id teaching_plan.id
       json.year teaching_plan.year
       json.unity_name unity.to_s

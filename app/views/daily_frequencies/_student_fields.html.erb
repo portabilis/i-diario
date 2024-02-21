@@ -19,6 +19,7 @@
     <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student.id.to_s.rjust(10, '0')}" %>
     <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
       daily_frequency_student = daily_frequency.build_or_find_by_student(student.id) do |f| %>
+
       <% if @general_configuration.type_of_teaching == true && index == 0 %>
           <td>
             <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
@@ -27,25 +28,36 @@
           </td>
       <% end %>
       <td>
-        <% ignore_student = !active || exempted_from_discipline || in_active_search %>
-        <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
-        <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
-        <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
-        <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
-        <%= f.hidden_field :active, value: active, disabled: ignore_student %>
+        <div>
+          <% absence_justifications = absence_justification[@daily_frequency.frequency_date] || {} %>
+          <% absence_justification_student_id = absence_justifications[0] || absence_justifications[class_number] %>
+          <% ignore_student = !active || exempted_from_discipline || in_active_search.present? %>
+          <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
+          <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
+          <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
+          <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
+          <%= f.hidden_field :active, value: active, disabled: ignore_student %>
+          <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id, disabled: ignore_student %>
 
-        <label class="checkbox <%= ignore_student ? "state-disabled" : "" %>">
-          <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
-          <i></i>
-        </label>
+          <% if absence_justification_student_id %>
+            <label title="Falta Justificada" class="checkbox checkbox-frequency justified">
+              <input type="checkbox" disabled><i></i>
+            </label>
+          <% else %>
+            <label class="checkbox checkbox-frequency <%= ignore_student ? "state-disabled" : "" %>">
+              <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
+              <i></i>
+            </label>
+          <% end %>
 
-        <% if @general_configuration.type_of_teaching == true && index != 0 %>
-          <span class='hidden'>
-            <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
-                label: false, required: false,
-                input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
-          </span>
-        <% end %>
+          <% if @general_configuration.type_of_teaching == true && index != 0 && active && in_active_search.blank? %>
+            <span class='hidden'>
+              <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                          label: false, required: false,
+                          input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
+            </span>
+          <% end %>
+        </div>
       </td>
     <% end %>
   <% end %>

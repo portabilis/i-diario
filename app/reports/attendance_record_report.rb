@@ -16,7 +16,9 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    students_frequencies_percentage
+    students_frequencies_percentage,
+    current_user,
+    classroom_id
   )
     new(:landscape)
       .build(entity_configuration,
@@ -29,7 +31,10 @@ class AttendanceRecordReport < BaseReport
              events,
              school_calendar,
              second_teacher_signature,
-             students_frequencies_percentage)
+             students_frequencies_percentage,
+             current_user,
+             classroom_id)
+
   end
 
   def build(
@@ -43,10 +48,12 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    students_frequencies_percentage
+    students_frequencies_percentage,
+    current_user,
+    classroom_id
   )
     @entity_configuration = entity_configuration
-    @teacher = teacher
+    @teacher = set_teacher(teacher, classroom_id, current_user)
     @year = year
     @start_at = start_at
     @end_at = end_at
@@ -54,18 +61,19 @@ class AttendanceRecordReport < BaseReport
     @enrollment_classrooms = enrollment_classrooms_list
     @events = events
     @school_calendar = school_calendar
-    @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
+    @second_teacher_signature = ActiveRecord::Type::Boolean.new.cast(second_teacher_signature)
     @show_legend_hybrid = false
     @show_legend_remote = false
     @exists_legend_hybrid = false
     @exists_legend_remote = false
     @students_frequency_percentage = students_frequencies_percentage
 
-    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
+    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
 
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
     @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
+    @do_not_send_justified_absence = @general_configuration.do_not_send_justified_absence
 
     header
     content
@@ -126,14 +134,14 @@ class AttendanceRecordReport < BaseReport
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
-    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.ids.to_a).to_a
+    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.map(&:id)).to_a
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
 
     student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
-      student_enrollment[:student_enrollment_id]
+      student_enrollment[:student_enrollment].id
     }
 
     active_searches = active_searches_by_range(daily_frequencies, student_enrollment_ids)
@@ -162,8 +170,9 @@ class AttendanceRecordReport < BaseReport
             student_enrollment = enrollment_classroom[:student_enrollment]
             student = enrollment_classroom[:student]
             student_enrollment_classroom = enrollment_classroom[:student_enrollment_classroom]
-            joined_at = enrollment_classroom[:joined_at].to_date
-            left_at = enrollment_classroom[:left_at].empty? ? Date.current.end_of_year : enrollment_classroom[:left_at].to_date
+            joined_at = enrollment_classroom[:student_enrollment_classroom].joined_at.to_date
+            left_at = get_left_at(enrollment_classroom[:student_enrollment_classroom].left_at)
+            sequence = enrollment_classroom[:student_enrollment_classroom].sequence
 
             if exempted_from_discipline?(all_exempts, student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
@@ -192,14 +201,19 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
-            students[student_enrollment_classroom.id][:sequence] ||= enrollment_classroom[:sequence] if @show_inactive_enrollments
+            students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
             end
 
             unless student_frequency.present?
-              students[student_enrollment_classroom.id][:absences] = students[student_enrollment_classroom.id][:absences] + 1
+              absences = student_frequency.nil? ? 0 : 1
+              if @do_not_send_justified_absence && student_frequency&.absence_justification_student_id
+                absences = 0
+              end
+
+              students[student_enrollment_classroom.id][:absences] +=  absences
             end
 
             hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
@@ -234,12 +248,13 @@ class AttendanceRecordReport < BaseReport
             student_enrollment = enrollment_classroom[:student_enrollment]
             student = enrollment_classroom[:student]
             student_enrollment_classroom = enrollment_classroom[:student_enrollment_classroom]
+            sequence = enrollment_classroom[:student_enrollment_classroom].sequence
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
             students[student_enrollment_classroom.id][:absences] ||= 0
             students[student_enrollment_classroom.id][:social_name] = student.social_name
-            students[student_enrollment_classroom.id][:sequence] ||= enrollment_classroom[:sequence] if @show_inactive_enrollments
+            students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
               students[student_enrollment_classroom.id][:absences_percentage] = @students_frequency_percentage[student_enrollment.id]
@@ -348,7 +363,7 @@ class AttendanceRecordReport < BaseReport
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
+      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
 
       if index < sliced_frequencies_and_events.count - 1
         start_new_page
@@ -395,6 +410,10 @@ class AttendanceRecordReport < BaseReport
         end
       end
     end
+  end
+
+  def get_left_at(left_at)
+    left_at.empty? ? Date.current.end_of_year : left_at.to_date
   end
 
   def event?(record)
@@ -475,7 +494,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def active_searches_by_range(daily_frequencies, student_enrollment_ids)
-    dates = daily_frequencies.map(&:frequency_date)
+    dates = daily_frequencies.map(&:frequency_date).uniq
 
     ActiveSearch.new.in_active_search_in_range(student_enrollment_ids, dates)
   end
@@ -557,5 +576,12 @@ class AttendanceRecordReport < BaseReport
     return true if @events.empty?
 
     @events.detect { |event| event[:date].eql?(date) && event[:type].eql?(EventTypes::NO_SCHOOL) }.blank?
+  end
+
+  def set_teacher(teacher, classroom_id, current_user)
+    return teacher unless current_user.current_role_is_admin_or_employee?
+    return teacher if teacher.daily_frequencies.where(classroom_id: classroom_id).any?
+
+    Classroom.find(classroom_id).teacher_discipline_classrooms.first.teacher
   end
 end

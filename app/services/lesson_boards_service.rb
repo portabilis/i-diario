@@ -1,10 +1,12 @@
 class LessonBoardsService
-  def teachers(classroom_id, period)
+  def teachers(classroom_id, period, grade_id)
     teachers_to_select2 = []
     classroom_period = Classroom.find(classroom_id).period
+
     allocations = TeacherDisciplineClassroom.where(classroom_id: classroom_id)
                                             .includes(:teacher, discipline: :knowledge_area)
                                             .where(disciplines: { descriptor: false })
+                                            .where(grade_id: grade_id)
                                             .order('teachers.name')
 
     allocations.where(period: period) if classroom_period == Periods::FULL && period
@@ -22,12 +24,11 @@ class LessonBoardsService
     teachers_to_select2.insert(0, OpenStruct.new(id: 'empty', name: '<option></option>', text: ''))
   end
 
-  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom, period)
     teacher_discipline_classroom = TeacherDisciplineClassroom.includes(:teacher, classroom: :unity)
                                                              .find(teacher_discipline_classroom_id)
     teacher_id = teacher_discipline_classroom.teacher.id
     year = teacher_discipline_classroom.classroom.year
-    period = teacher_discipline_classroom.classroom.period
 
     linked = LessonsBoardLessonWeekday.includes(teacher_discipline_classroom: [:teacher, classroom: :unity])
                                       .where(weekday: weekday)
@@ -41,6 +42,8 @@ class LessonBoardsService
 
     return false if linked.nil?
 
+    return false if end_period?(linked.teacher_discipline_classroom.classroom_id, classroom.to_i)
+
     linked_teacher_message_error(linked.teacher_discipline_classroom.teacher.name,
                                  linked.teacher_discipline_classroom.classroom.description,
                                  linked.teacher_discipline_classroom.classroom.unity,
@@ -50,6 +53,21 @@ class LessonBoardsService
   end
 
   private
+
+  def end_period?(linked_classroom_id, classroom_id)
+    linked_school_calendar_classroom = SchoolCalendarClassroom.by_classroom(linked_classroom_id)
+
+    return false if linked_school_calendar_classroom.blank?
+
+    school_calendar_classroom = SchoolCalendarClassroom.by_classroom(classroom_id)
+
+    return false if school_calendar_classroom.blank?
+
+    last_day = SchoolCalendarClassroom.by_classroom(linked_classroom_id).last.last_day
+    first_day = SchoolCalendarClassroom.by_classroom(classroom_id).last.first_day
+
+    last_day < first_day
+  end
 
   def discipline_teacher_name(discipline, teacher)
     "<div class='flex-between'>
