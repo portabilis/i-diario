@@ -35,7 +35,6 @@ class StepsFetcher
     school_calendar_steps.last
   end
 
-
   def current_step
     step_by_date(Date.current)
   end
