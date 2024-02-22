@@ -1,5 +1,6 @@
 class TeacherReportCardsController < ApplicationController
   before_action :require_current_teacher
+  before_action :require_current_classroom
 
   def form
     @teacher_report_card_form = TeacherReportCardForm.new(

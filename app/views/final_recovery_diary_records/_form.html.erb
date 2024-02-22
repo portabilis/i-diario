@@ -78,8 +78,8 @@
 
     <% if @final_recovery_diary_record.persisted? %>
       <%= link_to t('views.form.history'),
-            history_final_recovery_diary_record_path(@final_recovery_diary_record),
-            class: 'btn btn-info' %>
+        history_final_recovery_diary_record_path(@final_recovery_diary_record),
+        class: 'btn btn-info' %>
     <% end %>
 
     <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>

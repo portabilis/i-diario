@@ -106,6 +106,7 @@ class CopyDisciplineTeachingPlanService
     copy_teaching_plan = teaching_plan.dup
     copy_teaching_plan.unity_id = unity_id
     copy_teaching_plan.grade_id = grade_id
+    copy_teaching_plan.year = year
     copy_teaching_plan.contents_created_at_position = @contents_created_at_position
     copy_teaching_plan.objectives_created_at_position = @objectives_created_at_position
     copy_teaching_plan.content_ids = @content_ids
