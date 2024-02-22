@@ -3,7 +3,14 @@ class UsersController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    params[:search][:by_name] = params[:search][:by_name].squish if params[:search].present?
+    unless valid_search_params?(params[:search])
+      redirect_to root_path, status: 302
+      return
+    end
+
+    if params[:search]&.dig(:by_name).present?
+      params[:search][:by_name] = params[:search][:by_name].squish
+    end
 
     @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
@@ -155,5 +162,11 @@ class UsersController < ApplicationController
     flash.now[:error] = t('errors.general.weak_password') if weak_password?(password)
 
     false
+  end
+
+  def valid_search_params?(params_search)
+    return true if params_search.blank?
+
+    params_search.values.any?(&:present?)
   end
 end

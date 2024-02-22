@@ -2,7 +2,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_classroom, only: [:new, :edit, :create, :update]
+  before_action :require_current_classroom, only: [:index, :new, :edit, :create, :update]
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
