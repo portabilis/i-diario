@@ -222,7 +222,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
       let(:daily_note_students) { [daily_note_student_1, daily_note_student_2, daily_note_student_3] }
       it 'expects to call score_rounder with correct params' do
         expect(ScoreRounder).to receive(:new)
-          .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
+          .with(classroom, RoundedAvaliations::NUMERICAL_EXAM, school_calendar_step)
           .and_return(score_rounder)
           .at_least(:once)
 
@@ -309,7 +309,13 @@ RSpec.describe StudentAverageCalculator, type: :service do
   def stub_score_rounder
     stub_const('ScoreRounder', Class.new)
     allow(ScoreRounder).to(
-      receive(:new).with(classroom, RoundedAvaliations::NUMERICAL_EXAM).and_return(score_rounder)
+      receive(:new)
+      .with(
+        classroom,
+        RoundedAvaliations::NUMERICAL_EXAM,
+        school_calendar_step
+      )
+      .and_return(score_rounder)
     )
   end
 

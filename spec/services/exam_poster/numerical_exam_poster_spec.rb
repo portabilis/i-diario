@@ -203,12 +203,20 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       score_rounder = double(:score_rounder)
 
       expect(ScoreRounder).to receive(:new)
-        .with(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+        .with(
+          classroom,
+          RoundedAvaliations::SCHOOL_TERM_RECOVERY,
+          classroom.calendar.classroom_steps.first
+        )
         .and_return(score_rounder)
         .at_least(:once)
 
       expect(ScoreRounder).to receive(:new)
-        .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
+        .with(
+          classroom,
+          RoundedAvaliations::NUMERICAL_EXAM,
+          classroom.calendar.classroom_steps.first
+        )
         .and_return(score_rounder)
         .at_least(:once)
 
