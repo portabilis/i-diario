@@ -66,7 +66,7 @@ class DailyFrequenciesController < ApplicationController
   def edit_multiple
     set_options_by_user
 
-    @daily_frequencies = find_or_initialize_daily_frequencies(params[:class_numbers])&.sort(&:class_number)
+    @daily_frequencies = find_or_initialize_daily_frequencies(params[:class_numbers]).sort(&:class_number)
     @daily_frequency = @daily_frequencies.first
     @period = @admin_or_teacher ? current_teacher_period : set_options_by_classroom
 
