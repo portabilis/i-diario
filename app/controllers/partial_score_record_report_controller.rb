@@ -9,14 +9,17 @@ class PartialScoreRecordReportController < ApplicationController
     @partial_score_record_report_form = PartialScoreRecordReportForm.new(resource_params)
     students_ids = resource_params[:students_ids].presence || students.pluck(:id)
     @partial_score_record_report_form.students_ids = [students_ids].flatten
+
     if @partial_score_record_report_form.valid?
+      current_test_setting_step = current_test_setting_step(@partial_score_record_report_form.step)
       partial_score_record_report = PartialScoreRecordReport.build(current_entity_configuration,
                                                   current_school_calendar.year,
                                                   @partial_score_record_report_form.step,
                                                   @partial_score_record_report_form.students,
                                                   @partial_score_record_report_form.unity,
                                                   @partial_score_record_report_form.classroom,
-                                                  current_test_setting_step(@partial_score_record_report_form.step))
+                                                  current_test_setting_step)
+
       send_pdf(t("routes.partial_score_record"), partial_score_record_report.render)
     else
       @partial_score_record_report_form.school_calendar_year = current_school_calendar.year
