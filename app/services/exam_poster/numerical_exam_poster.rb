@@ -44,9 +44,15 @@ module ExamPoster
         classroom = tdc.classroom
         discipline = tdc.discipline
         step = get_step(classroom)
-        school_term_recovery_diary_record = school_term_recovery_diary_record(classroom, discipline, step.id)
+        school_term_recovery_diary_record = school_term_recovery_diary_record(
+          classroom, discipline, step.id
+        )
 
-        score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+        score_rounder = ScoreRounder.new(
+          classroom,
+          RoundedAvaliations::SCHOOL_TERM_RECOVERY,
+          step
+        )
 
         next unless can_post?(classroom)
 
