@@ -314,6 +314,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       .by_classroom_id(@classrooms.map(&:id))
       .by_discipline_id(@disciplines.map(&:id))
       .ordered
+      .distinct
 
     unless @admin_or_teacher
       @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_teacher_id(current_teacher.id).distinct
