@@ -81,7 +81,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def lesson_unities
-    lessons_unities = if current_user.current_user_role.try(:role_administrator?)
+    lessons_unities = if user_role_administrator?
                         LessonsBoard.by_unity(unities_id)
                                     .map(&:unity_id)
                                     .uniq
