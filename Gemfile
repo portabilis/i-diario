@@ -71,6 +71,7 @@ group :development do
   gem 'meta_request', '0.7.4'
   gem 'pry-byebug', '3.4.2'
   gem 'rubocop', '1.10', require: false
+  gem 'rubocop-rails'
   gem 'spring', '2.1.1'
   gem 'spring-commands-rspec', '1.0.4'
   gem 'letter_opener_web', '~> 1.3.4'
