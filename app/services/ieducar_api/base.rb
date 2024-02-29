@@ -105,8 +105,9 @@ module IeducarApi
       end
 
       message = result['msgs'].map { |r| r['msg'] }.join(', ')
+      error_message = result['any_error_msg']
 
-      stop_api_synchronization(message)
+      stop_api_synchronization(message, error_message)
 
       response = IeducarResponseDecorator.new(result)
       raise_exception = response.any_error_message? && !response.known_error?
@@ -118,8 +119,10 @@ module IeducarApi
     def last_synchronization_date
       @last_synchronization_date ||= current_api_configuration.synchronized_at
     end
-    def stop_api_synchronization(message)
+
+    def stop_api_synchronization(message, error_message)
       return if message.blank?
+      return unless error_message
 
       synchronization = current_api_configuration.synchronizations.started.first
       synchronization&.update(status: 'error', error_message: message, full_error_message: '')
