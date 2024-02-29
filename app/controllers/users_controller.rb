@@ -139,7 +139,7 @@ class UsersController < ApplicationController
 
     return Role.ordered if current_user.roles.map(&:name).eql?(admin_roles)
 
-    [Role.exclude_administrator_roles.ordered + current_user.roles].flatten
+    [Role.exclude_administrator_portabilis.ordered + current_user.roles].flatten
   end
 
   def not_allow_admin?
