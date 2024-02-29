@@ -25,8 +25,8 @@ class UsersController < ApplicationController
 
   def edit
     @user = User.find(params[:id]).localized
-
     @teachers = Teacher.active.order_by_name
+    roles
 
     authorize @user
   end
@@ -44,6 +44,7 @@ class UsersController < ApplicationController
       respond_with @user, location: users_path
     else
       @teachers = Teacher.active.order_by_name
+
       render :edit
     end
   end
@@ -110,11 +111,12 @@ class UsersController < ApplicationController
   private
 
   def roles
-    return list_roles_permission if current_user.has_administrator_access_level? || current_user.admin?
-
-    Role.exclude_administrator_roles.ordered
+    @roles ||= if current_user.has_administrator_access_level? || current_user.admin?
+                list_roles_for_administrator
+               else
+                Role.exclude_administrator_roles.ordered
+               end
   end
-  helper_method :roles
 
   def user_params
     params.require(:user).permit(
@@ -134,7 +136,7 @@ class UsersController < ApplicationController
     end
   end
 
-  def list_roles_permission
+  def list_roles_for_administrator
     admin_roles = Rails.application.secrets.admin_roles || []
 
     return Role.ordered if current_user.roles.map(&:name).eql?(admin_roles)
