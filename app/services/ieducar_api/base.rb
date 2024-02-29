@@ -120,7 +120,6 @@ module IeducarApi
     end
     def stop_api_synchronization(message)
       return if message.blank?
-      return unless message.eql?('Chave de acesso inválida!')
 
       synchronization = current_api_configuration.synchronizations.started.first
       synchronization&.update(status: 'error', error_message: message, full_error_message: '')
