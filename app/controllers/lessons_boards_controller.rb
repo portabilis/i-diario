@@ -101,7 +101,7 @@ class LessonsBoardsController < ApplicationController
   helper_method :lesson_unities
 
   def user_role_administrator?
-    @role_administrator ||= current_user.current_user_role.try(:role_administrator?)
+    @role_administrator ||= current_user.current_user_role.&(:role_administrator?)
   end
 
   def unities
