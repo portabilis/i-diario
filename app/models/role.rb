@@ -25,6 +25,7 @@ class Role < ActiveRecord::Base
 
   scope :ordered, -> { order(arel_table[:name].asc) }
   scope :exclude_administrator_roles, -> { where.not(access_level: AccessLevel::ADMINISTRATOR) }
+  scope :exclude_administrator_portabilis, -> { where.not(name: 'Administrador Portabilis') }
 
   def build_permissions!
     Features.list.each do |feature|
