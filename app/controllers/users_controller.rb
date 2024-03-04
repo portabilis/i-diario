@@ -111,11 +111,11 @@ class UsersController < ApplicationController
   private
 
   def roles
-    @roles ||= if current_user.has_administrator_access_level? || current_user.admin?
-                list_roles_for_administrator
-               else
-                Role.exclude_administrator_roles.ordered
-               end
+    @roles = if current_user.has_administrator_access_level? || current_user.admin?
+              list_roles_for_administrator
+             else
+              Role.exclude_administrator_roles.ordered
+             end
   end
 
   def user_params
