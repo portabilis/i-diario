@@ -256,9 +256,9 @@ class DailyNotesController < ApplicationController
 
     return fetch_linked_by_teacher unless @admin_or_teacher
 
-    @classrooms = Classroom.where(id: current_user_classroom)
-    @disciplines = Discipline.where(id: current_user_discipline)
-    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
+    @steps ||= SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def fetch_daily_notes_and_avaliations

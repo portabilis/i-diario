@@ -37,8 +37,6 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   validate :recovery_type_must_allow_recovery_for_classroom
   validate :uniqueness_of_school_term_recovery_diary_record
 
-  delegate :classroom, :classroom_id, :discipline_id, :discipline, to: :recovery_diary_record
-
   def test_date
     recorded_at
   end
