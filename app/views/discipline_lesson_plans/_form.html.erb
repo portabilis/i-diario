@@ -27,8 +27,13 @@
         <%= render partial: 'lesson_plans/classroom_field', locals: { f: lesson_plan } %>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user,
-                classroom_id: @discipline_lesson_plan.lesson_plan.classroom_id %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.association :discipline, as: :select2_discipline, user: current_user,
+              classroom_id: @discipline_lesson_plan.lesson_plan.classroom_id %>
+          <% else %>
+            <%= f.association :discipline, as: :select2, elements: @disciplines,
+               user: current_user, record: f.object, readonly: ['show', 'edit'].include?(action_name) %>
+          <% end %>
         </div>
       </div>
 

@@ -1,3 +1,9 @@
+# OPTIMIZE: Performance na pagina diario-de-recuperacoes-de-etapas/novo
+# A pagina diario-de-recuperacoes-de-etapas/novo demora para carregar por
+# conta desse service, toda a filtragem é feita via cadeia de transformação,
+# trazendo os dados para a memoria e tratando aqui. Para diminuir o tempo de
+# carregamento e o custi de infra, o ideal seria refatorar essa classe e delegar
+# mais filtros ao postgres antes de transformar os dados em memoria
 class StudentsInRecoveryFetcher
   def initialize(ieducar_api_configuration, classroom_id, discipline_id, step_id, date)
     @ieducar_api_configuration = ieducar_api_configuration
@@ -73,18 +79,22 @@ class StudentsInRecoveryFetcher
   end
 
   def student_enrollments(classroom_grade_ids)
-    @student_enrollments ||= begin
-      end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
+    end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-      StudentEnrollmentsRetriever.call(
-        classrooms: classroom,
-        disciplines: discipline,
-        start_at: step.start_at,
-        classroom_grades: classroom_grade_ids,
-        end_at: end_at,
-        search_type: :by_date_range
-      ).by_date_not_after(end_at)
-    end
+    @student_enrollments ||= fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
+  end
+
+  def fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
+    student_enrollments = StudentEnrollmentsRetriever.call(
+      classrooms: classroom,
+      disciplines: discipline,
+      start_at: step.start_at,
+      end_at: end_at,
+      classroom_grades: classroom_grade_ids,
+      search_type: :by_date_range,
+      left_at: true
+    )
+    StudentEnrollment.includes(:student).where(id: student_enrollments.map(&:id)).order('students.name ASC')
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)

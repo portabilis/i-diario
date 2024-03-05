@@ -2,12 +2,18 @@ class DisciplineLessonPlanReportController < ApplicationController
   DISCIPLINE_LESSON_PLAN_REPORT = "1"
   DISCIPLINE_CONTENT_RECORD = "2"
 
+  before_action :require_current_classroom, only: [:form, :lesson_plan_report, :content_record_report]
   before_action :require_current_teacher
 
   def form
-    @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new
-    @discipline_lesson_plan_report_form.teacher_id = current_teacher_id
-    fetch_collections
+    @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(
+      teacher_id: current_teacher_id,
+      unity_id: current_user_unity.id,
+      classroom_id: current_user_classroom.id,
+      discipline_id: current_user_discipline.id
+    )
+
+    set_options_by_user
   end
 
   def lesson_plan_report
@@ -24,8 +30,9 @@ class DisciplineLessonPlanReportController < ApplicationController
       send_pdf(t("routes.lesson_plan_record"), lesson_plan_report.render)
     else
       @discipline_lesson_plan_report_form
-      fetch_collections
+      set_options_by_user
       clear_invalid_dates
+
       render :form
     end
   end
@@ -44,17 +51,14 @@ class DisciplineLessonPlanReportController < ApplicationController
       send_pdf(t("routes.discipline_content_record"), lesson_plan_report.render)
     else
       @discipline_lesson_plan_report_form
-      fetch_collections
+      set_options_by_user
       clear_invalid_dates
+
       render :form
     end
   end
 
   private
-
-  def fetch_collections
-    @number_of_classes = current_school_calendar.number_of_classes
-  end
 
   def resource_params
     params.require(:discipline_lesson_plan_report_form).permit(
@@ -79,5 +83,35 @@ class DisciplineLessonPlanReportController < ApplicationController
     rescue ArgumentError
       @discipline_lesson_plan_report_form.date_end = ''
     end
+  end
+
+  def set_options_by_user
+    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
+    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    fetch_collections
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom_id(
+      @discipline_lesson_plan_report_form.classroom_id
+    ).not_descriptor
+  end
+
+  def fetch_collections
+    @number_of_classes = current_school_calendar.number_of_classes
+    @classrooms ||= Classroom.by_unity(@discipline_lesson_plan_report_form.unity_id)
+                             .by_year(current_user_school_year || Date.current.year)
+                             .ordered
+    @disciplines ||= Discipline.by_classroom_id(@discipline_lesson_plan_report_form.classroom_id)
+                               .not_descriptor
   end
 end

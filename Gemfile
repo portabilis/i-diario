@@ -31,7 +31,7 @@ gem 'jbuilder', '2.9.1'
 gem 'js-routes', '1.4.9'
 gem 'kaminari', '>= 1.2.1'
 gem 'less-rails', '3.0.0'
-gem 'loofah', '2.18.0'
+gem 'loofah', '2.20.0'
 gem 'mask_validator', '0.2.1'
 gem 'momentjs-rails', '>= 2.9.0'
 gem 'non-stupid-digest-assets', '1.0.9'
@@ -68,11 +68,11 @@ instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
   gem 'rack-mini-profiler', '~> 2.3.4'
-  gem 'meta_request', '0.7.2'
+  gem 'meta_request', '0.7.4'
   gem 'pry-byebug', '3.4.2'
-  gem 'pry-remote', '0.1.8'
-  gem 'rubocop', '0.59.2', require: false
-  gem 'spring', '2.0.2'
+  gem 'rubocop', '1.10', require: false
+  gem 'rubocop-rails'
+  gem 'spring', '2.1.1'
   gem 'spring-commands-rspec', '1.0.4'
   gem 'letter_opener_web', '~> 1.3.4'
   gem 'listen', '~> 3.0.5'
@@ -96,12 +96,13 @@ group :test do
   gem 'rspec-sidekiq', '3.0.3'
   gem 'rspec-wait', '0.0.9'
   gem 'selenium-webdriver', '~> 3.0'
-  gem 'shoulda-matchers', '3.0.1'
+  gem 'shoulda-matchers', '~> 3.1', '>= 3.1.0'
   gem 'timecop', '0.8.1'
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
   gem 'webdrivers', '3.6.0'
   gem 'webmock', '3.14.0'
+  gem 'simplecov', require: false
 end
 
 group :test, :development do

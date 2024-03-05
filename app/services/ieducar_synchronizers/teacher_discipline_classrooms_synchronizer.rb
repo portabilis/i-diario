@@ -25,8 +25,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         classroom = classroom(teacher_discipline_classroom_record.turma_id)
         teacher = teacher(teacher_discipline_classroom_record.servidor_id)
 
-        next if classroom.blank? || classroom.discarded?
-        next if teacher.blank? || teacher.discarded?
+        if classroom.blank? || teacher.blank? || classroom.discarded? || teacher.discarded?
+          TeacherDisciplineClassroom.unscoped.where(
+            api_code: teacher_discipline_classroom_record.id,
+            year: year
+          ).each(&:discard)
+          next
+        end
 
         teacher_id = teacher.try(:id)
         classroom_id = classroom.try(:id)
@@ -212,7 +217,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discipline_id: fake_discipline.id,
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
-        classroom_api_code: "grouper:#{fake_discipline.id}"
+        classroom_api_code: "grouper:#{fake_discipline.id}",
+        period: teacher_discipline_classroom.period
       )
 
       link_teacher.undiscard if link_teacher.discarded?

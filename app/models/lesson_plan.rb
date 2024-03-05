@@ -38,9 +38,10 @@ class LessonPlan < ApplicationRecord
 
   validate :no_retroactive_dates
   validate :at_least_one_assigned_content
+  validate :valid_attachments_size
 
-  delegate :unity, :unity_id, to: :classroom
-  delegate :grades, :grade_ids, :first_grade, to: :classroom
+  delegate :unity, :unity_id, to: :classroom, allow_nil: true
+  delegate :grades, :grade_ids, :first_grade, to: :classroom, allow_nil: true
 
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
@@ -78,6 +79,25 @@ class LessonPlan < ApplicationRecord
   end
 
   private
+
+  def valid_attachments_size
+    return if total_attatchments_size < 30000000
+
+    errors.add(:lesson_plan_attachments,
+               'A soma do tamanho dos arquivos anexados ' +
+               'de uma vez não pode ultrapassar 30MB, ' +
+               'revise os arquivos e tente novamente')
+  end
+
+  def total_attatchments_size
+    lesson_plan_attachments
+      .map(&:attachment)
+      .compact
+      .map{ |attachment| attachment.file&.size }
+      .compact
+      .inject(:+)
+      .to_i
+  end
 
   def no_retroactive_dates
     return if start_at.nil? || end_at.nil?

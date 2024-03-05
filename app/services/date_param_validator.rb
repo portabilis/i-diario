@@ -13,6 +13,12 @@ class DateParamValidator
   private
 
   def valid_date?
-    errors.add(:date, I18n.t('errors.messages.invalid_date')) unless Date.valid_date?(*Date._parse(date).values)
+    return if parsed_date_values.count.eql?(3) && Date.valid_date?(*parsed_date_values)
+
+    errors.add(:date, I18n.t('errors.messages.invalid_date'))
+  end
+
+  def parsed_date_values
+    Date._parse(date).values
   end
 end

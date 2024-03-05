@@ -9,7 +9,17 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :require_valid_dates, only: [:create, :form]
 
   def new
+    classroom_id = teacher_allocated.blank? ? nil : current_user_classroom.id
+    discipline_id = teacher_allocated.blank? ? nil : current_user_discipline.id
+
+    @frequency_in_batch_form = FrequencyInBatchForm.new(
+      classroom_id: classroom_id,
+      discipline_id: discipline_id
+    )
+
     @frequency_type = current_frequency_type(current_user_classroom)
+
+    set_options_by_user
   end
 
   # TODO método duplicado para ser acessado via GET, unificar
@@ -18,6 +28,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end_date = params[:frequency_in_batch_form][:end_date].to_date
 
     @dates = [*start_date..end_date]
+    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
+    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
 
     return unless view_data
 
@@ -29,6 +41,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end_date = params[:frequency_in_batch_form][:end_date].to_date
 
     @dates = [*start_date..end_date]
+    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
+    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
 
     return unless view_data
 
@@ -60,7 +74,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                                 daily_frequency_data[:classroom_id],
                                                                 daily_frequency_data[:discipline_id],
                                                                 daily_frequency_data[:period])
-
 
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
@@ -123,6 +136,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
     flash[:success] = t('.daily_frequency_success')
 
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
+    @classroom = Classroom.includes(:unity).find(daily_frequency_attributes[:classroom_id])
+
+    if daily_frequency_attributes[:discipline_id].present?
+      @discipline = Discipline.find(daily_frequency_attributes[:discipline_id])
+    end
 
     view_data
 
@@ -159,9 +177,24 @@ class DailyFrequenciesInBatchsController < ApplicationController
     respond_with @daily_frequencies
   end
 
+  def fetch_frequency_type
+    return if params[:classroom_id].blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+
+    render json: current_frequency_type(classroom)
+  end
+
+  def fetch_teacher_allocated
+    return if params[:classroom_id].blank? || params[:discipline_id].blank?
+
+    @classroom = Classroom.find(params[:classroom_id])
+    @discipline = params[:discipline_id]
+
+    render json: teacher_allocated
+  end
+
   private
-
-
 
   def authorize_daily_frequency
     @daily_frequency = DailyFrequency.new.localized
@@ -170,9 +203,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @classroom = Classroom.includes(:unity).find(current_user_classroom)
-    @discipline = current_user_discipline
-    @period = current_teacher_period
+    @period = current_teacher_period != Periods::FULL.to_i ? current_teacher_period : @classroom.period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
@@ -200,7 +231,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment.student
       student_ids << student.id
       type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .by_classroom(current_user_classroom.id)
+                                           .by_classroom(@classroom.id)
                                            .last
                                            .type_of_teaching
 
@@ -227,12 +258,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
     @absence_justifications = AbsenceJustifiedOnDate.call(
-                                                          students: student_ids,
-                                                          date: dates.first,
-                                                          end_date: dates.last,
-                                                          classroom: current_user_classroom.id,
-                                                          period: @period
-                                                        )
+      students: student_ids,
+      date: dates.first,
+      end_date: dates.last,
+      classroom: current_user_classroom.id,
+      period: @period
+    )
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
@@ -307,7 +338,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
       allocations.by_period(@period) if @period.present?
 
-      valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).day_allows_entry?
+      if current_user.current_role_is_admin_or_employee?
+        school_calendar = current_school_calendar
+      else
+        school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, @classroom, current_school_year).fetch
+      end
+
+      valid_day = SchoolDayChecker.new(school_calendar, date, nil, nil, nil).day_allows_entry?
 
       next if allocations.empty? || !valid_day
 
@@ -416,8 +453,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def current_teacher_period
     TeacherPeriodFetcher.new(
       current_teacher.id,
-      current_user.current_classroom_id,
-      current_user.current_discipline_id
+      @classroom.id,
+      @discipline.id
     ).teacher_period
   end
 
@@ -530,21 +567,33 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def require_allocation_on_lessons_board
     return if teacher_allocated
 
+    @admin_or_teacher = current_user.current_role_is_admin_or_employee?
+
     flash[:alert] = t('errors.daily_frequencies.require_lessons_board')
-    redirect_to root_path
+    redirect_to root_path if @admin_or_teacher
+  end
+
+  def set_options_by_user
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
   end
 
   def teacher_allocated
-    frequency_type = current_frequency_type(current_user_classroom)
+    @classroom ||= current_user_classroom
+    @discipline ||= current_user_discipline
+
+    frequency_type = current_frequency_type(@classroom)
 
     if frequency_type == FrequencyTypes::BY_DISCIPLINE
       LessonsBoard.by_teacher(current_teacher)
-                  .by_classroom(current_user_classroom)
-                  .by_discipline(current_user_discipline)
+                  .by_classroom(@classroom)
+                  .by_discipline(@discipline)
                   .exists?
     else
       LessonsBoard.by_teacher(current_teacher)
-                  .by_classroom(current_user_classroom)
+                  .by_classroom(@classroom)
                   .exists?
     end
   end
@@ -584,5 +633,28 @@ class DailyFrequenciesInBatchsController < ApplicationController
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
   end
-end
 
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @disciplines = []
+    @classrooms = []
+
+    # Remove turmas que não estão no quadro de aulas
+    @fetch_linked_by_teacher[:classrooms].each do |classroom|
+      lesson_board = LessonsBoard.by_teacher(current_teacher)
+                                 .by_classroom(classroom)
+                                 .exists?
+      @classrooms << classroom if lesson_board
+    end
+
+    # Remove disciplinas que não estão no quadro de aulas
+    @fetch_linked_by_teacher[:disciplines].each do |discipline|
+      lesson_board = LessonsBoard.by_teacher(current_teacher)
+                                 .by_classroom(@classrooms)
+                                 .by_discipline(discipline)
+                                 .exists?
+      @disciplines << discipline if lesson_board
+    end
+    @disciplines.uniq
+  end
+end

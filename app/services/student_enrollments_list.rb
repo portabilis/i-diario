@@ -48,8 +48,7 @@ class StudentEnrollmentsList
                                                                  .by_discipline(discipline)
                                                                  .by_score_type(score_type, classroom)
 
-
-    students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade
+    students_enrollment_classrooms = students_enrollment_classrooms.by_grade(grade) if grade.present?
 
     if include_date_range
       students_enrollment_classrooms = students_enrollment_classrooms.by_date_range(start_at, end_at)

@@ -19,6 +19,7 @@
     <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student.id.to_s.rjust(10, '0')}" %>
     <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
       daily_frequency_student = daily_frequency.build_or_find_by_student(student.id) do |f| %>
+
       <% if @general_configuration.type_of_teaching == true && index == 0 %>
           <td>
             <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
@@ -49,12 +50,12 @@
             </label>
           <% end %>
 
-          <% if @general_configuration.type_of_teaching == true && index != 0 && active %>
-          <span class='hidden'>
-            <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
-                        label: false, required: false,
-                        input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
-          </span>
+          <% if @general_configuration.type_of_teaching == true && index != 0 && active && in_active_search.blank? %>
+            <span class='hidden'>
+              <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                          label: false, required: false,
+                          input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
+            </span>
           <% end %>
         </div>
       </td>

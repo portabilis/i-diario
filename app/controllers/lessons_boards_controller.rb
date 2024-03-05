@@ -281,11 +281,12 @@ class LessonsBoardsController < ApplicationController
 
   def classrooms_to_select2(grade_id, unity_id)
     classrooms_to_select2 = []
+
     classrooms = Classroom.by_unity(unity_id)
                           .by_year(current_user_school_year)
                           .ordered
 
-    classrooms.by_grade(grade_id) if grade_id.present?
+    classrooms = classrooms.by_grade(grade_id) if grade_id.present?
 
     classrooms.each do |classroom|
       classrooms_to_select2 << OpenStruct.new(

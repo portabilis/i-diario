@@ -16,7 +16,9 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    students_frequencies_percentage
+    students_frequencies_percentage,
+    current_user,
+    classroom_id
   )
     new(:landscape)
       .build(entity_configuration,
@@ -29,7 +31,10 @@ class AttendanceRecordReport < BaseReport
              events,
              school_calendar,
              second_teacher_signature,
-             students_frequencies_percentage)
+             students_frequencies_percentage,
+             current_user,
+             classroom_id)
+
   end
 
   def build(
@@ -43,10 +48,12 @@ class AttendanceRecordReport < BaseReport
     events,
     school_calendar,
     second_teacher_signature,
-    students_frequencies_percentage
+    students_frequencies_percentage,
+    current_user,
+    classroom_id
   )
     @entity_configuration = entity_configuration
-    @teacher = teacher
+    @teacher = set_teacher(teacher, classroom_id, current_user)
     @year = year
     @start_at = start_at
     @end_at = end_at
@@ -569,5 +576,12 @@ class AttendanceRecordReport < BaseReport
     return true if @events.empty?
 
     @events.detect { |event| event[:date].eql?(date) && event[:type].eql?(EventTypes::NO_SCHOOL) }.blank?
+  end
+
+  def set_teacher(teacher, classroom_id, current_user)
+    return teacher unless current_user.current_role_is_admin_or_employee?
+
+    teachers = Classroom.find(classroom_id).teacher_discipline_classrooms.map(&:teacher)
+    teachers.include?(teacher) ? teacher : teachers.first
   end
 end

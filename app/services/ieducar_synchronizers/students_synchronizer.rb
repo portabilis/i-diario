@@ -29,18 +29,30 @@ class StudentsSynchronizer < BaseSynchronizer
         student.api = true
 
         student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
-        student.save! if student.changed?
 
-        create_users(student) if student.changed? && allow_create_users_for_students
+        if student.changed?
+          student.save!
+          create_users(student.id) if allow_create_users_for_students
+        end
 
         discarded = student_record.deleted_at.present?
 
         student.discard_or_undiscard(discarded)
+
+        if student.discarded?
+          student_enrollments = StudentEnrollment.where(student_id: student.id)
+          student_enrollment_classrooms = StudentEnrollmentClassroom.where(
+            student_enrollment_id: student_enrollments.map(&:id)
+          )
+
+          student_enrollments.each(&:discard)
+          student_enrollment_classrooms.each(&:discard)
+        end
       end
     end
   end
 
-  def create_users(student)
-    UserForStudentCreatorWorker.perform_in(1.second, entity_id, student)
+  def create_users(student_id)
+    UserForStudentCreatorWorker.perform_in(1.second, entity_id, student_id)
   end
 end
