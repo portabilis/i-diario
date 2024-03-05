@@ -4,8 +4,8 @@
 
 <div class='widget-body no-padding'>
   <%= simple_form_for @attendance_record_report_by_student_form,
-      url: attendance_record_report_by_students_path,
-      method: :post, html: { class: 'smart-form', target: '_blank' } do |f|
+      url: attendance_record_report_by_students_report_path,
+      method: :get, html: { class: 'smart-form', target: '_blank' } do |f|
   %>
     <%= render partial: 'base_errors', locals: { f: f } %>
 

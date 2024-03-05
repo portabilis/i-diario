@@ -401,9 +401,9 @@ Rails.application.routes.draw do
     get '/reports/attendance_record_report_by_students/fetch_period_by_classroom',
       to: 'attendance_record_report_by_students#fetch_period_by_classroom',
       as: 'fetch_period_by_classroom_attendance_record_report_by_students'
-    post '/reports/attendance_record_report_by_students',
+    get '/reports/attendance_record_report_by_students/report',
       to: 'attendance_record_report_by_students#report',
-      as: 'attendance_record_report_by_students'
+      as: 'attendance_record_report_by_students_report'
 
     get '/reports/absence_justification', to: 'absence_justification_report#form', as: 'absence_justification_report'
     post '/reports/absence_justification', to: 'absence_justification_report#report', as: 'absence_justification_report'
