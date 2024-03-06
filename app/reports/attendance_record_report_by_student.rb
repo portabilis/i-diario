@@ -1,4 +1,6 @@
 class AttendanceRecordReportByStudent < BaseReport
+  class DailyFrequenciesNotFoundError < StandardError; end
+
   attr_accessor :classrooms, :enrollment_classrooms_list, :period, :start_at, :end_at
 
   def self.call(
@@ -74,11 +76,10 @@ class AttendanceRecordReportByStudent < BaseReport
   end
 
   def calculate_percentage_of_presence
-    daily_frequencies = query_daily_frequencies
+    daily_frequencies_not_found if query_daily_frequencies.blank?
 
-    return if daily_frequencies.blank?
-
-    daily_frequencies.map do |classroom_id, daily_frequencies|
+    query_daily_frequencies.map do |classroom_id, daily_frequencies|
+      daily_frequency_students = daily_frequencies.flat_map(&:students).group_by(&:student_id)
       {
         classroom: classroom_id,
         students: daily_frequency_students.map do |key, daily_frequency_student|
@@ -93,5 +94,9 @@ class AttendanceRecordReportByStudent < BaseReport
         end
       }
     end
+  end
+
+  def daily_frequencies_not_found
+    raise DailyFrequenciesNotFoundError, "Não foram encontradas frequencias nessa turma e nesse periodo"
   end
 end
