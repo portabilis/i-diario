@@ -51,7 +51,9 @@ class AttendanceRecordReportByStudent < BaseReport
               student_name: student[:student_name],
               sequence: student[:sequence],
               frequency: frequencies_by_classroom[:students].select do |frequency_by_student|
-                frequency_by_student[:percentage_frequency] if frequency_by_student[:student_id] == student[:student_id]
+                if frequency_by_student[:student_id] == student[:student_id]
+                  frequency_by_student[:percentage_frequency]
+                end
               end.first
             }
           end
@@ -79,9 +81,7 @@ class AttendanceRecordReportByStudent < BaseReport
     daily_frequencies.map do |classroom_id, daily_frequencies|
       {
         classroom: classroom_id,
-        students: daily_frequencies.flat_map do |daily_frequency|
-          daily_frequency.students
-        end.group_by(&:student_id).map do |key, daily_frequency_student|
+        students: daily_frequency_students.map do |key, daily_frequency_student|
           total_daily_frequency_students = daily_frequency_student.count.to_f
           total_presence = daily_frequency_student.map { |dfs| dfs if dfs.present }.compact.count.to_f
           percentage_frequency = ((total_presence / total_daily_frequency_students) * 100).round(2)
