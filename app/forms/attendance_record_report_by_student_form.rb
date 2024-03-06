@@ -51,6 +51,8 @@ class AttendanceRecordReportByStudentForm
   end
 
   def enrollment_classrooms_list
+    no_students_in_class if enrollment_classrooms.blank?
+
     @enrollment_classrooms ||= StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
       .includes(classrooms_grade: :classroom)
@@ -89,5 +91,9 @@ class AttendanceRecordReportByStudentForm
     raise ArgumentError, "Period can't be blank" if period.blank?
 
     period
+  end
+
+  def no_students_in_class
+    errors.add(:classroom_id, "Não há alunos enturmados nessa turma no período selecionado")
   end
 end
