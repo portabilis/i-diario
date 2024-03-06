@@ -50,9 +50,13 @@ class AttendanceRecordReportByStudentForm
              .order(:id)
   end
 
-  def enrollment_classrooms_list
+  def info_students_list
     no_students_in_class if enrollment_classrooms.blank?
 
+    info_students
+  end
+
+  def enrollment_classrooms
     @enrollment_classrooms ||= StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
       .includes(classrooms_grade: :classroom)
@@ -63,8 +67,6 @@ class AttendanceRecordReportByStudentForm
       .distinct
       .order('classrooms_grades.classroom_id')
       .order('sequence ASC, students.name ASC')
-
-      info_students
   end
 
   def info_students
