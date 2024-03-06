@@ -51,15 +51,12 @@ class AttendanceRecordReportByStudentForm
   end
 
   def enrollment_classrooms_list
-    classrooms = select_all_classrooms
-    period = adjusted_period
-
     @enrollment_classrooms ||= StudentEnrollmentClassroom
       .includes(student_enrollment: :student)
       .includes(classrooms_grade: :classroom)
-      .by_classroom(classrooms.map(&:id))
+      .by_classroom(select_all_classrooms.map(&:id))
       .by_date_range(start_at, end_at)
-      .by_period(period)
+      .by_period(adjusted_period)
       .where(classrooms_grade: { classrooms: { year: school_calendar_year } })
       .distinct
       .order('classrooms_grades.classroom_id')
