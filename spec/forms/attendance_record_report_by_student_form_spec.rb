@@ -176,8 +176,9 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
           )
         }
 
-        it 'returns ArgumentError' do
-          expect{report.enrollment_classrooms_list}.to raise_error(ArgumentError, "Period can't be blank")
+        it 'returns errors' do
+          report.valid?
+          expect(report.errors[:classroom_id]).to include("não pode ficar em branco")
         end
       end
 
@@ -201,7 +202,7 @@ RSpec.describe AttendanceRecordReportByStudentForm, type: :model do
             { student_id: students.last.id, student_name: students.last.name,
             sequence: nil, classroom_id: classroom.id}
           ]
-          expect(report.enrollment_classrooms_list).to match_array(list_students)
+          expect(report.info_students_list).to match_array(list_students)
         end
       end
     end
