@@ -24,6 +24,7 @@ class AttendanceRecordReportByStudent < BaseReport
     start_at,
     end_at
   )
+    super()
     @classrooms = classrooms
     @enrollment_classrooms_list = enrollment_classrooms_list
     @period = period
