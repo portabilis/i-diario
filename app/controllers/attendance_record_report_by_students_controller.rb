@@ -55,11 +55,10 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     @range_dates = "De #{report_params[:start_at]} à #{report_params[:end_at]}"
 
     classrooms = @attendance_record_report_by_student_form.select_all_classrooms
-    enrollment_classrooms_list = @attendance_record_report_by_student_form.enrollment_classrooms_list
-
+    info_students_list = @attendance_record_report_by_student_form.info_students_list
     @students_by_classrooms ||= AttendanceRecordReportByStudent.call(
       classrooms,
-      enrollment_classrooms_list,
+      info_students_list,
       adjusted_period(period),
       @attendance_record_report_by_student_form.start_at,
       @attendance_record_report_by_student_form.end_at
