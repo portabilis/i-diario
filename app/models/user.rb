@@ -179,8 +179,7 @@ class User < ApplicationRecord
   end
 
   def status_changed
-    return if new_record?
-    return if status_was == status
+    return if self.errors.any? || new_record? || (status_was == status)
 
     if status == UserStatus::ACTIVE
       update_last_activity_at
