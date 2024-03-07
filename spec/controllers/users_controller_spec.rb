@@ -78,19 +78,40 @@ RSpec.describe UsersController, :type => :controller do
           locale: 'pt-BR',
           id: user.id,
           user: {
-            password: '123456'
+            password: '123456',
+            admin: '0',
+            user_roles_attributes: {
+              '0' => {
+                id: user_role.id,
+                role_id: user_role.role_id,
+                unity_id: unity.id,
+                _destroy: false
+              }
+            }
           }
         }
       end
 
       it "with correct params and a weak password" do
         put :update, params: params
+
         expect(response).to have_http_status(:ok)
         expect(response).to render_template(:edit)
       end
 
       it "with correct params and a strong password" do
-        new_params = { user: { password: '!Aa123456' } }
+        new_params = { user: {
+          password: '!Aa123456',
+          admin: '0',
+          user_roles_attributes: {
+            '0' => {
+              id: user_role.id,
+              role_id: user_role.role_id,
+              unity_id: unity.id,
+              _destroy: false
+            }
+          }
+        }}
         put :update, params: params.merge(new_params)
         expect(response).to redirect_to(users_path)
       end
