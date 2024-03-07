@@ -150,7 +150,7 @@ class UsersController < ApplicationController
 
     return false if user_not_admin || current_user_not_admin
 
-    role_ids = user_params[:user_roles_attributes].values.map do |user_role|
+    role_ids = params[:user][:user_roles_attributes].values.map do |user_role|
       user_role[:role_id] if user_role[:_destroy].eql?('false')
     end
 
