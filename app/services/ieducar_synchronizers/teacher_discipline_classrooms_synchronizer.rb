@@ -217,13 +217,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         discipline_id: fake_discipline.id,
         discipline_api_code: "grouper:#{fake_discipline.id}",
         classroom_id: teacher_discipline_classroom.classroom_id,
-        classroom_api_code: "grouper:#{fake_discipline.id}",
-        period: teacher_discipline_classroom.period
+        classroom_api_code: "grouper:#{fake_discipline.id}"
       )
+
+      link_teacher.period = teacher_discipline_classroom.period
+      link_teacher.changed_at = teacher_discipline_classroom.changed_at
 
       link_teacher.undiscard if link_teacher.discarded?
 
-      link_teacher.save! if link_teacher.new_record?
+      link_teacher.save! if link_teacher.new_record? || link_teacher.changed?
     end
     destroy_grouped_links(classroom_id, teacher_id)
   end
