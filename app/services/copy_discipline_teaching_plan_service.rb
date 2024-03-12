@@ -118,7 +118,12 @@ class CopyDisciplineTeachingPlanService
     )
 
     copy_teaching_plan.teacher = teacher
-    copy_teaching_plan.save!(validate: false)
+
+    begin
+      copy_teaching_plan.save!
+    rescue ActiveRecord::RecordInvalid => e
+      raise CopyDisciplineTeachingPlanError, "Erro ao salvar o plano de ensino: #{e.message}"
+    end
 
     copy_teaching_plan.discipline_teaching_plan
   end
