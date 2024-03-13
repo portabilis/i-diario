@@ -16,7 +16,7 @@ class AbsenceJustifiedOnDate
   end
 
   def call
-    periods = period.nil? ? Periods.to_hash.except("Intermediário").values : period
+    periods = period.nil? ? Periods.to_hash.except("Intermediário").values.push(nil) : period
 
     absence_justified_on_date(periods)
   end
