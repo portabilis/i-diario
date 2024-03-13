@@ -16,7 +16,7 @@ class AbsenceJustifiedOnDate
   end
 
   def call
-    periods = period.nil? ? all_period_values : period
+    periods = period.nil? ? Periods.to_hash.except("Intermediário").values : period
 
     absence_justified_on_date(periods)
   end
@@ -44,14 +44,5 @@ class AbsenceJustifiedOnDate
     end
 
     absence_justified
-  end
-
-  def all_period_values
-    [
-      Periods::FULL.to_i,
-      Periods::MATUTINAL.to_i,
-      Periods::VESPERTINE.to_i,
-      Periods::NIGHTLY.to_i,
-    ]
   end
 end
