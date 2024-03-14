@@ -221,7 +221,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       )
 
       link_teacher.assign_attributes(
-        period: eacher_discipline_classroom.period,
+        period: teacher_discipline_classroom.period,
         changed_at: teacher_discipline_classroom.changed_at
       )
 
