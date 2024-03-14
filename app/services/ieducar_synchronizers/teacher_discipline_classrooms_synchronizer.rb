@@ -220,8 +220,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         classroom_api_code: "grouper:#{fake_discipline.id}"
       )
 
-      link_teacher.period = teacher_discipline_classroom.period
-      link_teacher.changed_at = teacher_discipline_classroom.changed_at
+      link_teacher.assign_attributes(
+        period: eacher_discipline_classroom.period,
+        changed_at: teacher_discipline_classroom.changed_at
+      )
 
       link_teacher.undiscard if link_teacher.discarded?
 
