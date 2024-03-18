@@ -3,7 +3,7 @@ class StudentsSynchronizer < BaseSynchronizer
     update_students(
       HashDecorator.new(
         api.fetch(
-          escola: unity_api_code
+          escola: '2'
         )['alunos']
       )
     )
@@ -34,8 +34,9 @@ class StudentsSynchronizer < BaseSynchronizer
 
         if student.changed?
           student.save!
-          create_users(student.id) if allow_create_users_for_students
         end
+
+        create_users(student.id) if allow_create_users_for_students
 
         discarded = student_record.deleted_at.present?
 
