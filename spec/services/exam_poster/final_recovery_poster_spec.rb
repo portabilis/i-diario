@@ -50,7 +50,7 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
     score_rounder = double(:score_rounder)
 
     expect(ScoreRounder).to receive(:new)
-      .with(classroom, RoundedAvaliations::FINAL_RECOVERY)
+      .with(classroom, RoundedAvaliations::FINAL_RECOVERY, school_calendar.steps.last)
       .and_return(score_rounder)
       .at_least(:once)
     expect(score_rounder).to receive(:round)

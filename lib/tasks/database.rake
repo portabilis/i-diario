@@ -37,6 +37,21 @@ namespace :db do
         end
       end
     end
+
+    task run_specific_tenant: :environment do
+      begin
+        Entity.find_by_name(ENV["TENANT"].to_sym).using_connection do
+          ActiveRecord::Migrator.migrations_paths = Educacao::Application.config.paths['db/migrate'].expanded
+          ActiveRecord::Migration.verbose = true
+
+          puts "Migrating db: #{Entity.current.domain}"
+
+          ActiveRecord::Migrator.migrate(ActiveRecord::Migrator.migrations_paths)
+        end
+      rescue Exception => e
+        puts "Database #{ENV["TENANT"]} not found"
+      end
+    end
   end
 end
 
