@@ -70,9 +70,7 @@ class DisciplineContentRecordsController < ApplicationController
 
     return render_content_with_multiple_class_numbers if allow_class_number
 
-    if @discipline_content_record.save
-      return unless validate_class_numbers
-
+    if @discipline_content_record.save && validate_class_numbers
       respond_with @discipline_content_record, location: discipline_content_records_path
     else
       set_options_by_user
