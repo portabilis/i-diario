@@ -254,9 +254,8 @@ class DisciplineContentRecordsController < ApplicationController
 
     if @discipline_content_record.content_record.classroom.present?
       @disciplines = Discipline.by_teacher_and_classroom(
-          current_teacher.id, @discipline_content_record.content_record.classroom.id
-        )
-        .ordered
+        current_teacher.id, @discipline_content_record.content_record.classroom.id
+      ).ordered
     end
 
     @disciplines
