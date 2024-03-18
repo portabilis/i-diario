@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe StudentsController, type: :controller do
+
   let(:entity) { Entity.find_by(domain: 'test.host') }
   let(:user) do
     create(
@@ -41,14 +42,6 @@ RSpec.describe StudentsController, type: :controller do
       classrooms_grade: classrooms_grade,
       joined_at: '2017-01-01',
       left_at: ''
-    )
-  }
-
-  let!(:school_calendar_classroom) {
-    create(
-      :school_calendar_classroom,
-      :school_calendar_classroom_with_semester_steps,
-      classroom: classroom
     )
   }
 
