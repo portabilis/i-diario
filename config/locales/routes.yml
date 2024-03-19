@@ -90,6 +90,7 @@ pt-BR:
     cancel: 'cancelar'
     parents: 'pais'
     employees: 'servidores'
+    search_api: 'api'
     history: 'historico'
     confirm: "confirmar"
     preview: "pre-visualizar"

@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     resources :students do
       collection do
         get :recovery_lowest_note
+        get :search_api
         get :in_recovery
         get :select2_remote
         get :search_autocomplete
