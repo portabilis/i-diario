@@ -231,17 +231,23 @@ class SchoolCalendarEvent < ApplicationRecord
     start_date_in_any_step = false
     end_date_in_any_step = false
 
-    school_calendar.steps.each do |step|
-        start_date_in_step = start_date.between?(step.start_at, step.end_at)
-        end_date_in_step = end_date.between?(step.start_at, step.end_at)
-        start_date_in_any_step = true if start_date_in_step
-        end_date_in_any_step = true if end_date_in_step
+    return date_errors(false, false) if start_date.blank? || end_date.blank?
 
-        break if start_date_in_step && end_date_in_step
+    school_calendar.steps.each do |step|
+      start_date_in_step = start_date.between?(step.start_at, step.end_at)
+      end_date_in_step = end_date.between?(step.start_at, step.end_at)
+      start_date_in_any_step = true if start_date_in_step
+      end_date_in_any_step = true if end_date_in_step
+
+      break if start_date_in_step && end_date_in_step
     end
 
-    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_any_step
-    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date_in_any_step
+    date_errors(start_date_in_any_step, end_date_in_any_step)
+  end
+
+  def date_errors(start_date, end_date)
+    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date
+    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date
   end
 
   def uniqueness_of_start_at_and_end_at
