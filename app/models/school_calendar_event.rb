@@ -241,8 +241,8 @@ class SchoolCalendarEvent < ApplicationRecord
       break if start_date_in_step && end_date_in_step
     end
 
-    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_step
-    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date_in_step
+    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_any_step
+    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date_in_any_step
   end
 
   def uniqueness_of_start_at_and_end_at
