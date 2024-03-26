@@ -227,11 +227,10 @@ class SchoolCalendarEvent < ApplicationRecord
 
   def start_at_and_end_at_in_step
     return if school_calendar.nil?
+    return if errors[:start_date].any? || errors[:end_date].any?
 
     start_date_in_any_step = false
     end_date_in_any_step = false
-
-    return date_errors(false, false) if start_date.blank? || end_date.blank?
 
     school_calendar.steps.each do |step|
       start_date_in_step = start_date.between?(step.start_at, step.end_at)
@@ -242,10 +241,6 @@ class SchoolCalendarEvent < ApplicationRecord
       break if start_date_in_step && end_date_in_step
     end
 
-    date_errors(start_date_in_any_step, end_date_in_any_step)
-  end
-
-  def date_errors(start_date, end_date)
     errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date
     errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date
   end
