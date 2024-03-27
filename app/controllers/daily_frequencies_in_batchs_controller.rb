@@ -106,6 +106,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.active = student_attributes[:active]
           daily_frequency_student.absence_justification_student_id = student_attributes[:absence_justification_student_id]
 
+          daily_frequency.save!
           daily_frequency_student.save!
         end
 
@@ -119,6 +120,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
           dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
         end
+
       end
     end
 
@@ -145,6 +147,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     view_data
 
     render :create_or_update_multiple
+  rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      return redirect_to new_daily_frequencies_in_batch_path
   end
 
   def destroy_multiple
