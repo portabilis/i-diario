@@ -4,6 +4,7 @@ window['content_list_submodel_name'] = 'lesson_plan';
 $(function () {
   'use strict';
   var $classroom = $('#knowledge_area_lesson_plan_lesson_plan_attributes_classroom_id');
+  var idContentsCounter = 1;
 
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
   const copyObjectivesTeachingPlanLink = document.getElementById('copy-from-objectives-teaching-plan-link');
@@ -17,11 +18,9 @@ $(function () {
   const flashMessages = new FlashMessages();
 
   $('#knowledge_area_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
 
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
@@ -47,11 +46,9 @@ $(function () {
   });
 
   $('#knowledge_area_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
 
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
