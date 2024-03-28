@@ -118,8 +118,11 @@ class CopyDisciplineTeachingPlanService
     )
 
     copy_teaching_plan.teacher = teacher
-    copy_teaching_plan.save!(validate: false)
+    error_message = "Erro ao salvar o plano de ensino: #{copy_teaching_plan.errors.full_messages}"
 
+    raise CopyDisciplineTeachingPlanError, error_message unless copy_teaching_plan.valid?
+
+    copy_teaching_plan.save!
     copy_teaching_plan.discipline_teaching_plan
   end
 

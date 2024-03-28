@@ -50,7 +50,8 @@ class Features < EnumerateIt::Base
                    :translations,
                    :lessons_boards,
                    :daily_frequencies_in_batchs,
-                   :avaliation_recovery_lowest_notes
+                   :avaliation_recovery_lowest_notes,
+                   :attendance_record_report_by_students
 
 
   sort_by :translation

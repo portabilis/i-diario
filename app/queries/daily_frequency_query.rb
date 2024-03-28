@@ -4,8 +4,8 @@ class DailyFrequencyQuery
       .by_classroom_id(filters[:classroom_id])
       .by_period(filters[:period])
       .by_frequency_date_between(filters[:frequency_date])
-      .by_discipline_id(filters[:discipline_id])
-      .by_class_number(filters[:class_numbers])
+      .by_discipline_id(filters[:discipline_id], filters[:all_students_frequencies])
+      .by_class_number(filters[:class_numbers], filters[:all_students_frequencies])
       .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
   end
 
@@ -32,14 +32,17 @@ class DailyFrequencyQuery
       where(frequency_date: frequency_date)
     end
 
-    def by_discipline_id(discipline_id)
+    def by_discipline_id(discipline_id, all_students_frequencies = false)
+      return self if all_students_frequencies
       return self.where(discipline_id: nil) if discipline_id.blank?
 
       where(discipline_id: discipline_id)
     end
 
-    def by_class_number(class_numbers)
+    def by_class_number(class_numbers, all_students_frequencies = false)
+      return self if all_students_frequencies
       return self.where(class_number: nil) if class_numbers.blank?
+
       array_class_numbers = class_numbers.split(',')
 
       where(class_number: array_class_numbers)

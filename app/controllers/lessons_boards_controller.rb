@@ -23,6 +23,8 @@ class LessonsBoardsController < ApplicationController
   end
 
   def new
+    unities
+
     authorize resource
   end
 
@@ -79,7 +81,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def lesson_unities
-    lessons_unities = if current_user.current_user_role.try(:role_administrator?)
+    lessons_unities = if user_role_administrator?
                         LessonsBoard.by_unity(unities_id)
                                     .map(&:unity_id)
                                     .uniq
@@ -96,20 +98,23 @@ class LessonsBoardsController < ApplicationController
 
     Unity.where(id: lessons_unities).ordered
   end
-
   helper_method :lesson_unities
 
-  def unities
-    if current_user.current_user_role.try(:role_administrator?)
-      @unities ||= Unity.joins(:school_calendars)
-                        .where(school_calendars: { year: current_user_school_year })
-                        .ordered
-    else
-      [current_user_unity]
-    end
+  def user_role_administrator?
+    @role_administrator ||= current_user.reload_current_user_role&.role&.administrator?
   end
 
-  helper_method :unities
+  def unities
+    @unities ||= fetch_unities
+  end
+
+  def fetch_unities
+    return [current_user_unity] unless user_role_administrator?
+
+    Unity.joins(:school_calendars)
+         .where(school_calendars: { year: current_user_school_year })
+         .ordered
+  end
 
   def unities_id
     unities.map(&:id)

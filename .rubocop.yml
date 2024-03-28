@@ -1,5 +1,16 @@
+inherit_from: .rubocop_todo.yml
+
+require: rubocop-rails
+
 AllCops:
-  TargetRailsVersion: 4.2
+  TargetRailsVersion: 5.0
+  Exclude:
+   - 'bin/**/*'
+   - 'vendor/**/*'
+   - 'db/**/*'
+   - 'config/**/*'
+   - 'script/**/*'
+   - 'spec/rails_helper.rb'
 
 Metrics/AbcSize:
   Enabled: false

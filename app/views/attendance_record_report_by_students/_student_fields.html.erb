@@ -1,0 +1,36 @@
+
+<% @students_by_classrooms.each do |classroom| %>
+  <% classroom_id, classroom_info = classroom %>
+  <table>
+    <thead>
+      <tr>
+        <th style='text-align: center' colspan='5'><%= "Série: #{classroom_info[:grade_name]}" %></th>
+      </tr>
+      <tr>
+        <th style='text-align: center' colspan='5'><%= "Turma: #{classroom_info[:classroom_name]}" %></th>
+      </tr>
+    </thead>
+    <thead>
+      <tr>
+        <td style='width: 1%'><b>Nº</b></td>
+        <td><b>Nome do aluno</b></td>
+        <td><b>Frequência</b></td>
+      </tr>
+    </thead>
+    <tbody>
+      <% sequence = 0 %>
+      <% classroom_info[:students].each do |student| %></td>
+        <tr>
+          <% if student[:sequence] %>
+            <td><%= student[:sequence] %></td>
+          <% else %>
+            <% sequence += 1 %>
+            <td><%= sequence %></td>
+          <% end %>
+          <td><%= student[:student_name] %></td>
+          <td><%= "#{student[:frequency][:percentage_frequency]}%" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

@@ -61,6 +61,7 @@ class CopyKnowledgeAreaTeachingPlanWorker
             teaching_plan = model_teaching_plan.dup
             teaching_plan.unity_id = unity_id
             teaching_plan.grade_id = grade_id
+            teaching_plan.year = year
             teaching_plan.contents_created_at_position = teaching_plan_contents_created_at_position
             teaching_plan.objectives_created_at_position = teaching_plan_objectives_created_at_position
             teaching_plan.content_ids = content_ids

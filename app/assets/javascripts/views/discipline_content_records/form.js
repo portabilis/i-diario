@@ -7,6 +7,7 @@ $(function () {
   var $classroom = $('#discipline_content_record_content_record_attributes_classroom_id');
   var $discipline = $('#discipline_content_record_discipline_id');
   var $recordDate = $('#discipline_content_record_content_record_attributes_record_date');
+  var idContentsCounter = 1;
 
   $classroom.on('change', function () {
     var classroom_id = $classroom.select2('val');
@@ -101,10 +102,8 @@ $(function () {
   };
 
   $('#discipline_content_record_content_record_attributes_contents_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {

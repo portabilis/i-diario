@@ -1,0 +1,29 @@
+<table>
+  <thead>
+    <tr>
+      <th style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'
+        colspan='2'
+      >
+        Identificação
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan='2' style='padding: 5px;'>
+        <b style='font-size: 10px'> Unidade </b>
+        <br> <%= @unity.name %>
+      </td>
+    </tr>
+    <tr>
+      <td style='width: 50%'>
+        <b style='font-size: 10px'> Período </b>
+        <br> <%= @range_dates %>
+      </td>
+      <td colspan='2' style='padding: 5px; width: 50%'>
+        <b style='font-size: 10px'> Ano letivo </b>
+        <br> <%= @school_calendar_year %>
+      </td>
+    </tr>
+  </tbody>
+</table>

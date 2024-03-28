@@ -5,6 +5,8 @@ class ExamRulesSynchronizer < BaseSynchronizer
         api.fetch['regras']
       )
     )
+  rescue IeducarApi::Base::ApiError => error
+    synchronization.mark_as_error!(error.message)
   end
 
   private
