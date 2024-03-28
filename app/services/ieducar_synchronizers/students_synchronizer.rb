@@ -19,6 +19,7 @@ class StudentsSynchronizer < BaseSynchronizer
 
   def update_students(students)
     allow_create_users_for_students = GeneralConfiguration.current.create_users_for_students_when_synchronize
+    @student_users ||= User.joins(:students).where(students: { api_code: students.map(&:aluno_id) }) if allow_create_users_for_students
 
     students.each do |student_record|
       next if student_record.nome_aluno.blank?
@@ -31,11 +32,8 @@ class StudentsSynchronizer < BaseSynchronizer
         student.api = true
 
         student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
-
-        if student.changed?
-          student.save!
-          create_users(student.id) if allow_create_users_for_students
-        end
+        student.save! if student.changed?
+        create_users(student.id) if allow_create_users_for_students && student_user_new?(student)
 
         discarded = student_record.deleted_at.present?
 
@@ -56,5 +54,9 @@ class StudentsSynchronizer < BaseSynchronizer
 
   def create_users(student_id)
     UserForStudentCreatorWorker.perform_in(1.second, entity_id, student_id)
+  end
+
+  def student_user_new?(student)
+    true unless @student_users.map(&:student_id).include?(student.id)
   end
 end
