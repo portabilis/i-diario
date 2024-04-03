@@ -65,8 +65,8 @@ class DailyFrequenciesController < ApplicationController
 
   def edit_multiple
     set_options_by_user
-
     @daily_frequencies = find_or_initialize_daily_frequencies(params[:class_numbers])
+      .sort { |a, b| a.class_number <=> b.class_number }
     @daily_frequency = @daily_frequencies.first
     @period = @admin_or_teacher ? current_teacher_period : set_options_by_classroom
 
@@ -212,11 +212,15 @@ class DailyFrequenciesController < ApplicationController
             daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
+
           daily_frequency_record.save!
         end
       end
     rescue ActiveRecord::RecordNotUnique
       retry
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      return redirect_to new_daily_frequency_path
     end
 
     flash[:success] = t('.daily_frequency_success')

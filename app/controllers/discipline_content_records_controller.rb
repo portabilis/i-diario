@@ -49,11 +49,6 @@ class DisciplineContentRecordsController < ApplicationController
       @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
     end
 
-    unless current_user.current_role_is_admin_or_employee?
-      classroom_id = @discipline_content_record.content_record.classroom_id
-      @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
-    end
-
     authorize @discipline_content_record
   end
 
@@ -70,9 +65,7 @@ class DisciplineContentRecordsController < ApplicationController
 
     return render_content_with_multiple_class_numbers if allow_class_number
 
-    if @discipline_content_record.save
-      return unless validate_class_numbers
-
+    if @discipline_content_record.save && validate_class_numbers
       respond_with @discipline_content_record, location: discipline_content_records_path
     else
       set_options_by_user
@@ -261,9 +254,8 @@ class DisciplineContentRecordsController < ApplicationController
 
     if @discipline_content_record.content_record.classroom.present?
       @disciplines = Discipline.by_teacher_and_classroom(
-          current_teacher.id, @discipline_content_record.content_record.classroom.id
-        )
-        .ordered
+        current_teacher.id, @discipline_content_record.content_record.classroom.id
+      ).ordered
     end
 
     @disciplines
@@ -271,12 +263,10 @@ class DisciplineContentRecordsController < ApplicationController
   helper_method :disciplines
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= Classroom.where(id: current_user_classroom)
-      @disciplines ||= Discipline.where(id: current_user_discipline)
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
   end
 
   def fetch_linked_by_teacher
