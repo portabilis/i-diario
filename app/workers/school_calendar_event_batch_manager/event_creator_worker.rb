@@ -32,7 +32,7 @@ module SchoolCalendarEventBatchManager
 
               notify(
                 school_calendar_event_batch,
-                valid_message?(e.message, school_calendar_event_batch, unity_name),
+                valid_message(e.message, school_calendar_event_batch, unity_name),
                 user_id
               )
               next
@@ -72,7 +72,7 @@ module SchoolCalendarEventBatchManager
       SchoolCalendar.by_year(school_calendar_event_batch.year)
     end
 
-    def valid_message?(message, school_calendar_event_batch, unity_name)
+    def valid_message(message, school_calendar_event_batch, unity_name)
       description = school_calendar_event_batch.description
       start_date = school_calendar_event_batch.start_date.strftime('%d/%m/%Y')
 
