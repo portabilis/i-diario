@@ -5,8 +5,16 @@
         <thead>
           <tr>
             <td width="20%"></td>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
-            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
+            <td>
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
+                          label: false, placeholder: t('.by_classroom_id'),
+                          input_html: { value: current_user_classroom.id } %>
+            </td>
+            <td>
+              <%= f.input :by_discipline_id, as: :select2, elements: @disciplines,
+                          label: false, placeholder: t('.by_discipline_id'),
+                          input_html: { value: current_user_discipline.id } %>
+            </td>
             <td><%= f.input :by_avaliation_description, label: false, placeholder: t('.by_avaliation_description') %></td>
             <td width="15%"><%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %></td>
             <td><%= link_to t('.new_html'), new_avaliation_recovery_diary_record_path, class: 'btn btn-primary pull-right' %></td>

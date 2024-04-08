@@ -8,15 +8,17 @@
             <td></td>
             <td>
               <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
-                            label: false, placeholder: t('.by_classroom_id') %>
+                          label: false, placeholder: t('.by_classroom_id'),
+                          input_html: {value: current_user_classroom.id } %>
             </td>
             <td>
               <%= f.input :by_discipline_id, as: :select2, elements: @disciplines,
-                           label: false, placeholder: t('.by_discipline_id') %>
+                          label: false, placeholder: t('.by_discipline_id'),
+                          input_html: {value: current_user_discipline.id } %>
             </td>
             <td>
               <%= f.input :by_step_id, as: :select2_step, classroom: current_user_classroom,
-                label: false, placeholder: t('.by_step_id') %>
+                          label: false, placeholder: t('.by_step_id') %>
             </td>
             <td>
               <%= f.input :by_created_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>
