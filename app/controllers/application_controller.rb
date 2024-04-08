@@ -32,6 +32,7 @@ class ApplicationController < ActionController::Base
   before_action :check_user_has_name, if: :user_signed_in?
   before_action :check_password_expired, if: :user_signed_in?
   before_action :last_activity_at, if: :user_signed_in?
+  before_action :check_user_first_access, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -423,6 +424,14 @@ class ApplicationController < ActionController::Base
     flash[:alert] = t('errors.general.expired_password')
 
     redirect_to edit_account_path
+  end
+
+  def check_user_first_access
+    return if request.fullpath == edit_user_pt_br_path(current_user) ||
+      request.fullpath == user_pt_br_path(current_user)
+    return unless current_user.email.include?("ambiente.portabilis.com.br")
+
+    redirect_to edit_user_pt_br_path(current_user)
   end
 
   def last_activity_at
