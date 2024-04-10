@@ -35,6 +35,8 @@ class LessonPlanAttachmentCopier
   rescue AttachmentCopyError => error
     Honeybadger.notify(error)
     error_attachment
+  rescue Errno::EISDIR => e
+    FileUtils.rm_rf("#{uploads}/#{new_id}")
   rescue AttachmentCopyErrorNotExisted => error
     error
   end
@@ -54,8 +56,6 @@ class LessonPlanAttachmentCopier
 
     FileUtils.mkdir_p("#{uploads}/#{new_id}")
     FileUtils.cp("#{uploads}/#{original_id}/#{filename}", "#{uploads}/#{new_id}/#{filename}")
-  rescue Errno::EISDIR => e
-    FileUtils.rm_rf("#{uploads}/#{new_id}")
   end
 
   def warning_attachment
