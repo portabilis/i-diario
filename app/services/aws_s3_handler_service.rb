@@ -14,7 +14,7 @@ class AwsS3HandlerService
     begin
       @s3_client.copy_object(bucket: @bucket_name, copy_source: "/#{@bucket_name}/#{uri_escape(source)}", key: target)
     rescue Aws::S3::Errors::NoSuchKey => error
-      raise error.message = "Arquivo não encontrado: #{source}"
+      raise "Arquivo não encontrado: #{source}"
     rescue Exception => error
       Honeybadger.context(object_name: object.class, object_id: object.id, source: uri_escape(source), target: target)
       Honeybadger.notify(error)
