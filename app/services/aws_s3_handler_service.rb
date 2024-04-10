@@ -12,9 +12,7 @@ class AwsS3HandlerService
 
   def copy_object(source, target, object)
     begin
-      response = @s3_client.copy_object(bucket: @bucket_name, copy_source: "/#{@bucket_name}/#{uri_escape(source)}", key: target)
-
-      return true if response
+      @s3_client.copy_object(bucket: @bucket_name, copy_source: "/#{@bucket_name}/#{uri_escape(source)}", key: target)
     rescue Aws::S3::Errors::NoSuchKey
       false
     rescue Exception => error
