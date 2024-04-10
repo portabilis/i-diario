@@ -45,7 +45,7 @@ class LessonPlanAttachmentCopier
     s3_handler = AwsS3HandlerService.new
     success_copy = s3_handler.copy_object("#{prefix}/#{original_id}/#{filename}", "#{prefix}/#{new_id}/#{filename}", @new_lesson_plan )
 
-    unless success_copy.first
+    unless success_copy
       attachment.destroy
       warning_attachment
     end
