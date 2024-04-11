@@ -427,19 +427,11 @@ class ApplicationController < ActionController::Base
   end
 
   def check_user_first_access
-<<<<<<< Updated upstream
-    return if request.fullpath == edit_user_pt_br_path(current_user) ||
-      request.fullpath == user_pt_br_path(current_user)
-    return unless current_user.email.include?("ambiente.portabilis.com.br")
-
-    redirect_to edit_user_pt_br_path(current_user)
-=======
     return if request.fullpath == edit_account_pt_br_path ||
       request.fullpath == account_pt_br_path
     return unless current_user.first_access?
 
     redirect_to edit_account_pt_br_path
->>>>>>> Stashed changes
   end
 
   def last_activity_at
