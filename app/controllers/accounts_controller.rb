@@ -37,7 +37,7 @@ class AccountsController < ApplicationController
   end
 
   def user_first_access_messages(user)
-    flash[:error] = 'É necessario altearar o e-mail e a senha padrão'
+    flash[:error] = 'Atualize os dados do seu perfil, modificando a senha atual para continuar a utilizar o sistema'
     user.errors.add(:password, :must_be_changed)
     user.errors.add(:email, :must_be_changed) if user.email.include?('ambiente.portabilis.com.br')
   end
