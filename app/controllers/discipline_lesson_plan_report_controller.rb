@@ -72,7 +72,6 @@ class DisciplineLessonPlanReportController < ApplicationController
   end
 
   def clear_invalid_dates
-    binding.pry
     date_start = resource_params[:date_start]
     date_end = resource_params[:date_end]
 
