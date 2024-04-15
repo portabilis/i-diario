@@ -47,8 +47,8 @@ jobs:
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.4.10'
-          bundler: '1.17.3'
+          ruby-version: '2.6.6'
+          bundler: '2.4.22'
           bundler-cache: true
         env:          
           ImageOS: ubuntu20
