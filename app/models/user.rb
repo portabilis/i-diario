@@ -151,7 +151,7 @@ class User < ApplicationRecord
 
   def first_access?
     email.include?('ambiente.portabilis.com.br') &&
-      created_at.to_date == last_password_change.to_date
+      created_at.to_date >= last_password_change.to_date
   end
 
   def expired?
