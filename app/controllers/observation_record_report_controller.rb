@@ -54,16 +54,10 @@ class ObservationRecordReportController < ApplicationController
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:start_at].to_date
-    rescue ArgumentError
-      @observation_record_report_form.start_at = ''
-    end
+    start_at = resource_params[:start_at]
+    end_at = resource_params[:end_at]
 
-    begin
-      resource_params[:end_at].to_date
-    rescue ArgumentError
-      @observation_record_report_form.end_at = ''
-    end
+    @observation_record_report_form.start_at = '' unless start_at.try(:to_date)
+    @observation_record_report_form.end_at = '' unless end_at.try(:to_date)
   end
 end

@@ -16,13 +16,21 @@ function handleFetchSchoolTermTypeStepsError() {
 };
 
 function updateSchoolTermInput(schoolTermType, schoolTerm, schoolTermContainer, flashMessagesParam) {
-  var school_term_type_id = schoolTermType.select2('val');
+  school_term_type_id = schoolTermType.select2('val').trim();
+  selectedData = schoolTermType.select2('data')
+  school_term_type_data = selectedData ? selectedData.name : null;
+  selectedSchoolTermTypeId = $('#yearly_school_term_type_id').val();
+
   $schoolTermType = schoolTermType;
   $schoolTerm = schoolTerm;
   $schoolTermContainer = schoolTermContainer;
   $flashMessages = flashMessagesParam;
 
-  if (!_.isEmpty(school_term_type_id) && school_term_type_id != $('#yearly_school_term_type_id').val() ) {
+  let isSchoolTermIdValid = school_term_type_data != null &&
+    school_term_type_id != selectedSchoolTermTypeId &&
+    school_term_type_data != 'Anual (1 etapa)';
+
+  if (isSchoolTermIdValid) {
     $.ajax({
       url: Routes.steps_by_school_term_type_id_pt_br_path({
         school_term_type_id: school_term_type_id,
