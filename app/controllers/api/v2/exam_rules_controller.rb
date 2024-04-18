@@ -10,7 +10,7 @@ module Api
         exam_rule.allow_frequency_by_discipline =
           absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
 
-        render json: exam_rule
+        render json: {exam_rule: exam_rule}
       end
 
       private
