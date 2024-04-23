@@ -4,7 +4,7 @@ class LessonsBoardsController < ApplicationController
 
   def index
     @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
-    @lessons_boards = apply_scopes(@lessons_boards).filter(filtering_params(params[:search]))
+    @lessons_boards = apply_scopes(@lessons_boards).filter_from_params(filtering_params(params[:search]))
     authorize @lessons_boards
   end
 

@@ -27,28 +27,14 @@ module SchoolCalendarEventBatchManager
 
                 school_calendars_days(school_calendar_event_batch, action_name)
               end
-            rescue ActiveRecord::RecordInvalid
+            rescue ActiveRecord::RecordInvalid => e
               unity_name = Unity.find_by(id: school_calendar.unity_id)&.name
 
-              school_calendar.steps.each do |step|
-                if school_calendar_event_batch.start_date.between?(step.start_at, step.end_at) &&
-                   school_calendar_event_batch.end_date.between?(step.start_at, step.end_at)
-
-                  notify(
-                    school_calendar_event_batch,
-                    "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
-                    #{unity_name} pois a mesma já possui um evento na data #{school_calendar_event_batch.start_date.strftime('%d/%m/%Y')}.",
-                    user_id
-                  )
-                else
-                  notify(
-                    school_calendar_event_batch,
-                    "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
-                    #{unity_name} pois a data #{school_calendar_event_batch.start_date.strftime('%d/%m/%Y')} não está dentro do período letivo.",
-                    user_id
-                  )
-                end
-              end
+              notify(
+                school_calendar_event_batch,
+                valid_message(e.message, school_calendar_event_batch, unity_name),
+                user_id
+              )
               next
             end
           end
@@ -84,6 +70,21 @@ module SchoolCalendarEventBatchManager
 
     def school_calendars(school_calendar_event_batch)
       SchoolCalendar.by_year(school_calendar_event_batch.year)
+    end
+
+    def valid_message(message, school_calendar_event_batch, unity_name)
+      description = school_calendar_event_batch.description
+      start_date = school_calendar_event_batch.start_date.strftime('%d/%m/%Y')
+
+      new_message = if message.start_with?('A validação falhou: Data inicial já existe um evento cadastrado')
+                      "A criação do evento #{description} não foi efetuada para a escola "\
+                      "#{unity_name} pois a mesma já possui um evento na data #{start_date}."
+                    else
+                      "A criação do evento #{description} não foi efetuada para a escola "\
+                      "#{unity_name} pois a data #{start_date} não está dentro do período letivo."
+                    end
+
+      new_message
     end
   end
 end

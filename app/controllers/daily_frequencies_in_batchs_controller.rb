@@ -98,7 +98,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             absence_justification.save
 
-            student_attributes[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
+            student_attributes[:absence_justification_student_id] = 
+              absence_justification.absence_justifications_students.first.id
           end
 
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
@@ -106,6 +107,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.active = student_attributes[:active]
           daily_frequency_student.absence_justification_student_id = student_attributes[:absence_justification_student_id]
 
+          daily_frequency.save!
           daily_frequency_student.save!
         end
 
@@ -119,6 +121,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
           dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
         end
+
       end
     end
 
@@ -145,6 +148,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     view_data
 
     render :create_or_update_multiple
+  rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+      redirect_to new_daily_frequencies_in_batch_path
   end
 
   def destroy_multiple
@@ -380,7 +386,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     daily_frequencies = []
     if lesson_numbers.nil?
-      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id, nil, @period)
+      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id, 
+nil, @period)
     else
       lesson_numbers.each do |lesson_number|
         daily_frequencies << find_or_initialize_daily_frequency_by(date, lesson_number,
@@ -635,7 +642,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, 
+current_school_year)
     @disciplines = []
     @classrooms = []
 
