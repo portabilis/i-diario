@@ -126,7 +126,7 @@ $(function () {
     if (!$('li.list-group-item.active input[type=checkbox][data-objective_description="' + content.description + '"]').length) {
       const newLine = JST['templates/layouts/objectives_list_manual_item']({
         id: content.id,
-        description: description,
+        description: content.description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
       });
@@ -158,6 +158,7 @@ $(function () {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
         return false;
       }
+
       const url = Routes.teaching_plan_objectives_knowledge_area_lesson_plans_pt_br_path();
       const params = {
         classroom_id: $classroom.val(),
@@ -168,7 +169,6 @@ $(function () {
 
       $.getJSON(url, params)
         .done(fillObjectives);
-
 
       return false;
     });
