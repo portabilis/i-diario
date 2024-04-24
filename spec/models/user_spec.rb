@@ -131,8 +131,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#first_access?' do
-    context 'when default email domain' do
-      subject { create(:user, email: 'user@ambiente.portabilis.com.br') }
+    context 'when default email domain and created_at before last_password_change' do
+      subject do
+        create(:user, created_at: '2017-02-28',
+        last_password_change: Date.today,
+        email: 'user@ambiente.portabilis.com.br')
+      end
 
       it 'returns false' do
         expect(subject.first_access?).to be_falsey
