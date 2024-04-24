@@ -33,7 +33,6 @@ class StudentsSynchronizer < BaseSynchronizer
 
         student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
         student.save! if student.changed?
-        create_users(student.id) if allow_create_users_for_students && student_user_new?(student)
 
         discarded = student_record.deleted_at.present?
 
@@ -48,6 +47,8 @@ class StudentsSynchronizer < BaseSynchronizer
           student_enrollments.each(&:discard)
           student_enrollment_classrooms.each(&:discard)
         end
+
+        create_users(student.id) if allow_create_users_for_students && student_user_new?(student) && !student.discarded?
       end
     end
   end
