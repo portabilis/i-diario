@@ -63,6 +63,7 @@ gem 'validates_timeliness', '3.0.14'
 gem 'webpacker', '~> 4.x'
 gem 'scenic', '~> 1.7'
 gem 'tilt', '2.1.0'
+gem 'net-http', '0.4.1'
 
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
