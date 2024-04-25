@@ -251,7 +251,7 @@ class AvaliationsController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
 
     grades_by_numerical_exam = classroom.classrooms_grades
-      .by_score_type(ScoreTypes::NUMERIC)
+      .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
       .map(&:grade)
 
     render json: true if grades_by_numerical_exam.present?
@@ -290,7 +290,7 @@ class AvaliationsController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
     @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
     @grades = @classroom_grades.map(&:grade).uniq
