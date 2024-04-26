@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.6.6'
 
-gem 'active_model_serializers', '0.9.3'
+gem 'active_model_serializers', '0.9.12'
 gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
 gem "activerecord-tablefree", "~> 3.0"
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
@@ -63,6 +63,7 @@ gem 'validates_timeliness', '3.0.14'
 gem 'webpacker', '~> 4.x'
 gem 'scenic', '~> 1.7'
 gem 'tilt', '2.1.0'
+gem 'net-http', '0.4.1'
 
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
