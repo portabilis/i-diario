@@ -1,10 +1,11 @@
 class UserByCsvCreator
-  attr_reader :file, :entity_name, :send_mail, :status
+  attr_reader :file, :entity_name, :send_mail, :status, :password
 
   def initialize(options)
     @file = options['FILE']
     @entity_name = options['ENTITY']
     @send_mail = options['EMAIL'].casecmp?('false') ? false : true
+    @password = options['PASSWORD']
   end
 
   def create
@@ -17,7 +18,7 @@ class UserByCsvCreator
   private
 
   def params?
-    file && entity_name
+    file && entity_name && password
   end
 
   def create_user
@@ -45,7 +46,6 @@ class UserByCsvCreator
             next
           end
 
-          password = new_user[4] || SecureRandom.hex(8)
           user.login = new_user[3]
           user.email = new_user[2]
 
@@ -61,7 +61,7 @@ class UserByCsvCreator
 
           user.save! if user.changed?
 
-          if set_admin_role(user) && send_mail && new_user[4].nil?
+          if set_admin_role(user) && send_mail
             UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
           end
         end
