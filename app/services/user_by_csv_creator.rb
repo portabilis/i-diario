@@ -59,7 +59,7 @@ class UserByCsvCreator
           user.first_name = new_user[0]
           user.last_name = new_user[1]
 
-          user.save!
+          user.save! if user.changed?
 
           if set_admin_role(user) && send_mail && new_user[4].nil?
             UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
