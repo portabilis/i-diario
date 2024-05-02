@@ -2,18 +2,18 @@ name: Tests
 
 on:
   push:
-    branches: 
+    branches:
       - main
       - tc-gh-actions
   pull_request:
 
 jobs:
   default:
-    
+
     name: Unit and Integration
-    
+
     if: '! github.event.pull_request.draft'
-    
+
     runs-on: ubuntu-latest
 
     env:
@@ -28,10 +28,10 @@ jobs:
           POSTGRES_DB: idiario_test
         ports:
           - 5432:5432
-        options: 
-          --health-cmd pg_isready 
-          --health-interval 10s 
-          --health-timeout 5s 
+        options:
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
           --health-retries 3
 
       redis:
@@ -50,7 +50,7 @@ jobs:
           ruby-version: '2.6.6'
           bundler: '2.4.22'
           bundler-cache: true
-        env:          
+        env:
           ImageOS: ubuntu20
 
       - name: Configure database
@@ -60,12 +60,12 @@ jobs:
         run: |
           echo -e "
             test:
-              secret_key_base: `bundle exec rake secret`
+              secret_key_base: `bundle exec rails secret`
               redis_url: redis://localhost:6379
           " > config/secrets.yml
 
       - name: Migrate
-        run: RAILS_ENV=test bundle exec rake db:migrate
+        run: RAILS_ENV=test bundle exec rails db:migrate
 
       - name: Tests
-        run: bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
+        run: DISABLE_BOOTSNAP_LOAD_PATH_CACHE=true bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
