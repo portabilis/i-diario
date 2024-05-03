@@ -15,13 +15,11 @@
               </a>
             </li>
 
-            <% if true%>
-              <li id='li-eja' class="<%= 'active' if @active_users_tab %>">
-                <a id='a-eja' href="#eja" data-toggle="tab">
-                  <%= type == 'disciplines' ? 'Componentes curriculares EJA'  : 'Campos de experiência EJA' %>
-                </a>
-              </li>
-            <% end %>
+            <li id='li-eja' class="<%= 'active' if @active_users_tab %>">
+              <a id='a-eja' href="#eja" data-toggle="tab">
+                <%= type == 'disciplines' ? 'Componentes curriculares EJA'  : 'Campos de experiência EJA' %>
+              </a>
+            </li>
           </ul>
 
           <div class="tab-content">
