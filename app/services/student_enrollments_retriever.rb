@@ -15,7 +15,7 @@ class StudentEnrollmentsRetriever
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:end_at, nil)
     @year = params.fetch(:year, nil)
-    @grade = params.fetch(:grade, nil)
+    @grades = params.fetch(:grades, nil)
     @include_date_range = params.fetch(:include_date_range, nil)
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
@@ -39,8 +39,9 @@ class StudentEnrollmentsRetriever
                                              .includes(:student_enrollment_classrooms)
                                              .order('sequence ASC, students.name ASC')
                                              .active
+
     student_enrollments = student_enrollments.by_classroom_grades(classroom_grades) if classroom_grades
-    student_enrollments = student_enrollments.by_grade(grade) if grade
+    student_enrollments = student_enrollments.by_grade(grades) if grades
     student_enrollments = student_enrollments.by_period(period) if period
     student_enrollments = student_enrollments.by_opinion_type(opinion_type, classrooms) if opinion_type
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
@@ -58,7 +59,7 @@ class StudentEnrollmentsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type, :classroom_grades,
-                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type,
+                :include_date_range, :grades, :period, :opinion_type, :with_recovery_note_in_step, :score_type,
                 :filter_by_left_at
 
   def ensure_has_valid_search_params

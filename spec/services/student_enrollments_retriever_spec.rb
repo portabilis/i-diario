@@ -321,7 +321,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           classrooms: classroom_grade.classroom_id,
           disciplines: discipline,
           date: '2023-03-03',
-          grade: classroom_grade_without_liked.first
+          grades: classroom_grade_without_liked.first
         )
       ).to be_empty
     end
@@ -333,7 +333,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           classrooms: classroom_grade.classroom_id,
           disciplines: discipline,
           date: '2023-03-03',
-          grade: classroom_grade.grade_id
+          grades: classroom_grade.grade_id
         )
       ).to include(student_enrollments.first)
     end
