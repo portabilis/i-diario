@@ -10,6 +10,8 @@ class SchoolCalendarStep < ActiveRecord::Base
 
   validate :start_at_must_not_have_conflicting_date, if: :school_calendar
   validate :end_at_must_not_have_conflicting_date, if: :school_calendar
+  validate :start_at_must_be_less_than_end_at
+  validate :end_date_less_than_start_date_for_posting
 
   scope :by_school_calendar_id, ->(school_calendar_id) { where(school_calendar_id: school_calendar_id) }
   scope :by_unity, ->(unity_id) { joins(:school_calendar).where(school_calendars: { unity_id: unity_id }) }

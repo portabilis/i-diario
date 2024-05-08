@@ -8,6 +8,7 @@ class SchoolCalendarClassroomStep < ApplicationRecord
   belongs_to :school_calendar_classroom
   has_many :ieducar_api_exam_postings, dependent: :destroy
 
+  validate :start_at_must_be_less_than_end_at
   validate :end_date_less_than_start_date_for_posting
 
   scope :by_school_day, ->(date) { where('? BETWEEN start_at AND end_at', date) }
