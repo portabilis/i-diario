@@ -21,3 +21,5 @@ pt-BR:
               must_be_less_than_end_at: "não pode ser maior ou igual a data final"
             end_at:
               end_at_must_be_valid: "não pode maior que %{valid_date}"
+            end_date_for_posting:
+              must_be_greater_than_start_date_for_posting: "não pode ser menor que a data inicial para lançamentos"

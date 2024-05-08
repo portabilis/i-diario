@@ -84,6 +84,14 @@ class SchoolCalendarStep < ActiveRecord::Base
     errors.add(:start_at, :must_be_less_than_end_at) if start_at.to_date >= end_at.to_date
   end
 
+  def end_date_less_than_start_date_for_posting
+    return if start_date_for_posting.blank? || end_date_for_posting.blank?
+
+    return if end_date_for_posting >= start_date_for_posting
+
+    errors.add(:end_date_for_posting, :must_be_greater_than_start_date_for_posting)
+  end
+
   def start_at_must_not_have_conflicting_date
     school_calendars = SchoolCalendar.by_unity_id(unity).where.not(id: school_calendar_id)
 
