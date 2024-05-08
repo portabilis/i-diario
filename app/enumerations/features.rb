@@ -10,7 +10,7 @@ class Features < EnumerateIt::Base
                    :complementary_exam_settings,
                    :complementary_exams,
                    :conceptual_exams,
-                   :conceptual_exams_in_batches,
+                   :conceptual_exams_in_batchs,
                    :copy_discipline_teaching_plan,
                    :copy_knowledge_area_teaching_plan,
                    :custom_rounding_tables,
