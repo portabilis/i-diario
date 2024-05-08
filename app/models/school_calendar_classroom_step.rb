@@ -8,10 +8,6 @@ class SchoolCalendarClassroomStep < ApplicationRecord
   belongs_to :school_calendar_classroom
   has_many :ieducar_api_exam_postings, dependent: :destroy
 
-  validate :start_at_must_be_less_than_end_at
-  validate :dates_for_posting_less_than_start_date
-  validate :end_date_less_than_start_date_for_posting
-
   scope :by_school_day, ->(date) { where('? BETWEEN start_at AND end_at', date) }
   scope :by_classroom, lambda { |classroom|
     joins(school_calendar_classroom: [:school_calendar])
@@ -81,22 +77,5 @@ class SchoolCalendarClassroomStep < ApplicationRecord
     return if errors[:start_at].any? || errors[:end_at].any?
 
     errors.add(:start_at, :must_be_less_than_end_at) if start_at.to_date >= end_at.to_date
-  end
-
-  def dates_for_posting_less_than_start_date
-    return if start_at.blank?
-
-    if start_date_for_posting.present? && start_date_for_posting < start_at
-      errors.add(:start_date_for_posting, :must_be_greater_than_start_at)
-    elsif end_date_for_posting.present? && end_date_for_posting < start_at
-      errors.add(:end_date_for_posting, :must_be_greater_than_start_at)
-    end
-  end
-
-  def end_date_less_than_start_date_for_posting
-    return if start_date_for_posting.blank? || end_date_for_posting.blank?
-    return if end_date_for_posting >= start_date_for_posting
-
-    errors.add(:end_date_for_posting, :must_be_greater_than_start_date_for_posting)
   end
 end
