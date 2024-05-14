@@ -121,6 +121,13 @@ class StudentEnrollmentsRetriever
 
     return unless classrooms_array.any?(&:multi_grade?)
 
-    SchoolCalendarDisciplineGrade.where(grade_id: grades, discipline_id: disciplines).map(&:grade_id).uniq
+    school_calendar = classrooms_array.flat_map(&:unity).flat_map(&:school_calendars)
+      .detect { |sc| sc.year == classrooms_array.first.year }
+
+    SchoolCalendarDisciplineGrade.where(
+      grade_id: grades,
+      discipline_id: disciplines,
+      school_calendar: school_calendar
+    ).map(&:grade_id).uniq
   end
 end

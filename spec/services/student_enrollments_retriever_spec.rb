@@ -540,7 +540,8 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       create(
         :school_calendar_discipline_grade,
         grade: grade,
-        discipline: discipline
+        discipline: discipline,
+        school_calendar: classroom_grade.classroom.unity.school_calendars.first
       )
     }
     let(:enrollment_classroom) {
