@@ -20,7 +20,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         date: '2023-02-02'
       )
@@ -44,7 +44,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect {
         StudentEnrollmentsRetriever.call(
           search_type: :by_date,
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline
         )
       }.to raise_error(ArgumentError, 'Should define date argument on search by date')
@@ -54,7 +54,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect {
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           date: '2023-02-02'
         )
@@ -92,7 +92,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         date: '2023-02-02'
       )
@@ -113,7 +113,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classrooms: [list_classrooms, classroom_grade.classroom_id],
+        classrooms: [list_classrooms, classroom_grade.classroom].flatten,
         disciplines: discipline,
         date: '2023-02-02'
       )
@@ -142,7 +142,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         date: '2023-02-02'
       )
@@ -180,7 +180,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         date: '2023-03-02'
       )
@@ -211,7 +211,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date_range,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         start_at: '2023-03-02',
         end_at: '2023-11-02'
@@ -278,7 +278,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:student_enrollment_retriever) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date_range,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         start_at: '2023-03-03',
         end_at: '2023-06-03'
@@ -296,7 +296,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     subject(:student_enrollment_retriever) {
       StudentEnrollmentsRetriever.call(
         search_type: :by_date_range,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         start_at: '2023-03-03',
         end_at: '2023-06-03'
@@ -318,7 +318,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date,
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           date: '2023-03-03',
           grades: classroom_grade_without_liked.first
@@ -330,7 +330,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date,
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           date: '2023-03-03',
           grades: classroom_grade.grade_id
@@ -345,7 +345,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should return student_enrollments with joined_at dates after @start_at' do
       student_enrollments = StudentEnrollmentsRetriever.call(
         search_type: :by_date_range,
-        classrooms: classroom_grade.classroom_id,
+        classrooms: classroom_grade.classroom,
         disciplines: discipline,
         start_at: '2023-03-03',
         end_at: '2023-06-03',
@@ -365,7 +365,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       expect(
         StudentEnrollmentsRetriever.call(
           search_type: :by_date_range,
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           start_at: '2023-04-20',
           end_at: '2023-12-03',
@@ -395,7 +395,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should return student_enrollment with opinion_type by step and discipline' do
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: classroom_grade_with_exam_rule.classroom_id,
+          classrooms: classroom_grade_with_exam_rule.classroom,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -407,7 +407,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should not return student_enrollment with opinion_type by step and discipline' do
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -437,7 +437,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should return student_enrollment attending the full period' do
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: classroom_grade_with_period.classroom_id,
+          classrooms: classroom_grade_with_period.classroom,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -449,7 +449,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should not return student_enrollment attending the full period' do
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -463,7 +463,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should return list of student_enrollments with score_type NUMERIC_AND_CONCEPT' do
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -483,7 +483,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: [classroom_grade.classroom_id, classroom_grade_with_numeric.classroom_id],
+          classrooms: [classroom_grade.classroom, classroom_grade_with_numeric.classroom],
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -503,7 +503,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
 
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: [classroom_grade.classroom_id, classroom_grade_with_concept.classroom_id],
+          classrooms: [classroom_grade.classroom, classroom_grade_with_concept.classroom],
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -515,7 +515,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'should return list of student_enrollments with score_type both if given nil' do
       expect(
         StudentEnrollmentsRetriever.call(
-          classrooms: classroom_grade.classroom_id,
+          classrooms: classroom_grade.classroom,
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
@@ -526,6 +526,62 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when with_recovery_note_in_step params exist'
+
+  context 'when there are classrooms with multi-grade' do
+    let(:grade) { create(:grade) }
+    let(:classrooms_grade_with_multi_grade) {
+      create(
+        :classrooms_grade,
+        classroom: classroom_grade.classroom,
+        grade: grade
+      )
+    }
+    let(:school_calendar_discipline_grade) {
+      create(
+        :school_calendar_discipline_grade,
+        grade: grade,
+        discipline: discipline
+      )
+    }
+    let(:enrollment_classroom) {
+      student_enrollment_classrooms.last.update(
+        classrooms_grade: classrooms_grade_with_multi_grade
+      )
+      student_enrollment_classrooms.last
+    }
+
+    before do
+      enrollment_classroom
+      school_calendar_discipline_grade
+    end
+
+    subject(:student_enrollment_retriever) {
+      StudentEnrollmentsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classrooms_grade_with_multi_grade.classroom,
+        grades: [1, 2],
+        disciplines: discipline,
+        start_at: '2023-03-03',
+        end_at: '2023-06-03'
+      )
+    }
+
+    it 'overwrites the series as expected and returns student_enrollment from grade-related inclusion' do
+      expect(student_enrollment_retriever).to include(enrollment_classroom.student_enrollment)
+
+      included_grades = student_enrollment_retriever
+                          .flat_map(&:student_enrollment_classrooms)
+                          .flat_map(&:classrooms_grade)
+                          .map(&:grade)
+
+      expect(included_grades).to include(grade)
+    end
+
+
+    it 'not returns student_enrollment from grade-related inclusion' do
+      expect(student_enrollment_retriever).not_to include(student_enrollments.first)
+    end
+  end
 end
 
 def create_student_enrollments_with_students_duplicated
