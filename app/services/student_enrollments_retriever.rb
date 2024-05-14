@@ -119,7 +119,7 @@ class StudentEnrollmentsRetriever
   def classrooms_with_multi_grades
     classrooms_array = Array(classrooms)
 
-    return unless classrooms_array.map(&:multi_grade?).any?
+    return unless classrooms_array.any?(&:multi_grade?)
 
     SchoolCalendarDisciplineGrade.where(grade_id: grades, discipline_id: disciplines).map(&:grade_id).uniq
   end
