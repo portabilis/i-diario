@@ -551,6 +551,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     }
 
     before do
+      classrooms_grade_with_multi_grade
       enrollment_classroom
       school_calendar_discipline_grade
     end
@@ -559,7 +560,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       StudentEnrollmentsRetriever.call(
         search_type: :by_date_range,
         classrooms: classrooms_grade_with_multi_grade.classroom,
-        grades: [1, 2],
+        grades: [classroom_grade.grade_id, grade.id],
         disciplines: discipline,
         start_at: '2023-03-03',
         end_at: '2023-06-03'
