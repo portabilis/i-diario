@@ -40,13 +40,17 @@ class StudentEnrollmentsRetriever
                                              .order('sequence ASC, students.name ASC')
                                              .active
 
+    # Sobrescreve as séries de turmas multisseriadas de acordo com filtro de disciplinas
+    new_grades = classrooms_with_multi_grades
+
     student_enrollments = student_enrollments.by_classroom_grades(classroom_grades) if classroom_grades
-    student_enrollments = student_enrollments.by_grade(grades) if grades
+    student_enrollments = student_enrollments.by_grade(new_grades || grades) if new_grades || grades
     student_enrollments = student_enrollments.by_period(period) if period
     student_enrollments = student_enrollments.by_opinion_type(opinion_type, classrooms) if opinion_type
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     student_enrollments = student_enrollments.by_left_at_date(end_at) if filter_by_left_at
     student_enrollments = search_by_dates(student_enrollments) if include_date_range
+
     # Nao filtra as matriculas caso municipio tenha DATABASE
     if student_enrollments.show_as_inactive.blank?
       student_enrollments = search_by_search_type(student_enrollments)
@@ -110,5 +114,13 @@ class StudentEnrollmentsRetriever
 
   def show_inactive_enrollments
     @show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
+  end
+
+  def classrooms_with_multi_grades
+    classrooms_array = Array(classrooms)
+
+    return unless classrooms_array.map(&:multi_grade?).any?
+
+    SchoolCalendarDisciplineGrade.where(grade_id: grades, discipline_id: disciplines).map(&:grade_id).uniq
   end
 end
