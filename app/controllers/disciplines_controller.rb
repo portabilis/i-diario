@@ -18,7 +18,7 @@ class DisciplinesController < ApplicationController
     step_number = step_fetcher.step_by_id(step_id).try(:step_number)
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step_number)
 
-    @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence
+    @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id, current_school_year).order_by_sequence
 
     if params[:conceptual]
       school_calendar = step_fetcher.school_calendar
