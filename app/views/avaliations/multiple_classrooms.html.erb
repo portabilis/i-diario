@@ -36,7 +36,7 @@
 
 
         <div class="col col-sm-4">
-            <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': 0" } } %>
+          <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': 0" } } %>
         </div>
       </div>
 
@@ -94,9 +94,7 @@
 
     <footer>
       <%= link_to(t('views.form.back'), avaliations_path, class: 'btn btn-default') %>
-
       <%= link_to(t('views.form.history'), history_avaliation_path(@avaliation), class: 'btn btn-info') if @avaliation_multiple_creator_form.persisted? %>
-
       <%= f.submit(t('views.form.save'), class: 'btn btn-primary') %>
     </footer>
   <% end %>

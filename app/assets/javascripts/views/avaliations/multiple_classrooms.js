@@ -142,7 +142,6 @@ $(function () {
 
         $('#avaliations').append(html);
       });
-      $(".avaliation_multiple_creator_form_avaliations_classes .select2").select2({ data: classes_data(), multiple: true });
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
 
       $('input[data-mask]').on('focus', function () {
