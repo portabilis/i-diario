@@ -472,4 +472,11 @@ class AvaliationsController < ApplicationController
     @disciplines = @disciplines.by_classroom_id(classrooms.map(&:id)).not_descriptor
     @grades = @classroom_grades.by_classroom_id(classrooms.map(&:id)).map(&:grade).uniq
   end
+
+  def grades
+    @grades = current_user_classroom
+                .classrooms_grades
+                .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+                .map(&:grade)
+  end
 end
