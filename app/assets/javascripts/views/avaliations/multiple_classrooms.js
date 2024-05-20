@@ -127,18 +127,24 @@ $(function () {
       find_by_current_year: true
     };
 
-    $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-      if(data.length){
+    $.getJSON(Routes.classroom_grades_classrooms_pt_br_path(params)).always(function (data) {
+
+      var classrooms = data['classroom_grades'][0];
+      var grades = data['classroom_grades'][1];
+
+      if (classrooms.length) {
         $("#avaliations tr td").hide();
       }
-      $.each(data, function(i, classroom){
-        var element_id = new Date().getTime() + i;
 
+      $.each(classrooms, function(i, classroom){
+        var element_id = new Date().getTime() + i;
         var html = JST['templates/avaliations/avaliation_fields']({
-            classroom_id: classroom.id,
-            classroom_name: classroom.description,
-            element_id: element_id
-          });
+          classroom_id: classroom.id,
+          classroom_name: classroom.description,
+          grade_ids: grades.id,
+          grade_name: grades.description,
+          element_id: element_id
+        });
 
         $('#avaliations').append(html);
       });
