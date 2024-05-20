@@ -49,17 +49,18 @@ class UserByCsvCreator
           end
 
           user.assign_attributes(login: new_user[3],
-                                 email: new_user[2],
                                  password: password,
                                  password_confirmation: password,
                                  status: 'active',
                                  kind: 'employee',
                                  admin: true,
                                  receive_news: false,
-                                 first_name: new_user[0],
-                                 last_name: new_user[1])
+                                 first_name: new_user[0])
 
-          user.save if user.changed?
+          if user.changed?
+            user.assign_attributes(last_name: new_user[1], email: new_user[2])
+            user.save
+          end
 
           raise invalid_user_error(user) if user.errors.any?
 
