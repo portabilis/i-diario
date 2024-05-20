@@ -23,6 +23,14 @@ class ClassroomsController < ApplicationController
     @classrooms = @classrooms.ordered.uniq
   end
 
+  def classroom_grades
+    index
+
+    classroom_grades = @classrooms.first.classrooms_grades.first.grade unless @classrooms.any?(&:multi_grade?)
+
+    render json: { classroom_grades: [@classrooms, classroom_grades] }
+  end
+
   def multi_grade
     return false unless current_user.current_role_is_admin_or_employee?
 
