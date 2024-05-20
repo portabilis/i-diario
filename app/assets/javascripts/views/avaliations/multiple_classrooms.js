@@ -131,6 +131,7 @@ $(function () {
 
       var classrooms = data['classroom_grades'][0];
       var grades = data['classroom_grades'][1];
+      var is_multi = data['classroom_grades'][2];
 
       if (classrooms.length) {
         $("#avaliations tr td").hide();
@@ -138,15 +139,19 @@ $(function () {
 
       $.each(classrooms, function(i, classroom){
         var element_id = new Date().getTime() + i;
-        var html = JST['templates/avaliations/avaliation_fields']({
-          classroom_id: classroom.id,
-          classroom_name: classroom.description,
-          grade_ids: grades.id,
-          grade_name: grades.description,
-          element_id: element_id
-        });
 
-        $('#avaliations').append(html);
+        $.each(grades, function (j, grade) {
+          var html = JST['templates/avaliations/avaliation_fields']({
+            classroom_id: classroom.id,
+            classroom_name: classroom.description,
+            grade_ids: grade.id,
+            grade_name: grade.description,
+            is_multi: is_multi,
+            element_id: element_id
+          });
+
+          $('#avaliations').append(html);
+        });
       });
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
 
