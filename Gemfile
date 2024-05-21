@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '2.4.10'
+ruby '2.6.6'
 
-gem 'active_model_serializers', '0.9.3'
+gem 'active_model_serializers', '0.9.12'
 gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
 gem "activerecord-tablefree", "~> 3.0"
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
@@ -103,6 +103,7 @@ group :test do
   gem 'webdrivers', '3.6.0'
   gem 'webmock', '3.14.0'
   gem 'simplecov', require: false
+  gem 'net-http', '0.4.1'
 end
 
 group :test, :development do

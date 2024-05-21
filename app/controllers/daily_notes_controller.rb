@@ -189,7 +189,7 @@ class DailyNotesController < ApplicationController
           .by_student(note_student.student_id)
           .by_classroom(@daily_note.classroom_id)
           .by_discipline(@daily_note.discipline_id)
-          .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC,@daily_note.classroom_id)
+          .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, @daily_note.classroom_id)
           .active
           .first
 
@@ -279,7 +279,7 @@ class DailyNotesController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
 

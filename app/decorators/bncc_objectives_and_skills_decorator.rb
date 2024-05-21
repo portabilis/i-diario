@@ -7,6 +7,8 @@ class BnccObjectivesAndSkillsDecorator
 
     return GroupChildEducations.to_select(false) if type == 'group_child_schools'
 
+    return AdultAndYouthEducations.to_select(false) if type == 'adult_and_youth_education'
+
     return ChildEducations.to_select(false)
   end
 end

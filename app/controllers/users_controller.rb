@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       params[:search][:by_name] = params[:search][:by_name].squish
     end
 
-    @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
+    @users = apply_scopes(User.filter_from_params(filtering_params params[:search]).ordered)
 
     @search_by_name = params.dig(:search, :by_name)
     @search_by_cpf = params.dig(:search, :by_cpf)
@@ -145,13 +145,16 @@ class UsersController < ApplicationController
   end
 
   def not_allow_admin?
-    return false if user_params[:admin] == "0" || !current_user.is_admin_email?
+    user_not_admin = params[:user][:admin].eql?('0')
+    current_user_not_admin = !current_user.admin?
 
-    role_ids = user_params[:user_roles_attributes].values.map do |user_role|
-      user_role[:role_id] if user_role[:_destroy] == "false"
+    return false if user_not_admin || current_user_not_admin
+
+    role_ids = params[:user][:user_roles_attributes].values.map do |user_role|
+      user_role[:role_id] if user_role[:_destroy].eql?('false')
     end
 
-    Role.where(id: role_ids).pluck(:access_level).exclude?("administrator")
+    Role.where(id: role_ids).pluck(:access_level).exclude?('administrator')
   end
 
   def valid_update

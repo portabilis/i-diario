@@ -23,7 +23,7 @@ class UserForStudentCreator
     return if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
     return if User.find_by(email: email, kind: RoleKind::STUDENT)
 
-    password = "estudante#{student.api_code}"
+    password = I18n.l(student.birth_date).tr('/', '') + student.api_code
     login = User.find_by(login: student.api_code) ? '' : student.api_code
 
     user = User.find_or_initialize_by(
@@ -35,10 +35,10 @@ class UserForStudentCreator
 
     return unless user.new_record?
 
-    user.first_name = student.name
-    user.password = password
-    user.password_confirmation = password
-    user.status = UserStatus::ACTIVE
+    user.assign_attributes(first_name: student.name, password: password,
+                           password_confirmation: password,
+                           status: UserStatus::ACTIVE)
+
     user.user_roles.build(role_id: role_id)
     user.without_auditing do
       user.save!(validate: false)

@@ -32,6 +32,7 @@ class ApplicationController < ActionController::Base
   before_action :check_user_has_name, if: :user_signed_in?
   before_action :check_password_expired, if: :user_signed_in?
   before_action :last_activity_at, if: :user_signed_in?
+  before_action :check_user_first_access, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -243,13 +244,9 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_types(classroom = current_user_classroom)
-    score_types = []
-
-    classroom.classrooms_grades.each do |classroom_grade|
-      score_types << teacher_discipline_score_type_by_exam_rule(classroom_grade.exam_rule)
+    classroom.classrooms_grades.map do |classroom_grade|
+      teacher_discipline_score_type_by_exam_rule(classroom_grade.exam_rule, classroom, current_user_discipline)
     end
-
-    score_types
   end
 
   def current_user_is_employee_or_administrator?
@@ -347,11 +344,11 @@ class ApplicationController < ActionController::Base
 
   def current_year_steps
     @current_year_steps ||= begin
-      steps = steps_fetcher.steps if current_user_classroom.present?
-      year = current_school_year || current_school_calendar.year
-      steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
-      steps
-    end
+                              steps = steps_fetcher.steps if current_user_classroom.present?
+                              year = current_school_year || current_school_calendar.year
+                              steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
+                              steps
+                            end
   end
 
   def first_step_start_date_for_posting
@@ -425,6 +422,14 @@ class ApplicationController < ActionController::Base
     redirect_to edit_account_path
   end
 
+  def check_user_first_access
+    return if request.fullpath == edit_account_pt_br_path ||
+      request.fullpath == account_pt_br_path
+    return unless current_user.first_access?
+
+    redirect_to edit_account_pt_br_path
+  end
+
   def last_activity_at
     current_user.last_activity_at = Date.current
     current_user.save
@@ -441,7 +446,7 @@ class ApplicationController < ActionController::Base
     return false if password.blank?
 
     if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? ||
-       (password =~ /[!@#\$%^&*?_~-]/).nil?
+        (password =~ /[!@#\$%^&*?_~-]/).nil?
       true
     else
       false
@@ -449,7 +454,6 @@ class ApplicationController < ActionController::Base
   end
 
   def error_generic(expection)
-    binding.pry
     set_honeybadger_error(expection)
 
     unless Rails.env.development?
