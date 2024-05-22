@@ -118,10 +118,13 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms_unique = enrollment_classrooms_unique.flatten
   end
 
-  def add_enrollment_classrooms(enrollment_classrooms, enrollment_classrooms_for_student)
-    return if enrollment_classrooms.include?(enrollment_classrooms_for_student.last)
+  def add_enrollment_classrooms(enrollment_classrooms_unique, student_classrooms)
+    # Atualiza a listagem de enturmações unicas com a ultima enturmação do aluno
+    last_student_classroom = student_classrooms.max_by(&:id)
 
-    enrollment_classrooms << enrollment_classrooms_for_student.last
+    return if enrollment_classrooms_unique.include?(last_student_classroom)
+
+    enrollment_classrooms_unique << last_student_classroom
   end
 
   def show_inactive_enrollments
