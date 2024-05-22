@@ -127,22 +127,30 @@ $(function () {
       find_by_current_year: true
     };
 
-    $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-      if(data.length){
+    $.getJSON(Routes.classroom_grades_classrooms_pt_br_path(params)).always(function (data) {
+
+      var classrooms = data['classroom_grades'][0];
+      var grades = data['classroom_grades'][1];
+      var is_multi = data['classroom_grades'][2];
+
+      if (classrooms.length) {
         $("#avaliations tr td").hide();
       }
-      $.each(data, function(i, classroom){
+
+      $.each(classrooms, function(i, classroom){
         var element_id = new Date().getTime() + i;
 
         var html = JST['templates/avaliations/avaliation_fields']({
-            classroom_id: classroom.id,
-            classroom_name: classroom.description,
-            element_id: element_id
-          });
+          classroom_id: classroom.id,
+          classroom_name: classroom.description,
+          grade_ids: grades.map(grade => grade.id),
+          grade_name: grades.map(grade => grade.description),
+          is_multi: is_multi,
+          element_id: element_id,
+        });
 
-        $('#avaliations').append(html);
+          $('#avaliations').append(html);
       });
-      $(".avaliation_multiple_creator_form_avaliations_classes .select2").select2({ data: classes_data(), multiple: true });
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
 
       $('input[data-mask]').on('focus', function () {

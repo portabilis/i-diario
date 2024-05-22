@@ -57,6 +57,7 @@ class AvaliationsController < ApplicationController
 
     fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
+    disciplines_for_multiple_classrooms
     set_avaliation_multiple_creator_by_user
 
     authorize Avaliation.new
@@ -316,13 +317,15 @@ class AvaliationsController < ApplicationController
 
   def disciplines_for_multiple_classrooms
     if current_user.current_role_is_admin_or_employee?
-      return @disciplines ||= Discipline.by_unity_id(current_unity.id).by_teacher_id(current_teacher.id).ordered
+      return @disciplines ||= Discipline.by_unity_id(current_unity.id, current_school_year)
+                                        .by_teacher_id(current_teacher.id, current_school_year)
+                                        .ordered
+
     end
 
     fetch_linked_by_teacher
     @disciplines
   end
-  helper_method :disciplines_for_multiple_classrooms
 
   def classrooms_for_multiple_classrooms
     return [] if @avaliation_multiple_creator_form.discipline_id.blank?
