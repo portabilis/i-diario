@@ -140,18 +140,16 @@ $(function () {
       $.each(classrooms, function(i, classroom){
         var element_id = new Date().getTime() + i;
 
-        $.each(grades, function (j, grade) {
-          var html = JST['templates/avaliations/avaliation_fields']({
-            classroom_id: classroom.id,
-            classroom_name: classroom.description,
-            grade_ids: grade.id,
-            grade_name: grade.description,
-            is_multi: is_multi,
-            element_id: element_id
-          });
+        var html = JST['templates/avaliations/avaliation_fields']({
+          classroom_id: classroom.id,
+          classroom_name: classroom.description,
+          grade_ids: grades.map(grade => grade.id),
+          grade_name: grades.map(grade => grade.description),
+          is_multi: is_multi,
+          element_id: element_id,
+        });
 
           $('#avaliations').append(html);
-        });
       });
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
 
