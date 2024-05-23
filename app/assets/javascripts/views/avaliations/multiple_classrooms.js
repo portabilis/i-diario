@@ -131,7 +131,6 @@ $(function () {
 
       var classrooms = data['classroom_grades'][0];
       var grades = data['classroom_grades'][1];
-      var is_multi = data['classroom_grades'][2];
 
       if (classrooms.length) {
         $("#avaliations tr td").hide();
@@ -145,11 +144,10 @@ $(function () {
           classroom_name: classroom.description,
           grade_ids: grades.map(grade => grade.id),
           grade_name: grades.map(grade => grade.description),
-          is_multi: is_multi,
           element_id: element_id,
         });
 
-          $('#avaliations').append(html);
+        $('#avaliations').append(html);
       });
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
 

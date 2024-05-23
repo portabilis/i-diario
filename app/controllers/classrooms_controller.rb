@@ -29,8 +29,9 @@ class ClassroomsController < ApplicationController
 
     if @classrooms.any?
       grades = @classrooms.flat_map(&:classrooms_grades).map(&:grade).uniq
+
       render json: {
-        classroom_grades: [@classrooms, grades, @classrooms.any?(&:multi_grade?)]
+        classroom_grades: [@classrooms, grades]
       }
     else
       render json: { classroom_grades: [] }
