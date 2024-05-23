@@ -211,6 +211,7 @@ Rails.application.routes.draw do
         post :clone
         get :teaching_plan_contents
         get :teaching_plan_objectives
+        get :print
       end
     end
     resources :knowledge_area_lesson_plans, concerns: :history do
