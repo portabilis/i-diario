@@ -119,8 +119,7 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def add_enrollment_classrooms(enrollment_classrooms_unique, student_classrooms)
-    # Atualiza a listagem de enturmações unicas com a ultima enturmação do aluno
-    last_student_classroom = student_classrooms.max_by(&:id)
+    last_student_classroom = student_classrooms.select{ |ec| ec.left_at.blank? }
 
     return if enrollment_classrooms_unique.include?(last_student_classroom)
 
