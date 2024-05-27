@@ -84,7 +84,7 @@ class ConceptualExamValueCreator
   end
 
   def disciplines_in_grade
-    school_calendar = Classroom.joins(:unity).find(classroom_id).unity.school_calendars.first
+    school_calendar = Classroom.joins(:unity).find_by(id: classroom_id).unity.school_calendars.first
 
     SchoolCalendarDisciplineGrade.where(
       school_calendar: school_calendar, grade_id: grade_id, discipline_id: discipline_id
