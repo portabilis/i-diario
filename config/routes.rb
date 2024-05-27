@@ -234,6 +234,7 @@ Rails.application.routes.draw do
       collection do
         get :by_unity
         get :multi_grade
+        get :classroom_grades
       end
       resources :students, only: [:index]
     end

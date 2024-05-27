@@ -115,7 +115,7 @@ class SchoolCalendarEventsController < ApplicationController
   helper_method :classrooms
 
   def disciplines
-    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id)
+    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id, current_school_year)
                                .by_classroom(@school_calendar_event.classroom_id)
                                .grouper
                                .ordered || []
