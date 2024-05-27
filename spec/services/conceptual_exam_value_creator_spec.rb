@@ -36,10 +36,25 @@ RSpec.describe ConceptualExamValueCreator, type: :service do
       discipline: discipline.last
     )
   }
+  let(:school_calendar_discipline_grades) {
+    create(
+      :school_calendar_discipline_grade,
+      grade: grade.first,
+      discipline: discipline.first,
+      school_calendar: classroom.first.unity.school_calendars.first
+    )
+    create(
+      :school_calendar_discipline_grade,
+      grade: grade.first,
+      discipline: discipline.last,
+      school_calendar: classroom.first.unity.school_calendars.first
+    )
+  }
 
   before do
     teacher_discipline_classroom
     conceptual_exam
+    school_calendar_discipline_grades
   end
 
   context 'when the params are incorrect' do
