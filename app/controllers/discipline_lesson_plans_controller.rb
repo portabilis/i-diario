@@ -41,6 +41,16 @@ class DisciplineLessonPlansController < ApplicationController
     end
   end
 
+  def print
+    @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+
+    discipline_lesson_plan_pdf = DisciplineLessonPlanPdf.build(
+      current_entity_configuration,
+      @discipline_lesson_plan,
+      current_teacher
+    )
+    send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
+  end
   def new
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan

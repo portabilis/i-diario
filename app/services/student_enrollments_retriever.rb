@@ -101,15 +101,7 @@ class StudentEnrollmentsRetriever
   def reject_duplicated_students(student_enrollments)
     return student_enrollments if show_inactive_enrollments
 
-    unique_student_enrollments = {}
-
-    student_enrollments.each do |student_enrollment|
-      student_id = student_enrollment.student_id
-
-      unique_student_enrollments[student_id] = student_enrollment
-    end
-
-    unique_student_enrollments.values
+    student_enrollments = student_enrollments.status_attending
   end
 
   def show_inactive_enrollments
