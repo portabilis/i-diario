@@ -13,6 +13,8 @@ class ConceptualExamValueCreator
   end
 
   def create_empty
+    return unless disciplines_in_grade
+
     conceptual_exam_values_to_create.each do |record|
       student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
 
@@ -79,5 +81,13 @@ class ConceptualExamValueCreator
                                        .by_discipline(discipline_id)
                                        .by_step_number(step_number)
                                        .exists?
+  end
+
+  def disciplines_in_grade
+    school_calendar = Classroom.joins(:unity).find_by(id: classroom_id).unity.school_calendars.first
+
+    SchoolCalendarDisciplineGrade.where(
+      school_calendar: school_calendar, grade_id: grade_id, discipline_id: discipline_id
+    ).exists?
   end
 end
