@@ -85,16 +85,15 @@ class StudentsInRecoveryFetcher
   end
 
   def fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
-    student_enrollments = StudentEnrollmentsRetriever.call(
+    enrollment_classrooms_list = StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom,
       disciplines: discipline,
       start_at: step.start_at,
       end_at: end_at,
       classroom_grades: classroom_grade_ids,
-      search_type: :by_date_range,
-      left_at: true
+      search_type: :by_date_range
     )
-    StudentEnrollment.includes(:student).where(id: student_enrollments.map(&:id)).order('students.name ASC')
+    enrollment_classrooms_list.map{ |ec| ec[:student_enrollment]}
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)

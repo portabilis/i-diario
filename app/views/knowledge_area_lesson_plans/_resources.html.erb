@@ -53,7 +53,7 @@
                 data: { original_title: t('views.index.tooltips.show') }) %>
           <%= link_to(
                 t('helpers.links.print_html'),
-                knowledge_area_lesson_plan_path(knowledge_area_lesson_plan, format: :pdf),
+                print_knowledge_area_lesson_plans_path(id: knowledge_area_lesson_plan),
                 class: 'btn btn-info apply_tooltip',
                 target: '_blank',
                 data: { original_title: t('views.index.tooltips.print') }) %>

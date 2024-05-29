@@ -35,7 +35,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     end
 
     it 'should return a student_enrollment relation' do
-      expect(list_student_enrollments.class).to eq(Array)
+      expect(list_student_enrollments.class).to eq(StudentEnrollment::ActiveRecord_Relation)
     end
   end
 
