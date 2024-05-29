@@ -120,7 +120,7 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
       grade_id: grade.id
     )
 
-    school_calendar_discipline_grade.steps = steps.presence ? steps : nil
+    school_calendar_discipline_grade.steps = steps.presence || nil
 
     school_calendar_discipline_grade.save if school_calendar_discipline_grade.changed?
 
