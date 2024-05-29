@@ -35,7 +35,7 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
       end
     end
 
-    # destroy_removed_disciplines(existing_school_calendar_discipline_grade)
+    destroy_removed_disciplines(existing_school_calendar_discipline_grade)
   end
 
   def combine_discipline_years_and_steps(discipline_years, discipline_steps)
@@ -44,32 +44,35 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
     discipline_years.map do |discipline_year|
       grade_api_code = discipline_year[:serie_id]
       combined_records[grade_api_code] ||= {
-        grade_api_code: grade_api_code, years: [], steps: [], discipline_api_code: []
+        grade_api_code: grade_api_code, disciplines: {}
       }
 
       discipline_year[:disciplinas_anos_letivos].each do |discipline_and_years|
-        discipline_api_code = discipline_and_years.to_h.keys.first.to_s
+        discipline_api_code = discipline_and_years.to_h.keys.first.to_s.split(',').first.to_i
         years = discipline_and_years.to_h.values.flatten
 
-        combined_records[grade_api_code][:discipline_api_code] << discipline_api_code
-        combined_records[grade_api_code][:years].concat(years)
+        combined_records[grade_api_code][:disciplines][discipline_api_code] ||= { years: [], steps: [] }
+        combined_records[grade_api_code][:disciplines][discipline_api_code][:years] ||= []
+        combined_records[grade_api_code][:disciplines][discipline_api_code][:years].concat(years)
       end
     end
 
     discipline_steps.map do |step_record|
       grade_api_code = step_record[:serie_id]
       combined_records[grade_api_code] ||= {
-        grade_api_code: grade_api_code, years: [], steps: [], discipline_api_code: []
+        grade_api_code: grade_api_code, disciplines: {}
       }
 
       step_record[:disciplinas_etapas_utilizadas].each do |discipline_and_steps|
-        discipline_api_code = discipline_and_steps.to_h.keys.first.to_s
-        steps = discipline_and_steps.to_h.values.flatten
+        discipline_api_code = discipline_and_steps.to_h.keys.first.to_s.split(',').first.to_i
+        steps_values = discipline_and_steps.to_h.values.flatten
 
-        unless combined_records[grade_api_code][:discipline_api_code].include?(discipline_api_code)
-          combined_records[grade_api_code][:discipline_api_code] << discipline_api_code
-        end
-        combined_records[grade_api_code][:steps].concat(steps) if steps.any?
+        next if steps_values.none?
+
+        steps = steps_values.first.split(',').map(&:to_i)
+
+        combined_records[grade_api_code][:disciplines][discipline_api_code] ||= { years: [], steps: [] }
+        combined_records[grade_api_code][:disciplines][discipline_api_code][:steps].concat(steps)
       end
     end
 
@@ -81,18 +84,20 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
 
     return if grade.blank?
 
-    record[:discipline_api_code].each do |discipline_api_code|
-      discipline = discipline(discipline_api_code)
+    record[:disciplines].each do |discipline_and_years_and_steps|
+      discipline = discipline(discipline_and_years_and_steps.first)
 
       next if discipline.blank?
 
-      record[:years].each do |year|
+      years_and_steps = discipline_and_years_and_steps.last
+
+      years_and_steps[:years].each do |year|
         process_school_calendar(
           year,
           discipline,
           grade,
           existing_school_calendar_discipline_grade,
-          record[:steps]
+          years_and_steps[:steps]
         )
       end
     end
@@ -121,7 +126,9 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
 
     return if school_calendar_discipline_grade.errors.any?
 
-    existing_school_calendar_discipline_grade << school_calendar_discipline_grade.id
+    unless existing_school_calendar_discipline_grade.include?(school_calendar_discipline_grade.id)
+      existing_school_calendar_discipline_grade << school_calendar_discipline_grade.id
+    end
   end
 
   def destroy_removed_disciplines(existing_school_calendar_discipline_grade)
