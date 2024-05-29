@@ -29,16 +29,7 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    respond_with @discipline_lesson_plan do |format|
-      format.pdf do
-        discipline_lesson_plan_pdf = DisciplineLessonPlanPdf.build(
-          current_entity_configuration,
-          @discipline_lesson_plan,
-          current_teacher
-        )
-        send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
-      end
-    end
+    respond_with @discipline_lesson_plan
   end
 
   def print
@@ -51,6 +42,7 @@ class DisciplineLessonPlansController < ApplicationController
     )
     send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
   end
+
   def new
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
