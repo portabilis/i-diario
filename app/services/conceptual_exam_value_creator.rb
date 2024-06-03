@@ -40,13 +40,19 @@ class ConceptualExamValueCreator
   attr_accessor :teacher_id, :classroom_id, :grade_id, :discipline_id
 
   def conceptual_exam_values_to_create
+    steps = @school_calendar_discipline_grade.map(&:steps)
+    steps_number = steps.present? ? JSON.parse(steps) : nil
+
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
                               .joins(join_conceptual_exam_value)
                               .by_teacher_id(teacher_id)
                               .by_classroom(classroom_id)
                               .by_discipline_id(discipline_id)
                               .by_grade_id(grade_id)
-                              .where(conceptual_exams: { classroom_id: classroom_id })
+                              .where(
+                                conceptual_exams:
+                                  { classroom_id: classroom_id, step_number: steps_number }
+                              )
                               .where(conceptual_exam_values: { id: nil })
                               .select(
                                 <<-SQL
@@ -86,8 +92,8 @@ class ConceptualExamValueCreator
   def disciplines_in_grade
     school_calendar = Classroom.joins(:unity).find_by(id: classroom_id).unity.school_calendars.first
 
-    SchoolCalendarDisciplineGrade.where(
+    @school_calendar_discipline_grade ||= SchoolCalendarDisciplineGrade.where(
       school_calendar: school_calendar, grade_id: grade_id, discipline_id: discipline_id
-    ).exists?
+    )
   end
 end
