@@ -42,9 +42,9 @@ class ConceptualExamValueCreator
   def conceptual_exam_values_to_create
     steps = @school_calendar_discipline_grade.map(&:steps)
     steps_number = if steps.any?(&:nil?) || steps.blank?
-                      nil
+                    nil
                    else
-                     JSON.parse(steps)
+                    JSON.parse(steps)
                    end
 
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
