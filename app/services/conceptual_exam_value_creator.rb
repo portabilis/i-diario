@@ -47,26 +47,31 @@ class ConceptualExamValueCreator
                     JSON.parse(steps)
                    end
 
+    query = query_teacher_discipline_classrooms
+
+    if steps_number
+      query = query.where(conceptual_exams: { classroom_id: classroom_id, step_number: steps_number })
+    end
+
+    query.select(
+      <<-SQL
+        conceptual_exams.id AS conceptual_exam_id,
+        conceptual_exams.student_id AS student_id,
+        conceptual_exams.recorded_at AS recorded_at,
+        conceptual_exams.step_number AS step_number,
+        teacher_discipline_classrooms.discipline_id AS discipline_id
+      SQL
+    )
+  end
+
+  def query_teacher_discipline_classrooms
     TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
                               .joins(join_conceptual_exam_value)
                               .by_teacher_id(teacher_id)
                               .by_classroom(classroom_id)
                               .by_discipline_id(discipline_id)
                               .by_grade_id(grade_id)
-                              .where(
-                                conceptual_exams:
-                                  { classroom_id: classroom_id, step_number: steps_number }
-                              )
                               .where(conceptual_exam_values: { id: nil })
-                              .select(
-                                <<-SQL
-                                  conceptual_exams.id AS conceptual_exam_id,
-                                  conceptual_exams.student_id AS student_id,
-                                  conceptual_exams.recorded_at AS recorded_at,
-                                  conceptual_exams.step_number AS step_number,
-                                  teacher_discipline_classrooms.discipline_id AS discipline_id
-                                SQL
-                              )
   end
 
   def join_conceptual_exam_value
