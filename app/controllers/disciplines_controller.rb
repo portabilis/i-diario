@@ -28,7 +28,8 @@ class DisciplinesController < ApplicationController
                                         .grade_id
       disciplines_in_grade_ids = SchoolCalendarDisciplineGrade.where(
         school_calendar_id: school_calendar.id,
-        grade_id: student_grade_id
+        grade_id: student_grade_id,
+        steps: [step_number].to_s
       ).pluck(:discipline_id)
 
       @disciplines = @disciplines.not_grouper

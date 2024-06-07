@@ -266,7 +266,15 @@ class ConceptualExamsController < ApplicationController
   def missing_disciplines
     missing_disciplines = []
 
-    (@disciplines || []).each do |discipline|
+    grades = @classrooms.first.grades
+    current_step = [@conceptual_exam.step_number].to_s
+    disciplines = SchoolCalendarDisciplineGrade.where(
+      grade: grades, school_calendar: current_school_calendar, steps: current_step
+    ).pluck(:discipline_id)
+
+    filter_discipline = @disciplines.select { |d| d.id.in?(disciplines) }
+
+    (filter_discipline || []).each do |discipline|
       is_missing = @conceptual_exam.conceptual_exam_values.none? do |conceptual_exam_value|
         conceptual_exam_value.discipline.id == discipline.id
       end
