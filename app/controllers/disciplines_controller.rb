@@ -26,11 +26,13 @@ class DisciplinesController < ApplicationController
                                         .by_classroom_id(classroom.id)
                                         .first
                                         .grade_id
+
       disciplines_in_grade_ids = SchoolCalendarDisciplineGrade.where(
         school_calendar_id: school_calendar.id,
-        grade_id: student_grade_id,
-        steps: [step_number].to_s
-      ).pluck(:discipline_id)
+        grade_id: student_grade_id
+      ).pluck(:discipline_id, :steps).flat_map do |discipline_id, steps|
+        discipline_id if steps.nil? || steps.include?([step_number].to_s)
+      end.compact
 
       @disciplines = @disciplines.not_grouper
                                  .by_score_type(ScoreTypes::CONCEPT, params[:student_id])
