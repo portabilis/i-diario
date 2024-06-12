@@ -268,11 +268,15 @@ class ConceptualExamsController < ApplicationController
 
     grades = @classrooms.first.grades
     current_step = [@conceptual_exam.step_number].to_s
-    disciplines = SchoolCalendarDisciplineGrade.where(
-      grade: grades, school_calendar: current_school_calendar, steps: current_step
-    ).pluck(:discipline_id)
 
-    filter_discipline = @disciplines.select { |d| d.id.in?(disciplines) }
+    disciplines_in_grade_ids = SchoolCalendarDisciplineGrade.where(
+      school_calendar: current_school_calendar,
+      grade: grades
+    ).pluck(:discipline_id, :steps).flat_map do |discipline_id, steps|
+      discipline_id if steps.nil? || steps.include?([current_step].to_s)
+    end.compact
+
+    filter_discipline = @disciplines.select { |d| d.id.in?(disciplines_in_grade_ids) }
 
     (filter_discipline || []).each do |discipline|
       is_missing = @conceptual_exam.conceptual_exam_values.none? do |conceptual_exam_value|
