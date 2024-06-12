@@ -49,9 +49,11 @@ class ConceptualExamValueCreator
 
     query = query_teacher_discipline_classrooms
 
-    if steps_number
-      query = query.where(conceptual_exams: { classroom_id: classroom_id, step_number: steps_number })
-    end
+    query = if steps_number
+              query.where(conceptual_exams: { classroom_id: classroom_id, step_number: steps_number })
+            else
+              query.where(conceptual_exams: { classroom_id: classroom_id })
+            end
 
     query.select(
       <<-SQL
