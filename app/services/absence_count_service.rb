@@ -36,7 +36,7 @@ class AbsenceCountService
         student.id,
         start_date,
         end_date
-      )
+      ).active
     end
 
     if @do_not_send_justified_absence
