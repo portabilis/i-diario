@@ -147,7 +147,8 @@ synchronizers:
     by_year: true
     by_unity: true
     dependencies: [
-      ClassroomsSynchronizer
+      ClassroomsSynchronizer,
+      SchoolCalendarDisciplineGradesSynchronizer
     ]
   -
     klass: StudentEnrollmentSynchronizer
@@ -210,6 +211,9 @@ synchronizers:
     klass: SchoolCalendarDisciplineGradesSynchronizer
     by_year: false
     by_unity: true
+    dependents: [
+      TeacherDisciplineClassroomsSynchronizer
+    ]
     dependencies: [
       DisciplinesSynchronizer
     ]
