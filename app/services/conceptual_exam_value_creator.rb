@@ -13,6 +13,7 @@ class ConceptualExamValueCreator
   end
 
   def create_empty
+    return if Discipline.find_by(id: discipline_id).grouper?
     return unless disciplines_in_grade
 
     conceptual_exam_values_to_create.each do |record|
@@ -40,8 +41,8 @@ class ConceptualExamValueCreator
   attr_accessor :teacher_id, :classroom_id, :grade_id, :discipline_id
 
   def conceptual_exam_values_to_create
-    steps = @school_calendar_discipline_grade.map(&:steps)
-    steps_number = if steps.any?(&:nil?) || steps.blank?
+    steps = @school_calendar_discipline_grade.steps
+    steps_number = if steps.blank?
                     nil
                    else
                     JSON.parse(steps)
@@ -101,9 +102,10 @@ class ConceptualExamValueCreator
   end
 
   def disciplines_in_grade
-    school_calendar = Classroom.joins(:unity).find_by(id: classroom_id).unity.school_calendars.first
+    classroom = Classroom.joins(:unity).find_by(id: classroom_id)
+    school_calendar = classroom.unity.school_calendars.find_by(year: classroom.year)
 
-    @school_calendar_discipline_grade ||= SchoolCalendarDisciplineGrade.where(
+    @school_calendar_discipline_grade ||= SchoolCalendarDisciplineGrade.find_by(
       school_calendar: school_calendar, grade_id: grade_id, discipline_id: discipline_id
     )
   end
