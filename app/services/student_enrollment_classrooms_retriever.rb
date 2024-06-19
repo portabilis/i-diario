@@ -44,7 +44,6 @@ class StudentEnrollmentClassroomsRetriever
 
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
-    # Nao filtra as enturmacoes caso municipio tenha DATABASE
     if enrollment_classrooms.show_as_inactive.blank?
       enrollment_classrooms = search_by_search_type(enrollment_classrooms)
       enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
