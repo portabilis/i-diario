@@ -59,7 +59,7 @@ jobs:
           echo -e "
             test:
               secret_key_base: `bundle exec rake secret`
-              REDIS_URL: 'redis://localhost:6379/''
+              REDIS_URL: 'redis://localhost:6379/'
               REDIS_DB_CACHE: '0'
               REDIS_DB_SESSION: '1'
               REDIS_DB_SIDEKIQ: '2'
