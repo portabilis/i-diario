@@ -1,10 +1,11 @@
 class UserByCsvCreator
-  attr_reader :file, :entity_name, :send_mail, :status
+  attr_reader :file, :entity_name, :send_mail, :status, :password
 
   def initialize(options)
     @file = options['FILE']
     @entity_name = options['ENTITY']
     @send_mail = options['EMAIL'].casecmp?('false') ? false : true
+    @password = options['PASSWORD']
   end
 
   def create
@@ -17,7 +18,7 @@ class UserByCsvCreator
   private
 
   def params?
-    file && entity_name
+    file && entity_name && password
   end
 
   def create_user
@@ -39,31 +40,29 @@ class UserByCsvCreator
   def create_users(entity)
     ActiveRecord::Base.transaction do
       CSV.foreach(file, col_sep: ',', skip_blanks: true) do |new_user|
-        unless User.exists?(email: new_user[2])
-          User.find_or_initialize_by(login: new_user[3]).tap do |user|
-            if new_user[5] == '0'
-              user.destroy
-              next
-            end
-            password = new_user[4] || SecureRandom.hex(8)
-            user.login = new_user[3]
-            user.email = new_user[2]
+        User.find_or_initialize_by(login: new_user[3]).tap do |user|
+          if new_user[5] == '0'
+            user.destroy
+            next
+          end
 
-            user.password = password
-            user.password_confirmation = password
+          user.login = new_user[3]
+          user.email = new_user[2]
 
-            user.status = 'active'
-            user.kind = 'employee'
-            user.admin = true
-            user.receive_news = false
-            user.first_name = new_user[0]
-            user.last_name = new_user[1]
+          user.password = password
+          user.password_confirmation = password
 
-            user.save!
+          user.status = 'active'
+          user.kind = 'employee'
+          user.admin = true
+          user.receive_news = false
+          user.first_name = new_user[0]
+          user.last_name = new_user[1]
 
-            if set_admin_role(user) && send_mail && new_user[4].nil?
-              UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
-            end
+          user.save! if user.changed?
+
+          if set_admin_role(user) && send_mail
+            UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
           end
         end
       end

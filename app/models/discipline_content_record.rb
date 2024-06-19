@@ -58,15 +58,18 @@ class DisciplineContentRecord < ActiveRecord::Base
       joins(:content_record).merge(ContentRecord.where.not(teacher_id: current_teacher_id))
     end
   }
+  scope :by_class_number, lambda { |class_number| where(class_number: class_number) }
   scope :order_by_classroom, lambda {
     joins(content_record: :classroom).order(Classroom.arel_table[:description].desc)
   }
 
+  validates :class_number, presence: true, if: -> { allow_class_number? }
   validates :content_record, presence: true
   validates :discipline, presence: true
 
   validate :uniqueness_of_discipline_content_record
   validate :ensure_is_school_day
+  validate :uniqueness_of_class_number, if: -> { allow_class_number? }
 
   delegate :contents, :record_date, :classroom, to: :content_record
   delegate :grades, to: :classroom
@@ -107,6 +110,20 @@ class DisciplineContentRecord < ActiveRecord::Base
       errors.add(:discipline_id, :discipline_in_use)
     end
   end
+
+  def uniqueness_of_class_number
+    discipline_content_record = DisciplineContentRecord.by_teacher_id(content_record.teacher_id)
+                                                       .by_classroom_id(content_record.classroom_id)
+                                                       .by_discipline_id(discipline_id)
+                                                       .by_date(content_record.record_date)
+                                                       .by_class_number(class_number)
+                                                       .exists?
+
+    if discipline_content_record
+      errors.add(:class_number, I18n.t('activerecord.errors.models.discipline_content_record.attributes.discipline_id.class_number_in_use'))
+    end
+  end
+
 
   def ensure_is_school_day
     return unless content_record.present? &&

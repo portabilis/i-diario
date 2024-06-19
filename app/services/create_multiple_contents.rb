@@ -17,7 +17,7 @@ class CreateMultipleContents
       lessons_to_create.each do |class_number|
         discipline_content = base_content.dup
         discipline_content.content_record = base_content.content_record.dup
-        discipline_content.content_record.class_number = class_number
+        discipline_content.class_number = class_number
         discipline_content.save
       end
     end

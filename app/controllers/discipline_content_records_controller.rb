@@ -2,7 +2,9 @@ class DisciplineContentRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_classroom, only: [:index, :new, :edit, :create, :update]
   before_action :require_current_teacher
+  before_action :require_current_classroom, only: [:index, :new, :create, :edit, :update]
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
   before_action :set_number_of_classes, only: [:new, :create, :edit, :show]
   before_action :allow_class_number, only: [:index, :new, :edit, :show]
@@ -61,28 +63,12 @@ class DisciplineContentRecordsController < ApplicationController
 
     authorize @discipline_content_record
 
-    if allow_class_number
-      @class_numbers = resource_params[:content_record_attributes][:class_number].split(',').sort
-      @discipline_content_record.content_record.class_number = @class_numbers.first
+    return render_content_with_multiple_class_numbers if allow_class_number
 
-      @class_numbers.each do |class_number|
-        @discipline_content_record.content_record.class_number = class_number
-
-        return render :new if @discipline_content_record.invalid?
-      end
-
-      multiple_content_creator = CreateMultipleContents.new(@class_numbers, @discipline_content_record)
-
-      if multiple_content_creator.call
-        respond_with @discipline_content_record, location: discipline_content_records_path
-      else
-        render :new
-      end
+    if @discipline_content_record.save && validate_class_numbers
+      respond_with @discipline_content_record, location: discipline_content_records_path
     else
-      if @discipline_content_record.save
-        respond_with @discipline_content_record, location: discipline_content_records_path
-      else
-        set_options_by_user
+      set_options_by_user
 
         render :new
       end
@@ -144,6 +130,27 @@ class DisciplineContentRecordsController < ApplicationController
 
   private
 
+  def render_content_with_multiple_class_numbers
+    @class_numbers = resource_params[:class_number].split(',').sort
+    @discipline_content_record.class_number = @class_numbers.first
+
+    @class_numbers.each do |class_number|
+      @discipline_content_record.class_number = class_number
+
+      return render :new if @discipline_content_record.invalid?
+    end
+
+    multiple_content_creator = CreateMultipleContents.new(@class_numbers, @discipline_content_record)
+
+    if multiple_content_creator.call
+      respond_with @discipline_content_record, location: discipline_content_records_path
+    else
+      set_options_by_user
+
+      render :new
+    end
+  end
+
   def fetch_discipline_content_records_by_user
     @discipline_content_records =
       apply_scopes(DisciplineContentRecord
@@ -182,6 +189,7 @@ class DisciplineContentRecordsController < ApplicationController
 
   def resource_params
     params.require(:discipline_content_record).permit(
+      :class_number,
       :discipline_id,
       content_record_attributes: [
         :id,
@@ -248,9 +256,8 @@ class DisciplineContentRecordsController < ApplicationController
 
     if @discipline_content_record.content_record.classroom.present?
       @disciplines = Discipline.by_teacher_and_classroom(
-          current_teacher.id, @discipline_content_record.content_record.classroom.id
-        )
-        .ordered
+        current_teacher.id, @discipline_content_record.content_record.classroom.id
+      ).ordered
     end
 
     @disciplines
@@ -258,12 +265,10 @@ class DisciplineContentRecordsController < ApplicationController
   helper_method :disciplines
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= Classroom.where(id: current_user_classroom)
-      @disciplines ||= Discipline.where(id: current_user_discipline)
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
   end
 
   def fetch_linked_by_teacher

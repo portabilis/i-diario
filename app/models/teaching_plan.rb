@@ -80,7 +80,7 @@ class TeachingPlan < ApplicationRecord
   def yearly?
     return unless school_term_type
 
-    school_term_type.id == SchoolTermType.find_by(description: 'Anual').id
+    SchoolTermType.where("description ILIKE 'Anual%'").where(id: school_term_type.id)
   end
 
   private

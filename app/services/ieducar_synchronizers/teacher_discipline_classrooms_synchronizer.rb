@@ -8,6 +8,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         )['vinculos']
       )
     )
+  rescue IeducarApi::Base::ApiError => error
+    synchronization.mark_as_error!(error.message)
   end
 
   private
@@ -220,9 +222,14 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         classroom_api_code: "grouper:#{fake_discipline.id}"
       )
 
+      link_teacher.assign_attributes(
+        period: teacher_discipline_classroom.period,
+        changed_at: teacher_discipline_classroom.changed_at
+      )
+
       link_teacher.undiscard if link_teacher.discarded?
 
-      link_teacher.save! if link_teacher.new_record?
+      link_teacher.save! if link_teacher.new_record? || link_teacher.changed?
     end
     destroy_grouped_links(classroom_id, teacher_id)
   end

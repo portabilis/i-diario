@@ -10,6 +10,7 @@ $(function () {
   var $classes = $('#discipline_lesson_plan_classes');
   var $classes_div = $('.discipline_lesson_plan_classes');
   var $lesson_plan_attachment = $('#lesson_plan_attachment');
+  var idContentsCounter = 1;
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
   const copyObjectivesTeachingPlanLink = document.getElementById('copy-from-objectives-teaching-plan-link');
   const startAtInput = document.getElementById('discipline_lesson_plan_lesson_plan_attributes_start_at');
@@ -68,7 +69,8 @@ $(function () {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
-    $discipline.select2({ data: selectedDisciplines });
+    $discipline.select2({ data: selectedDisciplines});
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
   };
 
   function handleFetchDisciplinesError() {
@@ -98,14 +100,12 @@ $(function () {
   };
 
   $('#discipline_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
-        var uniqueId = 'customId_' + idCounter++;
+        var uniqueId = 'customId_' + idContentsCounter++;
         var html = JST['templates/layouts/contents_list_manual_item']({
           id: uniqueId,
           description: content_description,
@@ -127,11 +127,9 @@ $(function () {
   });
 
   $('#discipline_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
 
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
@@ -182,6 +180,11 @@ $(function () {
     copyTeachingPlanLink.addEventListener('click', event => {
       event.preventDefault();
       copyFromTeachingPlanAlert.style.display = 'none';
+
+      if (!$classroom.val() || !$discipline.val()) {
+        flashMessages.error('É necessário preenchimento das disciplinas e turmas para realizar a cópia.');
+        return false;
+      }
 
       if (!startAtInput.value || !endAtInput.value) {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
@@ -234,6 +237,12 @@ $(function () {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
         return false;
       }
+
+      if (!$classroom.val() || !$discipline.val()) {
+        flashMessages.error('É necessário preenchimento das disciplinas e turmas para realizar a cópia.');
+        return false;
+      }
+
       const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
       const params = {
         classroom_id: $classroom.val(),

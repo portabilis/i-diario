@@ -38,7 +38,9 @@ class AvaliationsController < ApplicationController
     return if not_allow_numerical_exam
 
     fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-    @grades = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    @grades = current_user_classroom.classrooms_grades
+                                    .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+                                    .map(&:grade)
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -225,8 +227,8 @@ class AvaliationsController < ApplicationController
     year_test_setting = TestSetting.where(year: classroom.year)
 
     test_settings ||= general_by_school_test_setting(year_test_setting) ||
-                      general_test_setting(year_test_setting) ||
-                      by_school_term_test_setting(year_test_setting)
+      general_test_setting(year_test_setting) ||
+      by_school_term_test_setting(year_test_setting)
 
     test_setting_tests = TestSettingTest.where(test_setting: test_settings)
 
@@ -249,8 +251,8 @@ class AvaliationsController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
 
     grades_by_numerical_exam = classroom.classrooms_grades
-                                        .by_score_type(ScoreTypes::NUMERIC)
-                                        .map(&:grade)
+      .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+      .map(&:grade)
 
     render json: true if grades_by_numerical_exam.present?
   end
@@ -279,16 +281,16 @@ class AvaliationsController < ApplicationController
         @classrooms.map(&:id),
         @disciplines.map(&:id)
       )
-      .order_by_classroom
-      .ordered
-    )
+        .order_by_classroom
+        .ordered
+                               )
 
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
   end
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
     @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
     @grades = @classroom_grades.map(&:grade).uniq
@@ -325,10 +327,10 @@ class AvaliationsController < ApplicationController
     return [] if @avaliation_multiple_creator_form.discipline_id.blank?
 
     @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_unity.id)
-                                                     .by_teacher_id(current_teacher.id)
-                                                     .by_teacher_discipline(
-                                                       @avaliation_multiple_creator_form.discipline_id
-                                                     ).ordered
+      .by_teacher_id(current_teacher.id)
+      .by_teacher_discipline(
+        @avaliation_multiple_creator_form.discipline_id
+      ).ordered
   end
   helper_method :classrooms_for_multiple_classrooms
 
@@ -404,20 +406,20 @@ class AvaliationsController < ApplicationController
     return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
 
     @test_settings ||= general_by_school_test_setting(year_test_setting) ||
-                       general_test_setting(year_test_setting) ||
-                       by_school_term_test_setting(year_test_setting)
+      general_test_setting(year_test_setting) ||
+      by_school_term_test_setting(year_test_setting)
   end
 
   def general_by_school_test_setting(year_test_setting, classroom = nil)
     classroom ||= classroom || current_user_classroom
 
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
-                     .by_unities(classroom.unity)
-                     .where(
-                       "grades && ARRAY[?]::integer[] OR grades = '{}'",
-                       classroom.grade_ids
-                     )
-                     .presence
+      .by_unities(classroom.unity)
+      .where(
+        "grades && ARRAY[?]::integer[] OR grades = '{}'",
+        classroom.grade_ids
+      )
+        .presence
   end
 
   def general_test_setting(year_test_setting)
@@ -426,8 +428,8 @@ class AvaliationsController < ApplicationController
 
   def by_school_term_test_setting(year_test_setting)
     year_test_setting.where(exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM)
-                     .order(:school_term_type_step_id)
-                     .presence
+      .order(:school_term_type_step_id)
+      .presence
   end
 
   def score_types_redirect
@@ -444,7 +446,10 @@ class AvaliationsController < ApplicationController
   end
 
   def not_allow_numerical_exam
-    grades_by_numerical_exam = current_user.classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+    grades_by_numerical_exam = current_user.classroom
+                                           .classrooms_grades
+                                           .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+                                           .map(&:grade)
 
     return if grades_by_numerical_exam.present?
 

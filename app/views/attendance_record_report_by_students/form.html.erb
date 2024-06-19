@@ -1,0 +1,49 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'attendance_record_report_by_student' %>
+<% end %>
+
+<div class='widget-body no-padding'>
+  <%= simple_form_for @attendance_record_report_by_student_form,
+      url: attendance_record_report_by_students_report_path,
+      method: :get, html: { class: 'smart-form', target: '_blank' } do |f|
+  %>
+    <%= render partial: 'base_errors', locals: { f: f } %>
+
+    <fieldset>
+      <div class='row'>
+        <div class='col col-sm-4'>
+          <%= f.input :unity_id, as: :select2, elements: @unities, user: current_user, readonly: !current_user.admin? %>
+        </div>
+
+        <div class='col col-sm-4'>
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, user: current_user,
+                input_html: { value: @attendance_record_report_by_student_form.classroom_id }%>
+        </div>
+
+        <div class='col col-sm-4'>
+          <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2 3]).to_json,
+                label: 'Período', readonly: @period != Periods::FULL %>
+        </div>
+      </div>
+
+      <div class="row">
+        <%= f.input :school_calendar_year, as: :hidden %>
+        <%= f.hidden_field :current_user_id, value: current_user.id %>
+
+        <div class='col col-sm-4'>
+          <%= f.input :start_at, as: :date %>
+        </div>
+
+        <div class='col col-sm-4'>
+          <%= f.input :end_at, as: :date %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <div class='pull-right'>
+        <%= f.submit 'Imprimir', class: 'btn btn-primary pull-right', id: 'send-form' %>
+      </div>
+    </footer>
+  <% end %>
+</div>

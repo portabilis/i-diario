@@ -130,8 +130,9 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_records =
       apply_scopes(FinalRecoveryDiaryRecord)
         .includes(recovery_diary_record: [:unity, :classroom, :discipline])
-        .filter(filtering_params(params[:search]))
+        .filter_from_params(filtering_params(params[:search]))
         .by_unity_id(current_unity.id)
+        .by_teacher_id(current_teacher.id)
         .by_classroom_id(@classrooms.map(&:id))
         .by_discipline_id(@disciplines.map(&:id))
         .ordered
