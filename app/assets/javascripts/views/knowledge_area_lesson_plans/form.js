@@ -16,6 +16,8 @@ $(function () {
     'lesson_plan_copy_from_objectives_teaching_plan_alert'
   );
   const flashMessages = new FlashMessages();
+  const start_at = startAtInput.closest('div.control-group');
+  const end_at = endAtInput.closest('div.control-group');
 
   $('#knowledge_area_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
     if (e.val.length) {
@@ -97,6 +99,11 @@ $(function () {
 
   if (copyTeachingPlanLink) {
     copyTeachingPlanLink.addEventListener('click', event => {
+      if (start_at.classList.contains('error') || end_at.classList.contains('error')){
+        flashMessages.error('É necessário preenchimento das datas válidas para realizar a cópia.');
+        return false;
+      }
+
       event.preventDefault();
       copyFromTeachingPlanAlert.style.display = 'none';
 
@@ -146,6 +153,11 @@ $(function () {
 
   if (copyObjectivesTeachingPlanLink) {
     copyObjectivesTeachingPlanLink.addEventListener('click', event => {
+      if (start_at.classList.contains('error') || end_at.classList.contains('error')){
+        flashMessages.error('É necessário preenchimento das datas válidas para realizar a cópia.');
+        return false;
+      }
+
       event.preventDefault();
       copyFromObjectivesTeachingPlanAlert.style.display = 'none';
 

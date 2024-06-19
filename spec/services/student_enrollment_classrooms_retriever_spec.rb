@@ -11,7 +11,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       3,
       classrooms_grade: classroom_grade,
       joined_at: '2023-02-02',
-      left_at: '2023-12-12'
+      left_at: ''
     )
   }
 
