@@ -13,7 +13,7 @@ class TeachingPlansController < ApplicationController
 
     @unities     = Unity.by_teacher(current_teacher.id).uniq.ordered
     @classrooms  = Classroom.by_teacher_id(current_teacher.id).ordered
-    @disciplines = Discipline.by_teacher_id(current_teacher.id).ordered
+    @disciplines = Discipline.by_teacher_id(current_teacher.id, current_school_year).ordered
   end
 
   def new

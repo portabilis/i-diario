@@ -6,7 +6,7 @@ if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
   }
 else
   config_redis = {
-    url: Rails.application.secrets[:REDIS_URL]
+    url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}"
   }
 end
 
