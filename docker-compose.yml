@@ -1,22 +1,5 @@
 services:
 
-  postgres:
-    image: postgres:alpine
-    container_name: postgres-idiario
-    ports:
-      - 5432
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=idiario_development
-      - POSTGRES_PASSWORD=postgres
-
-  redis:
-    image: redis:alpine
-    container_name: redis-idiario
-    ports:
-      - 6379
-
   app:
     build: .
     container_name: idiario
@@ -31,6 +14,23 @@ services:
     depends_on:
       - postgres
       - redis
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-idiario
+    ports:
+      - 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=idiario_development
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-idiario
+    ports:
+      - 6379
 
 volumes:
   app:
