@@ -53,6 +53,5 @@ class Features < EnumerateIt::Base
                    :avaliation_recovery_lowest_notes,
                    :attendance_record_report_by_students
 
-
   sort_by :translation
 end
