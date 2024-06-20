@@ -1,5 +1,6 @@
 class KnowledgeAreaLessonPlanReportController < ApplicationController
   before_action :require_current_teacher
+  before_action :require_current_classroom, only: [:form, :lesson_plan_report, :content_record_report]
 
   def form
     @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(
@@ -98,16 +99,10 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:date_start].to_date
-    rescue ArgumentError
-      @knowledge_area_lesson_plan_report_form.date_start = ''
-    end
+    date_start = resource_params[:date_start]
+    date_end = resource_params[:date_end]
 
-    begin
-      resource_params[:date_end].to_date
-    rescue ArgumentError
-      @knowledge_area_lesson_plan_report_form.date_end = ''
-    end
+    @knowledge_area_lesson_plan_report_form.date_start = '' unless date_start.try(:to_date)
+    @knowledge_area_lesson_plan_report_form.date_end = '' unless date_end.try(:to_date)
   end
 end

@@ -13,9 +13,11 @@ pt-BR:
         discipline_id: "Disciplina"
         author: "Autor"
         contents: "Conteúdos"
+        class_number: "Aula"
     errors:
       models:
         discipline_content_record:
           attributes:
             discipline_id:
               discipline_in_use: "já existe um registro de conteúdo para a disciplina informada"
+              class_number_in_use: "Já existe um registro de conteúdo para a Turma/Disciplina/Data/Número de aula infomado"

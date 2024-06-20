@@ -10,7 +10,6 @@
           <%= content_record.input :unity_id, as: :select2_unity, user: current_user %>
         </div>
 
-
         <div class="col col-sm-4">
           <%= content_record.association :classroom, as: :select2_classroom, user: current_user,
                                          record: f.object %>
@@ -26,6 +25,14 @@
         <div class="col col-sm-4">
           <%= content_record.input :record_date, as: :date, readonly: true %>
         </div>
+
+        <% if @allow_class_number %>
+          <div class="col col-sm-4">
+            <%= f.input :class_number, as: :select2, multiple: true,
+                                     elements: number_of_classes_elements(@number_of_classes),
+                                     disabled: true %>
+          </div>
+        <% end %>
       </div>
 
       <div class="row">

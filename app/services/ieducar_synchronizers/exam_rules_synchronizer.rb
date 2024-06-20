@@ -5,6 +5,8 @@ class ExamRulesSynchronizer < BaseSynchronizer
         api.fetch['regras']
       )
     )
+  rescue IeducarApi::Base::ApiError => error
+    synchronization.mark_as_error!(error.message)
   end
 
   private
@@ -33,13 +35,15 @@ class ExamRulesSynchronizer < BaseSynchronizer
         exam_rule.parallel_exams_calculation_type =
           exam_rule_record.tipo_calculo_recuperacao_paralela.to_i ||
           ParallelExamsCalculationTypes::SUBSTITUTION
-        exam_rule.save! if exam_rule.changed?
 
-        if exam_rule_record.regra_diferenciada_id.present?
-          differentiated_exam_rules << [
-            exam_rule_record.id,
-            exam_rule_record.regra_diferenciada_id
-          ]
+        differentiated_exam_rules << [
+          exam_rule_record.id,
+          exam_rule_record.regra_diferenciada_id
+        ]
+
+        if exam_rule.changed?
+          exam_rule.save!
+          update_descriptive_exams(exam_rule) if exam_rule.persisted?
         end
       end
     end
@@ -55,5 +59,18 @@ class ExamRulesSynchronizer < BaseSynchronizer
         exam_rule.save! if exam_rule.changed?
       end
     end
+  end
+
+  def update_descriptive_exams(exam_rule)
+    return unless exam_rule.attribute_changed?("opinion_type")
+
+    classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id)
+                                   .pluck(:classroom_id)
+                                   .uniq
+
+    DescriptiveExam.where(classroom_id: classroom_ids)
+                   .where.not(opinion_type: exam_rule.opinion_type)
+                   .destroy_all
+    DescriptiveExamStudent.by_classroom(classroom_ids).destroy_all
   end
 end

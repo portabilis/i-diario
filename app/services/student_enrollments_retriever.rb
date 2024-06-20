@@ -15,7 +15,7 @@ class StudentEnrollmentsRetriever
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:end_at, nil)
     @year = params.fetch(:year, nil)
-    @grade = params.fetch(:grade, nil)
+    @grades = params.fetch(:grades, nil)
     @include_date_range = params.fetch(:include_date_range, nil)
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
@@ -39,13 +39,18 @@ class StudentEnrollmentsRetriever
                                              .includes(:student_enrollment_classrooms)
                                              .order('sequence ASC, students.name ASC')
                                              .active
+
+    # Sobrescreve as séries de turmas multisseriadas de acordo com filtro de disciplinas
+    new_grades = classrooms_with_multi_grades
+
     student_enrollments = student_enrollments.by_classroom_grades(classroom_grades) if classroom_grades
-    student_enrollments = student_enrollments.by_grade(grade) if grade
+    student_enrollments = student_enrollments.by_grade(new_grades || grades) if new_grades || grades
     student_enrollments = student_enrollments.by_period(period) if period
     student_enrollments = student_enrollments.by_opinion_type(opinion_type, classrooms) if opinion_type
     student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
     student_enrollments = student_enrollments.by_left_at_date(end_at) if filter_by_left_at
     student_enrollments = search_by_dates(student_enrollments) if include_date_range
+
     # Nao filtra as matriculas caso municipio tenha DATABASE
     if student_enrollments.show_as_inactive.blank?
       student_enrollments = search_by_search_type(student_enrollments)
@@ -58,7 +63,7 @@ class StudentEnrollmentsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type, :classroom_grades,
-                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type,
+                :include_date_range, :grades, :period, :opinion_type, :with_recovery_note_in_step, :score_type,
                 :filter_by_left_at
 
   def ensure_has_valid_search_params
@@ -96,18 +101,25 @@ class StudentEnrollmentsRetriever
   def reject_duplicated_students(student_enrollments)
     return student_enrollments if show_inactive_enrollments
 
-    unique_student_enrollments = {}
-
-    student_enrollments.each do |student_enrollment|
-      student_id = student_enrollment.student_id
-
-      unique_student_enrollments[student_id] = student_enrollment
-    end
-
-    unique_student_enrollments.values
+    student_enrollments = student_enrollments.status_attending
   end
 
   def show_inactive_enrollments
     @show_inactive_enrollments = GeneralConfiguration.first.show_inactive_enrollments
+  end
+
+  def classrooms_with_multi_grades
+    classrooms_array = Array(classrooms)
+
+    return unless classrooms_array.any?(&:multi_grade?)
+
+    school_calendar = classrooms_array.flat_map(&:unity).flat_map(&:school_calendars)
+      .detect { |sc| sc.year == classrooms_array.first.year }
+
+    SchoolCalendarDisciplineGrade.where(
+      grade_id: grades,
+      discipline_id: disciplines,
+      school_calendar: school_calendar
+    ).map(&:grade_id).uniq
   end
 end

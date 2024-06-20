@@ -2,6 +2,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   DISCIPLINE_LESSON_PLAN_REPORT = "1"
   DISCIPLINE_CONTENT_RECORD = "2"
 
+  before_action :require_current_classroom, only: [:form, :lesson_plan_report, :content_record_report]
   before_action :require_current_teacher
 
   def form
@@ -71,17 +72,11 @@ class DisciplineLessonPlanReportController < ApplicationController
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:date_start].to_date
-    rescue ArgumentError
-      @discipline_lesson_plan_report_form.date_start = ''
-    end
+    date_start = resource_params[:date_start]
+    date_end = resource_params[:date_end]
 
-    begin
-      resource_params[:date_end].to_date
-    rescue ArgumentError
-      @discipline_lesson_plan_report_form.date_end = ''
-    end
+    @discipline_lesson_plan_report_form.date_start = '' unless date_start.try(:to_date)
+    @discipline_lesson_plan_report_form.date_end = '' unless date_end.try(:to_date)
   end
 
   def set_options_by_user

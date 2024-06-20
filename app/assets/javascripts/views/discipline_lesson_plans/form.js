@@ -10,6 +10,7 @@ $(function () {
   var $classes = $('#discipline_lesson_plan_classes');
   var $classes_div = $('.discipline_lesson_plan_classes');
   var $lesson_plan_attachment = $('#lesson_plan_attachment');
+  var idContentsCounter = 1;
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
   const copyObjectivesTeachingPlanLink = document.getElementById('copy-from-objectives-teaching-plan-link');
   const startAtInput = document.getElementById('discipline_lesson_plan_lesson_plan_attributes_start_at');
@@ -18,8 +19,10 @@ $(function () {
   const copyFromObjectivesTeachingPlanAlert = document.getElementById(
     'lesson_plan_copy_from_objectives_teaching_plan_alert'
   );
+  const start_at = startAtInput.closest('div.control-group');
+  const end_at = endAtInput.closest('div.control-group');
 
-  $(".lesson_plan_attachment").on('change', onChangeFileElement);
+  $lesson_plan_attachment.on('change', onChangeFileElement);
 
   function onChangeFileElement() {
     // escopado para permitir arquivos menores que 3MB(3145728 bytes)
@@ -68,7 +71,8 @@ $(function () {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
-    $discipline.select2({ data: selectedDisciplines });
+    $discipline.select2({ data: selectedDisciplines});
+    $discipline.val(selectedDisciplines[0].id).trigger('change');
   };
 
   function handleFetchDisciplinesError() {
@@ -98,14 +102,12 @@ $(function () {
   };
 
   $('#discipline_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
 
-        var uniqueId = 'customId_' + idCounter++;
+        var uniqueId = 'customId_' + idContentsCounter++;
         var html = JST['templates/layouts/contents_list_manual_item']({
           id: uniqueId,
           description: content_description,
@@ -127,11 +129,9 @@ $(function () {
   });
 
   $('#discipline_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
 
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {
@@ -180,8 +180,18 @@ $(function () {
 
   if (copyTeachingPlanLink) {
     copyTeachingPlanLink.addEventListener('click', event => {
+      if (start_at.classList.contains('error') || end_at.classList.contains('error')){
+        flashMessages.error('É necessário preenchimento das datas válidas para realizar a cópia.');
+        return false;
+      }
+
       event.preventDefault();
       copyFromTeachingPlanAlert.style.display = 'none';
+
+      if (!$classroom.val() || !$discipline.val()) {
+        flashMessages.error('É necessário preenchimento das disciplinas e turmas para realizar a cópia.');
+        return false;
+      }
 
       if (!startAtInput.value || !endAtInput.value) {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
@@ -227,6 +237,11 @@ $(function () {
 
   if (copyObjectivesTeachingPlanLink) {
     copyObjectivesTeachingPlanLink.addEventListener('click', event => {
+      if (start_at.classList.contains('error') || end_at.classList.contains('error')){
+        flashMessages.error('É necessário preenchimento das datas válidas para realizar a cópia.');
+        return false;
+      }
+
       event.preventDefault();
       copyFromObjectivesTeachingPlanAlert.style.display = 'none';
 
@@ -234,6 +249,12 @@ $(function () {
         flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
         return false;
       }
+
+      if (!$classroom.val() || !$discipline.val()) {
+        flashMessages.error('É necessário preenchimento das disciplinas e turmas para realizar a cópia.');
+        return false;
+      }
+
       const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
       const params = {
         classroom_id: $classroom.val(),

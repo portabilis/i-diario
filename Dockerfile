@@ -1,4 +1,7 @@
-FROM ruby:2.4.10-slim-buster
+FROM ruby:2.6.6-slim-buster
+
+ENV APP_PATH /app
+ENV BUNDLE_PATH /box
 
 RUN apt-get update -qq
 RUN apt-get install -y \
@@ -8,15 +11,7 @@ RUN apt-get install -y \
     git \
     shared-mime-info
 RUN npm i -g yarn
+RUN gem update --system 3.3.22
+RUN mkdir $APP_PATH
 
-ENV app /app
-
-RUN mkdir $app
-
-WORKDIR $app
-
-RUN gem install bundler:1.17.3
-
-COPY Gemfile Gemfile.lock /app/
-
-ENV BUNDLE_PATH /box
+WORKDIR $APP_PATH

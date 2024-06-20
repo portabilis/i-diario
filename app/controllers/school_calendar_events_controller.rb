@@ -115,7 +115,7 @@ class SchoolCalendarEventsController < ApplicationController
   helper_method :classrooms
 
   def disciplines
-    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id)
+    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id, current_school_year)
                                .by_classroom(@school_calendar_event.classroom_id)
                                .grouper
                                .ordered || []
@@ -143,17 +143,11 @@ class SchoolCalendarEventsController < ApplicationController
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:start_date].to_date
-    rescue ArgumentError
-      @school_calendar_event.start_date = ''
-    end
+    start_date = resource_params[:start_date]
+    end_date = resource_params[:end_date]
 
-    begin
-      resource_params[:end_date].to_date
-    rescue ArgumentError
-      @school_calendar_event.end_date = ''
-    end
+    @school_calendar_event.start_date = '' unless start_date.try(:to_date)
+    @school_calendar_event.end_date = '' unless end_date.try(:to_date)
   end
 
   def check_user_unity

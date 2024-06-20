@@ -2,7 +2,7 @@ class DisciplineLessonPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_classroom, only: [:new, :edit, :create, :update]
+  before_action :require_current_classroom, only: [:index, :new, :edit, :create, :update]
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
   before_action :require_allows_copy_experience_fields_in_lesson_plans, only: [:new, :edit]
@@ -29,16 +29,18 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    respond_with @discipline_lesson_plan do |format|
-      format.pdf do
-        discipline_lesson_plan_pdf = DisciplineLessonPlanPdf.build(
-          current_entity_configuration,
-          @discipline_lesson_plan,
-          current_teacher
-        )
-        send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
-      end
-    end
+    respond_with @discipline_lesson_plan
+  end
+
+  def print
+    @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+
+    discipline_lesson_plan_pdf = DisciplineLessonPlanPdf.build(
+      current_entity_configuration,
+      @discipline_lesson_plan,
+      current_teacher
+    )
+    send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
   end
 
   def new

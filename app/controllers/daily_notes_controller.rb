@@ -189,7 +189,7 @@ class DailyNotesController < ApplicationController
           .by_student(note_student.student_id)
           .by_classroom(@daily_note.classroom_id)
           .by_discipline(@daily_note.discipline_id)
-          .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC,@daily_note.classroom_id)
+          .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, @daily_note.classroom_id)
           .active
           .first
 
@@ -256,9 +256,9 @@ class DailyNotesController < ApplicationController
 
     return fetch_linked_by_teacher unless @admin_or_teacher
 
-    @classrooms = Classroom.where(id: current_user_classroom)
-    @disciplines = Discipline.where(id: current_user_discipline)
-    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
+    @steps ||= SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def fetch_daily_notes_and_avaliations
@@ -279,7 +279,7 @@ class DailyNotesController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::NUMERIC)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
 

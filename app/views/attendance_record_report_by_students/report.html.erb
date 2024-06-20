@@ -1,0 +1,42 @@
+<table>
+  <thead>
+    <tr>
+      <th colspan='2' style='text-align: center; font-size: 15px; background-color: #DEDEDE; font-weight: bold;'>
+        Registro de Frequência por aluno
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style='text-align: center; width: 50px; height: 50px;'>
+        <%= image_tag(current_entity_configuration.logo.url, size: '50x50') if current_entity_configuration.logo %>
+      </td>
+      <td style='text-align: center;'>
+        <br><%= current_entity_configuration.entity_name %>
+        <br><%= current_entity_configuration.organ_name %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<%= render partial: 'identification' %>
+<%= render partial: 'student_fields' %>
+
+<style>
+  table {
+    border-collapse: collapse;
+    width: 95%;
+    margin: 2%;
+  }
+
+  th,
+  td {
+    border: 1px solid #000000;
+    text-align: left;
+    padding: 8px;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+</style>

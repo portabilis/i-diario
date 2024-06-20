@@ -11,6 +11,7 @@ $(function () {
   var $schoolTermContainer = $('#school-term-container');
   var $schoolTerm = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type_step_id');
   var flashMessages = new FlashMessages();
+  var idContentsCounter = 1;
 
   function fetchDisciplines() {
     var unity_id = $unity.select2('val');
@@ -74,10 +75,9 @@ $(function () {
   validate_attachment_size($('#discipline_teaching_plan'));
 
   $('#discipline_teaching_plan_teaching_plan_attributes_contents_tags').on('change', function (e) {
-    var idCounter = 1;
 
     if (e.val.length) {
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var content_description = e.val.join(", ");
       if (content_description.trim().length &&
         !$('input[type=checkbox][data-content_description="' + content_description + '"]').length) {
@@ -103,10 +103,8 @@ $(function () {
   });
 
   $('#discipline_teaching_plan_teaching_plan_attributes_objectives_tags').on('change', function (e) {
-    var idCounter = 1;
-
     if (e.val.length) {
-      var uniqueId = 'customId_' + idCounter++;
+      var uniqueId = 'customId_' + idContentsCounter++;
       var objective_description = e.val.join(", ");
       if (objective_description.trim().length &&
         !$('input[type=checkbox][data-objective_description="' + objective_description + '"]').length) {

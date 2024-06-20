@@ -21,6 +21,7 @@ class User < ApplicationRecord
 
   after_save :update_fullname_tokens
   before_save :remove_spaces_from_name
+  after_validation :status_changed
 
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
@@ -37,17 +38,16 @@ class User < ApplicationRecord
   belongs_to :unity, foreign_key: :current_unity_id
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
-  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
-
+  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id,
+    dependent: :restrict_with_error
   has_many :system_notification_targets, dependent: :destroy
-  has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
+  has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets,
+    source: :system_notification
   has_many :unread_notifications, -> { where(system_notification_targets: { read: false }) },
-           through: :system_notification_targets, source: :system_notification
-
-  has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
-
+    through: :system_notification_targets, source: :system_notification
+  has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id,
+    dependent: :restrict_with_error
   has_and_belongs_to_many :students, dependent: :restrict_with_error
-
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
   has_many :roles, through: :user_roles
 
@@ -56,7 +56,8 @@ class User < ApplicationRecord
   mount_uploader :profile_picture, UserProfilePictureUploader
 
   validates :first_name, presence: true
-  validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
+  validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true,
+    uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
@@ -67,13 +68,11 @@ class User < ApplicationRecord
   validates_associated :user_roles
 
   validate :valid_password
-  validate :status_changed
   validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
-  validate :status_changed
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -150,6 +149,11 @@ class User < ApplicationRecord
     end
   end
 
+  def first_access?
+    email.include?('ambiente.portabilis.com.br') &&
+      created_at.to_date >= last_password_change.to_date
+  end
+
   def expired?
     return false if admin? || new_record?
 
@@ -180,8 +184,7 @@ class User < ApplicationRecord
   end
 
   def status_changed
-    return if new_record?
-    return if status_was == status
+    return if self.errors.any? || new_record? || (status_was == status)
 
     if status == UserStatus::ACTIVE
       update_last_activity_at
@@ -204,7 +207,7 @@ class User < ApplicationRecord
   end
 
   def update_last_activity_at
-    update_column :last_activity_at, Date.current
+    self.last_activity_at = Date.current
   end
 
   def can_show?(feature)
@@ -418,10 +421,6 @@ class User < ApplicationRecord
 
   def access_levels
     @access_levels ||= roles.map(&:access_level).uniq
-  end
-
-  def is_admin_email?
-    email.eql?(Rails.application.secrets.admin_email)
   end
 
   protected

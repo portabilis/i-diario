@@ -11,6 +11,8 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
         )['escolas']
       )
     )
+  rescue IeducarApi::Base::ApiError => error
+    synchronization.mark_as_error!(error.message)
   end
 
   private
@@ -99,14 +101,8 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
 
         new_record = school_calendar_step.new_record?
 
-        if new_record || school_calendar_step.start_date_for_posting < start_at
+        if new_record
           school_calendar_step.start_date_for_posting = start_at
-        end
-
-        start_date_for_posting = school_calendar_step.start_date_for_posting
-        end_date_for_posting = school_calendar_step.end_date_for_posting
-
-        if new_record || end_date_for_posting < start_at || end_date_for_posting < start_date_for_posting
           school_calendar_step.end_date_for_posting = end_at
         end
 

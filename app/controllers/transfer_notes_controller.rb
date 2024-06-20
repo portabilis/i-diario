@@ -205,14 +205,16 @@ class TransferNotesController < ApplicationController
   def update_daily_note_student(daily_note_students_attributes)
     ActiveRecord::Base.transaction do
       daily_note_students_attributes.values.each do |data|
-        record = DailyNoteStudent.find_or_initialize_by(
+        record = DailyNoteStudent.with_discarded.find_or_initialize_by(
           daily_note_id: data[:daily_note_id],
           student_id: data[:student_id]
         ).localized
 
         record.assign_attributes(
           note: data[:note],
-          transfer_note_id: @transfer_note.id
+          transfer_note_id: @transfer_note.id,
+          discarded_at: '',
+          active: true
         )
         record.save!
       end
