@@ -318,6 +318,14 @@ Rails.application.routes.draw do
         get :fetch_score_type
       end
     end
+    resources :conceptual_exams_in_batchs, concerns: :history do
+      collection do
+        get :edit_multiple
+        get :get_steps
+        put :create_or_update_multiple
+        delete :destroy_multiple
+      end
+    end
     resources :old_steps_conceptual_values, except: [:only]
     resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
