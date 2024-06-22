@@ -9,7 +9,8 @@ class ObservationDiaryRecordsController < ApplicationController
   def index
     current_discipline = fetch_current_discipline
     teachers_by_discipline = fetch_teachers_by_discipline(current_discipline)
-
+    classrooms
+    disciplines
     @observation_diary_records = apply_scopes(ObservationDiaryRecord)
       .includes(:discipline, classroom: :unity)
       .by_classroom(current_user_classroom)
@@ -112,15 +113,12 @@ class ObservationDiaryRecordsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom)
-    .ordered
+    @classrooms ||= Classroom.where(id: current_user_classroom).ordered
   end
-  helper_method :classrooms
 
   def disciplines
     @disciplines ||= Discipline.where(id: fetch_current_discipline)
   end
-  helper_method :disciplines
 
   private
 
