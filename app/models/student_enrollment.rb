@@ -47,7 +47,6 @@ class StudentEnrollment < ActiveRecord::Base
           StudentEnrollmentStatus::STUDYING,
           StudentEnrollmentStatus::APPROVED,
           StudentEnrollmentStatus::APPROVED_WITH_DEPENDENCY,
-          StudentEnrollmentStatus::RECLASSIFIED,
           StudentEnrollmentStatus::APPROVE_BY_COUNCIL,
           StudentEnrollmentStatus::REPPROVED
         ]

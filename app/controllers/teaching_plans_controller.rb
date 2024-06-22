@@ -7,13 +7,13 @@ class TeachingPlansController < ApplicationController
   def index
     @teaching_plans = apply_scopes(TeachingPlan).includes(:discipline, classroom: :unity)
                                                 .by_teacher(current_teacher.id)
-                                                .filter(filtering_params(params[:search]))
+                                                .filter_from_params(filtering_params(params[:search]))
 
     authorize @teaching_plans
 
     @unities     = Unity.by_teacher(current_teacher.id).uniq.ordered
     @classrooms  = Classroom.by_teacher_id(current_teacher.id).ordered
-    @disciplines = Discipline.by_teacher_id(current_teacher.id).ordered
+    @disciplines = Discipline.by_teacher_id(current_teacher.id, current_school_year).ordered
   end
 
   def new

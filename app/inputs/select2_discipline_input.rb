@@ -22,11 +22,11 @@ class Select2DisciplineInput < Select2Input
       elsif user.current_discipline_id?
         Discipline.where(id: user.current_discipline_id)
       elsif user.current_teacher.present? && options[:grade_id]
-        Discipline.by_grade(options[:grade_id]).by_teacher_id(user.current_teacher.id)
+        Discipline.by_grade(options[:grade_id]).by_teacher_id(user.current_teacher.id, current_school_year)
       elsif user.current_teacher.present? && options[:classroom_id]
-        Discipline.by_classroom(options[:classroom_id]).by_teacher_id(user.current_teacher.id)
+        Discipline.by_classroom(options[:classroom_id]).by_teacher_id(user.current_teacher.id, current_school_year)
       elsif user.current_unity.present? && options[:grade_id]
-        Discipline.by_unity_id(user.current_unity.id).by_grade(options[:grade_id])
+        Discipline.by_unity_id(user.current_unity.id, current_school_year).by_grade(options[:grade_id])
       end
 
     options[:elements] = disciplines.present? ? disciplines.grouped_by_knowledge_area : []

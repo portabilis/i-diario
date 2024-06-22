@@ -5,7 +5,7 @@ class SchoolCalendarsController < ApplicationController
 
   def index
     @school_calendars = apply_scopes(SchoolCalendar).includes(:unity)
-                                                    .filter(filtering_params(params[:search]))
+                                                    .filter_from_params(filtering_params(params[:search]))
                                                     .ordered
 
     unless show_all_unities?

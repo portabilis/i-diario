@@ -4,7 +4,7 @@ class LessonsBoardsController < ApplicationController
 
   def index
     @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
-    @lessons_boards = apply_scopes(@lessons_boards).filter(filtering_params(params[:search]))
+    @lessons_boards = apply_scopes(@lessons_boards).filter_from_params(filtering_params(params[:search]))
     authorize @lessons_boards
   end
 
@@ -308,6 +308,7 @@ class LessonsBoardsController < ApplicationController
     grades_to_select2 = []
     grades = Grade.includes(:course)
                   .by_unity(unity_id)
+                  .by_year(current_school_year)
                   .ordered
 
     grades.each do |grade|

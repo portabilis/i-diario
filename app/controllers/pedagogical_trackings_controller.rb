@@ -34,9 +34,9 @@ class PedagogicalTrackingsController < ApplicationController
                   @partial = :classrooms
                   @classrooms = Classroom.where(unity_id: unity_id, year: current_user_school_year).ordered
 
-                  paginate(filter(percents(@classrooms.pluck(:id)), params.dig(:filter)))
+                  paginate(filter_from_params(percents(@classrooms.pluck(:id)), params.dig(:filter)))
                 else
-                  paginate(filter(percents, params.dig(:filter)))
+                  paginate(filter_from_params(percents, params.dig(:filter)))
                 end
   end
 
@@ -79,7 +79,7 @@ class PedagogicalTrackingsController < ApplicationController
       :content_record_percentage
     )
 
-    @teacher_percents = filter(@teacher_percents, filter_params)
+    @teacher_percents = filter_from_params(@teacher_percents, filter_params)
 
     respond_with @teacher_percents
   end
@@ -300,7 +300,7 @@ class PedagogicalTrackingsController < ApplicationController
     end
   end
 
-  def filter(percents, params)
+  def filter_from_params(percents, params)
     return percents if params.blank?
 
     params.delete_if do |_filter, value|

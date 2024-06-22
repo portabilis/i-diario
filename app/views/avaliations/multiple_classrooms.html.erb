@@ -22,7 +22,7 @@
           <%= f.input :unity_id, as: :select2_unity, user: current_user %>
         </div>
         <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2, elements: disciplines_for_multiple_classrooms %>
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines %>
         </div>
         <div class="col col-sm-4">
           <%= f.input :test_setting_test_id, as: :select2, elements: [], required: true %>
@@ -36,7 +36,7 @@
 
 
         <div class="col col-sm-4">
-            <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': 0" } } %>
+          <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': 0" } } %>
         </div>
       </div>
 
@@ -94,9 +94,7 @@
 
     <footer>
       <%= link_to(t('views.form.back'), avaliations_path, class: 'btn btn-default') %>
-
       <%= link_to(t('views.form.history'), history_avaliation_path(@avaliation), class: 'btn btn-info') if @avaliation_multiple_creator_form.persisted? %>
-
       <%= f.submit(t('views.form.save'), class: 'btn btn-primary') %>
     </footer>
   <% end %>

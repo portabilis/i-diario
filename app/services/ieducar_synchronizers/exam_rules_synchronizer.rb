@@ -36,16 +36,14 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule_record.tipo_calculo_recuperacao_paralela.to_i ||
           ParallelExamsCalculationTypes::SUBSTITUTION
 
+        differentiated_exam_rules << [
+          exam_rule_record.id,
+          exam_rule_record.regra_diferenciada_id
+        ]
+
         if exam_rule.changed?
           exam_rule.save!
           update_descriptive_exams(exam_rule) if exam_rule.persisted?
-        end
-
-        if exam_rule_record.regra_diferenciada_id.present?
-          differentiated_exam_rules << [
-            exam_rule_record.id,
-            exam_rule_record.regra_diferenciada_id
-          ]
         end
       end
     end

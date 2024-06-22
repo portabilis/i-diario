@@ -129,4 +129,40 @@ RSpec.describe User, type: :model do
       }.to change { subject.current_user_role_id }.from(nil).to(user_role.id)
     end
   end
+
+  describe '#first_access?' do
+    context 'when default email domain and created_at before last_password_change' do
+      subject do
+        create(:user, created_at: '2017-02-28',
+        last_password_change: Date.today,
+        email: 'user@ambiente.portabilis.com.br')
+      end
+
+      it 'returns false' do
+        expect(subject.first_access?).to be_falsey
+      end
+    end
+
+    context 'when last_password_change and created_at with same date' do
+      subject do
+        create(:user, created_at: Date.today, last_password_change: Date.today)
+      end
+
+      it 'returns false' do
+        expect(subject.first_access?).to be_falsey
+      end
+    end
+
+    context 'when last_password_change and created_at with same date and default email domain' do
+      subject do
+        create(:user, created_at: Date.today,
+               last_password_change: Date.today,
+               email: 'user@ambiente.portabilis.com.br')
+      end
+
+      it 'returns false' do
+        expect(subject.first_access?).to be_truthy
+      end
+    end
+  end
 end

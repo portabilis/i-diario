@@ -184,4 +184,6 @@ $(function () {
   $step.on('change', function () {
     validateExistingExams();
   })
+
+  validateExistingExams();
 });

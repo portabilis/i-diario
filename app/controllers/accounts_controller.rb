@@ -2,6 +2,7 @@ class AccountsController < ApplicationController
   def edit
     @user = current_user
     expired_password?
+    user_first_access_messages(@user) if current_user.first_access?
   end
 
   def update
@@ -10,7 +11,11 @@ class AccountsController < ApplicationController
 
     password = user_params[:password]
 
-    if weak_password?(password)
+    if current_user.first_access? && (user_params[:password].blank? || user_params[:email].include?('ambiente.portabilis.com.br'))
+      @user.email = user_params[:email]
+      user_first_access_messages(@user)
+      render :edit
+    elsif weak_password?(password)
       flash.now[:error] = t('errors.general.weak_password')
       render :edit
     else
@@ -29,6 +34,12 @@ class AccountsController < ApplicationController
     return false if days_after_last_password_change <= days_to_expire_password
 
     @expired_password = true
+  end
+
+  def user_first_access_messages(user)
+    flash[:error] = 'Atualize os dados do seu perfil, modificando a senha atual para continuar a utilizar o sistema'
+    user.errors.add(:password, :must_be_changed)
+    user.errors.add(:email, :must_be_changed) if user.email.include?('ambiente.portabilis.com.br')
   end
 
   def user_params

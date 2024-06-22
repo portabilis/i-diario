@@ -47,7 +47,7 @@
                 data: { original_title: t('views.index.tooltips.show') }) %>
           <%= link_to(
                 t('helpers.links.print_html'),
-                discipline_lesson_plan_path(discipline_lesson_plan, format: :pdf),
+                print_discipline_lesson_plans_path(id: discipline_lesson_plan),
                 class: 'btn btn-info apply_tooltip',
                 target: '_blank',
                 data: { original_title: t('views.index.tooltips.print') }) %>

@@ -16,15 +16,19 @@ function handleFetchSchoolTermTypeStepsError() {
 };
 
 function updateSchoolTermInput(schoolTermType, schoolTerm, schoolTermContainer, flashMessagesParam) {
-  var school_term_type_id = schoolTermType.select2('val');
+  school_term_type_id = schoolTermType.select2('val').trim();
+  selectedData = schoolTermType.select2('data')
+  school_term_type_data = selectedData ? selectedData.name : null;
+  selectedSchoolTermTypeId = $('#yearly_school_term_type_id').val();
+
   $schoolTermType = schoolTermType;
   $schoolTerm = schoolTerm;
   $schoolTermContainer = schoolTermContainer;
   $flashMessages = flashMessagesParam;
-  selectedSchoolTermTypeId = $('#yearly_school_term_type_id').val();
-  isSchoolTermIdValid = school_term_type_id.trim() &&
-                        school_term_type_id.trim() != selectedSchoolTermTypeId &&
-                        school_term_type_id.trim() != '2'; // 2 is the value for 'Anual' in the select2
+
+  let isSchoolTermIdValid = school_term_type_data != null &&
+    school_term_type_id != selectedSchoolTermTypeId &&
+    school_term_type_data != 'Anual (1 etapa)';
 
   if (isSchoolTermIdValid) {
     $.ajax({

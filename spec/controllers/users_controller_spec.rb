@@ -73,8 +73,9 @@ RSpec.describe UsersController, :type => :controller do
     end
 
     describe "PUT #update" do
-      let(:params) do
-        {
+      it "with correct params and a weak password" do
+
+        params = {
           locale: 'pt-BR',
           id: user.id,
           user: {
@@ -90,9 +91,7 @@ RSpec.describe UsersController, :type => :controller do
             }
           }
         }
-      end
 
-      it "with correct params and a weak password" do
         put :update, params: params
 
         expect(response).to have_http_status(:ok)
@@ -100,19 +99,24 @@ RSpec.describe UsersController, :type => :controller do
       end
 
       it "with correct params and a strong password" do
-        new_params = { user: {
-          password: '!Aa123456',
-          admin: '0',
-          user_roles_attributes: {
-            '0' => {
-              id: user_role.id,
-              role_id: user_role.role_id,
-              unity_id: unity.id,
-              _destroy: false
+        new_params = {
+          locale: 'pt-BR',
+          id: user.id,
+          user: {
+            password: '!Aa123456',
+            admin: '0',
+            user_roles_attributes: {
+              '0' => {
+                id: user_role.id,
+                role_id: user_role.role_id,
+                unity_id: unity.id,
+                _destroy: false
+              }
             }
           }
-        }}
-        put :update, params: params.merge(new_params)
+        }
+
+        put :update, params: new_params
         expect(response).to redirect_to(users_path)
       end
     end

@@ -10,7 +10,9 @@ if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
   }
 else
   redis_config = {
-    servers: ["#{Rails.application.secrets[:REDIS_URL]}/session"],
+    servers: [{
+      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SESSION]}"
+    }],
     expire_after: 12.hours,
     key: "_#{Rails.application.class.parent_name.downcase}_session",
     threadsafe: true,

@@ -19,8 +19,10 @@ $(function () {
   const copyFromObjectivesTeachingPlanAlert = document.getElementById(
     'lesson_plan_copy_from_objectives_teaching_plan_alert'
   );
+  const start_at = startAtInput.closest('div.control-group');
+  const end_at = endAtInput.closest('div.control-group');
 
-  $(".lesson_plan_attachment").on('change', onChangeFileElement);
+  $lesson_plan_attachment.on('change', onChangeFileElement);
 
   function onChangeFileElement() {
     // escopado para permitir arquivos menores que 3MB(3145728 bytes)
@@ -178,6 +180,11 @@ $(function () {
 
   if (copyTeachingPlanLink) {
     copyTeachingPlanLink.addEventListener('click', event => {
+      if (start_at.classList.contains('error') || end_at.classList.contains('error')){
+        flashMessages.error('É necessário preenchimento das datas válidas para realizar a cópia.');
+        return false;
+      }
+
       event.preventDefault();
       copyFromTeachingPlanAlert.style.display = 'none';
 
@@ -230,6 +237,11 @@ $(function () {
 
   if (copyObjectivesTeachingPlanLink) {
     copyObjectivesTeachingPlanLink.addEventListener('click', event => {
+      if (start_at.classList.contains('error') || end_at.classList.contains('error')){
+        flashMessages.error('É necessário preenchimento das datas válidas para realizar a cópia.');
+        return false;
+      }
+
       event.preventDefault();
       copyFromObjectivesTeachingPlanAlert.style.display = 'none';
 

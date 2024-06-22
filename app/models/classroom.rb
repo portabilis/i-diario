@@ -41,6 +41,7 @@ class Classroom < ApplicationRecord
   }
 
   scope :by_unity, ->(unity) { where(unity: unity) }
+  scope :by_unity_id, ->(unity_id) { where(unity_id: unity_id) }
   scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id).by_grade(grade_id).distinct }
   scope :different_than, ->(classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grades).merge(ClassroomsGrade.by_grade_id(grade_id)) }

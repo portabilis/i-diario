@@ -7,7 +7,7 @@ class TestSettingDecorator
     return unless component.general_by_school?
     return buil_tag('Todas') if component.unities.size == Unity.with_api_code.count
 
-    component.unities.map { |unity_id| buil_tag(Unity.find(unity_id).name) }.join.html_safe
+    component.unities.map { |unity_id| buil_tag(Unity.with_discarded.find(unity_id).name) }.join.html_safe
   end
 
   def buil_tag(text)

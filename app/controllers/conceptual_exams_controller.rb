@@ -25,9 +25,9 @@ class ConceptualExamsController < ApplicationController
     set_options_by_user
     discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
-    not_concept_score = discipline_score_types.none? { |discipline_score_type|
-      discipline_score_type == ScoreTypes::CONCEPT
-    }
+    not_concept_score = discipline_score_types.none? do |discipline_score_type|
+      [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT].include?(discipline_score_type)
+    end
 
     if not_concept_score
       if current_user.current_role_is_admin_or_employee?
@@ -123,7 +123,7 @@ class ConceptualExamsController < ApplicationController
 
     if @conceptual_exam.valid?
       ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id)
-                         .destroy_all
+        .destroy_all
 
       @conceptual_exam.destroy unless ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id).any?
     end
@@ -173,11 +173,11 @@ class ConceptualExamsController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
 
     discipline_score_types = (teacher_differentiated_discipline_score_types(classroom) +
-    teacher_discipline_score_types(classroom)).uniq
+                              teacher_discipline_score_types(classroom)).uniq
 
-    not_concept_score = discipline_score_types.none? { |discipline_score_type|
-      discipline_score_type.eql?(ScoreTypes::CONCEPT)
-    }
+    not_concept_score = discipline_score_types.none? do |discipline_score_type|
+      discipline_score_type.include?([ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT])
+    end
 
     render json: not_concept_score
   end
@@ -186,10 +186,10 @@ class ConceptualExamsController < ApplicationController
     return if params[:classroom_id].blank?
 
     render json: TeacherPeriodFetcher.new(
-                    current_teacher.id,
-                    params[:classroom_id],
-                    current_user_discipline
-                  ).teacher_period
+      current_teacher.id,
+      params[:classroom_id],
+      current_user_discipline
+    ).teacher_period
   end
 
   private
@@ -234,9 +234,9 @@ class ConceptualExamsController < ApplicationController
     classroom = Classroom.find(resource_params[:classroom_id])
 
     ConceptualExam.by_classroom(resource_params[:classroom_id])
-                  .by_student_id(resource_params[:student_id])
-                  .by_step_id(classroom, resource_params[:step_id])
-                  .first
+      .by_student_id(resource_params[:student_id])
+      .by_step_id(classroom, resource_params[:step_id])
+      .first
   end
 
   def find_or_initialize_conceptual_exam
@@ -266,7 +266,19 @@ class ConceptualExamsController < ApplicationController
   def missing_disciplines
     missing_disciplines = []
 
-    (@disciplines || []).each do |discipline|
+    grades = @classrooms.first.grades
+    current_step = [@conceptual_exam.step_number].to_s
+
+    disciplines_in_grade_ids = SchoolCalendarDisciplineGrade.where(
+      school_calendar: current_school_calendar,
+      grade: grades
+    ).pluck(:discipline_id, :steps).flat_map do |discipline_id, steps|
+      discipline_id if steps.nil? || steps.include?([current_step].to_s)
+    end.compact
+
+    filter_discipline = @disciplines.select { |d| d.id.in?(disciplines_in_grade_ids) }
+
+    (filter_discipline || []).each do |discipline|
       is_missing = @conceptual_exam.conceptual_exam_values.none? do |conceptual_exam_value|
         conceptual_exam_value.discipline.id == discipline.id
       end
@@ -328,9 +340,9 @@ class ConceptualExamsController < ApplicationController
 
   def disciplines_with_assignment
     TeacherDisciplineClassroom.by_classroom(@conceptual_exam.classroom_id)
-                              .by_year(current_school_calendar.year)
-                              .pluck(:discipline_id)
-                              .uniq
+      .by_year(current_school_calendar.year)
+      .pluck(:discipline_id)
+      .uniq
   end
 
   def fetch_collections
@@ -359,8 +371,8 @@ class ConceptualExamsController < ApplicationController
     )
 
     @disciplines = @disciplines.not_grouper
-                               .where.not(id: exempted_discipline_ids)
-                               .where(id: disciplines_in_grade)
+      .where.not(id: exempted_discipline_ids)
+      .where(id: disciplines_in_grade)
   end
 
   def disciplines_in_grade
@@ -374,9 +386,9 @@ class ConceptualExamsController < ApplicationController
 
   def student_grade_id
     ClassroomsGrade.by_student_id(@conceptual_exam.student_id)
-                   .by_classroom_id(@conceptual_exam.classroom_id)
-                   .first
-                   .grade_id
+      .by_classroom_id(@conceptual_exam.classroom_id)
+      .first
+      .grade_id
   end
 
   def steps_fetcher(classroom)
@@ -409,7 +421,7 @@ class ConceptualExamsController < ApplicationController
       )
 
       if @conceptual_exam.student_id.present? &&
-        @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
+          @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
         @student_enrollments << StudentEnrollment.by_student(@conceptual_exam.student_id).first
       end
 
@@ -484,8 +496,8 @@ class ConceptualExamsController < ApplicationController
 
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
     exempted_disciplines.by_discipline(discipline_id)
-                        .by_step_number(@conceptual_exam.step_number)
-                        .any?
+      .by_step_number(@conceptual_exam.step_number)
+      .any?
   end
 
   def current_teacher_period(classroom = nil)
@@ -521,15 +533,15 @@ class ConceptualExamsController < ApplicationController
 
   def fetch_conceptual_exams
     apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                .by_unity(current_unity)
-                                .by_classroom(@classrooms.map(&:id))
-                                .by_teacher(current_teacher_id)
-                                .ordered_by_date_and_student
+      .by_unity(current_unity)
+      .by_classroom(@classrooms.map(&:id))
+      .by_teacher(current_teacher_id)
+      .ordered_by_date_and_student
   end
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type(ScoreTypes::CONCEPT)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::CONCEPT)
   end
 
@@ -548,10 +560,10 @@ class ConceptualExamsController < ApplicationController
 
   def current_year_steps
     @current_year_steps ||= begin
-      steps = steps_fetcher(@classroom).steps if @classroom.present?
-      year = current_school_year || current_school_calendar.year
-      steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
-      steps
-    end
+                              steps = steps_fetcher(@classroom).steps if @classroom.present?
+                              year = current_school_year || current_school_calendar.year
+                              steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
+                              steps
+                            end
   end
 end

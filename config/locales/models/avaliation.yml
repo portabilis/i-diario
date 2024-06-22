@@ -47,7 +47,7 @@ pt-BR:
                 cant_be_greater_than: "não pode ser maior que %{value}"
               grades:
                 should_be_in_test_setting: 'devem estar na configuração de avaliação'
-                discipline_not_in_grades: 'não tem essa disciplina nessas series'
+                discipline_not_in_grades: 'As séries selecionadas não possuem esta disciplina na grade curricular.'
 
   errors:
     avaliations:

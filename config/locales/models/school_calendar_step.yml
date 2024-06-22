@@ -23,8 +23,5 @@ pt-BR:
             end_at:
               end_at_must_be_valid: "não pode maior que %{valid_date}"
               must_not_have_conflicting_steps: "A data informada não pode ser um dia letivo em outro calendário escolar"
-            start_date_for_posting:
-              must_be_greater_than_start_at: "não pode ser menor que a data inicial"
             end_date_for_posting:
-              must_be_greater_than_start_at: "não pode ser menor que a data inicial"
               must_be_greater_than_start_date_for_posting: "não pode ser menor que a data inicial para lançamentos"

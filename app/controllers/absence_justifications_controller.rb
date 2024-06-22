@@ -248,17 +248,11 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:absence_date].to_date
-    rescue ArgumentError
-      @absence_justification.absence_date = ''
-    end
+    absence_date = resource_params[:absence_date]
+    absence_date_end = resource_params[:absence_date_end]
 
-    begin
-      resource_params[:absence_date_end].to_date
-    rescue ArgumentError
-      @absence_justification.absence_date_end = ''
-    end
+    @absence_justification.absence_date = '' unless absence_date.try(:to_date)
+    @absence_justification.absence_date_end = '' unless absence_date_end.try(:to_date)
   end
 
   def fetch_absence_justifications_by_user
@@ -270,7 +264,7 @@ class AbsenceJustificationsController < ApplicationController
                           .by_unity(current_unity)
                           .where(classroom_id: @classrooms.map(&:id))
                           .by_school_calendar(current_school_calendar)
-                          .filter(filtering_params(params[:search]))
+                          .filter_from_params(filtering_params(params[:search]))
                           .includes(:students).distinct.ordered
     )
   end
