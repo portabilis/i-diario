@@ -44,7 +44,6 @@ class StudentEnrollmentClassroomsRetriever
 
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
-    # Nao filtra as enturmacoes caso municipio tenha DATABASE
     if enrollment_classrooms.show_as_inactive.blank?
       enrollment_classrooms = search_by_search_type(enrollment_classrooms)
       enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
@@ -99,7 +98,9 @@ class StudentEnrollmentClassroomsRetriever
   def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    last_student_classroom = enrollment_classrooms.select{ |ec| ec.left_at.blank? }
+    last_student_classroom = enrollment_classrooms.select do |ec|
+      ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date)
+    end
   end
 
   def show_inactive_enrollments
