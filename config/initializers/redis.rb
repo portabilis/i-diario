@@ -1,29 +1,9 @@
-def redis_dev
-  $REDIS_DB = nil
-
-  Sidekiq.configure_server do |config|
-    config.redis = nil
-  end
-
-  Sidekiq.configure_client do |config|
-    config.redis = nil
-  end
-end
-
-def configure_redis
-  if Rails.application.secrets[:REDIS_URL].blank? || Rails.application.secrets[:REDIS_DB_SIDEKIQ].blank?
-    raise "Redis URL or DB sidekiq is not set in secrets"
-  end
-
-  if Rails.application.secrets[:REDIS_MODE] == 'sentinel'
-    if Rails.application.secrets[:REDIS_SENTINELS].blank?
-      raise "Redis sentinels are not set in secrets"
-    end
-
+unless Rails.env.test? || Rails.env.development?
+  if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
     config_redis = {
       url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}",
       role: "master",
-      sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host, port: 26379 }}
+      sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host,  port: 26379 }}
     }
   else
     config_redis = {
@@ -40,10 +20,4 @@ def configure_redis
   Sidekiq.configure_client do |config|
     config.redis = config_redis
   end
-end
-
-if Rails.env.test? || Rails.env.development?
-  redis_dev
-else
-  configure_redis
 end
