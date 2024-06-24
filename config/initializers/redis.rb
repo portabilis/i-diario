@@ -12,16 +12,14 @@ def configure_redis
   end
 
   if Rails.application.secrets[:REDIS_MODE] == 'sentinel'
-    redis_sentinels = Rails.application.secrets[:REDIS_SENTINELS]
-
-    if redis_sentinels.blank?
+    if Rails.application.secrets[:REDIS_SENTINELS].blank?
       raise "Redis sentinels are not set in secrets"
     end
 
     config_redis = {
       url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}",
       role: "master",
-      sentinels: redis_sentinels.split(";").map { |host| { host: host, port: 26379 }}
+      sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host, port: 26379 }}
     }
   else
     config_redis = {
