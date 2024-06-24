@@ -4,6 +4,10 @@ def redis_dev
   Sidekiq.configure_server do |config|
     config.redis = nil
   end
+
+  Sidekiq.configure_client do |config|
+    config.redis = nil
+  end
 end
 
 def configure_redis
@@ -30,6 +34,10 @@ def configure_redis
   $REDIS_DB = Redis.new(config_redis)
 
   Sidekiq.configure_server do |config|
+    config.redis = config_redis
+  end
+
+  Sidekiq.configure_client do |config|
     config.redis = config_redis
   end
 end
