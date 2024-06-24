@@ -7,10 +7,7 @@ def redis_dev
 end
 
 def configure_redis
-  redis_url = Rails.application.secrets[:REDIS_URL]
-  redis_db_sidekiq = Rails.application.secrets[:REDIS_DB_SIDEKIQ]
-
-  if redis_url.blank? || redis_db_sidekiq.blank?
+  if Rails.application.secrets[:REDIS_URL].blank? || Rails.application.secrets[:REDIS_DB_SIDEKIQ].blank?
     raise "Redis URL or DB sidekiq is not set in secrets"
   end
 
@@ -22,13 +19,13 @@ def configure_redis
     end
 
     config_redis = {
-      url: "#{redis_url}#{redis_db_sidekiq}",
+      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}",
       role: "master",
       sentinels: redis_sentinels.split(";").map { |host| { host: host, port: 26379 }}
     }
   else
     config_redis = {
-      url: "#{redis_url}#{redis_db_sidekiq}"
+      url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}"
     }
   end
 
