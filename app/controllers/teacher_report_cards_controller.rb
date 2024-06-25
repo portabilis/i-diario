@@ -134,7 +134,7 @@ class TeacherReportCardsController < ApplicationController
   end
 
   def fetch_options_by_admin
-    @classrooms ||= Classroom.by_unity_id(@teacher_report_card_form.unity_id)
+    @classrooms ||= Classroom.by_unity(@teacher_report_card_form.unity_id)
                              .by_grade(@teacher_report_card_form.grade_id)
                              .by_year(current_user_school_year || Date.current.year)
                              .ordered
