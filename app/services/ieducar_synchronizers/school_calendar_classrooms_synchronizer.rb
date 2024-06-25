@@ -43,11 +43,11 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
         begin
           SchoolCalendarClassroom.find_or_initialize_by(
-            classroom_id: classroom_id
+            classroom_id: classroom_id,
+            school_calendar_id: school_calendar.id
           ).tap do |school_calendar_classroom|
             school_calendar_classroom.step_type_description = school_calendar_classroom_record.descricao
-            school_calendar_classroom.school_calendar_id = school_calendar.id
-
+            
             school_calendar_classroom.save! if school_calendar_classroom.changed?
 
             @school_calendar_classroom_steps_ids = []
