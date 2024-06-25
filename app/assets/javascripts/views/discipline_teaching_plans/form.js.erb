@@ -6,7 +6,7 @@ $(function () {
 
   var $unity = $('#discipline_teaching_plan_teaching_plan_attributes_unity_id');
   var $grade = $('#discipline_teaching_plan_teaching_plan_attributes_grade_id');
-  var $year = $('#discipline_teaching_plan_teaching_plan_year');
+  var $year =$('#discipline_teaching_plan_teaching_plan_attributes_year');
   var $discipline = $('#discipline_teaching_plan_discipline_id');
   var $schoolTermType = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type_id');
   var $schoolTermContainer = $('#school-term-container');
@@ -17,7 +17,7 @@ $(function () {
   function fetchDisciplines() {
     var unity_id = $unity.select2('val');
     var grade_id = $grade.select2('val');
-    var year = $year.select2('val');
+    var year = $year.val();
 
     $discipline.select2('val', '');
     $discipline.select2({ data: [] });
