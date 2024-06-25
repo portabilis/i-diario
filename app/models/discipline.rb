@@ -18,10 +18,10 @@ class Discipline < ApplicationRecord
   validates :description, :api_code, :knowledge_area_id, presence: true
   validates :api_code, uniqueness: true
 
-  scope :by_unity_id, lambda { |unity_id, year| by_unity_id(unity_id, year) }
+  scope :by_unity_id, lambda { |unity_id, year| self.by_unity_year(unity_id, year)}
   scope :by_teacher_id, lambda { |teacher_id, year|
-    joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms:
-      { teacher_id: teacher_id , year: year}).distinct
+    joins(:teacher_discipline_classrooms)
+      .where(teacher_discipline_classrooms: { teacher_id: teacher_id, year: year}).distinct
   }
   scope :by_classroom_id, lambda { |classroom_id|
     joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { classroom_id: classroom_id }).distinct
@@ -110,17 +110,17 @@ class Discipline < ApplicationRecord
 
   private
 
-  def self.by_unity_id(unity_id, year)
+  def self.by_unity_year(unity_id, year)
     joins(:teacher_discipline_classrooms).joins(
-        arel_table.join(Classroom.arel_table)
-          .on(
-            Classroom.arel_table[:id]
-              .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-          )
-          .join_sources
-      )
-      .where(classrooms: { unity_id: unity_id, year: year})
-      .distinct
+      arel_table.join(Classroom.arel_table)
+        .on(
+          Classroom.arel_table[:id]
+            .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
+        )
+        .join_sources
+    )
+    .where(classrooms: { unity_id: unity_id, year: year})
+    .distinct
   end
 
   def self.by_grade(grade_id)
