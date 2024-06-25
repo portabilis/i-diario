@@ -81,7 +81,7 @@ class AbsenceJustificationReportController < ApplicationController
 
     return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
-    @classrooms ||= Classroom.by_unity_id(@absence_justification_report_form.unity_id)
+    @classrooms ||= Classroom.by_unity(@absence_justification_report_form.unity_id)
                              .by_year(current_user_school_year || Date.current.year)
                              .ordered
   end
