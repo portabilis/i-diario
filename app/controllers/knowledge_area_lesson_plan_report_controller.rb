@@ -81,7 +81,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
   def fetch_collections
     @number_of_classes = current_school_calendar.number_of_classes
     @knowledge_areas = KnowledgeArea.all
-    @classrooms = Classroom.by_unity_id(@knowledge_area_lesson_plan_report_form.unity_id)
+    @classrooms = Classroom.by_unity(@knowledge_area_lesson_plan_report_form.unity_id)
                            .by_year(current_user_school_year || Date.current.year)
                            .ordered
   end
