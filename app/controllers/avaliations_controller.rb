@@ -324,7 +324,7 @@ class AvaliationsController < ApplicationController
   def classrooms_for_multiple_classrooms
     return [] if @avaliation_multiple_creator_form.discipline_id.blank?
 
-    @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_unity.id)
+    @classrooms_for_multiple_classrooms ||= Classroom.by_unity(current_unity.id)
                                                      .by_teacher_id(current_teacher.id)
                                                      .by_teacher_discipline(
                                                        @avaliation_multiple_creator_form.discipline_id
