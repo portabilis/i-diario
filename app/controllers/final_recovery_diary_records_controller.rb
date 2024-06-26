@@ -7,8 +7,11 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    set_options_by_user
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
 
+    fetch_linked_by_teacher
     fetch_recovery_diary_records_by_user
 
     authorize @final_recovery_diary_records
