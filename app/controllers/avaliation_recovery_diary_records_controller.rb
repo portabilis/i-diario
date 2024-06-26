@@ -7,8 +7,12 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    set_options_by_user
-    fetch_avaliation_recovery_diary_records_by_user
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    fetch_linked_by_teacher
+    fetch_avaliation_recovery_diary_records
 
     authorize @avaliation_recovery_diary_records
 
@@ -125,7 +129,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   private
 
-  def fetch_avaliation_recovery_diary_records_by_user
+  def fetch_avaliation_recovery_diary_records
     @avaliation_recovery_diary_records =
       apply_scopes(AvaliationRecoveryDiaryRecord)
         .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
@@ -317,12 +321,10 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= fetch_classrooms
-      @disciplines ||= fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
+    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= fetch_classrooms
+    @disciplines ||= fetch_disciplines
   end
 
   def fetch_linked_by_teacher
