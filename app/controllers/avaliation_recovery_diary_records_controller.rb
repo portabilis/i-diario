@@ -353,6 +353,12 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def steps_fetcher
-    @steps_fetcher ||= StepsFetcher.new(@avaliation_recovery_diary_record.classroom)
+    classroom = if @avaliation_recovery_diary_record.present?
+                  @avaliation_recovery_diary_record.recovery_diary_record.classroom
+                else
+                  current_user_classroom
+                end
+
+    @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 end
