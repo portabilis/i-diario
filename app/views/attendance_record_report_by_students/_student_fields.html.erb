@@ -28,7 +28,13 @@
             <td><%= sequence %></td>
           <% end %>
           <td><%= student[:student_name] %></td>
-          <td><%= "#{student[:frequency][:percentage_frequency]}%" %></td>
+          <td>
+            <% if student[:frequency].nil? %>
+              0%
+            <% else %>
+              <%= "#{student[:frequency][:percentage_frequency]}%" %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>

@@ -14,6 +14,8 @@ pt-BR:
         grade_id: "Série"
         school_term_type: "Tipo de período escolar"
         school_term_type_step: "Período escolar"
+        school_term_type_id: "Tipo de período escolar"
+        school_term_type_step_id: "Período escolar"
         objectives: "Objetivos"
         objectives_tags: "Objetivos"
         methodology: "Metodologia"

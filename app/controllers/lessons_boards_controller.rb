@@ -308,6 +308,7 @@ class LessonsBoardsController < ApplicationController
     grades_to_select2 = []
     grades = Grade.includes(:course)
                   .by_unity(unity_id)
+                  .by_year(current_school_year)
                   .ordered
 
     grades.each do |grade|

@@ -28,7 +28,7 @@ class RemoveDailyNoteStudents
   end
 
   def student_inactive_in_date?
-    @date_avaliation < joined_at.to_date || @date_avaliation >= left_at.to_date
+    @date_avaliation < joined_at.to_date && @date_avaliation >= left_at.to_date
   end
 
   private

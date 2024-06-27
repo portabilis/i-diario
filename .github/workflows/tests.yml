@@ -9,10 +9,10 @@ on:
 
 jobs:
   default:
-
     name: Unit and Integration
 
-    if: '! github.event.pull_request.draft'
+    if: "! github.event.pull_request.draft"
+
 
     runs-on: ubuntu-latest
 
@@ -47,8 +47,8 @@ jobs:
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.6.6'
-          bundler: '2.4.22'
+          ruby-version: "2.6.6"
+          bundler: "2.4.22"
           bundler-cache: true
         env:
           ImageOS: ubuntu20
@@ -60,8 +60,12 @@ jobs:
         run: |
           echo -e "
             test:
-              secret_key_base: `bundle exec rails secret`
-              redis_url: redis://localhost:6379
+              secret_key_base: `bundle exec rake secret`
+              REDIS_URL: 'redis://localhost:6379/'
+              REDIS_DB_CACHE: '0'
+              REDIS_DB_SESSION: '1'
+              REDIS_DB_SIDEKIQ: '2'
+              REDIS_MODE: 'standalone'
           " > config/secrets.yml
 
       - name: Migrate

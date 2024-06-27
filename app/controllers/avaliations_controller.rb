@@ -38,10 +38,7 @@ class AvaliationsController < ApplicationController
     return if not_allow_numerical_exam
 
     fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-    @grades = current_user_classroom.classrooms_grades
-                                    .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
-                                    .map(&:grade)
-
+    grades
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
     @avaliation.classroom = current_user_classroom
@@ -60,6 +57,7 @@ class AvaliationsController < ApplicationController
 
     fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
 
+    disciplines_for_multiple_classrooms
     set_avaliation_multiple_creator_by_user
 
     authorize Avaliation.new
@@ -104,9 +102,13 @@ class AvaliationsController < ApplicationController
       respond_to_save
     else
       @avaliation = resource
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-      fetch_disciplines_by_classroom
 
+      if current_user.current_role_is_admin_or_employee?
+        grades
+      else
+        fetch_linked_by_teacher
+      end
+      fetch_disciplines_by_classroom
       test_settings
 
       render :new
@@ -315,13 +317,15 @@ class AvaliationsController < ApplicationController
 
   def disciplines_for_multiple_classrooms
     if current_user.current_role_is_admin_or_employee?
-      return @disciplines ||= Discipline.by_unity_id(current_unity.id).by_teacher_id(current_teacher.id).ordered
+      return @disciplines ||= Discipline.by_unity_id(current_unity.id, current_school_year)
+                                        .by_teacher_id(current_teacher.id, current_school_year)
+                                        .ordered
+
     end
 
     fetch_linked_by_teacher
     @disciplines
   end
-  helper_method :disciplines_for_multiple_classrooms
 
   def classrooms_for_multiple_classrooms
     return [] if @avaliation_multiple_creator_form.discipline_id.blank?
@@ -470,5 +474,12 @@ class AvaliationsController < ApplicationController
 
     @disciplines = @disciplines.by_classroom_id(classrooms.map(&:id)).not_descriptor
     @grades = @classroom_grades.by_classroom_id(classrooms.map(&:id)).map(&:grade).uniq
+  end
+
+  def grades
+    @grades = current_user_classroom
+                .classrooms_grades
+                .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+                .map(&:grade)
   end
 end
