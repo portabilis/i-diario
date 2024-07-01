@@ -21,7 +21,8 @@
               <td>Exporta os dados de todas as telas/tabelas do sistema</td>
               <td>
                 <% if @last_full_system_backup.completed? %>
-                  <%= link_to @last_full_system_backup.created_at, @last_full_system_backup.backup_file_url %>
+                  <%= link_to @last_full_system_backup.created_at.strftime("%d/%m/%Y %H:%M"),
+                              @last_full_system_backup.backup_file_url %>
                 <% elsif @last_full_system_backup.error? %>
                   Erro: <%= @last_full_system_backup.error_message %>
                 <% end %>
@@ -45,7 +46,7 @@
               </td>
               <td>
                 <% if @last_school_calendar_backup.completed? %>
-                  <%= link_to @last_school_calendar_backup.created_at,
+                  <%= link_to @last_school_calendar_backup.created_at.strftime("%d/%m/%Y %H:%M"),
                     @last_school_calendar_backup.backup_file_url %>
                 <% elsif @last_school_calendar_backup.error? %>
                   Erro: <%= @last_school_calendar_backup.error_message %>
@@ -70,7 +71,7 @@
               </td>
               <td>
                 <% if @last_unique_school_days_backup.completed? %>
-                  <%= link_to @last_unique_school_days_backup.created_at,
+                  <%= link_to @last_unique_school_days_backup.created_at.strftime("%d/%m/%Y %H:%M"),
                               @last_unique_school_days_backup.backup_file_url %>
                 <% elsif @last_unique_school_days_backup.error? %>
                   Erro: <%= @last_unique_school_days_backup.error_message %>
