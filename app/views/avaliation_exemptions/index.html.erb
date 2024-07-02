@@ -4,13 +4,13 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <td></td>
-            <td><%= f.input :by_grade_description, label: false, placeholder: t('.by_grade') %></td>
-            <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom') %></td>
-            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
-            <td><%= f.input :by_avaliation_description, label: false, placeholder: t('.by_avaliation') %></td>
-            <td><%= f.input :by_created_at, as: :date, label: false, placeholder: t('.by_created_at') %></td>
-            <td><%= link_to t('.new_html'), new_avaliation_exemption_path, class: 'btn btn-primary pull-right' %></td>
+            <th></th>
+            <th><%= f.input :by_grade_description, label: false, placeholder: t('.by_grade') %></th>
+            <th><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom') %></th>
+            <th><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></th>
+            <th><%= f.input :by_avaliation_description, label: false, placeholder: t('.by_avaliation') %></th>
+            <th><%= f.input :by_created_at, as: :date, label: false, placeholder: t('.by_created_at') %></th>
+            <th><%= link_to t('.new_html'), new_avaliation_exemption_path, class: 'btn btn-primary pull-right' %></th>
           </tr>
           <tr>
             <th><%= AvaliationExemption.human_attribute_name :unity %></th>
