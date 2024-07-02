@@ -25,6 +25,6 @@ class TeachingPlanAttachment < ApplicationRecord
 
     self.attachment_file_name = attachment.file.filename
     self.attachment_content_type = attachment.file.content_type
-    self.attachment_file_size = attachment.file.size
+    self.attachment_file_size = "#{attachment.file.size} kB"
   end
 end
