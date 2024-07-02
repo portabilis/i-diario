@@ -10,16 +10,6 @@
     <%= render '/layouts/not_logged_header' %>
 
     <div id="main" role="main" class="animated fadeInDown">
-      <% if Date.current.month == 10 %>
-        <a href="https://www.google.com.br/#q=outubro+rosa+<%= "#{Date.current.year}" %>" target="_blank">
-           <%= image_tag 'outubro_rosa.svg', width: '100px', height: '100px', class: 'custom-login-image' %>
-        </a>
-      <% end %>
-      <% if Date.current.month == 11 %>
-        <a href="https://www.google.com.br/#q=novembro+azul+<%= "#{Date.current.year}" %>" target="_blank">
-          <%= image_tag 'novembro-azul.jpg', width: '55px', height: '100px', class: 'custom-login-image' %>
-        </a>
-      <% end %>
       <div id="content" class="container">
         <div class="row">
 
