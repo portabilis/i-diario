@@ -5,34 +5,34 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <th></th>
-            <th>
+            <th scope="col"></th>
+            <th scope="col">
               <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
                             label: false, placeholder: t('.by_classroom_id') %>
             </th>
-            <th>
+            <th scope="col">
               <%= f.input :by_discipline_id, as: :select2, elements: @disciplines,
                            label: false, placeholder: t('.by_discipline_id') %>
             </th>
-            <th>
+            <th scope="col">
               <%= f.input :by_step_id, as: :select2_step, classroom: current_user_classroom,
                 label: false, placeholder: t('.by_step_id') %>
             </th>
-            <th>
+            <th scope="col">
               <%= f.input :by_created_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>
             </th>
-            <th>
+            <th scope="col">
               <%= link_to t('.new_html'), new_avaliation_recovery_lowest_note_path, class: 'btn btn-primary pull-right' %>
             </th>
           </tr>
 
           <tr>
-            <th><%= RecoveryDiaryRecord.human_attribute_name :unity %></th>
-            <th><%= RecoveryDiaryRecord.human_attribute_name :classroom %></th>
-            <th><%= RecoveryDiaryRecord.human_attribute_name :discipline %>
-            <th width="16%"><%= AvaliationRecoveryLowestNote.human_attribute_name :step %></th>
-            <th width="10%"><%= RecoveryDiaryRecord.human_attribute_name :recorded_at %></th>
-            <th width="160px"></th>
+            <th scope="col"><%= RecoveryDiaryRecord.human_attribute_name :unity %></th>
+            <th scope="col"><%= RecoveryDiaryRecord.human_attribute_name :classroom %></th>
+            <th scope="col"><%= RecoveryDiaryRecord.human_attribute_name :discipline %>
+            <th scope="col" style="width: 16%"><%= AvaliationRecoveryLowestNote.human_attribute_name :step %></th>
+            <th scope="col" style="width: 10%"><%= RecoveryDiaryRecord.human_attribute_name :recorded_at %></th>
+            <th scope="col" style="width: 160px"></th>
           </tr>
         </thead>
 
