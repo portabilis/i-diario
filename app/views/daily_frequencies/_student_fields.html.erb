@@ -48,6 +48,7 @@
             <label class="checkbox checkbox-frequency <%= ignore_student ? "state-disabled" : "" %>">
               <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
               <i></i>
+              <input type="checkbox" class="hide">
               <span class="hide">Lançar frequência</span>
             </label>
           <% end %>
