@@ -26,13 +26,13 @@
             <th scope="col" class='actions' style='min-width: 155px;'><%= link_to t('.new_html'), new_custom_rounding_table_path, class: 'btn btn-primary' %></th>
           </tr>
           <tr>
-            <th><%= CustomRoundingTable.human_attribute_name :name %></th>
-            <th><%= CustomRoundingTable.human_attribute_name :unities %></th>
-            <th><%= CustomRoundingTable.human_attribute_name :courses %></th>
-            <th><%= CustomRoundingTable.human_attribute_name :grades %></th>
-            <th><%= CustomRoundingTable.human_attribute_name :avaliations %></th>
-            <th><%= CustomRoundingTable.human_attribute_name :year %></th>
-            <th></th>
+            <th scope="col"><%= CustomRoundingTable.human_attribute_name :name %></th>
+            <th scope="col"><%= CustomRoundingTable.human_attribute_name :unities %></th>
+            <th scope="col"><%= CustomRoundingTable.human_attribute_name :courses %></th>
+            <th scope="col"><%= CustomRoundingTable.human_attribute_name :grades %></th>
+            <th scope="col"><%= CustomRoundingTable.human_attribute_name :avaliations %></th>
+            <th scope="col"><%= CustomRoundingTable.human_attribute_name :year %></th>
+            <th scope="col"></th>
           </tr>
         </thead>
 
