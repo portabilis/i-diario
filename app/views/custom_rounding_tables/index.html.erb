@@ -4,26 +4,26 @@
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <td style='width: 21%;'>
+            <th scope="col" style='width: 21%;'>
               <%= f.input :by_name, label: false, placeholder: t('.by_name') %>
-            </td>
-            <td style='width: 26%;'>
+            </th>
+            <th scope="col" style='width: 26%;'>
               <%= f.input :by_unity, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity') %>
-            </td>
-            <td style='width: 19%;'>
+            </th>
+            <th scope="col" style='width: 19%;'>
               <%= f.input :by_course, as: :select2, elements: @courses, label: false, placeholder: t('.by_course') %>
-            </td>
-            <td style='width: 12%;'>
+            </th>
+            <th scope="col" style='width: 12%;'>
               <%= f.input :by_grade, as: :select2, elements: @grades, label: false, placeholder: t('.by_grade') %>
-            </td>
-            <td style='width: 12%;'>
+            </th>
+            <th scope="col" style='width: 12%;'>
               <%= f.input :by_avaliation, as: :select2, elements: @rounded_avaliations, label: false,
                 placeholder: t('.by_avaliation') %>
-            </td>
-            <td style='width: 10%;'>
+            </th>
+            <th scope="col" style='width: 10%;'>
               <%= f.input :by_year, label: false, placeholder: t('.by_year') %>
-            </td>
-            <td class='actions' style='min-width: 155px;'><%= link_to t('.new_html'), new_custom_rounding_table_path, class: 'btn btn-primary' %></td>
+            </th>
+            <th scope="col" class='actions' style='min-width: 155px;'><%= link_to t('.new_html'), new_custom_rounding_table_path, class: 'btn btn-primary' %></th>
           </tr>
           <tr>
             <th><%= CustomRoundingTable.human_attribute_name :name %></th>
