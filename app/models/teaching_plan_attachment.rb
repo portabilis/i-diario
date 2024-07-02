@@ -1,4 +1,6 @@
 class TeachingPlanAttachment < ApplicationRecord
+  audited associated_with: :teaching_plan
+
   belongs_to :teaching_plan
 
   mount_uploader :attachment, DocUploader
