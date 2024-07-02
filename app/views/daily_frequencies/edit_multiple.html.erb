@@ -5,16 +5,20 @@
 <div class="widget-body no-padding">
   <table class="table table-bordered table-only-inner-bordered">
     <thead>
-      <th><%= DailyFrequency.human_attribute_name :unity %></th>
-      <th><%= DailyFrequency.human_attribute_name :classroom %></th>
-      <th><%= DailyFrequency.human_attribute_name :discipline %></th>
-      <th><%= DailyFrequency.human_attribute_name :frequency_date %></th>
+      <tr>
+        <th><%= DailyFrequency.human_attribute_name :unity %></th>
+        <th><%= DailyFrequency.human_attribute_name :classroom %></th>
+        <th><%= DailyFrequency.human_attribute_name :discipline %></th>
+        <th><%= DailyFrequency.human_attribute_name :frequency_date %></th>
+      </tr>
     </thead>
     <tbody style="border-bottom: 1px solid #ccc;">
-      <td><%= @daily_frequencies.first.classroom.unity %></td>
-      <td><%= @daily_frequencies.first.classroom %></td>
-      <td><%= @daily_frequencies.first.discipline || 'Todas' %></td>
-      <td><%= l(@daily_frequencies.first.frequency_date) %></td>
+      <tr>
+        <td><%= @daily_frequencies.first.classroom.unity %></td>
+        <td><%= @daily_frequencies.first.classroom %></td>
+        <td><%= @daily_frequencies.first.discipline || 'Todas' %></td>
+        <td><%= l(@daily_frequencies.first.frequency_date) %></td>
+      </tr>
     </tbody>
   </table>
 
@@ -28,6 +32,7 @@
         <label class="checkbox checkbox-frequency">
           <input type="checkbox" checked disabled>
           <i></i>
+          <span class="hide">Presente</span>
         </label>
         Presente
       </div>
@@ -44,6 +49,7 @@
         <label title="" class="checkbox checkbox-frequency justified">
           <input type="checkbox" disabled>
           <i></i>
+          <span class="hide">Falta justificada</span>
         </label>
         Falta justificada
       </div>
