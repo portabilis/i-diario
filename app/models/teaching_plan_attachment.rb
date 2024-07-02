@@ -10,11 +10,21 @@ class TeachingPlanAttachment < ApplicationRecord
 
   validate :attachment_extension_whitelist
 
+  before_save :set_attachment_attributes
+
   private
 
   def attachment_extension_whitelist
-    if attachment.present? && !attachment.file.extension.match(/\A(jpeg|jpg|png|gif|pdf|odt|doc|docx|ods|xls|xlsx|odp|ppt|pptx|odg|xml|csv)\z/i)
-      errors.add(:attachment, "Somente arquivos nos formatos JPEG, JPG, PNG, GIF, PDF, ODT, DOC, DOCX, ODS, XLS, XLSX, ODP, PPT, PPTX, ODG, XML, or CSV file")
-    end
+    return unless attachment.present? && !attachment.file.extension.match(/\A(jpeg|jpg|png|gif|pdf|odt|doc|docx|ods|xls|xlsx|odp|ppt|pptx|odg|xml|csv)\z/i)
+
+    errors.add(:attachment, "Somente arquivos nos formatos JPEG, JPG, PNG, GIF, PDF, ODT, DOC, DOCX, ODS, XLS, XLSX, ODP, PPT, PPTX, ODG, XML, or CSV file")
+  end
+
+  def set_attachment_attributes
+    return unless attachment.present? && attachment.file.present?
+
+    self.attachment_file_name = attachment.file.filename
+    self.attachment_content_type = attachment.file.content_type
+    self.attachment_file_size = attachment.file.size
   end
 end
