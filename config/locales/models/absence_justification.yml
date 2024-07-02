@@ -27,7 +27,7 @@ pt-BR:
         teacher_id: "Professor"
         legacy: "Antigo?"
         user_id: "Usuário"
-        discarded_at: "Descartado ?"
+        discarded_at: "Descartado?"
 
     errors:
       models:
