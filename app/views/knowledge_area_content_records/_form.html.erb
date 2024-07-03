@@ -70,10 +70,10 @@
                 <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
                 <% if content.is_editable %>
                   <div style="width: 80px;">
-                    <a role="button" class="btn btn-success" onclick="editContent('content_record_<%= content.id %>')" onkeyup="editContent('content_record_<%= content.id %>')">
+                    <a href="#" class="btn btn-success" onclick="editContent('content_record_<%= content.id %>')" onkeyup="editContent('content_record_<%= content.id %>')">
                       <i class="fa fa-pencil"></i>
                     </a>
-                    <a role="button" class="btn btn-danger" onclick="removeContent('content_record_<%= content.id %>')" onkeyup="removeContent('content_record_<%= content.id %>')">
+                    <a href="#" class="btn btn-danger" onclick="removeContent('content_record_<%= content.id %>')" onkeyup="removeContent('content_record_<%= content.id %>')">
                       <i class="fa fa-trash"></i>
                     </a>
                   </div>
