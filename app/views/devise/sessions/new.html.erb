@@ -15,7 +15,7 @@
         <%= f.label :password, class: "label" %>
         <label class="input">
           <i class="icon-append fa fa-eye-slash" id="eye" style="cursor: pointer;
-            position: absolute; color: #188ad1" onclick="return showPassword();" role="button" >
+            position: absolute; color: #188ad1" onclick="return showPassword();" onkeyup="showPassword()" role="button" >
           </i>
           <%= f.input_field :password, required: false %>
         </label>
