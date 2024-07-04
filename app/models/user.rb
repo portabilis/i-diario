@@ -230,7 +230,8 @@ class User < ApplicationRecord
     return true if admin?
     return unless current_user_role
 
-    current_user_role.role.can_show?(feature)
+    return true if current_user_role.role.can_show?(feature)
+    permissions.can_show?(feature)
   end
 
   def can_change?(feature)
@@ -240,7 +241,8 @@ class User < ApplicationRecord
     return true if admin?
     return unless current_user_role
 
-    current_user_role.role.can_change?(feature)
+    return true if current_user_role.role.can_change?(feature)
+    permissions.can_change?(feature)
   end
 
   def update_tracked_fields!(request)
