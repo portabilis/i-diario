@@ -29,6 +29,8 @@ class UsersController < ApplicationController
     roles
 
     authorize @user
+    @user.build_permissions!
+    fetch_permissions
   end
 
   def update
@@ -44,6 +46,7 @@ class UsersController < ApplicationController
       respond_with @user, location: users_path
     else
       @teachers = Teacher.active.order_by_name
+      @active_user_tab = true
 
       render :edit
     end
@@ -173,5 +176,17 @@ class UsersController < ApplicationController
     return true if params_search.blank?
 
     params_search.values.any?(&:present?)
+  end
+
+  def fetch_permissions
+    @active_user_tab = ActiveRecord::Type::Boolean.new.cast(params[:active_user_tab]) || false
+    @active_user_tab = true if params[:active_user_tab].blank? && params[:active_permissions_tab].blank?
+    @permissions = @user.permissions.first.new_record? ? @user.permissions : access_level_permissions(@user)
+  end
+
+  def access_level_permissions(user)
+    user.permissions.select { |permission|
+      permission.access_level_has_feature?(user.roles.map(&:access_level))
+    }
   end
 end

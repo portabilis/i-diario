@@ -37,6 +37,7 @@ class User < ApplicationRecord
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
+  has_many :permissions, class_name: "UserPermission", dependent: :destroy
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id,
     dependent: :restrict_with_error
@@ -93,6 +94,17 @@ class User < ApplicationRecord
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
+
+  def build_permissions!
+    Features.list.each do |feature|
+      next if permissions.where(feature: feature).exists?
+
+      permissions.new(
+        feature: feature,
+        permission: Permissions::DENIED
+      )
+    end
+  end
 
   def self.current=(user)
     Thread.current[:user] = user
