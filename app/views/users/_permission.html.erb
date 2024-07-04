@@ -17,7 +17,7 @@
   <%= hidden_field_tag :user_id, f.object.id %>
 
   <% @permissions.each do |permission| %>
-    <%= f.fields_for :user_permissions,
+    <%= f.fields_for :permissions,
         @user.permissions.find_by(permission: permission) do |p| %>
       <tr class="nested-fields" id="user-<%= permission.feature %>" <%= access_level_tags(permission) %> >
         <td>
