@@ -53,6 +53,7 @@ class User < ApplicationRecord
   has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :permissions, reject_if: :all_blank, allow_destroy: true
 
   mount_uploader :profile_picture, UserProfilePictureUploader
 

@@ -128,8 +128,8 @@ class UsersController < ApplicationController
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
       ],
-      :user_permissions => [
-        :id, :feature, :permission
+      :permissions_attributes => [
+        :id, :feature, :permission, :user_id
       ]
     )
   end
