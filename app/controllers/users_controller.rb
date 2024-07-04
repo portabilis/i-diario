@@ -127,6 +127,9 @@ class UsersController < ApplicationController
       :authorize_email_and_sms, :student_id, :teacher_id, :password, :expiration_date, :admin,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
+      ],
+      :user_permissions => [
+        :id, :feature, :permission
       ]
     )
   end
