@@ -11,8 +11,8 @@
 <tr class="nested-fields" id="user-<%= f.object.feature %>" <%= access_level_tags(f.object) %> >
   <td>
     <%= f.object.feature_humanize %>
-    <%= f.hidden_field :feature, as: :hidden, value: f.object.id %>
-    <%= f.hidden_field :id, as: :hidden %>
+    <%= f.hidden_field :feature, as: :hidden, value: f.object.feature %>
+    <%= f.hidden_field :id, as: :hidden, value: f.object.id %>
   </td>
 
   <td>
