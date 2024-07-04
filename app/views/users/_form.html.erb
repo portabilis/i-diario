@@ -1,105 +1,27 @@
 <%= simple_form_for @user, html: { class: "smart-form user-form" } do |f| %>
   <%= f.error_notification %>
 
-  <fieldset>
-    <div style='position: absolute;left: -500px;'>
-      <input type='text' tabindex='-1' />
-      <input type='password' tabindex='-1' />
+  <ul class="nav nav-tabs bordered">
+    <li id='li-user' class="<%= 'active' if @active_user_tab %>">
+      <a id='a-user' href="#user" data-toggle="tab">Usuário</a>
+    </li>
+
+    <li id='li-permissions' class="<%= 'active' if  @active_permissions_tab%>">
+      <a id='a-permissions' href="#permissions" data-toggle="tab">Permissões</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane <%= 'active' if @active_user_tab %>" id="user">
+      <%= render 'user', f: f %>
     </div>
 
-    <div class="row">
-      <div class="col col-sm-3">
-        <%= f.input :first_name %>
-      </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :last_name %>
-      </div>
-
-      <div class="col col-sm-4">
-        <%= f.input :email %>
-      </div>
-
-      <% if current_user.admin? %>
-        <div class="col col-sm-2">
-          <%= f.input :admin, as: :boolean %>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="row">
-      <div class="col col-sm-6">
-        <%= f.input :login %>
-      </div>
-
-      <div class="col col-sm-2">
-        <%= f.input :cpf %>
-      </div>
-
-      <div class="col col-sm-4">
-        <%= f.input :authorize_email_and_sms %>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col col-sm-6">
-        <%= f.input :student, as: :autocomplete, url: search_autocomplete_students_path %>
-      </div>
-
-      <div class="col col-sm-6">
-        <%= f.input :teacher_id, as: :select2, elements: @teachers %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col col-sm-3">
-        <%= f.input :status, as: :select2, elements: UserStatus.to_select.to_json %>
-      </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :expiration_date %>
-      </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :phone, as: :tel %>
-      </div>
-
-      <% if current_user.can_change?("can_change_user_password") %>
-        <div class="col col-sm-3">
-          <%= f.input :password, hint: "Preencha apenas se desejar alterar a senha" %>
-        </div>
-      <% end %>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Permissões</legend>
-
-    <table class="table table-striped table-bordered table-condensed records">
-      <thead>
-        <tr>
-          <th><%= UserRole.human_attribute_name :role %></th>
-          <th><%= UserRole.human_attribute_name :unity %></th>
-          <th></th>
-        </tr>
-      </thead>
-
-      <tbody id="user-roles">
-        <%= f.association :user_roles do |p| %>
-          <%= render 'user_role_fields', f: p %>
-        <% end %>
+    <div class="tab-pane <%= 'active' if @active_permissions_tab %>" id="permissions">
+      <tbody>
+        <%= render 'permission', f: f %>
       </tbody>
-      <tfoot class="links">
-        <tr>
-          <td colspan="3">
-            <%= link_to_add_association 'Adicionar permissão', f, :user_roles,
-              class: 'btn btn-success btn-sm',
-              :"data-association-insertion-method" => "append",
-              :"data-association-insertion-node" => "#user-roles" %>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
-  </fieldset>
+    </div>
+  </div>
 
   <footer>
     <%= link_to users_path, class: "btn btn-default" do %>
