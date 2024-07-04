@@ -184,12 +184,7 @@ class UsersController < ApplicationController
   def fetch_permissions
     @active_user_tab = ActiveRecord::Type::Boolean.new.cast(params[:active_user_tab]) || false
     @active_user_tab = true if params[:active_user_tab].blank? && params[:active_permissions_tab].blank?
-    @permissions = @user.permissions.first.new_record? ? @user.permissions : access_level_permissions(@user)
-  end
 
-  def access_level_permissions(user)
-    user.permissions.select { |permission|
-      permission.access_level_has_feature?(user.roles.map(&:access_level))
-    }
+    @permissions = @user.permissions
   end
 end
