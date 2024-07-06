@@ -1,16 +1,30 @@
 $(function() {
   var selected = [];
 
+  $(document).on('click', 'ul.pagination > li > a', function(e) {
+    var onPageChange = new CustomEvent('onPageChange');
+    document.dispatchEvent(onPageChange);
+  });
+
+  document.addEventListener("onPageChange", function (e) {
+    $("#select-all").prop("checked", false)
+  })
+
   $('body').on('change', '.selected_users', function(event) {
-    selected = [];
-    $('.selected_users:checked').each(function() {
-      selected.push($(this).attr('value'));
-    });
+    selected = $('#export_selected_selected_users').val().split(",");
+
+    if ($(this).prop('checked')) {
+      selected.push($(this).attr('value'))
+    } else {
+      selected.pop($(this).attr('value'))
+    }
+
     $('#export_selected_selected_users').val(selected);
   });
 
   $('body').on('change', '#select-all', function(e) {
-    selected = [];
+    selected = $('#export_selected_selected_users').val().split(",");
+
     $('.selected_users:checked').each(function() {
       if (!_.includes(selected, $(this).attr('value'))) {
         selected.push($(this).attr('value'));
