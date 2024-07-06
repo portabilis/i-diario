@@ -12,14 +12,14 @@ $(function() {
   $('body').on('change', '#select-all', function(e) {
     selected = [];
     $('.selected_users:checked').each(function() {
-      if (!_.contains(selected, $(this).attr('value'))) {
+      if (!_.includes(selected, $(this).attr('value'))) {
         selected.push($(this).attr('value'));
       }
       $('#export_selected_selected_users').val(selected);
     });
 
     $('.selected_users').each(function() {
-      if (!_.contains(selected, $(this).attr('value'))) {
+      if (!_.includes(selected, $(this).attr('value'))) {
         selected.pop($(this).attr('value'));
       }
       $('#export_selected_selected_users').val(selected);
