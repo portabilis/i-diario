@@ -132,6 +132,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         .by_unity_id(current_unity.id)
         .by_classroom_id(@classrooms.map(&:id))
         .by_discipline_id(@disciplines.map(&:id))
+        .by_teacher_id(current_teacher.id)
         .ordered
   end
 
@@ -331,12 +332,10 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= fetch_classrooms
-      @disciplines ||= fetch_disciplines
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= fetch_classrooms
+    @disciplines ||= fetch_disciplines
   end
 
   def fetch_linked_by_teacher
