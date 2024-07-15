@@ -52,7 +52,8 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam.students.each do |exam_student|
 
       value_by_student = resource_params[:students_attributes].values.detect do |student|
-        student[:student_id] == exam_student.student_id.to_s
+        student[:student_id] == exam_student.student_id.to_s &&
+          exam_student.inactive_student == 'false' && student[:inactive_student] == 'false'
       end
       exam_student.value = value_by_student['value'] if value_by_student.present?
       exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
