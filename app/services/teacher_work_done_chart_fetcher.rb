@@ -18,34 +18,19 @@ class TeacherWorkDoneChartFetcher
       teacher_avaliations = teacher_avaliations.by_school_calendar_step(school_calendar_step)
     end
 
-    completed_daily_note_students_count = 0
-    all_daily_note_students_count = 0
+    completed_daily_note_count = 0
 
-    teacher_avaliations.each do |avaliation|
-      students = StudentEnrollmentsList.new(
-        classroom: classroom,
-        discipline: discipline,
-        date: avaliation.test_date,
-        show_inactive: false,
-        score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-        search_type: :by_date
-      ).student_enrollments
-      all_daily_note_students_count += students.count
-      all_daily_note_students_count -= AvaliationExemption.by_avaliation(avaliation.id).count
+    all_daily_notes = teacher_avaliations.map(&:daily_notes).flatten
+    all_daily_notes_count = all_daily_notes.count
+    completed_daily_note_count = all_daily_notes.select do |daily_note|
+      daily_note.status == DailyNoteStatuses::COMPLETE
+    end.count
 
-      completed_daily_note_students = DailyNoteStudent.by_avaliation(avaliation.id)
-                                                      .by_student_id(students.map(&:student_id))
-                                                      .where(active: true)
-                                                      .where.not(note: nil)
-                                                      .reject(&:exempted?)
-      completed_daily_note_students_count += completed_daily_note_students.count
-    end
-
-    pending_notes_count = all_daily_note_students_count - completed_daily_note_students_count
+    pending_notes_count = all_daily_notes_count - completed_daily_note_count
 
     {
       pending_notes_count: pending_notes_count,
-      completed_notes_count: completed_daily_note_students_count
+      completed_notes_count: completed_daily_note_count
     }
   end
 
