@@ -9,7 +9,8 @@ class TeacherWorkDoneChartFetcher
   def fetch!
     return { pending_notes_count: 0, completed_notes_count: 0 } if classroom.blank? || discipline.blank?
 
-    teacher_avaliations = Avaliation.by_classroom_id(classroom)
+    teacher_avaliations = Avaliation.includes(daily_notes: :students)
+                                    .by_classroom_id(classroom)
                                     .by_discipline_id(discipline)
 
     if classroom.calendar
