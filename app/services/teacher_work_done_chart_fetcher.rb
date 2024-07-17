@@ -18,15 +18,13 @@ class TeacherWorkDoneChartFetcher
       teacher_avaliations = teacher_avaliations.by_school_calendar_step(school_calendar_step)
     end
 
-    completed_daily_note_count = 0
-
-    all_daily_notes = teacher_avaliations.map(&:daily_notes).flatten
-    all_daily_notes_count = all_daily_notes.count
-    completed_daily_note_count = all_daily_notes.select do |daily_note|
+    all_daily_notes = teacher_avaliations.flat_map(&:daily_notes)
+    all_daily_notes -= AvaliationExemption.by_avaliation(teacher_avaliations.map(&:id)).count
+    completed_daily_note_count = all_daily_notes.count do |daily_note|
       daily_note.status == DailyNoteStatuses::COMPLETE
-    end.count
+    end
 
-    pending_notes_count = all_daily_notes_count - completed_daily_note_count
+    pending_notes_count = all_daily_notes.size - completed_daily_note_count
 
     {
       pending_notes_count: pending_notes_count,
