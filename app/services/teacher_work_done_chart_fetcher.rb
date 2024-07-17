@@ -20,10 +20,10 @@ class TeacherWorkDoneChartFetcher
     end
 
     all_daily_notes = teacher_avaliations.flat_map(&:daily_notes)
-    all_daily_notes -= AvaliationExemption.by_avaliation(teacher_avaliations.map(&:id)).count
     completed_daily_note_count = all_daily_notes.count do |daily_note|
       daily_note.status == DailyNoteStatuses::COMPLETE
     end
+    completed_daily_note_count -= AvaliationExemption.by_avaliation(teacher_avaliations.map(&:id)).count
 
     pending_notes_count = all_daily_notes.size - completed_daily_note_count
 
@@ -36,5 +36,4 @@ class TeacherWorkDoneChartFetcher
   private
 
   attr_accessor :teacher, :classroom, :discipline, :school_calendar_step
-
 end
