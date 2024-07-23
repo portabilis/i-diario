@@ -70,7 +70,6 @@ class ExamRulesSynchronizer < BaseSynchronizer
                                    .uniq
 
     Audited.audit_class.as_user(user_id: user_admin.id, username: 'Admin - Sincronização') do
-      Audit.current_audit.username = user_admin.fullname
       DescriptiveExam.where(classroom_id: classroom_ids)
                     .where.not(opinion_type: exam_rule.opinion_type)
                     .destroy_all
