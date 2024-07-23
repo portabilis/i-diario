@@ -48,29 +48,49 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    student_enrollments = fetch_student_enrollments
-
     @students = []
 
-    student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
-        note_student.active = student_active_on_date?(student_enrollment)
-        note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
-        note_student.exempted = student_exempted_from_avaliation?(student.id)
-        note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_note)
-        note_student.in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_note.avaliation.test_date)
+    student_enrollment_ids = set_enrollment_classrooms.map { |student_enrollment|
+      student_enrollment[:student_enrollment].id
+    }
+    student_ids = set_enrollment_classrooms.map { |student_enrollment|
+      student_enrollment[:student].id
+    }
 
-        @students << note_student
-      end
+    discipline = @daily_note.discipline
+    avaliation_id = @daily_note.avaliation_id
+    test_date = @daily_note.avaliation.test_date
+    step = StepsFetcher.new(@daily_note.classroom).step_by_date(test_date)
+
+    dependencies = StudentsInDependency.call(student_enrollments: student_enrollment_ids, disciplines: discipline)
+    exempted_from_discipline = StudentsExemptFromDiscipline.call(
+      student_enrollments: student_enrollment_ids, discipline: discipline, step: step
+    )
+    exempted_from_avaliation = students_exempted_from_avaliations(avaliation_id, student_ids)
+    active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: test_date)
+    active_search = in_active_searches(student_enrollment_ids, test_date)
+
+    set_enrollment_classrooms.each do |enrollment_classroom|
+      student = enrollment_classroom[:student]
+      student_enrollment_id = enrollment_classroom[:student_enrollment].id
+
+      note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
+      note_student.active = active.include?(enrollment_classroom[:student_enrollment_classroom].id)
+      note_student.dependence = dependencies[student_enrollment_id] ? true : false
+      note_student.exempted = exempted_from_avaliation[student.id] ? true : false
+      note_student.exempted_from_discipline = exempted_from_discipline[student_enrollment_id] ? true : false
+      note_student.in_active_search = active_search[@daily_note.test_date]&.include?(student_enrollment_id)
+
+      @any_exempted_student = note_student.exempted
+      @any_inactive_student = !note_student.active
+      @any_student_exempted_from_discipline = note_student.exempted_from_discipline
+      @any_in_active_search = note_student.in_active_search
+
+      @students << note_student
     end
 
     @normal_students = []
     @dependence_students = []
-    @any_exempted_student = any_exempted_student?
-    @any_inactive_student = any_inactive_student?
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @any_in_active_search = any_in_active_search?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -169,15 +189,15 @@ class DailyNotesController < ApplicationController
 
   protected
 
-  def fetch_student_enrollments
-    @students_enrollments ||= StudentEnrollmentClassroomsRetriever.call(
+  def set_enrollment_classrooms
+    @student_enrollment_classrooms ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: @daily_note.classroom,
       grades: @daily_note.avaliation.grade_ids,
       disciplines: @daily_note.discipline,
       date: @daily_note.avaliation.test_date,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       search_type: :by_date
-    ).map{ |sec| sec[:student_enrollment] }
+    )
   end
 
   def reload_students_list
@@ -209,6 +229,23 @@ class DailyNotesController < ApplicationController
     @students.each do |student|
       @normal_students << student if !student.dependence
       @dependence_students << student if student.dependence
+    end
+  end
+
+  def in_active_searches(student_enrollment_ids, test_date)
+    @in_active_searches ||= ActiveSearch.new.enrollments_in_active_search?(student_enrollment_ids, test_date)
+  end
+
+  def students_exempted_from_avaliations(avaliation_id, student_ids)
+    students_exempt_from_avaliation = {}
+
+    exemptions = AvaliationExemption.by_student(student_ids).by_avaliation(avaliation_id)
+
+    return {} unless exemptions
+
+    exemptions.each do |exempt|
+      students_exempt_from_avaliation[exemption.student_id] ||= []
+      students_exempt_from_avaliation[exemption.student_id] << exempt.avaliation_id
     end
   end
 
