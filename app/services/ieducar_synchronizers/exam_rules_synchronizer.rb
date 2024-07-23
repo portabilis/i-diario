@@ -64,7 +64,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
   def update_descriptive_exams(exam_rule)
     return unless exam_rule.attribute_changed?("opinion_type")
 
-    user_admin = User.find_by(fullname: "Admin")
+    user_admin = User.find_by(admin: true)
     classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id)
                                    .pluck(:classroom_id)
                                    .uniq
