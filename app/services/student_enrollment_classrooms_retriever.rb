@@ -99,7 +99,8 @@ class StudentEnrollmentClassroomsRetriever
     return enrollment_classrooms if show_inactive_enrollments
 
     last_student_classroom = enrollment_classrooms.select do |ec|
-      ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date)
+      ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date) if search_type.eql?(:by_date_range)
+      ec.left_at.blank? || date.to_date <= ec.left_at.to_date if search_type.eql?(:by_date)
     end
   end
 
