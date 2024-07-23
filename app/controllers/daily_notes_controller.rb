@@ -255,9 +255,11 @@ class DailyNotesController < ApplicationController
   end
 
   def destroy_students_not_found
+    student_params = resource_params[:students_attributes]&.to_h
+
     @daily_note.students.each do |student|
-      student_exists = resource_params[:students_attributes].any? do |student_params|
-        student_params.last[:student_id].to_i == student.student.id
+      student_exists = student_params.any? do |_, params|
+        params[:student_id].to_i == student.student.id
       end
 
       student.destroy unless student_exists || student.transfer_note.present?
