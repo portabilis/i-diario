@@ -98,7 +98,7 @@ class StudentEnrollmentClassroomsRetriever
   def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    last_student_classroom = enrollment_classrooms.select do |ec|
+    last_student_classrooms = enrollment_classrooms.select do |ec|
       ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date)
     end
 
