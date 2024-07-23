@@ -209,8 +209,8 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when there is a range of dates to search for student_enrollment_classrooms' do
-    # Cria enturmacao que ficara enturmada de janeiro a dezembro de 2022
-    # Nao deve estar no retorno do servico que se refere a 2023
+    # Cria enturmacao que ficara enturmada de fevereiro a dezembro de 2022
+    # Não deve estar no retorno do servico que se refere a 2023
     let!(:student_enrollment_classrooms_out_date) {
       create_list(
         :student_enrollment_classroom,
