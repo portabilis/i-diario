@@ -34,7 +34,7 @@ class DeleteDispensedExamsAndFrequenciesService
         classroom_id = classroom.id
         user_admin = User.find_by(admin: true)
 
-        Audited.audit_class.as_user(user_id: user_admin.id, username: 'Admin - Sincronização') do
+        Audited.audit_class.as_user(user_admin) do
           destroy_invalid_daily_note_students(student_id, classroom_id, start_date, end_date)
           destroy_invalid_recovery_diary_record_students(student_id, classroom_id, start_date, end_date)
           destroy_invalid_conceptual_exams(student_id, classroom_id, step_number)

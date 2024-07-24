@@ -69,7 +69,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
                                    .pluck(:classroom_id)
                                    .uniq
 
-    Audited.audit_class.as_user(user_id: user_admin.id, username: 'Admin - Sincronização') do
+    Audited.audit_class.as_user(user_admin) do
       DescriptiveExam.where(classroom_id: classroom_ids)
                     .where.not(opinion_type: exam_rule.opinion_type)
                     .destroy_all
