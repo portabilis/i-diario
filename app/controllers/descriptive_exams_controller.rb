@@ -6,8 +6,7 @@ class DescriptiveExamsController < ApplicationController
 
   def new
     @descriptive_exam = DescriptiveExam.new(
-      classroom_id: current_user_classroom.id,
-      discipline_id: current_user_discipline.id
+      classroom_id: current_user_classroom.id
     )
 
     select_options_by_user
@@ -364,6 +363,7 @@ class DescriptiveExamsController < ApplicationController
 
   def view_data
     @descriptive_exam = DescriptiveExam.find(params[:id]).localized
+    binding.pry
 
     authorize @descriptive_exam
 
