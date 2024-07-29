@@ -202,7 +202,6 @@ class AttendanceRecordReport < BaseReport
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
-            # if students[name]
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
