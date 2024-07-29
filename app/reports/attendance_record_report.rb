@@ -140,6 +140,10 @@ class AttendanceRecordReport < BaseReport
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
 
+    unless @show_inactive_enrollments
+      @enrollment_classrooms= @enrollment_classrooms.uniq { |enrollment_classroom| enrollment_classroom[:student].id }
+    end
+
     student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment].id
     }
@@ -198,6 +202,7 @@ class AttendanceRecordReport < BaseReport
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
+            # if students[name]
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
