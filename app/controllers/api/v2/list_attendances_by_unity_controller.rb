@@ -76,8 +76,8 @@ module Api
           end
 
           {
-            id: classroom_id,
-            name: classroom_name,
+            classroom_id: classroom_id,
+            classroom_name: classroom_name,
             enrollments: enrollments_by_classroom_count,
             grades: grades,
             periods: periods
