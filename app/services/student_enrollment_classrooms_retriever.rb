@@ -101,8 +101,6 @@ class StudentEnrollmentClassroomsRetriever
     last_student_classrooms = enrollment_classrooms.select do |ec|
       ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date)
     end
-
-    last_student_classrooms.group_by { |ec| ec.student_enrollment.student_id }.values.map(&:first)
   end
 
   def show_inactive_enrollments
