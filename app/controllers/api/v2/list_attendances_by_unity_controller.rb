@@ -20,10 +20,11 @@ module Api
         frequencies_by_classrooms = {}
         enrollments_by_classrooms = {}
 
-        classrooms = Classroom.includes(classrooms_grades: { grade: :course })
-                              .by_unity(unity.id)
-                              .by_year(year)
-                              .ordered
+        classrooms = Classroom
+          .includes(classrooms_grades: { grade: :course })
+          .by_unity(unity.id)
+          .by_year(year)
+          .ordered
 
         classroom_enrollments = StudentEnrollmentClassroom.includes(student_enrollment: :student)
                                                           .includes(:classrooms_grade)
