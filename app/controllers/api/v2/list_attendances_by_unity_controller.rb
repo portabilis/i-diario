@@ -61,7 +61,7 @@ module Api
               course_name: classroom_grade.grade.course.description
             }
           end
-          periods = frequencies.transform_values do |daily_frequencies|
+          dates = frequencies.transform_values do |daily_frequencies|
             frequency = daily_frequencies.flat_map(&:students).select{ |dfs| dfs.present == true}.size
             {
               frequency: frequency
@@ -73,7 +73,7 @@ module Api
             classroom_name: classroom_name,
             enrollments: enrollments_by_classroom_count,
             grades: grades,
-            periods: periods
+            dates: dates
           }
         end
       end
