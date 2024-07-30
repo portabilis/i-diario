@@ -26,18 +26,11 @@ module Api
           .by_year(year)
           .ordered
 
-        classroom_enrollments = StudentEnrollmentClassroom.includes(student_enrollment: :student)
-                                                          .includes(:classrooms_grade)
-                                                          .by_classroom(classrooms.map(&:id))
-                                                          .by_date_range(start_at, end_at)
-                                                          .group_by { |enrollment|
-                                                            enrollment.classrooms_grade.classroom_id
-                                                          }
-
-        classroom_enrollments.values.flat_map do |enrollments|
-          classroom_id = enrollments.first.classrooms_grade.classroom_id
-          enrollments_by_classrooms[classroom_id] = enrollments.map(&:student_enrollment).uniq(&:student).count
-        end
+        enrollments_by_classrooms = StudentEnrollmentClassroom
+          .by_classroom(classrooms.map(&:id))
+          .by_date_range(start_at, end_at)
+          .group('classroom_code')
+          .count
 
         frequencies_by_dates = DailyFrequency.includes(:students)
                                              .by_classroom_id(classrooms.map(&:id))
