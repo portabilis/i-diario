@@ -17,9 +17,6 @@ module Api
       private
 
       def compile_attendances(unity, start_at, end_at, year)
-        frequencies_by_classrooms = {}
-        enrollments_by_classrooms = {}
-
         classrooms = Classroom
           .includes(classrooms_grades: { grade: :course })
           .by_unity(unity.id)
