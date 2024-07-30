@@ -24,7 +24,6 @@ module Api
                               .by_unity(unity.id)
                               .by_year(year)
                               .ordered
-                              .distinct
 
         classroom_enrollments = StudentEnrollmentClassroom.includes(student_enrollment: :student)
                                                           .includes(:classrooms_grade)
