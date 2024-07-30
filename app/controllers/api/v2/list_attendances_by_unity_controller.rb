@@ -39,19 +39,19 @@ module Api
 
         frequencies_by_dates.each do |date, frequencies|
           frequencies.each do |frequency|
-            classroom_id = frequency.classroom_id
-            frequencies_by_classrooms[classroom_id] ||= {}
-            frequencies_by_classrooms[classroom_id][date] ||= []
-            frequencies_by_classrooms[classroom_id][date] << frequency
+            classroom_api_code = frequency.classroom.api_code
+            frequencies_by_classrooms[classroom_api_code] ||= {}
+            frequencies_by_classrooms[classroom_api_code][date] ||= []
+            frequencies_by_classrooms[classroom_api_code][date] << frequency
           end
         end
 
         result = classrooms.map do |classroom|
-          classroom_id = classroom.id
+          classroom_api_code = classroom.api_code
           classroom_name = classroom.description
 
-          enrollments_by_classroom_count = enrollments_by_classrooms[classroom_id] ||= 0
-          frequencies = frequencies_by_classrooms[classroom_id] || {}
+          enrollments_by_classroom_count = enrollments_by_classrooms[classroom_api_code] ||= 0
+          frequencies = frequencies_by_classrooms[classroom_api_code] || {}
 
           grades = classroom.classrooms_grades.map do |classroom_grade|
             {
@@ -69,7 +69,7 @@ module Api
           end
 
           {
-            classroom_id: classroom_id,
+            classroom_id: classroom_api_code,
             classroom_name: classroom_name,
             enrollments: enrollments_by_classroom_count,
             grades: grades,
