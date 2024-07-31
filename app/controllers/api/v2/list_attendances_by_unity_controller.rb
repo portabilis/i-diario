@@ -12,7 +12,6 @@ module Api
         raise ArgumentError if unity.blank?
 
         render json: compile_attendances(unity, start_at, end_at, year)
-        # render json: ClassroomAttendanceService.call(unity_id, start_at, end_at, year)
       end
 
       private
