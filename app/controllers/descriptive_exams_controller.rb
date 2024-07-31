@@ -363,7 +363,6 @@ class DescriptiveExamsController < ApplicationController
 
   def view_data
     @descriptive_exam = DescriptiveExam.find(params[:id]).localized
-    binding.pry
 
     authorize @descriptive_exam
 
