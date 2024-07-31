@@ -311,8 +311,8 @@ class DailyNotesController < ApplicationController
     return {} unless exemptions
 
     exemptions.each do |exempt|
-      students_exempt_from_avaliation[exemption.student_id] ||= []
-      students_exempt_from_avaliation[exemption.student_id] << exempt.avaliation_id
+      students_exempt_from_avaliation[exempt.student_id] ||= []
+      students_exempt_from_avaliation[exempt.student_id] << exempt.avaliation_id
     end
   end
 end
