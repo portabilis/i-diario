@@ -12,6 +12,7 @@ module Api
         raise ArgumentError if unity.blank?
 
         render json: compile_attendances(unity, start_at, end_at, year)
+        # render json: ClassroomAttendanceService.call(unity_id, start_at, end_at, year)
       end
 
       private
@@ -29,18 +30,26 @@ module Api
           .group('classroom_code')
           .count
 
-        frequencies_by_dates = DailyFrequency.includes(:students)
-                                             .by_classroom_id(classrooms.map(&:id))
-                                             .by_frequency_date_between(start_at, end_at)
-                                             .group_by { |frequency| frequency.frequency_date }
+        query_daily_frequencies = DailyFrequency
+          .by_classroom_id(classrooms.pluck(:id))
+          .by_frequency_date_between(start_at, end_at)
+          .joins(:classroom, :students)
+          .group('classrooms.api_code, frequency_date')
+          .select("
+            COUNT(daily_frequency_students.id) AS count,
+            classrooms.api_code AS classroom_api_code,
+            frequency_date AS frequency_date
+          ")
 
-        frequencies_by_dates.each do |date, frequencies|
-          frequencies.each do |frequency|
-            classroom_api_code = frequency.classroom.api_code
-            frequencies_by_classrooms[classroom_api_code] ||= {}
-            frequencies_by_classrooms[classroom_api_code][date] ||= []
-            frequencies_by_classrooms[classroom_api_code][date] << frequency
-          end
+        daily_frequencies_array = JSON.parse(query_daily_frequencies.to_json)
+
+        frequencies_by_classrooms = daily_frequencies_array.each_with_object({}) do |record, hash|
+          classroom_api_code = record['classroom_api_code']
+          frequency_date = record['frequency_date']
+          count = record['count']
+
+          hash[classroom_api_code] ||= {}
+          hash[classroom_api_code][frequency_date] = count
         end
 
         result = classrooms.map do |classroom|
@@ -57,19 +66,13 @@ module Api
               course_name: classroom_grade.grade.course.description
             }
           end
-          dates = frequencies.transform_values do |daily_frequencies|
-            frequency = daily_frequencies.flat_map(&:students).select{ |dfs| dfs.present == true}.size
-            {
-              frequency: frequency
-            }
-          end
 
           {
             classroom_id: classroom_api_code,
             classroom_name: classroom_name,
             enrollments: enrollments_by_classroom_count,
             grades: grades,
-            dates: dates
+            dates: frequencies
           }
         end
       end
