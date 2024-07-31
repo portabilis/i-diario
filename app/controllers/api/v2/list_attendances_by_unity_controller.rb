@@ -23,8 +23,8 @@ module Api
           .by_year(year)
           .ordered
 
-        enrollments_by_classrooms = StudentEnrollmentClassroom
-          .by_classroom(classrooms.map(&:id))
+        query_student_enrollment_classrooms = StudentEnrollmentClassroom
+          .by_classroom(classrooms.pluck(:id))
           .by_date_range(start_at, end_at)
           .group('classroom_code')
           .count
@@ -46,8 +46,7 @@ module Api
         result = classrooms.map do |classroom|
           classroom_api_code = classroom.api_code
           classroom_name = classroom.description
-
-          enrollments_by_classroom_count = enrollments_by_classrooms[classroom_api_code] ||= 0
+          enrollments_by_classroom_count = query_student_enrollment_classrooms[classroom_api_code] ||= 0
           frequencies = frequencies_by_classrooms[classroom_api_code] || {}
 
           grades = classroom.classrooms_grades.map do |classroom_grade|
