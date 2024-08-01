@@ -35,7 +35,8 @@ module Api
           .joins(:classroom, :students)
           .group('classrooms.api_code, frequency_date')
           .select("
-            COUNT(daily_frequency_students.id) AS count,
+            COUNT(DISTINCT CONCAT(daily_frequency_students.student_id, '-', frequency_date)) AS count,
+            SUM(daily_frequency_students.present::int) AS presences,
             classrooms.api_code AS classroom_api_code,
             frequency_date AS frequency_date
           ")
