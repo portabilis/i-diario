@@ -1,6 +1,6 @@
 module Api
   module V2
-    class ListAttendancesByUnityController < Api::V2::BaseController
+    class ListAttendancesByClassroomController < Api::V2::BaseController
       respond_to :json
 
       def index
