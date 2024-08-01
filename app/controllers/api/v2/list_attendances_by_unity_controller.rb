@@ -54,6 +54,7 @@ module Api
         result = classrooms.map do |classroom|
           classroom_api_code = classroom.api_code
           classroom_name = classroom.description
+          classroom_max_students = classroom.max_students
           enrollments_by_classroom_count = query_student_enrollment_classrooms[classroom_api_code] ||= 0
           frequencies = frequencies_by_classrooms[classroom_api_code] || {}
 
@@ -69,6 +70,7 @@ module Api
           {
             classroom_id: classroom_api_code,
             classroom_name: classroom_name,
+            classroom_max_students: classroom_max_students,
             enrollments: enrollments_by_classroom_count,
             grades: grades,
             dates: frequencies
