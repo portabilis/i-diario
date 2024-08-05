@@ -163,7 +163,7 @@ class DailyNotesController < ApplicationController
       note_student = create_or_select_daily_note_student(student)
       note_student.active = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
       note_student.dependence = @dependencies[student_enrollment_id] ? true : false
-      note_student.exempted = @exempted_from_avaliation[student.id] ? true : false
+      note_student.exempted = @exempted_from_avaliation.map(&:student_id).include?(student.id) ? true : false
       note_student.exempted_from_discipline = @exempted_from_discipline[student_enrollment_id] ? true : false
       note_student.in_active_search = @active_search[@daily_note.test_date]&.include?(student_enrollment_id)
 
