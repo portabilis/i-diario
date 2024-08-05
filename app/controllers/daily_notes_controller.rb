@@ -48,29 +48,7 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    set_students_and_info
-    set_student_enrollments_data
-
-    set_enrollment_classrooms.each do |enrollment_classroom|
-      student = enrollment_classroom[:student]
-      student_enrollment_id = enrollment_classroom[:student_enrollment].id
-
-      note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
-      note_student.active = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
-      note_student.dependence = @dependencies[student_enrollment_id] ? true : false
-      note_student.exempted = @exempted_from_avaliation[student.id] ? true : false
-      note_student.exempted_from_discipline = @exempted_from_discipline[student_enrollment_id] ? true : false
-      note_student.in_active_search = @active_search[@daily_note.test_date]&.include?(student_enrollment_id)
-
-      @any_exempted_student = note_student.exempted
-      @any_inactive_student = !note_student.active
-      @any_student_exempted_from_discipline = note_student.exempted_from_discipline
-      @any_in_active_search = note_student.in_active_search
-
-      @normal_students << note_student if !note_student.dependence
-      @dependence_students << note_student if note_student.dependence
-      @students << note_student
-    end
+    reload_students_list
   end
 
   def update
@@ -182,7 +160,7 @@ class DailyNotesController < ApplicationController
     set_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment].id
-      note_student = @daily_note.students.select{ |dns| dns.student_id.eql?(student.id) }.first
+      note_student = create_or_select_daily_note_student(student)
       note_student.active = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
       note_student.dependence = @dependencies[student_enrollment_id] ? true : false
       note_student.exempted = @exempted_from_avaliation[student.id] ? true : false
@@ -313,6 +291,14 @@ class DailyNotesController < ApplicationController
     exemptions.each do |exempt|
       students_exempt_from_avaliation[exempt.student_id] ||= []
       students_exempt_from_avaliation[exempt.student_id] << exempt.avaliation_id
+    end
+  end
+
+  def create_or_select_daily_note_student(student)
+    if action_name.eql?('edit')
+      @daily_note.students.find_or_initialize_by(student_id: student.id)
+    else
+      @daily_note.students.select{ |dns| dns.student_id.eql?(student.id) }.first
     end
   end
 end
