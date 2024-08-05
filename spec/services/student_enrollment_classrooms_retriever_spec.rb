@@ -71,13 +71,13 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
 
     it 'should return nil for blank params' do
-      expect(
+      expect{
         StudentEnrollmentClassroomsRetriever.call(
           search_type: '',
           classrooms: '',
           disciplines: ''
         )
-      ).to be_nil
+      }.to raise_error(ArgumentError, 'Invalid search type')
     end
   end
 
