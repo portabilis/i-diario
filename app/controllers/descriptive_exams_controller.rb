@@ -12,6 +12,10 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user
     select_opinion_types
 
+    unless @opinion_types.first.text.eql?('Avaliação padrão (regular)')
+      @descriptive_exam.discipline_id = current_user_discipline.id
+    end
+
     unless current_user.current_role_is_admin_or_employee?
       classroom_id = @descriptive_exam.classroom_id
       @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
@@ -363,7 +367,6 @@ class DescriptiveExamsController < ApplicationController
 
   def view_data
     @descriptive_exam = DescriptiveExam.find(params[:id]).localized
-    binding.pry
 
     authorize @descriptive_exam
 
