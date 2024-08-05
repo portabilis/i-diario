@@ -45,7 +45,7 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
     if enrollment_classrooms.show_as_inactive.blank?
-      enrollment_classrooms = search_by_search_type(enrollment_classrooms)
+      enrollment_classrooms = filter_by_type(enrollment_classrooms)
       enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
     end
 
@@ -83,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_in_date
   end
 
-  def search_by_search_type(enrollment_classrooms)
+  def filter_by_type(enrollment_classrooms)
     return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
