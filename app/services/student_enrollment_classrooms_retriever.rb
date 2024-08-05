@@ -70,6 +70,8 @@ class StudentEnrollmentClassroomsRetriever
       raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless start_at || end_at
     elsif search_type.eql?(:by_year)
       raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless year
+    else
+      raise ArgumentError, 'Invalid search type'
     end
   end
 
