@@ -167,15 +167,15 @@ class DailyNotesController < ApplicationController
       note_student.exempted_from_discipline = @exempted_from_discipline[student_enrollment_id] ? true : false
       note_student.in_active_search = @active_search[@daily_note.test_date]&.include?(student_enrollment_id)
 
-      @any_exempted_student = note_student.exempted
-      @any_inactive_student = !note_student.active
-      @any_student_exempted_from_discipline = note_student.exempted_from_discipline
-      @any_in_active_search = note_student.in_active_search
-
       @normal_students << note_student if !note_student.dependence
       @dependence_students << note_student if note_student.dependence
       @students << note_student
     end
+
+    @any_exempted_student = @students.select(&:exempted).any?
+    @any_inactive_student = @students.reject(&:active).any?
+    @any_student_exempted_from_discipline = @students.select(&:exempted_from_discipline).any?
+    @any_in_active_search = @students.select(&:in_active_search).any?
   end
 
   def configuration
