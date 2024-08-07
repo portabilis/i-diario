@@ -6,12 +6,15 @@ class DescriptiveExamsController < ApplicationController
 
   def new
     @descriptive_exam = DescriptiveExam.new(
-      classroom_id: current_user_classroom.id,
-      discipline_id: current_user_discipline.id
+      classroom_id: current_user_classroom.id
     )
 
     select_options_by_user
     select_opinion_types
+
+    unless @opinion_types.first.text.eql?('Avaliação padrão (regular)')
+      @descriptive_exam.discipline_id = current_user_discipline.id
+    end
 
     unless current_user.current_role_is_admin_or_employee?
       classroom_id = @descriptive_exam.classroom_id
