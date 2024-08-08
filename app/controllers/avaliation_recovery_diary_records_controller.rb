@@ -128,10 +128,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   def fetch_avaliation_recovery_diary_records_by_user
     @avaliation_recovery_diary_records =
       apply_scopes(AvaliationRecoveryDiaryRecord)
+        .select('DISTINCT ON (avaliation_recovery_diary_records.id, recovery_diary_records.recorded_at) avaliation_recovery_diary_records.*')
         .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
         .by_unity_id(current_unity.id)
-        .by_classroom_id(@classrooms.map(&:id))
-        .by_discipline_id(@disciplines.map(&:id))
+        .by_classroom_id(@classrooms.pluck(&:id))
+        .by_discipline_id(@disciplines.pluck(&:id))
         .by_teacher_id(current_teacher.id)
         .ordered
   end
