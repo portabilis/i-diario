@@ -16,11 +16,14 @@ module Api
 
     def call
       query_classrooms
-      query_student_enrollment_classrooms
-
       daily_frequencies_array = JSON.parse(query_daily_frequencies.to_json)
-      frequencies_by_classrooms = daily_frequencies_array(daily_frequencies_array)
+      @frequencies_by_classrooms = daily_frequencies_array(daily_frequencies_array)
+      @student_enrollment_classrooms = query_student_enrollment_classrooms
 
+      list_info_classrooms
+    end
+
+    def list_info_classrooms
       @classrooms.map do |classroom|
         classroom_api_code = classroom.api_code
         classroom_name = classroom.description
