@@ -72,11 +72,49 @@ module Api
     end
 
     def query_student_enrollment_classrooms
-      @student_enrollment_classrooms = StudentEnrollmentClassroom
-        .by_classroom(@classrooms.pluck(:id))
-        .by_date_range(start_at, end_at)
-        .group('classroom_code')
-        .count
+      series_query = <<-SQL
+        SELECT generate_series('#{start_at}'::date, '#{end_at}'::date, '1 day'::interval) AS day
+      SQL
+
+      count_query = <<-SQL
+        SELECT count(*) AS count
+        FROM student_enrollment_classrooms sec
+        WHERE sec.joined_at::date <= day::date
+          AND (sec.left_at IS NULL OR sec.left_at = '' OR sec.left_at::date >= day::date)
+          AND sec.classroom_code = classrooms.api_code
+      SQL
+
+      query = <<-SQL
+        WITH classrooms AS (
+          SELECT c.api_code
+          FROM classrooms c
+          WHERE id IN (#{@classrooms.pluck(:id).join(',')})
+        )
+        SELECT classrooms.api_code,
+              day,
+              COALESCE(sec_count.count, 0) AS count
+        FROM classrooms
+        CROSS JOIN (#{series_query}) AS date_series(day)
+        LEFT JOIN LATERAL (
+          #{count_query}
+        ) AS sec_count ON true
+        ORDER BY classrooms.api_code, day;
+      SQL
+
+      results = ActiveRecord::Base.connection.execute(query)
+
+      aggregated_results = {}
+
+      results.each do |row|
+        api_code = row['api_code']
+        formatted_day = Date.parse(row['day']).strftime("%Y-%m-%d")
+        count = row['count'].to_i
+
+        aggregated_results[api_code] ||= {}
+        aggregated_results[api_code][formatted_day] = count
+      end
+
+      aggregated_results
     end
 
     def query_daily_frequencies
