@@ -28,25 +28,26 @@ module Api
         classroom_api_code = classroom.api_code
         classroom_name = classroom.description
         classroom_max_students = classroom.max_students
-        enrollments_by_classroom_count = query_student_enrollment_classrooms[classroom_api_code] ||= 0
-        frequencies = frequencies_by_classrooms[classroom_api_code] || {}
+        frequencies = @frequencies_by_classrooms[classroom_api_code] || {}
+        enrollments_by_classroom_count = @student_enrollment_classrooms[classroom_api_code] ||= 0
 
-        grades = classroom.classrooms_grades.map do |classroom_grade|
+        attendance_and_enrollments = frequencies.map do |date_frequencies, frequency_count|
           {
-            id: classroom_grade.grade.api_code,
-            name: classroom_grade.grade.description,
-            course_id: classroom_grade.grade.course.api_code,
-            course_name: classroom_grade.grade.course.description
+            date_frequencies => {
+              frequencies: frequency_count,
+              enrollments: enrollments_by_classroom_count[date_frequencies] || 0
+            }
           }
-        end
+        end.reduce(:merge)
+
+        grades = hash_grades(classroom)
 
         {
           classroom_id: classroom_api_code,
           classroom_name: classroom_name,
           classroom_max_students: classroom_max_students,
-          enrollments: enrollments_by_classroom_count,
           grades: grades,
-          dates: frequencies
+          attendance_and_enrollments: attendance_and_enrollments
         }
       end
     end
