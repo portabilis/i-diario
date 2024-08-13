@@ -16,20 +16,17 @@ module Api
 
     def call
       query_classrooms
+      query_student_enrollment_classrooms
+      @student_enrollment_classrooms = list_student_enrollment_classrooms_by_day
       daily_frequencies_array = JSON.parse(query_daily_frequencies.to_json)
-      @frequencies_by_classrooms = daily_frequencies_array(daily_frequencies_array)
-      @student_enrollment_classrooms = query_student_enrollment_classrooms
+      frequencies_by_classrooms = daily_frequencies_array(daily_frequencies_array)
 
-      list_info_classrooms
-    end
-
-    def list_info_classrooms
       @classrooms.map do |classroom|
         classroom_api_code = classroom.api_code
         classroom_name = classroom.description
         classroom_max_students = classroom.max_students
-        frequencies = @frequencies_by_classrooms[classroom_api_code] || {}
         enrollments_by_classroom_count = @student_enrollment_classrooms[classroom_api_code] ||= 0
+        frequencies = frequencies_by_classrooms[classroom_api_code] || {}
 
         attendance_and_enrollments = frequencies.map do |date_frequencies, frequency_count|
           {
@@ -72,49 +69,31 @@ module Api
     end
 
     def query_student_enrollment_classrooms
-      series_query = <<-SQL
-        SELECT generate_series('#{start_at}'::date, '#{end_at}'::date, '1 day'::interval) AS day
-      SQL
+      @student_enrollment_classrooms = StudentEnrollmentClassroom
+        .by_classroom(@classrooms.pluck(:id))
+        .by_date_range(start_at, end_at)
+        .group_by(&:classroom_code)
+    end
 
-      count_query = <<-SQL
-        SELECT count(*) AS count
-        FROM student_enrollment_classrooms sec
-        WHERE sec.joined_at::date <= day::date
-          AND (sec.left_at IS NULL OR sec.left_at = '' OR sec.left_at::date >= day::date)
-          AND sec.classroom_code = classrooms.api_code
-      SQL
+    def list_student_enrollment_classrooms_by_day
+      aggregate = {}
+      range_dates = (start_at..end_at).to_a
 
-      query = <<-SQL
-        WITH classrooms AS (
-          SELECT c.api_code
-          FROM classrooms c
-          WHERE id IN (#{@classrooms.pluck(:id).join(',')})
-        )
-        SELECT classrooms.api_code,
-              day,
-              COALESCE(sec_count.count, 0) AS count
-        FROM classrooms
-        CROSS JOIN (#{series_query}) AS date_series(day)
-        LEFT JOIN LATERAL (
-          #{count_query}
-        ) AS sec_count ON true
-        ORDER BY classrooms.api_code, day;
-      SQL
+      @student_enrollment_classrooms.each do |classroom_code, enrollments|
+        aggregate[classroom_code] ||= {}
 
-      results = ActiveRecord::Base.connection.execute(query)
+        range_dates.each do |day|
+          aggregate[classroom_code][day] ||= 0
 
-      aggregated_results = {}
-
-      results.each do |row|
-        api_code = row['api_code']
-        formatted_day = Date.parse(row['day']).strftime("%Y-%m-%d")
-        count = row['count'].to_i
-
-        aggregated_results[api_code] ||= {}
-        aggregated_results[api_code][formatted_day] = count
+          enrollments.each do |enrollment|
+            if enrollment.joined_at <= day && (enrollment.left_at.blank? || enrollment.left_at >= day)
+              aggregate[classroom_code][day] += 1
+            end
+          end
+        end
       end
 
-      aggregated_results
+      aggregate
     end
 
     def query_daily_frequencies
