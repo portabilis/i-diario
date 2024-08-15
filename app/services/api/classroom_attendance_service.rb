@@ -1,17 +1,17 @@
 module Api
   class ClassroomAttendanceService
 
-    attr_accessor :unity_id, :start_at, :end_at, :year
+    attr_accessor :classroom_ids, :start_at, :end_at, :year
 
-    def initialize(unity_id, start_at, end_at, year)
-      @unity_id = unity_id
+    def initialize(classroom_ids, start_at, end_at, year)
+      @classroom_ids = classroom_ids
       @start_at = start_at
       @end_at = end_at
       @year = year
     end
 
-    def self.call(unity_id, start_at, end_at, year)
-      new(unity_id, start_at, end_at, year).call
+    def self.call(classroom_ids, start_at, end_at, year)
+      new(classroom_ids, start_at, end_at, year).call
     end
 
     def call
@@ -27,7 +27,7 @@ module Api
     def query_classrooms
       @classrooms = Classroom
         .includes(classrooms_grades: { grade: :course })
-        .by_unity(unity_id)
+        .where(api_code: classroom_ids)
         .by_year(year)
         .ordered
     end
