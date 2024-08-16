@@ -9,12 +9,12 @@ module Api
 
         return if missing_params
 
-        classrooms = params[:classrooms]
+        classrooms_api_code = params[:classrooms]
         start_at = params[:start_at]
         end_at = params[:end_at]
         year = params[:year]
 
-        render json: ClassroomAttendanceService.call(classrooms, start_at, end_at, year)
+        render json: ClassroomAttendanceService.call(classrooms_api_code, start_at, end_at, year)
       end
 
       def validate_required_params(required_params)
