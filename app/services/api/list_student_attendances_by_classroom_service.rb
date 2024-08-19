@@ -15,17 +15,20 @@ module Api
     end
 
     def call
-      query_classroom
+      classroom = query_classroom
+      frequencies_by_classrooms = process_daily_frequencies_by_classroom(classroom)
     end
 
     private
 
     def query_classroom
-      @classroom = Classroom
+      Classroom
         .includes(classrooms_grades: { grade: :course })
-        .find_by(api_code: classroom_api_code)
         .by_year(year)
-        .ordered
+        .find_by(api_code: classroom_api_code)
+    end
+
+    def process_daily_frequencies_by_classroom(classroom)
     end
   end
 end
