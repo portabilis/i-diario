@@ -24,10 +24,7 @@ module Api
     private
 
     def query_classroom
-      Classroom
-        .includes(classrooms_grades: { grade: :course })
-        .by_year(year)
-        .find_by(api_code: classroom_api_code)
+      Classroom.includes(classrooms_grades: { grade: :course }).find_by(year: year, api_code: classroom_api_code)
     end
 
     def process_daily_frequencies_by_classroom(classroom)
