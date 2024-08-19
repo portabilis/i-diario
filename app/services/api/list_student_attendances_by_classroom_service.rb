@@ -28,7 +28,7 @@ module Api
     end
 
     def process_daily_frequencies_by_classroom(classroom)
-      student_ids = Student.where(api_code: students_api_code).pluck(:id)
+      student_ids = Student.where(api_code: students_api_code.values).pluck(:id)
       daily_frequencies = query_daily_frequencies(classroom.id, student_ids)
 
       format_frequencies(daily_frequencies)
