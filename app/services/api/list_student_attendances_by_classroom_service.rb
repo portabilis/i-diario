@@ -31,6 +31,8 @@ module Api
     def process_daily_frequencies_by_classroom(classroom)
       student_ids = Student.where(api_code: students_api_code).pluck(:id)
       daily_frequencies = query_daily_frequencies(classroom.id, student_ids)
+
+      format_frequencies(daily_frequencies)
     end
 
     def query_daily_frequencies(classroom_id, student_ids)
@@ -47,6 +49,20 @@ module Api
           SUM((NOT daily_frequency_students.present)::int) AS absences,
           classrooms.api_code AS classroom_api_code
         ")
+    end
+
+    def format_frequencies(daily_frequencies)
+      daily_frequencies.each_with_object({}) do |record, hash|
+        classroom_code = record['classroom_api_code']
+        student_code = record['student_api_code']
+
+        hash[classroom_api_code] ||= {}
+        hash[classroom_api_code][student_code] ||= {
+          name: record['student_name'],
+          presences: record['presences'],
+          absences: record['absences']
+        }
+      end
     end
   end
 end
