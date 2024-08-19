@@ -71,8 +71,20 @@ module Api
       {
         classroom_id: classroom.api_code,
         classroom_name: classroom.description,
+        grades: build_grades(classroom),
         attendances_by_student: daily_frequencies[classroom_api_code] || {}
       }
+    end
+
+    def build_grades(classroom)
+      classroom.classrooms_grades.map do |classroom_grade|
+        {
+          id: classroom_grade.grade_id,
+          name: classroom_grade.grade.description,
+          course_id: classroom_grade.grade.course_id,
+          course_name: classroom_grade.grade.course.description
+        }
+      end
     end
   end
 end
