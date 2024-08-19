@@ -3,7 +3,7 @@ module Api
     class StudentClassroomAttendancesController < Api::V2::BaseController
       respond_to :json
       def index
-        required_params = %i[classroom_id start_at end_at year]
+        required_params = %i[classroom_id start_at end_at year student_ids]
         missing_params = validate_required_params(required_params)
 
         return if missing_params
@@ -11,10 +11,10 @@ module Api
         start_at = params[:start_at]
         end_at = params[:end_at]
         year = params[:year]
-        student_api_code = params[:student_id]
+        students_api_code = params[:student_ids]
 
         render json: ListStudentAttendancesByClassroomService.call(
-                      classroom_api_code, start_at, end_at, year, student_api_code
+                      classroom_api_code, start_at, end_at, year, students_api_code
                     )
       end
 
