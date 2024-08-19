@@ -17,6 +17,8 @@ module Api
     def call
       classroom = query_classroom
       frequencies_by_classrooms = process_daily_frequencies_by_classroom(classroom)
+
+      build_classroom_information(classroom, frequencies_by_classrooms)
     end
 
     private
@@ -63,6 +65,14 @@ module Api
           absences: record['absences']
         }
       end
+    end
+
+    def build_classroom_information(classroom, daily_frequencies)
+      {
+        classroom_id: classroom.api_code,
+        classroom_name: classroom.description,
+        attendances_by_student: daily_frequencies[classroom_api_code] || {}
+      }
     end
   end
 end
