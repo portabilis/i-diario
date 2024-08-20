@@ -109,7 +109,7 @@ module Api
       daily_frequencies_array.each_with_object({}) do |record, hash|
         classroom_api_code = record['classroom_api_code']
         frequency_date = record['frequency_date']
-        count = record['count']
+        count = record['presences']
 
         hash[classroom_api_code] ||= {}
         hash[classroom_api_code][frequency_date] = count
