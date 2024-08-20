@@ -48,6 +48,7 @@ module Api
           SUM((NOT daily_frequency_students.present)::int) AS absences,
           classrooms.api_code AS classroom_api_code
         ")
+        .order("UPPER(students.name)")
     end
 
     def format_frequencies(daily_frequencies)
