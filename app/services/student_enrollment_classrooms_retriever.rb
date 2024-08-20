@@ -102,7 +102,7 @@ class StudentEnrollmentClassroomsRetriever
 
     enrollment_classrooms.select do |ec|
       if search_type.eql?(:by_date_range)
-        ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date)
+        ec.left_at.blank? || (ec.joined_at.to_date <= end_at.to_date && ec.left_at.to_date >= start_at.to_date)
       elsif search_type.eql?(:by_date)
         ec.left_at.blank? || date.to_date <= ec.left_at.to_date
       elsif search_type.eql?(:by_year)
