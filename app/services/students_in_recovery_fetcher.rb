@@ -84,14 +84,13 @@ class StudentsInRecoveryFetcher
     @student_enrollments ||= fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
   end
 
-  def fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
+  def fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
     enrollment_classrooms_list = StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom,
       disciplines: discipline,
-      start_at: step.start_at,
-      end_at: end_at,
+      date: @date,
       classroom_grades: classroom_grade_ids,
-      search_type: :by_date_range
+      search_type: :by_date
     )
     enrollment_classrooms_list.map{ |ec| ec[:student_enrollment]}
   end
