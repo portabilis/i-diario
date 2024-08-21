@@ -81,7 +81,7 @@ class StudentsInRecoveryFetcher
   def student_enrollments(classroom_grade_ids)
     end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-    @student_enrollments ||= fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
+    @student_enrollments ||= fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
   end
 
   def fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
