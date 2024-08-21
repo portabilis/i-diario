@@ -16,7 +16,8 @@ module Api
 
     def call
       classroom = query_classroom
-      frequencies_by_classrooms = process_daily_frequencies_by_classroom(classroom)
+      enrollment_details = query_student_enrollment_classrooms.to_h
+      frequencies_by_classrooms = process_daily_frequencies_by_classroom(classroom, enrollment_details)
 
       build_classroom_information(classroom, frequencies_by_classrooms)
     end
@@ -27,11 +28,20 @@ module Api
       Classroom.includes(classrooms_grades: { grade: :course }).find_by(year: year, api_code: classroom_api_code)
     end
 
-    def process_daily_frequencies_by_classroom(classroom)
+    def query_student_enrollment_classrooms
+      StudentEnrollmentClassroom.joins(student_enrollment: :student)
+                                .where(
+                                  students: { api_code: students_api_code.values },
+                                  classroom_code: classroom_api_code
+                                )
+                                .pluck('students.api_code', :joined_at)
+    end
+
+    def process_daily_frequencies_by_classroom(classroom, enrollment_details)
       student_ids = Student.where(api_code: students_api_code.values).pluck(:id)
       daily_frequencies = query_daily_frequencies(classroom.id, student_ids)
 
-      format_frequencies(daily_frequencies)
+      format_frequencies(daily_frequencies, enrollment_details)
     end
 
     def query_daily_frequencies(classroom_id, student_ids)
@@ -51,7 +61,7 @@ module Api
         .order("UPPER(students.name)")
     end
 
-    def format_frequencies(daily_frequencies)
+    def format_frequencies(daily_frequencies, enrollment_details)
       daily_frequencies.each_with_object({}) do |record, hash|
         classroom_code = record['classroom_api_code']
         student_code = record['student_api_code']
@@ -60,7 +70,8 @@ module Api
         hash[classroom_api_code][student_code] ||= {
           name: record['student_name'],
           presences: record['presences'],
-          absences: record['absences']
+          absences: record['absences'],
+          joined_at: enrollment_details[student_code]
         }
       end
     end
