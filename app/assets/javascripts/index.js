@@ -39,6 +39,9 @@ $(function(){
 
   $('.remote .pagination a').on('click',
     function() {
+      var onPageChange = new CustomEvent('onPageChange');
+      document.dispatchEvent(onPageChange);
+
       $.getScript(this.href);
       return false;
     }

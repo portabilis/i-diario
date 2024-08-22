@@ -40,6 +40,7 @@ class UserByCsvCreator
   end
 
   def create_users(entity)
+    errors = []
     ActiveRecord::Base.transaction do
       CSV.foreach(file, col_sep: ',', skip_blanks: true) do |new_user|
         User.find_or_initialize_by(login: new_user[3]).tap do |user|
@@ -59,9 +60,10 @@ class UserByCsvCreator
                                  first_name: new_user[0],
                                  last_name: new_user[1])
 
-          user.save if user.changed?
-
-          raise invalid_user_error(user) if user.errors.any?
+          if user.changed? && !user.save
+            errors << invalid_user_error(user)
+            next
+          end
 
           if set_admin_role(user) && send_mail
             UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
@@ -70,10 +72,8 @@ class UserByCsvCreator
       end
       true
     end
+    errors.empty? || puts(errors.join("\n"))
   rescue ActiveRecord::RecordInvalid
-    false
-  rescue InvalidUserError => e
-    puts e.message
     false
   end
 
@@ -103,6 +103,6 @@ class UserByCsvCreator
   end
 
   def invalid_user_error(user)
-    raise InvalidUserError, "Não foi possivel criar os usuarios devido ao erro #{user.errors.messages} para o usuario #{user.login}"
+    "Não foi possivel criar os usuarios devido ao erro #{user.errors.messages} para o usuario #{user.login}"
   end
 end

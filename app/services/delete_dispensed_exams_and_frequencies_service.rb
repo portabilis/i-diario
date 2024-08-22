@@ -32,12 +32,15 @@ class DeleteDispensedExamsAndFrequenciesService
         end_date = step.end_at
         student_id = student_enrollment.student_id
         classroom_id = classroom.id
+        user_admin = User.find_by(admin: true)
 
-        destroy_invalid_daily_note_students(student_id, classroom_id, start_date, end_date)
-        destroy_invalid_recovery_diary_record_students(student_id, classroom_id, start_date, end_date)
-        destroy_invalid_conceptual_exams(student_id, classroom_id, step_number)
-        destroy_invalid_descriptive_exams(student_id, classroom_id, step_number)
-        destroy_invalid_daily_frequency_students(student_id, classroom_id, start_date, end_date)
+        Audited.audit_class.as_user(user_admin) do
+          destroy_invalid_daily_note_students(student_id, classroom_id, start_date, end_date)
+          destroy_invalid_recovery_diary_record_students(student_id, classroom_id, start_date, end_date)
+          destroy_invalid_conceptual_exams(student_id, classroom_id, step_number)
+          destroy_invalid_descriptive_exams(student_id, classroom_id, step_number)
+          destroy_invalid_daily_frequency_students(student_id, classroom_id, start_date, end_date)
+        end
       end
     end
   end

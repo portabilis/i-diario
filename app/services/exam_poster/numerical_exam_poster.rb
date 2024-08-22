@@ -119,25 +119,22 @@ module ExamPoster
     end
 
     def fetch_exam_rules(classroom, students)
-      enrollment_classrooms = StudentEnrollmentClassroom.includes(
-        student_enrollment: :student,
-        classrooms_grade: :exam_rule
-      ).by_student(students).by_classroom(classroom).by_date(Date.current)
-      classrooms_grades = classroom.classrooms_grades.where(
-        id: enrollment_classrooms.map(&:classrooms_grade).uniq
-      ).first
-
-      return {} if classrooms_grades.nil?
+      enrollment_classrooms = StudentEnrollmentClassroom
+        .includes(student_enrollment: :student, classrooms_grade: :exam_rule)
+        .by_student(students)
+        .by_classroom(classroom)
+        .by_date(Date.current)
 
       enrollment_classrooms_exam_rules = {}
 
       enrollment_classrooms.each do |sec|
         student_id = sec.student_enrollment.student_id
+        exam_rule = sec.classrooms_grade.exam_rule
 
         next if enrollment_classrooms_exam_rules.key?(student_id)
 
         enrollment_classrooms_exam_rules[sec.student_id] = {
-          exam_rule: classrooms_grades.exam_rule
+          exam_rule: exam_rule
         }
       end
 

@@ -9,7 +9,8 @@ class TeacherWorkDoneChartFetcher
   def fetch!
     return { pending_notes_count: 0, completed_notes_count: 0 } if classroom.blank? || discipline.blank?
 
-    teacher_avaliations = Avaliation.by_classroom_id(classroom)
+    teacher_avaliations = Avaliation.includes(daily_notes: :students)
+                                    .by_classroom_id(classroom)
                                     .by_discipline_id(discipline)
 
     if classroom.calendar
@@ -18,39 +19,20 @@ class TeacherWorkDoneChartFetcher
       teacher_avaliations = teacher_avaliations.by_school_calendar_step(school_calendar_step)
     end
 
-    completed_daily_note_students_count = 0
-    all_daily_note_students_count = 0
-
-    teacher_avaliations.each do |avaliation|
-      students = StudentEnrollmentsList.new(
-        classroom: classroom,
-        discipline: discipline,
-        date: avaliation.test_date,
-        show_inactive: false,
-        score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-        search_type: :by_date
-      ).student_enrollments
-      all_daily_note_students_count += students.count
-      all_daily_note_students_count -= AvaliationExemption.by_avaliation(avaliation.id).count
-
-      completed_daily_note_students = DailyNoteStudent.by_avaliation(avaliation.id)
-                                                      .by_student_id(students.map(&:student_id))
-                                                      .where(active: true)
-                                                      .where.not(note: nil)
-                                                      .reject(&:exempted?)
-      completed_daily_note_students_count += completed_daily_note_students.count
+    all_daily_notes = teacher_avaliations.flat_map(&:daily_notes)
+    completed_daily_note_count = all_daily_notes.count do |daily_note|
+      daily_note.status == DailyNoteStatuses::COMPLETE
     end
 
-    pending_notes_count = all_daily_note_students_count - completed_daily_note_students_count
+    pending_notes_count = all_daily_notes.size - completed_daily_note_count
 
     {
       pending_notes_count: pending_notes_count,
-      completed_notes_count: completed_daily_note_students_count
+      completed_notes_count: completed_daily_note_count
     }
   end
 
   private
 
   attr_accessor :teacher, :classroom, :discipline, :school_calendar_step
-
 end

@@ -18,8 +18,8 @@ class ObservationRecordReportQuery
                         Classroom.by_unity(unity_id).pluck(:id)
                       end
     end
-
     relation = ObservationDiaryRecord.includes(notes: :students)
+                                     .by_teacher(teacher_id)
                                      .by_classroom(classroom_id)
                                      .where(date: start_at..end_at)
                                      .order(:date)

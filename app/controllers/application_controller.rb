@@ -286,7 +286,7 @@ class ApplicationController < ActionController::Base
       classroom: classroom,
       teacher: current_teacher,
       discipline: discipline
-    ).score_type
+    )&.score_type
   end
 
   def set_user_current

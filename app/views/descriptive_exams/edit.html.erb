@@ -47,13 +47,13 @@
       <tbody id="students">
         <% sequence = 0 %>
         <%= f.fields_for :students, @normal_students do |student| %>
-        <% sequence += 1 %>
-          <%= render 'student_fields', f: student, sequence: sequence %>
-        <% end %>
-        <% sequence = 0 %>
-        <% if @dependence_students.any? %>
-          <%= f.fields_for :students, @dependence_students do |student| %>
           <% sequence += 1 %>
+            <%= render 'student_fields', f: student, sequence: sequence %>
+          <% end %>
+          <% sequence = 0 %>
+          <% if @dependence_students.any? %>
+            <%= f.fields_for :students, @dependence_students do |student| %>
+            <% sequence += 1 %>
             <%= render 'student_fields', f: student, sequence: sequence %>
           <% end %>
           <tr>

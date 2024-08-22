@@ -2,6 +2,15 @@ $('#resources-tbody').replaceWith('<%= escape_javascript(render("resources")) %>
 $('#paginator .pagination').html('<%= escape_javascript(paginate(@users, :remote => true).to_s) %>');
 $('#page_entries_info').html('<%= escape_javascript(page_entries_info(@users).to_s) %>');
 
+
+selected = $('#export_selected_selected_users').val().split(",");
+
+$('.selected_users').each(function() {
+  if (_.includes(selected, $(this).attr('value'))) {
+    $(this).prop('checked', true);
+  }
+})
+
 $('.destroy-button').each(function() {
   var search_by_name = $('#search_by_name').val();
   var search_by_cpf = $('#search_by_cpf').val();

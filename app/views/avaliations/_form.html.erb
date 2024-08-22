@@ -4,6 +4,15 @@
 <%= simple_form_for @avaliation, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 
+  <% if @avaliation.errors.any? %>
+    <div class="alert alert-danger fade in">
+      <i class="fa-fw fa fa-times"></i>
+      <% @avaliation.errors.full_messages.each do |message| %>
+        <%= message %><br/>
+      <% end %>
+    </div>
+  <% end %>
+
   <fieldset>
       <div class="row">
         <div class="col col-sm-4">

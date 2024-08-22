@@ -1,7 +1,7 @@
 class GeneralConfiguration < ActiveRecord::Base
   acts_as_copy_target
 
-  audited
+  audited except: :backup_file
 
   include Audit
 
