@@ -97,12 +97,13 @@ module Api
         .by_frequency_date_between(start_at, end_at)
         .joins(:classroom, :students)
         .group('classrooms.api_code, frequency_date')
-        .select("
-          COUNT(DISTINCT CONCAT(daily_frequency_students.student_id, '-', frequency_date)) AS count,
-          SUM(daily_frequency_students.present::int) AS presences,
-          classrooms.api_code AS classroom_api_code,
-          frequency_date AS frequency_date
-        ")
+        .select(
+          "COUNT(DISTINCT CONCAT(daily_frequency_students.student_id, '-', frequency_date)) AS count",
+          "COUNT(DISTINCT CASE WHEN daily_frequency_students.present THEN
+            daily_frequency_students.student_id || '-' || frequency_date
+            END) AS presences",
+          "classrooms.api_code AS classroom_api_code",
+          "frequency_date AS frequency_date")
     end
 
     def daily_frequencies_array(daily_frequencies_array)
