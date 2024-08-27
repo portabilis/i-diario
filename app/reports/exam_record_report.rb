@@ -201,7 +201,7 @@ class ExamRecordReport < BaseReport
           elsif school_term_recovery_record(exam)
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
 
-            score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
+            score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_enrollment, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
 
             school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
