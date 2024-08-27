@@ -43,17 +43,11 @@ class ExamRecordReportForm
 
     lowest_notes = {}
 
-    RecoveryDiaryRecordStudent.by_student_id(students_enrollments.map(&:student_id))
-                              .joins(:recovery_diary_record)
-                              .merge(
-                                RecoveryDiaryRecord.by_discipline_id(discipline_id)
-                                                   .by_classroom_id(classroom_id)
-                                                   .joins(:students, :avaliation_recovery_lowest_note)
-                                                   .merge(
-                                                     AvaliationRecoveryLowestNote
-                                                       .by_step_id(classroom, step.id)
-                                                   )
-                              ).each do |recovery_diary_record|
+    recovery_diary_record_students = RecoveryDiaryRecordStudent.by_student_id(student_ids)
+                                                               .joins(:recovery_diary_record)
+                                                               .merge(recovery_diary_records)
+
+    recovery_diary_record_students.each do |recovery_diary_record|
       student_data = {recovery_diary_record.student_id => recovery_diary_record.score}
       lowest_notes = lowest_notes.merge(student_data)
     end
@@ -134,19 +128,10 @@ class ExamRecordReportForm
     end
   end
 
-  def remove_duplicated_enrollments(students_enrollments)
-    students_enrollments = students_enrollments.select do |student_enrollment|
-      enrollments_for_student = StudentEnrollment
-        .by_student(student_enrollment.student_id)
-        .by_classroom(classroom_id)
-
-      if enrollments_for_student.count > 1
-        enrollments_for_student.last != student_enrollment
-      else
-        true
-      end
-    end
-
-    students_enrollments
+  def recovery_diary_records
+    RecoveryDiaryRecord.by_discipline_id(discipline_id)
+                       .by_classroom_id(classroom_id)
+                       .joins(:students, :avaliation_recovery_lowest_note)
+                       .merge(AvaliationRecoveryLowestNote.by_step_id(classroom, step.id))
   end
 end
