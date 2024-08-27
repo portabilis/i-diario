@@ -166,8 +166,10 @@ class ExamRecordReport < BaseReport
 
         avaliations << make_cell(content: exam_description(exam), font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
 
-        @students_enrollments.each do |student_enrollment|
-          student_id = student_enrollment.student_id
+        @info_students.each do |info_students|
+          student_id = info_students[:student].id
+          student_enrollment = info_students[:student_enrollment]
+
           exempted_from_discipline = exempted_from_discipline?(student_enrollment, exam)
           in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, exam.test_date)
           daily_note_student = nil
