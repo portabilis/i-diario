@@ -71,16 +71,22 @@ class ExamRecordReportForm
                             .order_by_avaliation_test_date
   end
 
-  def students_enrollments
-    StudentEnrollmentsList.new(
-      classroom: classroom_id,
-      discipline: discipline_id,
+  def info_students
+    @student_enrollment_classrooms ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: classroom_id,
+      disciplines: discipline_id,
       start_at: classroom_step.try(:start_at) || step.start_at,
       end_at: classroom_step.try(:end_at) || step.end_at,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       search_type: :by_date_range,
       show_inactive: false
-    ).student_enrollments
+    )
+  end
+
+  def student_ids
+    @student_enrollment_classrooms.map do |student_enrollment_classroom|
+      student_enrollment_classroom[:student].id
+    end
   end
 
   def step
