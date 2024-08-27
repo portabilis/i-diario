@@ -9,18 +9,54 @@ class ExamRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 3
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
+  def self.build(
+    entity_configuration,
+    teacher,
+    year,
+    school_calendar_step,
+    test_setting,
+    daily_notes,
+    info_students,
+    complementary_exams,
+    school_term_recoveries,
+    recovery_lowest_notes,
+    lowest_notes
+  )
+    new(:landscape).build(
+      entity_configuration,
+      teacher,
+      year,
+      school_calendar_step,
+      test_setting,
+      daily_notes,
+      info_students,
+      complementary_exams,
+      school_term_recoveries,
+      recovery_lowest_notes,
+      lowest_notes
+    )
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries, recovery_lowest_notes, lowest_notes)
+  def build(
+    entity_configuration,
+    teacher,
+    year,
+    school_calendar_step,
+    test_setting,
+    daily_notes,
+    info_students,
+    complementary_exams,
+    school_term_recoveries,
+    recovery_lowest_notes,
+    lowest_notes
+  )
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @school_calendar_step = school_calendar_step
     @test_setting = test_setting
     @daily_notes = daily_notes
-    @students_enrollments = students_enrollments
+    @info_students = info_students
     @complementary_exams = complementary_exams
     @school_term_recoveries = school_term_recoveries
     @recovery_lowest_notes = recovery_lowest_notes
