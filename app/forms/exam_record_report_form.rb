@@ -15,10 +15,6 @@ class ExamRecordReportForm
 
   validate :must_have_daily_notes
 
-  def classroom
-    @classroom ||= Classroom.find(classroom_id)
-  end
-
   def daily_notes
     return if step.blank?
 
@@ -134,5 +130,9 @@ class ExamRecordReportForm
                        .by_classroom_id(classroom_id)
                        .joins(:students, :avaliation_recovery_lowest_note)
                        .merge(AvaliationRecoveryLowestNote.by_step_id(classroom, step.id))
+  end
+
+  def classroom
+    @classroom ||= Classroom.find(classroom_id)
   end
 end
