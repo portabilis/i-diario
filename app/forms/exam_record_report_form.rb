@@ -16,7 +16,7 @@ class ExamRecordReportForm
   validate :must_have_daily_notes
 
   def daily_notes
-    return unless step
+    return if step.blank?
 
     @daily_notes = DailyNote.by_unity_id(unity_id)
                             .by_classroom_id(classroom_id)
@@ -26,7 +26,7 @@ class ExamRecordReportForm
   end
 
   def recovery_lowest_notes?
-    return unless step
+    return if step.blank?
 
     classroom = Classroom.find(classroom_id)
     @recovery_lowest_notes = AvaliationRecoveryLowestNote.by_unity_id(unity_id)
@@ -37,7 +37,7 @@ class ExamRecordReportForm
   end
 
   def lowest_notes
-    return unless step
+    return if step.blank?
 
     classroom = Classroom.find(classroom_id)
 
@@ -62,7 +62,7 @@ class ExamRecordReportForm
   end
 
   def daily_notes_classroom_steps
-    return unless classroom_step
+    return if classroom_step.blank?
 
     @daily_notes = DailyNote.by_unity_id(unity_id)
                             .by_classroom_id(classroom_id)
@@ -84,13 +84,13 @@ class ExamRecordReportForm
   end
 
   def step
-    return unless school_calendar_step_id
+    return if school_calendar_step_id.blank?
 
     SchoolCalendarStep.find(school_calendar_step_id)
   end
 
   def classroom_step
-    return unless school_calendar_classroom_step_id
+    return if school_calendar_classroom_step_id.blank?
 
     SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
   end
@@ -106,6 +106,7 @@ class ExamRecordReportForm
 
   def school_term_recoveries
     return [] unless GeneralConfiguration.current.show_school_term_recovery_in_exam_record_report?
+
     @school_term_recoveries ||= SchoolTermRecoveryDiaryRecord
       .includes(recovery_diary_record: :discipline)
       .by_unity_id(unity_id)
@@ -118,7 +119,7 @@ class ExamRecordReportForm
   private
 
   def must_have_daily_notes
-    return unless errors.blank?
+    return if errors.present?
 
     notes = daily_notes_classroom_steps || daily_notes
 
