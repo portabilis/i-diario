@@ -144,41 +144,16 @@ class ExamRecordReport < BaseReport
     school_term_recovery_scores = {}
     self.any_student_with_dependence = false
 
-    @students_enrollments.each do |student_enrollment|
-      averages[student_enrollment.id] = StudentAverageCalculator.new(
-        student_enrollment.student
-      ).calculate(
-        classroom,
-        discipline,
-        @school_calendar_step
-      )
-
-      if @lowest_notes
-        lowest_note = @lowest_notes[student_enrollment.student_id].to_s
-
     calculate_student_averages_and_recovery_notes
     collect_exams_and_recoveries
     collect_exams_and_complementary_exams
 
     @school_term_recoveries.each do |school_term_recovery|
-      exams << school_term_recovery
+      @exams << school_term_recovery
     end
 
-    @complementary_exams.each do |complementary_exam|
-      if complementary_exam.complementary_exam_setting.integral?
-        integral_complementary_exams << complementary_exam
-        next
-      end
-
-      exams << complementary_exam
-    end
-
-    integral_complementary_exams.each do |integral_exam|
-      exams << integral_exam
-    end
-
-    exams.to_a
-    sliced_exams = exams.each_slice(10).to_a
+    @exams.to_a
+    sliced_exams = @exams.each_slice(10).to_a
     pos = 0
 
     sliced_exams.each_with_index do |daily_notes_slice, index|
@@ -187,8 +162,8 @@ class ExamRecordReport < BaseReport
 
       daily_notes_slice.each do |exam|
         if recovery_record(exam)
-          avaliation_id = recoveries_avaliation_id[pos]
-          daily_note_id = recoveries_ids[pos]
+          avaliation_id = @recoveries_avaliation_id[pos]
+          daily_note_id = @recoveries_ids[pos]
           pos += 1
         elsif complementary_exam_record(exam)
           avaliation_id = nil
@@ -200,6 +175,7 @@ class ExamRecordReport < BaseReport
           avaliation_id = exam.avaliation_id
           daily_note_id = exam.id
         end
+
         avaliations << make_cell(content: exam_description(exam), font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
 
         @students_enrollments.each do |student_enrollment|
@@ -210,7 +186,7 @@ class ExamRecordReport < BaseReport
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
-            averages[student_enrollment.id] = "D" if exempted_from_discipline
+            @averages[student_enrollment.id] = "D" if exempted_from_discipline
           elsif in_active_search
             @active_search = true
 
@@ -224,7 +200,7 @@ class ExamRecordReport < BaseReport
           score = nil
 
           if exempted_from_discipline || avaliation_id.present?
-            averages[student_enrollment.id] = nil if exempted_from_discipline
+            @averages[student_enrollment.id] = nil if exempted_from_discipline
 
             recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student_id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
@@ -296,11 +272,11 @@ class ExamRecordReport < BaseReport
                            end
 
           recovery_average = SchoolTermAverageCalculator.new(classroom)
-                                                        .calculate(averages[key], recovery_score)
-          averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, @school_calendar_step)
+                                                        .calculate(@averages[key], recovery_score)
+          @averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, @school_calendar_step)
                                       .round(recovery_average)
 
-          average = averages[key]
+          average = @averages[key]
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
