@@ -141,8 +141,6 @@ class ExamRecordReport < BaseReport
   end
 
   def daily_notes_table
-    averages = {}
-    recovery_lowest_note = {}
     school_term_recovery_scores = {}
     self.any_student_with_dependence = false
 
@@ -158,25 +156,9 @@ class ExamRecordReport < BaseReport
       if @lowest_notes
         lowest_note = @lowest_notes[student_enrollment.student_id].to_s
 
-        if lowest_note.present?
-          recovery_lowest_note[student_enrollment.id] = lowest_note
-        end
-      end
-    end
-
-    exams = []
-    integral_complementary_exams = []
-    recoveries_avaliation_id = []
-    recoveries_ids = []
-
-    @daily_notes.each do |daily_note|
-      exams << daily_note
-      if daily_note.avaliation.recovery_diary_record
-        exams << daily_note.avaliation.recovery_diary_record
-        recoveries_avaliation_id << daily_note.avaliation_id
-        recoveries_ids << daily_note.id
-      end
-    end
+    calculate_student_averages_and_recovery_notes
+    collect_exams_and_recoveries
+    collect_exams_and_complementary_exams
 
     @school_term_recoveries.each do |school_term_recovery|
       exams << school_term_recovery
@@ -361,6 +343,65 @@ class ExamRecordReport < BaseReport
       end
 
       start_new_page if index < sliced_exams.count - 1
+    end
+  end
+
+  def calculate_student_averages_and_recovery_notes
+    @averages = {}
+    @recovery_lowest_note = {}
+
+    @info_students.each do |info_students|
+      student = info_students[:student]
+      student_enrollment_id = info_students[:student_enrollment].id
+
+      @averages[student_enrollment_id] = StudentAverageCalculator.new(
+        student
+      ).calculate(
+        classroom,
+        discipline,
+        @school_calendar_step
+      )
+
+      next if @lowest_notes.blank?
+
+      lowest_note = @lowest_notes[student.id].to_s
+
+      next if lowest_note.blank?
+
+      @recovery_lowest_note[student_enrollment_id] = lowest_note
+    end
+  end
+
+  def collect_exams_and_recoveries
+    @exams = []
+    @recoveries_avaliation_id = []
+    @recoveries_ids = []
+
+    @daily_notes.each do |daily_note|
+      @exams << daily_note
+
+      next if daily_note.avaliation.recovery_diary_record.blank?
+
+      @exams << daily_note.avaliation.recovery_diary_record
+      @recoveries_avaliation_id << daily_note.avaliation_id
+      @recoveries_ids << daily_note.id
+    end
+  end
+
+  def collect_exams_and_complementary_exams
+    integral_complementary_exams = []
+
+    @complementary_exams.each do |complementary_exam|
+      if complementary_exam.complementary_exam_setting.integral?
+        integral_complementary_exams << complementary_exam
+        next
+      end
+
+      @exams << complementary_exam
+    end
+
+    integral_complementary_exams.each do |integral_exam|
+      @exams << integral_exam
     end
   end
 
