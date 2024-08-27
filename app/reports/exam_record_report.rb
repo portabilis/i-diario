@@ -76,20 +76,8 @@ class ExamRecordReport < BaseReport
 
   private
 
-  def student_enrolled_on_date?(student_id, date)
-    student_list(date).include?(student_id)
-  end
-
-  def student_list(date)
-    student_list ||= {}
-    student_list[date] ||= StudentEnrollmentsList.new(
-      classroom: classroom,
-      discipline: discipline,
-      date: date,
-      search_type: :by_date,
-      show_inactive: false
-    ).student_enrollments
-    .map(&:student_id)
+  def student_enrolled_on_date?(student_enrollment, date)
+    ActiveStudentsOnDate.call(student_enrollment, date: date)
   end
 
   def classroom
