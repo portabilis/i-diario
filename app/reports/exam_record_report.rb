@@ -77,7 +77,9 @@ class ExamRecordReport < BaseReport
   private
 
   def student_enrolled_on_date?(student_enrollment, date)
-    ActiveStudentsOnDate.call(student_enrollment, date: date)
+    ActiveStudentsOnDate.call(
+      student_enrollments: student_enrollment, date: date
+    )
   end
 
   def classroom
@@ -171,12 +173,11 @@ class ExamRecordReport < BaseReport
         @info_students.each do |info_students|
           student = info_students[:student]
           student_enrollment = info_students[:student_enrollment]
-
-          exempted_from_discipline = exempted_from_discipline?(student_enrollment, exam)
+          exempted_from_discipline = student_enrollments_exempts[student_enrollment.id]
           in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, exam.test_date)
           daily_note_student = nil
 
-          if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
+          if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student.id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
             @averages[student_enrollment.id] = "D" if exempted_from_discipline
           elsif in_active_search
@@ -197,6 +198,7 @@ class ExamRecordReport < BaseReport
             recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student.id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
             score = recovery_record(exam) ? student_note.recovery_note : student_note.note
+            score = verify_note_presence(exam, recovery_note, student_enrollment)
           elsif complementary_exam_record(exam)
             complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student.id)
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
@@ -308,6 +310,14 @@ class ExamRecordReport < BaseReport
 
       start_new_page if index < sliced_exams.count - 1
     end
+  end
+
+  def verify_note_presence(exam, recovery_note, student_enrollment)
+    return unless recovery_record(exam)
+    return if recovery_note.blank?
+    return if student_enrolled_on_date?(student_enrollment, exam.recorded_at).present?
+
+    NullDailyNoteStudent.new.note
   end
 
   def calculate_student_averages_and_recovery_notes
@@ -428,16 +438,16 @@ class ExamRecordReport < BaseReport
     avaliation_is_exempted
   end
 
-  def exempted_from_discipline?(student_enrollment, exam)
-    discipline_id = exam.discipline.id
-
+  def exempted_from_discipline?(exam)
+    steps_fetcher = StepsFetcher.new(classroom)
     test_date = exam.test_date
-    steps_fetcher = StepsFetcher.new(exam.classroom)
     step_number = steps_fetcher.step_by_date(test_date).to_number
 
-    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
+    StudentsExemptFromDiscipline.call(
+      student_enrollments: @info_students.map { |info| info[:student_enrollment].id },
+      discipline: discipline,
+      step: step_number
+    )
   end
 
   def recovery_record(record)
