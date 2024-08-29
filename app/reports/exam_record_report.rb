@@ -149,6 +149,8 @@ class ExamRecordReport < BaseReport
       students = {}
 
       daily_notes_slice.each do |exam|
+        student_enrollments_exempts = exempted_from_discipline?(exam)
+
         if recovery_record(exam)
           avaliation_id = @recoveries_avaliation_id[pos]
           daily_note_id = @recoveries_ids[pos]
@@ -167,7 +169,7 @@ class ExamRecordReport < BaseReport
         avaliations << make_cell(content: exam_description(exam), font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
 
         @info_students.each do |info_students|
-          student_id = info_students[:student].id
+          student = info_students[:student]
           student_enrollment = info_students[:student_enrollment]
 
           exempted_from_discipline = exempted_from_discipline?(student_enrollment, exam)
@@ -182,7 +184,7 @@ class ExamRecordReport < BaseReport
 
             student_note = ActiveSearchDailyNoteStudent.new
           elsif avaliation_id.present?
-            note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
+            note_student = DailyNoteStudent.find_by(student_id: student.id, daily_note_id: daily_note_id, active: true)
             daily_note_student = student_transferred?(note_student) if note_student.present?
             student_note = daily_note_student || NullDailyNoteStudent.new
           end
@@ -192,21 +194,17 @@ class ExamRecordReport < BaseReport
           if exempted_from_discipline || avaliation_id.present?
             @averages[student_enrollment.id] = nil if exempted_from_discipline
 
-            recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student_id).try(&:score) : nil
+            recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student.id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
             score = recovery_record(exam) ? student_note.recovery_note : student_note.note
           elsif complementary_exam_record(exam)
-            complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student_id)
+            complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student.id)
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
           elsif school_term_recovery_record(exam)
-            recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
-
+            recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student.id, recovery_diary_record_id: exam.recovery_diary_record_id)
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_enrollment, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
-
             school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
-
-          student = Student.find(student_id)
 
           self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
 
