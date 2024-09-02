@@ -182,7 +182,6 @@ class ExamRecordReport < BaseReport
             @averages[student_enrollment.id] = "D" if exempted_from_discipline
           elsif in_active_search
             @active_search = true
-
             student_note = ActiveSearchDailyNoteStudent.new
           elsif avaliation_id.present?
             note_student = DailyNoteStudent.find_by(student_id: student.id, daily_note_id: daily_note_id, active: true)
@@ -194,11 +193,18 @@ class ExamRecordReport < BaseReport
 
           if exempted_from_discipline || avaliation_id.present?
             @averages[student_enrollment.id] = nil if exempted_from_discipline
-
             recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student.id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
-            score = recovery_record(exam) ? student_note.recovery_note : student_note.note
-            score = verify_note_presence(exam, recovery_note, student_enrollment)
+
+            if recovery_record(exam)
+              score = student_note.recovery_note
+
+              if student_enrolled_on_date?(student_enrollment, exam.recorded_at).blank?
+                score = NullDailyNoteStudent.new.note
+              end
+            else
+              score = student_note.note
+            end
           elsif complementary_exam_record(exam)
             complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student.id)
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
@@ -310,14 +316,6 @@ class ExamRecordReport < BaseReport
 
       start_new_page if index < sliced_exams.count - 1
     end
-  end
-
-  def verify_note_presence(exam, recovery_note, student_enrollment)
-    return unless recovery_record(exam)
-    return if recovery_note.blank?
-    return if student_enrolled_on_date?(student_enrollment, exam.recorded_at).present?
-
-    NullDailyNoteStudent.new.note
   end
 
   def calculate_student_averages_and_recovery_notes
