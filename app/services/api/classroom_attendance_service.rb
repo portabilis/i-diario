@@ -66,6 +66,7 @@ module Api
 
     def query_student_enrollment_classrooms
       StudentEnrollmentClassroom
+        .includes(:student_enrollment)
         .by_classroom(@classrooms.pluck(:id))
         .by_date_range(start_at, end_at)
         .group_by(&:classroom_code)
