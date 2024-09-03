@@ -83,13 +83,13 @@ class ExamRecordReportForm
   def step
     return if school_calendar_step_id.blank?
 
-    @step ||= SchoolCalendarStep.find(school_calendar_step_id)
+    step ||= SchoolCalendarStep.find(school_calendar_step_id)
   end
 
   def classroom_step
     return if school_calendar_classroom_step_id.blank?
 
-    @step ||=  SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    step ||=  SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
   end
 
   def complementary_exams
