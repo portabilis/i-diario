@@ -34,6 +34,7 @@ module Api
 
     def process_student_enrollment_classrooms
       enrollments = query_student_enrollment_classrooms
+      @students = enrollments.values.flatten.map(&:student_enrollment).map(&:student_id)
       list_student_enrollment_classrooms_by_day(enrollments)
     end
 
@@ -95,6 +96,7 @@ module Api
       DailyFrequency
         .by_classroom_id(@classrooms.pluck(:id))
         .by_frequency_date_between(start_at, end_at)
+        .has_frequency_for_student(@students)
         .joins(:classroom, :students)
         .group('classrooms.api_code, frequency_date')
         .select(
