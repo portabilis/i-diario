@@ -34,6 +34,8 @@ module Api
 
     def process_student_enrollment_classrooms
       enrollments = query_student_enrollment_classrooms
+      @students = enrollments.values.flatten.map(&:student_enrollment).map(&:student_id)
+
       list_student_enrollment_classrooms_by_day(enrollments)
     end
 
@@ -47,8 +49,8 @@ module Api
         classroom_api_code = classroom.api_code
         classroom_name = classroom.description
         classroom_max_students = classroom.max_students
-        enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= 0
-        frequencies = frequencies_by_classrooms[classroom_api_code] || {}
+        enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= {}
+        frequencies = frequencies_by_classrooms[classroom_api_code] || 0
 
         attendance_and_enrollments = attendance_and_enrollment_data(frequencies,enrollments_by_classroom_count)
         grades = build_grade_hashes(classroom)
@@ -65,6 +67,7 @@ module Api
 
     def query_student_enrollment_classrooms
       StudentEnrollmentClassroom
+        .includes(:student_enrollment)
         .by_classroom(@classrooms.pluck(:id))
         .by_date_range(start_at, end_at)
         .group_by(&:classroom_code)
@@ -72,12 +75,12 @@ module Api
 
     def list_student_enrollment_classrooms_by_day(student_enrollment_classrooms)
       enrollment_counts = {}
-      range_dates = (start_at..end_at).to_a
+      school_days = set_school_days
 
       student_enrollment_classrooms.each do |classroom_code, enrollments|
         enrollment_counts[classroom_code] ||= {}
 
-        range_dates.each do |day|
+        school_days.each do |day|
           enrollment_counts[classroom_code][day] ||= 0
 
           enrollments.each do |enrollment|
@@ -95,24 +98,26 @@ module Api
       DailyFrequency
         .by_classroom_id(@classrooms.pluck(:id))
         .by_frequency_date_between(start_at, end_at)
+        .has_frequency_for_student(@students)
         .joins(:classroom, :students)
         .group('classrooms.api_code, frequency_date')
-        .select("
-          COUNT(DISTINCT CONCAT(daily_frequency_students.student_id, '-', frequency_date)) AS count,
-          SUM(daily_frequency_students.present::int) AS presences,
-          classrooms.api_code AS classroom_api_code,
-          frequency_date AS frequency_date
-        ")
+        .select(
+          "COUNT(DISTINCT CONCAT(daily_frequency_students.student_id, '-', frequency_date)) AS count",
+          "COUNT(DISTINCT CASE WHEN daily_frequency_students.present THEN
+            daily_frequency_students.student_id || '-' || frequency_date
+            END) AS presences",
+          "classrooms.api_code AS classroom_api_code",
+          "frequency_date AS frequency_date")
     end
 
     def daily_frequencies_array(daily_frequencies_array)
       daily_frequencies_array.each_with_object({}) do |record, hash|
         classroom_api_code = record['classroom_api_code']
         frequency_date = record['frequency_date']
-        count = record['presences']
+        presences = record['presences']
 
         hash[classroom_api_code] ||= {}
-        hash[classroom_api_code][frequency_date] = count
+        hash[classroom_api_code][frequency_date] = presences
       end
     end
 
@@ -128,14 +133,20 @@ module Api
     end
 
     def attendance_and_enrollment_data(frequencies, enrollments_by_classroom_count)
-      frequencies.map do |date_frequencies, frequency_count|
+      enrollments_by_classroom_count.map do |date_enrollments, enrollments_count|
         {
-          date_frequencies => {
-            frequencies: frequency_count,
-            enrollments: enrollments_by_classroom_count[date_frequencies] || 0
+          date_enrollments => {
+            frequencies: frequencies[date_enrollments] || 0,
+            enrollments: enrollments_count
           }
         }
       end.reduce(:merge)
+    end
+
+    def set_school_days
+      UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
+                    .where('school_day BETWEEN ? AND ?', start_at, end_at)
+                    .map { |day| day.school_day.strftime('%Y-%m-%d') }
     end
   end
 end
