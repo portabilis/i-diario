@@ -35,6 +35,7 @@ module Api
     def process_student_enrollment_classrooms
       enrollments = query_student_enrollment_classrooms
       @students = enrollments.values.flatten.map(&:student_enrollment).map(&:student_id)
+
       list_student_enrollment_classrooms_by_day(enrollments)
     end
 
@@ -113,10 +114,10 @@ module Api
       daily_frequencies_array.each_with_object({}) do |record, hash|
         classroom_api_code = record['classroom_api_code']
         frequency_date = record['frequency_date']
-        count = record['presences']
+        presences = record['presences']
 
         hash[classroom_api_code] ||= {}
-        hash[classroom_api_code][frequency_date] = count
+        hash[classroom_api_code][frequency_date] = presences
       end
     end
 
@@ -132,11 +133,11 @@ module Api
     end
 
     def attendance_and_enrollment_data(frequencies, enrollments_by_classroom_count)
-      frequencies.map do |date_frequencies, frequency_count|
+      enrollments_by_classroom_count.map do |date_enrollments, enrollments_count|
         {
-          date_frequencies => {
-            frequencies: frequency_count,
-            enrollments: enrollments_by_classroom_count[date_frequencies] || 0
+          date_enrollments => {
+            frequencies: frequencies[date_enrollments] || 0,
+            enrollments: enrollments_count
           }
         }
       end.reduce(:merge)
