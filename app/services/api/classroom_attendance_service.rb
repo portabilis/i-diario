@@ -74,12 +74,12 @@ module Api
 
     def list_student_enrollment_classrooms_by_day(student_enrollment_classrooms)
       enrollment_counts = {}
-      range_dates = (start_at..end_at).to_a
+      school_days = set_school_days
 
       student_enrollment_classrooms.each do |classroom_code, enrollments|
         enrollment_counts[classroom_code] ||= {}
 
-        range_dates.each do |day|
+        school_days.each do |day|
           enrollment_counts[classroom_code][day] ||= 0
 
           enrollments.each do |enrollment|
@@ -140,6 +140,12 @@ module Api
           }
         }
       end.reduce(:merge)
+    end
+
+    def set_school_days
+      UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
+                    .where('school_day BETWEEN ? AND ?', start_at, end_at)
+                    .map { |day| day.school_day.strftime('%Y-%m-%d') }
     end
   end
 end
