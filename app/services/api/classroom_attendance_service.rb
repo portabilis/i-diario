@@ -124,9 +124,9 @@ module Api
     def build_grade_hashes(classroom)
       classroom.classrooms_grades.map do |classroom_grade|
         {
-          id: classroom_grade.grade_id,
+          id: classroom_grade.grade.api_code,
           name: classroom_grade.grade.description,
-          course_id: classroom_grade.grade.course_id,
+          course_id: classroom_grade.grade.course.api_code,
           course_name: classroom_grade.grade.course.description
         }
       end
