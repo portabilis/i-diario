@@ -67,7 +67,7 @@ module Api
 
     def query_student_enrollment_classrooms
       StudentEnrollmentClassroom
-        .includes(:student_enrollment)
+        .includes(student_enrollment: :student)
         .by_classroom(@classrooms.pluck(:id))
         .by_date_range(start_at, end_at)
         .group_by(&:classroom_code)
@@ -81,11 +81,13 @@ module Api
         enrollment_counts[classroom_code] ||= {}
 
         school_days.each do |day|
-          enrollment_counts[classroom_code][day] ||= 0
+          enrollment_counts[classroom_code][day] ||= { "count" => 0, "student_ids" => [] }
 
           enrollments.each do |enrollment|
+
             if enrollment.joined_at <= day && (enrollment.left_at.blank? || enrollment.left_at >= day)
-              enrollment_counts[classroom_code][day] += 1
+              enrollment_counts[classroom_code][day]["count"] += 1
+              enrollment_counts[classroom_code][day]["student_ids"] << enrollment.student_enrollment.student_id
             end
           end
         end
@@ -137,7 +139,7 @@ module Api
         {
           date_enrollments => {
             frequencies: frequencies[date_enrollments] || 0,
-            enrollments: enrollments_count
+            enrollments: enrollments_count["count"]
           }
         }
       end.reduce(:merge)
