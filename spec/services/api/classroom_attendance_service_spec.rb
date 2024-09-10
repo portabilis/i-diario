@@ -65,6 +65,8 @@ RSpec.describe Api::ClassroomAttendanceService do
       Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
     end
 
+    let(:daily_frequency_two) { create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29') }
+
     it 'returns correct classroom, attendance and enrollments data when valid params' do
       expect(service.first[:classroom_name]).to include(classroom.description)
       expect(service.first[:grades]).to include(
@@ -82,17 +84,14 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'Se aluno for descartado deve retornar nil' do
+    it 'returns nil when the student_enrollment_classroom has discarded_at' do
       student_enrollment_classroom.update(discarded_at: '2024-03-29')
 
       expect(service.first[:attendance_and_enrollments]).to be_nil
     end
 
-    it '' do
-      #  colocar mais um dia de frequencia
-      daily_frequency_two = create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29')
-      daily_frequency_student= create(:daily_frequency_student, student: student, present: true,
-        daily_frequency: daily_frequency_two)
+    it 'returns 100% attendance and all students enrolled' do
+      daily_frequency_student= create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
 
       expect(service.first[:attendance_and_enrollments]).to include(
         {
@@ -108,8 +107,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it '' do
-      # colocar mais alunos na turma, cenario 50% || 100% frequencia, cenário perfeito
+    it 'returns 50% or 100% attendance for all students in the classroom' do
       student_enrollment_classroom_two = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -119,7 +117,6 @@ RSpec.describe Api::ClassroomAttendanceService do
       student_two = student_enrollment_two.student
 
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
-      daily_frequency_two = create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29')
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
 
       service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
@@ -142,7 +139,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it '' do
+    it 'returns only the attendance of students with active enrollment on the date' do
       # Enturma alunos
       student_enrollment_classroom_three = create(
         :student_enrollment_classroom,
@@ -161,19 +158,19 @@ RSpec.describe Api::ClassroomAttendanceService do
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
       create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency)
       # Lança a frequencia alunos para 29/03/2024
-      daily_frequency_three = create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29')
-      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_three)
-      create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency_three)
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+      create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency_two)
 
       # Mudar a enturmacao, Insere saida do aluno retroativa ==> cenário problematico
       student_enrollment_classroom_two.update(left_at: '2024-03-29')
       #student_enrollment_classroom_discarded.update(discarded_at: '2024-03-29')
 
+      service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
+
       expect(service.first[:attendance_and_enrollments]).to include(
         {
           "2024-04-01" => {
-            # correct frequencies: 2, enrollments: 2
-            frequencies: 3,
+            frequencies: 2,
             enrollments: 2
           },
           "2024-03-29" => {
