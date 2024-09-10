@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Api::ClassroomAttendanceService do
   Timecop.travel(Time.zone.local(2024, 4, 1, 0, 0, 0))
-  let(:classroom) { create(:classroom, year: '2024', api_code: '01') }
+  let(:classroom) { create(:classroom, id: 1, year: '2024', api_code: "01") }
   let(:school_calendar) {
     create(
       :school_calendar,
@@ -27,14 +27,6 @@ RSpec.describe Api::ClassroomAttendanceService do
       "0" => classroom.api_code
     }
   end
-
-  before do
-    UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-04-01')
-    UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-03-29')
-    UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-03-28')
-  end
-
-  context 'when params are correct' do
   let(:classrooms_grades) { create(:classrooms_grade, classroom: classroom) }
   let(:student_enrollment_classroom) { create(
       :student_enrollment_classroom,
@@ -184,7 +176,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it '' do
+    it 'returns attendance only for students with active enrollment on the date' do
       # Enturma 2 alunos, entrando dia 28/03/2024
       student_enrollment_classroom_three = create(
         :student_enrollment_classroom,
