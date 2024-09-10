@@ -50,7 +50,7 @@ module Api
         classroom_name = classroom.description
         classroom_max_students = classroom.max_students
         enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= {}
-        frequencies = frequencies_by_classrooms[classroom_api_code] || 0
+        frequencies = frequencies_by_classrooms[classroom_api_code] ||= {}
 
         attendance_and_enrollments = attendance_and_enrollment_data(frequencies,enrollments_by_classroom_count)
         grades = build_grade_hashes(classroom)
