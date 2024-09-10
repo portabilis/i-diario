@@ -268,7 +268,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       # Lança a frequencia alunos para 01/04/2024 para outra turma
       daily_frequency_two = create(:daily_frequency, classroom: classroom_two, frequency_date: '2024-04-01')
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
-      binding.pry
+
       service = Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
       expect(service.last[:classroom_id]).to include(classroom_two.api_code)
       expect(service.last[:attendance_and_enrollments]).to include(
