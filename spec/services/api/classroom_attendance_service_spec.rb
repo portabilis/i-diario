@@ -232,4 +232,148 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
   end
+
+  context 'when there are more than one classroom' do
+    # Cria +1 turma
+    let(:classroom_two) { create(:classroom, id: 2, year: '2024', api_code: '02', unity: classroom.unity) }
+    let(:classrooms_grades_two) { create(:classrooms_grade, classroom: classroom_two) }
+    let(:params_classrooms_two) do
+      {
+        "0" => classroom.api_code,
+        "1" => classroom_two.api_code
+      }
+    end
+    # Enturma 1 aluno, entrando dia 28/03/2024
+    let!(:student_enrollment_classroom_two) { create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grades,
+        joined_at: '2024-03-28'
+      )
+    }
+    let!(:student_enrollment_two) { student_enrollment_classroom_two.student_enrollment }
+    let!(:student_two) { student_enrollment_two.student }
+
+    it '' do
+      # Lança a frequencia alunos para 01/04/2024
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
+
+      # Lança a frequencia alunos para 29/03/2024
+      daily_frequency_two = create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29')
+      create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+
+      # Mudar a enturmacao
+      student_enrollment_classroom_two.update(left_at: '2024-03-29')
+
+      # Re-Enturmei o aluno na nova a turma
+      new_student_enrollment_classroom = create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grades_two,
+        student_enrollment: student_enrollment_two,
+        joined_at: '2024-03-28'
+      )
+
+      # Lança a frequencia alunos para 01/04/2024 para outra turma
+      daily_frequency_two = create(:daily_frequency, classroom: classroom_two, frequency_date: '2024-04-01')
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+      binding.pry
+      service = Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
+      expect(service.last[:classroom_id]).to include(classroom_two.api_code)
+      expect(service.last[:attendance_and_enrollments]).to include(
+        {
+          "2024-04-01" => {
+            frequencies: 1,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 0,
+            enrollments: 1
+          },
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 1
+          }
+        }
+      )
+      expect(service.first[:classroom_id]).to include(classroom.api_code)
+      expect(service.first[:attendance_and_enrollments]).to include(
+        {
+          "2024-04-01" => {
+            frequencies: 2,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 2,
+            enrollments: 2
+          },
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 2
+          }
+        }
+      )
+    end
+
+    it '' do
+      # Lança a frequencia alunos para 01/04/2024
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
+
+      # Lança a frequencia alunos para 29/03/2024
+      daily_frequency_two = create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29')
+      create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+
+      # Mudar a enturmacao
+      student_enrollment_classroom_two.update(discarded_at: '2024-03-29')
+
+      # Re-Enturmei o aluno na nova a turma
+      new_student_enrollment_classroom = create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grades_two,
+        student_enrollment: student_enrollment_two,
+        joined_at: '2024-03-28'
+      )
+
+      # Lança a frequencia alunos para 01/04/2024 para outra turma
+      daily_frequency_two = create(:daily_frequency, classroom: classroom_two, frequency_date: '2024-04-01')
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+
+      service = Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
+
+      expect(service.last[:classroom_id]).to include(classroom_two.api_code)
+      expect(service.last[:attendance_and_enrollments]).to include(
+        {
+          "2024-04-01" => {
+            frequencies: 1,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 0,
+            enrollments: 1
+          },
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 1
+          }
+        }
+      )
+      expect(service.first[:classroom_id]).to include(classroom.api_code)
+      expect(service.first[:attendance_and_enrollments]).to include(
+        {
+          "2024-04-01" => {
+            frequencies: 2,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 2,
+            enrollments: 1
+          },
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 1
+          }
+        }
+      )
+    end
+  end
 end
