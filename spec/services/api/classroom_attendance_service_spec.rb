@@ -163,7 +163,6 @@ RSpec.describe Api::ClassroomAttendanceService do
 
       # Mudar a enturmacao, Insere saida do aluno retroativa ==> cenário problematico
       student_enrollment_classroom_two.update(left_at: '2024-03-29')
-      #student_enrollment_classroom_discarded.update(discarded_at: '2024-03-29')
 
       service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
 
@@ -212,7 +211,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
       create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency_two)
 
-      # Mudar a enturmacao, cenário problematico
+      # Descartar a enturmacao
       student_enrollment_classroom_three.update(discarded_at: '2024-03-29')
 
       expect(service.first[:attendance_and_enrollments]).to include(
