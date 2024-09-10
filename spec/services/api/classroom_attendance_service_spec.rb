@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Api::ClassroomAttendanceService do
-  Timecop.travel(Time.local(2024, 4, 1, 0, 0, 0))
+  Timecop.travel(Time.zone.local(2024, 4, 1, 0, 0, 0))
   let(:classroom) { create(:classroom, year: '2024', api_code: '01') }
   let(:school_calendar) {
     create(
@@ -35,25 +35,32 @@ RSpec.describe Api::ClassroomAttendanceService do
   end
 
   context 'when params are correct' do
-    let(:classrooms_grades) { create(:classrooms_grade, classroom: classroom) }
-    let!(:student_enrollment_classroom) { create(
-        :student_enrollment_classroom,
-        classrooms_grade: classrooms_grades,
-        joined_at: '2024-03-28'
-      )
-    }
-    let!(:student_enrollment) { student_enrollment_classroom.student_enrollment }
-    let!(:student) { student_enrollment.student }
-    let!(:daily_frequency) { create(:daily_frequency,classroom: classroom, frequency_date: '2024-04-01') }
-    let!(:daily_frequency_student) {
-      create(
-        :daily_frequency_student,
-        student: student,
-        present: true,
-        daily_frequency: daily_frequency
-      )
-    }
+  let(:classrooms_grades) { create(:classrooms_grade, classroom: classroom) }
+  let(:student_enrollment_classroom) { create(
+      :student_enrollment_classroom,
+      classrooms_grade: classrooms_grades,
+      joined_at: '2024-03-28'
+    )
+  }
+  let(:student_enrollment) { student_enrollment_classroom.student_enrollment }
+  let(:student) { student_enrollment.student }
+  let!(:daily_frequency) { create(:daily_frequency,classroom: classroom, frequency_date: '2024-04-01') }
+  let!(:daily_frequency_student) {
+    create(
+      :daily_frequency_student,
+      student: student,
+      present: true,
+      daily_frequency: daily_frequency
+    )
+  }
 
+  before do
+    UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-04-01')
+    UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-03-29')
+    UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-03-28')
+  end
+
+  context 'when params are correct' do
     subject(:service) do
       Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
     end
