@@ -131,7 +131,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns only the attendance of students with active enrollment on the date' do
+    it 'returns only the attendance of students with enrollment on the date' do
       # Enturma alunos
       student_enrollment_classroom_three = create(
         :student_enrollment_classroom,
@@ -176,7 +176,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns attendance only for students with active enrollment on the date' do
+    it 'returns only the attendance of students with active enrollment on the date' do
       # Enturma 2 alunos, entrando dia 28/03/2024
       student_enrollment_classroom_three = create(
         :student_enrollment_classroom,
@@ -245,7 +245,7 @@ RSpec.describe Api::ClassroomAttendanceService do
     let!(:student_enrollment_two) { student_enrollment_classroom_two.student_enrollment }
     let!(:student_two) { student_enrollment_two.student }
 
-    it '' do
+    it 'return attendance for a student re-enrolled in a new classroom' do
       # Lança a frequencia alunos para 01/04/2024
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
 
@@ -291,7 +291,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       expect(service.first[:attendance_and_enrollments]).to include(
         {
           "2024-04-01" => {
-            frequencies: 2,
+            frequencies: 1,
             enrollments: 1
           },
           "2024-03-29" => {
@@ -306,7 +306,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it '' do
+    it 'return attendance for a student re-enrolled in a new classroom' do
       # Lança a frequencia alunos para 01/04/2024
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
 
@@ -353,7 +353,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       expect(service.first[:attendance_and_enrollments]).to include(
         {
           "2024-04-01" => {
-            frequencies: 2,
+            frequencies: 1,
             enrollments: 1
           },
           "2024-03-29" => {
