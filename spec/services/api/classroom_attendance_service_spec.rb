@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Api::ClassroomAttendanceService do
   Timecop.travel(Time.zone.local(2024, 4, 1, 0, 0, 0))
   let(:classroom) { create(:classroom, id: 1, year: '2024', api_code: "01") }
+  let(:discipline) { create(:discipline) }
   let(:school_calendar) {
     create(
       :school_calendar,
@@ -36,7 +37,15 @@ RSpec.describe Api::ClassroomAttendanceService do
   }
   let(:student_enrollment) { student_enrollment_classroom.student_enrollment }
   let(:student) { student_enrollment.student }
-  let!(:daily_frequency) { create(:daily_frequency,classroom: classroom, frequency_date: '2024-04-01') }
+  let!(:daily_frequency) {
+    create(
+      :daily_frequency,
+      classroom: classroom,
+      frequency_date: '2024-04-01',
+      class_number: nil,
+      discipline_id: nil
+    )
+  }
   let!(:daily_frequency_student) {
     create(
       :daily_frequency_student,
@@ -89,6 +98,39 @@ RSpec.describe Api::ClassroomAttendanceService do
         {
           "2024-03-29" => {
             frequencies: 1,
+            enrollments: 1
+          },
+          "2024-04-01" => {
+            frequencies: 1,
+            enrollments: 1
+          }
+        }
+      )
+    end
+
+    it 'return global frequency count in the classroom' do
+      daily_frequency_class_number_one =
+        create(
+          :daily_frequency,
+          classroom: classroom,
+          frequency_date: '2024-04-01',
+          class_number: '1',
+          discipline: discipline
+        )
+
+      daily_frequency_student = create(
+        :daily_frequency_student,
+        student: student, present: true, daily_frequency: daily_frequency_class_number_one)
+
+        service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
+        expect(service.first[:attendance_and_enrollments]).to include(
+        {
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 0,
             enrollments: 1
           },
           "2024-04-01" => {
