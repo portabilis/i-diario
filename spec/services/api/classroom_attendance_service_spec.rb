@@ -88,7 +88,7 @@ RSpec.describe Api::ClassroomAttendanceService do
     it 'returns nil when the student_enrollment_classroom has discarded_at' do
       student_enrollment_classroom.update(discarded_at: '2024-03-29')
 
-      expect(service.first[:attendance_and_enrollments]).to be_empty
+      expect(service.first[:attendance_and_enrollments]).to be_nil
     end
 
     it 'returns 100% attendance and all students enrolled' do
@@ -365,23 +365,6 @@ RSpec.describe Api::ClassroomAttendanceService do
 
       service = Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
 
-      expect(service.last[:classroom_id]).to include(classroom_two.api_code)
-      expect(service.last[:attendance_and_enrollments]).to include(
-        {
-          "2024-04-01" => {
-            frequencies: 1,
-            enrollments: 1
-          },
-          "2024-03-29" => {
-            frequencies: 0,
-            enrollments: 1
-          },
-          "2024-03-28" => {
-            frequencies: 0,
-            enrollments: 1
-          }
-        }
-      )
       expect(service.first[:classroom_id]).to include(classroom.api_code)
       expect(service.first[:attendance_and_enrollments]).to include(
         {
@@ -399,6 +382,24 @@ RSpec.describe Api::ClassroomAttendanceService do
           }
         }
       )
+      expect(service.last[:classroom_id]).to include(classroom_two.api_code)
+      expect(service.last[:attendance_and_enrollments]).to include(
+        {
+          "2024-04-01" => {
+            frequencies: 1,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 0,
+            enrollments: 1
+          },
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 1
+          }
+        }
+      )
+
     end
   end
 end
