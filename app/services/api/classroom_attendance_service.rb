@@ -27,7 +27,7 @@ module Api
       school_days = set_school_days
 
       student_enrollment_classrooms.each do |classroom_code, enrollments|
-        frequencies_by_classroom = frequencies_by_classrooms[classroom_code].uniq
+        frequencies_by_classroom = frequencies_by_classrooms[classroom_code]&.uniq || []
         counts[classroom_code] ||= {}
 
         school_days.each do |day|
@@ -44,7 +44,12 @@ module Api
 
             counts[classroom_code][day][:frequencies] << is_present.student_id if is_present
           end
-          counts[classroom_code][day][:frequencies] = counts[classroom_code][day][:frequencies].uniq.count
+
+          counts[classroom_code][day][:frequencies] = if counts[classroom_code][day][:frequencies].any?
+                                                        counts[classroom_code][day][:frequencies].uniq.count
+                                                      else
+                                                        0
+                                                      end
         end
       end
 
