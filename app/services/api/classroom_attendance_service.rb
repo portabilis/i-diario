@@ -40,13 +40,11 @@ module Api
             counts[classroom_code][day][:enrollments] += 1
 
             present_count = frequencies_for_day.sum do |frequency|
-              frequency.students.select{|a| a.present == true}.count {
-                |dfs| dfs.student_id == enrollment.student_id }
+              frequency.students.select{|a| a.present == true}.count { |dfs| dfs.student_id == enrollment.student_id }
             end
 
             counts[classroom_code][day][:frequencies] += present_count
           end
-          # distinct students na enturmacao e na frequencia
         end
       end
 
@@ -63,34 +61,24 @@ module Api
         .order(:api_code)
     end
 
-    # def process_student_enrollment_classrooms
-    #   enrollments = query_student_enrollment_classrooms
-    #   list_student_enrollment_classrooms_by_day(enrollments)
-    # end
+    def build_classroom_information(counts)
+      @classrooms.map do |classroom|
+        classroom_api_code = classroom.api_code
+        classroom_name = classroom.description
+        classroom_max_students = classroom.max_students
+        enrollments_by_classroom_count = counts[classroom_api_code] ||= {}
+        # attendance_and_enrollments = attendance_and_enrollment_data(frequencies,enrollments_by_classroom_count)
+        grades = build_grade_hashes(classroom)
 
-    # def process_daily_frequencies
-    #   daily_frequencies = JSON.parse(query_daily_frequencies.to_json)
-    #   daily_frequencies_array(daily_frequencies)
-    # end
-
-    # def build_classroom_information(counts)
-    #   @classrooms.map do |classroom|
-    #     classroom_api_code = classroom.api_code
-    #     classroom_name = classroom.description
-    #     classroom_max_students = classroom.max_students
-    #     enrollments_by_classroom_count = counts[classroom_api_code] ||= {}
-    #     # attendance_and_enrollments = attendance_and_enrollment_data(frequencies,enrollments_by_classroom_count)
-    #     grades = build_grade_hashes(classroom)
-
-    #     {
-    #       classroom_id: classroom_api_code,
-    #       classroom_name: classroom_name,
-    #       classroom_max_students: classroom_max_students,
-    #       grades: grades,
-    #       attendance_and_enrollments: enrollments_by_classroom_count
-    #     }
-    #   end
-    # end
+        {
+          classroom_id: classroom_api_code,
+          classroom_name: classroom_name,
+          classroom_max_students: classroom_max_students,
+          grades: grades,
+          attendance_and_enrollments: enrollments_by_classroom_count
+        }
+      end
+    end
 
     def query_student_enrollment_classrooms
       StudentEnrollmentClassroom
