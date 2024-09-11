@@ -31,20 +31,20 @@ module Api
         counts[classroom_code] ||= {}
 
         school_days.each do |day|
-          counts[classroom_code][day] ||= { frequencies: 0, enrollments: 0 }
+          counts[classroom_code][day] ||= { frequencies: [], enrollments: 0 }
           frequencies_for_day = frequencies_by_classroom.select { |freq| freq.frequency_date == day.to_date }
 
           enrollments.each do |enrollment|
             next unless enrollment.joined_at <= day && (enrollment.left_at.blank? || enrollment.left_at >= day)
 
             counts[classroom_code][day][:enrollments] += 1
-
-            present_count = frequencies_for_day.sum do |frequency|
-              frequency.students.select{|a| a.present == true}.count { |dfs| dfs.student_id == enrollment.student_id }
+            is_present = frequencies_for_day.flat_map(&:students).detect do |dfs|
+              dfs.present == true && dfs.student_id == enrollment.student_id
             end
 
-            counts[classroom_code][day][:frequencies] += present_count
+            counts[classroom_code][day][:frequencies] << is_present.student_id if is_present
           end
+          counts[classroom_code][day][:frequencies] = counts[classroom_code][day][:frequencies].uniq.count
         end
       end
 
