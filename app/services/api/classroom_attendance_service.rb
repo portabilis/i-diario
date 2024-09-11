@@ -16,10 +16,41 @@ module Api
 
     def call
       query_classrooms
-      student_enrollment_classrooms = process_student_enrollment_classrooms
-      frequencies_by_classrooms = process_daily_frequencies
+      student_enrollment_classrooms = query_student_enrollment_classrooms
+      frequencies_by_classrooms = DailyFrequency.by_classroom_id(@classrooms.pluck(:id))
+      .joins(:classroom, :students)
+      .includes(:classroom, :students)
+      .by_frequency_date_between(start_at, end_at)
+      .group_by { |df| df.classroom.api_code }
 
-      build_classroom_information(student_enrollment_classrooms, frequencies_by_classrooms)
+      counts = {}
+      school_days = set_school_days
+
+      student_enrollment_classrooms.each do |classroom_code, enrollments|
+        frequencies_by_classroom = frequencies_by_classrooms[classroom_code].uniq
+        counts[classroom_code] ||= {}
+
+        school_days.each do |day|
+          counts[classroom_code][day] ||= { frequencies: 0, enrollments: 0 }
+          frequencies_for_day = frequencies_by_classroom.select { |freq| freq.frequency_date == day.to_date }
+
+          enrollments.each do |enrollment|
+            next unless enrollment.joined_at <= day && (enrollment.left_at.blank? || enrollment.left_at >= day)
+
+            counts[classroom_code][day][:enrollments] += 1
+
+            present_count = frequencies_for_day.sum do |frequency|
+              frequency.students.select{|a| a.present == true}.count {
+                |dfs| dfs.student_id == enrollment.student_id }
+            end
+
+            counts[classroom_code][day][:frequencies] += present_count
+          end
+          # distinct students na enturmacao e na frequencia
+        end
+      end
+
+      build_classroom_information(counts)
     end
 
     private
@@ -29,41 +60,37 @@ module Api
         .includes(classrooms_grades: { grade: :course })
         .where(api_code: classrooms_api_code.values)
         .by_year(year)
-        .ordered
+        .order(:api_code)
     end
 
-    def process_student_enrollment_classrooms
-      enrollments = query_student_enrollment_classrooms
-      @students = enrollments.values.flatten.map(&:student_enrollment).map(&:student_id)
+    # def process_student_enrollment_classrooms
+    #   enrollments = query_student_enrollment_classrooms
+    #   list_student_enrollment_classrooms_by_day(enrollments)
+    # end
 
-      list_student_enrollment_classrooms_by_day(enrollments)
-    end
+    # def process_daily_frequencies
+    #   daily_frequencies = JSON.parse(query_daily_frequencies.to_json)
+    #   daily_frequencies_array(daily_frequencies)
+    # end
 
-    def process_daily_frequencies
-      daily_frequencies = JSON.parse(query_daily_frequencies.to_json)
-      daily_frequencies_array(daily_frequencies)
-    end
+    # def build_classroom_information(counts)
+    #   @classrooms.map do |classroom|
+    #     classroom_api_code = classroom.api_code
+    #     classroom_name = classroom.description
+    #     classroom_max_students = classroom.max_students
+    #     enrollments_by_classroom_count = counts[classroom_api_code] ||= {}
+    #     # attendance_and_enrollments = attendance_and_enrollment_data(frequencies,enrollments_by_classroom_count)
+    #     grades = build_grade_hashes(classroom)
 
-    def build_classroom_information(student_enrollment_classrooms, frequencies_by_classrooms)
-      @classrooms.map do |classroom|
-        classroom_api_code = classroom.api_code
-        classroom_name = classroom.description
-        classroom_max_students = classroom.max_students
-        enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= {}
-        frequencies = frequencies_by_classrooms[classroom_api_code] ||= {}
-
-        attendance_and_enrollments = attendance_and_enrollment_data(frequencies,enrollments_by_classroom_count)
-        grades = build_grade_hashes(classroom)
-
-        {
-          classroom_id: classroom_api_code,
-          classroom_name: classroom_name,
-          classroom_max_students: classroom_max_students,
-          grades: grades,
-          attendance_and_enrollments: attendance_and_enrollments
-        }
-      end
-    end
+    #     {
+    #       classroom_id: classroom_api_code,
+    #       classroom_name: classroom_name,
+    #       classroom_max_students: classroom_max_students,
+    #       grades: grades,
+    #       attendance_and_enrollments: enrollments_by_classroom_count
+    #     }
+    #   end
+    # end
 
     def query_student_enrollment_classrooms
       StudentEnrollmentClassroom
@@ -100,8 +127,7 @@ module Api
       DailyFrequency
         .by_classroom_id(@classrooms.pluck(:id))
         .by_frequency_date_between(start_at, end_at)
-        .has_frequency_for_student(@students)
-        .joins(:classroom, :students)
+        .joins(:classroom, students: [student: [student_enrollments: :student_enrollment_classrooms]])
         .group('classrooms.api_code, frequency_date')
         .select(
           "COUNT(DISTINCT CONCAT(daily_frequency_students.student_id, '-', frequency_date)) AS count",
