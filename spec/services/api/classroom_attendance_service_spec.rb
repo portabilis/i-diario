@@ -61,14 +61,21 @@ RSpec.describe Api::ClassroomAttendanceService do
     UnitySchoolDay.create!(unity: classroom.unity, school_day: '2024-03-28')
   end
 
-  context 'when params are correct' do
+  context 'when the params include only one classroom' do
     subject(:service) do
       Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
     end
 
-    let(:daily_frequency_two) { create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29') }
+    let(:daily_frequency_two) {
+      create(:daily_frequency,
+        classroom: classroom,
+        frequency_date: '2024-03-29',
+        class_number: nil,
+        discipline_id: nil
+      )
+    }
 
-    it 'returns correct classroom, attendance and enrollments data when valid params' do
+    it 'returns correct classroom, attendance and enrollments data' do
       expect(service.first[:classroom_name]).to include(classroom.description)
       expect(service.first[:grades]).to include(
         {
@@ -92,7 +99,7 @@ RSpec.describe Api::ClassroomAttendanceService do
     end
 
     it 'returns 100% attendance and all students enrolled' do
-      daily_frequency_student= create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
+      create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
 
       expect(service.first[:attendance_and_enrollments]).to include(
         {
@@ -108,22 +115,17 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'return global frequency count in the classroom' do
-      daily_frequency_class_number_one =
-        create(
-          :daily_frequency,
-          classroom: classroom,
-          frequency_date: '2024-04-01',
-          class_number: '1',
-          discipline: discipline
-        )
+    it 'return global frequency count for the classroom' do
+      daily_frequency_class_number_one = create(
+        :daily_frequency,
+        classroom: classroom,
+        frequency_date: '2024-04-01',
+        class_number: '1',
+        discipline: discipline
+      )
+      create(:daily_frequency_student,student: student, present: true, daily_frequency: daily_frequency_class_number_one)
 
-      daily_frequency_student = create(
-        :daily_frequency_student,
-        student: student, present: true, daily_frequency: daily_frequency_class_number_one)
-
-        service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
-        expect(service.first[:attendance_and_enrollments]).to include(
+      expect(service.first[:attendance_and_enrollments]).to include(
         {
           "2024-03-28" => {
             frequencies: 0,
@@ -141,7 +143,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns 50% or 100% attendance for all students in the classroom' do
+    it 'returns attendance for all students actives in the classroom' do
       student_enrollment_classroom_two = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -152,8 +154,6 @@ RSpec.describe Api::ClassroomAttendanceService do
 
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
-
-      service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
 
       expect(service.first[:attendance_and_enrollments]).to include(
         {
@@ -174,13 +174,6 @@ RSpec.describe Api::ClassroomAttendanceService do
     end
 
     it 'returns only the attendance of students with enrollment on the date' do
-      student_enrollment_classroom_three = create(
-        :student_enrollment_classroom,
-        classrooms_grade: classrooms_grades,
-        joined_at: '2024-03-28'
-      )
-      student_enrollment_three = student_enrollment_classroom_three.student_enrollment
-      student_three = student_enrollment_three.student
       student_enrollment_classroom_two = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -188,12 +181,23 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
       student_enrollment_two = student_enrollment_classroom_two.student_enrollment
       student_two = student_enrollment_two.student
+      student_enrollment_classroom_three = create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grades,
+        joined_at: '2024-03-28'
+      )
+      student_enrollment_three = student_enrollment_classroom_three.student_enrollment
+      student_three = student_enrollment_three.student
 
       # Lança a frequencia alunos para 01/04/2024
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
       create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency)
 
-      # Mudar a enturmacao, Insere saida do aluno retroativa ==> cenário problematico
+      # Lança a frequencia alunos para 29/03/2024
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+      create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency_two)
+
+      # Insere saida do aluno de forma retroativa
       student_enrollment_classroom_two.update(left_at: '2024-03-29')
 
       service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
@@ -205,7 +209,7 @@ RSpec.describe Api::ClassroomAttendanceService do
             enrollments: 2
           },
           "2024-03-29" => {
-            frequencies: 0,
+            frequencies: 2,
             enrollments: 3
           },
           "2024-03-28" => {
@@ -216,7 +220,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns only the attendance of students with active enrollment on the date' do
+    it 'returns only the attendance of students without discarded enrollments' do
       student_enrollment_classroom_three = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -236,7 +240,9 @@ RSpec.describe Api::ClassroomAttendanceService do
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
       create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency)
 
-      # Descartar a enturmacao
+      # Lança a frequencia alunos para 29/03/2024
+      create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
+
       student_enrollment_classroom_three.update(discarded_at: '2024-03-29')
 
       service = Api::ClassroomAttendanceService.call(params_classrooms, start_at, end_at, year)
@@ -248,7 +254,7 @@ RSpec.describe Api::ClassroomAttendanceService do
             enrollments: 2
           },
           "2024-03-29" => {
-            frequencies: 0,
+            frequencies: 1,
             enrollments: 2
           },
           "2024-03-28" => {
@@ -260,7 +266,11 @@ RSpec.describe Api::ClassroomAttendanceService do
     end
   end
 
-  context 'when there are more than one classroom' do
+  context 'when the parameters include multiple classrooms' do
+    subject(:service) do
+      Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
+    end
+
     let(:classroom_two) { create(:classroom, id: 2, year: '2024', api_code: '02', unity: classroom.unity) }
     let(:classrooms_grades_two) { create(:classrooms_grade, classroom: classroom_two) }
     let(:params_classrooms_two) do
@@ -269,7 +279,7 @@ RSpec.describe Api::ClassroomAttendanceService do
         "1" => classroom_two.api_code
       }
     end
-    let!(:student_enrollment_classroom_two) { create(
+    let(:student_enrollment_classroom_two) { create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
         joined_at: '2024-03-28'
@@ -302,24 +312,6 @@ RSpec.describe Api::ClassroomAttendanceService do
       daily_frequency_two = create(:daily_frequency, classroom: classroom_two, frequency_date: '2024-04-01')
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
 
-      service = Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
-      expect(service.last[:classroom_id]).to include(classroom_two.api_code)
-      expect(service.last[:attendance_and_enrollments]).to include(
-        {
-          "2024-04-01" => {
-            frequencies: 1,
-            enrollments: 1
-          },
-          "2024-03-29" => {
-            frequencies: 0,
-            enrollments: 1
-          },
-          "2024-03-28" => {
-            frequencies: 0,
-            enrollments: 1
-          }
-        }
-      )
       expect(service.first[:classroom_id]).to include(classroom.api_code)
       expect(service.first[:attendance_and_enrollments]).to include(
         {
@@ -337,13 +329,30 @@ RSpec.describe Api::ClassroomAttendanceService do
           }
         }
       )
+      expect(service.last[:classroom_id]).to include(classroom_two.api_code)
+      expect(service.last[:attendance_and_enrollments]).to include(
+        {
+          "2024-04-01" => {
+            frequencies: 1,
+            enrollments: 1
+          },
+          "2024-03-29" => {
+            frequencies: 0,
+            enrollments: 1
+          },
+          "2024-03-28" => {
+            frequencies: 0,
+            enrollments: 1
+          }
+        }
+      )
+
     end
 
-    it 'return attendance for a student re-enrolled in a new classroom' do
+    it 'returns frequencies that are not associated with discarded enrollments' do
       # Lança a frequencia alunos para 01/04/2024
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
 
-      # Lança a frequencia alunos para 29/03/2024
       daily_frequency_two = create(:daily_frequency, classroom: classroom, frequency_date: '2024-03-29')
       create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
@@ -359,11 +368,8 @@ RSpec.describe Api::ClassroomAttendanceService do
         joined_at: '2024-03-28'
       )
 
-      # Lança a frequencia alunos para 01/04/2024 para outra turma
       daily_frequency_two = create(:daily_frequency, classroom: classroom_two, frequency_date: '2024-04-01')
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
-
-      service = Api::ClassroomAttendanceService.call(params_classrooms_two, start_at, end_at, year)
 
       expect(service.first[:classroom_id]).to include(classroom.api_code)
       expect(service.first[:attendance_and_enrollments]).to include(
