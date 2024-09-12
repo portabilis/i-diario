@@ -16,7 +16,9 @@ module Api
 
     def call
       query_classrooms
-      student_enrollment_classrooms = query_student_enrollment_classrooms
+      set_school_days
+      enrollment_classrooms = query_student_enrollment_classrooms
+      student_enrollment_classrooms = organize_enrollment_classrooms(enrollment_classrooms)
       frequencies = query_daily_frequencies
 
       build_classroom_information(student_enrollment_classrooms, frequencies)
@@ -62,16 +64,18 @@ module Api
     end
 
     def query_student_enrollment_classrooms
-      counts = {}
-      school_days = set_school_days
-
-      student_enrollment_classrooms = StudentEnrollmentClassroom
+      StudentEnrollmentClassroom
         .includes(student_enrollment: :student)
         .by_classroom(@classrooms.pluck(:id))
         .by_date_range(start_at, end_at)
         .group_by(&:classroom_code)
+    end
 
-      student_enrollment_classrooms.each do |classroom_code, enrollments|
+    def organize_enrollment_classrooms(enrollment_classrooms)
+      counts = {}
+      school_days = @set_school_days.map { |day| day.school_day.strftime('%Y-%m-%d') }
+
+      enrollment_classrooms.each do |classroom_code, enrollments|
         counts[classroom_code] ||= {}
 
         school_days.each do |day|
@@ -160,9 +164,8 @@ module Api
     end
 
     def set_school_days
-      UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
-                    .where('school_day BETWEEN ? AND ?', start_at, end_at)
-                    .map { |day| day.school_day.strftime('%Y-%m-%d') }
+      @set_school_days ||= UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
+                                         .where('school_day BETWEEN ? AND ?', start_at, end_at)
     end
   end
 end
