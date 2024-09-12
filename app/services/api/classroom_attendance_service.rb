@@ -18,10 +18,9 @@ module Api
       query_classrooms
       set_school_days
       enrollment_classrooms = query_student_enrollment_classrooms
-      student_enrollment_classrooms = organize_enrollment_classrooms(enrollment_classrooms)
-      frequencies = query_daily_frequencies
+      daily_frequencies = query_daily_frequencies
 
-      build_classroom_information(student_enrollment_classrooms, frequencies)
+      build_classroom_information(enrollment_classrooms, daily_frequencies)
     end
 
     private
@@ -34,41 +33,14 @@ module Api
         .order(:api_code)
     end
 
-    def build_classroom_information(student_enrollment_classrooms, daily_frequencies)
-      @classrooms.map do |classroom|
-        classroom_api_code = classroom.api_code
-        classroom_name = classroom.description
-        classroom_max_students = classroom.max_students
-        enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= {}
-        frequencies = daily_frequencies[classroom_api_code] ||= {}
-
-        teste = enrollments_by_classroom_count.map do |date_enrollments, enrollments_count|
-          {
-            date_enrollments => {
-              frequencies: frequencies[date_enrollments] || 0,
-              enrollments: enrollments_count[:enrollments]
-            }
-          }
-        end.reduce(:merge)
-
-        grades = build_grade_hashes(classroom)
-
-        {
-          classroom_id: classroom_api_code,
-          classroom_name: classroom_name,
-          classroom_max_students: classroom_max_students,
-          grades: grades,
-          attendance_and_enrollments: teste
-        }
-      end
-    end
-
     def query_student_enrollment_classrooms
-      StudentEnrollmentClassroom
+      enrollment_classrooms = StudentEnrollmentClassroom
         .includes(student_enrollment: :student)
         .by_classroom(@classrooms.pluck(:id))
         .by_date_range(start_at, end_at)
         .group_by(&:classroom_code)
+
+      organize_enrollment_classrooms(enrollment_classrooms)
     end
 
     def organize_enrollment_classrooms(enrollment_classrooms)
@@ -93,13 +65,10 @@ module Api
     end
 
     def query_daily_frequencies
-      school_days_query = UnitySchoolDay
-        .select(:school_day)
-        .where(unity_id: @classrooms.first.unity_id)
-        .where(school_day: start_at..end_at).to_sql
+      school_days_query = @set_school_days.select(:school_day).to_sql
 
       daily_frequencies_query = DailyFrequency.select(:id, :frequency_date, :classroom_id)
-        .where(classroom_id: @classrooms.pluck(:id)).to_sql
+                                              .where(classroom_id: @classrooms.pluck(:id)).to_sql
 
       query = ActiveRecord::Base.connection.execute(<<-SQL)
         SELECT
@@ -131,7 +100,11 @@ module Api
           c.api_code, df.frequency_date
       SQL
 
-      results = query.each_with_object({}) do |record, hash|
+      organize_daily_frequencies(query)
+    end
+
+    def organize_daily_frequencies(frequencies)
+      frequencies.each_with_object({}) do |record, hash|
         classroom_api_code = record['classroom_api_code']
         frequency_date = record['frequency_date']
         presences = record['presences']
@@ -146,17 +119,10 @@ module Api
         classroom_api_code = classroom.api_code
         classroom_name = classroom.description
         classroom_max_students = classroom.max_students
-        enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= {}
-        frequencies = daily_frequencies[classroom_api_code] ||= {}
+        enrollments_by_classroom = student_enrollment_classrooms[classroom_api_code] ||= {}
+        frequencies_by_classroom = daily_frequencies[classroom_api_code] ||= {}
 
-        teste = enrollments_by_classroom_count.map do |date_enrollments, enrollments_count|
-          {
-            date_enrollments => {
-              frequencies: frequencies[date_enrollments] || 0,
-              enrollments: enrollments_count[:enrollments]
-            }
-          }
-        end.reduce(:merge)
+        frequencies_with_enrollments = merge_frequencies_with_enrollments(frequencies_by_classroom, enrollments_by_classroom)
 
         grades = build_grade_hashes(classroom)
 
@@ -165,7 +131,7 @@ module Api
           classroom_name: classroom_name,
           classroom_max_students: classroom_max_students,
           grades: grades,
-          attendance_and_enrollments: teste
+          attendance_and_enrollments: frequencies_with_enrollments
         }
       end
     end
@@ -181,12 +147,12 @@ module Api
       end
     end
 
-    def attendance_and_enrollment_data(frequencies, enrollments_by_classroom_count)
-      enrollments_by_classroom_count.map do |date_enrollments, enrollments_count|
+    def merge_frequencies_with_enrollments(frequencies_by_classroom, enrollments_by_classroom)
+      enrollments_by_classroom.map do |date_enrollments, enrollments_count|
         {
           date_enrollments => {
-            frequencies: frequencies[date_enrollments] || 0,
-            enrollments: enrollments_count["count"]
+            frequencies: frequencies_by_classroom[date_enrollments] || 0,
+            enrollments: enrollments_count[:enrollments]
           }
         }
       end.reduce(:merge)
