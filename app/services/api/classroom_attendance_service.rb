@@ -141,6 +141,35 @@ module Api
       end
     end
 
+    def build_classroom_information(student_enrollment_classrooms, daily_frequencies)
+      @classrooms.map do |classroom|
+        classroom_api_code = classroom.api_code
+        classroom_name = classroom.description
+        classroom_max_students = classroom.max_students
+        enrollments_by_classroom_count = student_enrollment_classrooms[classroom_api_code] ||= {}
+        frequencies = daily_frequencies[classroom_api_code] ||= {}
+
+        teste = enrollments_by_classroom_count.map do |date_enrollments, enrollments_count|
+          {
+            date_enrollments => {
+              frequencies: frequencies[date_enrollments] || 0,
+              enrollments: enrollments_count[:enrollments]
+            }
+          }
+        end.reduce(:merge)
+
+        grades = build_grade_hashes(classroom)
+
+        {
+          classroom_id: classroom_api_code,
+          classroom_name: classroom_name,
+          classroom_max_students: classroom_max_students,
+          grades: grades,
+          attendance_and_enrollments: teste
+        }
+      end
+    end
+
     def build_grade_hashes(classroom)
       classroom.classrooms_grades.map do |classroom_grade|
         {
