@@ -161,7 +161,7 @@ enrollments_by_classroom)
     end
 
     def school_days
-      @set_school_days ||= UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
+      @school_days ||= UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
                                          .where('school_day BETWEEN ? AND ?', start_at, end_at)
     end
 
