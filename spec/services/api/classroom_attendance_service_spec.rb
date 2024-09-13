@@ -83,7 +83,8 @@ RSpec.describe Api::ClassroomAttendanceService do
           name: classrooms_grades.grade.description,
           course_id: classrooms_grades.grade.course.api_code,
           course_name: classrooms_grades.grade.course.description
-        })
+        }
+      )
       expect(service.first[:attendance_and_enrollments]).to include(
         "2024-04-01" => {
           frequencies: 1,
