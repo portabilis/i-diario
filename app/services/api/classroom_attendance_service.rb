@@ -15,7 +15,6 @@ module Api
     end
 
     def call
-      classrooms
       enrollment_classrooms = query_student_enrollment_classrooms
       daily_frequencies = query_daily_frequencies
 
@@ -25,7 +24,7 @@ module Api
     private
 
     def classrooms
-      @classrooms = Classroom
+      @classrooms ||= Classroom
         .includes(classrooms_grades: { grade: :course })
         .where(api_code: classrooms_api_code.values)
         .by_year(year)
@@ -67,8 +66,9 @@ module Api
       school_days_query = school_days.select(:school_day).to_sql
 
       daily_frequencies_query = DailyFrequency.select(:id, :frequency_date, :classroom_id)
-                                              .where(classroom_id: classrooms_ids)
-                                              .to_sql
+                    .where(classroom_id: classrooms_ids)
+                    .to_sql
+                    .a
 
       sanitized_sql = <<-SQL.squish
         SELECT
@@ -124,7 +124,8 @@ module Api
         enrollments_by_classroom = student_enrollment_classrooms[classroom_api_code] ||= {}
         frequencies_by_classroom = daily_frequencies[classroom_api_code] ||= {}
 
-        frequencies_with_enrollments = merge_frequencies_with_enrollments(frequencies_by_classroom, enrollments_by_classroom)
+        frequencies_with_enrollments = merge_frequencies_with_enrollments(frequencies_by_classroom,
+enrollments_by_classroom)
 
         grades = build_grade_hashes(classroom)
 
