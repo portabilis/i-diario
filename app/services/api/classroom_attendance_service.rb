@@ -15,8 +15,7 @@ module Api
     end
 
     def call
-      query_classrooms
-      set_school_days
+      classrooms
       enrollment_classrooms = query_student_enrollment_classrooms
       daily_frequencies = query_daily_frequencies
 
@@ -25,7 +24,7 @@ module Api
 
     private
 
-    def query_classrooms
+    def classrooms
       @classrooms = Classroom
         .includes(classrooms_grades: { grade: :course })
         .where(api_code: classrooms_api_code.values)
@@ -36,7 +35,7 @@ module Api
     def query_student_enrollment_classrooms
       enrollment_classrooms = StudentEnrollmentClassroom
         .includes(student_enrollment: :student)
-        .by_classroom(@classrooms.pluck(:id))
+        .by_classroom(classrooms_ids)
         .by_date_range(start_at, end_at)
         .group_by(&:classroom_code)
 
@@ -45,12 +44,12 @@ module Api
 
     def organize_enrollment_classrooms(enrollment_classrooms)
       counts = {}
-      school_days = @set_school_days.map { |day| day.school_day.strftime('%Y-%m-%d') }
+      days = school_days.pluck(:school_day).map(&:to_s)
 
       enrollment_classrooms.each do |classroom_code, enrollments|
         counts[classroom_code] ||= {}
 
-        school_days.each do |day|
+        days.each do |day|
           counts[classroom_code][day] ||= { enrollments: 0 }
 
           enrollments.each do |enrollment|
@@ -65,12 +64,13 @@ module Api
     end
 
     def query_daily_frequencies
-      school_days_query = @set_school_days.select(:school_day).to_sql
+      school_days_query = school_days.select(:school_day).to_sql
 
       daily_frequencies_query = DailyFrequency.select(:id, :frequency_date, :classroom_id)
-                                              .where(classroom_id: @classrooms.pluck(:id)).to_sql
+                                              .where(classroom_id: classrooms_ids)
+                                              .to_sql
 
-      query = ActiveRecord::Base.connection.execute(<<-SQL)
+      sanitized_sql = <<-SQL
         SELECT
           COUNT(DISTINCT CONCAT(dfs.student_id::TEXT, '-', df.frequency_date::TEXT)) AS count,
           COUNT(DISTINCT CASE
@@ -99,6 +99,8 @@ module Api
         GROUP BY
           c.api_code, df.frequency_date
       SQL
+
+      query = ActiveRecord::Base.connection.exec_query(sanitized_sql)
 
       organize_daily_frequencies(query)
     end
@@ -158,9 +160,13 @@ module Api
       end.reduce(:merge)
     end
 
-    def set_school_days
+    def school_days
       @set_school_days ||= UnitySchoolDay.where(unity_id: @classrooms.first.unity_id)
                                          .where('school_day BETWEEN ? AND ?', start_at, end_at)
+    end
+
+    def classrooms_ids
+      @classrooms_ids ||= classrooms.pluck(:id)
     end
   end
 end
