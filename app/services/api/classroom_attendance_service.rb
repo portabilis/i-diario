@@ -66,9 +66,8 @@ module Api
       school_days_query = school_days.select(:school_day).to_sql
 
       daily_frequencies_query = DailyFrequency.select(:id, :frequency_date, :classroom_id)
-                    .where(classroom_id: classrooms_ids)
-                    .to_sql
-                    .a
+                                              .where(classroom_id: classrooms_ids)
+                                              .to_sql
 
       sanitized_sql = <<-SQL.squish
         SELECT
