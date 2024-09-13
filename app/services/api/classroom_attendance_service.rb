@@ -70,7 +70,7 @@ module Api
                                               .where(classroom_id: classrooms_ids)
                                               .to_sql
 
-      sanitized_sql = <<-SQL
+      sanitized_sql = <<-SQL.squish
         SELECT
           COUNT(DISTINCT CONCAT(dfs.student_id::TEXT, '-', df.frequency_date::TEXT)) AS count,
           COUNT(DISTINCT CASE
