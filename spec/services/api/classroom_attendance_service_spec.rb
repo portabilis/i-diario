@@ -75,7 +75,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     }
 
-    it 'returns correct classroom, attendance and enrollments data' do
+    it 'return correct classroom, attendance and enrollments data' do
       expect(service.first[:classroom_name]).to include(classroom.description)
       expect(service.first[:grades]).to include(
         {
@@ -92,13 +92,13 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns nil when the student_enrollment_classroom has discarded_at' do
+    it 'return nil when the student_enrollment_classroom has discarded_at' do
       student_enrollment_classroom.update(discarded_at: '2024-03-29')
 
       expect(service.first[:attendance_and_enrollments]).to be_nil
     end
 
-    it 'returns 100% attendance and all students enrolled' do
+    it 'return 100% attendance and all students enrolled' do
       create(:daily_frequency_student, student: student, present: true, daily_frequency: daily_frequency_two)
 
       expect(service.first[:attendance_and_enrollments]).to include(
@@ -143,7 +143,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns attendance for all students actives in the classroom' do
+    it 'return attendance for all students actives in the classroom' do
       student_enrollment_classroom_two = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -173,7 +173,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns only the attendance of students with enrollment on the date' do
+    it 'return only the attendance of students with enrollment on the date' do
       student_enrollment_classroom_two = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -220,7 +220,7 @@ RSpec.describe Api::ClassroomAttendanceService do
       )
     end
 
-    it 'returns only the attendance of students without discarded enrollments' do
+    it 'return only the attendance of students without discarded enrollments' do
       student_enrollment_classroom_three = create(
         :student_enrollment_classroom,
         classrooms_grade: classrooms_grades,
@@ -349,7 +349,7 @@ RSpec.describe Api::ClassroomAttendanceService do
 
     end
 
-    it 'returns frequencies that are not associated with discarded enrollments' do
+    it 'return frequencies that are not associated with discarded enrollments' do
       # Lança a frequencia alunos para 01/04/2024
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency)
 
