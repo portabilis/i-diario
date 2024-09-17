@@ -55,7 +55,7 @@ module ExamPoster
           discipline_id = conceptual_exam_value.discipline_id
 
           next if exempted_disciplines[conceptual_exam.student_id].present? &&
-                  exempted_disciplines[conceptual_exam.student_id].discipline_id.eql?(discipline_id)
+                  exempted_disciplines[conceptual_exam.student_id].pluck(:discipline_id).include?(discipline_id)
           next unless not_posted?({ classroom: classroom, student: conceptual_exam.student, discipline: conceptual_exam_value.discipline })[:conceptual_exam]
 
           if conceptual_exam_value.value.blank?
@@ -88,7 +88,6 @@ module ExamPoster
                                         .where(students: { id: student_ids }, discipline_id: discipline_ids)
                                         .by_step_number(step_number)
                                         .group_by { |exempt| exempt.student_enrollment.student_id }
-                                        .transform_values(&:first)
     end
   end
 end
