@@ -79,15 +79,15 @@ module ExamPoster
 
     def exempt_discipline_students(classroom, discipline_ids, student_ids, step_number)
       StudentEnrollmentExemptedDiscipline.includes(student_enrollment: :student)
-                                        .joins(student_enrollment:
-                                          [
-                                            :student, student_enrollment_classrooms:
-                                              [classrooms_grade: :classroom]
-                                          ])
-                                        .where(classrooms_grades: { classroom_id: classroom.id })
-                                        .where(students: { id: student_ids }, discipline_id: discipline_ids)
-                                        .by_step_number(step_number)
-                                        .group_by { |exempt| exempt.student_enrollment.student_id }
+                                         .joins(student_enrollment:
+                                           [
+                                             :student, student_enrollment_classrooms:
+                                               [classrooms_grade: :classroom]
+                                           ])
+                                         .where(classrooms_grades: { classroom_id: classroom.id })
+                                         .where(students: { id: student_ids }, discipline_id: discipline_ids)
+                                         .by_step_number(step_number)
+                                         .group_by { |exempt| exempt.student_enrollment.student_id }
     end
   end
 end
