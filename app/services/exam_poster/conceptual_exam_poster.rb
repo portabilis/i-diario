@@ -40,7 +40,7 @@ module ExamPoster
                                          .by_unity(step.school_calendar.unity)
                                          .by_step_id(classroom, step.id)
 
-        students = conceptual_exams.map(&:student_id)
+        students = conceptual_exams.pluck(:student_id)
         exempted_disciplines = exempt_discipline_students(classroom, discipline_ids, students, step.to_number)
         exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
         conceptual_exam_values = ConceptualExamValue.active
@@ -52,7 +52,10 @@ module ExamPoster
 
         conceptual_exam_values.each do |conceptual_exam_value|
           conceptual_exam = conceptual_exam_value.conceptual_exam
-          next if exempted_disciplines[conceptual_exam.student_id].present? && exempted_disciplines[conceptual_exam.student_id].discipline_id == conceptual_exam_value.discipline_id
+          discipline_id = conceptual_exam_value.discipline_id
+
+          next if exempted_disciplines[conceptual_exam.student_id].present? &&
+                  exempted_disciplines[conceptual_exam.student_id].discipline_id.eql?(discipline_id)
           next unless not_posted?({ classroom: classroom, student: conceptual_exam.student, discipline: conceptual_exam_value.discipline })[:conceptual_exam]
 
           if conceptual_exam_value.value.blank?
@@ -75,32 +78,17 @@ module ExamPoster
     end
 
     def exempt_discipline_students(classroom, discipline_ids, student_ids, step_number)
-      student_enrollments = StudentEnrollmentClassroom.includes(student_enrollment: [:student])
-                                                      .by_classroom(classroom.id)
-                                                      .by_student(student_ids)
-                                                      .active
-                                                      .map(&:student_enrollment)
-
-      exempt_discipline_students = StudentEnrollmentExemptedDiscipline.includes(student_enrollment: :student)
-                                                                      .where(
-                                                                        student_enrollment: student_enrollments,
-                                                                        discipline_id: discipline_ids
-                                                                      )
-                                                                      .by_step_number(step_number)
-
-      return {} if exempt_discipline_students.blank?
-
-      student_exempted_in_disciplines = {}
-
-      exempt_discipline_students.each do |exempt|
-        student_id = exempt.student_enrollment.student_id
-
-        next if student_exempted_in_disciplines.key?(student_id)
-
-        student_exempted_in_disciplines[student_id] = exempt
-      end
-
-      student_exempted_in_disciplines
+      StudentEnrollmentExemptedDiscipline.includes(student_enrollment: :student)
+                                        .joins(student_enrollment:
+                                          [
+                                            :student, student_enrollment_classrooms:
+                                              [classrooms_grade: :classroom]
+                                          ])
+                                        .where(classrooms_grades: { classroom_id: classroom.id })
+                                        .where(students: { id: student_ids }, discipline_id: discipline_ids)
+                                        .by_step_number(step_number)
+                                        .group_by { |exempt| exempt.student_enrollment.student_id }
+                                        .transform_values(&:first)
     end
   end
 end
