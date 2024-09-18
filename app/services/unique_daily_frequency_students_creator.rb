@@ -22,7 +22,8 @@ class UniqueDailyFrequencyStudentsCreator
 
     daily_frequency_students = Hash.new { |hash, key| hash[key] = {} }
 
-    daily_frequencies = DailyFrequency.by_classroom_id(classroom_id)
+    daily_frequencies = DailyFrequency.includes(:students)
+                                      .by_classroom_id(classroom_id)
                                       .by_frequency_date(frequency_date)
                                       .by_teacher_discipline_classroom(teacher_id, classroom_id)
 
