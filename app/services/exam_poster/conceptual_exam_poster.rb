@@ -40,12 +40,13 @@ module ExamPoster
                                          .by_unity(step.school_calendar.unity)
                                          .by_step_id(classroom, step.id)
 
-        students = conceptual_exams.pluck(:student_id)
-        exempted_disciplines = exempt_discipline_students(classroom, discipline_ids, students, step.to_number)
+        student_ids = conceptual_exams.pluck(:student_id)
+        conceptual_exams_ids = conceptual_exams.pluck(:id)
+        exempted_disciplines = exempt_discipline_students(classroom, discipline_ids, student_ids, step.to_number)
         exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
         conceptual_exam_values = ConceptualExamValue.active
                                                     .includes(:conceptual_exam, :discipline)
-                                                    .where(conceptual_exam_id: conceptual_exams.pluck(:id))
+                                                    .where(conceptual_exam_id: conceptual_exams_ids)
                                                     .where.not(discipline_id: exempted_discipline_ids)
                                                     .where(discipline_id: discipline_ids)
                                                     .distinct
