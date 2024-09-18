@@ -18,7 +18,10 @@ class UniqueDailyFrequencyStudentsCreator
   end
 
   def create!(classroom_id, frequency_date, teacher_id)
-    daily_frequency_students = {}
+    validate_parameters!(classroom_id, frequency_date, teacher_id)
+
+    daily_frequency_students = Hash.new { |hash, key| hash[key] = {} }
+
     daily_frequencies = DailyFrequency.by_classroom_id(classroom_id)
                                       .by_frequency_date(frequency_date)
                                       .by_teacher_discipline_classroom(teacher_id, classroom_id)
@@ -81,5 +84,11 @@ class UniqueDailyFrequencyStudentsCreator
     UniqueDailyFrequencyStudent.by_classroom_id(classroom_id)
                                .frequency_date(frequency_date)
                                .destroy_all
+  end
+
+  def validate_parameters!(classroom_id, frequency_date, teacher_id)
+    if classroom_id.blank? || frequency_date.blank? || teacher_id.blank?
+      raise ArgumentError, "Parâmetros inválidos: classroom_id, frequency_date and teacher_id não estão presentes"
+    end
   end
 end
