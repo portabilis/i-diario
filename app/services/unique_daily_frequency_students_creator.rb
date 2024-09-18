@@ -26,8 +26,9 @@ class UniqueDailyFrequencyStudentsCreator
                                       .by_frequency_date(frequency_date)
                                       .by_teacher_discipline_classroom(teacher_id, classroom_id)
 
-    if daily_frequencies.present?
-      daily_frequencies.each do |current_daily_frequency|
+    return remove_unique_daily_frequency_students(classroom_id, frequency_date) if daily_frequencies.blank?
+
+    daily_frequencies.each do |current_daily_frequency|
         current_daily_frequency.students.each do |student|
           daily_frequency_students[student.student_id] ||= {}
           daily_frequency_students[student.student_id][:present] = student.present || false
@@ -38,10 +39,7 @@ class UniqueDailyFrequencyStudentsCreator
         end
       end
 
-      create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
-    else
-      remove_unique_daily_frequency_students(classroom_id, frequency_date)
-    end
+    create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
   end
 
   private
