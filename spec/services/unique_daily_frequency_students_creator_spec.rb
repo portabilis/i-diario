@@ -21,7 +21,9 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       :with_students,
       classroom: classroom,
       discipline: discipline,
-      teacher: teacher
+      teacher: teacher,
+      class_number: nil,
+      discipline_id: nil
     )
   }
   let(:school_calendar) {
@@ -52,7 +54,6 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
 
     it 'create a unique_daily_frequency_student record' do
       student_id = daily_frequency.students.first.student_id
-
       expected_attributes = {
         present: daily_frequency.students.first.present,
         classroom_id: classroom.id,
