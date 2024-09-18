@@ -29,15 +29,14 @@ class UniqueDailyFrequencyStudentsCreator
     return remove_unique_daily_frequency_students(classroom_id, frequency_date) if daily_frequencies.blank?
 
     daily_frequencies.each do |current_daily_frequency|
-        current_daily_frequency.students.each do |student|
-          daily_frequency_students[student.student_id] ||= {}
-          daily_frequency_students[student.student_id][:present] = student.present || false
-          daily_frequency_students[student.student_id].reverse_merge!(
-            classroom_id: classroom_id,
-            frequency_date: frequency_date
-          )
-        end
+      current_daily_frequency.students.select(&:active).each do |student|
+        daily_frequency_students[student.student_id][:present] = student.present || false
+        daily_frequency_students[student.student_id].reverse_merge!(
+          classroom_id: classroom_id,
+          frequency_date: frequency_date
+        )
       end
+    end
 
     create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
   end
@@ -60,21 +59,20 @@ class UniqueDailyFrequencyStudentsCreator
   def create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
     daily_frequency_students.each do |student_id, frequency_data|
       begin
-        next unless teacher_lesson_on_classroom?(teacher_id, frequency_data[:classroom_id])
+      next unless teacher_lesson_on_classroom?(teacher_id, frequency_data[:classroom_id])
 
-        UniqueDailyFrequencyStudent.find_or_initialize_by(
-          student_id: student_id,
-          classroom_id: frequency_data[:classroom_id],
-          frequency_date: frequency_data[:frequency_date]
-        ).tap do |unique_daily_frequency_student|
-          unique_daily_frequency_student.present = frequency_data[:present]
-          unique_daily_frequency_student.absences_by |= [teacher_id.to_s] unless frequency_data[:present]
+      UniqueDailyFrequencyStudent.find_or_initialize_by(
+        student_id: student_id,
+        classroom_id: frequency_data[:classroom_id],
+        frequency_date: frequency_data[:frequency_date]
+      ).tap do |unique_daily_frequency_student|
+        unique_daily_frequency_student.present = frequency_data[:present]
+        unique_daily_frequency_student.absences_by |= [teacher_id.to_s] unless frequency_data[:present]
 
-          unique_daily_frequency_student.save! if unique_daily_frequency_student.changed?
-        end
-      rescue ActiveRecord::RecordNotUnique
-        retry
+        unique_daily_frequency_student.save! if unique_daily_frequency_student.changed?
       end
+    rescue ActiveRecord::RecordNotUnique
+      retry
     end
   end
 
