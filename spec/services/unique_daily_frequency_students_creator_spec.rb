@@ -94,4 +94,26 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
     end
   end
 
+  context '#validate_parameters!' do
+    it 'create a UniqueDailyFrequencyStudent record when params are correct' do
+      subject(:unique_daily_frequency_student_creator) do
+        described_class.create!(
+          classroom.id,
+          daily_frequency.frequency_date,
+          teacher.id
+        )
+      end
+
+      student_id = daily_frequency.students.first.student_id
+
+      expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
+    end
+
+    it 'return raises ArgumentError when params are nil' do
+      expect{
+        UniqueDailyFrequencyStudentsCreator.create!(nil, nil, nil)
+      }.to raise_error(ArgumentError, /Parâmetros inválidos: classroom_id, frequency_date and teacher_id não estão presentes/)
+    end
+  end
+
 end
