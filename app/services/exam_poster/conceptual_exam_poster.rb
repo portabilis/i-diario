@@ -40,8 +40,7 @@ module ExamPoster
                                          .by_unity(step.school_calendar.unity)
                                          .by_step_id(classroom, step.id)
 
-        student_ids = conceptual_exams.pluck(:student_id)
-        conceptual_exams_ids = conceptual_exams.pluck(:id)
+        student_ids, conceptual_exams_ids = conceptual_exams.pluck(:student_id, :id).transpose
         exempted_disciplines = exempt_discipline_students(classroom, discipline_ids, student_ids, step.to_number)
         exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
         conceptual_exam_values = ConceptualExamValue.active
