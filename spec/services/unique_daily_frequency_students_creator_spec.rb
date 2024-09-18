@@ -41,7 +41,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
     )
   }
 
-  context 'when the params are correct' do
+  context '#create!' do
     subject(:unique_daily_frequency_student_creator) do
       described_class.create!(
         classroom.id,
@@ -63,6 +63,14 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
     end
 
+    it 'does not return unique_daily_frequency_student when daily_frequency_student is inactive' do
+      daily_frequency_students_inative = create(
+        :daily_frequency_student, daily_frequency: daily_frequency, active: false)
+      create(:daily_frequency_student, daily_frequency: daily_frequency, active: true)
+      create(:daily_frequency_student, daily_frequency: daily_frequency, active: true)
+
+      expect(unique_daily_frequency_student_creator).not_to have_key(daily_frequency_students_inative.student_id)
+    end
   end
 
   context '#teacher_lesson_on_classroom?' do
