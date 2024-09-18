@@ -20,7 +20,6 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       :with_teacher,
       :with_students,
       classroom: classroom,
-      discipline: discipline,
       teacher: teacher,
       class_number: nil,
       discipline_id: nil
@@ -105,16 +104,18 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
 
   context '#validate_parameters!' do
     it 'create a UniqueDailyFrequencyStudent record when params are correct' do
-      subject(:unique_daily_frequency_student_creator) do
-        described_class.create!(
-          classroom.id,
-          daily_frequency.frequency_date,
-          teacher.id
-        )
-      end
+      unique_daily_frequency_student_creator = described_class.create!(
+        classroom.id,
+        daily_frequency.frequency_date,
+        teacher.id
+      )
+      expected_attributes = {
+        present: daily_frequency.students.first.present,
+        classroom_id: classroom.id,
+        frequency_date: daily_frequency.frequency_date
+      }
 
       student_id = daily_frequency.students.first.student_id
-
       expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
     end
 
@@ -122,6 +123,61 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       expect{
         UniqueDailyFrequencyStudentsCreator.create!(nil, nil, nil)
       }.to raise_error(ArgumentError, /Parâmetros inválidos: classroom_id, frequency_date and teacher_id não estão presentes/)
+    end
+  end
+
+  context 'when the classroom also has frequencies by discipline and class_number' do
+    let(:daily_frequency_two) {
+      create(
+        :daily_frequency,
+        :with_teacher,
+        classroom: classroom,
+        discipline: discipline,
+        teacher: teacher,
+        class_number: '1',
+        frequency_date: daily_frequency.frequency_date
+      )
+    }
+    let(:daily_frequency_three) {
+      create(
+        :daily_frequency,
+        :with_teacher,
+        classroom: classroom,
+        discipline: discipline,
+        teacher: teacher,
+        class_number: '2',
+        frequency_date: daily_frequency.frequency_date
+      )
+    }
+
+    subject(:unique_daily_frequency_student_creator) do
+      described_class.create!(
+        classroom.id,
+        daily_frequency.frequency_date,
+        teacher.id
+      )
+    end
+
+    it 'return only one frequency per day' do
+      create(:daily_frequency_student,
+        daily_frequency: daily_frequency_two,
+        active: true,
+        student: daily_frequency.students.first.student
+      )
+      create(:daily_frequency_student,
+        daily_frequency: daily_frequency_three,
+        active: true,
+        student: daily_frequency.students.first.student
+      )
+
+      student_id = daily_frequency.students.first.student_id
+      expected_attributes = {
+        present: daily_frequency.students.first.present,
+        classroom_id: classroom.id,
+        frequency_date: daily_frequency.frequency_date
+      }
+
+      expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
     end
   end
 
