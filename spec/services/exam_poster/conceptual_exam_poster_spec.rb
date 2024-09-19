@@ -12,7 +12,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       classroom: classroom
     )
   }
-  let!(:exam_posting) {
+  let(:exam_posting) {
     create(
       :ieducar_api_exam_posting,
       school_calendar_classroom_step: classroom.calendar.classroom_steps.first,
@@ -35,7 +35,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     }
 
     context 'when student uses_differentiated_exam_rule' do
-      let!(:conceptual_exam) {
+      let(:conceptual_exam) {
         student = create(:student, uses_differentiated_exam_rule: true)
         create(
           :conceptual_exam,
@@ -85,7 +85,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is numeric and concept' do
-    let!(:classroom) {
+    let(:classroom) {
       create(
         :classroom,
         :with_classroom_semester_steps,
@@ -94,7 +94,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     }
 
     context 'when discipline score type is numeric after being concept' do
-      let!(:teacher_discipline_classroom) {
+      let(:teacher_discipline_classroom) {
         create(
           :teacher_discipline_classroom,
           classroom: classroom,
@@ -139,7 +139,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     end
 
     context 'when discipline score type is concept' do
-      let!(:teacher_discipline_classroom) {
+      let(:teacher_discipline_classroom) {
         create(
           :teacher_discipline_classroom,
           classroom: classroom,
@@ -184,7 +184,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     end
 
     context 'when discipline score type is numeric' do
-      let!(:teacher_discipline_classroom) {
+      let(:teacher_discipline_classroom) {
         create(
           :teacher_discipline_classroom,
           classroom: classroom,
@@ -228,7 +228,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is numeric after being concept' do
-    let!(:classroom) {
+    let(:classroom) {
       create(
         :classroom,
         :with_classroom_semester_steps,
@@ -272,7 +272,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is concept' do
-    let!(:classroom) {
+    let(:classroom) {
       create(
         :classroom,
         :with_classroom_semester_steps,
@@ -316,14 +316,14 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when discipline is exempted' do
-    let!(:classroom) {
+    let(:classroom) {
       create(
         :classroom,
         :with_classroom_semester_steps,
         :score_type_concept
       )
     }
-    let!(:specific_step) {
+    let(:specific_step) {
       create(
         :specific_step,
         classroom: classroom,
@@ -362,6 +362,55 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         request[:request],
         request[:info]
       )
+    end
+  end
+
+  context 'when student discipline is exempted' do
+    let(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_concept
+      )
+    }
+    let!(:student_enrollment_exempted_discipline) {
+      create(
+        :student_enrollment_exempted_discipline,
+        discipline: discipline,
+        student_enrollment: conceptual_exam.student.student_enrollments.first
+      )
+    }
+
+    it 'does not return warning_messages and ignores the conceptual_exam_value' do
+      subject.post!
+
+      expect(subject.instance_variable_get(:@warning_messages)).to be_empty
+      expect(subject.instance_variable_get(:@requests)).to be_empty
+    end
+
+    it 'returns a warning message when the student has no conceptual_exam_value and is exempt from another discipline' do
+      discipline_other = create(:discipline)
+      create(
+        :teacher_discipline_classroom,
+        classroom: classroom,
+        discipline: discipline_other,
+        teacher: classroom.teacher_discipline_classrooms.first.teacher,
+        score_type: ScoreTypes::CONCEPT
+      )
+      create(:conceptual_exam_value,
+        conceptual_exam: conceptual_exam,
+        discipline: discipline_other,
+        value: nil
+      )
+
+      subject.post!
+
+      response = [
+        "O aluno #{conceptual_exam.student.name} não possui nota lançada no diário de notas conceituais na " \
+        "turma #{classroom.description} disciplina: #{discipline_other.description}"
+      ]
+
+      expect(subject.instance_variable_get(:@warning_messages)).to eq(response)
     end
   end
 end
