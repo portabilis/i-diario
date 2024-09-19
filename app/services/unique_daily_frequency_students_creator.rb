@@ -20,26 +20,28 @@ class UniqueDailyFrequencyStudentsCreator
   def create!(classroom_id, frequency_date, teacher_id)
     validate_parameters!(classroom_id, frequency_date, teacher_id)
 
-    daily_frequency_students = Hash.new { |hash, key| hash[key] = {} }
+    hash_frequency_students = Hash.new { |hash, key| hash[key] = {} }
 
-    daily_frequencies = DailyFrequency.includes(:students)
-                                      .by_classroom_id(classroom_id)
-                                      .by_frequency_date(frequency_date)
-                                      .by_teacher_discipline_classroom(teacher_id, classroom_id)
+    frequency_students = DailyFrequencyStudent.joins(:daily_frequency)
+                                              .where(
+                                                daily_frequencies: { classroom_id: classroom_id, frequency_date: frequency_date },
+                                                active: true
+                                              ).pluck(
+                                                'daily_frequency_students.student_id',
+                                                'daily_frequency_students.present'
+                                              )
 
-    return remove_unique_daily_frequency_students(classroom_id, frequency_date) if daily_frequencies.blank?
+    return remove_unique_daily_frequency_students(classroom_id, frequency_date) if frequency_students.blank?
 
-    daily_frequencies.each do |current_daily_frequency|
-      current_daily_frequency.students.select(&:active).each do |student|
-        daily_frequency_students[student.student_id][:present] = student.present || false
-        daily_frequency_students[student.student_id].reverse_merge!(
-          classroom_id: classroom_id,
-          frequency_date: frequency_date
-        )
-      end
+    frequency_students.each do |student_id, present|
+      hash_frequency_students[student_id][:present] = present || false
+      hash_frequency_students[student_id].reverse_merge!(
+        classroom_id: classroom_id,
+        frequency_date: frequency_date
+      )
     end
 
-    create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
+    create_or_update_unique_daily_frequency_students(hash_frequency_students, teacher_id)
   end
 
   private
