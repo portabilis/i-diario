@@ -45,7 +45,7 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
     if enrollment_classrooms.show_as_inactive.blank?
-      enrollment_classrooms = search_by_search_type(enrollment_classrooms)
+      enrollment_classrooms = filter_by_type(enrollment_classrooms)
       enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
     end
 
@@ -70,6 +70,8 @@ class StudentEnrollmentClassroomsRetriever
       raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless start_at || end_at
     elsif search_type.eql?(:by_year)
       raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless year
+    else
+      raise ArgumentError, 'Invalid search type'
     end
   end
 
@@ -81,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_in_date
   end
 
-  def search_by_search_type(enrollment_classrooms)
+  def filter_by_type(enrollment_classrooms)
     return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
@@ -98,8 +100,14 @@ class StudentEnrollmentClassroomsRetriever
   def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    last_student_classroom = enrollment_classrooms.select do |ec|
-      ec.left_at.blank? || ec.left_at.to_date.between?(start_at.to_date, end_at.to_date)
+    enrollment_classrooms.select do |ec|
+      if search_type.eql?(:by_date_range)
+        ec.left_at.blank? || (ec.joined_at.to_date <= end_at.to_date && ec.left_at.to_date >= start_at.to_date)
+      elsif search_type.eql?(:by_date)
+        ec.left_at.blank? || date.to_date <= ec.left_at.to_date
+      elsif search_type.eql?(:by_year)
+        ec.left_at.blank? || year == ec.left_at.to_date.year
+      end
     end
   end
 
