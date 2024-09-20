@@ -51,7 +51,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       )
     end
 
-    it 'create a unique_daily_frequency_student record' do
+    it 'creates a unique_daily_frequency_student record' do
       student_id = daily_frequency.students.first.student_id
       expected_attributes = {
         present: daily_frequency.students.first.present,
@@ -90,7 +90,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       }
     end
 
-    it 'create a UniqueDailyFrequencyStudent record when the teacher has a lesson in the classroom' do
+    it 'creates a UniqueDailyFrequencyStudent record when the teacher has a lesson in the classroom' do
       student_id = daily_frequency.students.first.student_id
 
       expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
@@ -103,7 +103,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
   end
 
   context '#validate_parameters!' do
-    it 'create a UniqueDailyFrequencyStudent record when params are correct' do
+    it 'creates a UniqueDailyFrequencyStudent record when params are correct' do
       unique_daily_frequency_student_creator = described_class.create!(
         classroom.id,
         daily_frequency.frequency_date,
@@ -119,10 +119,11 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
     end
 
-    it 'return raises ArgumentError when params are nil' do
+    it 'returns raises ArgumentError when params are nil' do
       expect{
         UniqueDailyFrequencyStudentsCreator.create!(nil, nil, nil)
-      }.to raise_error(ArgumentError, /Parâmetros inválidos: classroom_id, frequency_date and teacher_id não estão presentes/)
+      }.to raise_error(ArgumentError,
+/Parâmetros inválidos: classroom_id, frequency_date ou teacher_id não estão presentes/)
     end
   end
 
@@ -158,7 +159,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       )
     end
 
-    it 'return only one frequency per day' do
+    it 'returns only one frequency per day' do
       create(:daily_frequency_student,
         daily_frequency: daily_frequency_two,
         active: true,
