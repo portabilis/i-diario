@@ -25,7 +25,7 @@ class UniqueDailyFrequencyStudentsCreator
     return remove_unique_daily_frequency_students(classroom_id, frequency_date) if frequency_students.blank?
 
     hash_frequency_students = build_hash_frequency_students(frequency_students, classroom_id, frequency_date)
-    binding.pry
+
     create_or_update_unique_daily_frequency_students(hash_frequency_students, teacher_id)
   end
 
