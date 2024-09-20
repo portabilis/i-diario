@@ -20,31 +20,37 @@ class UniqueDailyFrequencyStudentsCreator
   def create!(classroom_id, frequency_date, teacher_id)
     validate_parameters!(classroom_id, frequency_date, teacher_id)
 
-    hash_frequency_students = Hash.new { |hash, key| hash[key] = {} }
-
-    frequency_students = DailyFrequencyStudent.joins(:daily_frequency)
-                                              .where(
-                                                daily_frequencies: { classroom_id: classroom_id, frequency_date: frequency_date },
-                                                active: true
-                                              ).pluck(
-                                                'daily_frequency_students.student_id',
-                                                'daily_frequency_students.present'
-                                              )
+    frequency_students = set_daily_frequency_students(classroom_id, frequency_date)
 
     return remove_unique_daily_frequency_students(classroom_id, frequency_date) if frequency_students.blank?
 
-    frequency_students.each do |student_id, present|
-      hash_frequency_students[student_id][:present] = present || false
-      hash_frequency_students[student_id].reverse_merge!(
-        classroom_id: classroom_id,
-        frequency_date: frequency_date
-      )
-    end
-
+    hash_frequency_students = build_hash_frequency_students(frequency_students, classroom_id, frequency_date)
+    binding.pry
     create_or_update_unique_daily_frequency_students(hash_frequency_students, teacher_id)
   end
 
   private
+
+  def set_daily_frequency_students(classroom_id, frequency_date)
+    DailyFrequencyStudent.joins(:daily_frequency)
+                         .where(
+                            daily_frequencies: {
+                              classroom_id: classroom_id, frequency_date: frequency_date
+                            },
+                           active: true
+                          )
+                         .pluck(:student_id, :present)
+  end
+
+  def build_hash_frequency_students(frequency_students, classroom_id, frequency_date)
+    frequency_students.each_with_object({}) do |(student_id, present), hash|
+      hash[student_id] = {
+        classroom_id: classroom_id,
+        frequency_date: frequency_date,
+        present: present || false
+      }
+    end
+  end
 
   # Random time between 19h and 23h
   # But at least at 1 minute after the current time
@@ -86,7 +92,7 @@ class UniqueDailyFrequencyStudentsCreator
 
   def validate_parameters!(classroom_id, frequency_date, teacher_id)
     if classroom_id.blank? || frequency_date.blank? || teacher_id.blank?
-      raise ArgumentError, "Parâmetros inválidos: classroom_id, frequency_date and teacher_id não estão presentes"
+      raise ArgumentError, "Parâmetros inválidos: classroom_id, frequency_date ou teacher_id não estão presentes"
     end
   end
 end
