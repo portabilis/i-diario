@@ -233,13 +233,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     fetch_student_enrollments.each do |student_enrollment|
-      student_enrollments_ids << student_enrollment.id
-      student = student_enrollment.student
+      student_enrollments_ids << student_enrollment[:student_enrollment].id
+      student = student_enrollment[:student]
       student_ids << student.id
-      type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .by_classroom(@classroom.id)
-                                           .last
-                                           .type_of_teaching
+      type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
 
       next if student.blank?
 
@@ -478,14 +475,25 @@ nil, @period)
   end
 
   def fetch_student_enrollments
-    StudentEnrollmentsList.new(
-      classroom: @classroom,
-      discipline: @discipline,
+    # StudentEnrollmentsList.new(
+    #   classroom: @classroom,
+    #   discipline: @discipline,
+    #   start_at: params[:start_date] || params[:frequency_in_batch_form][:start_date],
+    #   end_at: params[:end_date] || params[:frequency_in_batch_form][:end_date],
+    #   search_type: :by_date_range,
+    #   period: @period
+    # ).student_enrollments
+
+    StudentEnrollmentClassroomsRetriever.call(
+      classrooms: @classroom,
+      disciplines: @discipline,
       start_at: params[:start_date] || params[:frequency_in_batch_form][:start_date],
       end_at: params[:end_date] || params[:frequency_in_batch_form][:end_date],
+      show_inactive_outside_step: false,
       search_type: :by_date_range,
-      period: @period
-    ).student_enrollments
+      period: @period,
+      remove_duplicate_student: false
+    )
   end
 
   def students_inactive_on_range(student_enrollments_ids, dates)
