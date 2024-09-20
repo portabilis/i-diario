@@ -43,8 +43,8 @@ class UniqueDailyFrequencyStudentsCreator
   end
 
   def build_hash_frequency_students(frequency_students, classroom_id, frequency_date)
-    frequency_students.each_with_object({}) do |(student_id, present), hash|
-      hash[student_id] = {
+    frequency_students.to_h.transform_values do |present|
+      {
         classroom_id: classroom_id,
         frequency_date: frequency_date,
         present: present || false
