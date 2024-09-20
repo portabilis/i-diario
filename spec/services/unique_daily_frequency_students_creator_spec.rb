@@ -22,7 +22,8 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       classroom: classroom,
       teacher: teacher,
       class_number: nil,
-      discipline_id: nil
+      discipline_id: nil,
+      frequency_date: '2024-04-01'
     )
   }
   let(:school_calendar) {
@@ -123,7 +124,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       expect{
         UniqueDailyFrequencyStudentsCreator.create!(nil, nil, nil)
       }.to raise_error(ArgumentError,
-/Parâmetros inválidos: classroom_id, frequency_date ou teacher_id não estão presentes/)
+        /Parâmetros inválidos: classroom_id, frequency_date ou teacher_id não estão presentes/)
     end
   end
 
@@ -179,6 +180,28 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       }
 
       expect(unique_daily_frequency_student_creator).to eq({ student_id => expected_attributes })
+    end
+  end
+
+  context 'when the frequency is retroactively removed' do
+    it 'removes the created unique_daily_frequency_student' do
+      student = daily_frequency.students.first.student
+      frequency_date = daily_frequency.frequency_date
+      unique_daily_frequency_student = create(:unique_daily_frequency_student,
+        student: student, classroom: classroom, frequency_date: frequency_date
+      )
+      
+      daily_frequency.students.destroy
+      daily_frequency.destroy
+
+      unique_daily_frequency_student_creator = described_class.create!(
+                                                classroom.id,
+                                                '2024-04-01',
+                                                teacher.id
+                                              )
+
+      expect(UniqueDailyFrequencyStudent.find_by(id: unique_daily_frequency_student.id)).to be_nil
+
     end
   end
 
