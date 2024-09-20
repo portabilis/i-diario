@@ -11,10 +11,9 @@ jobs:
   default:
     name: Unit and Integration
 
-    if: "! github.event.pull_request.draft"
+    if: '! github.event.pull_request.draft'
 
-
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       RAILS_ENV: test
