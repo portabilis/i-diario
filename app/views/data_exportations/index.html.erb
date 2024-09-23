@@ -47,7 +47,7 @@
               <td>
                 <% if @last_school_calendar_backup.completed? %>
                   <%= link_to I18n.l(@last_full_system_backup.created_at),
-                    @last_school_calendar_backup.backup_file_url %>
+                              @last_school_calendar_backup.backup_file_url %>
                 <% elsif @last_school_calendar_backup.error? %>
                   Erro: <%= @last_school_calendar_backup.error_message %>
                 <% end %>
