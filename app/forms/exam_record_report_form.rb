@@ -16,7 +16,7 @@ class ExamRecordReportForm
   validate :must_have_daily_notes
 
   def daily_notes
-    return unless step
+    return if step.blank?
 
     @daily_notes = DailyNote.by_unity_id(unity_id)
                             .by_classroom_id(classroom_id)
@@ -26,9 +26,8 @@ class ExamRecordReportForm
   end
 
   def recovery_lowest_notes?
-    return unless step
+    return if step.blank?
 
-    classroom = Classroom.find(classroom_id)
     @recovery_lowest_notes = AvaliationRecoveryLowestNote.by_unity_id(unity_id)
                                                          .by_classroom_id(classroom_id)
                                                          .by_discipline_id(discipline_id)
@@ -37,23 +36,15 @@ class ExamRecordReportForm
   end
 
   def lowest_notes
-    return unless step
-
-    classroom = Classroom.find(classroom_id)
+    return if step.blank?
 
     lowest_notes = {}
 
-    RecoveryDiaryRecordStudent.by_student_id(students_enrollments.map(&:student_id))
-                              .joins(:recovery_diary_record)
-                              .merge(
-                                RecoveryDiaryRecord.by_discipline_id(discipline_id)
-                                                   .by_classroom_id(classroom_id)
-                                                   .joins(:students, :avaliation_recovery_lowest_note)
-                                                   .merge(
-                                                     AvaliationRecoveryLowestNote
-                                                       .by_step_id(classroom, step.id)
-                                                   )
-                              ).each do |recovery_diary_record|
+    recovery_diary_record_students = RecoveryDiaryRecordStudent.by_student_id(student_ids)
+                                                               .joins(:recovery_diary_record)
+                                                               .merge(recovery_diary_records)
+
+    recovery_diary_record_students.each do |recovery_diary_record|
       student_data = {recovery_diary_record.student_id => recovery_diary_record.score}
       lowest_notes = lowest_notes.merge(student_data)
     end
@@ -62,7 +53,7 @@ class ExamRecordReportForm
   end
 
   def daily_notes_classroom_steps
-    return unless classroom_step
+    return if classroom_step.blank?
 
     @daily_notes = DailyNote.by_unity_id(unity_id)
                             .by_classroom_id(classroom_id)
@@ -71,28 +62,34 @@ class ExamRecordReportForm
                             .order_by_avaliation_test_date
   end
 
-  def students_enrollments
-    StudentEnrollmentsList.new(
-      classroom: classroom_id,
-      discipline: discipline_id,
+  def info_students
+    @student_enrollment_classrooms ||= StudentEnrollmentClassroomsRetriever.call(
+      classrooms: classroom_id,
+      disciplines: discipline_id,
       start_at: classroom_step.try(:start_at) || step.start_at,
       end_at: classroom_step.try(:end_at) || step.end_at,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       search_type: :by_date_range,
       show_inactive: false
-    ).student_enrollments
+    )
+  end
+
+  def student_ids
+    @student_enrollment_classrooms.map do |student_enrollment_classroom|
+      student_enrollment_classroom[:student].id
+    end
   end
 
   def step
-    return unless school_calendar_step_id
+    return if school_calendar_step_id.blank?
 
-    SchoolCalendarStep.find(school_calendar_step_id)
+    @step ||= SchoolCalendarStep.find(school_calendar_step_id)
   end
 
   def classroom_step
-    return unless school_calendar_classroom_step_id
+    return if school_calendar_classroom_step_id.blank?
 
-    SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    @step ||=  SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
   end
 
   def complementary_exams
@@ -106,6 +103,7 @@ class ExamRecordReportForm
 
   def school_term_recoveries
     return [] unless GeneralConfiguration.current.show_school_term_recovery_in_exam_record_report?
+
     @school_term_recoveries ||= SchoolTermRecoveryDiaryRecord
       .includes(recovery_diary_record: :discipline)
       .by_unity_id(unity_id)
@@ -118,7 +116,7 @@ class ExamRecordReportForm
   private
 
   def must_have_daily_notes
-    return unless errors.blank?
+    return if errors.present?
 
     notes = daily_notes_classroom_steps || daily_notes
 
@@ -127,19 +125,14 @@ class ExamRecordReportForm
     end
   end
 
-  def remove_duplicated_enrollments(students_enrollments)
-    students_enrollments = students_enrollments.select do |student_enrollment|
-      enrollments_for_student = StudentEnrollment
-        .by_student(student_enrollment.student_id)
-        .by_classroom(classroom_id)
+  def recovery_diary_records
+    RecoveryDiaryRecord.by_discipline_id(discipline_id)
+                       .by_classroom_id(classroom_id)
+                       .joins(:students, :avaliation_recovery_lowest_note)
+                       .merge(AvaliationRecoveryLowestNote.by_step_id(classroom, step.id))
+  end
 
-      if enrollments_for_student.count > 1
-        enrollments_for_student.last != student_enrollment
-      else
-        true
-      end
-    end
-
-    students_enrollments
+  def classroom
+    @classroom ||= Classroom.find(classroom_id)
   end
 end
