@@ -71,13 +71,13 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
 
     it 'should return nil for blank params' do
-      expect(
+      expect{
         StudentEnrollmentClassroomsRetriever.call(
           search_type: '',
           classrooms: '',
           disciplines: ''
         )
-      ).to be_nil
+      }.to raise_error(ArgumentError, 'Invalid search type')
     end
   end
 
@@ -209,8 +209,8 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when there is a range of dates to search for student_enrollment_classrooms' do
-    # Cria enturmacao que ficara enturmada de janeiro a dezembro de 2022
-    # Nao deve estar no retorno do servico que se refere a 2023
+    # Cria enturmacao que ficara enturmada de fevereiro a dezembro de 2022
+    # Não deve estar no retorno do servico que se refere a 2023
     let!(:student_enrollment_classrooms_out_date) {
       create_list(
         :student_enrollment_classroom,
