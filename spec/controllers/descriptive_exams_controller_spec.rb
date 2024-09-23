@@ -21,6 +21,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
       exam_rule: exam_rule
     )
   }
+
   let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom, exam_rule: exam_rule) }
   let(:student_enrollment_classroom) { create(:student_enrollment_classroom, classrooms_grade: classrooms_grade) }
   let(:student_enrollment) { student_enrollment_classroom.student_enrollment }
@@ -59,7 +60,63 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     request.env['REQUEST_PATH'] = ''
   end
 
-  describe 'POST #create' do
+  describe "GET #new" do
+    let!(:descriptive_exam) {
+      create(
+        :descriptive_exam,
+        :with_teacher_discipline_classroom,
+        discipline_id: discipline.id,
+        classroom: classroom
+      )
+    }
+    let!(:step) { descriptive_exam.step }
+
+    before do
+      get :new, params: { locale: 'pt-BR' }
+    end
+    
+    context "when user is authorized" do
+      it "assigns a new descriptive exam to @descriptive_exam" do
+        expect(assigns(:descriptive_exam)).to be_a_new(DescriptiveExam)
+      end
+
+      it "sets @descriptive_exam classroom_id to current user's classroom" do
+        expect(descriptive_exam.classroom_id).to eq(classroom.id)
+      end
+
+      it "sets @descriptive_exam discipline_id if opinion type is not 'Avaliação padrão (regular)'" do
+        allow_any_instance_of(DescriptiveExam).to receive(:opinion_types).and_return([OpenStruct.new(text: "Avaliação inclusiva")])
+        expect(descriptive_exam.discipline_id).to eq(discipline.id)
+      end
+    end
+
+    context "when user is not authorized" do
+      before { allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError) }
+
+      it "redirects to root path with an alert message" do
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to match("Ops! Ocorreu um erro. Tente recarregar a página e, se o problema persistir, entre em contato com a gestão da sua Escola ou a Secretaria de Educação do seu município para que o problema seja reportado ao Suporte.")
+      end
+    end
+  end
+
+  describe "POST #create" do
+    let(:valid_params) do
+      {
+        descriptive_exam: {
+          classroom_id: classroom.id,
+          discipline_id: discipline.id,
+          recorded_at:  '2017-03-01',
+          opinion_type: classrooms_grade.exam_rule.opinion_type,
+          step_id: SchoolCalendarClassroomStep.first.id,
+          students: [
+            { id: student.id, student_id: student.id, dependence: false }
+          ]
+        },
+        locale: 'pt-BR'
+      }
+    end
+
     context 'without success' do
       it 'fails to create and renders the new template' do
         post :create, params: params
@@ -74,13 +131,49 @@ RSpec.describe DescriptiveExamsController, type: :controller do
         expect(response).to redirect_to /avaliacoes-descritivas/
       end
     end
+
+    context "with valid params" do
+      it "creates a new descriptive exam" do
+        expect {
+          post :create, params: valid_params
+        }.to change(DescriptiveExam, :count).by(1)
+      end
+
+      it "redirects to the edit path for the created exam" do
+        post :create, params: valid_params
+        expect(response).to redirect_to(edit_descriptive_exam_path(DescriptiveExam.last))
+      end
+    end
+
+    context "with invalid params" do
+      let(:invalid_params) do
+        {
+          descriptive_exam: {
+            classroom_id: 50,
+            discipline_id: 50,
+            recorded_at: Date.current,
+            opinion_type: 'regular',
+            students_attributes: []
+          },
+          locale: 'pt-BR'
+        }
+      end
+
+      it "does not create a new exam and re-renders the new template" do
+        expect {
+          post :create, params: invalid_params
+        }.to_not change(DescriptiveExam, :count)
+        expect(flash[:error]).to match("Não localizamos uma regra de avaliação para a turma informada. Entre em contato com o administrador do sistema.")
+      end
+    end
   end
 
-  describe 'PUT #update' do
+  describe "PUT #update" do
     let!(:descriptive_exam) {
       create(
         :descriptive_exam,
         :with_teacher_discipline_classroom,
+        discipline_id: discipline.id,
         classroom: classroom
       )
     }
@@ -95,5 +188,49 @@ RSpec.describe DescriptiveExamsController, type: :controller do
         expect(descriptive_exam.save).to be true
       end
     end
+
+    context "with valid params" do
+      it "updates the requested descriptive exam" do
+        put :update, params: { id: descriptive_exam.id, descriptive_exam: { recorded_at: Date.current }, locale: 'pt-BR' }
+        descriptive_exam.reload
+        expect(descriptive_exam.recorded_at).to eq(Date.current)
+      end
+
+      it "redirects to the new descriptive exam path" do
+        put :update, params: { id: descriptive_exam.id, descriptive_exam: { recorded_at: Date.current }, locale: 'pt-BR' }
+        expect(response).to redirect_to(new_descriptive_exam_path)
+      end
+    end
+
+    context "with invalid params" do
+      it "re-renders the edit template" do
+        put :update, params: { id: descriptive_exam.id, descriptive_exam: { classroom_id: nil }, locale: 'pt-BR' }
+        expect(flash[:alert]).to match("Ops! Ocorreu um erro. Tente recarregar a página e, se o problema persistir, entre em contato com a gestão da sua Escola ou a Secretaria de Educação do seu município para que o problema seja reportado ao Suporte.")
+      end
+    end
   end
+
+  describe "GET #find" do
+    context "when valid params are provided" do
+      
+      it "returns the descriptive exam id as JSON" do
+        descriptive_exam = create(
+          :descriptive_exam,
+          :with_teacher_discipline_classroom,
+          discipline_id: discipline.id,
+          classroom: classroom
+        )
+        get :find, params: { classroom_id: classroom.id, discipline_id: discipline.id, opinion_type: 'regular', locale: 'pt-BR' }
+        expect(response.status).to eq(200)
+      end
+    end
+
+    context "when invalid params are provided" do
+      it "returns null as JSON" do
+        get :find, params: { classroom_id: nil, opinion_type: 'regular', locale: 'pt-BR' }
+        expect(response.body).to eq("null")
+      end
+    end
+  end
+
 end
