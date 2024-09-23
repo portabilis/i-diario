@@ -97,8 +97,10 @@ class User < ApplicationRecord
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
 
   def build_permissions!
+    existing_features = permissions.to_a.pluck(:feature).to_set
+
     Features.list.each do |feature|
-      next if permissions.where(feature: feature).exists?
+      next if existing_features.include?(feature)
 
       permissions.new(
         feature: feature,
