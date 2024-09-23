@@ -182,9 +182,11 @@ class UsersController < ApplicationController
   end
 
   def fetch_permissions
-    @active_user_tab = ActiveRecord::Type::Boolean.new.cast(params[:active_user_tab]) || false
-    @active_user_tab = true if params[:active_user_tab].blank? && params[:active_permissions_tab].blank?
-
+    @active_user_tab = if params[:active_user_tab].present?
+                         ActiveRecord::Type::Boolean.new.cast(params[:active_user_tab])
+                       else
+                         params[:active_permissions_tab].blank?
+                       end
     @permissions = @user.permissions
   end
 end
