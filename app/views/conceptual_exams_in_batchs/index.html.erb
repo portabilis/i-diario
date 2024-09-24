@@ -10,27 +10,27 @@
       <table id='resources' class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover'>
         <thead>
           <tr>
-            <td></td>
-            <td></td>
-            <td>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col">
               <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
                 label: false, placeholder: t('.by_step') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json,
                 label: false, placeholder: t('.by_status') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= link_to t('.new_html'), new_conceptual_exams_in_batch_path, class: 'btn btn-primary pull-right' %>
-            </td>
+            </th>
           </tr>
 
           <tr>
-            <th><%= ConceptualExam.human_attribute_name :unity_id %></th>
-            <th><%= ConceptualExam.human_attribute_name :classroom %></th>
-            <th><%= ConceptualExam.human_attribute_name :step %></th>
-            <th><%= ConceptualExam.human_attribute_name :status %></th>
-            <td width='160px'></td>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :unity_id %></th>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :classroom %></th>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :step %></th>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :status %></th>
+            <th scope="col" style="width: 160px"></th>
           </tr>
         </thead>
 
