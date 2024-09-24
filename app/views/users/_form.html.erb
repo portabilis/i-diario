@@ -25,9 +25,7 @@
               <th>Acesso</th>
             </tr>
           </thead>
-          <%= f.association :permissions, collection: @permissions do |p| %>
-            <%= render 'permission', f: p %>
-          <% end %>
+          <%= render 'permission', f: f %>
         </table>
       </tbody>
 
