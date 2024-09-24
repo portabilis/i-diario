@@ -15,6 +15,7 @@ FactoryGirl.define do
         user_role = create(:user_role, :administrator)
         user.user_roles << user_role
         user.current_user_role = user_role
+        user.fullname = 'Admin'
         user.save!
       end
     end

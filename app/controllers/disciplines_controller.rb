@@ -1,7 +1,9 @@
 class DisciplinesController < ApplicationController
   respond_to :json
 
-  has_scope :by_unity_id
+  has_scope :by_unity_id do |controller, scope, value|
+    scope.by_unity_id(value, controller.params[:year])
+  end
   has_scope :by_teacher_id
   has_scope :by_grade
   has_scope :by_classroom
@@ -55,7 +57,7 @@ class DisciplinesController < ApplicationController
   end
 
   def search_by_grade_and_unity
-    @disciplines = apply_scopes(Discipline).where(teacher_discipline_classrooms: { teacher_id: current_user.teacher_id }).ordered.uniq
+    @disciplines = apply_scopes(Discipline).ordered.distinct
 
     render json: @disciplines
   end
@@ -78,7 +80,7 @@ class DisciplinesController < ApplicationController
                             .not_descriptor
 
     if current_user.teacher?
-      disciplines = disciplines.by_teacher_id(current_teacher.id)
+      disciplines = disciplines.by_teacher_id(current_teacher.id, current_school_year)
     end
 
     disciplines.map do |discipline|
