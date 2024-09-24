@@ -10,7 +10,7 @@ on:
 jobs:
   default:
     name: Unit and Integration
-
+    timeout-minutes: 10
     if: '! github.event.pull_request.draft'
 
     runs-on: self-hosted
