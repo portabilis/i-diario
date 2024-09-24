@@ -6,18 +6,18 @@
     </span>
   </div>
 <% end %>
-<%= hidden_field_tag :user_id, f.object.user_id %>
-
-<tr class="nested-fields" id="user-<%= f.object.feature %>" <%= access_level_tags(f.object) %> >
-  <td>
-    <%= f.object.feature_humanize %>
-    <%= f.hidden_field :feature, as: :hidden, value: f.object.feature %>
-    <%= f.hidden_field :id, as: :hidden, value: f.object.id %>
-  </td>
-
-  <td>
-    <%= f.input :permission, as: :select2, elements: permissions(f.object.feature), label_html: { class: "hidden" } %>
-  </td>
-</tr>
-
-
+<%= hidden_field_tag :user_id, f.object.id %>
+<% @permissions.each do |permission| %>
+  <%= f.fields_for :permissions, permission do |permission_form| %>
+    <tr class="nested-fields" id="user-<%= permission.feature %>" <%= access_level_tags(permission) %> >
+      <td>
+        <%= permission.feature_humanize %>
+        <%= permission_form.hidden_field :feature %>
+        <%= permission_form.hidden_field :id %>
+      </td>
+      <td>
+        <%= permission_form.input :permission, as: :select2, elements: permissions(permission.feature), label_html: { class: "hidden" } %>
+      </td>
+    </tr>
+  <% end %>
+<% end %>
