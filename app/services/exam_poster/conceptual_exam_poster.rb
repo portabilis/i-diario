@@ -34,24 +34,28 @@ module ExamPoster
 
       classrooms.each do |classroom|
         next unless can_post?(classroom)
+        step = get_step(classroom)
+        conceptual_exams = ConceptualExam.joins(:student)
+                                         .by_classroom(classroom)
+                                         .by_unity(step.school_calendar.unity)
+                                         .by_step_id(classroom, step.id)
 
-        conceptual_exam_ids = ConceptualExam.joins(:student)
-                                            .by_classroom(classroom)
-                                            .by_unity(get_step(classroom).school_calendar.unity)
-                                            .by_step_id(classroom, get_step(classroom).id)
-                                            .pluck(:id)
-        exempted_discipline_ids =
-          ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+        student_ids, conceptual_exams_ids = conceptual_exams.pluck(:student_id, :id).transpose
+        exempted_disciplines = exempt_discipline_students(classroom, discipline_ids, student_ids, step.to_number)
+        exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
         conceptual_exam_values = ConceptualExamValue.active
                                                     .includes(:conceptual_exam, :discipline)
-                                                    .where(conceptual_exam_id: conceptual_exam_ids)
+                                                    .where(conceptual_exam_id: conceptual_exams_ids)
                                                     .where.not(discipline_id: exempted_discipline_ids)
                                                     .where(discipline_id: discipline_ids)
                                                     .distinct
 
         conceptual_exam_values.each do |conceptual_exam_value|
           conceptual_exam = conceptual_exam_value.conceptual_exam
+          discipline_id = conceptual_exam_value.discipline_id
 
+          next if exempted_disciplines[conceptual_exam.student_id].present? &&
+                  exempted_disciplines[conceptual_exam.student_id].pluck(:discipline_id).include?(discipline_id)
           next unless not_posted?({ classroom: classroom, student: conceptual_exam.student, discipline: conceptual_exam_value.discipline })[:conceptual_exam]
 
           if conceptual_exam_value.value.blank?
@@ -71,6 +75,19 @@ module ExamPoster
       end
 
       params
+    end
+
+    def exempt_discipline_students(classroom, discipline_ids, student_ids, step_number)
+      StudentEnrollmentExemptedDiscipline.includes(student_enrollment: :student)
+                                         .joins(student_enrollment:
+                                           [
+                                             :student, student_enrollment_classrooms:
+                                               [classrooms_grade: :classroom]
+                                           ])
+                                         .where(classrooms_grades: { classroom_id: classroom.id })
+                                         .where(students: { id: student_ids }, discipline_id: discipline_ids)
+                                         .by_step_number(step_number)
+                                         .group_by { |exempt| exempt.student_enrollment.student_id }
     end
   end
 end
