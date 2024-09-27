@@ -12,7 +12,7 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user
     select_opinion_types
 
-    unless @opinion_types.first.text.eql?('Avaliação padrão (regular)')
+    if @opinion_types&.first&.text != 'Avaliação padrão (regular)'
       @descriptive_exam.discipline_id = current_user_discipline.id
     end
 
@@ -179,7 +179,8 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def opinion_type_by_year?(opinion_type = nil)
-    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type || @descriptive_exam.opinion_type)
+    [OpinionTypes::BY_YEAR,
+     OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type || @descriptive_exam.opinion_type)
   end
 
   def recorded_at_by_step
