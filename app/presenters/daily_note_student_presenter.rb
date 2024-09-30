@@ -18,7 +18,6 @@ class DailyNoteStudentPresenter < BasePresenter
   end
 
   def student_name
-    
     if in_active_search
       "*****#{student}"
     elsif !active

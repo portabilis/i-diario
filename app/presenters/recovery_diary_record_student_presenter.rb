@@ -14,7 +14,6 @@ class RecoveryDiaryRecordStudentPresenter < BasePresenter
   end
 
   def student_name
-    binding.pry
     if exempted_from_discipline
       "****#{student}"
     elsif active.present? && !active
