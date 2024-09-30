@@ -10,10 +10,11 @@ on:
 jobs:
   default:
     name: Unit and Integration
-    timeout-minutes: 10
-    if: '! github.event.pull_request.draft'
 
-    runs-on: self-hosted
+    if: "! github.event.pull_request.draft"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     env:
       RAILS_ENV: test
@@ -41,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
@@ -49,8 +50,6 @@ jobs:
           ruby-version: "2.6.6"
           bundler: "2.4.22"
           bundler-cache: true
-        env:
-          ImageOS: ubuntu20
 
       - name: Configure database
         run: cp config/database.sample.yml config/database.yml
@@ -68,7 +67,9 @@ jobs:
           " > config/secrets.yml
 
       - name: Migrate
-        run: RAILS_ENV=test bundle exec rails db:migrate
+        run: |
+          RAILS_ENV=test bundle exec rake db:migrate
 
       - name: Tests
-        run: bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
+        run: |
+          RAILS_ENV=test bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
