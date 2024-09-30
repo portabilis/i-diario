@@ -22,32 +22,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     set_options_by_user
   end
 
-  # TODO método duplicado para ser acessado via GET, unificar
-  def form
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
+  def form; end
 
-    @dates = [*start_date..end_date]
-    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
-    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
-
-    return unless view_data
-
-    render :create_or_update_multiple
-  end
-
-  def create
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
-
-    @dates = [*start_date..end_date]
-    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
-    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
-
-    return unless view_data
-
-    render :create_or_update_multiple
-  end
+  def create; end
 
   def create_or_update_multiple
     daily_frequency_attributes = daily_frequency_in_batchs_params
@@ -237,13 +214,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment[:student]
       student_ids << student.id
       type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
+      active = student_enrollment[:student_enrollment_classroom].left_at.blank?
 
       next if student.blank?
 
       @students_list << student
       @students << {
         student: student,
-        type_of_teaching: type_of_teaching
+        type_of_teaching: type_of_teaching,
+        active: active
       }
     end
 
@@ -475,15 +454,6 @@ nil, @period)
   end
 
   def fetch_student_enrollments
-    # StudentEnrollmentsList.new(
-    #   classroom: @classroom,
-    #   discipline: @discipline,
-    #   start_at: params[:start_date] || params[:frequency_in_batch_form][:start_date],
-    #   end_at: params[:end_date] || params[:frequency_in_batch_form][:end_date],
-    #   search_type: :by_date_range,
-    #   period: @period
-    # ).student_enrollments
-
     StudentEnrollmentClassroomsRetriever.call(
       classrooms: @classroom,
       disciplines: @discipline,
@@ -501,9 +471,9 @@ nil, @period)
 
     dates.each do |date|
       active_student_enrollments_ids = StudentEnrollment.where(id: student_enrollments_ids)
-                                                        .by_classroom(@classroom)
-                                                        .by_date(date)
-                                                        .pluck(:id)
+                                                                           .by_classroom(@classroom)
+                                                                           .by_date(date)
+                                                                           .pluck(:id)
 
       next if active_student_enrollments_ids.sort == student_enrollments_ids.sort
 
@@ -647,6 +617,14 @@ nil, @period)
     if invalid_dates?(start_date, end_date)
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
+
+    @dates = [*start_date..end_date]
+    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
+    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
+
+    return unless view_data
+
+    render :create_or_update_multiple
   end
 
   def fetch_linked_by_teacher
