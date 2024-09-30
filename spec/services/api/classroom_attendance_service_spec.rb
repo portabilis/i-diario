@@ -34,7 +34,7 @@ RSpec.describe Api::ClassroomAttendanceService do
   let(:year) { '2024'}
   let(:params_classrooms) do
     {
-      "0" => classroom.api_code
+      '0' => classroom.api_code
     }
   end
   let(:classrooms_grades) { create(:classrooms_grade, classroom: classroom) }
