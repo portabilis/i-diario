@@ -135,8 +135,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       .filter_from_params(filtering_params(params[:search]))
       .by_unity_id(current_unity.id)
       .by_teacher_id(current_teacher.id)
-      .by_classroom_id(@classrooms.map(&:id))
-      .by_discipline_id(@disciplines.map(&:id))
+      .by_classroom_id(@classrooms.pluck(:id))
+      .by_discipline_id(@disciplines.pluck(:id))
       .ordered
   end
 
@@ -189,7 +189,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def add_missing_students(students_in_final_recovery)
-    current_students_ids = @final_recovery_diary_record.recovery_diary_record.students.map(&:student_id)
+    current_students_ids = @final_recovery_diary_record.recovery_diary_record.students.pluck(:student_id)
 
     students_missing = students_in_final_recovery.select do |student_in_final_recovery|
       !current_students_ids.include?(student_in_final_recovery.id)
