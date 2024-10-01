@@ -44,7 +44,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     return if performed?
 
     @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
-      current_test_setting_step(current_year_last_step)&.number_of_decimal_places
+                                current_test_setting_step(current_year_last_step)&.number_of_decimal_places
   end
 
   def create
@@ -95,7 +95,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
-      current_test_setting_step(step)&.number_of_decimal_places
+                                current_test_setting_step(step)&.number_of_decimal_places
   end
 
   def update
@@ -308,22 +308,32 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_school_term_recovery_diary_records
-    @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
-      .includes(
-          recovery_diary_record: [
-            :unity,
-            :classroom,
-            :discipline
-          ]
-        )
-      .by_classroom_id(@classrooms.map(&:id))
-      .by_discipline_id(@disciplines.map(&:id))
-      .ordered
-      .distinct
+    @school_term_recovery_diary_records ||= if @admin_or_teacher
+                                            school_term_recovery_diary_records_for_admin
+                                            else
+                                            school_term_recovery_diary_records_for_teacher
+                                          end
 
-    unless @admin_or_teacher
-      @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_teacher_id(current_teacher.id).distinct
-    end
+    @school_term_recovery_diary_records = @school_term_recovery_diary_records.ordered.distinct
+  end
+
+  def school_term_recovery_diary_records_for_teacher
+    base_query
+      .joins(recovery_diary_record: :classroom)
+      .joins('INNER JOIN teacher_discipline_classrooms tdc ON tdc.classroom_id = classrooms.id AND tdc.discipline_id = recovery_diary_records.discipline_id')
+      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL', current_teacher.id)
+  end
+
+  def school_term_recovery_diary_records_for_admin
+    base_query
+      .by_classroom_id(@classrooms.pluck(:id))
+      .by_discipline_id(@disciplines.pluck(:id))
+  end
+
+  def base_query
+    apply_scopes(SchoolTermRecoveryDiaryRecord)
+      .includes(recovery_diary_record: [:unity, :classroom, :discipline])
+      .includes(recovery_diary_record: { unity: { school_calendars: :steps }})
   end
 
   def fetch_disciplines_by_classroom
