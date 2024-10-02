@@ -98,7 +98,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             absence_justification.save
 
-            student_attributes[:absence_justification_student_id] = 
+            student_attributes[:absence_justification_student_id] =
               absence_justification.absence_justifications_students.first.id
           end
 
@@ -350,7 +350,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, @classroom, current_school_year).fetch
       end
 
-      valid_day = SchoolDayChecker.new(school_calendar, date, nil, nil, nil).day_allows_entry?
+      valid_day = SchoolDayChecker.new(school_calendar, date, nil, @classroom.id, nil).day_allows_entry?
 
       next if allocations.empty? || !valid_day
 
@@ -386,7 +386,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     daily_frequencies = []
     if lesson_numbers.nil?
-      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id, 
+      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id,
 nil, @period)
     else
       lesson_numbers.each do |lesson_number|
@@ -642,7 +642,7 @@ nil, @period)
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, 
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
 current_school_year)
     @disciplines = []
     @classrooms = []
