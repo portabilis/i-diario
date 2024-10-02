@@ -308,9 +308,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_school_term_recovery_diary_records
-    @school_term_recovery_diary_records ||= if @admin_or_teacher
+    @school_term_recovery_diary_records = if @admin_or_teacher
                                             school_term_recovery_diary_records_for_admin
-                                            else
+                                          else
                                             school_term_recovery_diary_records_for_teacher
                                           end
 
