@@ -17,6 +17,7 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     let(:first_semester) { 1 }
     let(:second_semester) { 2 }
     let(:inexisting_step) { 3 }
+    let!(:user) { create(:user, :with_user_role_administrator) }
 
     subject do
       DeleteDispensedExamsAndFrequenciesService.new(
