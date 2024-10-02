@@ -6,7 +6,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :authorize_daily_frequency, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
-  before_action :require_valid_dates, only: [:create, :form]
 
   def new
     classroom_id = teacher_allocated.blank? ? nil : current_user_classroom.id
@@ -22,9 +21,26 @@ class DailyFrequenciesInBatchsController < ApplicationController
     set_options_by_user
   end
 
-  def form; end
+  def form
+    create
+  end
 
-  def create; end
+  def create
+    start_date = params[:frequency_in_batch_form][:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date
+
+    if invalid_dates?(start_date, end_date)
+      redirect_to(new_daily_frequencies_in_batch_path) and return
+    end
+
+    @dates = [*start_date..end_date]
+    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
+    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
+
+    return unless view_data
+
+    render :create_or_update_multiple
+  end
 
   def create_or_update_multiple
     daily_frequency_attributes = daily_frequency_in_batchs_params
@@ -209,7 +225,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return false
     end
 
-    fetch_student_enrollments.each do |student_enrollment|
+    student_enrollment_classrooms.each do |student_enrollment|
       student_enrollments_ids << student_enrollment[:student_enrollment].id
       student = student_enrollment[:student]
       student_ids << student.id
@@ -453,7 +469,7 @@ nil, @period)
     end
   end
 
-  def fetch_student_enrollments
+  def student_enrollment_classrooms
     StudentEnrollmentClassroomsRetriever.call(
       classrooms: @classroom,
       disciplines: @discipline,
@@ -608,23 +624,6 @@ nil, @period)
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.start_date_greater_end_date')
       true
     end
-  end
-
-  def require_valid_dates
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
-
-    if invalid_dates?(start_date, end_date)
-      redirect_to(new_daily_frequencies_in_batch_path) and return
-    end
-
-    @dates = [*start_date..end_date]
-    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
-    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
-
-    return unless view_data
-
-    render :create_or_update_multiple
   end
 
   def fetch_linked_by_teacher

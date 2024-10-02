@@ -78,7 +78,7 @@
                     <i class="checkbox-frequency-in-batch"></i>
                   </label>
                 <% end %>
-                
+
                 <% if daily_frequency_student.persisted? %>
                   <% if response_data[:response_class] != 'inactive' %>
                     <% absences_on_the_period += daily_frequency_student.present ? 0 : 1 %>
