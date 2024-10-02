@@ -333,7 +333,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def base_query
     apply_scopes(SchoolTermRecoveryDiaryRecord)
       .includes(recovery_diary_record: [:unity, :classroom, :discipline])
-      .includes(recovery_diary_record: { unity: { school_calendars: :steps }})
   end
 
   def fetch_disciplines_by_classroom
