@@ -225,7 +225,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return false
     end
 
-    student_enrollment_classrooms.each do |student_enrollment|
+    enrollment_classrooms = student_enrollment_classrooms
+
+    enrollment_classrooms.each do |student_enrollment|
       student_enrollments_ids << student_enrollment[:student_enrollment].id
       student = student_enrollment[:student]
       student_ids << student.id
@@ -251,7 +253,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     dependences = student_has_dependence(student_enrollments_ids, dates)
-    inactives_on_date = students_inactive_on_range(student_enrollments_ids, dates)
+    inactives_on_date = students_inactive_on_range(enrollment_classrooms.map{|i| i[:student_enrollment_classroom]}, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
@@ -482,24 +484,25 @@ nil, @period)
     )
   end
 
-  def students_inactive_on_range(student_enrollments_ids, dates)
+  def students_inactive_on_range(enrollment_classrooms, dates)
     inactives = []
-
     dates.each do |date|
-      active_student_enrollments_ids = StudentEnrollment.where(id: student_enrollments_ids)
-                                                                           .by_classroom(@classroom)
-                                                                           .by_date(date)
-                                                                           .pluck(:id)
+      active_enrollments_classroom_ids = enrollment_classrooms.select do |enrollment|
+        enrollment.joined_at.to_date <= date && (enrollment.left_at.blank? || enrollment.left_at.to_date > date)
+      end.pluck(:id)
 
-      next if active_student_enrollments_ids.sort == student_enrollments_ids.sort
+      next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
 
-      inactives_student_enrollments_ids = student_enrollments_ids.sort - active_student_enrollments_ids.sort
+      inactives_enrollments_classroom_ids = enrollment_classrooms.sort - active_enrollments_classroom_ids.sort
 
-      inactives_students_ids = StudentEnrollment.where(id: inactives_student_enrollments_ids)
-                                                .includes(:student)
-                                                .pluck('students.id')
+      inactives_students_ids = Student.joins(student_enrollments: :student_enrollment_classrooms)
+                                      .where(student_enrollment_classrooms: {
+                                        id: inactives_enrollments_classroom_ids
+                                      })
+                                      .pluck(:id)
 
       inactives << { date: date, student_ids: inactives_students_ids}
+
     end
 
     inactives
