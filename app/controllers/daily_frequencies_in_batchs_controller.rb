@@ -605,18 +605,17 @@ nil, @period)
     end
   end
 
-  def invalid_dates?(start_date, end_date)
+  def invalid_dates?(start_date, end_date, classroom_id)
     if start_date.nil? || end_date.nil?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.blank_dates')
       return true
     end
 
-    unless SchoolDayChecker.new(current_school_calendar, start_date, nil, nil, nil).school_day?
+    unless SchoolDayChecker.new(current_school_calendar, start_date, nil, classroom_id, nil).school_day?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.initial_date_no_school_day')
       return true
     end
-
-    unless SchoolDayChecker.new(current_school_calendar, end_date, nil, nil, nil).school_day?
+    unless SchoolDayChecker.new(current_school_calendar, end_date, nil, classroom_id, nil).school_day?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.final_date_no_school_day')
       return true
     end
@@ -635,8 +634,9 @@ nil, @period)
   def require_valid_dates
     start_date = params[:frequency_in_batch_form][:start_date].to_date
     end_date = params[:frequency_in_batch_form][:end_date].to_date
+    classroom_id = params[:frequency_in_batch_form][:classroom_id]
 
-    if invalid_dates?(start_date, end_date)
+    if invalid_dates?(start_date, end_date, classroom_id)
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
   end
