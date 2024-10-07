@@ -17,3 +17,4 @@ pt-BR:
         notes: 'Observações'
         teacher_id: 'Professor'
         school_calendar_id: 'Calendário escolar'
+        discarded_at: 'Descartado'
