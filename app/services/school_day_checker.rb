@@ -163,8 +163,6 @@ class SchoolDayChecker
   end
 
   def any_grade_event?(query, grade_id)
-    return false if grade_id.nil?
-
     query.by_grade(grade_id)
          .without_classroom
          .any?

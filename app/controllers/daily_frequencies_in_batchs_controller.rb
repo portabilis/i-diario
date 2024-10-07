@@ -349,8 +349,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       else
         school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, @classroom, current_school_year).fetch
       end
-
-      valid_day = SchoolDayChecker.new(school_calendar, date, nil, @classroom.id, nil).day_allows_entry?
+      grade_id = @classroom.classrooms_grades.first.grade_id
+      valid_day = SchoolDayChecker.new(school_calendar, date, grade_id, @classroom.id, nil).day_allows_entry?
 
       next if allocations.empty? || !valid_day
 
