@@ -245,7 +245,7 @@ class ExamRecordReport < BaseReport
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
         if @recovery_lowest_notes
-          student_cells << make_cell(content: "#{recovery_lowest_note[key]}", align: :center)
+          student_cells << make_cell(content: "#{@recovery_lowest_note[key]}", align: :center)
         end
 
         number_colums = 10
