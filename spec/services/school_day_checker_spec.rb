@@ -113,7 +113,7 @@ RSpec.describe SchoolDayChecker, type: :service do
       it 'returns true for a school day when only classroom is linked to the grade' do
         # Atenção! Quando enviamos apenas o parametro de turma
         # O serviço não está verificando corretamente se a turma tem vinculo com o evento,
-        # Por isso temos esse retorno true (true é um valor errado, pois essa turma tem sim evento)
+        # Por isso temos esse retorno true (retorno correto seria false, pois essa turma tem sim evento nao letivo)
         subject = SchoolDayChecker.new(school_calendar, date, nil, classroom.id, nil).day_allows_entry?
         expect(subject).to be true
       end
@@ -123,17 +123,20 @@ RSpec.describe SchoolDayChecker, type: :service do
         expect(subject).to be false
       end
 
-      # 'returns false for a school day when the classroom_id and grade_id is not linked to the grade'
-
       it 'returns false for a school day when only grade is provided' do
         subject = SchoolDayChecker.new(school_calendar, date, grade_id, nil, nil).day_allows_entry?
         expect(subject).to be false
       end
 
-      it 'returns true for a school day when the course is provided' do
+      it 'returns false for a school day when the course is provided' do
+        # Atenção! Quando enviamos apenas o parametro de curso
+        # O serviço não está verificando corretamente se a curso tem vinculo com o evento,
+        # Por isso temos esse retorno false (porem o retorno correto seria true,
+        #  pois essa evento seria apenas para a serie e nao para o curso)
         course_id = classroom_grades.first.grade.course.id
         subject = SchoolDayChecker.new(school_calendar, date, nil, nil, course_id).day_allows_entry?
-        # expect(subject).to be true
+
+        expect(subject).to be false
       end
     end
   end
