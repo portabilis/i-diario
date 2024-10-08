@@ -19,6 +19,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
     create(
       :avaliation,
       school_calendar: school_calendar,
+      test_date: '2017-03-01',
       classroom: classroom,
       discipline: teacher_discipline_classroom.discipline,
       teacher_id: teacher_discipline_classroom.teacher.id
@@ -31,8 +32,8 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
       :student_enrollment_classroom,
       student_enrollment: student_enrollment,
       classrooms_grade: classroom_grades,
-      left_at: '2017-04-04',
-      joined_at: '2017-03-01'
+      joined_at: '2017-02-01', # data de entrada do aluno na turma
+      left_at: '2017-04-04' # data de saída do aluno na turma
     )
   }
   let(:transfer_note) {
@@ -65,32 +66,32 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
     )
   end
 
-  describe 'when a student has a note OR transfer_note' do
+  describe 'when a student has a daily_note OR transfer_note' do
     context 'and is enrolled on the date' do
-      it 'should return an empty array, no modifications made' do
+      it 'return an empty array, no modifications made' do
         expect(subject).to eq []
       end
     end
 
     context 'and is NOT in enrolled on the date' do
-      it 'should return an empty array, no modifications made' do
+      it 'return an empty array, no modifications made' do
         student_enrollment_classroom.update(left_at: '2017-02-25')
         expect(subject).to eq []
       end
     end
   end
 
-  describe 'when a student does NOT have note OR transfer note' do
+  describe 'when a student does NOT have daily_note OR transfer note' do
     before { daily_note_student.update(note: nil, transfer_note: nil) }
 
     context 'and is enrolled on the date' do
-      it 'should return an array with daily_note_student without modification' do
+      it 'return an array with daily_note_student without modification' do
         expect(subject).to eq [daily_note_student]
       end
     end
 
     context 'and is NOT in enrolled on the date' do
-      it 'should return an array with daily_note_student with discarded' do
+      it 'return an array with daily_note_student with discarded' do
         student_enrollment_classroom.update(left_at: '2017-02-25')
 
         expect(subject.map(&:discarded?)).to eq [true]
