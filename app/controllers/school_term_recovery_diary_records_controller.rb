@@ -204,7 +204,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
     @students.each do |student|
       is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-        student.student.id == student_in_recovery.id
+        student.student_id == student_in_recovery[:student].id
       end
 
       student.mark_for_destruction unless is_student_in_recovery
@@ -214,7 +214,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def mark_exempted_disciplines(students_in_recovery)
     @students.each do |student|
       exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
-        student_in_recovery.id == student.student_id
+        student_in_recovery[:student].id == student.student_id
       end.try(:exempted_from_discipline)
 
       student.exempted_from_discipline = exempted_from_discipline
@@ -224,12 +224,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def add_missing_students(students_in_recovery)
     students_missing = students_in_recovery.select do |student_in_recovery|
       @students.none? do |student|
-        student.student.id == student_in_recovery.id
+        student.student.id == student_in_recovery[:student].id
       end
     end
 
     students_missing.each do |student_missing|
-      student = @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
+      student = @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing[:student])
       @students << student
     end
   end
@@ -242,38 +242,37 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     IeducarApiConfiguration.current
   end
 
-  def fetch_student_enrollments
+  def fetch_student_enrollment_classrooms
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
     return unless recovery_diary_record.recorded_at
 
-    StudentEnrollmentsList.new(
-      classroom: recovery_diary_record.classroom,
-      discipline: recovery_diary_record.discipline,
+    StudentEnrollmentClassroomsRetriever.call(
+      classrooms: recovery_diary_record.classroom,
+      disciplines: recovery_diary_record.discipline,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       date: recovery_diary_record.recorded_at,
       search_type: :by_date
-    ).student_enrollments
+    )
   end
 
   def reload_students_list
-    return unless (student_enrollments = fetch_student_enrollments)
-
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
 
     return unless recovery_diary_record.recorded_at
 
     @students = []
 
-    student_enrollments.each do |student_enrollment|
-      next unless (student = Student.find_by(id: student_enrollment.student_id))
 
+
+    fetch_student_enrollment_classrooms.each do |student|
       recovery_student = recovery_diary_record.students.select { |student_recovery|
-        student_recovery.student_id == student.id
+        student_recovery.student_id == student[:student].id
       }.first
-      note_student = recovery_student ||
-                     recovery_diary_record.students.build(student: student)
 
-      note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
+      note_student = recovery_student ||
+                     recovery_diary_record.students.build(student: student[:student])
+
+      note_student.active = student_active_on_date?(student[:student_enrollment], recovery_diary_record)
 
       @students << note_student
     end
