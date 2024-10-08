@@ -24,6 +24,6 @@ class TeacherPeriodFetcher
   end
 
   def classroom_period
-    @classroom_period ||= Classroom.find(@classroom_id).period.to_i
+    @classroom_period ||= Classroom.find_by(id: @classroom_id).period.to_i
   end
 end
