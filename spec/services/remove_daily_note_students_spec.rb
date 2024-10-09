@@ -25,6 +25,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
       teacher_id: teacher_discipline_classroom.teacher.id
     )
   }
+  puts "###########Date: #{Date.current}"
   let(:daily_note) { create(:daily_note, avaliation: avaliation) }
   let(:student_enrollment) { create(:student_enrollment) }
   let(:student_enrollment_classroom) {
