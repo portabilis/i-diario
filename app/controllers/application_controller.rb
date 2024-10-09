@@ -3,7 +3,7 @@ require "application_responder"
 class ApplicationController < ActionController::Base
   MAX_STEPS_FOR_SCHOOL_CALENDAR = 4
 
-  if Rails.env.production? || Rails.env.staging?
+  unless Rails.env.development?
     rescue_from Exception, :with => :error_generic
   end
 
