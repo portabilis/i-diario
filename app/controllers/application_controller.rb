@@ -458,7 +458,6 @@ class ApplicationController < ActionController::Base
   end
 
   def error_generic(expection)
-    binding.pry
     set_honeybadger_error(expection)
 
     unless Rails.env.development?
