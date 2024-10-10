@@ -3,3 +3,4 @@ pt-BR:
     attributes:
       contents_lesson_plan:
         content_id: "Conteúdo"
+        position: "Posição"
