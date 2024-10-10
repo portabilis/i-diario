@@ -22,9 +22,9 @@ class TeachingPlan < ApplicationRecord
   validates :school_term_type_step, presence: { unless: :yearly? }
 
   has_many :contents_teaching_plans, dependent: :destroy
-  deferred_has_many :contents, through: :contents_teaching_plans
+  deferred_has_many :contents, through: :contents_teaching_plans, dependent: :destroy
   has_many :objectives_teaching_plans, dependent: :destroy
-  deferred_has_many :objectives, through: :objectives_teaching_plans
+  deferred_has_many :objectives, through: :objectives_teaching_plans, dependent: :destroy
   has_many :teaching_plan_attachments, dependent: :destroy
 
   has_one :discipline_teaching_plan, dependent: :restrict_with_error
@@ -80,7 +80,7 @@ class TeachingPlan < ApplicationRecord
   def yearly?
     return unless school_term_type
 
-    SchoolTermType.where("description ILIKE 'Anual%'").where(id: school_term_type.id)
+    SchoolTermType.where("description ILIKE 'Anual%'").where(id: school_term_type.id).exists?
   end
 
   private

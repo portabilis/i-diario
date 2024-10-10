@@ -35,21 +35,20 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
     authorize @knowledge_area_lesson_plan
+    @knowledge_areas = fetch_knowledge_area
 
-    respond_with @knowledge_area_lesson_plan do |format|
-      format.pdf do
-        knowledge_area_lesson_plan_pdf = KnowledgeAreaLessonPlanPdf.build(
-          current_entity_configuration,
-          @knowledge_area_lesson_plan,
-          current_teacher
-        )
-        send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
-      end
+    respond_with @knowledge_area_lesson_plan
+  end
 
-      format.html do
-        @knowledge_areas = fetch_knowledge_area
-      end
-    end
+  def print
+    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
+
+    knowledge_area_lesson_plan_pdf = KnowledgeAreaLessonPlanPdf.build(
+      current_entity_configuration,
+      @knowledge_area_lesson_plan,
+      current_teacher
+    )
+    send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
   end
 
   def new
@@ -299,7 +298,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
                                                                      :classroom_id,
                                                                      :start_at,
                                                                      :end_at
-                                                                    ])
+                                                                   ])
   end
 
   def contents

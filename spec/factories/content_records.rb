@@ -19,7 +19,7 @@ FactoryGirl.define do
 
       if content_record.record_date.blank?
         step = classroom.calendar.classroom_steps.first
-        content_record.record_date = step.first_school_calendar_date
+        content_record.record_date = Date.current
       end
 
       if content_record.teacher_id.blank? && content_record.teacher.present?

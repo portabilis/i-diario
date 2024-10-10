@@ -5,3 +5,4 @@ pt-BR:
         student: "Aluno"
         student_id: "Aluno"
         value: "Avaliação descritiva"
+        discarded_at: 'Descartado'

@@ -120,7 +120,9 @@ class User < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+      users = all.includes(:teacher, :student, user_roles: [:role, :unity]).ordered
+
+      users.each do |user|
         csv << [
           user.first_name,
           user.last_name,

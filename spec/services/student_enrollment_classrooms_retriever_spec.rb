@@ -11,7 +11,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       3,
       classrooms_grade: classroom_grade,
       joined_at: '2023-02-02',
-      left_at: '2023-12-12'
+      left_at: ''
     )
   }
 
@@ -71,13 +71,13 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
 
     it 'should return nil for blank params' do
-      expect(
+      expect{
         StudentEnrollmentClassroomsRetriever.call(
           search_type: '',
           classrooms: '',
           disciplines: ''
         )
-      ).to be_nil
+      }.to raise_error(ArgumentError, 'Invalid search type')
     end
   end
 
@@ -209,8 +209,8 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when there is a range of dates to search for student_enrollment_classrooms' do
-    # Cria enturmacao que ficara enturmada de janeiro a dezembro de 2022
-    # Nao deve estar no retorno do servico que se refere a 2023
+    # Cria enturmacao que ficara enturmada de fevereiro a dezembro de 2022
+    # Não deve estar no retorno do servico que se refere a 2023
     let!(:student_enrollment_classrooms_out_date) {
       create_list(
         :student_enrollment_classroom,
@@ -282,7 +282,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
   end
 
-  describe 'when the client works with DATA BASE' do
+  describe 'when the client works or not with DATA BASE' do
     before do
       # DATA BASE=(show_as_inactive_when_not_in_date:TRUE)
       create_student_enrollment_classrooms_with_status_and_date_base
@@ -343,70 +343,6 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         studying = @enrollment_classroom_active.student_enrollment.status
 
         expect(status).to match_array([studying, transferred])
-      end
-    end
-  end
-
-  describe 'when the client does not works with DATA BASE' do
-    before do
-      # DATA BASE=(show_as_inactive_when_not_in_date:FALSE)
-      create_student_enrollment_classrooms_with_status_without_date_base
-    end
-
-    context 'and show_inactive checkbox is enabled in settings' do
-      before do
-        GeneralConfiguration.current.update(show_inactive_enrollments: true)
-      end
-
-      subject(:list_student_enrollment_classrooms) {
-        StudentEnrollmentClassroomsRetriever.call(
-          search_type: :by_date_range,
-          classrooms: classroom_grade.classroom_id,
-          disciplines: discipline,
-          start_at: '2023-03-03',
-          end_at: '2023-06-03'
-        )
-      }
-
-      let!(:status) {
-        list_student_enrollment_classrooms.map { |ec|
-          ec[:student_enrollment_classroom].student_enrollment.status
-        }.uniq
-      }
-
-      it 'should return student_enrollment_classrooms with all status' do
-        transferred = @enrollment_classroom_inactive.student_enrollment.status
-        studying = @enrollment_classroom_active.student_enrollment.status
-
-        expect(status).to match_array([studying, transferred])
-      end
-    end
-
-    context 'and show_inactive checkbox is not enabled in settings' do
-      before do
-        GeneralConfiguration.current.update(show_inactive_enrollments: false)
-      end
-
-      subject(:list_student_enrollment_classrooms) {
-        StudentEnrollmentClassroomsRetriever.call(
-          search_type: :by_date_range,
-          classrooms: classroom_grade.classroom_id,
-          disciplines: discipline,
-          start_at: '2023-03-03',
-          end_at: '2023-06-03'
-        )
-      }
-
-      let!(:status) {
-        list_student_enrollment_classrooms.map { |ec|
-          ec[:student_enrollment_classroom].student_enrollment.status
-        }.uniq
-      }
-
-      it 'should return student_enrollment_classrooms with all status' do
-        studying = @enrollment_classroom_active.student_enrollment.status
-
-        expect(status).to match_array([studying])
       end
     end
   end

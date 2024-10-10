@@ -81,20 +81,18 @@ class StudentsInRecoveryFetcher
   def student_enrollments(classroom_grade_ids)
     end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-    @student_enrollments ||= fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
+    @student_enrollments ||= fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
   end
 
-  def fetch_student_enrollments(end_at, classroom_grade_ids, discipline, step, classroom)
-    student_enrollments = StudentEnrollmentsRetriever.call(
+  def fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
+    enrollment_classrooms_list = StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom,
       disciplines: discipline,
-      start_at: step.start_at,
-      end_at: end_at,
+      date: @date,
       classroom_grades: classroom_grade_ids,
-      search_type: :by_date_range,
-      left_at: true
+      search_type: :by_date
     )
-    StudentEnrollment.includes(:student).where(id: student_enrollments.map(&:id)).order('students.name ASC')
+    enrollment_classrooms_list.map{ |ec| ec[:student_enrollment]}
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)

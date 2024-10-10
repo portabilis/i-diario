@@ -40,6 +40,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
         classroom.year = classroom_record.ano
+        classroom.max_students = classroom_record.max_aluno
 
         if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
           update_period_dependents(classroom.id, classroom.period_was, classroom.period)

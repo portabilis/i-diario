@@ -44,9 +44,8 @@ class StudentEnrollmentClassroomsRetriever
 
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
 
-    # Nao filtra as enturmacoes caso municipio tenha DATABASE
     if enrollment_classrooms.show_as_inactive.blank?
-      enrollment_classrooms = search_by_search_type(enrollment_classrooms)
+      enrollment_classrooms = filter_by_type(enrollment_classrooms)
       enrollment_classrooms = reject_duplicated_students(enrollment_classrooms)
     end
 
@@ -71,6 +70,8 @@ class StudentEnrollmentClassroomsRetriever
       raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless start_at || end_at
     elsif search_type.eql?(:by_year)
       raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless year
+    else
+      raise ArgumentError, 'Invalid search type'
     end
   end
 
@@ -82,7 +83,7 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_in_date
   end
 
-  def search_by_search_type(enrollment_classrooms)
+  def filter_by_type(enrollment_classrooms)
     return enrollment_classrooms if include_date_range.present? || show_inactive_enrollments
 
     if search_type.eql?(:by_date)
@@ -99,29 +100,15 @@ class StudentEnrollmentClassroomsRetriever
   def reject_duplicated_students(enrollment_classrooms)
     return enrollment_classrooms if show_inactive_enrollments
 
-    enrollment_classrooms_unique = []
-
-    enrollment_classrooms.each do |enrollment_classroom|
-      student_id = enrollment_classroom.student_enrollment.student_id
-
-      enrollment_classrooms_for_student = enrollment_classrooms.select do |ec|
-        ec.student_enrollment.student_id == student_id
-      end
-
-      if enrollment_classrooms_for_student.count > 1
-        add_enrollment_classrooms(enrollment_classrooms_unique, enrollment_classrooms_for_student)
-      else
-        enrollment_classrooms_unique << enrollment_classrooms_for_student
+    enrollment_classrooms.select do |ec|
+      if search_type.eql?(:by_date_range)
+        ec.left_at.blank? || (ec.joined_at.to_date <= end_at.to_date && ec.left_at.to_date >= start_at.to_date)
+      elsif search_type.eql?(:by_date)
+        ec.left_at.blank? || date.to_date <= ec.left_at.to_date
+      elsif search_type.eql?(:by_year)
+        ec.left_at.blank? || year == ec.left_at.to_date.year
       end
     end
-
-    enrollment_classrooms_unique = enrollment_classrooms_unique.flatten
-  end
-
-  def add_enrollment_classrooms(enrollment_classrooms, enrollment_classrooms_for_student)
-    return if enrollment_classrooms.include?(enrollment_classrooms_for_student.last)
-
-    enrollment_classrooms << enrollment_classrooms_for_student.last
   end
 
   def show_inactive_enrollments

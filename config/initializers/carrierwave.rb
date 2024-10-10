@@ -1,7 +1,7 @@
 FOG_AUTHENTICATED_URL_EXPIRATION = 14_400 # 4 hours
 
 CarrierWave.configure do |config|
-  if Rails.application.secrets['AWS_ACCESS_KEY_ID']
+  if Rails.application.secrets['AWS_ACCESS_KEY_ID'] && !Rails.env.development?
     config.storage = :aws
     config.aws_bucket = Rails.application.secrets[:AWS_BUCKET]
     config.aws_acl = 'private'

@@ -18,7 +18,9 @@ Rails.application.routes.draw do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
         get 'discipline_activity', to: 'discipline_activity#check'
+        get 'list_attendances_by_classroom', to: 'list_attendances_by_classroom#index'
         get 'student_activity', to: 'student_activity#check'
+        get 'student_classroom_attendances', to: 'student_classroom_attendances#index'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
@@ -211,6 +213,7 @@ Rails.application.routes.draw do
         post :clone
         get :teaching_plan_contents
         get :teaching_plan_objectives
+        get :print
       end
     end
     resources :knowledge_area_lesson_plans, concerns: :history do
@@ -218,6 +221,7 @@ Rails.application.routes.draw do
         post :clone
         get :teaching_plan_contents
         get :teaching_plan_objectives
+        get :print
       end
     end
     resources :discipline_content_records, concerns: :history do
@@ -234,6 +238,7 @@ Rails.application.routes.draw do
       collection do
         get :by_unity
         get :multi_grade
+        get :classroom_grades
       end
       resources :students, only: [:index]
     end

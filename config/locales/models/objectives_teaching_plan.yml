@@ -1,0 +1,6 @@
+pt-BR:
+  activerecord:
+    attributes:
+      objectives_teaching_plan:
+        objective_id: "Objetivo"
+        position: "Posição"
