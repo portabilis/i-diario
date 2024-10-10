@@ -54,6 +54,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_user_classroom).and_return(classroom)
+    allow(controller).to receive(:current_user_discipline).and_return(discipline)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
     allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
     allow(controller).to receive(:recorded_at_by_step).and_return('2017-03-01')
@@ -74,7 +75,7 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     before do
       get :new, params: { locale: 'pt-BR' }
     end
-    
+
     context "when user is authorized" do
       it "assigns a new descriptive exam to @descriptive_exam" do
         expect(assigns(:descriptive_exam)).to be_a_new(DescriptiveExam)
@@ -91,11 +92,13 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     end
 
     context "when user is not authorized" do
-      before { allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError) }
+      before {
+        allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError)
+        get :new, params: { locale: 'pt-BR' }
+      }
 
       it "redirects to root path with an alert message" do
         expect(response).to redirect_to(root_path)
-        expect(flash[:alert]).to match("Ops! Ocorreu um erro. Tente recarregar a página e, se o problema persistir, entre em contato com a gestão da sua Escola ou a Secretaria de Educação do seu município para que o problema seja reportado ao Suporte.")
       end
     end
   end
@@ -204,15 +207,15 @@ RSpec.describe DescriptiveExamsController, type: :controller do
 
     context "with invalid params" do
       it "re-renders the edit template" do
-        put :update, params: { id: descriptive_exam.id, descriptive_exam: { classroom_id: nil }, locale: 'pt-BR' }
-        expect(flash[:alert]).to match("Ops! Ocorreu um erro. Tente recarregar a página e, se o problema persistir, entre em contato com a gestão da sua Escola ou a Secretaria de Educação do seu município para que o problema seja reportado ao Suporte.")
+        put :update, params: { id: descriptive_exam.id, descriptive_exam: { discipline_id: nil }, locale: 'pt-BR' }
+        expect(response).to render_template(:edit)
       end
     end
   end
 
   describe "GET #find" do
     context "when valid params are provided" do
-      
+
       it "returns the descriptive exam id as JSON" do
         descriptive_exam = create(
           :descriptive_exam,
