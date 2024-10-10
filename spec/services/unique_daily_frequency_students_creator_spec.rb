@@ -1,7 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
-  Timecop.travel(Time.zone.local(2024, 4, 1, 0, 0, 0))
+  include ActiveSupport::Testing::TimeHelpers
+
+  before(:all) do
+    travel_to Time.zone.local(2024, 4, 1, 0, 0, 0)
+  end
+
+  after(:all) do
+    travel_back
+  end
+
   let(:classroom) { create(:classroom) }
   let(:teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
@@ -190,7 +199,7 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       unique_daily_frequency_student = create(:unique_daily_frequency_student,
         student: student, classroom: classroom, frequency_date: frequency_date
       )
-      
+
       daily_frequency.students.destroy
       daily_frequency.destroy
 
