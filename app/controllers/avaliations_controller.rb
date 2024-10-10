@@ -157,10 +157,15 @@ class AvaliationsController < ApplicationController
 
   def destroy
     authorize resource
+    resource_name = 'Avaliação numérica'
 
-    resource.destroy
+    message = if resource.destroy
+                { notice: t('flash.female.destroy.notice', resource_name: resource_name) }
+              else
+                { alert: t('flash.female.destroy.alert', resource_name: resource_name) }
+              end
 
-    respond_with resource, location: avaliations_path
+    redirect_to avaliations_path, message
   end
 
   def history
