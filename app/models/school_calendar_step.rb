@@ -51,10 +51,6 @@ class SchoolCalendarStep < ActiveRecord::Base
     school_calendar.day_allows_entry?(date)
   end
 
-  def first_school_calendar_date
-    school_calendar.school_day_checker(start_at).next_school_day
-  end
-
   def school_day_dates
     return if start_at.blank? || end_at.blank? || school_calendar.blank?
 
