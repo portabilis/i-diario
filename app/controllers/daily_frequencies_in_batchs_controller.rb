@@ -493,7 +493,7 @@ nil, @period)
 
       next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
 
-      inactives_enrollments_classroom_ids = enrollment_classrooms.sort - active_enrollments_classroom_ids.sort
+      inactives_enrollments_classroom_ids = enrollment_classrooms - active_enrollments_classroom_ids
 
       inactives_students_ids = Student.joins(student_enrollments: :student_enrollment_classrooms)
                                       .where(student_enrollment_classrooms: {
