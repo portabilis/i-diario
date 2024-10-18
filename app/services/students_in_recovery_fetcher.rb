@@ -81,18 +81,17 @@ class StudentsInRecoveryFetcher
   def student_enrollments(classroom_grade_ids)
     end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
-    @student_enrollments ||= fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
+    @student_enrollments ||= fetch_student_enrollment_classroooms(classroom_grade_ids, discipline, classroom)
   end
 
-  def fetch_student_enrollments(classroom_grade_ids, discipline, classroom)
-    enrollment_classrooms_list = StudentEnrollmentClassroomsRetriever.call(
+  def fetch_student_enrollment_classroooms(classroom_grade_ids, discipline, classroom)
+    StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom,
       disciplines: discipline,
       date: @date,
       classroom_grades: classroom_grade_ids,
       search_type: :by_date
     )
-    enrollment_classrooms_list.map{ |ec| ec[:student_enrollment]}
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)
@@ -100,7 +99,7 @@ class StudentsInRecoveryFetcher
 
     if classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
       students = students.select do |student|
-        average = student.average(classroom, discipline, step) || 0
+        average = student[:student].average(classroom, discipline, step) || 0
         average < classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
       end
     end
@@ -110,9 +109,7 @@ class StudentsInRecoveryFetcher
 
   def filter_students_in_recovery
     classroom_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
-    student_enrollments_in_recovery = student_enrollments(classroom_grade_ids)
-
-    student_enrollments_in_recovery.map(&:student)
+    student_enrollments(classroom_grade_ids)
   end
 
   def fetch_students_in_specific_recovery(differentiated = nil)
@@ -146,6 +143,7 @@ class StudentsInRecoveryFetcher
   def filter_differentiated_students(students, differentiated)
     if differentiated == !!differentiated
       students = students.select do |student|
+        student = student[:student] if student[:student].present?
         student.uses_differentiated_exam_rule == differentiated
       end
     end

@@ -13,6 +13,7 @@ pt-BR:
         discipline: 'Disciplina'
         discipline_id: 'Disciplina'
         step: 'Etapa'
+        step_number: 'Etapa'
         step_id: 'Etapa'
         recorded_at: 'Data'
         opinion_type: 'Tipo'
