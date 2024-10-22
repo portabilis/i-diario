@@ -1,17 +1,9 @@
 <tr>
   <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
   <td style="vertical-align: middle;">
-    <% student_name = student[:student][:name] %>
-    <% color = false %>
-    <% if @additional_data.any? %>
-      <% @additional_data.each do |additional_data| %>
-        <% if additional_data[:student_id] == student[:student][:id] && additional_data[:tooltip] == 'Dependência' %>
-          <% student_name = '*' + student[:student][:name] %>
-          <% color = '#a90329' %>
-        <% end %>
-      <% end %>
-    <% end %>
-    <span style="color: <%= color %>"><%= student_name %></span>
+    <% student_data = custom_student_name(student) %>
+
+    <span style="color: <%= student_data[:color] %>"><%= student_data[:name] %></span>
   </td>
   <% absences_on_the_period = 0 %>
   <% if @general_configuration.type_of_teaching == true %>
@@ -22,26 +14,18 @@
     </td>
   <% end %>
   <% params[:dates].each do |date| %>
-    <% additional_class = nil %>
-    <% tooltip = nil %>
-    <% if @additional_data.any? %>
-      <% @additional_data.each do |additional_data| %>
-        <% if additional_data[:date] == date[:date] && additional_data[:student_id] == student[:student][:id]%>
-          <% additional_class = additional_data[:additional_class] %>
-          <% tooltip = additional_data[:tooltip] %>
-        <% end %>
-      <% end %>
-    <% end %>
+    <% response_data = data_additional(date, student) %>
+
     <td class="frequency-in-batch-day" style="width: 1%;">
-      <div class="<%= additional_class %>" style="display: flex; max-height: 50px">
+      <div class="<%= response_data[:response_class] %>" style="display: flex; max-height: 50px">
         <div style="width: 30px; margin: 0 5px;">
           <span>
             &nbsp
             <br>
           </span>
-          <label title="<%= tooltip %>" class="checkbox checkbox-frequency checkbox-batch <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="left: 4px; bottom: 15px;">
+          <label title="<%= response_data[:response_tooltip] %>" class="checkbox checkbox-frequency checkbox-batch <%= response_data[:response_class] ? 'state-disabled never-change ' + response_data[:response_class] : '' %>" style="left: 4px; bottom: 15px;">
             <% student_input_name =  '[' + student[:student][:id].to_s + ']' + '[present]' %>
-            <input type="checkbox" name="<%= student_input_name %>" class="general-checkbox <%= additional_class ? 'never-change ' + additional_class : '' %>" <%= additional_class ? 'disabled="disabled"' : '' %>>
+            <input type="checkbox" name="<%= student_input_name %>" class="general-checkbox <%= response_data[:response_class] ? 'never-change ' + response_data[:response_class] : '' %>" <%= response_data[:response_class] ? 'disabled="disabled"' : '' %>>
             <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
           </label>
           <br>
@@ -79,8 +63,8 @@
                 <%= f.hidden_field :id, value: daily_frequency_student.id %>
                 <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
                 <%= f.hidden_field :student_id, value: student[:student][:id] %>
-                <%= f.hidden_field :dependence, value: tooltip == 'Dependência' ? true : false %>
-                <%= f.hidden_field :active, value: additional_class != 'inactive' ? true : false %>
+                <%= f.hidden_field :dependence, value: response_data[:response_tooltip] == 'Dependência' ? true : false %>
+                <%= f.hidden_field :active, value: response_data[:response_class] != 'inactive' ? true : false %>
                 <%= f.hidden_field :type_of_teaching, value: student[:type_of_teaching] %>
                 <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id %>
 
@@ -89,14 +73,14 @@
                     <input type="checkbox" disabled><i></i>
                   </label>
                 <% else %>
-                  <label class="checkbox checkbox-frequency <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="bottom: 15px;" title="<%= tooltip %>">
-                    <%= f.check_box :present, class: 'class-number-checkbox' + (additional_class ? ' never-change ' + additional_class : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: additional_class ? true : false %>
+                  <label class="checkbox checkbox-frequency <%= response_data[:response_class] ? 'state-disabled never-change ' + response_data[:response_class] : '' %>" style="bottom: 15px;" title="<%= response_data[:response_tooltip] %>">
+                    <%= f.check_box :present, class: 'class-number-checkbox' + (response_data[:response_class] ? ' never-change ' + response_data[:response_class] : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: response_data[:response_class] ? true : false %>
                     <i class="checkbox-frequency-in-batch"></i>
                   </label>
                 <% end %>
 
                 <% if daily_frequency_student.persisted? %>
-                  <% if additional_class != 'inactive' %>
+                  <% if response_data[:response_class] != 'inactive' %>
                     <% absences_on_the_period += daily_frequency_student.present ? 0 : 1 %>
                   <% end %>
                 <% end %>
