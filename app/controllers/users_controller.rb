@@ -33,7 +33,6 @@ class UsersController < ApplicationController
 
   def update
     @user = User.find(params[:id])
-    fetch_permissions
 
     authorize @user
 
