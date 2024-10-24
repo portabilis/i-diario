@@ -14,7 +14,9 @@
         <td><%= avaliation %></td>
         <td class="actions">
           <%= link_to t('views.index.edit'), edit_avaliation_path(avaliation), class: 'btn btn-success' %>
-          <%= link_to t('views.index.delete'), avaliation_path(avaliation), class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm_deletion') } %>
+          <%= link_to t('views.index.delete'), avaliation_path(avaliation),
+                      class: 'btn btn-danger',
+                      data: { method: 'delete', confirm: t('views.index.confirm_deletion') } %>
         </td>
       </tr>
     <% end %>
