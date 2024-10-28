@@ -102,8 +102,10 @@ class StudentsInRecoveryFetcher
     )
   end
 
-  def fetch_students_in_parallel_recovery(differentiated = nil)
-    students = filter_students_in_recovery
+  def classroom_grades_with_recovery_rule
+    return @classroom_grade if @classroom_grade.present?
+
+    @classroom_grade = []
 
     if classroom_grades_with_recovery_rule.first.exam_rule.parallel_recovery_average
       students = students.select do |student|
@@ -115,43 +117,27 @@ class StudentsInRecoveryFetcher
     filter_differentiated_students(students, differentiated)
   end
 
-  def filter_students_in_recovery
-    classroom_grade_ids = classroom_grades_with_recovery_rule.map(&:id)
-    student_enrollments(classroom_grade_ids)
+  def classroom_grades
+    classroom.classrooms_grades.includes(:exam_rule)
   end
 
-  def fetch_students_in_specific_recovery(differentiated = nil)
-    students = []
+  def discipline
+    @discipline ||= Discipline.find(@discipline_id)
+  end
 
-    recovery_steps = RecoveryStepsFetcher.new(step, classroom).fetch
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(classroom)
+  end
 
-    recovery_exam_rule = classroom_grades_with_recovery_rule.first.exam_rule.recovery_exam_rules.find { |recovery_diary_record|
-      recovery_diary_record.steps.last.eql?(@step.to_number)
-    }
-
-    if recovery_exam_rule.present?
-      students = filter_students_in_recovery.select { |student|
-        sum_averages = 0
-
-        recovery_steps.each do |step|
-          next unless (average = student.average(classroom, discipline, step))
-
-          sum_averages += average
-        end
-
-        average = sum_averages / recovery_steps.count
-
-        average < recovery_exam_rule.average
-      }
-    end
-
-    filter_differentiated_students(students, differentiated)
+  def step
+    @step ||= steps_fetcher.step_by_id(@step_id)
   end
 
   def exam_rule
     @exam_rule ||= classroom_grades_with_recovery_rule.first.exam_rule
   end
 
-    students
+  def classroom
+    @classroom ||= Classroom.find(@classroom_id)
   end
 end
