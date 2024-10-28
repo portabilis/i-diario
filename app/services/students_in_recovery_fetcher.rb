@@ -32,14 +32,11 @@ class StudentsInRecoveryFetcher
   private
 
   def fetch_by_recovery_type(recovery_type, differentiated = nil)
-    case recovery_type
-    when RecoveryTypes::PARALLEL
-      students = fetch_students_in_parallel_recovery(differentiated)
-    when RecoveryTypes::SPECIFIC
-      students = fetch_students_in_specific_recovery(differentiated)
-    else
-      students = []
-    end
+    return fetch_students_in_parallel_recovery(differentiated) if recovery_type.eql?(RecoveryTypes::PARALLEL)
+    return fetch_students_in_specific_recovery(differentiated) if recovery_type.eql?(RecoveryTypes::SPECIFIC)
+
+    []
+  end
 
     students
   end
