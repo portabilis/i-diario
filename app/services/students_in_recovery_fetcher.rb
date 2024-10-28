@@ -16,12 +16,13 @@ class StudentsInRecoveryFetcher
   def fetch
     @students = []
 
-    if (classroom_grades_with_recovery_rule.first.exam_rule.differentiated_exam_rule.blank? ||
-      classroom_grades_with_recovery_rule.first.exam_rule.differentiated_exam_rule.recovery_type == classroom_grades_with_recovery_rule.first.exam_rule.recovery_type)
-      @students += fetch_by_recovery_type(classroom_grades_with_recovery_rule.first.exam_rule.recovery_type)
+    recovery_type = exam_rule.recovery_type
+
+    if (exam_rule.differentiated_exam_rule.blank? || exam_rule.differentiated_exam_rule.recovery_type == recovery_type)
+      @students += fetch_by_recovery_type(recovery_type)
     else
-      @students += fetch_by_recovery_type(classroom_grades_with_recovery_rule.first.exam_rule.recovery_type, false)
-      @students += fetch_by_recovery_type(classroom_grades_with_recovery_rule.first.exam_rule.differentiated_exam_rule.recovery_type, true)
+      @students += fetch_by_recovery_type(recovery_type, false)
+      @students += fetch_by_recovery_type(exam_rule.differentiated_exam_rule.recovery_type, true)
     end
 
     @students.uniq!
@@ -38,8 +39,15 @@ class StudentsInRecoveryFetcher
     []
   end
 
-    students
-  end
+  def fetch_students_in_parallel_recovery(differentiated = nil)
+    students = filter_students_in_recovery
+
+    if exam_rule.parallel_recovery_average
+      students = students.select do |student|
+        average = student[:student].average(classroom, discipline, step) || 0
+        average < exam_rule.parallel_recovery_average
+      end
+    end
 
   def classroom
     @classroom ||= Classroom.find(@classroom_id)
@@ -50,7 +58,10 @@ class StudentsInRecoveryFetcher
 
     @classroom_grade = []
 
-    classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
+    recovery_steps = RecoveryStepsFetcher.new(step, classroom).fetch
+    recovery_exam_rule = exam_rule.recovery_exam_rules.find { |recovery_diary_record|
+      recovery_diary_record.steps.last.eql?(@step.to_number)
+    }
 
     if @classroom_grade.empty?
       classroom_grades
@@ -137,13 +148,9 @@ class StudentsInRecoveryFetcher
     filter_differentiated_students(students, differentiated)
   end
 
-  def filter_differentiated_students(students, differentiated)
-    if differentiated == !!differentiated
-      students = students.select do |student|
-        student = student[:student] if student[:student].present?
-        student.uses_differentiated_exam_rule == differentiated
-      end
-    end
+  def exam_rule
+    @exam_rule ||= classroom_grades_with_recovery_rule.first.exam_rule
+  end
 
     students
   end
