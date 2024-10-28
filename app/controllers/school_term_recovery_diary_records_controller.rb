@@ -201,27 +201,26 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    @students.each do |student|
-      is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-        student.student_id == student_in_recovery[:student].id
-      end
+    students_in_recovery_ids = students_in_recovery.map { |s| s[:student].id }
 
-      student.mark_for_destruction unless is_student_in_recovery
+    @students.compact.each do |student|
+      unless students_in_recovery_ids.include?(student.student_id)
+        student.mark_for_destruction
+      end
     end
   end
 
   def mark_exempted_disciplines(students_in_recovery)
-    @students.each do |student|
-      exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
-        student_in_recovery[:student].id == student.student_id
-      end.try(:exempted_from_discipline)
+    students_in_recovery_map = students_in_recovery.index_by { |s| s[:student].id }
 
-      student.exempted_from_discipline = exempted_from_discipline
+    @students.compact.each do |student|
+      recovery_info = students_in_recovery_map[student.student_id]
+      student.exempted_from_discipline = recovery_info&.fetch(:exempted_from_discipline, false)
     end
   end
 
   def any_student_exempted_from_discipline?
-    @students.any?(&:exempted_from_discipline)
+    @students.compact.any?(&:exempted_from_discipline)
   end
 
   def api_configuration
@@ -260,9 +259,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       }.first
 
       @students << recovery_student ||
-                     recovery_diary_record.students.build(student: student[:student])
+        recovery_diary_record.students.build(student: student[:student])
     end
-  
+
     @students
   end
 
