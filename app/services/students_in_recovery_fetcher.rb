@@ -90,8 +90,8 @@ class StudentsInRecoveryFetcher
     students
   end
 
-  def fetch_student_enrollment_classroooms(classroom_grade_ids, discipline, classroom)
-    StudentEnrollmentClassroomsRetriever.call(
+  def fetch_student_enrollment_classroooms(classroom_grade_ids)
+    @student_enrollment_classroooms ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: classroom,
       disciplines: discipline,
       date: @date,
