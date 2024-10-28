@@ -203,7 +203,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
     students_in_recovery_ids = students_in_recovery.map { |s| s[:student].id }
 
-    @students.compact.each do |student|
+    @students.each do |student|
       unless students_in_recovery_ids.include?(student.student_id)
         student.mark_for_destruction
       end
@@ -213,14 +213,14 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def mark_exempted_disciplines(students_in_recovery)
     students_in_recovery_map = students_in_recovery.index_by { |s| s[:student].id }
 
-    @students.compact.each do |student|
+    @students.each do |student|
       recovery_info = students_in_recovery_map[student.student_id]
       student.exempted_from_discipline = recovery_info&.fetch(:exempted_from_discipline, false)
     end
   end
 
   def any_student_exempted_from_discipline?
-    @students.compact.any?(&:exempted_from_discipline)
+    @students.any?(&:exempted_from_discipline)
   end
 
   def api_configuration
@@ -262,7 +262,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
         recovery_diary_record.students.build(student: student[:student])
     end
 
-    @students
+    @students = @students.compact
   end
 
   def set_options_by_user
