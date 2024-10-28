@@ -95,6 +95,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
         student_enrollment_classroom.update(left_at: '2017-02-25')
 
         expect(subject.map(&:discarded?)).to eq [true]
+        expect(subject.map(&:active)).to eq [false]
       end
     end
   end
