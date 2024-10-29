@@ -89,8 +89,8 @@ $(function () {
       return { id: knowledge_area['id'], text: knowledge_area['description'] };
     });
 
-    $knowledgeArea.select2({ data: selectedKnowledgeAreas });
-  };
+    $knowledgeArea.select2({ data: selectedKnowledgeAreas, multiple: true });
+  }
 
   function handlefetchKnowledgeAreasError() {
     flashMessages.error('Ocorreu um erro ao buscar as áreas de conhecimento da turma selecionada.');
