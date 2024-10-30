@@ -12,7 +12,7 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user
     select_opinion_types
 
-    unless @opinion_types.first.text.eql?('Avaliação padrão (regular)')
+    if @opinion_types&.first&.text != 'Avaliação padrão (regular)'
       @descriptive_exam.discipline_id = current_user_discipline.id
     end
 
@@ -53,10 +53,8 @@ class DescriptiveExamsController < ApplicationController
 
     regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
-
       value_by_student = resource_params[:students_attributes].values.detect do |student|
-        student[:student_id] == exam_student.student_id.to_s &&
-          exam_student.inactive_student == 'false' && student[:inactive_student] == 'false'
+        student[:student_id] == exam_student.student_id.to_s && student[:inactive_student] == 'false'
       end
       exam_student.value = value_by_student['value'] if value_by_student.present?
       exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
@@ -181,7 +179,8 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def opinion_type_by_year?(opinion_type = nil)
-    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type || @descriptive_exam.opinion_type)
+    [OpinionTypes::BY_YEAR,
+     OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type || @descriptive_exam.opinion_type)
   end
 
   def recorded_at_by_step

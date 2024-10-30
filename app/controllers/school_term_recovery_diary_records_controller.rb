@@ -44,7 +44,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     return if performed?
 
     @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
-      current_test_setting_step(current_year_last_step)&.number_of_decimal_places
+                                current_test_setting_step(current_year_last_step)&.number_of_decimal_places
   end
 
   def create
@@ -91,11 +91,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     students_in_recovery = fetch_students_in_recovery
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
     mark_exempted_disciplines(students_in_recovery)
-    add_missing_students(students_in_recovery)
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
-      current_test_setting_step(step)&.number_of_decimal_places
+                                current_test_setting_step(step)&.number_of_decimal_places
   end
 
   def update
@@ -204,7 +203,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
     @students.each do |student|
       is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-        student.student.id == student_in_recovery.id
+        student.student_id == student_in_recovery[:student].id
       end
 
       student.mark_for_destruction unless is_student_in_recovery
@@ -214,23 +213,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def mark_exempted_disciplines(students_in_recovery)
     @students.each do |student|
       exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
-        student_in_recovery.id == student.student_id
+        student_in_recovery[:student].id == student.student_id
       end.try(:exempted_from_discipline)
 
       student.exempted_from_discipline = exempted_from_discipline
-    end
-  end
-
-  def add_missing_students(students_in_recovery)
-    students_missing = students_in_recovery.select do |student_in_recovery|
-      @students.none? do |student|
-        student.student.id == student_in_recovery.id
-      end
-    end
-
-    students_missing.each do |student_missing|
-      student = @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
-      @students << student
     end
   end
 
@@ -242,50 +228,42 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     IeducarApiConfiguration.current
   end
 
-  def fetch_student_enrollments
+  def fetch_student_enrollment_classrooms
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
     return unless recovery_diary_record.recorded_at
 
-    StudentEnrollmentsList.new(
-      classroom: recovery_diary_record.classroom,
-      discipline: recovery_diary_record.discipline,
+    students = StudentEnrollmentClassroomsRetriever.call(
+      classrooms: recovery_diary_record.classroom,
+      disciplines: recovery_diary_record.discipline,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       date: recovery_diary_record.recorded_at,
       search_type: :by_date
-    ).student_enrollments
+    )
+
+    date = @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+
+    students.select do |student|
+      student[:student_enrollment_classroom].left_at.blank? || student[:student_enrollment_classroom].left_at.to_date >= date
+    end
   end
 
   def reload_students_list
-    return unless (student_enrollments = fetch_student_enrollments)
-
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
 
     return unless recovery_diary_record.recorded_at
 
     @students = []
 
-    student_enrollments.each do |student_enrollment|
-      next unless (student = Student.find_by(id: student_enrollment.student_id))
-
+    fetch_student_enrollment_classrooms.each do |student|
       recovery_student = recovery_diary_record.students.select { |student_recovery|
-        student_recovery.student_id == student.id
+        student_recovery.student_id == student[:student].id
       }.first
-      note_student = recovery_student ||
-                     recovery_diary_record.students.build(student: student)
 
-      note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
-
-      @students << note_student
+      @students << recovery_student ||
+                     recovery_diary_record.students.build(student: student[:student])
     end
-
+  
     @students
-  end
-
-  def student_active_on_date?(student_enrollment, recovery_diary_record)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(recovery_diary_record.classroom)
-                     .by_date(recovery_diary_record.recorded_at)
-                     .any?
   end
 
   def set_options_by_user
@@ -308,22 +286,31 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def set_school_term_recovery_diary_records
-    @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
-      .includes(
-          recovery_diary_record: [
-            :unity,
-            :classroom,
-            :discipline
-          ]
-        )
-      .by_classroom_id(@classrooms.map(&:id))
-      .by_discipline_id(@disciplines.map(&:id))
-      .ordered
-      .distinct
+    @school_term_recovery_diary_records = if @admin_or_teacher
+                                            school_term_recovery_diary_records_for_admin
+                                          else
+                                            school_term_recovery_diary_records_for_teacher
+                                          end
 
-    unless @admin_or_teacher
-      @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_teacher_id(current_teacher.id).distinct
-    end
+    @school_term_recovery_diary_records = @school_term_recovery_diary_records.ordered.distinct
+  end
+
+  def school_term_recovery_diary_records_for_teacher
+    base_query
+      .joins(recovery_diary_record: :classroom)
+      .joins('INNER JOIN teacher_discipline_classrooms tdc ON tdc.classroom_id = classrooms.id AND tdc.discipline_id = recovery_diary_records.discipline_id')
+      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL', current_teacher.id)
+  end
+
+  def school_term_recovery_diary_records_for_admin
+    base_query
+      .by_classroom_id(@classrooms.pluck(:id))
+      .by_discipline_id(@disciplines.pluck(:id))
+  end
+
+  def base_query
+    apply_scopes(SchoolTermRecoveryDiaryRecord)
+      .includes(recovery_diary_record: [:unity, :classroom, :discipline])
   end
 
   def fetch_disciplines_by_classroom

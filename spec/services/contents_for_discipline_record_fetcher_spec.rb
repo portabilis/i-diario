@@ -62,7 +62,7 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
   end
 
   it 'fetches contents from teaching plan' do
-    date = classroom.calendar.classroom_steps.first.first_school_calendar_date
+    date = Date.current
 
     teaching_plan = create(
       :teaching_plan,

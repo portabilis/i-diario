@@ -2,7 +2,10 @@ require "application_responder"
 
 class ApplicationController < ActionController::Base
   MAX_STEPS_FOR_SCHOOL_CALENDAR = 4
-  rescue_from Exception, :with => :error_generic
+
+  unless Rails.env.development?
+    rescue_from Exception, :with => :error_generic
+  end
 
   self.responder = ApplicationResponder
   respond_to :html
@@ -117,7 +120,8 @@ class ApplicationController < ActionController::Base
     if !!current_user.receive_news == current_user.receive_news
       super
     else
-      flash[:info] = "É importante que seu cadastro no sistema esteja atualizado. Desta forma você poderá receber novidades sobre o produto. Por favor, atualize aqui suas preferências de e-mail."
+      flash[:info] =
+        "É importante que seu cadastro no sistema esteja atualizado. Desta forma você poderá receber novidades sobre o produto. Por favor, atualize aqui suas preferências de e-mail."
       edit_account_path
     end
   end
@@ -348,7 +352,7 @@ class ApplicationController < ActionController::Base
                               year = current_school_year || current_school_calendar.year
                               steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
                               steps
-                            end
+    end
   end
 
   def first_step_start_date_for_posting
@@ -424,7 +428,7 @@ class ApplicationController < ActionController::Base
 
   def check_user_first_access
     return if request.fullpath == edit_account_pt_br_path ||
-      request.fullpath == account_pt_br_path
+              request.fullpath == account_pt_br_path
     return unless current_user.first_access?
 
     redirect_to edit_account_pt_br_path
@@ -446,7 +450,7 @@ class ApplicationController < ActionController::Base
     return false if password.blank?
 
     if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? ||
-        (password =~ /[!@#\$%^&*?_~-]/).nil?
+       (password =~ /[!@#\$%^&*?_~-]/).nil?
       true
     else
       false
