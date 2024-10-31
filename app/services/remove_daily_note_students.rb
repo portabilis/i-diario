@@ -14,7 +14,11 @@ class RemoveDailyNoteStudents
   def call
     avaliations = Avaliation.by_classroom_id(classroom_id).pluck(:id, :test_date).to_h
     daily_note_ids = DailyNote.where(avaliation_id: avaliations.keys).pluck(:id)
-    daily_note_students = DailyNoteStudent.with_discarded.where(daily_note_id: daily_note_ids, student_id: student_id)
+    daily_note_students = DailyNoteStudent.with_discarded
+                                          .where(
+                                            daily_note_id: daily_note_ids,
+                                            student_id: student_id
+                                          )
 
     daily_note_students.each do |daily_note_student|
       avaliation_id = daily_note_student.daily_note.avaliation_id
