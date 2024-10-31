@@ -214,8 +214,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     students_in_recovery_map = students_in_recovery.index_by { |s| s[:student].id }
 
     @students.each do |student|
-      recovery_info = students_in_recovery_map[student.student_id]
-      student.exempted_from_discipline = recovery_info&.fetch(:exempted_from_discipline, false)
+      student.exempted_from_discipline = students_in_recovery_map.dig(
+        student.student_id, :exempted_from_discipline
+      ) || false
     end
   end
 
@@ -248,21 +249,11 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def reload_students_list
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
-
     return unless recovery_diary_record.recorded_at
 
-    @students = []
-
-    fetch_student_enrollment_classrooms.each do |student|
-      recovery_student = recovery_diary_record.students.select { |student_recovery|
-        student_recovery.student_id == student[:student].id
-      }.first
-
-      @students << recovery_student ||
-        recovery_diary_record.students.build(student: student[:student])
+    @students = fetch_student_enrollment_classrooms.map do |student|
+      recovery_diary_record.students.find_or_initialize_by(student: student[:student])
     end
-
-    @students = @students.compact
   end
 
   def set_options_by_user
