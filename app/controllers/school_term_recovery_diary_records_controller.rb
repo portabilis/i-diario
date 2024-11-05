@@ -201,22 +201,22 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    @students.each do |student|
-      is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-        student.student_id == student_in_recovery[:student].id
-      end
+    students_in_recovery_ids = students_in_recovery.map { |s| s[:student].id }
 
-      student.mark_for_destruction unless is_student_in_recovery
+    @students.each do |student|
+      unless students_in_recovery_ids.include?(student.student_id)
+        student.mark_for_destruction
+      end
     end
   end
 
   def mark_exempted_disciplines(students_in_recovery)
-    @students.each do |student|
-      exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
-        student_in_recovery[:student].id == student.student_id
-      end.try(:exempted_from_discipline)
+    students_in_recovery_map = students_in_recovery.index_by { |s| s[:student].id }
 
-      student.exempted_from_discipline = exempted_from_discipline
+    @students.each do |student|
+      student.exempted_from_discipline = students_in_recovery_map.dig(
+        student.student_id, :exempted_from_discipline
+      ) || false
     end
   end
 
@@ -249,21 +249,11 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def reload_students_list
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
-
     return unless recovery_diary_record.recorded_at
 
-    @students = []
-
-    fetch_student_enrollment_classrooms.each do |student|
-      recovery_student = recovery_diary_record.students.select { |student_recovery|
-        student_recovery.student_id == student[:student].id
-      }.first
-
-      @students << recovery_student ||
-                     recovery_diary_record.students.build(student: student[:student])
+    @students = fetch_student_enrollment_classrooms.map do |student|
+      recovery_diary_record.students.find_or_initialize_by(student: student[:student])
     end
-  
-    @students
   end
 
   def set_options_by_user
