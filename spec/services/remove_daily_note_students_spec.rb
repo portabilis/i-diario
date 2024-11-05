@@ -19,7 +19,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
     create(
       :avaliation,
       school_calendar: school_calendar,
-      test_date: '2017-03-01',
+      test_date: Date.current,
       classroom: classroom,
       discipline: teacher_discipline_classroom.discipline,
       teacher_id: teacher_discipline_classroom.teacher.id
