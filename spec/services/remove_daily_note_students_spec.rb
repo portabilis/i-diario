@@ -32,7 +32,7 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
       :student_enrollment_classroom,
       student_enrollment: student_enrollment,
       classrooms_grade: classroom_grades,
-      joined_at: '2017-02-01', # data de entrada do aluno na turma
+      joined_at: '2017-02-02', # data de entrada do aluno na turma
       left_at: '2017-04-04' # data de saída do aluno na turma
     )
   }
@@ -92,9 +92,21 @@ RSpec.describe RemoveDailyNoteStudents, type: :service do
 
     context 'and is NOT in enrolled on the date' do
       it 'return an array with daily_note_student with discarded' do
+        # 01/03/2017 - avaliacao
+        # 01/02/2017 - entrada do aluno na turma
         student_enrollment_classroom.update(left_at: '2017-02-25')
 
         expect(subject.map(&:discarded?)).to eq [true]
+        expect(subject.map(&:active)).to eq [false]
+      end
+
+      it 'return an array with daily_note_student with discarded' do
+        # 01/03/2017 - avaliacao
+        # 04/04/2017 - saida do aluno na turma
+        student_enrollment_classroom.update(joined_at: '2017-03-02')
+
+        expect(subject.map(&:discarded?)).to eq [true]
+        expect(subject.map(&:active)).to eq [false]
       end
     end
   end
