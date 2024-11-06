@@ -290,7 +290,14 @@ class ExamRecordReport < BaseReport
         data.concat(students_cells_slice)
 
         page_content do
-          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
+          column_widths = [30, nil, nil]
+
+          table(data,
+            row_colors: ['FFFFFF', 'DEDEDE'],
+            cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true, overflow: :shrink_to_fit },
+            width: bounds.width,
+            column_widths: column_widths
+          ) do |t|
             t.cells.border_width = 0.25
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
