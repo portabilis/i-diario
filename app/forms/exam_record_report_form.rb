@@ -70,7 +70,7 @@ class ExamRecordReportForm
       end_at: classroom_step.try(:end_at) || step.end_at,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       search_type: :by_date_range,
-      show_inactive: false
+      include_inactive: false
     )
   end
 

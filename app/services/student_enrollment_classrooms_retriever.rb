@@ -28,6 +28,7 @@ class StudentEnrollmentClassroomsRetriever
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, nil)
     @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH)
+    @include_inactive = params.fetch(:include_inactive, true)
 
     ensure_has_valid_search_params
   end
@@ -46,7 +47,11 @@ class StudentEnrollmentClassroomsRetriever
     enrollment_classrooms = enrollment_classrooms.by_discipline(disciplines) if disciplines.present?
     enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
-    enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+
+    if with_recovery_note_in_step
+      enrollment_classrooms = enrollment_classrooms.with_recovery_note_in_step(step,discipline)
+    end
+
     enrollment_classrooms = enrollment_classrooms.by_opinion_type(opinion_type, classrooms) if opinion_type
 
     enrollment_classrooms = search_by_dates(enrollment_classrooms) if include_date_range
@@ -67,7 +72,7 @@ class StudentEnrollmentClassroomsRetriever
 
   private
 
-  attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type,
+  attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type, :include_inactive,
                 :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type
 
   def ensure_has_valid_search_params
@@ -119,6 +124,8 @@ class StudentEnrollmentClassroomsRetriever
   end
 
   def show_inactive_enrollments
+    return false unless include_inactive
+
     @show_inactive_enrollments ||= GeneralConfiguration.first.show_inactive_enrollments
   end
 end
