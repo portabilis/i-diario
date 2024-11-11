@@ -32,9 +32,9 @@ class DailyNotesController < ApplicationController
   end
 
   def create
-    creator = DailyNoteCreator.new(resource_params)
-    creator.find_or_create
-    @daily_note = creator.daily_note
+    @daily_note = DailyNote.find_or_initialize_by(resource_params)
+    @daily_note.save if @daily_note.new_record?
+    reload_students_list
 
     if @daily_note.persisted?
       redirect_to edit_daily_note_path(@daily_note)
@@ -48,7 +48,7 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    reload_students_list if params[:origin_page].blank?
+    reload_students_list
   end
 
   def update
@@ -156,7 +156,7 @@ class DailyNotesController < ApplicationController
   def reload_students_list
     set_students_and_info
     set_student_enrollments_data
-
+    binding.pry
     set_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment].id
@@ -295,7 +295,7 @@ class DailyNotesController < ApplicationController
   end
 
   def create_or_select_daily_note_student(student)
-    if action_name.eql?('edit')
+    if action_name.eql?('edit') || action_name.eql?('create')
       @daily_note.students.find_or_initialize_by(student_id: student.id)
     else
       @daily_note.students.select{ |dns| dns.student_id.eql?(student.id) }.first
