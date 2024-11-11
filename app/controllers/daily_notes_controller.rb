@@ -48,7 +48,7 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    reload_students_list
+    reload_students_list if params[:origin_page].blank?
   end
 
   def update

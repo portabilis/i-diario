@@ -311,7 +311,7 @@ class AvaliationsController < ApplicationController
       @daily_note = creator.daily_note
 
       if @daily_note.persisted?
-        redirect_to edit_daily_note_path(@daily_note)
+        redirect_to edit_daily_note_path(@daily_note, origin_page: 'avaliations')
       else
         render 'daily_notes/new'
       end
