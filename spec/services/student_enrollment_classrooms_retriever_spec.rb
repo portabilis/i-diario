@@ -356,7 +356,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         classrooms: classroom_grade.classroom_id,
         disciplines: discipline,
         date: '2023-03-03',
-        grade: classroom_grade_without_liked.grade
+        grades: classroom_grade_without_liked.grade
       )
 
       grade_id = list_enrollment_classrooms.map { |ec|
