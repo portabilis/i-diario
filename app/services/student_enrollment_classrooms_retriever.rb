@@ -2,6 +2,13 @@ class StudentEnrollmentClassroomsRetriever
   SEARCH_TYPES = [
     :by_date, :by_date_range, :by_year
   ].freeze
+  ERROR_MESSAGES = {
+    missing_date: 'Should define date argument on search by date',
+    missing_date_range: 'Should define start_at or end_at argument on search by date_range',
+    missing_year: 'Should define year argument on search by year',
+    invalid_search_type: 'Invalid search type'
+  }.freeze
+
 
   def self.call(params)
     new(params).call
@@ -65,13 +72,13 @@ class StudentEnrollmentClassroomsRetriever
 
   def ensure_has_valid_search_params
     if search_type.eql?(:by_date)
-      raise ArgumentError, 'Should define date argument on search by date' unless date
+      raise ArgumentError, ERROR_MESSAGES[:missing_date] unless date
     elsif search_type.eql?(:by_date_range)
-      raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless start_at || end_at
+      raise ArgumentError, ERROR_MESSAGES[:missing_date_range] unless start_at || end_at
     elsif search_type.eql?(:by_year)
-      raise ArgumentError, 'Should define start_at or end_at argument on search by date_range' unless year
+      raise ArgumentError, ERROR_MESSAGES[:missing_year] unless year
     else
-      raise ArgumentError, 'Invalid search type'
+      raise ArgumentError, ERROR_MESSAGES[:invalid_search_type]
     end
   end
 

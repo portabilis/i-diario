@@ -75,7 +75,7 @@ class ExamRecordReportForm
   end
 
   def student_ids
-    @student_enrollment_classrooms.map do |student_enrollment_classroom|
+    info_students.map do |student_enrollment_classroom|
       student_enrollment_classroom[:student].id
     end
   end
