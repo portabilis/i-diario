@@ -156,7 +156,7 @@ class DailyNotesController < ApplicationController
   def reload_students_list
     set_students_and_info
     set_student_enrollments_data
-    binding.pry
+
     set_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment].id
