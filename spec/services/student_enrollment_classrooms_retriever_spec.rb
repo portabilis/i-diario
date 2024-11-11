@@ -553,17 +553,20 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       )
     }
 
+    before do
+      create(
+        :student_enrollment_classroom,
+        student_enrollment_id: student_enrollment_classrooms.first.student_enrollment_id,
+        classrooms_grade: classroom_grade,
+        joined_at: '2023-05-02',
+        left_at: '2023-06-02'
+        )
+    end
+
     context 'and show_inactive_enrollments is enabled in configuration' do
       before { GeneralConfiguration.first.update(show_inactive_enrollments: true) }
 
       it 'returns only active student_enrollment_classrooms in the date_range' do
-        create(
-          :student_enrollment_classroom,
-          student_enrollment_id: student_enrollment_classrooms.first.student_enrollment_id,
-          classrooms_grade: classroom_grade,
-          joined_at: '2023-05-02',
-          left_at: '2023-06-02'
-        )
         expect(list_enrollment_classrooms.size).to eq(3)
       end
     end
@@ -572,13 +575,6 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       before { GeneralConfiguration.first.update(show_inactive_enrollments: false) }
 
       it 'returns only active student_enrollment_classrooms in the date_range' do
-        create(
-          :student_enrollment_classroom,
-          student_enrollment_id: student_enrollment_classrooms.first.student_enrollment_id,
-          classrooms_grade: classroom_grade,
-          joined_at: '2023-05-02',
-          left_at: '2023-06-02'
-        )
         expect(list_enrollment_classrooms.size).to eq(3)
       end
     end
