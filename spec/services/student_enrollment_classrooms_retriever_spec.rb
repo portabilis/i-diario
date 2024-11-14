@@ -540,6 +540,45 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
       expect(student_with_differentiated_exam_rule).to eq([true])
     end
   end
+
+  context 'when include_inactive is set to false' do
+    subject(:list_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-02-02',
+        end_at: '2023-04-02',
+        include_inactive: false
+      )
+    }
+
+    before do
+      create(
+        :student_enrollment_classroom,
+        student_enrollment_id: student_enrollment_classrooms.first.student_enrollment_id,
+        classrooms_grade: classroom_grade,
+        joined_at: '2023-05-02',
+        left_at: '2023-06-02'
+        )
+    end
+
+    context 'and show_inactive_enrollments is enabled in configuration' do
+      before { GeneralConfiguration.first.update(show_inactive_enrollments: true) }
+
+      it 'returns only active student_enrollment_classrooms in the date_range' do
+        expect(list_enrollment_classrooms.size).to eq(3)
+      end
+    end
+
+    context 'and show_inactive_enrollments is disabled in configuration' do
+      before { GeneralConfiguration.first.update(show_inactive_enrollments: false) }
+
+      it 'returns only active student_enrollment_classrooms in the date_range' do
+        expect(list_enrollment_classrooms.size).to eq(3)
+      end
+    end
+  end
 end
 
 def create_differentiated_exam_rule
