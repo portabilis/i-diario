@@ -251,7 +251,7 @@ RSpec.describe IeducarApi::Base, type: :service do
               resource: resource,
               etapa: 1,
               faltas: 1,
-              portabilis: ok
+              portabilis: 'ok'
             )
           }.to raise_error('Chave de acesso inválida!')
         end
@@ -283,7 +283,7 @@ RSpec.describe IeducarApi::Base, type: :service do
           access_key: 'invalid',
           secret_key: secret_key,
           unity_id: unity_id,
-          portabilis: ok
+          portabilis: 'ok'
         )
 
         VCR.use_cassette('post_invalid_access_key') do
