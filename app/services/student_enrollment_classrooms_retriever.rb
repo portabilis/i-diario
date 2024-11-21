@@ -22,7 +22,7 @@ class StudentEnrollmentClassroomsRetriever
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:end_at, nil)
     @year = params.fetch(:year, nil)
-    @grade = params.fetch(:grade, nil)
+    @grades = params.fetch(:grades, nil)
     @include_date_range = params.fetch(:include_date_range, nil)
     @period = params.fetch(:period, nil)
     @opinion_type = params.fetch(:opinion_type, nil)
@@ -45,7 +45,7 @@ class StudentEnrollmentClassroomsRetriever
                                                         .active
 
     enrollment_classrooms = enrollment_classrooms.by_discipline(disciplines) if disciplines.present?
-    enrollment_classrooms = enrollment_classrooms.by_grade(grade) if grade
+    enrollment_classrooms = enrollment_classrooms.by_grade(grades) if grades
     enrollment_classrooms = enrollment_classrooms.by_period(period) if period
 
     if with_recovery_note_in_step
@@ -73,7 +73,7 @@ class StudentEnrollmentClassroomsRetriever
   private
 
   attr_accessor :classrooms, :disciplines, :year, :date, :start_at, :end_at, :search_type, :include_inactive,
-                :include_date_range, :grade, :period, :opinion_type, :with_recovery_note_in_step, :score_type
+                :include_date_range, :grades, :period, :opinion_type, :with_recovery_note_in_step, :score_type
 
   def ensure_has_valid_search_params
     if search_type.eql?(:by_date)
