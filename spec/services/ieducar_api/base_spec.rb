@@ -193,8 +193,7 @@ RSpec.describe IeducarApi::Base, type: :service do
         url: url,
         access_key: access_key,
         secret_key: secret_key,
-        unity_id: unity_id,
-        portabilis: 'ok'
+        unity_id: unity_id
       )
     end
 
