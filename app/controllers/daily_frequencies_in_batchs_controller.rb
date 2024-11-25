@@ -234,15 +234,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment[:student]
       student_ids << student.id
       type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
-      active = student_enrollment[:student_enrollment_classroom].left_at.blank?
 
       next if student.blank?
 
       @students_list << student
       @students << {
         student: student,
-        type_of_teaching: type_of_teaching,
-        active: active
+        type_of_teaching: type_of_teaching
       }
     end
 
@@ -273,7 +271,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
   end
 
-  def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline, active_searchs)
+  def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline,
+                      active_searchs)
     additional_data = []
     dates.each do |date|
       student_ids.each do |student_id|
@@ -490,6 +489,7 @@ nil, @period)
 
   def students_inactive_on_range(enrollment_classrooms, dates)
     inactives = []
+
     dates.each do |date|
       active_enrollments_classroom_ids = enrollment_classrooms.select do |enrollment|
         enrollment.joined_at.to_date <= date && (enrollment.left_at.blank? || enrollment.left_at.to_date > date)
@@ -497,7 +497,7 @@ nil, @period)
 
       next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
 
-      inactives_enrollments_classroom_ids = enrollment_classrooms - active_enrollments_classroom_ids
+      inactives_enrollments_classroom_ids = enrollment_classrooms.pluck(:id) - active_enrollments_classroom_ids
 
       inactives_students_ids = Student.joins(student_enrollments: :student_enrollment_classrooms)
                                       .where(student_enrollment_classrooms: {
