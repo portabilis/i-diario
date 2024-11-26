@@ -74,10 +74,15 @@ class ExamRecordReportForm
     )
   end
 
+  def filter_unique_students
+    info_students.each_with_object({}) do |student, unique_students|
+      student_id = student[:student].id
+      unique_students[student_id] ||= student
+    end.values
+  end
+
   def student_ids
-    info_students.map do |student_enrollment_classroom|
-      student_enrollment_classroom[:student].id
-    end
+    info_students.map { |info| info[:student].id }
   end
 
   def step
