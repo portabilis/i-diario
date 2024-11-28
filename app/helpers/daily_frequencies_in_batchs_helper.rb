@@ -4,13 +4,13 @@ module DailyFrequenciesInBatchsHelper
     tooltip = nil
 
     @additional_data.each do |additional_data|
-      if additional_data[:date] == date[:date] && additional_data[:student_id] == student[:student][:id] && !student[:active]
+      if additional_data[:date] == date[:date] && additional_data[:student_id] == student[:student][:id]
         additional_class = additional_data[:additional_class]
         tooltip = additional_data[:tooltip]
       end
     end
 
-    { 
+    {
       response_class: additional_class,
       response_tooltip: tooltip
     }
@@ -21,13 +21,13 @@ module DailyFrequenciesInBatchsHelper
     color = false
 
     @additional_data.each do |additional_data|
-      if additional_data[:student_id] == student[:student][:id] && !student[:active]
+      if additional_data[:student_id] == student[:student][:id]
         student_name = '*' + student[:student][:name]
         color = '#a90329'
       end
     end
 
-    { 
+    {
       name: student_name,
       color: color
     }
