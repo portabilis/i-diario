@@ -5,6 +5,8 @@ class SchoolDaysCounterWorker
 
   def perform(entity_id, school_calendar_id)
     Entity.find(entity_id).using_connection do
+      expire_school_days_cache(entity_id)
+
       school_calendar = SchoolCalendar.find(school_calendar_id)
 
       return if school_calendar.steps.empty?
@@ -35,5 +37,11 @@ class SchoolDaysCounterWorker
         UnitySchoolDay.find_or_create_by!(unity_id: school_calendar.unity_id, school_day: school_day)
       end
     end
+  end
+
+  def expire_school_days_cache(entity_id)
+    cache_prefix = "pedagogical_trackings:entity_#{entity_id}:school_days_by_unity"
+
+    Rails.cache.delete_matched("#{cache_prefix}:*")
   end
 end

@@ -25,28 +25,35 @@ class PedagogicalTrackingsController < ApplicationController
                                         .max_by { |school_days_by_unity|
                                           school_days_by_unity[:school_days]
                                         }[:school_days]
-    @school_frequency_done_percentage = school_frequency_done_percentage
-    @school_content_record_done_percentage = school_content_record_done_percentage
-    @unknown_teachers = school_unknown_teacher_frequency_done_percentage
+
+    percentages = calculate_all_percentages
+    @school_frequency_done_percentage = percentages[:frequency_done_percentage]
+    @school_content_record_done_percentage = percentages[:content_record_percentage]
+    @unknown_teachers = percentages[:unknown_teacher_percentage]
+
     @partial = :schools
 
-    @percents = if unity_id
-                  @partial = :classrooms
-                  @classrooms = Classroom.where(unity_id: unity_id, year: current_user_school_year).ordered
+    if unity_id 
+      @partial = :classrooms
+      @classrooms = Classroom.where(unity_id: unity_id, year: current_user_school_year).ordered
+    else
+      @partial = :schools
+    end
 
-                  paginate(filter_from_params(percents(@classrooms.pluck(:id)), params.dig(:filter)))
-                else
-                  paginate(filter_from_params(percents, params.dig(:filter)))
-                end
+    @percents = Rails.cache.fetch(cache_key_for_percents(unity_id, params), expires_in: 24.hours) do
+      if unity_id
+        paginate(filter_from_params(percents(@classrooms.pluck(:id)), params.dig(:filter)))
+      else
+        paginate(filter_from_params(percents, params.dig(:filter)))
+      end
+    end
   end
 
   def recalculate
-
     school_calendars = SchoolCalendar.ids
 
     school_calendars.each do |school_calendar_id|
-
-    SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_id)
+      SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_id)
     end
 
     redirect_to pedagogical_trackings_path
@@ -64,14 +71,6 @@ class PedagogicalTrackingsController < ApplicationController
     teachers_ids = [teacher_id].compact.presence ||
                    Teacher.by_classroom(classroom_id).by_year(current_user_school_year).pluck(:id).uniq
 
-    @teacher_percents = []
-
-    teachers_ids.each do |teacher_id|
-      @teacher_percents << percents([params[:classroom_id]], teacher_id)
-    end
-
-    @teacher_percents = @teacher_percents.flatten
-
     filter_params = params.slice(
       :frequency_operator,
       :frequency_percentage,
@@ -79,7 +78,19 @@ class PedagogicalTrackingsController < ApplicationController
       :content_record_percentage
     )
 
-    @teacher_percents = filter_from_params(@teacher_percents, filter_params)
+    cache_key = cache_key_for_teacher_percents(filter_params, classroom_id, teachers_ids)
+
+    @teacher_percents = Rails.cache.fetch(cache_key, expires_in: 24.hours) do
+      teacher_percents = []
+
+      teachers_ids.each do |teacher_id|
+        teacher_percents << percents([classroom_id], teacher_id)
+      end
+
+      teacher_percents = teacher_percents.flatten
+
+      filter_from_params(teacher_percents, filter_params)
+    end
 
     respond_with @teacher_percents
   end
@@ -117,65 +128,60 @@ class PedagogicalTrackingsController < ApplicationController
   def fetch_school_days_by_unity(unity_id, start_date, end_date)
     unity = Unity.find(unity_id) if unity_id
     unities = unity || employee_unities || all_unities
-
-    @school_days_by_unity = SchoolDaysCounterService.new(
-      unities: unities,
-      all_unities_size: all_unities.size,
-      start_date: start_date,
-      end_date: end_date,
-      year: current_user_school_year
-    ).school_days
+  
+    # Calcula o tempo restante até meia-noite
+    now = Time.current
+    midnight = now.end_of_day
+    expires_in = (midnight - now).to_i
+  
+    cache_key = [
+      "pedagogical_trackings",
+      "entity_#{@current_entity.id}",
+      "school_days_by_unity",
+      unity_id || "all_unities",
+      start_date&.to_s || "no_start_date",
+      end_date&.to_s || "no_end_date",
+      current_user_school_year
+    ].join(":")
+  
+    @school_days_by_unity = Rails.cache.fetch(cache_key, expires_in: expires_in) do
+      SchoolDaysCounterService.new(
+        unities: unities,
+        all_unities_size: all_unities.size,
+        start_date: start_date,
+        end_date: end_date,
+        year: current_user_school_year
+      ).school_days
+    end
   end
 
-  def school_frequency_done_percentage
-    percentage_sum = 0
-
+  def calculate_all_percentages
+    total_frequencies = 0
+    total_unknown_teachers = 0
+    total_content_records = 0
+  
     @school_days_by_unity.each do |unity_id, school_days|
-      percentage_sum += frequency_done_percentage(
-        unity_id,
-        school_days[:start_date],
-        school_days[:end_date],
-        school_days[:school_days]
-      )
+      start_date = school_days[:start_date]
+      end_date = school_days[:end_date]
+      total_days = school_days[:school_days]
+  
+      total_frequencies += frequency_done_percentage(unity_id, start_date, end_date, total_days)
+      total_unknown_teachers += unknown_teacher_frequency_done(unity_id, start_date, end_date, total_days)
+      total_content_records += content_record_done_percentage(unity_id, start_date, end_date, total_days)
     end
-
-    return 0 if unities_total.zero?
-
-    (percentage_sum.to_f / unities_total).round(2)
-  end
-
-  def school_unknown_teacher_frequency_done_percentage
-    unknown_teacher_percentage_sum = 0
-
-    @school_days_by_unity.each do |unity_id, school_days|
-      unknown_teacher_percentage_sum += unknown_teacher_frequency_done(
-        unity_id,
-        school_days[:start_date],
-        school_days[:end_date],
-        school_days[:school_days]
-      )
-    end
-
-    return 0 if unities_total.zero?
-
-    (unknown_teacher_percentage_sum.to_f / unities_total).round(2)
-  end
-
-  def school_content_record_done_percentage
-    percentage_sum = 0
-
-    @school_days_by_unity.each do |unity_id, school_days|
-      percentage_sum += content_record_done_percentage(
-        unity_id,
-        school_days[:start_date],
-        school_days[:end_date],
-        school_days[:school_days]
-      )
-    end
-
-    return 0 if unities_total.zero?
-
-    (percentage_sum.to_f / unities_total).round(2)
+  
+    # Evitar divisão por zero
+    return {
+      frequency_done_percentage: 0,
+      unknown_teacher_percentage: 0,
+      content_record_percentage: 0
+    } if unities_total.zero?
+  
+    {
+      frequency_done_percentage: (total_frequencies.to_f / unities_total).round(2),
+      unknown_teacher_percentage: (total_unknown_teachers.to_f / unities_total).round(2),
+      content_record_percentage: (total_content_records.to_f / unities_total).round(2)
+    }
   end
 
   def frequency_done_percentage(
@@ -360,5 +366,31 @@ class PedagogicalTrackingsController < ApplicationController
                                      .group_by(&:frequency_date).size
 
     ((done_frequencies * 100).to_f / school_days).round(2)
+  end
+
+  def cache_key_for_percents(unity_id, params)
+    filters = params.dig(:filter).to_h.to_query
+    [
+      "pedagogical_trackings",
+      "entity_#{@current_entity.id}",
+      "percents_cache",
+      "year_#{current_user_school_year}",
+      ("unity_#{unity_id}" if unity_id),
+      filters.presence || "no_filters"
+    ].compact.join(":")
+  end
+
+  def cache_key_for_teacher_percents(filter_params, classroom_id, teachers_ids)
+    filters = filter_params.to_h.to_query
+    teacher_ids_key = teachers_ids.sort.join("-") # Garante consistência na ordem dos IDs
+    [
+      "pedagogical_trackings",
+      "entity_#{@current_entity.id}",
+      "teacher_percents_cache",
+      "year_#{current_user_school_year}",
+      "classroom_id_#{classroom_id}",
+      teacher_ids_key,
+      filters.presence || "no_filters"
+    ].compact.join(":")
   end
 end
