@@ -15,7 +15,7 @@ class ExamRecordReportController < ApplicationController
   end
 
   def report
-    @exam_record_report_form = ExamRecordReportForm.new(resource_params)
+@exam_record_report_form = ExamRecordReportForm.new(resource_params)
     set_school_calendars
 
     if @exam_record_report_form.valid?
@@ -58,7 +58,7 @@ class ExamRecordReportController < ApplicationController
       @exam_record_report_form.step,
       current_test_setting_step(@exam_record_report_form.step),
       @exam_record_report_form.daily_notes,
-      @exam_record_report_form.info_students,
+      @exam_record_report_form.filter_unique_students,
       @exam_record_report_form.complementary_exams,
       @exam_record_report_form.school_term_recoveries,
       @exam_record_report_form.recovery_lowest_notes?,
@@ -74,7 +74,7 @@ class ExamRecordReportController < ApplicationController
       @exam_record_report_form.classroom_step,
       current_test_setting_step(@exam_record_report_form.classroom_step),
       @exam_record_report_form.daily_notes_classroom_steps,
-      @exam_record_report_form.info_students,
+      @exam_record_report_form.filter_unique_students,
       @exam_record_report_form.complementary_exams,
       @exam_record_report_form.school_term_recoveries,
       @exam_record_report_form.recovery_lowest_notes?,
@@ -83,7 +83,8 @@ class ExamRecordReportController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
+current_school_year)
     classroom_id = @exam_record_report_form.classroom_id
     @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom_id(classroom_id)
                                                            .not_descriptor
