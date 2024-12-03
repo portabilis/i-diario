@@ -71,13 +71,13 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
     end
 
     it 'should return nil for blank params' do
-      expect(
+      expect{
         StudentEnrollmentClassroomsRetriever.call(
           search_type: '',
           classrooms: '',
           disciplines: ''
         )
-      ).to be_nil
+      }.to raise_error(ArgumentError, 'Invalid search type')
     end
   end
 
@@ -209,8 +209,8 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
   end
 
   context 'when there is a range of dates to search for student_enrollment_classrooms' do
-    # Cria enturmacao que ficara enturmada de janeiro a dezembro de 2022
-    # Nao deve estar no retorno do servico que se refere a 2023
+    # Cria enturmacao que ficara enturmada de fevereiro a dezembro de 2022
+    # Não deve estar no retorno do servico que se refere a 2023
     let!(:student_enrollment_classrooms_out_date) {
       create_list(
         :student_enrollment_classroom,
@@ -356,7 +356,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         classrooms: classroom_grade.classroom_id,
         disciplines: discipline,
         date: '2023-03-03',
-        grade: classroom_grade_without_liked.grade
+        grades: classroom_grade_without_liked.grade
       )
 
       grade_id = list_enrollment_classrooms.map { |ec|
@@ -538,6 +538,45 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         ec[:student_enrollment_classroom].student_enrollment.student.uses_differentiated_exam_rule
       }
       expect(student_with_differentiated_exam_rule).to eq([true])
+    end
+  end
+
+  context 'when include_inactive is set to false' do
+    subject(:list_enrollment_classrooms) {
+      StudentEnrollmentClassroomsRetriever.call(
+        search_type: :by_date_range,
+        classrooms: classroom_grade.classroom_id,
+        disciplines: discipline,
+        start_at: '2023-02-02',
+        end_at: '2023-04-02',
+        include_inactive: false
+      )
+    }
+
+    before do
+      create(
+        :student_enrollment_classroom,
+        student_enrollment_id: student_enrollment_classrooms.first.student_enrollment_id,
+        classrooms_grade: classroom_grade,
+        joined_at: '2023-05-02',
+        left_at: '2023-06-02'
+        )
+    end
+
+    context 'and show_inactive_enrollments is enabled in configuration' do
+      before { GeneralConfiguration.first.update(show_inactive_enrollments: true) }
+
+      it 'returns only active student_enrollment_classrooms in the date_range' do
+        expect(list_enrollment_classrooms.size).to eq(3)
+      end
+    end
+
+    context 'and show_inactive_enrollments is disabled in configuration' do
+      before { GeneralConfiguration.first.update(show_inactive_enrollments: false) }
+
+      it 'returns only active student_enrollment_classrooms in the date_range' do
+        expect(list_enrollment_classrooms.size).to eq(3)
+      end
     end
   end
 end

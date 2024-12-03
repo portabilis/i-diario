@@ -82,7 +82,9 @@ $(function () {
       return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
     });
 
-    selectedDisciplines.unshift({ id: 'all', name: '<option>Todas</option>', text: 'Todas' });
+    if (selectedDisciplines.length > 1) {
+      selectedDisciplines.unshift({ id: 'all', name: '<option>Todas</option>', text: 'Todas' });
+    }
 
     $discipline.select2({ data: selectedDisciplines });
   }
@@ -95,4 +97,13 @@ $(function () {
     $classroom.val('').select2({ data: [] });
     $discipline.val('').select2({ data: [] });
   }
+
+  $('form').submit(function () {
+    var tempoEspera = 2000;
+
+    // Define um timeout para habilitar o botão após o tempo de espera
+    setTimeout(function () {
+      $('#btn-submit').prop('disabled', false);
+    }, tempoEspera);
+  });
 });
