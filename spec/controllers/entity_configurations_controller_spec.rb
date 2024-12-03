@@ -55,8 +55,10 @@ RSpec.describe EntityConfigurationsController, type: :controller do
 
   describe 'PUT #update' do
     it 'does not update and returns error when params are wrong' do
-      params[:entity_configuration][:address_attributes][:id] = 0
+      params[:entity_configuration][:address_attributes][:city] = 0
+
       put :update, params: params.merge(params)
+
       expect(response).to have_http_status(302)
     end
 

@@ -140,6 +140,10 @@ class AttendanceRecordReport < BaseReport
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
 
+    unless @show_inactive_enrollments
+      @enrollment_classrooms= @enrollment_classrooms.uniq { |enrollment_classroom| enrollment_classroom[:student].id }
+    end
+
     student_enrollment_ids ||= @enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment].id
     }

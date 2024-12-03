@@ -28,7 +28,6 @@ class User < ApplicationRecord
 
   belongs_to :student
   belongs_to :teacher
-
   belongs_to :assumed_teacher, foreign_key: :assumed_teacher_id, class_name: 'Teacher'
   belongs_to :current_discipline, foreign_key: :current_discipline_id, class_name: 'Discipline'
   belongs_to :current_knowledge_area, foreign_key: :current_knowledge_area_id, class_name: 'KnowledgeArea'
@@ -63,7 +62,6 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 8 }, allow_blank: true
   validates :login, uniqueness: true, allow_blank: true
   validates :teacher_id, uniqueness: true, allow_blank: true
-  validates :student, presence: true, if: :only_student?
 
   validates_associated :user_roles
 
@@ -73,6 +71,7 @@ class User < ApplicationRecord
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
+  validate :validate_student_presence, if: :only_student?
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -120,7 +119,9 @@ class User < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+      users = all.includes(:teacher, :student, user_roles: [:role, :unity]).ordered
+
+      users.each do |user|
         csv << [
           user.first_name,
           user.last_name,
@@ -150,7 +151,7 @@ class User < ApplicationRecord
   end
 
   def first_access?
-    email.include?('ambiente.portabilis.com.br') &&
+    email&.include?('ambiente.portabilis.com.br') &&
       created_at.to_date >= last_password_change.to_date
   end
 
@@ -503,5 +504,9 @@ class User < ApplicationRecord
   def remove_spaces_from_name
     write_attribute(:first_name, first_name.squish) if first_name.present?
     write_attribute(:last_name, last_name.squish) if last_name.present?
+  end
+
+  def validate_student_presence
+    errors.add(:student, :blank) if student.blank?
   end
 end

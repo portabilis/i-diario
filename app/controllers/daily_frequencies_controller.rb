@@ -84,12 +84,13 @@ class DailyFrequenciesController < ApplicationController
     @dependence_students = false
     @absence_justification = AbsenceJustification.new
     @absence_justification.school_calendar = current_school_calendar
+    enrollment_classrooms = fetch_enrollment_classrooms
 
-    student_enrollment_ids = fetch_enrollment_classrooms.map { |student_enrollment|
+    student_enrollment_ids = enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student_enrollment_id]
     }
 
-    student_ids = fetch_enrollment_classrooms.map { |student_enrollment|
+    student_ids = enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student].id
     }
 
@@ -109,7 +110,7 @@ class DailyFrequenciesController < ApplicationController
       period: @period
     )
 
-    fetch_enrollment_classrooms.each do |enrollment_classroom|
+    enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment_id]
       activated_student = active.include?(enrollment_classroom[:student_enrollment_classroom_id])
