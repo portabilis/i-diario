@@ -25,5 +25,4 @@ fi
 
 rm -f /app/tmp/pids/server.pid
 
-echo "Starting.."
-bundle exec rails server -b 0.0.0.0
+exit 0
