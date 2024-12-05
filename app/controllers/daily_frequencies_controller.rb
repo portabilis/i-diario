@@ -234,13 +234,16 @@ class DailyFrequenciesController < ApplicationController
     )
 
     if receive_email_confirmation
-      ReceiptMailer.delay.notify_daily_frequency_success(
+      classroom = daily_frequency_record.classroom.description
+      unity = daily_frequency_record.unity.name
+
+      NotifyByEmailDailyFrequencyWorker.perform_async(
         current_user.first_name,
         current_user.email,
         "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
         daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y'),
-        daily_frequency_record.classroom.description,
-        daily_frequency_record.unity.name
+        classroom,
+        unity
       )
     end
 

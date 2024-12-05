@@ -121,13 +121,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     if receive_email_confirmation
-      ReceiptMailer.delay.notify_daily_frequency_in_batch_success(
+      classroom = Classroom.find(daily_frequency_attributes[:classroom_id])
+      unity = Unity.find(daily_frequency_attributes[:unity_id].to_i).name
+
+      NotifyByEmailDailyFrequencyInBatchWorker.perform_async(
         current_user.first_name,
         current_user.email,
         "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
         dates,
-        Classroom.find(daily_frequency_attributes[:classroom_id].to_i).description,
-        Unity.find(daily_frequency_attributes[:unity_id].to_i).name
+        classroom,
+        unity
       )
     end
 
