@@ -7,16 +7,15 @@ yarn install
 if ! test -f ".setup"; then
   echo -e "
   development:
-    secret_key_base: `bundle exec rake secret`
-    redis_url: redis://redis-idiario
-    " > config/secrets.yml
+    secret_key_base: `bundle exec rails secret`
+  " > config/secrets.yml
 
   cp config/database.sample.yml config/database.yml
 
-  bundle exec rake db:create
-  bundle exec rake db:migrate
-  bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=idiario
-  bundle exec rake entity:admin:create NAME=prefeitura ADMIN_PASSWORD=A123456789$
+  bundle exec rails db:create
+  bundle exec rails db:migrate
+  bundle exec rails entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=idiario
+  bundle exec rails entity:admin:create NAME=prefeitura ADMIN_PASSWORD=A123456789$
 
   cp public/404.html.sample public/404.html
   cp public/500.html.sample public/500.html
