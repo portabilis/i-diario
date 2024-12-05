@@ -1,26 +1,54 @@
+x-ruby: &ruby
+  build:
+    context: .
+    args:
+      RUBY_VERSION: 2.6.6
+      GEM_VERSION: 3.3.22
+      BUNDLER_VERSION: 2.4.22
+  image: ruby:2.6.6-idiario
+  pull_policy: never
+  platform: linux/amd64
+  volumes:
+    - .:/app
+    - box:/box
+  depends_on:
+    postgres:
+      condition: service_started
+    redis:
+      condition: service_started
+    ruby:
+      condition: service_completed_successfully
+  environment:
+    DATABASE_HOST: postgres
+    REDIS_URL: redis://idiario-redis
+
 services:
 
-  app:
-    container_name: idiario-app
-    build:
-      context: .
-      args:
-        RUBY_VERSION: 2.6.6
-        GEM_VERSION: 3.3.22
-        BUNDLER_VERSION: 2.4.22
+  ruby:
+    <<: *ruby
+    container_name: idiario-ruby
     command: ./script/start
-    volumes:
-      - .:/app
-      - box:/box
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      DATABASE_HOST: postgres
-      REDIS_URL: redis://idiario-redis
+    depends_on: []
+
+  puma:
+    <<: *ruby
+    container_name: idiario-puma
+    command: bundle exec rails server -b 0.0.0.0
     ports:
       - ${DOCKER_APP_PORT:-80}:80
       - ${DOCKER_APP_SSL_PORT:-443}:443
+
+  sidekiq:
+    <<: *ruby
+    container_name: idiario-sidekiq
+    command: bundle exec sidekiq -c 10 --logfile log/sidekiq.log
+    restart: always
+
+  sidekiq-enqueue:
+    <<: *ruby
+    container_name: idiario-sidekiq-enqueue
+    command: bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 --logfile log/sidekiq.log
+    restart: always
 
   postgres:
     container_name: idiario-postgres
