@@ -70,14 +70,19 @@ class ExamRecordReportForm
       end_at: classroom_step.try(:end_at) || step.end_at,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       search_type: :by_date_range,
-      show_inactive: false
+      include_inactive: false
     )
   end
 
+  def filter_unique_students
+    info_students.each_with_object({}) do |student, unique_students|
+      student_id = student[:student].id
+      unique_students[student_id] ||= student
+    end.values
+  end
+
   def student_ids
-    @student_enrollment_classrooms.map do |student_enrollment_classroom|
-      student_enrollment_classroom[:student].id
-    end
+    info_students.map { |info| info[:student].id }
   end
 
   def step

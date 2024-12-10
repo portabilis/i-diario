@@ -6,7 +6,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :authorize_daily_frequency, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
-  before_action :require_valid_dates, only: [:create, :form]
 
   def new
     classroom_id = teacher_allocated.blank? ? nil : current_user_classroom.id
@@ -22,23 +21,19 @@ class DailyFrequenciesInBatchsController < ApplicationController
     set_options_by_user
   end
 
-  # TODO método duplicado para ser acessado via GET, unificar
   def form
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
-
-    @dates = [*start_date..end_date]
-    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
-    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
-
-    return unless view_data
-
-    render :create_or_update_multiple
+    create
   end
 
   def create
     start_date = params[:frequency_in_batch_form][:start_date].to_date
     end_date = params[:frequency_in_batch_form][:end_date].to_date
+    classroom_id = params[:frequency_in_batch_form][:classroom_id]
+    grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
+
+    if  invalid_dates?(start_date, end_date, classroom_id, grade_id)
+      redirect_to(new_daily_frequencies_in_batch_path) and return
+    end
 
     @dates = [*start_date..end_date]
     @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
@@ -98,7 +93,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             absence_justification.save
 
-            student_attributes[:absence_justification_student_id] = 
+            student_attributes[:absence_justification_student_id] =
               absence_justification.absence_justifications_students.first.id
           end
 
@@ -159,11 +154,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
     if @daily_frequencies.any?
       @daily_frequencies.each(&:destroy)
 
-      flash[:success] = t('daily_frequencies_in_batchs.destroy_multiple.success')
+      flash[:success] = t('.success')
 
       redirect_to new_daily_frequencies_in_batch_path
     else
-      flash[:alert] = t('daily_frequencies_in_batchs.destroy_multiple.alert')
+      flash[:alert] = t('.alert')
 
       redirect_to new_daily_frequencies_in_batch_path
     end
@@ -209,7 +204,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @period = current_teacher_period != Periods::FULL.to_i ? current_teacher_period : @classroom.period
+    @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period : current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
@@ -232,14 +227,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return false
     end
 
-    fetch_student_enrollments.each do |student_enrollment|
-      student_enrollments_ids << student_enrollment.id
-      student = student_enrollment.student
+    enrollment_classrooms = student_enrollment_classrooms
+
+    enrollment_classrooms.each do |student_enrollment|
+      student_enrollments_ids << student_enrollment[:student_enrollment].id
+      student = student_enrollment[:student]
       student_ids << student.id
-      type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .by_classroom(@classroom.id)
-                                           .last
-                                           .type_of_teaching
+      type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
 
       next if student.blank?
 
@@ -259,7 +253,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     dependences = student_has_dependence(student_enrollments_ids, dates)
-    inactives_on_date = students_inactive_on_range(student_enrollments_ids, dates)
+    inactives_on_date = students_inactive_on_range(enrollment_classrooms.map{|i|
+ i[:student_enrollment_classroom]
+                                                   }, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
@@ -275,7 +271,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
   end
 
-  def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline, active_searchs)
+  def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline,
+                      active_searchs)
     additional_data = []
     dates.each do |date|
       student_ids.each do |student_id|
@@ -349,8 +346,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       else
         school_calendar = CurrentSchoolCalendarFetcher.new(current_unity, @classroom, current_school_year).fetch
       end
-
-      valid_day = SchoolDayChecker.new(school_calendar, date, nil, nil, nil).day_allows_entry?
+      grade_id = @classroom.classrooms_grades.first.grade_id
+      valid_day = SchoolDayChecker.new(school_calendar, date, grade_id, @classroom.id, nil).day_allows_entry?
 
       next if allocations.empty? || !valid_day
 
@@ -386,7 +383,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     daily_frequencies = []
     if lesson_numbers.nil?
-      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id, 
+      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id,
 nil, @period)
     else
       lesson_numbers.each do |lesson_number|
@@ -397,9 +394,9 @@ nil, @period)
     end
 
     {
-      'date': date,
-      'lesson_numbers': lesson_numbers,
-      'daily_frequencies': daily_frequencies
+      date: date,
+      lesson_numbers: lesson_numbers,
+      daily_frequencies: daily_frequencies
     }
   end
 
@@ -477,35 +474,39 @@ nil, @period)
     end
   end
 
-  def fetch_student_enrollments
-    StudentEnrollmentsList.new(
-      classroom: @classroom,
-      discipline: @discipline,
+  def student_enrollment_classrooms
+    StudentEnrollmentClassroomsRetriever.call(
+      classrooms: @classroom,
+      disciplines: @discipline,
       start_at: params[:start_date] || params[:frequency_in_batch_form][:start_date],
       end_at: params[:end_date] || params[:frequency_in_batch_form][:end_date],
+      show_inactive_outside_step: false,
       search_type: :by_date_range,
-      period: @period
-    ).student_enrollments
+      period: @period,
+      remove_duplicate_student: false
+    )
   end
 
-  def students_inactive_on_range(student_enrollments_ids, dates)
+  def students_inactive_on_range(enrollment_classrooms, dates)
     inactives = []
 
     dates.each do |date|
-      active_student_enrollments_ids = StudentEnrollment.where(id: student_enrollments_ids)
-                                                        .by_classroom(@classroom)
-                                                        .by_date(date)
-                                                        .pluck(:id)
+      active_enrollments_classroom_ids = enrollment_classrooms.select do |enrollment|
+        enrollment.joined_at.to_date <= date && (enrollment.left_at.blank? || enrollment.left_at.to_date > date)
+      end.pluck(:id)
 
-      next if active_student_enrollments_ids.sort == student_enrollments_ids.sort
+      next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
 
-      inactives_student_enrollments_ids = student_enrollments_ids.sort - active_student_enrollments_ids.sort
+      inactives_enrollments_classroom_ids = enrollment_classrooms.pluck(:id) - active_enrollments_classroom_ids
 
-      inactives_students_ids = StudentEnrollment.where(id: inactives_student_enrollments_ids)
-                                                .includes(:student)
-                                                .pluck('students.id')
+      inactives_students_ids = Student.joins(student_enrollments: :student_enrollment_classrooms)
+                                      .where(student_enrollment_classrooms: {
+                                               id: inactives_enrollments_classroom_ids
+                                             })
+                                      .pluck(:id)
 
       inactives << { date: date, student_ids: inactives_students_ids}
+
     end
 
     inactives
@@ -605,18 +606,17 @@ nil, @period)
     end
   end
 
-  def invalid_dates?(start_date, end_date)
+  def invalid_dates?(start_date, end_date, classroom_id, grade_id)
     if start_date.nil? || end_date.nil?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.blank_dates')
       return true
     end
 
-    unless SchoolDayChecker.new(current_school_calendar, start_date, nil, nil, nil).school_day?
+    unless SchoolDayChecker.new(current_school_calendar, start_date, grade_id, classroom_id, nil).school_day?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.initial_date_no_school_day')
       return true
     end
-
-    unless SchoolDayChecker.new(current_school_calendar, end_date, nil, nil, nil).school_day?
+    unless SchoolDayChecker.new(current_school_calendar, end_date, grade_id, classroom_id, nil).school_day?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.final_date_no_school_day')
       return true
     end
@@ -632,17 +632,8 @@ nil, @period)
     end
   end
 
-  def require_valid_dates
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
-
-    if invalid_dates?(start_date, end_date)
-      redirect_to(new_daily_frequencies_in_batch_path) and return
-    end
-  end
-
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, 
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
 current_school_year)
     @disciplines = []
     @classrooms = []

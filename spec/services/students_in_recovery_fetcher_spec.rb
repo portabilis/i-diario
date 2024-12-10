@@ -47,7 +47,7 @@ RSpec.describe StudentsInRecoveryFetcher, type: :service do
 
     context 'with only one enrollment' do
       it 'returns that enrollment if student is enrolled' do
-        expect(subject.fetch).to eq([student])
+        expect(subject.fetch.pluck(:student)).to eq([student])
       end
 
       it 'does not return enrollment if student joined after the test' do
@@ -67,9 +67,10 @@ RSpec.describe StudentsInRecoveryFetcher, type: :service do
           classroom: classroom,
           discipline: discipline
         )
+        
         daily_note = create(:daily_note, avaliation: avaliation)
         create(:daily_note_student, student: student, daily_note: daily_note, note: 2)
-        expect(subject.fetch).to eq([student])
+        expect(subject.fetch.pluck(:student)).to eq([student])
       end
 
       it 'does not return if student is not in recovery' do

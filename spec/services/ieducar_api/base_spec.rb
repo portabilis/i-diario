@@ -148,9 +148,11 @@ RSpec.describe IeducarApi::Base, type: :service do
         unity_id: unity_id
       )
 
-      expect {
-        subject.fetch(path: path, resource: resource)
-      }.to raise_error('URL do i-Educar informada não é válida.')
+      VCR.use_cassette('wrong_url') do
+        expect {
+          subject.fetch(path: path, resource: resource)
+        }.to raise_error('URL do i-Educar informada não é válida.')
+      end
     end
 
     it 'returns an error when providing an invalid client url' do
