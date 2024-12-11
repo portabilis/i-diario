@@ -184,9 +184,13 @@ class ExamRecordReport < BaseReport
             @active_search = true
             student_note = ActiveSearchDailyNoteStudent.new
           elsif avaliation_id.present?
-            note_student = DailyNoteStudent.find_by(student_id: student.id, daily_note_id: daily_note_id, active: true)
-            daily_note_student = student_transferred?(note_student) if note_student.present?
-            student_note = daily_note_student || NullDailyNoteStudent.new
+            if info_students[:student_enrollment_classroom].left_at != "" && info_students[:student_enrollment_classroom].left_at.to_date <= exam.test_date
+              student_note = NullDailyNoteStudent.new
+            else
+              note_student = DailyNoteStudent.find_by(student_id: student.id, daily_note_id: daily_note_id, active: true)
+              daily_note_student = student_transferred?(note_student) if note_student.present?
+              student_note = daily_note_student || NullDailyNoteStudent.new
+            end
           end
 
           score = nil
