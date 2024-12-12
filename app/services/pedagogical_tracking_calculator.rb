@@ -234,9 +234,12 @@ class PedagogicalTrackingCalculator
   end
 
   def percents(classrooms_ids = nil, teacher_id = nil)
+    unity_ids = @school_days_by_unity.keys
+    unities = Unity.where(id: unity_ids).index_by(&:id)
+
     result = []
     @school_days_by_unity.each do |unity_id, data|
-      unity = Unity.find(unity_id)
+      unity = unities[unity_id]
 
       if classrooms_ids.present?
         classrooms_ids.each do |classroom_id|
