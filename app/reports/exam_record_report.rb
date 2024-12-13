@@ -176,6 +176,7 @@ class ExamRecordReport < BaseReport
           student_enrollment_classroom = info_students[:student_enrollment_classroom]
           exempted_from_discipline = student_enrollments_exempts[student_enrollment.id]
           in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, exam.test_date)
+          student_classroom_left_at = student_enrollment_classroom.left_at
           daily_note_student = nil
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student.id, avaliation_id))
@@ -205,7 +206,7 @@ class ExamRecordReport < BaseReport
             school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
 
-          if score.nil? && student_enrollment_classroom.left_at != "" && student_enrollment_classroom.left_at.to_date <= exam.test_date
+          if score.nil? && student_classroom_left_at != "" && student_classroom_left_at.to_date <= exam.test_date
             score = set_student_score(exam, student, NullDailyNoteStudent.new, student_enrollment, daily_note_student)
           end
 
