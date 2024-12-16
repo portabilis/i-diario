@@ -1,5 +1,6 @@
 module DailyFrequenciesInBatchsHelper
   def data_additional(date, student)
+    binding.pry if student[:student][:name] == 'LAISSA PEREIRA DOS SANTOS'
     additional_class = nil
     tooltip = nil
 

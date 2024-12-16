@@ -254,8 +254,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     dependences = student_has_dependence(student_enrollments_ids, dates)
     inactives_on_date = students_inactive_on_range(enrollment_classrooms.map{|i|
- i[:student_enrollment_classroom]
-                                                   }, dates)
+                                                                          i[:student_enrollment_classroom]
+                                                                        }, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
@@ -276,6 +276,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     additional_data = []
     dates.each do |date|
       student_ids.each do |student_id|
+        binding.pry if student_id = 46701
         if active_searchs.any?
           active_searchs.each do |active_search|
             next if active_search[:date] != date || !active_search[:student_ids].include?(student_id)
