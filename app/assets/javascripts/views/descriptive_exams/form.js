@@ -161,13 +161,13 @@ $(function() {
 
   function validateExistingExams() {
     let step_id = $step.val(),
-      // discipline_id = $discipline.val(),
+      discipline_id = $discipline.val(),
       classroom_id = $classroom_id.val(),
       opinion_type = $("#descriptive_exam_opinion_type").val();
 
     $.ajax({
       url: Routes.find_descriptive_exams_pt_br_path({
-        // discipline_id: discipline_id,
+        discipline_id: discipline_id,
         classroom_id: classroom_id,
         step_id: step_id,
         opinion_type: opinion_type,
