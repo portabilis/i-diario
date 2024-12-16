@@ -173,8 +173,10 @@ class ExamRecordReport < BaseReport
         @info_students.each do |info_students|
           student = info_students[:student]
           student_enrollment = info_students[:student_enrollment]
+          student_enrollment_classroom = info_students[:student_enrollment_classroom]
           exempted_from_discipline = student_enrollments_exempts[student_enrollment.id]
           in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, exam.test_date)
+          student_classroom_left_at = student_enrollment_classroom.left_at
           daily_note_student = nil
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student.id, avaliation_id))
@@ -202,6 +204,10 @@ class ExamRecordReport < BaseReport
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student.id, recovery_diary_record_id: exam.recovery_diary_record_id)
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_enrollment, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
             school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
+          end
+
+          if score.nil? && student_classroom_left_at != "" && student_classroom_left_at.to_date <= exam.test_date
+            score = set_student_score(exam, student, NullDailyNoteStudent.new, student_enrollment, daily_note_student)
           end
 
           self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
@@ -397,7 +403,7 @@ class ExamRecordReport < BaseReport
   def student_transferred?(note_student)
     return note_student unless note_student.transfer_note_id
 
-    return note_student if note_student.note?
+    return note_student if note_student.note? || note_student.note == 0.0
 
     nil
   end

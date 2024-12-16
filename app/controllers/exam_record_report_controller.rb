@@ -15,7 +15,7 @@ class ExamRecordReportController < ApplicationController
   end
 
   def report
-@exam_record_report_form = ExamRecordReportForm.new(resource_params)
+    @exam_record_report_form = ExamRecordReportForm.new(resource_params)
     set_school_calendars
 
     if @exam_record_report_form.valid?
