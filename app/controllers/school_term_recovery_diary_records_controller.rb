@@ -243,10 +243,20 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def reload_students_list
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
-    return unless recovery_diary_record.recorded_at
 
-    @students = fetch_student_enrollment_classrooms.map do |student|
-      recovery_diary_record.students.find_or_initialize_by(student: student[:student])
+    test_date = recovery_diary_record.recorded_at
+
+    return unless test_date
+
+    student_enrollment_ids = fetch_student_enrollment_classrooms.map { |sec| sec[:student_enrollment].id }
+    @active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: test_date)
+    @students = []
+
+    fetch_student_enrollment_classrooms.each do |student|
+      note_student = recovery_diary_record.students.find_or_initialize_by(student: student[:student])
+      note_student.active = @active.include?(student[:student_enrollment_classroom].id)
+
+      @students << note_student
     end
   end
 
