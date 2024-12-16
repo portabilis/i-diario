@@ -232,19 +232,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
     return unless recovery_diary_record.recorded_at
 
-    students = StudentEnrollmentClassroomsRetriever.call(
+    @student_enrollment_classroom ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: recovery_diary_record.classroom,
       disciplines: recovery_diary_record.discipline,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       date: recovery_diary_record.recorded_at,
       search_type: :by_date
     )
-
-    date = @school_term_recovery_diary_record.recovery_diary_record.recorded_at
-
-    students.select do |student|
-      student[:student_enrollment_classroom].left_at.blank? || student[:student_enrollment_classroom].left_at.to_date >= date
-    end
   end
 
   def reload_students_list
