@@ -234,13 +234,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment[:student]
       student_ids << student.id
       type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
+      active = student_enrollment[:student_enrollment_classroom].left_at.blank?
 
       next if student.blank?
 
       @students_list << student
       @students << {
         student: student,
-        type_of_teaching: type_of_teaching
+        type_of_teaching: type_of_teaching,
+        active: active
       }
     end
 
@@ -276,7 +278,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
     additional_data = []
     dates.each do |date|
       student_ids.each do |student_id|
-        binding.pry if student_id = 46701
         if active_searchs.any?
           active_searchs.each do |active_search|
             next if active_search[:date] != date || !active_search[:student_ids].include?(student_id)

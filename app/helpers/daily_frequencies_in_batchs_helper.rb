@@ -1,13 +1,13 @@
 module DailyFrequenciesInBatchsHelper
   def data_additional(date, student)
-    binding.pry if student[:student][:name] == 'LAISSA PEREIRA DOS SANTOS'
     additional_class = nil
     tooltip = nil
+    student_id = student[:student][:id]
 
-    @additional_data.each do |additional_data|
-      if additional_data[:date] == date[:date] && additional_data[:student_id] == student[:student][:id]
-        additional_class = additional_data[:additional_class]
-        tooltip = additional_data[:tooltip]
+    @additional_data.each do |addit_data|
+      if addit_data[:date] == date[:date] && addit_data[:student_id] == student_id && !student[:active]
+        additional_class = addit_data[:additional_class]
+        tooltip = addit_data[:tooltip]
       end
     end
 
@@ -22,7 +22,7 @@ module DailyFrequenciesInBatchsHelper
     color = false
 
     @additional_data.each do |additional_data|
-      if additional_data[:student_id] == student[:student][:id]
+      if additional_data[:student_id] == student[:student][:id] && !student[:active]
         student_name = '*' + student[:student][:name]
         color = '#a90329'
       end
