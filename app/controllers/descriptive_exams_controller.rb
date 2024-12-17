@@ -10,11 +10,7 @@ class DescriptiveExamsController < ApplicationController
     )
 
     select_options_by_user
-    select_opinion_types
-
-    if @opinion_types&.first&.text != 'Avaliação padrão (regular)'
-      @descriptive_exam.discipline_id = current_user_discipline.id
-    end
+    validate_opinion_type
 
     unless current_user.current_role_is_admin_or_employee?
       classroom_id = @descriptive_exam.classroom_id
@@ -38,7 +34,7 @@ class DescriptiveExamsController < ApplicationController
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
       select_options_by_user(@descriptive_exam.classroom_id)
-      select_opinion_types
+      validate_opinion_type
 
       render :new
     end
@@ -67,7 +63,7 @@ class DescriptiveExamsController < ApplicationController
     else
       fetch_students
       select_options_by_user(@descriptive_exam.classroom_id)
-      select_opinion_types
+      validate_opinion_type
 
       render :edit
     end
@@ -91,7 +87,7 @@ class DescriptiveExamsController < ApplicationController
     step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
     select_options_by_user(classroom_id)
-    select_opinion_types
+    validate_opinion_type
 
     descriptive_exam_id = DescriptiveExam.by_classroom_id(classroom_id)
                                          .by_discipline_id(discipline_id)
@@ -107,7 +103,7 @@ class DescriptiveExamsController < ApplicationController
 
   def opinion_types
     select_options_by_user(params[:classroom_id])
-    select_opinion_types
+    validate_opinion_type
 
     render json: @opinion_types.to_json
   end
@@ -271,10 +267,14 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
-  def select_opinion_types
+  def validate_opinion_type
     if @exam_rules.blank?
       flash[:error] = t('descriptive_exams.new.exam_rule_not_found')
       redirect_to new_descriptive_exam_path && return
+    end
+
+    if [OpinionTypes::BY_YEAR, OpinionTypes::BY_STEP].exclude?(@exam_rules.first.opinion_type)
+      @descriptive_exam.discipline_id = current_user_discipline.id
     end
 
     @opinion_types = []
