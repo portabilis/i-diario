@@ -252,11 +252,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: test_date)
     @students = []
 
-    fetch_student_enrollment_classrooms.each do |student|
+    @students = fetch_student_enrollment_classrooms.map do |student|
       note_student = recovery_diary_record.students.find_or_initialize_by(student: student[:student])
       note_student.active = @active.include?(student[:student_enrollment_classroom].id)
-
-      @students << note_student
+      note_student
     end
   end
 
