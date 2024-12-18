@@ -234,7 +234,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment[:student]
       student_ids << student.id
       type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
-      active = student_enrollment[:student_enrollment_classroom].left_at.blank?
+      left_at = student_enrollment[:student_enrollment_classroom].left_at
+      joined_at = student_enrollment[:student_enrollment_classroom].joined_at
 
       next if student.blank?
 
@@ -242,7 +243,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       @students << {
         student: student,
         type_of_teaching: type_of_teaching,
-        active: active
+        left_at: left_at,
+        joined_at: joined_at
       }
     end
 
