@@ -92,7 +92,7 @@ class StudentEnrollment < ActiveRecord::Base
                  else ScoreTypes::NUMERIC
                  end
 
-    classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id).by_score_type(score_type)
+    classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id)
     exam_rules = classrooms_grades.map(&:exam_rule)
 
     return where(nil) if exam_rules.blank?
