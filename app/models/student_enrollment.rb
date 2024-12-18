@@ -116,9 +116,9 @@ class StudentEnrollment < ActiveRecord::Base
 
     differentiated_exam_rules = exam_rules.map(&:differentiated_exam_rule).compact.presence || exam_rules
 
-    exam_rule_included = exam_rules.any? { |exam_rule| allowed_score_types.include?(exam_rule.score_type) }
+    exam_rule_included = exam_rules.any? { |exam_rule| score_type.include?(exam_rule.score_type) }
     differentiated_exam_rule_included = differentiated_exam_rules.any? { |differentiated_exam_rule|
-      allowed_score_types.include?(differentiated_exam_rule.score_type)
+      score_type.include?(differentiated_exam_rule.score_type)
     }
 
     scoped = joins(:student_enrollment_classrooms)
