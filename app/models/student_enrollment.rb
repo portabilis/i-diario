@@ -104,18 +104,17 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) if score_type == StudentEnrollmentScoreTypeFilters::BOTH
 
     score_type = case score_type
-                 when StudentEnrollmentScoreTypeFilters::CONCEPT then ScoreTypes::CONCEPT
+                 when StudentEnrollmentScoreTypeFilters::CONCEPT then [ScoreTypes::NUMERIC_AND_CONCEPT,
+                                                                       ScoreTypes::CONCEPT]
                  else ScoreTypes::NUMERIC
                  end
 
-    classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id)
+    classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id).by_score_type(score_type)
     exam_rules = classrooms_grades.map(&:exam_rule)
 
     return where(nil) if exam_rules.blank?
 
     differentiated_exam_rules = exam_rules.map(&:differentiated_exam_rule).compact.presence || exam_rules
-
-    allowed_score_types = [ScoreTypes::NUMERIC_AND_CONCEPT, score_type]
 
     exam_rule_included = exam_rules.any? { |exam_rule| allowed_score_types.include?(exam_rule.score_type) }
     differentiated_exam_rule_included = differentiated_exam_rules.any? { |differentiated_exam_rule|
