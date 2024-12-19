@@ -87,7 +87,9 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
   end
 
   context 'when there are active and inactive student_enrollments' do
-    let(:student_enrollments_inactive) { create_list(:student_enrollment, 3, active: IeducarBooleanState::INACTIVE) }
+    let(:student_enrollments_inactive) {
+      create_list(:student_enrollment, 3, active: IeducarBooleanState::INACTIVE)
+    }
 
     subject(:list_student_enrollments) {
       StudentEnrollmentsRetriever.call(
@@ -288,7 +290,10 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
     it 'Is expected return more student_enrollment with for the same student' do
       student_enrollments_list = create_student_enrollments_with_students_duplicated
 
-      expect(student_enrollment_retriever).to include(student_enrollments_list.first, student_enrollments_list.last)
+      expect(student_enrollment_retriever).to include(
+        student_enrollments_list.first,
+        student_enrollments_list.last
+      )
     end
   end
 
@@ -492,7 +497,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
       ).to contain_exactly(enrollment_classrooms.student_enrollment)
     end
 
-    it 'should return list of student_enrollments with score_type concept' do
+    it 'return list of student_enrollments with score_type concept and conceptual_and_numeric' do
       exam_rule_concept = create(:exam_rule, score_type: ScoreTypes::CONCEPT)
       classroom_grade_with_concept = create(:classrooms_grade, exam_rule: exam_rule_concept)
       enrollment_classrooms = create(
@@ -509,7 +514,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           date: '2023-03-10',
           score_type: StudentEnrollmentScoreTypeFilters::CONCEPT
         )
-      ).to contain_exactly(enrollment_classrooms.student_enrollment)
+      ).to contain_exactly(enrollment_classrooms.student_enrollment, *student_enrollments)
     end
 
     it 'should return list of student_enrollments with score_type both if given nil' do
