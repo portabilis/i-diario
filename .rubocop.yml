@@ -1,0 +1,39 @@
+AllCops:
+  TargetRubyVersion: 2.6
+  NewCops: enable
+  Exclude:
+   - 'node_modules/**/*'
+   - 'bin/**/*'
+   - 'vendor/**/*'
+   - 'db/**/*'
+   - 'config/**/*'
+   - 'script/**/*'
+   - 'spec/rails_helper.rb'
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Max: 25
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Naming/VariableName:
+  EnforcedStyle: snake_case
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+
+Layout/IndentationStyle:
+  EnforcedStyle: spaces
+
+Layout/IndentationWidth:
+  Width: 2
+
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: consistent
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
