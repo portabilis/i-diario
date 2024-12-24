@@ -1,0 +1,110 @@
+<%= simple_form_for @lowest_note_recovery, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <%= f.simple_fields_for :recovery_diary_record, @lowest_note_recovery.recovery_diary_record.localized do |recovery_diary_record| %>
+    <%= recovery_diary_record.hidden_field :id %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= recovery_diary_record.association :unity, as: :select2_unity, user: current_user %>
+        </div>
+
+        <div class="col col-sm-4">
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= recovery_diary_record.association :classroom, as: :select2_classroom, user: current_user,
+                record: f.object %>
+          <% else %>
+            <%= recovery_diary_record.association :classroom, as: :select2, elements: @classrooms, user: current_user,
+                record: f.object %>
+          <% end %>
+        </div>
+
+        <div class="col col-sm-4">
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= recovery_diary_record.association :discipline,
+                as: :select2_discipline,
+                user: current_user,
+                record: f.object,
+                classroom_id: @lowest_note_recovery.recovery_diary_record.classroom_id %>
+          <% else %>
+            <%= recovery_diary_record.association :discipline,
+                as: :select2, 
+                elements: @disciplines,
+                user: current_user,
+                record: f.object,
+                classroom_id: @lowest_note_recovery.recovery_diary_record.classroom_id %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+            readonly: @lowest_note_recovery.persisted?, required: true %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :recorded_at, as: :date %>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><%= t('.students') %></legend>
+
+      <% if recovery_diary_record.object.errors.added? :students, :at_least_one_assigned_student %>
+        <div class="alert alert-danger fade in">
+          <i class="fa-fw fa fa-times"></i>
+          <%= recovery_diary_record.object.errors[:students].first %>
+        </div>
+      <% end %>
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th><%= RecoveryDiaryRecordStudent.human_attribute_name :student %></th>
+            <th width="20%"><%= t('.current_lowest_note') %></th>
+            <th width="20%"><%= RecoveryDiaryRecordStudent.human_attribute_name :score %></th>
+          </tr>
+        </thead>
+
+        <tbody id="recovery-diary-record-students" data-scale="<%= @number_of_decimal_places %>">
+          <tr>
+            <td class="no_item_found" colspan="3"
+              style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>">
+              <%= t('.no_item_found') %>
+            </td>
+          </tr>
+          <% if @students != nil %>
+            <%= recovery_diary_record.fields_for :students, @students do |student| %>
+              <%= render 'student_fields', f: student %>
+            <% end %>
+          <% end %>
+        </tbody>
+
+        <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless @any_student_exempted_from_discipline %>'>
+          <tr>
+            <td colspan="3">
+              <span class="conceptual-exam-student-legend">
+                <%= t('.exempted_students_from_discipline_legend') %>
+              </span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </fieldset>
+  <% end %>
+
+  <footer>
+    <%= link_to t('views.form.back'), avaliation_recovery_lowest_notes_path, class: 'btn btn-default' %>
+
+    <% if @lowest_note_recovery.persisted? %>
+      <%= link_to t('views.form.history'),
+        history_avaliation_recovery_lowest_note_path(@lowest_note_recovery),
+        class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
+  </footer>
+<% end %>

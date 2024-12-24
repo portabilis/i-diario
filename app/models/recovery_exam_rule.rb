@@ -1,4 +1,4 @@
-class RecoveryExamRule < ActiveRecord::Base
+class RecoveryExamRule < ApplicationRecord
   include Discardable
 
   acts_as_copy_target

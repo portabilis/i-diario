@@ -64,9 +64,6 @@ idiario     | * Listening on tcp://0.0.0.0:3000
 idiario     | Use Ctrl-C to stop
 ```
 
-Você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com o login `admin` e a senha
-`A123456789$`.
-
 #### Personalizando a instalação via Docker
 
 Você pode criar um arquivo `docker-compose.override.yml` para personalizar sua instalação do i-Diário, mudando as portas
@@ -77,6 +74,8 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 - Instale o Ruby 2.4.10 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
  ou [Rvm](https://rvm.io/))
 - Instale o Postgres e faça a configuração em `database.yml`
+- Instale o Node.js 12.22.1
+- Instale o gerenciador de pacotes [Yarn](https://yarnpkg.com/))
 - Instale a biblioteca `libpq-dev`
 
 ```bash
@@ -99,6 +98,12 @@ gem install bundler -v '1.17.3'
 
 ```bash
 bundle install
+```
+
+- Instale as dependencias do projeto
+
+```bash
+yarn install
 ```
 
 - Crie e configure o arquivo `config/secrets.yml` conforme o exemplo:

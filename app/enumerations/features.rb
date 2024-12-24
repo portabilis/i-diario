@@ -11,6 +11,7 @@ class Features < EnumerateIt::Base
                    :complementary_exams,
                    :conceptual_exams,
                    :copy_discipline_teaching_plan,
+                   :copy_knowledge_area_teaching_plan,
                    :custom_rounding_tables,
                    :daily_frequencies,
                    :daily_notes,
@@ -48,7 +49,9 @@ class Features < EnumerateIt::Base
                    :users,
                    :translations,
                    :lessons_boards,
-                   :daily_frequencies_in_batchs
+                   :daily_frequencies_in_batchs,
+                   :avaliation_recovery_lowest_notes,
+                   :attendance_record_report_by_students
 
 
   sort_by :translation

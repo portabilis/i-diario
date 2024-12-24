@@ -1,0 +1,19 @@
+pt-BR:
+  activerecord:
+    models:
+      avaliation_recovery_lowest_note:
+        one: 'Recuperação de avaliações da menor nota'
+        other: 'Recuperação de avaliações da menor nota'
+    attributes:
+      avaliation_recovery_lowest_note:
+        step: 'Etapa'
+        step_id: 'Etapa'
+        recorded_at: 'Data'
+
+    errors:
+      models:
+        avaliation_recovery_lowest_note:
+          test_setting_without_arithmetic_calculation_type: "A turma selecionada não está configurada com o tipo de cálculo de média compatível com o recurso. Para utilizar o mesmo, o tipo de cálculo deverá ser 'aritmético'."
+          attributes:
+            step_id:
+              unique_by_step_and_classroom: 'já existe um lançamento de recuperação da menor nota para a etapa informada'

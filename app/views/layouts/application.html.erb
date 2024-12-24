@@ -61,6 +61,7 @@
               <div class="jarviswidget">
                 <header>
                   <h2><%= title_with_icon %></h2>
+                  <%= yield(:help_button_tag) if content_for?(:help_button_tag) %>
                 </header>
 
                 <div id="content-page" role="content">

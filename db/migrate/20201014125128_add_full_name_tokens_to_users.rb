@@ -1,4 +1,4 @@
-class AddFullNameTokensToUsers < ActiveRecord::Migration
+class AddFullNameTokensToUsers < ActiveRecord::Migration[4.2]
   def up
     execute %{
       ALTER TABLE users add column fullname_tokens TSVECTOR;

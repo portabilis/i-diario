@@ -20,22 +20,10 @@
               <td>Backup</td>
               <td>Exporta os dados de todas as telas/tabelas do sistema</td>
               <td>
-                <% if @last_full_system_backup.completed? %>
-                  <%= link_to @last_full_system_backup.created_at, @last_full_system_backup.backup_file_url %>
-                <% elsif @last_full_system_backup.error? %>
-                  Erro: <%= @last_full_system_backup.error_message %>
-                <% end %>
+                <%= backup_status_message(@last_full_system_backup) %>
               </td>
               <td>
-                <% if @last_full_system_backup.started? %>
-                  <%= link_to '#', class: 'btn bg-color-red txt-color-white' do %>
-                    <i class="fa fa-cog fa-spin"></i>
-                    Exportando...
-                  <% end %>
-                <% else %>
-                  <%= f.submit 'Exportar', name: 'backup_type[full_system_backup]',
-                    class: 'btn bg-color-red txt-color-white' %>
-                <% end %>
+                <%= backup_button_or_status(f,  @last_full_system_backup, "full_system_backup") %>
               </td>
             </tr>
             <tr>
@@ -44,23 +32,22 @@
                 Exporta todos os calendários letivos do ano no filtro (etapas, datas, quantidade de lançamentos)
               </td>
               <td>
-                <% if @last_school_calendar_backup.completed? %>
-                  <%= link_to @last_school_calendar_backup.created_at,
-                    @last_school_calendar_backup.backup_file_url %>
-                <% elsif @last_school_calendar_backup.error? %>
-                  Erro: <%= @last_school_calendar_backup.error_message %>
-                <% end %>
+                <%= backup_status_message(@last_school_calendar_backup) %>
               </td>
               <td>
-                <% if @last_school_calendar_backup.started? %>
-                  <%= link_to '#', class: 'btn bg-color-red txt-color-white' do %>
-                    <i class="fa fa-cog fa-spin"></i>
-                    Exportando...
-                  <% end %>
-                <% else %>
-                  <%= f.submit 'Exportar', name: "backup_type[school_calendar_backup]",
-                    class: 'btn bg-color-red txt-color-white' %>
-                <% end %>
+                <%= backup_button_or_status(f, @last_school_calendar_backup, "school_calendar_backup") %>
+              </td>
+            </tr>
+            <tr>
+              <td>Acompanhamento pedagógico</td>
+              <td>
+                Exporta todos os dias que estão sendo contabilizados no acompanhamento pedagógico
+              </td>
+              <td>
+                <%= backup_status_message(@last_unique_school_days_backup) %>
+              </td>
+              <td>
+                <%= backup_button_or_status(f, @last_unique_school_days_backup, "unique_school_days_backup") %>
               </td>
             </tr>
           </tbody>

@@ -17,7 +17,6 @@ RSpec.describe IeducarApi::Deficiencies, type: :service do
 
   describe '#fetch' do
     it 'returns all deficiencies' do
-      skip
 
       VCR.use_cassette('all_deficiencies') do
         result = subject.fetch(escola: unity_id)

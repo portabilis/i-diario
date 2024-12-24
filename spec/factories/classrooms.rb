@@ -1,8 +1,6 @@
 FactoryGirl.define do
   factory :classroom do
     unity
-    exam_rule
-    grade
 
     description { Faker::Lorem.unique.sentence }
     year { Date.current.year }
@@ -11,39 +9,55 @@ FactoryGirl.define do
     period { Periods.to_a.sample[1] }
 
     transient do
+      grade nil
       discipline nil
       teacher nil
       student nil
       student_enrollment nil
       school_calendar nil
+      exam_rule { create(:exam_rule) }
     end
 
     trait :score_type_numeric_and_concept do
-      association :exam_rule, factory: [:exam_rule, :score_type_numeric_and_concept]
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_numeric_and_concept, exam_rule: exam_rule) }
     end
 
     trait :score_type_numeric do
-      association :exam_rule, factory: :exam_rule
+      classrooms_grades { create_list(:classrooms_grade, 2, exam_rule: exam_rule) }
     end
 
     trait :score_type_concept do
-      association :exam_rule, factory: [:exam_rule, :score_type_concept]
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_concept, exam_rule: exam_rule) }
     end
 
     trait :by_discipline do
-      association :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
+      classrooms_grades { create_list(:classrooms_grade, 2, :frequency_type_by_discipline, exam_rule: exam_rule) }
+    end
+
+    trait :score_type_numeric_and_concept_create_rule do
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_numeric_and_concept) }
+    end
+
+    trait :by_discipline_create_rule do
+      classrooms_grades { create_list(:classrooms_grade, 2, :frequency_type_by_discipline) }
+    end
+
+    trait :score_type_concept_create_rule do
+      classrooms_grades { create_list(:classrooms_grade, 2, :score_type_concept, exam_rule: exam_rule) }
     end
 
     trait :with_teacher_discipline_classroom do
       after(:create) do |classroom, evaluator|
         discipline = evaluator.discipline || create(:discipline)
         teacher = evaluator.teacher || create(:teacher)
+        grade = evaluator.grade || create(:grade)
 
         create(
           :teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          teacher: teacher
+          teacher: teacher,
+          grade: grade
         )
       end
     end
@@ -67,11 +81,26 @@ FactoryGirl.define do
       after(:create) do |classroom, evaluator|
         student_enrollment = evaluator.student_enrollment
         student_enrollment ||= create(:student_enrollment, student: evaluator.student || create(:student))
-
+        classrooms_grade = create(:classrooms_grade, classroom: classroom)
         create(
           :student_enrollment_classroom,
-          classroom: classroom,
+          classrooms_grade: classrooms_grade,
           student_enrollment: student_enrollment
+        )
+      end
+    end
+
+    trait :with_student_enrollment_classroom_with_date do
+      after(:create) do |classroom, evaluator|
+        student_enrollment = evaluator.student_enrollment
+        student_enrollment ||= create(:student_enrollment, student: evaluator.student || create(:student))
+        classrooms_grade = create(:classrooms_grade, classroom: classroom)
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade: classrooms_grade,
+          student_enrollment: student_enrollment,
+          joined_at: '2017-01-01',
+          left_at: '2017-04-01'
         )
       end
     end

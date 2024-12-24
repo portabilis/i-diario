@@ -2,25 +2,28 @@ require "application_responder"
 
 class ApplicationController < ActionController::Base
   MAX_STEPS_FOR_SCHOOL_CALENDAR = 4
-  rescue_from Exception, :with => :error_generic
+
+  unless Rails.env.development?
+    rescue_from Exception, :with => :error_generic
+  end
 
   self.responder = ApplicationResponder
   respond_to :html
 
   include BootstrapFlashHelper
   include Pundit
-  skip_around_filter :set_locale_from_url
+  skip_around_action :set_locale_from_url
   around_action :handle_customer
   before_action :set_honeybadger_context
-  around_filter :set_user_current
-  around_filter :set_thread_origin_type
+  around_action :set_user_current
+  around_action :set_thread_origin_type
 
   respond_to :html, :json
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   #protect_from_forgery with: :exception
-  protect_from_forgery with: :null_session
+  protect_from_forgery with: :null_session, prepend: true
 
   before_action :check_entity_status
   before_action :authenticate_user!
@@ -32,6 +35,7 @@ class ApplicationController < ActionController::Base
   before_action :check_user_has_name, if: :user_signed_in?
   before_action :check_password_expired, if: :user_signed_in?
   before_action :last_activity_at, if: :user_signed_in?
+  before_action :check_user_first_access, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -116,7 +120,8 @@ class ApplicationController < ActionController::Base
     if !!current_user.receive_news == current_user.receive_news
       super
     else
-      flash[:info] = "É importante que seu cadastro no sistema esteja atualizado. Desta forma você poderá receber novidades sobre o produto. Por favor, atualize aqui suas preferências de e-mail."
+      flash[:info] =
+        "É importante que seu cadastro no sistema esteja atualizado. Desta forma você poderá receber novidades sobre o produto. Por favor, atualize aqui suas preferências de e-mail."
       edit_account_path
     end
   end
@@ -222,6 +227,7 @@ class ApplicationController < ActionController::Base
 
   def require_allow_to_modify_prev_years
     return if can_change_school_year?
+    return unless current_user.current_role_is_admin_or_employee?
     return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
 
     flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
@@ -241,24 +247,23 @@ class ApplicationController < ActionController::Base
     ).valid?
   end
 
-  def teacher_discipline_score_types
-    score_types = []
-
-    current_user_classroom.classrooms_grades.each do |classroom_grade|
-      score_types << teacher_discipline_score_type_by_exam_rule(classroom_grade.exam_rule)
+  def teacher_discipline_score_types(classroom = current_user_classroom)
+    classroom.classrooms_grades.map do |classroom_grade|
+      teacher_discipline_score_type_by_exam_rule(classroom_grade.exam_rule, classroom, current_user_discipline)
     end
-
-    score_types
   end
 
   def current_user_is_employee_or_administrator?
     current_user.assumed_teacher_id.blank? && current_user.current_role_is_admin_or_employee?
   end
 
-  def teacher_differentiated_discipline_score_types
+  def teacher_differentiated_discipline_score_types(classroom = nil, discipline = nil)
+    classroom ||= current_user_classroom
+    discipline ||= current_user_discipline
+
     score_types = []
 
-    current_user_classroom.classrooms_grades.each do |classroom_grade|
+    classroom.classrooms_grades.each do |classroom_grade|
       exam_rule = classroom_grade.exam_rule
 
       next if exam_rule.blank?
@@ -266,7 +271,7 @@ class ApplicationController < ActionController::Base
       differentiated_exam_rule = exam_rule.differentiated_exam_rule
 
       if differentiated_exam_rule.blank? || !classroom_grade.classroom.has_differentiated_students?
-        score_types << teacher_discipline_score_type_by_exam_rule(exam_rule)
+        score_types << teacher_discipline_score_type_by_exam_rule(exam_rule, classroom, discipline)
       end
 
       score_types << teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
@@ -275,17 +280,17 @@ class ApplicationController < ActionController::Base
     score_types
   end
 
-  def teacher_discipline_score_type_by_exam_rule(exam_rule)
+  def teacher_discipline_score_type_by_exam_rule(exam_rule, classroom = nil, discipline = nil)
     return if exam_rule.blank?
     return unless (score_type = exam_rule.score_type)
     return if score_type == ScoreTypes::DONT_USE
     return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
 
     TeacherDisciplineClassroom.find_by(
-      classroom: current_user_classroom,
+      classroom: classroom,
       teacher: current_teacher,
-      discipline: current_user_discipline
-    ).score_type
+      discipline: discipline
+    )&.score_type
   end
 
   def set_user_current
@@ -343,10 +348,10 @@ class ApplicationController < ActionController::Base
 
   def current_year_steps
     @current_year_steps ||= begin
-      steps = steps_fetcher.steps if current_user_classroom.present?
-      year = current_school_year || current_school_calendar.year
-      steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
-      steps
+                              steps = steps_fetcher.steps if current_user_classroom.present?
+                              year = current_school_year || current_school_calendar.year
+                              steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
+                              steps
     end
   end
 
@@ -390,7 +395,7 @@ class ApplicationController < ActionController::Base
     dir = Rails.application.secrets[:REPORTS_SERVER_DIR]
 
     if username && server && dir
-      system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
+      system("rsync -aHAXx --remove-source-files --quiet \"ssh -T -c aes128-gcm@openssh.com -o Compression=no -x \" #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
     end
 
     redirect_to name
@@ -421,6 +426,14 @@ class ApplicationController < ActionController::Base
     redirect_to edit_account_path
   end
 
+  def check_user_first_access
+    return if request.fullpath == edit_account_pt_br_path ||
+              request.fullpath == account_pt_br_path
+    return unless current_user.first_access?
+
+    redirect_to edit_account_pt_br_path
+  end
+
   def last_activity_at
     current_user.last_activity_at = Date.current
     current_user.save
@@ -446,7 +459,10 @@ class ApplicationController < ActionController::Base
 
   def error_generic(expection)
     set_honeybadger_error(expection)
-    redirect_to :root
+
+    unless Rails.env.development?
+      redirect_to :root
+    end
   end
 
   def set_honeybadger_error(expection)

@@ -1,4 +1,4 @@
-class RenameRoleIdOnTeacherProfiles < ActiveRecord::Migration
+class RenameRoleIdOnTeacherProfiles < ActiveRecord::Migration[4.2]
   def change
     add_column :teacher_profiles, :user_role_id, :integer
     add_foreign_key :teacher_profiles, :user_roles

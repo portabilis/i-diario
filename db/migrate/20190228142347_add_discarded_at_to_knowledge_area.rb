@@ -1,4 +1,4 @@
-class AddDiscardedAtToKnowledgeArea < ActiveRecord::Migration
+class AddDiscardedAtToKnowledgeArea < ActiveRecord::Migration[4.2]
   def up
     add_column :knowledge_areas, :discarded_at, :datetime
     add_index :knowledge_areas, :discarded_at

@@ -23,6 +23,7 @@ pt-BR:
     school_term_recovery_diary_records: 'diario-de-recuperacoes-de-etapas'
     final_recovery_diary_records: 'diario-de-recuperacoes-finais'
     avaliation_recovery_diary_records: 'diario-de-recuperacoes-de-avaliacoes'
+    avaliation_recovery_lowest_notes: 'diario-de-recuperacoes-de-avaliacoes-da-menor-nota'
     absence_justifications: 'justificativas-de-falta'
     observation_diary_records: 'diario-de-observacoes'
     conceptual_exams: 'diario-de-avaliacoes-conceituais'
@@ -75,6 +76,8 @@ pt-BR:
     pedagogical_trackings: 'acompanhamento-pedagogico'
     pedagogical_trackings_teachers: 'acompanhamento-pedagogico-professores'
     daily_frequencies_in_batchs: 'frequencia-em-lote'
+    attendance_record_report_by_students: 'registro-de-frequencia-por-aluno'
+    attendance_record_report_by_students_report: 'registro-de-frequencia-por-aluno-report'
     # actions
     copy: 'copiar'
     edit: 'editar'
@@ -88,7 +91,6 @@ pt-BR:
     cancel: 'cancelar'
     parents: 'pais'
     employees: 'servidores'
-    search_api: 'api'
     history: 'historico'
     confirm: "confirmar"
     preview: "pre-visualizar"

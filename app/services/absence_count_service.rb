@@ -1,17 +1,15 @@
 class AbsenceCountService
-  def initialize(student, classroom, start_date, end_date, discipline = nil)
-    @student = student
-    @classroom = classroom
-    @start_date = start_date
-    @end_date = end_date
-    @discipline = discipline
+  def initialize(do_not_send_justified_absence)
+    @do_not_send_justified_absence = do_not_send_justified_absence
   end
 
-  def count
-    return student_frequencies_in_date_range.absences.count unless @classroom.period == Periods::FULL
+  def count(student, classroom, start_date, end_date, discipline = nil)
+    unless classroom.period == Periods::FULL
+      return student_frequencies_in_date_range(student, classroom, start_date, end_date, discipline).absences.count
+    end
 
-    grouped_frequencies_by_date.sum { |_key, value|
-      if @discipline
+    grouped_frequencies_by_date(student, classroom, start_date, end_date, discipline).sum { |_key, value|
+      if discipline
         value[:absence_count]
       elsif value[:presence_count].zero? && value[:absence_count] >= 1
         1
@@ -23,34 +21,40 @@ class AbsenceCountService
 
   private
 
-  def student_frequencies_in_date_range
-    if @discipline
-      DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
-        @classroom.id,
-        @discipline.id,
-        @student.id,
-        @start_date,
-        @end_date
+  def student_frequencies_in_date_range(student, classroom, start_date, end_date, discipline)
+    if discipline
+      daily_frequency_student = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
+        classroom.id,
+        discipline.id,
+        student.id,
+        start_date,
+        end_date
       ).active
     else
-      DailyFrequencyStudent.general_by_classroom_student_date_between(
-        @classroom,
-        @student.id,
-        @start_date,
-        @end_date
-      )
+      daily_frequency_student = DailyFrequencyStudent.general_by_classroom_student_date_between(
+        classroom,
+        student.id,
+        start_date,
+        end_date
+      ).active
     end
+
+    if @do_not_send_justified_absence
+      daily_frequency_student = daily_frequency_student.by_not_justified
+    end
+
+    daily_frequency_student
   end
 
-  def grouped_frequencies_by_date
-    frequecies_by_date = student_frequencies_in_date_range.group_by { |daily_frequency_student|
+  def grouped_frequencies_by_date(student, classroom, start_date, end_date, discipline)
+    frequecies_by_date = student_frequencies_in_date_range(student, classroom, start_date, end_date, discipline).group_by { |daily_frequency_student|
       daily_frequency_student.daily_frequency.frequency_date
     }
 
     daily_frequencies = create_hash
 
     frequecies_by_date.each do |frequency_date, daily_frequency_students|
-      frequencies = count_frequencies(daily_frequency_students)
+      frequencies = count_frequencies(daily_frequency_students, discipline)
       daily_frequencies[frequency_date] = {
         presence_count: frequencies[:presences],
         absence_count: frequencies[:absences]
@@ -60,11 +64,11 @@ class AbsenceCountService
     daily_frequencies
   end
 
-  def count_frequencies(daily_frequency_students)
+  def count_frequencies(daily_frequency_students, discipline)
     frequencies = create_hash
     presences = absences = 0
 
-    daily_frequency_students = unify_same_component_frequencies(daily_frequency_students) if @discipline
+    daily_frequency_students = unify_same_component_frequencies(daily_frequency_students) if discipline
 
     daily_frequency_students.each do |frequency|
       presences += 1 if frequency.present

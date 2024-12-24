@@ -9,7 +9,12 @@ RSpec.describe ObservationRecordReport, type: :report do
   let(:observation_diary_record_note) { double(:observation_diary_record_note) }
 
   let(:entity_configuration) { build_stubbed(:entity_configuration) }
-  let(:form) { double(:observation_record_report_form) }
+  let(:form) {
+    double(:observation_record_report_form,
+           discipline_id: discipline.id,
+           classroom_id: classroom.id
+    )
+  }
 
   before do
     stub_form

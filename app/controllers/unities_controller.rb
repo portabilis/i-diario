@@ -3,7 +3,7 @@ class UnitiesController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @unities = apply_scopes(Unity.filter(filtering_params(params[:search]))).ordered
+    @unities = apply_scopes(Unity.filter_from_params(filtering_params(params[:search]))).ordered
 
     authorize @unities
   end

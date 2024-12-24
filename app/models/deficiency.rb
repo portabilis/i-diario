@@ -1,4 +1,4 @@
-class Deficiency < ActiveRecord::Base
+class Deficiency < ApplicationRecord
   include Audit
   include Discardable
 

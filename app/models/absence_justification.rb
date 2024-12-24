@@ -1,4 +1,4 @@
-class AbsenceJustification < ActiveRecord::Base
+class AbsenceJustification < ApplicationRecord
   include Audit
   include Filterable
   include Discardable
@@ -37,12 +37,12 @@ class AbsenceJustification < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :absence_date_end, presence: true, school_calendar_day: true, posting_date: true
   validates :absence_date, presence: true, school_calendar_day: true, posting_date: true
-  validates :justification, presence: true
 
   validate :at_least_one_student
-  validate :at_least_one_discipline, if: :frequence_type_by_discipline?
   validate :period_absence
   validate :no_retroactive_dates
+
+  has_enumeration_for :period, with: Periods, skip_validation: true
 
   default_scope -> { kept }
 
@@ -81,6 +81,7 @@ class AbsenceJustification < ActiveRecord::Base
       where.not(user_id: current_user_id)
     end
   }
+  scope :by_period, ->(period) { where(period: period) }
 
   private
 
@@ -102,6 +103,9 @@ class AbsenceJustification < ActiveRecord::Base
     errors.add(:absence_date_end, :not_less_than_initial)
   end
 
+  # TODO: release-absence-justification
+  # - [ ] Remover vínculo com professor
+  # - [ ] Remover vínculo com disciplina
   def period_absence
     return if absence_date.blank? || absence_date_end.blank?
 

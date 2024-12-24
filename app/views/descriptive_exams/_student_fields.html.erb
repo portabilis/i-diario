@@ -3,6 +3,7 @@
     <%= sequence %>
     <%= f.hidden_field :id %>
     <%= f.hidden_field :dependence %>
+    <%= f.hidden_field :inactive_student %>
   </td>
   <% present(f.object) do |student| %>
     <td>
@@ -14,6 +15,7 @@
     <%= f.input :value,
                 label_html: { class: 'hidden' },
                 input_html: { maxlength: GeneralConfiguration.current.max_descriptive_exam_character_count },
-                readonly: f.object.exempted_from_discipline %>
+                readonly: f.object.inactive_student || f.object.exempted_from_discipline
+                %>
   </td>
 </tr>

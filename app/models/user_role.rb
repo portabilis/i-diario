@@ -1,4 +1,4 @@
-class UserRole < ActiveRecord::Base
+class UserRole < ApplicationRecord
   include Searchable
 
   acts_as_copy_target
@@ -24,8 +24,8 @@ class UserRole < ActiveRecord::Base
 
   scope :user_name, lambda { |user_name|
     joins(:user)
-      .where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(user_name))
-      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(user_name)}')) desc")
+    .where("users.fullname ILIKE ?", "%#{I18n.transliterate(user_name.squish)}%")
+    .order('users.fullname')
   }
   scope :unity_name, ->(unity_name) { joins(:unity).merge(Unity.search_name(unity_name)) }
 

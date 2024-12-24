@@ -1,4 +1,4 @@
-class ObservationDiaryRecordNote < ActiveRecord::Base
+class ObservationDiaryRecordNote < ApplicationRecord
   include Discardable
   include Audit
 
@@ -15,6 +15,8 @@ class ObservationDiaryRecordNote < ActiveRecord::Base
   has_many :students, through: :note_students
 
   default_scope -> { kept }
+
+  scope :by_student_id, -> student_id { joins(:students).where(students: { id: student_id }) }
 
   validates :observation_diary_record, presence: true
   validates :description, presence: true

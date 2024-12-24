@@ -14,7 +14,6 @@ pt-BR:
         end_at: "Data final"
         period: "Período"
         second_teacher_signature: "Assinatura do(a) segundo(a) professor(a)"
-        display_knowledge_area_as_discipline: "Exibir área de conhecimento no campo disciplina (Registro de frequência)"
 
     errors:
       models:

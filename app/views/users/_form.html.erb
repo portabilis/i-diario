@@ -16,9 +16,15 @@
         <%= f.input :last_name %>
       </div>
 
-      <div class="col col-sm-6">
+      <div class="col col-sm-4">
         <%= f.input :email %>
       </div>
+
+      <% if current_user.admin? %>
+        <div class="col col-sm-2">
+          <%= f.input :admin, as: :boolean %>
+        </div>
+      <% end %>
     </div>
 
     <div class="row">
@@ -37,7 +43,7 @@
 
     <div class="row">
       <div class="col col-sm-6">
-        <%= f.input :student, as: :autocomplete %>
+        <%= f.input :student, as: :autocomplete, url: search_autocomplete_students_path %>
       </div>
 
       <div class="col col-sm-6">

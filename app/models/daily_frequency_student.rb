@@ -29,8 +29,13 @@ class DailyFrequencyStudent < ActiveRecord::Base
   scope :by_classroom_id, lambda { |classroom_id| joins(:daily_frequency).merge(DailyFrequency.by_classroom_id(classroom_id)) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
+  scope :by_absence_justification_student_id, lambda { |absence_justification_student_id| where(absence_justification_student_id: absence_justification_student_id) }
+  scope :by_not_justified, lambda { where(absence_justification_student_id: nil) }
   scope :by_frequency_date, lambda { |frequency_date| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date(frequency_date)) }
+  scope :by_period, lambda { |period| joins(:daily_frequency).merge(DailyFrequency.by_period(period)) }
   scope :by_frequency_date_between, lambda { |start_at, end_at| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date_between(start_at, end_at)) }
+  scope :by_class_number, lambda { |class_number| joins(:daily_frequency).merge(DailyFrequency.by_class_number(class_number)) }
+  scope :by_not_poster, ->(poster_sent) { where("daily_frequency_students.updated_at > ?", poster_sent) }
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(
                                                        'daily_frequencies.classroom_id' => classroom_id,
@@ -47,7 +52,9 @@ class DailyFrequencyStudent < ActiveRecord::Base
                                                           .includes(:daily_frequency) }
 
   def to_s
-    if present?
+    if absence_justification_student_id
+      'FJ'
+    elsif present?
       TermsDictionary.cached_current.try(:presence_identifier_character) || '.'
     else
       'F'

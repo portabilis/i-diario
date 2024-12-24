@@ -12,7 +12,7 @@
           <td></td>
           <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar turma" %></td>
           <td><%= f.input :by_student, label: false, placeholder: "Filtrar aluno" %></td>
-          <td colspan="2"><%= f.input :by_date, as: :date, label: false, placeholder: "Filtrar data" %></td>
+          <td colspan="3"><%= f.input :by_date, as: :date, label: false, placeholder: "Filtrar data" %></td>
           <td><%= f.input :by_author, as: :select2, elements: AbsenceJustificationAuthors.to_select.to_json,
                 label: false, placeholder: t('.by_author') %></td>
           <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
@@ -23,6 +23,7 @@
           <th><%= AbsenceJustification.human_attribute_name :student %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date_end %></th>
+          <th><%= AbsenceJustification.human_attribute_name :class_number %></th>
           <th><%= AbsenceJustification.human_attribute_name :author %></th>
           <td></td>
         </tr>
@@ -30,7 +31,7 @@
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="7">
+        <td colspan="8">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @absence_justifications %>
           </div>

@@ -54,6 +54,10 @@ module ExamPoster
     def post_general_classrooms
       absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
+      absence_count_service = AbsenceCountService.new(
+        GeneralConfiguration.current.do_not_send_justified_absence
+      )
+
       teacher.classrooms.uniq.each do |classroom|
         next unless can_post?(classroom)
         next if frequency_by_discipline?(classroom)
@@ -62,16 +66,15 @@ module ExamPoster
         end_date = step_end_at(classroom)
 
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
-                                          .by_frequency_date_between(
-                                            start_date,
-                                            end_date
-                                          )
+                                          .by_frequency_date_between(start_date,end_date)
                                           .general_frequency
 
         students = fetch_students(daily_frequencies)
 
         students.each do |student|
-          value = AbsenceCountService.new(student, classroom, start_date, end_date).count
+          next unless not_posted?({ classroom: classroom, student: student })[:absence]
+
+          value = absence_count_service.count(student, classroom, start_date, end_date)
 
           absences[classroom.api_code][student.api_code]['valor'] = value
         end
@@ -82,6 +85,10 @@ module ExamPoster
 
     def post_by_discipline_classrooms
       absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
+
+      absence_count_service = AbsenceCountService.new(
+        GeneralConfiguration.current.do_not_send_justified_absence
+      )
 
       teacher.classrooms.uniq.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
@@ -106,9 +113,15 @@ module ExamPoster
           students = fetch_students(daily_frequencies)
 
           students.each do |student|
-            value = AbsenceCountService.new(student, classroom, start_date, end_date, discipline).count
+            next unless not_posted?({ classroom: classroom, discipline: discipline, student: student })[:absence]
+
+            value = absence_count_service.count(student, classroom, start_date, end_date, discipline)
+
+            knowledge_area = discipline.grouper? ? discipline.knowledge_area.api_code.to_i : nil
+            knowledge_area = knowledge_area.eql?(0) ? nil : knowledge_area
 
             absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
+            absences[classroom.api_code][student.api_code][discipline.api_code]['area_do_conhecimento'] = knowledge_area
           end
         end
       end
@@ -169,7 +182,9 @@ module ExamPoster
 
     def fetch_students(daily_frequencies)
       students_ids = []
-      daily_frequencies.each { |d| students_ids << d.students.map(&:student_id) }
+      daily_frequencies.each do |d|
+        students_ids << d.students.map(&:student_id)
+      end
       students_ids.flatten!.uniq! if students_ids.any?
       Student.find(students_ids)
     end

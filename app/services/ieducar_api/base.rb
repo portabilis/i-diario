@@ -90,6 +90,7 @@ module IeducarApi
         result = if method == RequestMethods::GET
                    yield(endpoint, request_params)
                  else
+                   request_params[:action] = params[:resource]
                    yield(endpoint, request_params, payload)
                  end
         result = JSON.parse(result)
@@ -105,8 +106,6 @@ module IeducarApi
 
       message = result['msgs'].map { |r| r['msg'] }.join(', ')
 
-      stop_api_synchronization(message)
-
       response = IeducarResponseDecorator.new(result)
       raise_exception = response.any_error_message? && !response.known_error?
       raise ApiError, message if raise_exception
@@ -116,13 +115,6 @@ module IeducarApi
 
     def last_synchronization_date
       @last_synchronization_date ||= current_api_configuration.synchronized_at
-    end
-    def stop_api_synchronization(message)
-      return if message.blank?
-      return unless message.eql?('Chave de acesso inválida!')
-
-      synchronization = current_api_configuration.synchronizations.started.first
-      synchronization&.update(status: 'error', error_message: message, full_error_message: '')
     end
 
     def current_api_configuration

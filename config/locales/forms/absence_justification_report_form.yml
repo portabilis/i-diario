@@ -8,6 +8,7 @@ pt-BR:
         absence_date: "Data inicial"
         absence_date_end: "Data final"
         author: 'Autor'
+        period: 'Turno'
     errors:
       models:
         absence_justification_report_form:

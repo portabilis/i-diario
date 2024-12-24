@@ -1,4 +1,4 @@
-class DisciplineTeachingPlan < ActiveRecord::Base
+class DisciplineTeachingPlan < ApplicationRecord
   include Audit
   include ColumnsLockable
   include TeacherRelationable
@@ -45,30 +45,12 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   scope :order_by_school_term_type_step, lambda {
     joins(:teaching_plan).order('teaching_plans.school_term_type_step_id IS NULL')
   }
+  scope :order_by_grades, -> { joins(teaching_plan: :grade).order(Grade.arel_table[:description].desc) }
 
   validates :teaching_plan, presence: true
   validates :discipline, presence: true
 
-  validate :uniqueness_of_discipline_teaching_plan, if: :teaching_plan
-
   def optional_teacher
     true
-  end
-
-  private
-
-  def uniqueness_of_discipline_teaching_plan
-    return if teaching_plan.school_term_type.blank?
-
-    discipline_teaching_plans = DisciplineTeachingPlan.by_year(teaching_plan.year)
-                                                      .by_unity(teaching_plan.unity)
-                                                      .by_teacher_id(teaching_plan.teacher_id)
-                                                      .by_grade(teaching_plan.grade)
-                                                      .by_school_term_type_step_id(teaching_plan.school_term_type_step_id)
-                                                      .by_discipline(discipline)
-
-    discipline_teaching_plans = discipline_teaching_plans.where.not(id: id) if persisted?
-
-    errors.add(:base, :uniqueness_of_discipline_teaching_plan) if discipline_teaching_plans.any?
   end
 end

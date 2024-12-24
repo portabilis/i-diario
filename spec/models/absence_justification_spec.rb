@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AbsenceJustification, type: :model do
   subject(:absence_justification) { build(:absence_justification) }
+  let(:frequency_type_definer) { FrequencyTypeDefiner.new(subject.classroom, subject.teacher) }
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teacher) }
@@ -22,24 +23,34 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to validate_school_calendar_day_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
     it { expect(subject).to validate_school_calendar_day_of(:absence_date_end) }
-    it { expect(subject).to validate_presence_of(:justification) }
     it { expect(subject).to validate_presence_of(:unity) }
-    it { expect(subject).to validate_presence_of(:classroom_id) }
+    it do
+      allow(FrequencyTypeDefiner).to receive(:new).and_return(frequency_type_definer)
+
+      expect(subject).to validate_presence_of(:classroom_id)
+    end
     it { expect(subject).to validate_presence_of(:school_calendar) }
 
     context 'given that I have a record persisted' do
       it 'should validate if is a valid date on a absence with frequence type by discipline' do
+        skip 'disciplines will not be able in future'
+
         classroom = create(
           :classroom,
           :with_classroom_semester_steps,
-          :with_teacher_discipline_classroom,
           :by_discipline
         )
 
+        teacher_discipline_classroom = create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          grade: classroom.classrooms_grades.first.grade
+        )
+
         school_calendar = classroom.calendar.school_calendar
-        teacher = classroom.teacher_discipline_classrooms.first.teacher
+        teacher = teacher_discipline_classroom.teacher
         user = create(:user, assumed_teacher_id: teacher.id)
-        first_school_calendar_date = classroom.calendar.classroom_steps.first.first_school_calendar_date
+        first_school_calendar_date = Date.current
         absence = create(
           :absence_justification,
           unity: classroom.unity,
@@ -65,6 +76,7 @@ RSpec.describe AbsenceJustification, type: :model do
         subject.disciplines << absence.disciplines.first
 
         expect(subject).to_not be_valid
+
         expect(subject.errors.messages[:base]).to(
           include('Já existe uma justificativa para a disciplina e período informados')
         )

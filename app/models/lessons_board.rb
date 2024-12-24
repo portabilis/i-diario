@@ -5,8 +5,7 @@ class LessonsBoard < ActiveRecord::Base
 
   audited
 
-  validates :period, presence: true
-  validates :classrooms_grade_id, presence: true, uniqueness: { scope: :period }
+  validates :period, :classrooms_grade_id, presence: true
 
   belongs_to :classrooms_grade
   has_many :lessons_board_lessons
@@ -15,7 +14,8 @@ class LessonsBoard < ActiveRecord::Base
 
   accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: true
 
-  delegate :classroom, :classroom_id, to: :classrooms_grade
+  delegate :classroom, :classroom_id, :grade_id, to: :classrooms_grade, allow_nil: true
+  delegate :unity_id, to: :classroom, allow_nil: true
 
   default_scope -> { kept }
 
@@ -24,10 +24,14 @@ class LessonsBoard < ActiveRecord::Base
   scope :by_grade, ->(grade) { joins(classrooms_grade: :classroom).merge(ClassroomsGrade.by_grade_id(grade)) }
   scope :by_classroom, ->(classroom) { joins(:classrooms_grade).where(classrooms_grades: { classroom_id: classroom }) }
   scope :by_period, ->(period) { where(lessons_boards: { period: period }) }
-  scope :by_teacher, ->(teacher_id) { joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
-                                      .where(teacher_discipline_classrooms:  { teacher_id: teacher_id }) }
-  scope :by_discipline, ->(discipline_id) { joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
-                                            .where(teacher_discipline_classrooms:  { discipline_id: discipline_id }) }
+  scope :by_teacher, ->(teacher_id) do
+    joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
+      .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
+  end
+  scope :by_discipline, ->(discipline_id) do
+    joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
+      .where(teacher_discipline_classrooms: { discipline_id: discipline_id })
+  end
   scope :ordered, -> { order(created_at: :desc) }
 
   after_discard do

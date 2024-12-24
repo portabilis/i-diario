@@ -1,4 +1,4 @@
-class FixDailyNotesIndexes < ActiveRecord::Migration
+class FixDailyNotesIndexes < ActiveRecord::Migration[4.2]
   def change
     remove_index :daily_notes, :avaliation_id
 

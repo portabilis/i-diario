@@ -1,4 +1,4 @@
-class Discipline < ActiveRecord::Base
+class Discipline < ApplicationRecord
   acts_as_copy_target
 
   LABEL_COLORS = YAML.safe_load(
@@ -18,8 +18,14 @@ class Discipline < ActiveRecord::Base
   validates :description, :api_code, :knowledge_area_id, presence: true
   validates :api_code, uniqueness: true
 
-  scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id) }
-  scope :by_teacher_id, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_unity_id, lambda { |unity_id, year| self.by_unity_year(unity_id, year)}
+  scope :by_teacher_id, lambda { |teacher_id, year|
+    joins(:teacher_discipline_classrooms)
+      .where(teacher_discipline_classrooms: { teacher_id: teacher_id, year: year}).distinct
+  }
+  scope :by_classroom_id, lambda { |classroom_id|
+    joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { classroom_id: classroom_id }).distinct
+  }
 
   # It works only when the query chain has join with
   # teacher_discipline_classrooms. Using scopes like by_teacher_id or
@@ -41,7 +47,7 @@ class Discipline < ActiveRecord::Base
           ).or(
             differentiated_exam_rules[:score_type].eq(score_type)
           )
-        ).uniq
+        ).distinct
     else
       scoped.where(
         ExamRule.arel_table[:score_type].eq(score_type).
@@ -49,15 +55,17 @@ class Discipline < ActiveRecord::Base
           ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
           and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
         )
-      ).uniq
+      ).distinct
     end
   }
-
   scope :by_grade, lambda { |grade| by_grade(grade) }
   scope :by_classroom, lambda { |classroom| by_classroom(classroom) }
-  scope :by_teacher_and_classroom, lambda { |teacher_id, classroom_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id }).uniq }
+  scope :by_teacher_and_classroom, lambda { |teacher_id, classroom_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id }).distinct }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_sequence, -> { order(arel_table[:sequence].asc) }
+  scope :not_grouper, -> { where(grouper: false) }
+  scope :grouper, -> { where(grouper: true) }
+  scope :not_descriptor, -> { where(descriptor: false) }
   scope :by_description, lambda { |description|
     joins(:knowledge_area)
       .where(<<-SQL, description: "%#{description}%")
@@ -102,29 +110,29 @@ class Discipline < ActiveRecord::Base
 
   private
 
-  def self.by_unity_id(unity_id)
+  def self.by_unity_year(unity_id, year)
     joins(:teacher_discipline_classrooms).joins(
-        arel_table.join(Classroom.arel_table)
-          .on(
-            Classroom.arel_table[:id]
-              .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-          )
-          .join_sources
-      )
-      .where(classrooms: { unity_id: unity_id })
-      .uniq
+      arel_table.join(Classroom.arel_table)
+        .on(
+          Classroom.arel_table[:id]
+            .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
+        )
+        .join_sources
+    )
+    .where(classrooms: { unity_id: unity_id, year: year})
+    .distinct
   end
 
   def self.by_grade(grade_id)
     joins(teacher_discipline_classrooms: [classroom: :classrooms_grades])
-      .where(classrooms_grades: { grade_id: grade_id }).uniq
+      .where(classrooms_grades: { grade_id: grade_id }).distinct
   end
 
   def self.by_classroom(classroom)
     joins(:teacher_discipline_classrooms).where(
         teacher_discipline_classrooms: { classroom_id: classroom }
       )
-      .uniq
+      .distinct
   end
 
   private

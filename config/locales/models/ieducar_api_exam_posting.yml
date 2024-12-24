@@ -1,4 +1,8 @@
 pt-BR:
+  ieducar_api_exam_postings:
+    index:
+      form:
+        resend_posting: "Aguarde 30min para repetir o envio"
   activerecord:
     models:
       ieducar_api_synchronization:

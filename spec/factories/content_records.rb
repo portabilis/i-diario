@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :content_record do
     teacher
+    association :classroom, factory: [:classroom, :score_type_numeric, :with_classroom_semester_steps]
 
     transient do
       discipline nil
@@ -10,6 +11,7 @@ FactoryGirl.define do
     before(:create) do |content_record|
       classroom = content_record.classroom || create(
         :classroom,
+        :score_type_numeric,
         :with_classroom_semester_steps
       )
 
@@ -17,7 +19,7 @@ FactoryGirl.define do
 
       if content_record.record_date.blank?
         step = classroom.calendar.classroom_steps.first
-        content_record.record_date = step.first_school_calendar_date
+        content_record.record_date = Date.current
       end
 
       if content_record.teacher_id.blank? && content_record.teacher.present?
