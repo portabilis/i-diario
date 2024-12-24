@@ -95,7 +95,7 @@ $(function() {
         });
         handleFetchDisciplinesSuccess(data);
       } catch (error) {
-        handleFetchDisciplinesError(error);
+        handleFetchDisciplinesError();
       }
     }
   }
