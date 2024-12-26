@@ -10,6 +10,7 @@ class DescriptiveExamsController < ApplicationController
     )
 
     select_options_by_user
+    assign_discipline_to_description_exam
     validate_opinion_type
 
     unless current_user.current_role_is_admin_or_employee?
@@ -34,6 +35,7 @@ class DescriptiveExamsController < ApplicationController
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
       select_options_by_user(@descriptive_exam.classroom_id)
+      assign_discipline_to_description_exam
       validate_opinion_type
 
       render :new
@@ -63,6 +65,7 @@ class DescriptiveExamsController < ApplicationController
     else
       fetch_students
       select_options_by_user(@descriptive_exam.classroom_id)
+      assign_discipline_to_description_exam
       validate_opinion_type
 
       render :edit
@@ -95,11 +98,9 @@ class DescriptiveExamsController < ApplicationController
       descriptive_exams = descriptive_exams.by_step_id(classroom, step_id)
     end
 
-    @descriptive_exam = descriptive_exams.first
+    descriptive_exam = descriptive_exams.first
 
-    validate_opinion_type
-
-    render json: @descriptive_exam.id
+    render json: descriptive_exam.id
   end
 
   def opinion_types
@@ -268,14 +269,16 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
+  def assign_discipline_to_description_exam
+    if [OpinionTypes::BY_YEAR, OpinionTypes::BY_STEP].exclude?(@exam_rules.first.opinion_type)
+      @descriptive_exam.discipline_id = current_user_discipline.id
+    end
+  end
+
   def validate_opinion_type
     if @exam_rules.blank?
       flash[:error] = t('descriptive_exams.new.exam_rule_not_found')
       redirect_to new_descriptive_exam_path && return
-    end
-
-    if [OpinionTypes::BY_YEAR, OpinionTypes::BY_STEP].exclude?(@exam_rules.first.opinion_type)
-      @descriptive_exam.discipline_id = current_user_discipline.id
     end
 
     @opinion_types = []
