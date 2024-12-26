@@ -5,9 +5,9 @@ class ConceptualExamsInBatchsController < ApplicationController
   before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :adjusted_period
-  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy_multiple]
+  before_action :require_allow_to_modify_prev_years, only: %i[create update destroy_multiple]
   before_action :require_specific_teacher
-  before_action :set_classroom_and_step, only: [:create, :create_or_update_multiple]
+  before_action :set_classroom_and_step, only: %i[create create_or_update_multiple]
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -21,8 +21,8 @@ class ConceptualExamsInBatchsController < ApplicationController
     @status = conceptual_exams_status(@conceptual_exams)
 
     @conceptual_exams = apply_scopes(@conceptual_exams)
-                          .group('conceptual_exams.classroom_id, conceptual_exams.step_number')
-                          .select('conceptual_exams.classroom_id, conceptual_exams.step_number, count(*)')
+                        .group('conceptual_exams.classroom_id, conceptual_exams.step_number')
+                        .select('conceptual_exams.classroom_id, conceptual_exams.step_number, count(*)')
 
     if step_id.present?
       @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id)
@@ -39,9 +39,9 @@ class ConceptualExamsInBatchsController < ApplicationController
 
   def new
     discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
-    not_concept_score = discipline_score_types.none? { |discipline_score_type|
+    not_concept_score = discipline_score_types.none? do |discipline_score_type|
       discipline_score_type == ScoreTypes::CONCEPT
-    }
+    end
 
     if not_concept_score
       redirect_to(
@@ -95,7 +95,7 @@ class ConceptualExamsInBatchsController < ApplicationController
     @conceptual_exams.compact!
     mark_exempted_disciplines
 
-    @conceptual_exam_values = @conceptual_exams.map { |conceptual_exam|
+    @conceptual_exam_values = @conceptual_exams.map do |conceptual_exam|
       conceptual_exam.assign_attributes(resource_params) unless conceptual_exam.persisted?
 
       conceptual_exam_value = conceptual_exam.conceptual_exam_values
@@ -107,7 +107,7 @@ class ConceptualExamsInBatchsController < ApplicationController
       end
 
       conceptual_exam_value
-    }
+    end
 
     if errors.present? || @conceptual_exams.empty?
       flash[:error] = t('conceptual_exams_in_batchs.messages.create_error')
@@ -180,33 +180,50 @@ class ConceptualExamsInBatchsController < ApplicationController
       :recorded_at,
       :student_id,
       :step_id,
-      conceptual_exam_values_attributes: [
-        :student_id,
-        :id,
-        :discipline_id,
-        :value,
-        :exempted_discipline,
-        :_destroy
+      conceptual_exam_values_attributes: %i[
+        student_id
+        id
+        discipline_id
+        value
+        exempted_discipline
+        _destroy
       ]
     )
   end
 
   def mark_exempted_disciplines
-    first_conceptual_exam = @conceptual_exams.first
+    return if @conceptual_exams.empty?
 
+    first_conceptual_exam = @conceptual_exams.first
     return if first_conceptual_exam.recorded_at.blank? || first_conceptual_exam.step.blank?
 
-    @student_enrollments ||= student_enrollments(first_conceptual_exam.step.start_at, first_conceptual_exam.step.end_at, @classroom)
+    @student_enrollments ||= fetch_student_enrollments(first_conceptual_exam)
 
     @conceptual_exams.each do |conceptual_exam|
-      next unless (current_student_enrollment = @student_enrollments.find { |item| item[:student_id] == conceptual_exam.student_id })
-
-      exempted_disciplines = current_student_enrollment.exempted_disciplines
-
-      conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
-        conceptual_exam_value.exempted_discipline = student_exempted_from_discipline?(conceptual_exam_value.discipline_id, exempted_disciplines)
-      end
+      mark_exempted_disciplines_for_exam(conceptual_exam)
     end
+  end
+
+  def fetch_student_enrollments(first_conceptual_exam)
+    student_enrollments(first_conceptual_exam.step.start_at,
+                        first_conceptual_exam.step.end_at, @classroom)
+  end
+
+  def mark_exempted_disciplines_for_exam(conceptual_exam)
+    current_enrollment = current_student_enrollment(conceptual_exam.student_id)
+    return unless current_enrollment
+
+    exempted_disciplines = current_enrollment.exempted_disciplines
+
+    conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+      conceptual_exam_value.exempted_discipline = student_exempted_from_discipline?(
+        conceptual_exam_value.discipline_id, exempted_disciplines
+      )
+    end
+  end
+
+  def current_student_enrollment(student_id)
+    @student_enrollments.find { |item| item[:student_id] == student_id }
   end
 
   def steps_fetcher(classroom)
@@ -272,7 +289,7 @@ class ConceptualExamsInBatchsController < ApplicationController
 
   def adjusted_period
     teacher_period = current_teacher_period
-    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @period = teacher_period == Periods::FULL.to_i ? nil : teacher_period
   end
 
   def conceptual_exams_status(conceptual_exams)
@@ -306,11 +323,7 @@ class ConceptualExamsInBatchsController < ApplicationController
 
           status[step.step_number] ||= []
 
-          status[step.step_number] << if conceptual_exam.persisted? && conceptual_exam_value.value.present?
-                                        true
-                                      else
-                                        false
-                                      end
+          status[step.step_number] << (conceptual_exam.persisted? && conceptual_exam_value.value.present?)
         end
 
         total_persisted_exams = conceptual_exams_by_step.size
