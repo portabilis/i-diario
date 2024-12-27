@@ -232,27 +232,30 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
     return unless recovery_diary_record.recorded_at
 
-    students = StudentEnrollmentClassroomsRetriever.call(
+    @student_enrollment_classroom ||= StudentEnrollmentClassroomsRetriever.call(
       classrooms: recovery_diary_record.classroom,
       disciplines: recovery_diary_record.discipline,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
       date: recovery_diary_record.recorded_at,
       search_type: :by_date
     )
-
-    date = @school_term_recovery_diary_record.recovery_diary_record.recorded_at
-
-    students.select do |student|
-      student[:student_enrollment_classroom].left_at.blank? || student[:student_enrollment_classroom].left_at.to_date >= date
-    end
   end
 
   def reload_students_list
     recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
-    return unless recovery_diary_record.recorded_at
+
+    test_date = recovery_diary_record.recorded_at
+
+    return unless test_date
+
+    student_enrollment_ids = fetch_student_enrollment_classrooms.map { |sec| sec[:student_enrollment].id }
+    @active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: test_date)
+    @students = []
 
     @students = fetch_student_enrollment_classrooms.map do |student|
-      recovery_diary_record.students.find_or_initialize_by(student: student[:student])
+      note_student = recovery_diary_record.students.find_or_initialize_by(student: student[:student])
+      note_student.active = @active.include?(student[:student_enrollment_classroom].id)
+      note_student
     end
   end
 

@@ -135,6 +135,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
         .by_teacher_id(current_teacher.id)
         .by_classroom_id(@classrooms.map(&:id))
         .by_discipline_id(@disciplines.map(&:id))
+        .select('DISTINCT final_recovery_diary_records.*, recovery_diary_records.recorded_at')
         .ordered
   end
 
@@ -220,7 +221,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     test_setting = test_setting(classroom, schoool_calendar)
 
     if test_setting.nil?
-      redirect_to final_recovery_diary_records_path, alert: t('final_recovery_diary_records.new.not_exists_test_setting')
+      redirect_to final_recovery_diary_records_path,
+alert: t('final_recovery_diary_records.new.not_exists_test_setting')
     else
       @number_of_decimal_places = test_setting.number_of_decimal_places
     end
@@ -234,7 +236,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
+current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
   end

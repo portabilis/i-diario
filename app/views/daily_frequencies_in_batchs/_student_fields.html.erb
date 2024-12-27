@@ -1,7 +1,7 @@
 <tr>
   <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
   <td style="vertical-align: middle;">
-    <% student_data = custom_student_name(student) %>
+    <% student_data = custom_student_name(student, params[:dates]) %>
 
     <span style="color: <%= student_data[:color] %>"><%= student_data[:name] %></span>
   </td>
