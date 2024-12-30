@@ -98,9 +98,9 @@ class DescriptiveExamsController < ApplicationController
       descriptive_exams = descriptive_exams.by_step_id(classroom, step_id)
     end
 
-    descriptive_exam = descriptive_exams.first
+    descriptive_exam_id = descriptive_exams&.first&.id
 
-    render json: descriptive_exam.id
+    render json: descriptive_exam_id
   end
 
   def opinion_types
