@@ -77,7 +77,7 @@ class ExamRecordReportForm
   def filter_unique_students
     info_students.each_with_object({}) do |student, unique_students|
       student_id = student[:student].id
-      unique_students[student_id] = student
+      unique_students[student_id] ||= student
     end.values
   end
 
