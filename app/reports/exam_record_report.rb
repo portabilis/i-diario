@@ -76,10 +76,13 @@ class ExamRecordReport < BaseReport
 
   private
 
-  def student_enrolled_on_date?(student_enrollment, date)
-    ActiveStudentsOnDate.call(
-      student_enrollments: student_enrollment, date: date
-    )
+  def student_enrolled_on_date?(student, date)
+    StudentEnrollmentClassroom.by_student(student)
+                              .by_date(date)
+                              .each_with_object({}) do |enrollment_classroom, hash|
+                                hash[enrollment_classroom.id] ||= []
+                                hash[enrollment_classroom.id] << date
+                              end
   end
 
   def classroom
@@ -196,18 +199,18 @@ class ExamRecordReport < BaseReport
           if exempted_from_discipline || avaliation_id.present?
             @averages[student_enrollment.id] = nil if exempted_from_discipline
 
-            score = set_student_score(exam, student, student_note, student_enrollment, daily_note_student)
+            score = set_student_score(exam, student, student_note, daily_note_student)
           elsif complementary_exam_record(exam)
             complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student.id)
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
           elsif school_term_recovery_record(exam)
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student.id, recovery_diary_record_id: exam.recovery_diary_record_id)
-            score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_enrollment, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
+            score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
             school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
 
           if score.nil? && student_classroom_left_at != "" && student_classroom_left_at.to_date <= exam.test_date
-            score = set_student_score(exam, student, NullDailyNoteStudent.new, student_enrollment, daily_note_student)
+            score = set_student_score(exam, student, NullDailyNoteStudent.new, daily_note_student)
           end
 
           self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
@@ -318,11 +321,11 @@ class ExamRecordReport < BaseReport
     end
   end
 
-  def set_student_score(exam, student, student_note, student_enrollment, daily_note_student)
+  def set_student_score(exam, student, student_note, daily_note_student)
     recovery_note = find_recovery_note_if_needed(exam, student)
     student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
 
-    determine_score(student_note, exam, student_enrollment)
+    determine_score(student_note, exam, student)
   end
 
   def find_recovery_note_if_needed(exam, student)
@@ -331,12 +334,12 @@ class ExamRecordReport < BaseReport
     exam.students.find_by_student_id(student.id).try(&:score)
   end
 
-  def determine_score(student_note, exam, student_enrollment)
+  def determine_score(student_note, exam, student)
     return student_note.note unless recovery_record(exam)
 
     recovery_score = student_note.recovery_note
 
-    return recovery_score if student_enrolled_on_date?(student_enrollment, exam.recorded_at).present?
+    return recovery_score if student_enrolled_on_date?(student, exam.recorded_at).present?
 
     NullDailyNoteStudent.new.note
   end
