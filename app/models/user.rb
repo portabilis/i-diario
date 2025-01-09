@@ -36,6 +36,7 @@ class User < ApplicationRecord
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
+  has_many :permissions, class_name: "UserPermission", dependent: :destroy
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id,
     dependent: :restrict_with_error
@@ -51,6 +52,7 @@ class User < ApplicationRecord
   has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :permissions, reject_if: :all_blank, allow_destroy: true
 
   mount_uploader :profile_picture, UserProfilePictureUploader
 
@@ -92,6 +94,19 @@ class User < ApplicationRecord
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
+
+  def build_permissions!
+    existing_features = permissions.to_a.pluck(:feature).to_set
+
+    Features.list.each do |feature|
+      next if existing_features.include?(feature)
+
+      permissions.new(
+        feature: feature,
+        permission: Permissions::DENIED
+      )
+    end
+  end
 
   def self.current=(user)
     Thread.current[:user] = user
@@ -218,7 +233,8 @@ class User < ApplicationRecord
     return true if admin?
     return unless current_user_role
 
-    current_user_role.role.can_show?(feature)
+    return true if current_user_role.role.can_show?(feature)
+    permissions.can_show?(feature)
   end
 
   def can_change?(feature)
@@ -228,7 +244,8 @@ class User < ApplicationRecord
     return true if admin?
     return unless current_user_role
 
-    current_user_role.role.can_change?(feature)
+    return true if current_user_role.role.can_change?(feature)
+    permissions.can_change?(feature)
   end
 
   def update_tracked_fields!(request)

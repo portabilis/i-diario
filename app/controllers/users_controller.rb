@@ -29,6 +29,8 @@ class UsersController < ApplicationController
     roles
 
     authorize @user
+    @user.build_permissions!
+    fetch_permissions
   end
 
   def update
@@ -44,6 +46,7 @@ class UsersController < ApplicationController
       respond_with @user, location: users_path
     else
       @teachers = Teacher.active.order_by_name
+      @active_user_tab = true
 
       render :edit
     end
@@ -124,6 +127,9 @@ class UsersController < ApplicationController
       :authorize_email_and_sms, :student_id, :teacher_id, :password, :expiration_date, :admin,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
+      ],
+      :permissions_attributes => [
+        :id, :feature, :permission, :user_id
       ]
     )
   end
@@ -173,5 +179,14 @@ class UsersController < ApplicationController
     return true if params_search.blank?
 
     params_search.values.any?(&:present?)
+  end
+
+  def fetch_permissions
+    @active_user_tab = if params[:active_user_tab].present?
+                         ActiveRecord::Type::Boolean.new.cast(params[:active_user_tab])
+                       else
+                         params[:active_permissions_tab].blank?
+                       end
+    @permissions = @user.permissions
   end
 end
