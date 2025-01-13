@@ -270,6 +270,8 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def assign_discipline_to_description_exam
+    return if @exam_rules.blank?
+
     if [OpinionTypes::BY_YEAR, OpinionTypes::BY_STEP].exclude?(@exam_rules.first.opinion_type)
       @descriptive_exam.discipline_id = current_user_discipline.id
     end
