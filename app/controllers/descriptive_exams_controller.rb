@@ -10,6 +10,7 @@ class DescriptiveExamsController < ApplicationController
     )
 
     select_options_by_user
+    assign_discipline_to_description_exam
     validate_opinion_type
 
     unless current_user.current_role_is_admin_or_employee?
@@ -34,6 +35,7 @@ class DescriptiveExamsController < ApplicationController
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
       select_options_by_user(@descriptive_exam.classroom_id)
+      assign_discipline_to_description_exam
       validate_opinion_type
 
       render :new
@@ -63,6 +65,7 @@ class DescriptiveExamsController < ApplicationController
     else
       fetch_students
       select_options_by_user(@descriptive_exam.classroom_id)
+      assign_discipline_to_description_exam
       validate_opinion_type
 
       render :edit
@@ -87,16 +90,15 @@ class DescriptiveExamsController < ApplicationController
     step_id = opinion_type_by_year?(params[:opinion_type]) ? nil : params[:step_id].to_i
 
     select_options_by_user(classroom_id)
-    validate_opinion_type
 
-    descriptive_exam_id = DescriptiveExam.by_classroom_id(classroom_id)
-                                         .by_discipline_id(discipline_id)
+    descriptive_exams = DescriptiveExam.by_classroom_id(classroom_id)
+                                       .by_discipline_id(discipline_id)
     if step_id
       classroom = Classroom.find(classroom_id)
-      descriptive_exam_id = descriptive_exam_id.by_step_id(classroom, step_id)
+      descriptive_exams = descriptive_exams.by_step_id(classroom, step_id)
     end
 
-    descriptive_exam_id = descriptive_exam_id.first&.id
+    descriptive_exam_id = descriptive_exams&.first&.id
 
     render json: descriptive_exam_id
   end
@@ -221,8 +223,8 @@ class DescriptiveExamsController < ApplicationController
       student = enrollment_classroom[:student]
       student_enrollment = enrollment_classroom[:student_enrollment]
       left_at = enrollment_classroom[:student_enrollment_classroom].left_at.to_date
-
-      exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
+      exam_student = @descriptive_exam.students.find_or_initialize_by(student_id: student.id)
+      (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
       exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
       exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment)
       regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
@@ -267,14 +269,18 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
+  def assign_discipline_to_description_exam
+    return if @exam_rules.blank?
+
+    if [OpinionTypes::BY_YEAR, OpinionTypes::BY_STEP].exclude?(@exam_rules.first.opinion_type)
+      @descriptive_exam.discipline_id = current_user_discipline.id
+    end
+  end
+
   def validate_opinion_type
     if @exam_rules.blank?
       flash[:error] = t('descriptive_exams.new.exam_rule_not_found')
       redirect_to new_descriptive_exam_path && return
-    end
-
-    if [OpinionTypes::BY_YEAR, OpinionTypes::BY_STEP].exclude?(@exam_rules.first.opinion_type)
-      @descriptive_exam.discipline_id = current_user_discipline.id
     end
 
     @opinion_types = []
