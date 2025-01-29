@@ -1,6 +1,9 @@
 module Api
   module V2
     class SchoolCalendarEventsController < Api::V2::BaseController
+      has_scope :page, default: 1
+      has_scope :per, default: 10
+
       respond_to :json
 
       def index
@@ -20,7 +23,9 @@ module Api
         events = validate_calendar_and_events(unity.id, year, start_date, end_date)
         return if events.nil?
 
-        render json: build_response(unity, year, events)
+        paginated_events = apply_scopes(events)
+
+        render json: build_paginated_response(unity, year, paginated_events)
       end
 
       private
@@ -34,20 +39,34 @@ module Api
                status: :unprocessable_entity
       end
 
-      def build_response(unity, year, events)
+      def build_paginated_response(unity, year, paginated_events)
         {
           escola: unity.name,
           ano: year,
-          eventos: events.map do |event|
-            {
-              descricao: event.description,
-              tipo_evento: event.event_type,
-              periodo: {
-                inicio: event.start_date,
-                fim: event.end_date
-              }
-            }
-          end
+          eventos: paginated_events.map do |event|
+            build_event_response(event)
+          end,
+          paginacao: build_pagination_response(paginated_events)
+        }
+      end
+
+      def build_event_response(event)
+        {
+          descricao: event.description,
+          tipo_evento: event.event_type,
+          periodo: {
+            inicio: event.start_date,
+            fim: event.end_date
+          }
+        }
+      end
+
+      def build_pagination_response(paginated_events)
+        {
+          pagina_atual: paginated_events.current_page,
+          total_paginas: paginated_events.total_pages,
+          total_eventos: paginated_events.total_count,
+          por_pagina: paginated_events.limit_value
         }
       end
 
@@ -62,7 +81,7 @@ module Api
         if events.empty?
           render json: { message: 'Nenhum evento encontrado para os calendários letivos da unidade e ano especificados.' },
                  status: :not_found
-          return [nil, nil]
+          return nil
         end
 
         events
