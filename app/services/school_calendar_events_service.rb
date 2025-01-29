@@ -56,10 +56,12 @@ class SchoolCalendarEventsService
 
   def build_pagination_response(paginated_events)
     {
-      pagina_atual: paginated_events.current_page,
-      total_paginas: paginated_events.total_pages,
-      total_eventos: paginated_events.total_count,
-      por_pagina: paginated_events.limit_value
+      current_page: paginated_events.current_page,
+      from: paginated_events.offset_value + 1,
+      last_page: paginated_events.total_pages,
+      per_page: paginated_events.limit_value,
+      to: [paginated_events.offset_value + paginated_events.limit_value, paginated_events.total_count].min,
+      total: paginated_events.total_count
     }
   end
 end

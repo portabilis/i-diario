@@ -33,12 +33,35 @@ module Api
       end
 
       def build_response(service)
+        pagination = service[:pagination]
+
         {
-          escola: service[:unity].name,
-          ano: service[:year],
-          eventos: service[:events],
-          paginacao: service[:pagination]
+          data: service[:events],
+          links: {
+            first: pagination_link(1, pagination[:per_page], pagination[:last_page]),
+            last: pagination_link(pagination[:last_page], pagination[:per_page], pagination[:last_page]),
+            prev: if pagination[:current_page] > 1
+                    pagination_link(pagination[:current_page] - 1, pagination[:per_page], pagination[:last_page])
+                  end,
+            next: if pagination[:current_page] < pagination[:last_page]
+                    pagination_link(pagination[:current_page] + 1, pagination[:per_page], pagination[:last_page])
+                  end
+          },
+          meta: {
+            current_page: pagination[:current_page],
+            from: pagination[:from],
+            last_page: pagination[:last_page],
+            per_page: pagination[:per_page],
+            to: pagination[:to],
+            total: pagination[:total]
+          }
         }
+      end
+
+      def pagination_link(page, per_page, last_page)
+        return nil if page < 1 || page > last_page
+
+        "events?page=#{page}&per=#{per_page}"
       end
     end
   end
