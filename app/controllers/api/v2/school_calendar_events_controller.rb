@@ -11,13 +11,15 @@ module Api
 
         unity_id = params[:unity_id]
         year = params[:year]
+        start_date = params[:start_date]
+        end_date = params[:end_date]
 
         unity = Unity.find_by(id: unity_id)
         return render json: { error: "Unidade escolar não encontrada." }, status: :not_found unless unity
 
-        school_calendar_ids, events = validate_calendar_and_events(unity_id, year)
-        return if school_calendar_ids.nil? || events.nil?
-
+        events = validate_calendar_and_events(unity_id, year, start_date, end_date)
+        return if  events.nil?
+        binding.pry
         render json: build_response(unity, year, events)
       end
 
@@ -49,16 +51,13 @@ module Api
         }
       end
 
-      def validate_calendar_and_events(unity_id, year)
-        school_calendar_ids = SchoolCalendar.where(unity_id: unity_id, year: year).pluck(:id)
+      def validate_calendar_and_events(unity_id, year, start_date = nil, end_date = nil)
+        events = SchoolCalendarEvent.joins(:school_calendar)
+                  .where(school_calendars: { unity_id: unity_id, year: year })
 
-        if school_calendar_ids.empty?
-          render json: { message: "Nenhum calendário letivo encontrado para a unidade e ano especificados." },
-                 status: :not_found
-          return [nil, nil]
+        if start_date.present? && end_date.present?
+          events = events.where('start_date >= ? AND end_date <= ?', start_date, end_date)
         end
-
-        events = SchoolCalendarEvent.where(school_calendar_id: school_calendar_ids)
 
         if events.empty?
           render json: { message: "Nenhum evento encontrado para os calendários letivos da unidade e ano especificados." },
@@ -66,7 +65,7 @@ module Api
           return [nil, nil]
         end
 
-        [school_calendar_ids, events]
+        events
       end
     end
   end
