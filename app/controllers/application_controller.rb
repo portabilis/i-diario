@@ -316,6 +316,9 @@ class ApplicationController < ActionController::Base
   def allowed_api_header?
     if request.headers['Authorization'].present? && Rails.application.secrets[:AUTH_TOKEN].present?
       bearer_token = request.headers['Authorization'].split(' ').last
+      auth = Rails.application.secrets[:AUTH_TOKEN]
+
+      Rails.logger.info "TOKEN: #{bearer_token} #{auth}"
 
       return bearer_token == Rails.application.secrets[:AUTH_TOKEN]
     end
