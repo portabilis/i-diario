@@ -4,46 +4,51 @@ module Api
       has_scope :page, default: 1
       has_scope :per, default: 10
 
-      respond_to :json
+      before_action :ensure_required_params, only: :index
 
       def index
-        required_params = [:unity_id, :year]
-        missing_params = validate_required_params(required_params)
-
-        return if missing_params
-
-        service = SchoolCalendarEventsService.call(
-          params[:unity_id], params[:year], params[:start_date], params[:end_date], params
+        service_response = SchoolCalendarEventsService.call(
+          event_params[:unity_id],
+          event_params[:year],
+          event_params[:start_date],
+          event_params[:end_date],
+          event_params
         )
 
-        return render json: { error: service[:error] }, status: service[:status] if service[:error]
-
-        render json: build_response(service)
+        if service_response[:error].present?
+          render json: { error: service_response[:error] }, status: service_response[:status]
+        else
+          render json: build_response(service_response)
+        end
       end
 
       private
 
-      def validate_required_params(required_params)
-        missing_params = required_params.select { |param| params[param].blank? }
+      def event_params
+        params.permit(:unity_id, :year, :start_date, :end_date, :page, :per)
+      end
 
-        return false unless missing_params.any?
+      def ensure_required_params
+        required = [:unity_id, :year]
+        missing  = required.select { |param| event_params[param].blank? }
+        return if missing.empty?
 
-        render json: { error: "Os seguintes parâmetros são obrigatórios: #{missing_params.join(', ')}" },
+        render json: { error: "Os seguintes parâmetros são obrigatórios: #{missing.join(', ')}" },
                status: :unprocessable_entity
       end
 
-      def build_response(service)
-        pagination = service[:pagination]
+      def build_response(service_response)
+        pagination = service_response[:pagination]
 
         {
-          data: service[:events],
+          data: service_response[:events],
           meta: {
             current_page: pagination[:current_page],
-            from: pagination[:from],
-            last_page: pagination[:last_page],
-            per_page: pagination[:per_page],
-            to: pagination[:to],
-            total: pagination[:total]
+            from:         pagination[:from],
+            last_page:    pagination[:last_page],
+            per_page:     pagination[:per_page],
+            to:           pagination[:to],
+            total:        pagination[:total]
           }
         }
       end
