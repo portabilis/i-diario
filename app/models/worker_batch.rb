@@ -4,24 +4,31 @@ class WorkerBatch < ApplicationRecord
   belongs_to :stateable, polymorphic: true
   has_many :worker_states, dependent: :restrict_with_error
 
+  def done
+    redis.get(redis_key).to_i
+  end
+
   def all_workers_finished?
-    with_lock do
-      total_workers == done_workers
-    end
+    total_workers == done_workers
   end
 
   def done_percentage
-    return 0 if total_workers.zero?
+    return 0   if total_workers.zero?
+    return 100 if all_workers_finished?
 
-    ((done_workers.to_f / total_workers.to_f) * 100).round(0)
+    ((done.to_f / total_workers.to_f) * 100).round(0)
   end
 
   def increment
-    with_lock do
-      self.done_workers = (done_workers + 1)
-      save!
+    return if all_workers_finished?
 
-      yield if block_given? && all_workers_finished?
+    new_count = redis.incr(redis_key)
+
+    if new_count == total_workers
+      yield if block_given?
+
+      update!(done_workers: new_count, status: ApiSynchronizationStatus::COMPLETED)
+      redis.del(redis_key)
     end
   end
 
@@ -31,9 +38,18 @@ class WorkerBatch < ApplicationRecord
 
   private
 
+  def redis
+    $REDIS_DB
+  end
+
+  def redis_key
+    "worker_batch:#{id}:done_workers"
+  end
+
   def reset
     self.total_workers = 0
     self.done_workers = 0
     worker_states.delete_all
+    redis.del(redis_key)
   end
 end
