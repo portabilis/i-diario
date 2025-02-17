@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         get 'list_attendances_by_classroom', to: 'list_attendances_by_classroom#index'
         get 'student_activity', to: 'student_activity#check'
         get 'student_classroom_attendances', to: 'student_classroom_attendances#index'
+        get 'school_calendar_events', to: 'school_calendar_events#index'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
