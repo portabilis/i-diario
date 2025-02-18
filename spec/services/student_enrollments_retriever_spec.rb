@@ -512,7 +512,7 @@ RSpec.describe StudentEnrollmentsRetriever, type: :service do
           disciplines: discipline,
           search_type: :by_date,
           date: '2023-03-10',
-          score_type: StudentEnrollmentScoreTypeFilters::CONCEPT
+          score_type: [StudentEnrollmentScoreTypeFilters::CONCEPT, StudentEnrollmentScoreTypeFilters::BOTH]
         )
       ).to contain_exactly(enrollment_classrooms.student_enrollment, *student_enrollments)
     end
