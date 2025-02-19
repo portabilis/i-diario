@@ -237,13 +237,17 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment[:student]
       student_ids << student.id
       type_of_teaching = student_enrollment[:student_enrollment_classroom].type_of_teaching
+      left_at = student_enrollment[:student_enrollment_classroom].left_at
+      joined_at = student_enrollment[:student_enrollment_classroom].joined_at
 
       next if student.blank?
 
       @students_list << student
       @students << {
         student: student,
-        type_of_teaching: type_of_teaching
+        type_of_teaching: type_of_teaching,
+        left_at: left_at,
+        joined_at: joined_at
       }
     end
 
@@ -257,8 +261,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     dependences = student_has_dependence(student_enrollments_ids, dates)
     inactives_on_date = students_inactive_on_range(enrollment_classrooms.map{|i|
- i[:student_enrollment_classroom]
-                                                   }, dates)
+                                                                          i[:student_enrollment_classroom]
+                                                                        }, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
