@@ -82,7 +82,9 @@ class LessonsBoardsController < ApplicationController
 
   def generate_lesson_board_pdf
     @lesson_board = LessonsBoard.find(params[:id])
-    html_content = render_to_string(action: :print_pdf, layout: "pdf_lesson_board", formats: [:html])
+    html_content = render_to_string(
+      action: :generate_lesson_board_pdf, layout: "pdf_lesson_board", formats: [:html]
+    )
     response = ReportGenerator.call(html_content)
 
     send_data response.body,
