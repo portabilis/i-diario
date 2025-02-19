@@ -5,7 +5,7 @@ class WorkerBatch < ApplicationRecord
   has_many :worker_states, dependent: :restrict_with_error
 
   def done
-    redis.get(redis_key).to_i
+    $REDIS_DB.get(redis_key).to_i
   end
 
   def all_workers_finished?
@@ -22,13 +22,13 @@ class WorkerBatch < ApplicationRecord
   def increment
     return if all_workers_finished?
 
-    new_count = redis.incr(redis_key)
+    new_count = $REDIS_DB.incr(redis_key)
 
     if new_count == total_workers
       yield if block_given?
 
       update!(done_workers: new_count, status: ApiSynchronizationStatus::COMPLETED)
-      redis.del(redis_key)
+      $REDIS_DB.del(redis_key)
     end
   end
 
@@ -38,10 +38,6 @@ class WorkerBatch < ApplicationRecord
 
   private
 
-  def redis
-    $REDIS_DB
-  end
-
   def redis_key
     "worker_batch:#{id}:done_workers"
   end
@@ -50,6 +46,6 @@ class WorkerBatch < ApplicationRecord
     self.total_workers = 0
     self.done_workers = 0
     worker_states.delete_all
-    redis.del(redis_key)
+    $REDIS_DB.del(redis_key)
   end
 end
