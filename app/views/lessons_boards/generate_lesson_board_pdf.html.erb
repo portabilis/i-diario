@@ -20,8 +20,8 @@
   <thead>
     <tr>
       <th style="width: 10%;">Nº Aula</th>
-      <% Workdays.list.each do |weekday| %>
-        <th><%= t("lessons_boards.weekdays.#{weekday}") %></th>
+      <% Workdays.translations.each do |weekday| %>
+        <th><%= weekday %></th>
       <% end %>
     </tr>
   </thead>

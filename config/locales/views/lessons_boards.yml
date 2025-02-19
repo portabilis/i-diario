@@ -31,10 +31,3 @@ pt-BR:
       period: "Período"
       no_item_found: "Nenhum período informado"
       add_period: "Adicionar período de aula"
-
-    weekdays:
-      monday: "Segunda-feira"
-      tuesday: "Terça-feira"
-      wednesday: "Quarta-feira"
-      thursday: "Quinta-feira"
-      friday: "Sexta-feira"
