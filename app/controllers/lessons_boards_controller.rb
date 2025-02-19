@@ -80,6 +80,17 @@ class LessonsBoardsController < ApplicationController
     )
   end
 
+  def print_pdf
+    @lesson_board = LessonsBoard.find(params[:id])
+    html_content = render_to_string(action: :print_pdf, layout: "pdf_lesson_board", formats: [:html])
+    response = ReportGenerator.call(html_content)
+
+    send_data response.body,
+              filename: "quadro_de_aulas_#{@lesson_board.id}.pdf",
+              type: "application/pdf",
+              disposition: "inline"
+  end
+
   def lesson_unities
     lessons_unities = if user_role_administrator?
                         LessonsBoard.by_unity(unities_id)
