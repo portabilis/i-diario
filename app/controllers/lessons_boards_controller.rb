@@ -80,7 +80,7 @@ class LessonsBoardsController < ApplicationController
     )
   end
 
-  def print_pdf
+  def generate_lesson_board_pdf
     @lesson_board = LessonsBoard.find(params[:id])
     html_content = render_to_string(action: :print_pdf, layout: "pdf_lesson_board", formats: [:html])
     response = ReportGenerator.call(html_content)
@@ -98,7 +98,8 @@ class LessonsBoardsController < ApplicationController
                                     .uniq
                       elsif current_user.employee?
                         roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
-                        unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
+                        unities_user = UserRole.where(user_id: current_user.id,
+role_id: roles_ids).pluck(:unity_id)
 
                         LessonsBoard.by_unity(unities_user)
                                     .map(&:unity_id)
