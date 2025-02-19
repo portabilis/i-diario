@@ -56,7 +56,8 @@
   </fieldset>
 
   <footer>
-    <%= link_to 'Imprimir', generate_lesson_board_pdf_lessons_boards_path(id: @lessons_board.id, format: :pdf), class: "btn btn-default" %>
+    <%= link_to 'Imprimir', generate_lesson_board_pdf_lessons_boards_path(id: @lessons_board.id, format: :pdf),
+          class: "btn btn-default", target: "_blank" %>
     <%= link_to t('views.form.back'), lessons_boards_path, class: "btn btn-default" %>
   </footer>
 <% end %>
