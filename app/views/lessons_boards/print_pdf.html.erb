@@ -1,0 +1,30 @@
+<h1 style="text-align: center;">Quadro de Aulas</h1>
+
+<table class="lessons-table">
+  <thead>
+    <tr>
+      <th style="width: 10%;">Nº Aula</th>
+      <% Workdays.list.each do |weekday| %>
+        <th><%= t("lessons_boards.weekdays.#{weekday}") %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% @lesson_board.lessons_board_lessons.each do |lesson| %>
+      <tr>
+        <td><%= lesson.lesson_number %></td>
+        <% Workdays.list.each do |weekday| %>
+          <td>
+            <% lesson_weekday = lesson.lessons_board_lesson_weekdays.find { |lwl| lwl.weekday == weekday } %>
+            <% if lesson_weekday&.teacher_discipline_classroom.present? %>
+              <%= lesson_weekday.teacher_discipline_classroom.teacher.name %> -
+              <%= lesson_weekday.teacher_discipline_classroom.discipline.description %>
+            <% else %>
+              -
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
