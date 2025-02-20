@@ -381,6 +381,7 @@ Rails.application.routes.draw do
 
     resources :lessons_boards do
       collection do
+        get :generate_lesson_board_pdf
         get :period
         get :number_of_lessons
         get :classrooms_filter
