@@ -32,15 +32,16 @@ class IeducarApiSynchronization < ApplicationRecord
 
   def self.average_time(scope, limit)
     subquery = scope
+                .completed
                 .joins(:worker_batch)
                 .order('ieducar_api_synchronizations.id DESC')
                 .limit(limit)
                 .select('worker_batches.started_at, worker_batches.ended_at')
 
     from("(#{subquery.to_sql}) AS subquery")
-      .select("ROUND(AVG(EXTRACT(EPOCH FROM subquery.ended_at - subquery.started_at) / 60.0))::integer AS average_time")
+      .select("ROUND(AVG(EXTRACT(EPOCH FROM subquery.ended_at - subquery.started_at) / 60.0))::integer AS avg_time")
       .take
-      &.average_time
+      &.avg_time
   end
 
   def self.average_time_by_full_synchronizations
