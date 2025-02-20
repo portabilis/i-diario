@@ -69,12 +69,6 @@
 
     <h2><%= t('ieducar_api_configuration.sync_title') %></h2>
 
-    <%= render 'synchronizations', with_environment: false, entity_syncs: [[
-      nil,
-      {
-        started_sync: (started = IeducarApiSynchronization.started.first),
-        finished_sync: (finised = IeducarApiSynchronization.where(status: [:completed, :error]).last),
-        average_time: (started&.average_time || finished&.average_time || 0),
-      }]] %>
+    <%= render 'synchronizations', syncs: IeducarApiSynchronization.order(id: :desc).limit(10) %>
   </div>
 </div>

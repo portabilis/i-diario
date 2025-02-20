@@ -1,18 +1,9 @@
-<% unless with_environment %>
-  <% content_for :js do %>
-    <%= javascript_include_tag 'views/ieducar_api_configurations/sync' %>
-  <% end %>
-<% end %>
-
 <% sync_id = SecureRandom.uuid %>
 <tr>
-  <% if with_environment %>
-    <td><%= entity_name %></td>
-  <% end %>
   <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
   <td><span id="time_running"><%= sync.time_running %></span> minutos</td>
-  <td><%= "#{average_time} minutos" if average_time %></td>
+  <td><%= "#{sync.average_time} minutos" if sync.average_time %></td>
   <td>
     <%= t("enumerations.api_synchronization_status.#{sync.status}") %>
     <% if sync.started? %>
