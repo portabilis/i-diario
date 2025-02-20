@@ -22,7 +22,7 @@ class IeducarApiSynchronization < ApplicationRecord
   scope :ordered, -> { order(id: :desc) }
 
   def time_running
-    return unless started_at
+    return 0 unless started_at
 
     if ended_at
       ((ended_at - started_at) / 60.0).round
