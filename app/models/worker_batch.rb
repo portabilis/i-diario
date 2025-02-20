@@ -4,6 +4,24 @@ class WorkerBatch < ApplicationRecord
   belongs_to :stateable, polymorphic: true
   has_many :worker_states, dependent: :restrict_with_error
 
+  scope :by_ieducar_synchronizations, -> {
+    where(stateable_type: 'IeducarApiSynchronization').joins(
+      'INNER JOIN ieducar_api_synchronizations
+               ON ieducar_api_synchronizations.id = worker_batches.stateable_id'
+    )
+  }
+
+  scope :by_full_synchronizations, -> {
+    by_ieducar_synchronizations.merge(IeducarApiSynchronization.by_full_synchronizations)
+  }
+
+  scope :by_partial_synchronizations, -> {
+    by_ieducar_synchronizations.merge(IeducarApiSynchronization.by_partial_synchronizations)
+  }
+
+  scope :by_status, ->(status) { where(status: status) }
+  scope :completed, -> { by_status(ApiSynchronizationStatus::COMPLETED) }
+
   def done
     $REDIS_DB.get(redis_key).to_i
   end

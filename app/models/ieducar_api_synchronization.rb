@@ -16,6 +16,8 @@ class IeducarApiSynchronization < ApplicationRecord
   delegate :done_percentage, :started_at, :ended_at, to: :worker_batch, allow_nil: true
 
   scope :unnotified, -> { where(notified: false) }
+  scope :by_full_synchronizations,    -> { where(full_synchronization: true) }
+  scope :by_partial_synchronizations, -> { where(full_synchronization: false) }
 
   def worker_batch
     @worker_batch ||= WorkerBatch.where(
