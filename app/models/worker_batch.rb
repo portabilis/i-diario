@@ -22,6 +22,8 @@ class WorkerBatch < ApplicationRecord
   scope :by_status, ->(status) { where(status: status) }
   scope :completed, -> { by_status(ApiSynchronizationStatus::COMPLETED) }
 
+  before_create :start
+
   def done
     $REDIS_DB.get(redis_key).to_i
   end
@@ -42,10 +44,7 @@ class WorkerBatch < ApplicationRecord
 
     new_count = $REDIS_DB.incr(redis_key)
 
-    case new_count
-    when 1
-      start!
-    when total_workers
+    if new_count == total_workers
       yield if block_given?
 
       self.done_workers = new_count
