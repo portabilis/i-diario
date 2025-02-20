@@ -28,7 +28,7 @@ class AdminSynchronization
           {
             finished_sync: sync_struct(last_sync),
             status: last_sync.status,
-            average_time: IeducarApiSynchronization.average_time
+            average_time: last_sync.average_time
           }
         ]
       end
@@ -41,7 +41,7 @@ class AdminSynchronization
           {
             started_sync: sync_struct(started),
             status: started.status,
-            average_time: IeducarApiSynchronization.average_time
+            average_time: started.average_time
           }
         ]
       end

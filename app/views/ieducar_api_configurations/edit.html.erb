@@ -72,9 +72,9 @@
     <%= render 'synchronizations', with_environment: false, entity_syncs: [[
       nil,
       {
-        average_time: IeducarApiSynchronization.average_time,
-        started_sync: IeducarApiSynchronization.started.first,
-        finished_sync: IeducarApiSynchronization.where(status: [:completed, :error]).last
+        started_sync: (started = IeducarApiSynchronization.started.first),
+        finished_sync: (finised = IeducarApiSynchronization.where(status: [:completed, :error]).last),
+        average_time: (started&.average_time || finished&.average_time || 0),
       }]] %>
   </div>
 </div>

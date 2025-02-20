@@ -10,3 +10,4 @@ pt-BR:
     error: "Integração com i-Educar não pode ser realizada: %{error}"
     private_error_feedback: 'Processo parado pelo sistema pois estava travado.'
     public_error_feedback: 'Ocorreu um erro, tente novamente por favor. Se persistir, entre em contato com a nossa equipe de atendimento.'
+    timedout: "Tempo de execução excedido."
