@@ -4,6 +4,8 @@ class SynchronizerBuilderWorker < BaseSynchronizerWorker
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
+      return if !synchronization.started?
+
       years = params[:years] if params[:filtered_by_year]
       years ||= [params[:years].join(',')]
       by_unity = params[:filtered_by_unity] &&
