@@ -10,9 +10,11 @@ namespace :report do
       CSV.open("worker_batches.csv", "w") do |csv|
         csv << ["Entity", "main_job_class", "WorkerBatch ID", "Started At", "Ended At", "Done Workers", "Total Workers", "Status", "Full Sync"]
 
+        worker_batches = WorkerBatch.where("started_at >= ?", start_date).order(id: :desc)
+
         Entity.active.each do |entity|
           entity.using_connection do
-            WorkerBatch.completed.by_full_synchronizations.order(id: :desc).find_each do |batch|
+            worker_batches.by_full_synchronizations.find_each do |batch|
               csv << [
                 entity.name,
                 batch.main_job_class,
@@ -25,7 +27,7 @@ namespace :report do
                 true
               ]
             end
-            WorkerBatch.completed.by_partial_synchronizations.order(id: :desc).find_each do |batch|
+            worker_batches.by_partial_synchronizations.find_each do |batch|
               csv << [
                 entity.name,
                 batch.main_job_class,
