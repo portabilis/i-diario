@@ -29,7 +29,7 @@ class WorkerBatch < ApplicationRecord
   end
 
   def all_workers_finished?
-    total_workers == done_workers
+    total_workers > 0 && total_workers == done_workers
   end
 
   def done_percentage
