@@ -42,11 +42,14 @@ class WorkerBatch < ApplicationRecord
 
     new_count = $REDIS_DB.incr(redis_key)
 
-    if new_count == total_workers
+    case new_count
+    when 1
+      start!
+    when total_workers
       yield if block_given?
 
-      update!(done_workers: new_count, status: ApiSynchronizationStatus::COMPLETED)
-      $REDIS_DB.del(redis_key)
+      self.done_workers = new_count
+      finish!
     end
   end
 
@@ -61,9 +64,30 @@ class WorkerBatch < ApplicationRecord
   end
 
   def reset
+    start
     self.total_workers = 0
     self.done_workers = 0
+    save
     worker_states.delete_all
+    $REDIS_DB.del(redis_key)
+  end
+
+  def start!
+    start
+    save!
+  end
+
+  def start
+    self.status = ApiSynchronizationStatus::STARTED
+    self.started_at = Time.current
+  end
+
+  def finish!
+    update!(
+      status: ApiSynchronizationStatus::COMPLETED,
+      ended_at: Time.current
+    )
+
     $REDIS_DB.del(redis_key)
   end
 end

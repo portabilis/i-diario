@@ -80,7 +80,6 @@ class IeducarApiSynchronization < ApplicationRecord
     update_last_synchronization_date
 
     update(status: ApiSynchronizationStatus::COMPLETED)
-    worker_batch.try(:end!)
   end
 
   def notified!
@@ -104,9 +103,9 @@ class IeducarApiSynchronization < ApplicationRecord
         sync.mark_as_error! I18n.t('ieducar_api_synchronization.timedout'),
                             I18n.t('ieducar_api_synchronization.timedout')
 
-      if restart
-        configuration = IeducarApiConfiguration.current
-        configuration.start_synchronization(sync.author, current_entity.id)
+        if restart
+          configuration = IeducarApiConfiguration.current
+          configuration.start_synchronization(sync.author, current_entity.id)
         end
       end
     end

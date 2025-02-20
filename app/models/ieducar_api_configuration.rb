@@ -45,7 +45,6 @@ class IeducarApiConfiguration < ActiveRecord::Base
         main_job_id: synchronization.job_id,
         stateable: synchronization
       )
-      worker_batch.start!
 
       Rails.logger.info(
         key: 'IeducarApiConfiguration#start_synchronization',
