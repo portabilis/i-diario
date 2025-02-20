@@ -1,4 +1,3 @@
-<% sync_id = SecureRandom.uuid %>
 <tr>
   <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
@@ -10,15 +9,25 @@
       <%= "(<span id=\"done_percentage\">#{sync.done_percentage}</span>%)".html_safe %>
     <% end %>
     <% if sync.error? %>
-      <a href="#" data-toggle="modal" data-target="#<%= sync_id %>">
+      <a href="#" data-toggle="modal" data-target="#sync-<%= sync.id %>">
         <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
       </a>
     <% end %>
   </td>
+  <% if current_user.admin? %>
+    <td>
+      <% if sync.started? %>
+        <%= button_to "Cancelar", cancel_admin_synchronizations_path(ieducar_api_synchronization_id: sync.id),
+                      class: "btn btn-danger",
+                      data: { confirm: "Você tem certeza que gostaria de cancelar?" },
+                      method: :post %>
+      <% end %>
+    </td>
+  <% end %>
 </tr>
 
 <% if sync.error? %>
-  <div class="modal fade" id="<%= sync_id %>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal fade" id="sync-<%= sync.id %>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">

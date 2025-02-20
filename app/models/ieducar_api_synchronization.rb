@@ -110,9 +110,8 @@ class IeducarApiSynchronization < ApplicationRecord
     end
   end
 
-  def cancel!(restart = false)
-    mark_as_error! I18n.t('ieducar_api_synchronization.timedout'),
-                   I18n.t('ieducar_api_synchronization.timedout')
+  def cancel!(restart = false, error = I18n.t('ieducar_api_synchronization.timedout'))
+    mark_as_error! error
 
     if restart
       configuration = IeducarApiConfiguration.current

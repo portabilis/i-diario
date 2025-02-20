@@ -7,6 +7,9 @@
         <th><%= t('ieducar_api_configuration.sync_table.time') %></th>
         <th><%= t('ieducar_api_configuration.sync_table.averaged_time') %></th>
         <th><%= t('ieducar_api_configuration.sync_table.status') %></th>
+        <% if current_user.admin? %>
+          <th>Ações</th>
+        <% end %>
       </tr>
     </thead>
 
