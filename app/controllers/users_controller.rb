@@ -39,7 +39,7 @@ class UsersController < ApplicationController
 
   def update
     return render :edit unless valid_update
-    binding.pry
+
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
