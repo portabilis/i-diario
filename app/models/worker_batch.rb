@@ -53,7 +53,7 @@ class WorkerBatch < ApplicationRecord
   end
 
   def mark_as_error!
-    update(status: ApiSynchronizationStatus::ERROR)
+    update(status: ApiSynchronizationStatus::ERROR, ended_at: Time.current)
   end
 
   private
