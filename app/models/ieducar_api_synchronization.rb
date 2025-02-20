@@ -44,11 +44,15 @@ class IeducarApiSynchronization < ApplicationRecord
   end
 
   def self.average_time_by_full_synchronizations
+    Rails.cache.fetch("ieducar_api_synchronization/average_time_by_full_synchronizations/entity-#{Entity.current}", expires_in: 24.hour) do
     average_time(by_full_synchronizations, 5)
+    end
   end
 
   def self.average_time_by_partial_synchronizations
+    Rails.cache.fetch("ieducar_api_synchronization/average_time_by_partial_synchronizations/entity-#{Entity.current}", expires_in: 24.hour) do
     average_time(by_partial_synchronizations, 10)
+    end
   end
 
   def average_time
