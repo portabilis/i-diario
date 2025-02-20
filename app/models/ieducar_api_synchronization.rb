@@ -47,13 +47,13 @@ class IeducarApiSynchronization < ApplicationRecord
 
   def self.average_time_by_full_synchronizations
     Rails.cache.fetch("ieducar_api_synchronization/average_time_by_full_synchronizations/entity-#{Entity.current}", expires_in: 24.hour) do
-    average_time(by_full_synchronizations, 5)
+      average_time(by_full_synchronizations, 5)
     end
   end
 
   def self.average_time_by_partial_synchronizations
     Rails.cache.fetch("ieducar_api_synchronization/average_time_by_partial_synchronizations/entity-#{Entity.current}", expires_in: 24.hour) do
-    average_time(by_partial_synchronizations, 10)
+      average_time(by_partial_synchronizations, 10)
     end
   end
 
@@ -104,16 +104,19 @@ class IeducarApiSynchronization < ApplicationRecord
     restart = options.fetch(:restart, false)
 
     started.each do |sync|
-      last_author = sync.author
-      if sync.time_running > sync.average_time * 3
-        sync.mark_as_error! I18n.t('ieducar_api_synchronization.timedout'),
-                            I18n.t('ieducar_api_synchronization.timedout')
-
-        if restart
-          configuration = IeducarApiConfiguration.current
-          configuration.start_synchronization(sync.author, current_entity.id)
-        end
+      if time_running > average_time * 3
+        sync.cancel!(restart)
       end
+    end
+  end
+
+  def cancel!(restart = false)
+    mark_as_error! I18n.t('ieducar_api_synchronization.timedout'),
+                   I18n.t('ieducar_api_synchronization.timedout')
+
+    if restart
+      configuration = IeducarApiConfiguration.current
+      configuration.start_synchronization(author, current_entity.id)
     end
   end
 
