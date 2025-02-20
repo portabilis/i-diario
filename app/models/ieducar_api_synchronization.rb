@@ -19,6 +19,7 @@ class IeducarApiSynchronization < ApplicationRecord
   scope :unnotified, -> { where(notified: false) }
   scope :by_full_synchronizations,    -> { where(full_synchronization: true) }
   scope :by_partial_synchronizations, -> { where(full_synchronization: false) }
+  scope :ordered, -> { order(id: :desc) }
 
   def time_running
     return unless started_at
