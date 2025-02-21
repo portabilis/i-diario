@@ -1,6 +1,7 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'views/teacher_report_cards/form' %>
 <% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @teacher_report_card_form, url: teacher_report_cards_path, method: :post, html: { class: "smart-form", target: '_blank' } do |f| %>
     <div class="alert alert-info">
@@ -35,6 +36,10 @@
         </div>
         <div class="col col-sm-4">
           <%= f.input :status, as: :select2, elements: TeacherReportCardStatus.to_select(false).to_json %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.hidden_field :registration_status, value: false %>
+          <%= f.input :registration_status, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
     </fieldset>
