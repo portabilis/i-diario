@@ -13,3 +13,7 @@ development:
 test:
   <<: *default
   database: idiario_test
+
+production:
+  <<: *default
+  database: idiario_production

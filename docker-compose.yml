@@ -57,7 +57,8 @@ services:
       - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: idiario_development
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: idiario
+      POSTGRES_PASSWORD: idiario
     ports:
       - ${DOCKER_POSTGRES_PORT:-5432}:5432
 
