@@ -101,10 +101,9 @@ class User < ApplicationRecord
     Features.list.each do |feature|
       next if existing_features.include?(feature)
 
-      permissions.new(
-        feature: feature,
-        permission: Permissions::DENIED
-      )
+      permissions.find_or_create_by(feature: feature) do |p|
+        p.permission = Permissions::DENIED
+      end
     end
   end
 
