@@ -2,6 +2,11 @@
 
 Você pode instalar o i-Diário utilizando Docker ou diretamente no seu servidor web.
 
+- [Dependências](#dependências)
+- [Instalação utilizando Docker](#instalação-utilizando-docker)
+- [Instalação em servidor web](#instalação-em-servidor-web)
+- [Primeiro acesso](#primeiro-acesso)
+
 ## Dependências
 
 Para executar o projeto é necessário a utilização de alguns softwares.
@@ -23,11 +28,39 @@ Para executar o projeto é necessário a utilização de alguns softwares.
 
 Para instalar o projeto execute **todos os passos** abaixo:
 
-> ATENÇÃO: Essa forma de instação tem o objetivo de facilitar demonstrações e
-desenvolvimento. Não é recomendado para ambientes de produção!
+> ATENÇÃO: Essa forma de instalação tem o objetivo de facilitar demonstrações e o desenvolvimento. Não é recomendado
+> para ambientes de produção!
 
-Em breve..
+Para instalar o projeto execute todos os passos abaixo.
 
+* Clone o repositório:
+
+```bash
+git clone https://github.com/portabilis/i-diario.git && cd i-diario
+```
+
+Faça o build das imagens Docker utilizadas no projeto e inicie os containers da aplicação (pode levar alguns minutos):
+
+```bash
+docker-compose up --build
+```
+
+Aguarde a instalação finalizar até algo similar aparecer na tela:
+
+```log
+idiario-puma             | * Puma version: 6.5.0 ("Sky's Version")
+idiario-puma             | * Ruby version: ruby 2.6.6p146 (2020-03-31 revision 67876) [x86_64-linux]
+idiario-puma             | *  Min threads: 0
+idiario-puma             | *  Max threads: 5
+idiario-puma             | *  Environment: development
+idiario-puma             | *          PID: 1
+idiario-puma             | * Listening on http://0.0.0.0:3000
+idiario-puma             | Use Ctrl-C to stop
+```
+
+#### Personalizando a instalação
+
+Você pode criar um arquivo `docker-compose.override.yml` para personalizar sua instalação do i-Diário.
 
 ## Instalação em servidor web
 
@@ -150,7 +183,11 @@ bundle exec rails entity:admin:create NAME=idiario ADMIN_PASSWORD=A123456789$
 Após os passos acima, o i-Diário estará completamente instalado e é preciso subir os serviços necessários para o
 funcionamento completo do software.
 
-Execute em 3 abas distintas do servidor cada um dos comandos abaixo:
+### Execução
+
+Para executar o software, é preciso executar em 3 abas distintas do servidor cada um dos comandos abaixo:
+
+#### Puma
 
 Ativar o Puma para responder na porta 80.
 
@@ -158,11 +195,15 @@ Ativar o Puma para responder na porta 80.
 bundle exec rails server -b 0.0.0.0 -p 80
 ```
 
+#### Sidekiq (sincronização)
+
 Ativar o Sidekiq para processar a fila de sincronização.
 
 ```bash
 bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 --logfile log/sidekiq.log
 ```
+
+#### Sidekiq
 
 Ativar o Sidekiq para processar as demais filas.
 
@@ -170,3 +211,25 @@ Ativar o Sidekiq para processar as demais filas.
 bundle exec sidekiq -c 10 --logfile log/sidekiq.log
 ```
 
+
+
+### Primeiro acesso
+
+Acesse [http://localhost:3000](http://localhost:3000) ou o IP do seu servidor para fazer o seu primeiro acesso.
+
+O usuário padrão é: `admin` / A senha padrão é: `A123456789$`.
+
+Assim que realizar seu primeiro acesso **não se esqueça de alterar a senha padrão**.
+
+### Sincronização com i-Educar
+
+Para fazer a sincronização entre i-Educar e i-Diário é necessário configurar os dados do ambiente do i-Educar em
+`Configurações > API de Integração`.
+
+Após configurada a integração, será exibido dois botões:
+- `Sincronizar`: ao clicar neste botão, será somente sincronizado os dados inseridos/atualizados/deletados após a
+  última data de sincronização.
+- `Sincronização completa`: ao clicar nesse botão, será feita uma sincronização de todos os dados dos últimos 2 anos.
+  Este botão apenas é exibido para o usuário `admin`.
+
+_Nota: é recomendada que a sincronização seja executada diariamente para manter o i-Diário atualizado com o i-Educar_
