@@ -31,8 +31,6 @@ Para instalar o projeto execute **todos os passos** abaixo:
 > ATENÇÃO: Essa forma de instalação tem o objetivo de facilitar demonstrações e o desenvolvimento. Não é recomendado
 > para ambientes de produção!
 
-Para instalar o projeto execute todos os passos abaixo.
-
 * Clone o repositório:
 
 ```bash
