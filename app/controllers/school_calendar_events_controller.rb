@@ -110,8 +110,8 @@ class SchoolCalendarEventsController < ApplicationController
   helper_method :grades
 
   def classrooms
-    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id,
-@school_calendar_event.grade_id).by_year(@school_calendar.year).ordered || {}
+    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id,@school_calendar_event.grade_id)
+                             .by_year(@school_calendar.year).ordered || {}
   end
   helper_method :classrooms
 
