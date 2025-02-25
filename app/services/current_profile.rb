@@ -177,7 +177,7 @@ class CurrentProfile
   end
 
   def cache(key_complements)
-    Rails.cache.fetch cache_key_to_user + Array(key_complements), expires_in: 10.minutes do
+    Rails.cache.fetch cache_key_to_user + [IeducarApiSynchronization.last] + Array(key_complements), expires_in: 10.minutes do
       yield
     end
   end
