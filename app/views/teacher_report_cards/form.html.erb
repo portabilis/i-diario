@@ -37,7 +37,7 @@
         <div class="col col-sm-4">
           <%= f.input :status, as: :select2, elements: TeacherReportCardStatus.to_select(false).to_json %>
         </div>
-        <div class="col col-sm-4">
+        <div class="col col-sm-4" style="padding: 10px 15px;">
           <%= f.hidden_field :registration_status, value: false %>
           <%= f.input :registration_status, as: :boolean, label: false, inline_label: true %>
         </div>
