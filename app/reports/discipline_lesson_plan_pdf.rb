@@ -218,22 +218,21 @@ class DisciplineLessonPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    actives_methodology_translation = Translation.find_by(key: 'navigation.actives_methodology_by_discipline', group: 'lesson_plans').translation
-    actives_methodology_label = actives_methodology_translation.present? ? actives_methodology_translation : 'Atividades/metodologia'
+    key_prefix = @discipline_lesson_plan.present? ? 'discipline' : 'knowledge_area'
 
-    resources_translation = Translation.find_by(key: 'navigation.resources_by_discipline', group: 'lesson_plans').translation
-    resources_label = resources_translation.present? ? resources_translation : 'Recursos'
-
-    evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'lesson_plans').translation
-    evaluation_label = evaluation_translation.present? ? evaluation_translation : 'Avaliação'
-
-    references_translation = Translation.find_by(key: 'navigation.references_by_discipline', group: 'lesson_plans').translation
-    references_label = references_translation.present? ? references_translation : 'Referências'
+    actives_methodology_label = I18n.t("navigation.actives_methodology_by_#{key_prefix}",
+      default: 'Atividades/metodologia')
+    resources_label = I18n.t("navigation.resources_by_#{key_prefix}", default: 'Recursos')
+    evaluation_label = I18n.t("navigation.avaliation_by_#{key_prefix}", default: 'Avaliação')
+    references_label = I18n.t("navigation.references_by_#{key_prefix}", default: 'Referências')
+    curriculum_adaptation_label = I18n.t("navigation.curriculum_adaptation_by_#{key_prefix}",
+      default: 'Adaptação curricular')
 
     text_box_truncate(actives_methodology_label, (lesson_plan.activities || '-'))
     text_box_truncate(resources_label, (lesson_plan.resources || '-'))
     text_box_truncate(evaluation_label, (lesson_plan.evaluation || '-'))
     text_box_truncate(references_label, (lesson_plan.bibliography || '-'))
+    text_box_truncate(curriculum_adaptation_label, (lesson_plan.curriculum_adaptation || '-'))
   end
 
   def additional_information
