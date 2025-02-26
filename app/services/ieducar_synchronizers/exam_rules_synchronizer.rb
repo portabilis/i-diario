@@ -41,10 +41,8 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule_record.regra_diferenciada_id
         ]
 
-        if exam_rule.changed?
-          exam_rule.save!
-          update_descriptive_exams(exam_rule) if exam_rule.persisted?
-        end
+        discard_descriptive_exams(exam_rule) if exam_rule.changed? && exam_rule.attribute_changed?("opinion_type")
+        exam_rule.save!
       end
     end
 
@@ -61,18 +59,14 @@ class ExamRulesSynchronizer < BaseSynchronizer
     end
   end
 
-  def update_descriptive_exams(exam_rule)
-    return unless exam_rule.attribute_changed?("opinion_type")
-
+  def discard_descriptive_exams(exam_rule)
     user_admin = User.find_by(admin: true)
-    classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id)
-                                   .pluck(:classroom_id)
-                                   .uniq
+    classroom_ids = ClassroomsGrade.where(exam_rule_id: exam_rule.id).pluck(:classroom_id).uniq
 
     Audited.audit_class.as_user(user_admin) do
       DescriptiveExam.where(classroom_id: classroom_ids)
-                    .where.not(opinion_type: exam_rule.opinion_type)
-                    .destroy_all
+                     .where.not(opinion_type: exam_rule.opinion_type)
+                     .destroy_all
       DescriptiveExamStudent.by_classroom(classroom_ids).discard_all
     end
   end
