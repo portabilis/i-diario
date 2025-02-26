@@ -150,11 +150,11 @@
 
 <% key_prefix = @discipline_lesson_plan.present? ? 'discipline' : 'knowledge_area' %>
 
-<% @methodology_translation = t("navigation.actives_methodology_by_#{key_prefix}") %>
-<% @resources_translation = t("navigation.resources_by_#{key_prefix}") %>
-<% @evaluation_translation = t("navigation.avaliation_by_#{key_prefix}") %>
-<% @references_translation = t("navigation.references_by_#{key_prefix}") %>
-<% @curriculum_adaptation = t("navigation.curriculum_adaptation_by_#{key_prefix}") %>
+<% @methodology_translation = Translation.find_by(key: "navigation.actives_methodology_by_#{key_prefix}", group: 'lesson_plans')&.translation %>
+<% @resources_translation = Translation.find_by(key: "navigation.resources_by_#{key_prefix}", group: 'lesson_plans')&.translation %>
+<% @evaluation_translation = Translation.find_by(key: "navigation.avaliation_by_#{key_prefix}", group: 'lesson_plans')&.translation %>
+<% @references_translation = Translation.find_by(key: "navigation.references_by_#{key_prefix}", group: 'lesson_plans')&.translation %>
+<% @curriculum_adaptation = Translation.find_by(key: "navigation.curriculum_adaptation_by_#{key_prefix}", group: 'lesson_plans')&.translation %>
 
 <div class="row textarea">
   <div class="col col-sm-12">

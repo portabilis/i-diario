@@ -251,13 +251,16 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
 
     key_prefix = @discipline_lesson_plan.present? ? 'discipline' : 'knowledge_area'
 
-    actives_methodology_label = I18n.t("navigation.actives_methodology_by_#{key_prefix}",
-      default: 'Atividades/metodologia')
-    resources_label = I18n.t("navigation.resources_by_#{key_prefix}", default: 'Recursos')
-    evaluation_label = I18n.t("navigation.avaliation_by_#{key_prefix}", default: 'Avaliação')
-    references_label = I18n.t("navigation.references_by_#{key_prefix}", default: 'Referências')
-    curriculum_adaptation_label = I18n.t("navigation.curriculum_adaptation_by_#{key_prefix}",
-      default: 'Adaptação curricular')
+    actives_methodology_label = Translation.find_by(key: "navigation.actives_methodology_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Atividades/metodologia'
+    resources_label = Translation.find_by(key: "navigation.resources_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Recursos'
+    evaluation_label = Translation.find_by(key: "navigation.avaliation_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Avaliação'
+    references_label = Translation.find_by(key: "navigation.references_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Referências'
+    curriculum_adaptation_label = Translation.find_by(key: "navigation.curriculum_adaptation_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Adaptação curricular'
 
     text_box_truncate(actives_methodology_label, (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
     text_box_truncate(resources_label, (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
