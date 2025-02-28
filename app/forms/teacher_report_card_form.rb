@@ -9,8 +9,4 @@ class TeacherReportCardForm
                 :registration_status
 
   validates :unity_id, :classroom_id, :grade_id, :discipline_id, :status, presence: true
-
-  def registration_status=(value)
-    @registration_status = ActiveRecord::Type::Boolean.new.cast(value)
-  end
 end
