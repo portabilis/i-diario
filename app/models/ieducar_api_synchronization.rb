@@ -96,10 +96,6 @@ class IeducarApiSynchronization < ApplicationRecord
     update_attribute(:job_id, job_id)
   end
 
-  def running?
-    started? && job_is_running?
-  end
-
   def self.cancel_locked_synchronizations(current_entity, options = {})
     restart = options.fetch(:restart, false)
 
