@@ -44,6 +44,10 @@ class WorkerBatch < ApplicationRecord
 
     new_count = $REDIS_DB.incr(redis_key)
 
+    # A cada 10% incrementados, atualiza o timestamp de atualização, para sabermos
+    # que a sincronização não está travada
+    touch if (done_percentage % 10).zero?
+
     if new_count == total_workers
       yield if block_given?
 

@@ -104,10 +104,16 @@ class IeducarApiSynchronization < ApplicationRecord
     restart = options.fetch(:restart, false)
 
     started.each do |sync|
-      if time_running > average_time * 3
+      if locked?
         sync.cancel!(restart)
       end
     end
+  end
+
+  # Considerado travado quando a sincronização está rodando a mais de 3x o tempo médio
+  # e a última atualização do batch foi há mais de 30 minutos
+  def locked?
+    time_running > average_time * 3 && worker_batch.updated_at < 30.minutes.ago
   end
 
   def cancel!(restart = false, error = I18n.t('ieducar_api_synchronization.timedout'))
