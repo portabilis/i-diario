@@ -1,12 +1,12 @@
-<tr>
+<tr class="sync-status-<%= sync.status %>">
   <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
-  <td><span id="time_running"><%= sync.time_running %></span> minutos</td>
+  <td><span class="time_running"><%= sync.time_running %></span> minutos</td>
   <td><%= "#{sync.average_time} minutos" if sync.average_time %></td>
   <td>
     <%= t("enumerations.api_synchronization_status.#{sync.status}") %>
     <% if sync.started? %>
-      <%= "(<span id=\"done_percentage\">#{sync.done_percentage}</span>%)".html_safe %>
+      <%= "(<span class=\"done_percentage\">#{sync.done_percentage}</span>%)".html_safe %>
     <% end %>
     <% if sync.error? %>
       <a href="#" data-toggle="modal" data-target="#sync-<%= sync.id %>">
