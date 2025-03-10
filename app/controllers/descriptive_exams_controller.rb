@@ -338,10 +338,6 @@ class DescriptiveExamsController < ApplicationController
     @opinion_type = params.dig('descriptive_exam', 'opinion_type')
   end
 
-  def student_has_dependence?(student_enrollment, discipline); end
-
-  def exempt; end
-
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
   end
