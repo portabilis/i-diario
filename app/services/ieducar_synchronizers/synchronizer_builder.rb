@@ -16,10 +16,7 @@ class SynchronizerBuilder
         params[:year] = year
         params[:unity_api_code] = unity_api_code
 
-        SynchronizerExecuterEnqueueWorker.perform_in(
-          1.second,
-          params
-        )
+        SynchronizerExecuterEnqueueWorker.perform_async(params)
       end
     end
   end
