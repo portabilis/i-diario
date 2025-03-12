@@ -211,4 +211,97 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
     end
   end
+
+  describe 'when the event_type_changed parameter is true' do
+    let!(:list_classrooms_for_unity) { create_list(:classroom, 3, unity: school_calendars.last.unity) }
+    let!(:classroom_grades) {
+      list_classrooms_for_unity.map do |classroom|
+        create(
+          :classrooms_grade,
+          classroom: classroom,
+        )
+      end
+    }
+    let!(:daily_frequency) {
+      create(
+        :daily_frequency,
+        id: 456,
+        classroom: list_classrooms_for_unity.first,
+        frequency_date: '2017-02-15',
+        unity: school_calendars.last.unity,
+        school_calendar: school_calendars.last,
+        period: Periods::MATUTINAL
+      )
+    }
+    let!(:unity_school_day) {
+      create(
+        :unity_school_day,
+        unity: school_calendars.last.unity,
+        school_day: '2017-02-15'
+      )
+    }
+
+    subject do
+      SchoolCalendarEventDays.update_school_days(
+        [school_calendars.last],
+        [school_calendar_event],
+        'create',
+        '2017-02-10',
+        '2017-02-16',
+        true
+      )
+    end
+
+    context 'when the event is EventTypes::NO_SCHOOL' do
+      let!(:school_calendar_event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-10',
+          end_date: '2017-02-16'
+        )
+      }
+
+      it 'deletes the attendance and unity_school_day' do
+        expect {
+          subject
+        }.to change { DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
+         .and change { UnitySchoolDay.where(id: unity_school_day.id).count }.by(-1)
+      end
+    end
+
+    context 'when the event is EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY' do
+      let!(:school_calendar_event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-10',
+          end_date: '2017-02-16'
+        )
+      }
+
+      it 'deletes only the attendance and not the unity_school_day' do
+        expect {
+          subject
+        }.to change { DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
+        .and change {
+          UnitySchoolDay.where(unity_id: school_calendars.last.unity, school_day: '2017-02-15').count
+        }.by(0)
+      end
+    end
+  end
 end
