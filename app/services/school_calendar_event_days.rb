@@ -72,7 +72,9 @@ class SchoolCalendarEventDays
         days_to_process << school_day
         unities_ids << school_calendar.unity_id
 
-        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).send(action, @events)
+        unless @events.pluck(:event_type).include?(EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY)
+          SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).send(action, @events)
+        end
       end
     end
 
