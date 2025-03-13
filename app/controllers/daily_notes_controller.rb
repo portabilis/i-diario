@@ -113,7 +113,9 @@ class DailyNotesController < ApplicationController
         delete_note(params[:id], student_id)
 
         avaliation_exemption.save!
-      rescue Exception
+      rescue Exception => expection
+        Honeybadger.notify(expection)
+
         @students_ids.delete(student_id)
       end
     end
