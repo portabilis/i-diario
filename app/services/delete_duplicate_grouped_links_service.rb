@@ -22,7 +22,7 @@ class DeleteDuplicateGroupedLinksService
           ) AS g
           ON tdc.teacher_id = g.teacher_id
           AND tdc.classroom_id = g.classroom_id
-          AND tdc.discipline_id = g.grouper_id;
+          AND tdc.discipline_id = g.grouper_id
         );
       SQL
     end
