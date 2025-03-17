@@ -14,7 +14,7 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
           @worker_batch.id,
           params[:current_years]
         )
-        UnitiesSynchronizer.synchronize!(params)
+        UnitiesSynchronizer.new(params).synchronize!
       end
     end
   end
