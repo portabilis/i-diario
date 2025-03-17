@@ -8,6 +8,7 @@ class SynchronizerBuilderEnqueueWorker
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
+      return if !synchronization.started?
       worker_batch = WorkerBatch.find(params[:worker_batch_id])
 
       SynchronizationOrchestrator.new(

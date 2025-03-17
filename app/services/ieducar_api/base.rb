@@ -1,6 +1,7 @@
 module IeducarApi
   class Base
     class ApiError < RuntimeError; end
+    class GenericError < RuntimeError; end
     class NetworkException < StandardError; end
 
     RETRY_NETWORK_ERRORS = ['Temporary failure in name resolution', '502 Bad Gateway'].freeze
@@ -105,14 +106,14 @@ module IeducarApi
       rescue StandardError => error
         Honeybadger.notify(error)
 
-        raise ApiError, error.message
+        raise GenericError, error.message
       end
 
       message = result['msgs'].map { |r| r['msg'] }.join(', ')
 
       response = IeducarResponseDecorator.new(result)
       raise_exception = response.any_error_message? && !response.known_error?
-      raise ApiError, message if raise_exception
+      raise GenericError, message if raise_exception
 
       result
     end

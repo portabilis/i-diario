@@ -1,12 +1,14 @@
 class SynchronizerExecuterEnqueueWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, queue: :synchronizer_enqueue_next_job
+  sidekiq_options unique: :until_and_while_executing, queue: :critical
 
   def perform(params)
     params = params.with_indifferent_access
-
     Entity.find(params[:entity_id]).using_connection do
+      synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
+      return if !synchronization.started?
+
       enqueue_job(params)
     end
   end

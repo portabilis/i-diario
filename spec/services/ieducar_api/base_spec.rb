@@ -166,7 +166,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       VCR.use_cassette('wrong_client_url') do
         expect {
           subject.fetch(path: path, resource: resource)
-        }.to raise_error(IeducarApi::Base::ApiError)
+        }.to raise_error(IeducarApi::Base::GenericError)
       end
     end
 
@@ -304,7 +304,7 @@ RSpec.describe IeducarApi::Base, type: :service do
 
       expect {
         subject.send_post(params)
-      }.to raise_error(IeducarApi::Base::ApiError)
+      }.to raise_error(IeducarApi::Base::GenericError)
     end
 
     it 'returns an error when providing an invalid client url' do
@@ -333,7 +333,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       VCR.use_cassette('post_wrong_resource') do
         expect {
           subject.send_post(path: path, resource: 'errado')
-        }.to raise_error(IeducarApi::Base::ApiError)
+        }.to raise_error(IeducarApi::Base::GenericError)
       end
     end
   end

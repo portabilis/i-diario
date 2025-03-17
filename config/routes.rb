@@ -131,7 +131,11 @@ Rails.application.routes.draw do
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
     resource :terms_dictionaries, only: [:edit, :update], concerns: :history
-    resources :admin_synchronizations, only: [:index]
+    resources :admin_synchronizations, only: [:index] do
+      collection do
+        post :cancel
+      end
+    end
     resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history do
       collection do
