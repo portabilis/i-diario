@@ -44,7 +44,8 @@ class SchoolCalendarEventsService
   def format_events(events)
     events.map do |event|
       {
-        descricao: event.description,
+        titulo_evento: event.description,
+        descricao_evento: event.general_description,
         tipo_evento: event.event_type,
         periodo: {
           inicio: event.start_date,

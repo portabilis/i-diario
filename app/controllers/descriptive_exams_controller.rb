@@ -264,7 +264,7 @@ class DescriptiveExamsController < ApplicationController
       end
     end
 
-    if action_name.eql?('new') || action_name.eql?('find')
+    if action_name.eql?('new') || action_name.eql?('find') || action_name.eql?('create')
       @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
     end
   end
