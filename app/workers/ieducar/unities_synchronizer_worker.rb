@@ -6,7 +6,6 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
       synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
       if synchronization
         @worker_batch = synchronization.worker_batch
-        @worker_batch.start!
 
         params = build_params(
           params[:entity_id],

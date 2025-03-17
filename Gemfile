@@ -91,6 +91,7 @@ group :test do
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
   gem 'rails-controller-testing', '~> 1.0.5'
+  gem 'mock_redis', '0.36.0'
   gem 'rspec-rails', '3.5.2'
   gem 'rspec-retry', '0.6.2 '
   gem 'rspec-sidekiq', '3.0.3'

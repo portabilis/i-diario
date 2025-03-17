@@ -5,8 +5,10 @@ class SynchronizerExecuterEnqueueWorker
 
   def perform(params)
     params = params.with_indifferent_access
-
     Entity.find(params[:entity_id]).using_connection do
+      synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
+      return if !synchronization.started?
+
       enqueue_job(params)
     end
   end
