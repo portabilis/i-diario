@@ -96,12 +96,16 @@ module IeducarApi
                  end
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
+        Honeybadger.notify(error)
+
         if RETRY_NETWORK_ERRORS.any? { |network_error| error.message.include?(network_error) }
           raise NetworkException, error.message
         end
 
         raise ApiError, 'URL do i-Educar informada não é válida.'
       rescue StandardError => error
+        Honeybadger.notify(error)
+
         raise GenericError, error.message
       end
 
