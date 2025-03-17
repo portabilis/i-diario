@@ -25,10 +25,9 @@ Portabilis - mantenedora do projeto.
 
 ## Instalação
 
-Há duas formas de fazer a instalação:
+Formas de fazer a instalação:
 
 - [Instalação utilizando Docker](#Instalação-utilizando-Docker)
-- [Instalação em Servidor](#Instalação-em-Servidor-(Testado-no-Ubuntu-18.04))
 
 ### Instalação utilizando Docker
 
@@ -43,281 +42,71 @@ Para instalar o projeto execute todos os passos abaixo.
 git clone https://github.com/portabilis/i-diario.git && cd i-diario
 ```
 
-* Faça o build das imagens Docker utilizadas no projeto (pode levar alguns minutos) e inicie os containers da
-aplicação:
+Faça o build das imagens Docker utilizadas no projeto e inicie os containers da aplicação (pode levar alguns minutos):
 
 ```bash
-docker-compose up -d --build
+docker-compose up --build
 ```
 
-* Use o comando `docker-compose logs -f app` para acompanhar o log da aplicação.
-
-* Aguarde a instalação finalizar até algo similar aparecer na tela:
+Aguarde a instalação finalizar até algo similar aparecer na tela:
 
 ```log
-idiario     | => Ctrl-C to shutdown server
-idiario     | Puma starting in single mode...
-idiario     | * Version 4.3.1 (ruby 2.3.7-p456), codename: Mysterious Traveller
-idiario     | * Min threads: 0, max threads: 16
-idiario     | * Environment: development
-idiario     | * Listening on tcp://0.0.0.0:3000
-idiario     | Use Ctrl-C to stop
+idiario-puma             | * Puma version: 6.5.0 ("Sky's Version")
+idiario-puma             | * Ruby version: ruby 2.6.6p146 (2020-03-31 revision 67876) [x86_64-linux]
+idiario-puma             | *  Min threads: 0
+idiario-puma             | *  Max threads: 5
+idiario-puma             | *  Environment: development
+idiario-puma             | *          PID: 1
+idiario-puma             | * Listening on http://0.0.0.0:3000
+idiario-puma             | Use Ctrl-C to stop
 ```
 
-#### Personalizando a instalação via Docker
+#### Personalizando a instalação
 
-Você pode criar um arquivo `docker-compose.override.yml` para personalizar sua instalação do i-Diário, mudando as portas
-dos serviços ou o mapeamento dos volumes extras para a aplicação.
-
-### Instalação em Servidor (Testado no Ubuntu 18.04)
-
-- Instale o Ruby 2.4.10 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
- ou [Rvm](https://rvm.io/))
-- Instale o Postgres e faça a configuração em `database.yml`
-- Instale o Node.js 12.22.1
-- Instale o gerenciador de pacotes [Yarn](https://yarnpkg.com/))
-- Instale a biblioteca `libpq-dev`
-
-```bash
-sudo apt install libpq-dev
-```
-
-- Instale Redis
-
-```bash
-sudo apt install redis-server
-```
-
-- Instale a gem Bundler:
-
-```bash
-gem install bundler -v '1.17.3'
-```
-
-- Instale as gems:
-
-```bash
-bundle install
-```
-
-- Instale as dependencias do projeto
-
-```bash
-yarn install
-```
-
-- Crie e configure o arquivo `config/secrets.yml` conforme o exemplo:
-
-```yaml
-development:
-  secret_key_base: CHAVE_SECRETA
-  SMTP_ADDRESS: SMTP_ADDRESS
-  SMTP_PORT: SMTP_PORT
-  SMTP_DOMAIN: SMTP_DOMAIN
-  SMTP_USER_NAME: SMTP_USER_NAME
-  SMTP_PASSWORD: SMTP_PASSWORD
-  NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
-  EMAIL_SKIP_DOMAINS: EMAIL_SKIP_DOMAINS
-  STUDENT_DOMAIN: STUDENT_DOMAIN
-```
-
-_Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
-
-_Nota: Use `EMAIL_SKIP_DOMAINS` para informar domínios (separadas por virgula e sem espaço) para os quais não quer
-que o sistema faça envio de emails_
-
-_Nota: Use `STUDENT_DOMAIN` para informar o domínio que vai ser usado para criar as contas de usuarios dos alunos na sincronização. Se não for informado, o checkbox que permite essa funcionalidade na tela de configurações não vai ser apresentado_
-
-- Crie o banco de dados:
-
-```bash
-bundle exec rake db:create
-bundle exec rake db:migrate
-```
-
-- Crie as páginas de erro se baseando nas padrões:
-
-```bash
-cp public/404.html.sample public/404.html
-cp public/500.html.sample public/500.html
-```
-
-- Crie uma entidade:
-
-```bash
-bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
-```
-
-- Configure os uploads de arquivos
-
-O i-Diário tem alguns uploads de arquivos, como anexos e foto de perfil.
-Foi utilizado as gems [Carrierwave](https://github.com/carrierwaveuploader/carrierwave)
-com [carrierwave-aws](https://github.com/sorentwo/carrierwave-aws).
-
-Hoje, se não há configuração para usar a AWS S3, irá salvar os arquivos localmente.
-
-Para usar AWS S3, basta colocar no secrets as seguintes chaves, alterando para valores reais:
-
-```yaml
-AWS_ACCESS_KEY_ID: 'xxx'
-AWS_SECRET_ACCESS_KEY: 'xxx'
-AWS_REGION: 'us-east-1'
-AWS_BUCKET: 'bucket_name'
-```
-
-Se quiser customizar para onde vai o upload de documentos, caso queira mandar para um lugar diferente das imagens
-pode usar as secrets abaixo:
-
-```yaml
-DOC_UPLOADER_AWS_ACCESS_KEY_ID: 'xxx'
-DOC_UPLOADER_AWS_SECRET_ACCESS_KEY: 'xxx'
-DOC_UPLOADER_AWS_REGION: 'us-east-1'
-DOC_UPLOADER_AWS_BUCKET: 'bucket_name'
-```
-
-Caso você queira usar outro meio de fazer upload de arquivos, recomendamos dar uma olhada no
- [Fog](https://github.com/fog/fog).
-
-O Fog trabalha com essas [opções](https://fog.io/about/provider_documentation.html).
-
-Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems customizadas, e coloque a gem
-`gem 'fog', '~>1.42.0'`.
-
-Uma vez adicionada a gem `fog`, basta criar um arquivo de configuração em `config/custom_carrierwave.rb`
- e fazer os ajustes para funcionar. Leia atentamente a documentação do `carrierwave` antes de fazer isso.
-
-- Redirecionar os relatórios para outro servidor (opcional)
-```yaml
-  REPORTS_SERVER_IP: xx.xx.xx.xx
-  REPORTS_SERVER_USERNAME: username
-  REPORTS_SERVER_DIR: /var/www/relatorios_idiario
-```
-
-_Nota: REPORTS_SERVER_DIR deve estar dentro da pasta publica do seu servidor_
-
-* Inicie o servidor:
-
-```bash
-bundle exec rails server
-```
-
-* Inicie os processos do [sidekiq](#sidekiq)
+Você pode criar um arquivo `docker-compose.override.yml` para personalizar sua instalação do i-Diário.
 
 ### Primeiro acesso
 
-* Antes de realizar o primeiro acesso, crie um usuário administrador:
+Acesse [http://localhost:3000](http://localhost:3000) ou o IP do seu servidor para fazer o seu primeiro acesso.
 
-```bash
-bundle exec rails console
-```
+O usuário padrão é: `admin` / A senha padrão é: `A123456789$`.
 
-* Crie o usuário administrador, substitua as informações que deseje:
-
-```ruby
-Entity.last.using_connection {
-  User.create!(
-    email: 'admin@domain.com.br',
-    password: '123456789',
-    password_confirmation: '123456789',
-    status: 'active',
-    kind: 'employee',
-    admin: true,
-    first_name: 'Admin'
-  )
-}
-```
-
-Agora você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com as credenciais
-fornecidas no passo anterior.
+Assim que realizar seu primeiro acesso **não se esqueça de alterar a senha padrão**.
 
 ### Sincronização com i-Educar
 
-- Para fazer a sincronização entre i-Educar e i-Diário é necessário estar com o Sidekiq rodando;
-- Acessar Configurações > Api de Integraçao e configurar os dados do sincronismo
-- Acessar Configurações > Unidades e clicar em **Sincronizar**
-- Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
-- Acessar Configurações > Api de Integração
-  - Existem dois botões nessa tela:
-    - Sincronizar: Ao clicar nesse botão, será verificado a ultima data de sincronização e somente vai sincronizar
-     os dados inseridos/atualizados/deletados após essa data.
-    - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão,
-     não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
+Para fazer a sincronização entre i-Educar e i-Diário é necessário configurar os dados do ambiente do i-Educar em
+`Configurações > API de Integração`.
 
-_Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o
- i-Diário atualizado com o i-Educar_
+Após configurada a integração, será exibido dois botões:
+  - `Sincronizar`: ao clicar neste botão, será somente sincronizado os dados inseridos/atualizados/deletados após a
+    última data de sincronização.
+  - `Sincronização completa`: ao clicar nesse botão, será feita uma sincronização de todos os dados dos últimos 2 anos.
+    Este botão apenas é exibido para o usuário `admin`.
 
-### Sidekiq
+_Nota: é recomendada que a sincronização seja executada diariamente para manter o i-Diário atualizado com o i-Educar_
 
-É a ferramenta usada para rodar comandos em background, sem travar o sistema
-enquanto ele é usado.
+### Console
 
-- Processo 1 (Responsável pela sincronização com o i-educar)
+Para acessar o console do Rails, execute o comando:
 
 ```bash
-bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 -d --logfile log/sidekiq.log
+# (Docker) docker-compose run ruby bundle exec rails console
+bundle exec rails console
 ```
-
-- Processo 2 (Responsável pelos outros jobs)
-
-```bash
-bundle exec sidekiq -c 10 -d --logfile log/sidekiq.log
-```
-
-Sempre que for fazer deploy, deve-se parar o sidekiq e depois reiniciá-lo com os
-comandos acima.
-
-```bash
-ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
-```
-
-Conhece mais sobre o sidekiq [aqui](https://github.com/mperham/sidekiq).
-
-#### Sidekiq com mais concorrência
-
-Se o município configurado tem muitos envios de faltas e notas para o i-educar,
-é possível iniciar vários processos para aumentar a concorrência.
-
-No exemplo abaixo, estamos rodando dois processos do sidekiq.
-
-```bash
-bundle exec sidekiq -q exam_posting_1 -c 1 -d --logfile log/sidekiq_exam_posting_1.log
-```
-
-```bash
-bundle exec sidekiq -q exam_posting_2 -c 1 -d --logfile log/sidekiq_exam_posting_1.log
-```
-
-Para funcionar, é necessário adicionar no arquivo `config/secrets.yml` as filas
-usadas, separadas por virgula e sem espaço:
-
-```yaml
-production:
-  EXAM_POSTING_QUEUES: 'exam_posting_1,exam_posting_2'
-```
-
-Assim ele vai escolher randomicamente qual a fila irá usar, diminuindo o gargalo
-no servidor.
-
-Deve-se tomar cuidado pois quanto mais concorrência, mais irá exigir do
-i-educar.
-
-Foi decidido usar a abordagem de vários workers com apenas um de concorrência
-para diminuir a carga no i-educar. Então se um professor envia faltas e notas
-para o i-educar, ele irá usar uma fila só sequencial. Se outro professor for
-enviar, ele irá rodar em outra fila (se o random jogar para essa fila.)
 
 ### Executar os testes
 
 ```bash
-# (Docker) docker-compose exec app RAILS_ENV=test bundle exec rake db:create
-RAILS_ENV=test bundle exec rake db:create
+# (Docker) docker-compose run ruby RAILS_ENV=test bundle exec rails db:create
+RAILS_ENV=test bundle exec rails db:create
 
-# (Docker) docker-compose exec app RAILS_ENV=test bundle exec rake db:migrate
-RAILS_ENV=test bundle exec rake db:migrate
+# (Docker) docker-compose run ruby RAILS_ENV=test bundle exec rails db:migrate
+RAILS_ENV=test bundle exec rails db:migrate
 ```
 
 ```bash
-# (Docker) docker-compose exec app bin/rspec spec
+# (Docker) docker-compose run ruby bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
 bin/rspec spec
 ```
 
