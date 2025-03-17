@@ -69,15 +69,15 @@ class AdminSynchronization
   end
 
   def started
-    entity_syncs['started'] || []
+    @started ||= (entity_syncs['started'] || []).sort_by { |_, sync| sync[:started_sync].started_at }
   end
 
   def completed
-    entity_syncs['completed'] || []
+    @completed ||= (entity_syncs['completed'] || []).sort_by { |_, sync| sync[:finished_sync].started_at }
   end
 
   def error
-    entity_syncs['error'] || []
+    @error ||= (entity_syncs['error'] || []).sort_by { |_, sync| sync[:finished_sync].started_at }
   end
 
   private
