@@ -445,5 +445,17 @@ Rails.application.routes.draw do
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
 
     resources :data_exportations, only: [:index, :create]
+
+    resources :teaching_plan_opinions, only: [] do
+      member do
+        patch :update
+      end
+    end
+
+    resources :lesson_plan_opinions, only: [] do
+      member do
+        patch :update
+      end
+    end
   end
 end
