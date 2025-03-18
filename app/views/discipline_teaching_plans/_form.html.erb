@@ -13,7 +13,9 @@
 <%= simple_form_for @discipline_teaching_plan, html: {
     class: 'smart-form',
     id: 'discipline_teaching_plan'
-  } do |f| %>
+  },
+  url: teaching_plan_opinion_pt_br_path(@discipline_teaching_plan.teaching_plan.id),
+  method: :patch do |f| %>
 
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>

@@ -6,7 +6,11 @@
 <% end %>
 
 <%= hidden_field_tag :action_name, action_name %>
-<%= simple_form_for @discipline_lesson_plan, html: { class: 'smart-form', id: 'discipline_lesson_plan' } do |f| %>
+<%= simple_form_for @discipline_lesson_plan,
+    url: lesson_plan_opinion_pt_br(@discipline_lesson_plan.lesson_plan.id),
+    method: :patch,
+    html: { class: 'smart-form', id: 'discipline_lesson_plan' }
+  do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :lesson_plan, @discipline_lesson_plan.lesson_plan.localized do |lesson_plan| %>
