@@ -10,12 +10,10 @@
 <%= hidden_field_tag :action_name, action_name %>
 <%= hidden_field_tag :yearly_school_term_type_id, @yearly_term_type_id %>
 
-<%= simple_form_for @discipline_teaching_plan, html: {
-    class: 'smart-form',
-    id: 'discipline_teaching_plan'
-  },
-  url: teaching_plan_opinion_pt_br_path(@discipline_teaching_plan.teaching_plan.id),
-  method: :patch do |f| %>
+<%= simple_form_for @discipline_teaching_plan,
+    url: action_name == 'show' ? teaching_plan_opinion_pt_br_path(@discipline_teaching_plan.teaching_plan.id) : discipline_teaching_plan_path(@discipline_teaching_plan),
+    method: :patch,
+    html: { class: 'smart-form', id: 'discipline_teaching_plan' } do |f| %>
 
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
