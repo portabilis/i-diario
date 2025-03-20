@@ -1,5 +1,4 @@
 class LessonPlanOpinionsController < ApplicationController
-  before_action :authorize_employee
 
   def update
     @lesson_plan = LessonPlan.find_by(id: params[:id])
@@ -15,12 +14,6 @@ class LessonPlanOpinionsController < ApplicationController
   end
 
   private
-
-  def authorize_employee
-    unless current_user.employee?
-      render json: { error: 'Not Authorized' }, status: :forbidden
-    end
-  end
 
   def opinion_params
     if params[:discipline_lesson_plan]

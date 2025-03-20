@@ -1,9 +1,8 @@
 class TeachingPlanOpinionsController < ApplicationController
-  before_action :authorize_employee
 
   def update
     @teaching_plan = TeachingPlan.find_by(id: params[:id])
-
+    binding.pry
     authorize @teaching_plan
 
     if @teaching_plan.update(opinion_params)
@@ -15,12 +14,6 @@ class TeachingPlanOpinionsController < ApplicationController
   end
 
   private
-
-  def authorize_employee
-    unless current_user.employee?
-      render json: { error: 'Not Authorized' }, status: :forbidden
-    end
-  end
 
   def opinion_params
     if params[:discipline_teaching_plan]
