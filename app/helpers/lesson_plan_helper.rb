@@ -28,9 +28,9 @@ module LessonPlanHelper
   def knowledge_area_lesson_plan_form_url(knowledge_area_lesson_plan, action_name)
     case action_name
     when 'new'
-      new_knowledge_area_lesson_plan_path(locale: I18n.locale)
+      knowledge_area_lesson_plans_path(locale: I18n.locale)
     when 'edit'
-      edit_knowledge_area_lesson_plan_path(knowledge_area_lesson_plan)
+      knowledge_area_lesson_plan_path(knowledge_area_lesson_plan)
     when 'show'
       lesson_plan_opinion_path(knowledge_area_lesson_plan.lesson_plan.id, locale: I18n.locale)
     end
