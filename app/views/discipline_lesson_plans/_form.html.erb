@@ -6,9 +6,8 @@
 <% end %>
 
 <%= hidden_field_tag :action_name, action_name %>
-<% binding.pry %>
 <%= simple_form_for @discipline_lesson_plan,
-    url: action_name == 'show' ? lesson_plan_opinion_pt_br(@discipline_lesson_plan.lesson_plan.id) : discipline_lesson_plan_path(@discipline_lesson_plan),
+    url: action_name == 'show' ? lesson_plan_opinion_path(@discipline_lesson_plan.lesson_plan.id, locale: I18n.locale) : discipline_lesson_plan_path(@discipline_lesson_plan),
     method: :patch,
     html: { class: 'smart-form', id: 'discipline_lesson_plan' }
   do |f| %>

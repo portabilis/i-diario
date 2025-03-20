@@ -11,7 +11,7 @@
 <%= hidden_field_tag :yearly_school_term_type_id, @yearly_term_type_id %>
 
 <%= simple_form_for @knowledge_area_teaching_plan,
-    url: action_name == 'show' ? teaching_plan_opinion_pt_br_path(@knowledge_area_teaching_plan.teaching_plan.id) : knowledge_area_teaching_plan_path(@knowledge_area_teaching_plan),
+    url: action_name == 'show' ? teaching_plan_opinion_path(@knowledge_area_teaching_plan.teaching_plan.id, locale: I18n.locale) : knowledge_area_teaching_plan_path(@knowledge_area_teaching_plan),
     method: :patch,
     html: { class: 'smart-form', id: 'knowledge_area_teaching_plan' } do |f| %>
   <%= f.error_notification %>
