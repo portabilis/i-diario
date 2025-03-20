@@ -2,7 +2,7 @@ class TeachingPlanOpinionsController < ApplicationController
 
   def update
     @teaching_plan = TeachingPlan.find_by(id: params[:id])
-    binding.pry
+
     authorize @teaching_plan
 
     if @teaching_plan.update(opinion_params)
