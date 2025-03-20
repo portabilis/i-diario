@@ -446,13 +446,13 @@ Rails.application.routes.draw do
 
     resources :data_exportations, only: [:index, :create]
 
-    resources :teaching_plan_opinions, only: [] do
+    resources :teaching_plan_opinions, only: [:update] do
       member do
         patch :update
       end
     end
 
-    resources :lesson_plan_opinions, only: [] do
+    resources :lesson_plan_opinions, only: [:update] do
       member do
         patch :update
       end
