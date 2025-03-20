@@ -5,7 +5,7 @@ class TeachingPlanOpinionsController < ApplicationController
 
     authorize @teaching_plan
 
-    if @teaching_plan.update(opinion_params)
+    if @teaching_plan.update(resource_params)
       render_view_for_plan
     else
       flash[:error] = @teaching_plan.errors.full_messages.to_sentence
@@ -15,11 +15,11 @@ class TeachingPlanOpinionsController < ApplicationController
 
   private
 
-  def opinion_params
+  def resource_params
     if params[:discipline_teaching_plan]
-      params.require(:discipline_teaching_plan).require(:teaching_plan_attributes).permit(:opinion)
+      params.require(:discipline_teaching_plan).require(:teaching_plan_attributes).permit(:opinion, :validated)
     elsif params[:knowledge_area_teaching_plan]
-      params.require(:knowledge_area_teaching_plan).require(:teaching_plan_attributes).permit(:opinion)
+      params.require(:knowledge_area_teaching_plan).require(:teaching_plan_attributes).permit(:opinion, :validated)
     end
   end
 
