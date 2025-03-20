@@ -6,11 +6,11 @@
 <% end %>
 
 <%= hidden_field_tag :action_name, action_name %>
+
 <%= simple_form_for @discipline_lesson_plan,
-    url: action_name == 'show' ? lesson_plan_opinion_path(@discipline_lesson_plan.lesson_plan.id, locale: I18n.locale) : discipline_lesson_plan_path(@discipline_lesson_plan),
-    method: :patch,
-    html: { class: 'smart-form', id: 'discipline_lesson_plan' }
-  do |f| %>
+    url: discipline_lesson_plan_form_url(@discipline_lesson_plan, action_name),
+    method: lesson_plan_form_method(action_name),
+    html: { class: 'smart-form', id: 'discipline_lesson_plan' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :lesson_plan, @discipline_lesson_plan.lesson_plan.localized do |lesson_plan| %>
