@@ -16,7 +16,7 @@ class DestroyDuplicatedGroupedLinksService
             AND ka.group_descriptors = true
             AND d.grouper = true
           GROUP BY tdc.teacher_id, tdc.classroom_id, ka.id
-          HAVING COUNT(*) = 2
+          HAVING COUNT(*) > 1
         ) AS g
         ON tdc.teacher_id = g.teacher_id
         AND tdc.classroom_id = g.classroom_id
