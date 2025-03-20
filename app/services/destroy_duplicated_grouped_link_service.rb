@@ -1,4 +1,4 @@
-class DeleteDuplicateGroupedLinksService
+class DestroyDuplicatedGroupedLinksService
   def self.call
     ActiveRecord::Base.transaction do
       ActiveRecord::Base.connection.execute(<<-SQL)

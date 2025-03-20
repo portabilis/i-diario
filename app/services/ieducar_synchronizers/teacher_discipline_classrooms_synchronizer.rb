@@ -72,7 +72,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       end
     end
 
-    DestroyDuplicateGroupedLinksWorker.perform_async
+    DestroyDuplicatedGroupedLinksWorker.perform_async
   end
 
   def create_or_update_teacher_discipline_classrooms(
