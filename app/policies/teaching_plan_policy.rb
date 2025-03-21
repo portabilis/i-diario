@@ -10,6 +10,6 @@ class TeachingPlanPolicy < ApplicationPolicy
   end
 
   def update?
-    @user.employee? || @user.admin?
+    @user.employee? || @user.administrator?
   end
 end
