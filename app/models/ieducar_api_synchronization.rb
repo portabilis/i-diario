@@ -100,7 +100,7 @@ class IeducarApiSynchronization < ApplicationRecord
     restart = options.fetch(:restart, false)
 
     started.each do |sync|
-      if locked?
+      if sync.locked?
         sync.cancel!(restart)
       end
     end
