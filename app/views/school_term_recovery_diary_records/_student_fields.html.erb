@@ -31,5 +31,7 @@
     <%= f.input :score, label: false,
         input_html: decimal_input_mask(decimal_places),
         readonly: (!f.object.active && !f.object.active.nil?) || f.object.exempted_from_discipline %>
+    <% f.object.valid? %>
+    <%= format_error_message(f.error(:score, class: 'error').to_s).html_safe %>
   </td>
 </tr>
