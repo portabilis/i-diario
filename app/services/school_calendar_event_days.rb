@@ -130,6 +130,16 @@ class SchoolCalendarEventDays
     end
   end
 
+  def destroy_school_days(school_days)
+    @school_calendars.each do |school_calendar|
+      school_days.each do |school_day|
+        next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+
+        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@events)
+      end
+    end
+  end
+
   def event_type_includes_no_school?
     (@events.pluck(:event_type) & [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]).any?
   end
