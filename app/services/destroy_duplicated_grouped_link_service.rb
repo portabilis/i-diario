@@ -1,4 +1,4 @@
-class DestroyDuplicatedGroupedLinksService
+class DestroyDuplicatedGroupedLinkService
   def self.call
     ActiveRecord::Base.transaction do
       ids = ActiveRecord::Base.connection.select_values(<<-SQL)
