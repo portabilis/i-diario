@@ -1,7 +1,7 @@
 class Content < ApplicationRecord
   include Audit
 
-  audited
+  audited 
   has_associated_audits
 
   acts_as_copy_target
@@ -15,8 +15,9 @@ class Content < ApplicationRecord
   validates :description, presence: true
 
   scope :by_description, lambda { |description|
+    select("contents.*, ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) as rank").
     where("contents.document_tokens @@ plainto_tsquery('portuguese', ?)", description).
-      order("ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) desc")
+    order("rank desc")
   }
 
   scope :start_with_description, lambda { |description|
@@ -28,6 +29,13 @@ class Content < ApplicationRecord
   scope :order_by_id, -> { order(id: :asc) }
   scope :find_and_order_by_id_sequence, lambda { |ids|
     joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
+  }
+
+  scope :by_teacher, lambda { |teacher_id|
+    joins("LEFT JOIN content_records_contents ON content_records_contents.content_id = contents.id")
+    .joins("LEFT JOIN content_records ON content_records.id = content_records_contents.content_record_id")
+    .where(content_records: { teacher_id: teacher_id })
+    .distinct
   }
 
   after_save :update_description_token
