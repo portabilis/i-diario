@@ -31,7 +31,7 @@ class Content < ApplicationRecord
     joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
   }
 
-  scope :by_teacher, lambda { |teacher_id|
+  scope :by_teacher_id, lambda { |teacher_id|
     joins("LEFT JOIN content_records_contents ON content_records_contents.content_id = contents.id")
     .joins("LEFT JOIN content_records ON content_records.id = content_records_contents.content_record_id")
     .where(content_records: { teacher_id: teacher_id })
