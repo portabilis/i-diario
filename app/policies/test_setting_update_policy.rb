@@ -15,17 +15,21 @@ class TestSettingUpdatePolicy
   attr_reader :test_setting
 
   def check_allowed_changes_on_test_setting
-    if has_any_change_on_test_setting? && has_any_avaliation_associated?
-      if changed.any?{ |changed_field| !allowed_fields_to_change_on_test_setting.include?(changed_field) }
-        return false
-      end
+    return true unless has_any_change_on_test_setting? && has_any_avaliation_associated?
 
-      if test_setting.changed.include?('minimum_score') &&
-        test_setting.minimum_score >= test_setting.minimum_score_was
-        return false
-      end
-    end
+    return false if has_disallowed_changes?
+    return false if invalid_minimum_score_change?
+
     true
+  end
+
+  def has_disallowed_changes?
+    changed.any? { |changed_field| !allowed_fields_to_change_on_test_setting.include?(changed_field) }
+  end
+
+  def invalid_minimum_score_change?
+    test_setting.changed.include?('minimum_score') &&
+      test_setting.minimum_score >= test_setting.minimum_score_was
   end
 
   def has_any_avaliation_associated?
