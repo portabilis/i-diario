@@ -7,6 +7,8 @@ class SchoolsController < ApplicationController
 
       @unities = Unity.where(api_code: codes)
     rescue Exception => e
+      Honeybadger.notify(e)
+
       render json: { error: e.message }, status: :not_found
     end
   end

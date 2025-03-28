@@ -1,4 +1,7 @@
-unless Rails.env.test? || Rails.env.development?
+if Rails.env.test?
+  require 'mock_redis'
+  $REDIS_DB = MockRedis.new
+else
   if (Rails.application.secrets[:REDIS_MODE] == 'sentinel')
     config_redis = {
       url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SIDEKIQ]}",

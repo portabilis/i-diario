@@ -52,12 +52,12 @@
     </div>
 
     <div class="col col-sm-3">
-      <%= f.input :phone, as: :tel %>
+      <%= f.input :phone, as: :tel, input_html: { autocomplete: "off" } %>
     </div>
 
     <% if current_user.can_change?("can_change_user_password") %>
       <div class="col col-sm-3">
-        <%= f.input :password, hint: "Preencha apenas se desejar alterar a senha" %>
+        <%= f.input :password, hint: "Preencha apenas se desejar alterar a senha", input_html: { autocomplete: "new-password" } %>
       </div>
     <% end %>
   </div>

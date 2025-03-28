@@ -2,6 +2,9 @@ class TranslationsController < ApplicationController
   def form
     @groups = Translation.groups
     @translations = Translation.all
+    @subgroups_by_group = @groups.each_with_object({}) do |group, hash|
+      hash[group] = Translation.subgroups(group)
+    end
 
     authorize @translations
   end

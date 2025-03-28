@@ -62,7 +62,7 @@ class DescriptiveExam < ApplicationRecord
 
     return true if PostingDateChecker.new(classroom, step.start_date_for_posting).check
 
-    errors.add(:step_id, I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    errors.add(:step_id, I18n.t('errors.descriptive_exams.evaluation_outside_stage_dates'))
   end
 
   def opinion_type_by_year?
