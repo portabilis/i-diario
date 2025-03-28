@@ -19,6 +19,11 @@ class TestSettingUpdatePolicy
       if changed.any?{ |changed_field| !allowed_fields_to_change_on_test_setting.include?(changed_field) }
         return false
       end
+
+      if test_setting.changed.include?('minimum_score') &&
+        test_setting.minimum_score >= test_setting.minimum_score_was
+        return false
+      end
     end
     true
   end
@@ -64,6 +69,6 @@ class TestSettingUpdatePolicy
   end
 
   def allowed_fields_to_change_on_test_setting
-    ['maximum_score', 'updated_at']
+    ['maximum_score', 'updated_at', 'minimum_score']
   end
 end
