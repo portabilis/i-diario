@@ -113,7 +113,9 @@ class DailyNotesController < ApplicationController
         delete_note(params[:id], student_id)
 
         avaliation_exemption.save!
-      rescue Exception
+      rescue Exception => expection
+        Honeybadger.notify(expection)
+
         @students_ids.delete(student_id)
       end
     end
@@ -160,7 +162,7 @@ class DailyNotesController < ApplicationController
     set_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment].id
-      note_student = create_or_select_daily_note_student(student)
+      note_student = @daily_note.students.find_or_initialize_by(student_id: student.id)
       note_student.active = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
       note_student.dependence = @dependencies[student_enrollment_id] ? true : false
       note_student.exempted = @exempted_from_avaliation.map(&:student_id).include?(student.id) ? true : false
@@ -291,14 +293,6 @@ class DailyNotesController < ApplicationController
     exemptions.each do |exempt|
       students_exempt_from_avaliation[exempt.student_id] ||= []
       students_exempt_from_avaliation[exempt.student_id] << exempt.avaliation_id
-    end
-  end
-
-  def create_or_select_daily_note_student(student)
-    if action_name.eql?('edit') || action_name.eql?('create')
-      @daily_note.students.find_or_initialize_by(student_id: student.id)
-    else
-      @daily_note.students.select{ |dns| dns.student_id.eql?(student.id) }.first
     end
   end
 end

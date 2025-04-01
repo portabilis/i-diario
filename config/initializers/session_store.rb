@@ -5,9 +5,9 @@ unless Rails.env.test? || Rails.env.development?
         url: "#{Rails.application.secrets[:REDIS_URL]}#{Rails.application.secrets[:REDIS_DB_SESSION]}",
         role: "master",
         sentinels: Rails.application.secrets[:REDIS_SENTINELS].split(";").map { |host| { host: host,  port: 26379 }},
-        namespace: "sessions",
-        expire_after: 2.days
+        namespace: "sessions"
       }],
+      expire_after: 2.days
     }
   else
 

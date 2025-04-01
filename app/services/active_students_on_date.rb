@@ -17,8 +17,6 @@ class ActiveStudentsOnDate
                                                       .by_date(@date)
 
     student_active_on_date(enrollment_classrooms)
-  rescue NoMethodError => errors
-    raise errors
   end
 
   private

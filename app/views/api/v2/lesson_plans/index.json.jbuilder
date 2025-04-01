@@ -17,6 +17,7 @@ json.unities @unities do |unity|
     json.resources lesson_plan.resources
     json.evaluation lesson_plan.evaluation
     json.bibliography lesson_plan.bibliography
+    json.curriculum_adaptation lesson_plan.curriculum_adaptation
     json.opinion lesson_plan.opinion
     json.activities lesson_plan.activities
 
