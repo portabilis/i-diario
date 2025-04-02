@@ -4,7 +4,7 @@ class AdminSynchronizationsController < ApplicationController
 
   def cancel
     error = I18n.t('ieducar_api_synchronization.canceled')
-    IeducarApiSynchronization.find(params[:ieducar_api_synchronization_id]).cancel!(false, error)
+    IeducarApiSynchronization.find(params[:ieducar_api_synchronization_id]).cancel!(false, current_entity.id, error)
 
     redirect_to :back
   end
