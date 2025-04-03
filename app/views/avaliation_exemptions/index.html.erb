@@ -5,18 +5,26 @@
         <thead>
           <tr>
             <td></td>
-            <td><%= f.input :by_grade_description, label: false, placeholder: t('.by_grade') %></td>
-            <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom') %></td>
-            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
-            <td><%= f.input :by_avaliation_description, label: false, placeholder: t('.by_avaliation') %></td>
+            <td>
+              <%= f.input :by_classroom, label: false, as: :select2, elements: @classrooms,
+                            placeholder: t('.by_classroom'), input_html: { value: current_user_classroom.id } %>
+            </td>
+            <td><%= f.input :by_student, label: false, placeholder: t('.by_student_name') %></td>
+            <td>
+              <%= f.input :by_discipline, label: false, as: :select2, elements: @disciplines,
+                            placeholder: t('.by_discipline'), input_html: { value: current_user_discipline.id } %>
+            </td>
+            <td>
+              <%= f.input :by_avaliation_description, label: false, placeholder: t('.by_avaliation') %>
+            </td>
             <td><%= f.input :by_created_at, as: :date, label: false, placeholder: t('.by_created_at') %></td>
             <td><%= link_to t('.new_html'), new_avaliation_exemption_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
           <tr>
             <th><%= AvaliationExemption.human_attribute_name :unity %></th>
-            <th><%= AvaliationExemption.human_attribute_name :grade %></th>
             <th><%= AvaliationExemption.human_attribute_name :classroom %></th>
             <th><%= AvaliationExemption.human_attribute_name :student %></th>
+            <th><%= AvaliationExemption.human_attribute_name :discipline %></th>
             <th><%= AvaliationExemption.human_attribute_name :avaliation %></th>
             <th><%= AvaliationExemption.human_attribute_name :created_at %></th>
             <th></th>

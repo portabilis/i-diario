@@ -4,9 +4,21 @@
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></td>
-            <td><%= f.input :by_discipline_description, label: false, placeholder: t('.by_discipline_description') %></td>
-            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
+            <td>
+              <%= f.input :by_unity_id, elements: @unities, as: :select2, label: false,
+                            placeholder: t('.by_unity_id'), input_html: { value: current_user_classroom.unity_id }  %>
+            </td>
+            <td>
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false,
+                            placeholder: t('.by_classroom_id'), input_html: { value: current_user_classroom.id } %>
+            </td>
+            <td>
+              <%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false,
+                            placeholder: t('.by_discipline_id'), input_html: { value: current_user_discipline.id } %>
+            </td>
+            <td>
+              <%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %>
+            </td>
             <td>
               <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
                 label: false, placeholder: t('.by_step') %>
@@ -15,6 +27,7 @@
             <td><%= link_to t('.new_html'), new_transfer_note_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
           <tr>
+            <th><%= TransferNote.human_attribute_name :unity_id %></th>
             <th><%= TransferNote.human_attribute_name :classroom %></th>
             <th><%= TransferNote.human_attribute_name :discipline %></th>
             <th><%= TransferNote.human_attribute_name :student %></th>
@@ -27,7 +40,7 @@
         <%= render 'resources' %>
 
         <tfoot id='paginator' class='remote'>
-          <td colspan='6'>
+          <td colspan='7'>
             <div id='page_entries_info' class='pull-left hidden-xs'>
               <%= page_entries_info @transfer_notes %>
             </div>
