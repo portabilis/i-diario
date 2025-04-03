@@ -2,8 +2,8 @@ pt-BR:
   avaliation_exemptions:
     index:
       by_unity: "Filtrar escola"
-      by_grade: "Filtrar série"
       by_classroom: "Filtrar turma"
+      by_discipline: "Filtrar disciplina"
       by_created_at: "Filtrar data"
       by_student_name: "Filtrar por aluno"
       by_avaliation: "Filtrar por avaliação"
