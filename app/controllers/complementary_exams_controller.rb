@@ -8,6 +8,7 @@ class ComplementaryExamsController < ApplicationController
   def index
     step_id = (params[:filter] || []).delete(:by_step_id)
 
+    set_filters
     set_options_by_user
     @complementary_exams = fetch_complementary_exams
 
@@ -237,5 +238,11 @@ class ComplementaryExamsController < ApplicationController
 
     classroom = @complementary_exam.classroom
     @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end

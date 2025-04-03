@@ -8,15 +8,7 @@ class DailyNotesController < ApplicationController
 
   def index
     set_options_by_user
-
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
-        params[:filter][:by_school_calendar_classroom_step_id] = step_id
-      else
-        params[:filter][:by_school_calendar_step_id] = step_id
-      end
-    end
+    set_filters
 
     fetch_daily_notes_and_avaliations
 
@@ -294,5 +286,23 @@ class DailyNotesController < ApplicationController
       students_exempt_from_avaliation[exempt.student_id] ||= []
       students_exempt_from_avaliation[exempt.student_id] << exempt.avaliation_id
     end
+  end
+
+  def set_filters
+    if params[:filter].present? && params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+
+      key = if current_school_calendar.classrooms.exists?(classroom_id: current_user_classroom&.id)
+              :by_school_calendar_classroom_step_id
+            else
+              :by_school_calendar_step_id
+            end
+
+      params[:filter][key] = step_id
+    end
+
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end

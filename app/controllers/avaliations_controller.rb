@@ -14,11 +14,7 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      params[:filter][school_calendar_step] = step_id
-    end
-
+    set_filters
     set_options_by_user
     fetch_avaliations_by_user
 
@@ -490,5 +486,16 @@ class AvaliationsController < ApplicationController
 
     @classrooms = [current_user_classroom]
     @disciplines = [current_user_discipline]
+  end
+
+  def set_filters
+    if params[:filter].present? && params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+      params[:filter][school_calendar_step] = step_id
+    end
+
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end

@@ -5,6 +5,7 @@ class AvaliationExemptionsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
+    set_filters
     set_options_by_user
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
                              .includes(:avaliation)
@@ -162,5 +163,11 @@ class AvaliationExemptionsController < ApplicationController
                                                                         ])
     @disciplines ||= @fetch_linked_by_teacher[:disciplines].distinct
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end
