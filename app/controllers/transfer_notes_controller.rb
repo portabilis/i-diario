@@ -170,20 +170,22 @@ class TransferNotesController < ApplicationController
   def set_options_by_user
     @admin_or_teacher = current_user.current_role_is_admin_or_employee?
 
-    if @admin_or_teacher
-      @classrooms ||= [current_user_classroom]
-      @unities ||= [current_user_classroom.unity]
-      @disciplines ||= [current_user_discipline]
-      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms ||= [current_user_classroom]
+    @unities ||= [current_user_classroom.unity]
+    @disciplines ||= [current_user_discipline]
+    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC,
-                                                                         ScoreTypes::NUMERIC_AND_CONCEPT])
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([
+                                                                          ScoreTypes::NUMERIC,
+                                                                          ScoreTypes::NUMERIC_AND_CONCEPT
+                                                                        ])
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @unities ||= @classrooms.map(&:unity).uniq
   end

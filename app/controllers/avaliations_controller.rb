@@ -14,18 +14,12 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = [current_user_classroom]
-      @disciplines = [current_user_discipline]
-    else
-      fetch_linked_by_teacher
-    end
-
     if params[:filter].present? && params[:filter][:by_step_id].present?
       step_id = params[:filter].delete(:by_step_id)
       params[:filter][school_calendar_step] = step_id
     end
 
+    set_options_by_user
     fetch_avaliations_by_user
 
     authorize @avaliations
@@ -296,8 +290,13 @@ class AvaliationsController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([
+                                                                          ScoreTypes::NUMERIC,
+                                                                          ScoreTypes::NUMERIC_AND_CONCEPT
+                                                                        ])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
     @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
     @grades = @classroom_grades.map(&:grade).uniq
@@ -484,5 +483,12 @@ class AvaliationsController < ApplicationController
                 .classrooms_grades
                 .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
                 .map(&:grade)
+  end
+
+  def set_options_by_user
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms = [current_user_classroom]
+    @disciplines = [current_user_discipline]
   end
 end
