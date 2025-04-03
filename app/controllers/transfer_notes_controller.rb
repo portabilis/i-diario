@@ -10,6 +10,7 @@ class TransferNotesController < ApplicationController
     step_id = (params[:filter] || []).delete(:by_step)
 
     set_options_by_user
+
     @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
                                                 .by_classroom_id(@classrooms.map(&:id))
                                                 .by_discipline_id(@disciplines.map(&:id))
@@ -161,24 +162,6 @@ class TransferNotesController < ApplicationController
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
-  def unities
-    @unities = [@transfer_note.classroom.present? ? @transfer_note.classroom.unity : current_unity]
-  end
-  helper_method :unities
-
-  def classrooms
-    @classrooms ||= Classroom.by_unity_and_teacher(
-      current_unity.id,
-      current_teacher.id
-    ).ordered
-  end
-  helper_method :classrooms
-
-  def disciplines
-    @disciplines = []
-  end
-  helper_method :disciplines
-
   def students
     @students = (@transfer_note.student_id.present? ? [@transfer_note.student] : [])
   end
@@ -189,6 +172,7 @@ class TransferNotesController < ApplicationController
 
     if @admin_or_teacher
       @classrooms ||= [current_user_classroom]
+      @unities ||= [current_user_classroom.unity]
       @disciplines ||= [current_user_discipline]
       @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
     else
@@ -200,6 +184,7 @@ class TransferNotesController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @unities ||= @classrooms.map(&:unity).uniq
   end
 
   def update_daily_note_student(daily_note_students_attributes)
