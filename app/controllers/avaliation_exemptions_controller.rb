@@ -156,7 +156,8 @@ class AvaliationExemptionsController < ApplicationController
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC,
+                                                                       ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines ||= @fetch_linked_by_teacher[:disciplines].distinct
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
