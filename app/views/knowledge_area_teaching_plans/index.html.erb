@@ -13,7 +13,7 @@
             <td colspan="2">
               <%= f.input :by_knowledge_area, as: :select2, elements: @knowledge_areas,
                             label: false, placeholder: t('.by_knowledge_area'),
-                            input_html: { value: current_user_discipline.knowledge_area.id } %>
+                            input_html: { value: current_user_discipline.knowledge_area_id } %>
             </td>
             <td>
               <%= f.input :by_school_term_type_id, as: :select2,
