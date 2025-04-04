@@ -15,7 +15,7 @@ class DisciplineContentRecordsController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     set_options_by_user
-
+    set_filters
     fetch_discipline_content_records_by_user
 
     if author_type.present?
@@ -270,8 +270,15 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity,current_school_year
+    )
     @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def set_filters
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end

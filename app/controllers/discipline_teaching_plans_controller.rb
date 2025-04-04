@@ -18,7 +18,7 @@ class DisciplineTeachingPlansController < ApplicationController
     school_term_type
     school_term_type_step
 
-    @discipline_teaching_plans = fetch_discipline_teaching_plans
+    @discipline_teaching_plans = discipline_teaching_plans_with_filters
 
     unless current_user.current_role_is_admin_or_employee?
       @discipline_teaching_plans = filter_by_grade_discipline(@discipline_teaching_plans)
@@ -354,17 +354,18 @@ class DisciplineTeachingPlansController < ApplicationController
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
 
-  def fetch_discipline_teaching_plans
-    apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline, teaching_plan:
-                             [:unity, :grade, :teaching_plan_attachments, :teacher,
-                              :school_term_type, :school_term_type_step])
-                            .by_discipline(@disciplines.map(&:id))
-                            .by_unity(current_unity)
-                            .by_year(current_school_year)
-                            .order_by_grades
-                            .order('teaching_plans.school_term_type_step_id')
-    )
+  def fetch_discipline_teaching_plans(discipline_ids)
+    disciplines = discipline_ids.presence ? discipline_ids : @disciplines.map(&:id)
+
+    apply_scopes(DisciplineTeachingPlan
+      .includes(:discipline, teaching_plan:
+        [:unity, :grade, :teaching_plan_attachments, :teacher, :school_term_type, :school_term_type_step]
+      )
+      .by_discipline(disciplines)
+      .by_unity(current_unity)
+      .by_year(current_school_year)
+      .order_by_grades
+      .order('teaching_plans.school_term_type_step_id'))
   end
 
   def school_term_type
@@ -385,5 +386,21 @@ class DisciplineTeachingPlansController < ApplicationController
     return if current_user.current_role_is_admin_or_employee?
 
     @disciplines = @disciplines.by_grade(current_grade.first.grade_id).not_descriptor
+  end
+
+  def discipline_teaching_plans_with_filters
+    params[:filter][:by_grade] ||= current_user_classroom.grades.first.id
+    params[:filter][:by_discipline] ||= current_user_discipline.id
+    knowledge_area_id = current_user_discipline.knowledge_area_id
+
+    if params[:filter][:by_discipline].eql?(current_user_discipline.id)
+      discipline_ids = [current_user_discipline.id]
+      if current_user_discipline.grouper?
+        discipline_ids = Discipline.where(knowledge_area_id: knowledge_area_id).map(&:id)
+      end
+    end
+    discipline_ids = params[:filter][:by_discipline]
+
+    @discipline_teaching_plans = fetch_discipline_teaching_plans(discipline_ids)
   end
 end
