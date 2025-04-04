@@ -7,11 +7,13 @@
             <td></td>
             <td>
               <%= f.input :by_grade, as: :select2, elements: @grades,
-                    label: false, placeholder: t('.by_grade') %>
+                            label: false, placeholder: t('.by_grade'),
+                            input_html: { value: current_user_classroom.grades.first.id } %>
             </td>
             <td colspan="2">
               <%= f.input :by_discipline, as: :select2, elements: @disciplines,
-                    label: false, placeholder: t('.by_discipline') %>
+                            label: false, placeholder: t('.by_discipline'),
+                            input_html: { value: current_user_discipline.id } %>
             </td>
             <td>
               <%= f.input :by_school_term_type_id, as: :select2, elements: @school_term_type,
