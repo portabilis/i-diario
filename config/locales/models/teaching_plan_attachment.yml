@@ -1,0 +1,12 @@
+pt-BR:
+  activerecord:
+    models:
+      teaching_plan_attachment:
+        one: "Anexo do Plano de ensino"
+        other: "Anexos do Plano de ensino"
+
+    attributes:
+      teaching_plan_attachment:
+        attachment_file_name: "Nome do anexo"
+        attachment_content_type: "Tipo do anexo"
+        attachment_file_size: "Tamanho do anexo"

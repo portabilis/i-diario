@@ -409,4 +409,150 @@ http_interactions:
         H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:29:03 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=&action=faltas-geral&instituicao_id=1&secret_key=
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.6.6p146
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Feb 2025 15:28:33 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=KJvL3m4ACQQUMapWpdxuH8L1RSzQucKeqxEuSkTn; expires=Mon, 24
+        Feb 2025 17:28:33 GMT; Max-Age=7200; path=/; secure; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      Strict-Transport-Security:
+      - max-age=63072000
+      Cf-Cache-Status:
+      - DYNAMIC
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=AnUZYbOITaO6iH6V1XxbZJg63MSqc9oEHDTznxjbsxrEOdkGjKXLJ0fPHVbEaCNG4dlX7rsq9X%2BrrOC%2Fek6SdMkU1eEhtl7FuLB0DQ0XriDiRT%2FY4370t%2BpYNuq6vVmDPY7UxwUZ"}],"group":"cf-nel","max_age":604800}'
+      Nel:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Expect-Ct:
+      - max-age=86400, enforce
+      Referrer-Policy:
+      - same-origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 91707c6f8e7451f8-GRU
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Server-Timing:
+      - cfL4;desc="?proto=TCP&rtt=16898&min_rtt=16705&rtt_var=4869&sent=5&recv=7&lost=0&retrans=0&sent_bytes=2800&recv_bytes=986&delivery_rate=167544&cwnd=245&unsent_bytes=0&cid=2d347c3fd646d410&ts=836&x=0"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 00:00:41 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=invalid&action=faltas-geral&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.6.6p146
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Feb 2025 15:28:36 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=yefSQPfftJFTBAWR0Ld3Ss2lHStEWUL13paE6hSv; expires=Mon, 24
+        Feb 2025 17:28:36 GMT; Max-Age=7200; path=/; secure; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      Strict-Transport-Security:
+      - max-age=63072000
+      Cf-Cache-Status:
+      - DYNAMIC
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=PDuJNVqqE7umpqyeFGgGzInog8hnlV7egxblPgfWkjzEcaTFeq%2B02v%2FInBZRFtHi8s6MFhUT%2ByDcRUbpG9Wjw5KvvLAhAI7%2FvwJrInYKbBUWrMyQJ9GumeHgLcPeHuPv7LNKPlmp"}],"group":"cf-nel","max_age":604800}'
+      Nel:
+      - '{"success_fraction":0,"report_to":"cf-nel","max_age":604800}'
+      Expect-Ct:
+      - max-age=86400, enforce
+      Referrer-Policy:
+      - same-origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 91707c80bae451f8-GRU
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Server-Timing:
+      - cfL4;desc="?proto=TCP&rtt=17083&min_rtt=16714&rtt_var=5029&sent=5&recv=7&lost=0&retrans=0&sent_bytes=2799&recv_bytes=1023&delivery_rate=167444&cwnd=245&unsent_bytes=0&cid=0a9c2f4aea192dec&ts=475&x=0"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MSwqEMBBErxJ7reBs3XoMZ5BGyw9k7NCdCCLe3eiuql7xTpIApYaCWKSSFCZJB+RlYh/ZqhnKPpO/zUZNdz4h03bhHW6E4wFm4tZt/6a6xsevIxf5H4/wWKAqStevJN6O/m39a4iacN3IQAbqfwAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 00:00:43 GMT
 recorded_with: VCR 3.0.0

@@ -138,6 +138,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
       resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u', 'p']
     )
+    @knowledge_area_lesson_plan.lesson_plan.curriculum_adaptation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:curriculum_adaptation], tags: ['b', 'br', 'i', 'u', 'p']
+    )
 
     authorize @knowledge_area_lesson_plan
 
@@ -279,6 +282,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         :resources,
         :evaluation,
         :bibliography,
+        :curriculum_adaptation,
         :opinion,
         :teacher_id,
         :validated,

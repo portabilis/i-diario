@@ -23,7 +23,7 @@ RSpec.describe ComplementaryExamSettingsFetcher, type: :service do
       :with_teacher_discipline_classroom,
       classroom: classroom,
       discipline: discipline,
-      recorded_at: step.first_school_calendar_date,
+      recorded_at: Date.current,
       step_id: step.id,
       complementary_exam_setting: complementary_exam_setting
     )

@@ -17,7 +17,7 @@ FactoryGirl.define do
       end
 
       if transfer_note.recorded_at.blank?
-        transfer_note.recorded_at = step.try(:first_school_calendar_date) || Date.current
+        transfer_note.recorded_at = Date.current
       end
 
       transfer_note.step_number = step.try(:step_number) || 1 if transfer_note.step_number.zero?

@@ -2,6 +2,9 @@ class UsersController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :load_and_authorize_user, only: [:edit, :update]
+  before_action :fetch_permissions, only: [:edit, :update]
+
   def index
     unless valid_search_params?(params[:search])
       redirect_to root_path, status: 302
@@ -24,18 +27,17 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = User.find(params[:id]).localized
     @teachers = Teacher.active.order_by_name
     roles
+  end
 
+  def load_and_authorize_user
+    @user = User.find(params[:id]).localized
+    @user.build_permissions!
     authorize @user
   end
 
   def update
-    @user = User.find(params[:id])
-
-    authorize @user
-
     return render :edit unless valid_update
 
     if @user.update(user_params)
@@ -44,6 +46,7 @@ class UsersController < ApplicationController
       respond_with @user, location: users_path
     else
       @teachers = Teacher.active.order_by_name
+      @active_user_tab = true
 
       render :edit
     end
@@ -124,8 +127,11 @@ class UsersController < ApplicationController
       :authorize_email_and_sms, :student_id, :teacher_id, :password, :expiration_date, :admin,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
+      ],
+      :permissions_attributes => [
+        :id, :feature, :permission, :user_id
       ]
-    )
+    ).to_h
   end
 
   def filtering_params(params)
@@ -173,5 +179,16 @@ class UsersController < ApplicationController
     return true if params_search.blank?
 
     params_search.values.any?(&:present?)
+  end
+
+  def fetch_permissions
+    @user.build_permissions!
+
+    @active_user_tab = if params[:active_user_tab].present?
+                         ActiveRecord::Type::Boolean.new.cast(params[:active_user_tab])
+                       else
+                         params[:active_permissions_tab].blank?
+                       end
+    @permissions = @user.permissions
   end
 end

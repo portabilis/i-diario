@@ -11,7 +11,7 @@ pt-BR:
         duration: "Duração"
         start_date: "Data inicial"
         end_date: "Data final"
-        description: "Descrição"
+        description: "Título"
         event_type: "Tipo"
         course: "Curso"
         course_id: "Curso"
@@ -24,7 +24,8 @@ pt-BR:
         legend: "Legenda"
         discipline_id: "Disciplina"
         discipline: "Disciplina"
-        show_in_frequency_record: 'Apresentar no Registro de frequência'
+        show_in_frequency_record: "Apresentar no Registro de frequência"
+        general_description: "Descrição do evento"
 
     errors:
       models:

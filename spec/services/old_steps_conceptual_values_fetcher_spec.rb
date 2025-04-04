@@ -18,7 +18,7 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
         classroom: classroom,
         student: student,
         step_id: step.id,
-        recorded_at: step.first_school_calendar_date,
+        recorded_at: Date.current,
         step_number: step.step_number
       )
       exam.save(validate: false)

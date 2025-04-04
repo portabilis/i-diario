@@ -1,7 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Api::ClassroomAttendanceService do
-  Timecop.travel(Time.zone.local(2024, 4, 1, 0, 0, 0))
+  include ActiveSupport::Testing::TimeHelpers
+
+  before(:all) do
+    travel_to Time.zone.local(2024, 4, 1, 0, 0, 0)
+  end
+
+  after(:all) do
+    travel_back
+  end
+
   let(:classroom) { create(:classroom, id: 1, year: '2024', api_code: "01") }
   let(:discipline) { create(:discipline) }
   let(:school_calendar) {
@@ -25,7 +34,7 @@ RSpec.describe Api::ClassroomAttendanceService do
   let(:year) { '2024'}
   let(:params_classrooms) do
     {
-      "0" => classroom.api_code
+      '0' => classroom.api_code
     }
   end
   let(:classrooms_grades) { create(:classrooms_grade, classroom: classroom) }
@@ -124,7 +133,8 @@ RSpec.describe Api::ClassroomAttendanceService do
         class_number: '1',
         discipline: discipline
       )
-      create(:daily_frequency_student,student: student, present: true, daily_frequency: daily_frequency_class_number_one)
+      create(:daily_frequency_student,student: student, present: true,
+daily_frequency: daily_frequency_class_number_one)
 
       expect(service.first[:attendance_and_enrollments]).to include(
         {
@@ -196,7 +206,8 @@ RSpec.describe Api::ClassroomAttendanceService do
 
       # Lança a frequencia alunos para 29/03/2024
       create(:daily_frequency_student, student: student_two, present: true, daily_frequency: daily_frequency_two)
-      create(:daily_frequency_student, student: student_three, present: true, daily_frequency: daily_frequency_two)
+      create(:daily_frequency_student, student: student_three, present: true,
+daily_frequency: daily_frequency_two)
 
       # Insere saida do aluno de forma retroativa
       student_enrollment_classroom_two.update(left_at: '2024-03-29')

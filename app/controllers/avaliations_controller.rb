@@ -157,10 +157,15 @@ class AvaliationsController < ApplicationController
 
   def destroy
     authorize resource
+    resource_name = 'Avaliação numérica'
 
-    resource.destroy
+    message = if resource.destroy
+                { notice: t('flash.female.destroy.notice', resource_name: resource_name) }
+              else
+                { alert: t('flash.female.destroy.alert', resource_name: resource_name) }
+              end
 
-    respond_with resource, location: avaliations_path
+    redirect_to avaliations_path, message
   end
 
   def history
@@ -300,10 +305,8 @@ class AvaliationsController < ApplicationController
 
   def respond_to_save
     if params[:commit] == I18n.t('avaliations.form.save_and_edit_daily_notes')
-      creator = DailyNoteCreator.new(avaliation_id: resource.id)
-      creator.find_or_create
-
-      @daily_note = creator.daily_note
+      @daily_note = DailyNote.find_or_initialize_by(avaliation_id: resource.id)
+      @daily_note.save if @daily_note.new_record?
 
       if @daily_note.persisted?
         redirect_to edit_daily_note_path(@daily_note)

@@ -118,6 +118,9 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.lesson_plan.bibliography = ActionController::Base.helpers.sanitize(
       resource_params[:lesson_plan_attributes][:bibliography], tags: ['b', 'br', 'i', 'u', 'p']
     )
+    @discipline_lesson_plan.lesson_plan.curriculum_adaptation = ActionController::Base.helpers.sanitize(
+      resource_params[:lesson_plan_attributes][:curriculum_adaptation], tags: ['b', 'br', 'i', 'u', 'p']
+    )
 
     authorize @discipline_lesson_plan
 
@@ -271,6 +274,7 @@ class DisciplineLessonPlansController < ApplicationController
         :resources,
         :evaluation,
         :bibliography,
+        :curriculum_adaptation,
         :opinion,
         :teacher_id,
         :validated,

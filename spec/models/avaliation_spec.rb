@@ -62,7 +62,7 @@ RSpec.describe Avaliation, type: :model do
           :avaliation,
           :with_teacher_discipline_classroom,
           classroom: classroom,
-          test_date: step.first_school_calendar_date,
+          test_date: Date.current,
           test_setting: test_setting_with_sum_calculation_type
         )
       end
@@ -97,7 +97,7 @@ RSpec.describe Avaliation, type: :model do
           :avaliation,
           :with_teacher_discipline_classroom,
           classroom: classroom,
-          test_date: step.first_school_calendar_date,
+          test_date: Date.current,
           test_setting: test_setting_with_sum_calculation_type_that_allow_break_up,
           test_setting_test: test_setting_with_sum_calculation_type_that_allow_break_up.tests.first
         )

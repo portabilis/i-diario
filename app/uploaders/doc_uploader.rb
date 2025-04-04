@@ -3,7 +3,7 @@ class DocUploader < CarrierWave::Uploader::Base
     "#{Rails.env}/#{model.class.to_s.underscore.pluralize}/#{model.id}"
   end
 
-  def extension_white_list
+  def extension_whitelist
     %w[png jpeg jpg gif pdf odt doc docx ods xls xlsx odp ppt pptx odg xml csv]
   end
 

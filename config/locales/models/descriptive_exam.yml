@@ -2,26 +2,28 @@ pt-BR:
   activerecord:
     models:
       descriptive_exam:
-        one: 'Avaliação descritiva'
-        other: 'Avaliações descritivas'
+        one: "Avaliação descritiva"
+        other: "Avaliações descritivas"
 
     attributes:
       descriptive_exam:
-        unity: 'Escola'
-        classroom: 'Turma'
-        classroom_id: 'Turma'
-        discipline: 'Disciplina'
-        discipline_id: 'Disciplina'
-        step: 'Etapa'
-        step_id: 'Etapa'
-        recorded_at: 'Data'
-        opinion_type: 'Tipo'
+        unity: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        step: "Etapa"
+        step_number: "Etapa"
+        step_id: "Etapa"
+        recorded_at: "Data"
+        opinion_type: "Tipo"
 
   errors:
     descriptive_exams:
-      require_teacher: 'É necessário vincular um professor ao usuário atual para acessar esse cadastro'
+      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+      evaluation_outside_stage_dates: "Não é possível realizar lançamentos de avaliações descritivas fora das datas da etapa"
 
   descriptive_exams:
     new:
-      exam_rule_not_found: 'Não localizamos uma regra de avaliação para a turma informada. Entre em contato com o administrador do sistema.'
-      exam_rule_not_allow_descriptive_exam: 'A regra de avaliação da turma informada não permite lançamento de avaliações descritivas.'
+      exam_rule_not_found: "Não localizamos uma regra de avaliação para a turma informada. Entre em contato com o administrador do sistema."
+      exam_rule_not_allow_descriptive_exam: "A regra de avaliação da turma informada não permite lançamento de avaliações descritivas."

@@ -42,9 +42,9 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
       worker_batch = WorkerBatch.find_or_create_by!(
         main_job_class: IeducarSynchronizerWorker.to_s,
-        main_job_id: synchronization.job_id
+        main_job_id: synchronization.job_id,
+        stateable: synchronization
       )
-      worker_batch.start!
 
       Rails.logger.info(
         key: 'IeducarApiConfiguration#start_synchronization',
@@ -58,7 +58,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
   end
 
   def synchronization_in_progress?
-    synchronizations.started.select(:running?).any?
+    synchronizations.started.any?
   end
 
   def authenticate!(token)

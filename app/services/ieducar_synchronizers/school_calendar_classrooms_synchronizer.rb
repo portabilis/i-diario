@@ -36,6 +36,8 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
       next if school_calendar.blank?
 
+      remove_school_calendar_classrooms(school_calendar, school_calendar_record)
+
       school_calendar_record.etapas_de_turmas.each do |school_calendar_classroom_record|
         classroom_id = classroom(school_calendar_classroom_record.turma_id).try(&:id)
 
@@ -68,8 +70,6 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
           mark_with_error(error)
         end
-
-        remove_school_calendar_classrooms(school_calendar, school_calendar_record)
       end
     end
   rescue ActiveRecord::RecordInvalid => error
@@ -146,7 +146,7 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
     school_calendar_classrooms.each do |school_calendar_classroom|
       api_code = school_calendar_classroom.classroom.api_code.to_i
 
-      next if school_calendar_record.etapas_de_turmas.map(&:turma_id).include?(api_code)
+      next if school_calendar_record.etapas_de_turmas.pluck(:turma_id).include?(api_code)
 
       school_calendar_classroom.destroy
     end

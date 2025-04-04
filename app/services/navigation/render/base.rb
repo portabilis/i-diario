@@ -28,7 +28,8 @@ module Navigation
           entity_id,
           current_user.admin?,
           current_user.current_user_role&.role&.cache_key || current_user.cache_key,
-          feature
+          feature,
+          current_user.updated_at.to_i
         ]
 
         Rails.cache.fetch cache_key, expires_in: 1.day do

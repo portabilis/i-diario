@@ -19,7 +19,7 @@ class UserByCsvCreator
   private
 
   def params?
-    file && entity_name && password
+    file && entity_name
   end
 
   def create_user
@@ -28,8 +28,8 @@ class UserByCsvCreator
 
     entities.each do |entity|
       entity.using_connection do
-        puts "Iniciando criação de usuarios no ambiente #{entity.name}"
-        return unless create_users(entity)
+        puts "Iniciando criação de usuários no ambiente #{entity.name}"
+        next unless create_users(entity)
         puts "Usuários criados com sucesso no ambiente #{entity.name}"
       end
     end
@@ -41,6 +41,7 @@ class UserByCsvCreator
 
   def create_users(entity)
     errors = []
+
     ActiveRecord::Base.transaction do
       CSV.foreach(file, col_sep: ',', skip_blanks: true) do |new_user|
         User.find_or_initialize_by(login: new_user[3]).tap do |user|
@@ -49,24 +50,20 @@ class UserByCsvCreator
             next
           end
 
-          user.assign_attributes(login: new_user[3],
-                                 email: new_user[2],
-                                 password: password,
-                                 password_confirmation: password,
-                                 status: 'active',
-                                 kind: 'employee',
-                                 admin: true,
-                                 receive_news: false,
-                                 first_name: new_user[0],
-                                 last_name: new_user[1])
+          was_new_record = user.new_record?
+
+          assign_user_attributes(user, new_user)
+          set_password(user, new_user)
 
           if user.changed? && !user.save
             errors << invalid_user_error(user)
             next
           end
 
+          log_user_action(user, was_new_record)
+
           if set_admin_role(user) && send_mail
-            UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
+            send_email(user, entity)
           end
         end
       end
@@ -94,6 +91,48 @@ class UserByCsvCreator
     ).save(validate: false)
   end
 
+  def assign_user_attributes(user, new_user)
+    user.assign_attributes(
+      login: new_user[3],
+      email: new_user[2],
+      status: 'active',
+      kind: 'employee',
+      admin: true,
+      receive_news: false,
+      first_name: new_user[0],
+      last_name: new_user[1]
+    )
+  end
+
+  def set_password(user, new_user)
+    if password.present?
+      user.password = password
+      user.password_confirmation = password
+    else
+      user.encrypted_password = new_user[4]
+    end
+  end
+
+  def log_user_action(user, was_new_record)
+    return unless user.previous_changes.any?
+
+    if was_new_record
+      puts "Usuário #{user.login} criado com sucesso."
+    else
+      puts "Usuário #{user.login} atualizado com sucesso."
+    end
+  end
+
+  def send_email(user, entity)
+    UserMailer.delay.by_csv(
+      user.login,
+      user.first_name,
+      user.email,
+      password,
+      entity.domain
+    )
+  end
+
   def success
     @status = 'Criação de usuários completa'
   end
@@ -103,6 +142,6 @@ class UserByCsvCreator
   end
 
   def invalid_user_error(user)
-    "Não foi possivel criar os usuarios devido ao erro #{user.errors.messages} para o usuario #{user.login}"
+    "Não foi possivel criar o usuário #{user.login} devido ao erro: #{user.errors.messages}"
   end
 end

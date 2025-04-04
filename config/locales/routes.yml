@@ -103,3 +103,4 @@ pt-BR:
     by_date: 'por-data'
     by_date_range: 'por-periodo'
     lessons_boards: 'quadro-de-aulas'
+    generate_lesson_board_pdf: 'pdf-quadro-de-aulas'

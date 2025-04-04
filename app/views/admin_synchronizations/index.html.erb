@@ -1,24 +1,22 @@
 <div class="well">
-  <h1><%= t('admin_synchronizations.title') %>
-    <% if @entity_syncs.updated_at.present? %>
-      <%= l(DateTime.parse(@entity_syncs.updated_at), format: :short) %>
-    <% end %>
-  </h2>
-  <% if @entity_syncs.started.present? %>
+  <h1><%= t('admin_synchronizations.title') %></h1>
+  <% if (started = IeducarApiSynchronization.ordered.started).any? %>
     <h2><%= t('enumerations.api_synchronization_status.started') %></h2>
 
-    <%= render 'ieducar_api_configurations/synchronizations', entity_syncs: @entity_syncs.started, with_environment: true %>
+    <%= render 'ieducar_api_configurations/synchronizations', syncs: started, with_environment: true %>
   <% end %>
 
-  <% if @entity_syncs.error.present? %>
+  <% if (with_errors = IeducarApiSynchronization.ordered.error.limit(5)).any? %>
     <h2><%= t('enumerations.api_synchronization_status.error') %></h2>
 
-    <%= render 'ieducar_api_configurations/synchronizations', entity_syncs: @entity_syncs.error, with_environment: true %>
+    <%= render 'ieducar_api_configurations/synchronizations', syncs: with_errors, with_environment: true %>
   <% end %>
 
-  <% if @entity_syncs.completed.present? %>
+  <% if (completed = IeducarApiSynchronization.ordered.completed.limit(10)).any? %>
     <h2><%= t('enumerations.api_synchronization_status.completed') %></h2>
 
-    <%= render 'ieducar_api_configurations/synchronizations', entity_syncs: @entity_syncs.completed, with_environment: true %>
+    <%= render 'ieducar_api_configurations/synchronizations', syncs: completed, with_environment: true %>
   <% end %>
 </div>
+
+<%= javascript_pack_tag 'sync_status' %>

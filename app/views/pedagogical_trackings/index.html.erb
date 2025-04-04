@@ -8,10 +8,14 @@
       <%= f.input :unity_id, as: :select2, elements: employee_unities || all_unities, label: false, placeholder: t('.filter_unities') %>
     </div>
     <div class="col col-sm-2">
-      <%= f.input :start_date, as: :date, label: false, placeholder: t('.from') %>
+      <%= f.input :start_date, as: :date, label: false, placeholder: t('.from'), input_html: { 
+        value: l(@start_date)
+      }  %>
     </div>
     <div class="col col-sm-2">
-      <%= f.input :end_date, as: :date, label: false, placeholder: t('.to')%>
+      <%= f.input :end_date, as: :date, label: false, placeholder: t('.to'), input_html: { 
+        value: l(@end_date) 
+      }  %>
     </div>
     <div class="col col-sm-2">
       <%= f.submit(t('.filter_days'), class: 'btn btn-info') %>

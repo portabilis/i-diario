@@ -76,6 +76,10 @@ class StudentsController < ApplicationController
       params[:date].to_date.to_s
     ).fetch
 
+    @students = @students.select do |student|
+      student[:student_enrollment_classroom].left_at.blank? || student[:student_enrollment_classroom].left_at.to_date >= params[:date].to_date
+    end.pluck(:student)
+
     render(
       json: @students,
       each_serializer: StudentInRecoverySerializer,

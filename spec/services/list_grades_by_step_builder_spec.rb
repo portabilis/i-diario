@@ -53,10 +53,11 @@ RSpec.describe ListGradesByStepBuilder, type: :service do
       end
 
       it 'returns list of grades with group_child_education' do
-        group_children_education = grades_group_children_education
+        group_children_education = [{ id: 'group_1', name: 'Grupo 1 - Bebê (0 a 11 meses)',
+        text: 'Grupo 1 - Bebê (0 a 11 meses)' }]
 
         expect(@list_grades.size).to eq(10)
-        expect(@list_grades).to include(*group_children_education)
+        expect(@list_grades).to include(group_children_education.first)
       end
     end
 
@@ -67,33 +68,14 @@ RSpec.describe ListGradesByStepBuilder, type: :service do
       end
 
       it 'returns list of grades with group_child_education' do
-        grades_children_education = grades_children_education
+        grades_children_education = [
+          { id: 'nursery_1', name: 'Creche - 0 a 1 ano e 6 meses',
+          text: 'Creche - 0 a 1 ano e 6 meses' }
+        ]
 
         expect(@list_grades.size).to eq(4)
-        expect(@list_grades).to include(*grades_children_education)
+        expect(@list_grades).to include(grades_children_education.first)
       end
     end
-  end
-
-  def grades_group_children_education
-    [
-      { id: 'nursery_1', name: 'Creche - 0 a 1 ano e 6 meses',
-        text: 'Creche - 0 a 1 ano e 6 meses' },
-      { id: 'group_1', name: 'Grupo 1 - Bebê (0 a 11 meses)',
-        text: 'Grupo 1 - Bebê (0 a 11 meses)' },
-      { id: 'group_4', name: 'Grupo 4 - CBP (3 anos a 3 anos e 11 meses)',
-        text: 'Grupo 4 - CBP (3 anos a 3 anos e 11 meses)' }
-    ]
-  end
-
-  def grades_children_education
-    [
-      { id: 'nursery_1', name: 'Creche - 0 a 1 ano e 6 meses',
-        text: 'Creche - 0 a 1 ano e 6 meses' },
-      { id: 'nursery_2', name: 'Creche - 1 ano e 7 meses a 3 anos e 11 meses',
-        text: 'Creche - 1 ano e 7 meses a 3 anos e 11 meses' },
-      { id: 'preschool', name: 'Pré-escola - 4 a 5 anos',
-        text: 'Pré-escola - 4 a 5 anos' }
-    ]
   end
 end

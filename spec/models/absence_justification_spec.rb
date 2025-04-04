@@ -50,7 +50,7 @@ RSpec.describe AbsenceJustification, type: :model do
         school_calendar = classroom.calendar.school_calendar
         teacher = teacher_discipline_classroom.teacher
         user = create(:user, assumed_teacher_id: teacher.id)
-        first_school_calendar_date = classroom.calendar.classroom_steps.first.first_school_calendar_date
+        first_school_calendar_date = Date.current
         absence = create(
           :absence_justification,
           unity: classroom.unity,

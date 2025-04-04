@@ -61,16 +61,18 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
         links_fake_disciplines = teacher_discipline_classroom_record if teacher_discipline_classroom_record.disciplinas.blank?
 
-        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines)
+        create_or_destroy_teacher_disciplines_classrooms(
+          created_linked_teachers, teacher_id, classroom_id,links_fake_disciplines)
 
-        discard_inexisting_teacher_discipline_classrooms(
-          teacher_discipline_classrooms_to_discard(
-            teacher_discipline_classroom_record,
-            existing_discipline_api_codes
-          )
+        teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
+          teacher_discipline_classroom_record,
+          existing_discipline_api_codes
         )
+        discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)
       end
     end
+
+    DestroyDuplicatedGroupedLinksWorker.perform_in(1.second, entity_id)
   end
 
   def create_or_update_teacher_discipline_classrooms(

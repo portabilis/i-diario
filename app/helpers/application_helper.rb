@@ -40,7 +40,8 @@ module ApplicationHelper
       'Menus',
       controller_name,
       user_role_cache || current_user.cache_key,
-      Translation.cache_key
+      Translation.cache_key,
+      current_user.updated_at.to_i
     ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do

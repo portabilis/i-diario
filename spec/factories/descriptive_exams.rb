@@ -18,7 +18,7 @@ FactoryGirl.define do
       end
 
       if descriptive_exam.recorded_at.blank?
-        descriptive_exam.recorded_at = step.try(:first_school_calendar_date) || Date.current
+        descriptive_exam.recorded_at = Date.current
       end
 
       descriptive_exam.step_number = step.try(:step_number) || 1 if descriptive_exam.step_number.zero?

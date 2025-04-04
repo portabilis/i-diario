@@ -19,7 +19,7 @@ FactoryGirl.define do
       end
 
       if conceptual_exam.recorded_at.blank?
-        conceptual_exam.recorded_at = step.try(:first_school_calendar_date) || Date.current
+        conceptual_exam.recorded_at = Date.current
       end
 
       conceptual_exam.step_number = step.try(:step_number) || 1 if conceptual_exam.step_number.zero?

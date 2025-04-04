@@ -84,6 +84,12 @@ class AttendanceRecordReportByStudentsController < ApplicationController
     @disciplines = Discipline.by_classroom_id(@attendance_record_report_by_student_form.classroom_id)
   end
 
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
   def adjusted_period(period)
     return Periods::FULL if period.eql?('all') || period.eql?(Periods::FULL)
 

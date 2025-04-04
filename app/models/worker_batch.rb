@@ -4,36 +4,93 @@ class WorkerBatch < ApplicationRecord
   belongs_to :stateable, polymorphic: true
   has_many :worker_states, dependent: :restrict_with_error
 
+  scope :by_ieducar_synchronizations, -> {
+    where(stateable_type: 'IeducarApiSynchronization').joins(
+      'INNER JOIN ieducar_api_synchronizations
+               ON ieducar_api_synchronizations.id = worker_batches.stateable_id'
+    )
+  }
+
+  scope :by_full_synchronizations, -> {
+    by_ieducar_synchronizations.merge(IeducarApiSynchronization.by_full_synchronizations)
+  }
+
+  scope :by_partial_synchronizations, -> {
+    by_ieducar_synchronizations.merge(IeducarApiSynchronization.by_partial_synchronizations)
+  }
+
+  scope :by_status, ->(status) { where(status: status) }
+  scope :completed, -> { by_status(ApiSynchronizationStatus::COMPLETED) }
+
+  before_create :start
+
+  def done
+    $REDIS_DB.get(redis_key).to_i
+  end
+
   def all_workers_finished?
-    with_lock do
-      total_workers == done_workers
-    end
+    total_workers > 0 && total_workers == done_workers
   end
 
   def done_percentage
-    return 0 if total_workers.zero?
+    return 0   if total_workers.zero?
+    return 100 if all_workers_finished?
 
-    ((done_workers.to_f / total_workers.to_f) * 100).round(0)
+    ((done.to_f / total_workers.to_f) * 100).round(0)
   end
 
   def increment
-    with_lock do
-      self.done_workers = (done_workers + 1)
-      save!
+    return if all_workers_finished?
 
-      yield if block_given? && all_workers_finished?
+    new_count = $REDIS_DB.incr(redis_key)
+
+    # A cada 10% incrementados, atualiza o timestamp de atualização, para sabermos
+    # que a sincronização não está travada
+    touch if (done_percentage % 10).zero?
+
+    if new_count == total_workers
+      yield if block_given?
+
+      self.done_workers = new_count
+      finish!
     end
   end
 
   def mark_as_error!
-    update(status: ApiSynchronizationStatus::ERROR)
+    update(status: ApiSynchronizationStatus::ERROR, ended_at: Time.current)
   end
 
   private
 
+  def redis_key
+    "worker_batch:#{id}:done_workers"
+  end
+
   def reset
+    start
     self.total_workers = 0
     self.done_workers = 0
+    save
     worker_states.delete_all
+    $REDIS_DB.del(redis_key)
+  end
+
+  def start!
+    start
+    save!
+  end
+
+  def start
+    self.status = ApiSynchronizationStatus::STARTED
+    self.started_at = Time.current
+  end
+
+  def finish!
+    update!(
+      status: ApiSynchronizationStatus::COMPLETED,
+      ended_at: Time.current
+    )
+
+    $REDIS_DB.del(redis_key)
   end
 end

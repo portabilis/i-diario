@@ -19,7 +19,7 @@ RSpec.describe ComplementaryExamSetting, type: :model do
       :complementary_exam,
       :with_teacher_discipline_classroom,
       classroom: classroom,
-      recorded_at: step.first_school_calendar_date,
+      recorded_at: Date.current,
       step_id: step.id,
       complementary_exam_setting: complementary_exam_setting_with_two_grades
     )

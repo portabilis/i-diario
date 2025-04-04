@@ -73,13 +73,13 @@ class SynchronizationOrchestrator
   end
 
   def enqueue_job(synchronizer)
-    SynchronizerBuilderWorker.perform_async(
+    SynchronizerBuilder.enqueue(
       params.slice(
         :entity_id,
-        :current_years
+        :current_years,
+        :synchronization
       ).merge(
         klass: synchronizer[:klass],
-        synchronization_id: params[:synchronization].id,
         worker_batch_id: worker_batch.id,
         years: params[:year].to_s.split(','),
         unities_api_code: params[:unity_api_code].to_s.split(','),

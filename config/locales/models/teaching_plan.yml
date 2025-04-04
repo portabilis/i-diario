@@ -25,6 +25,7 @@ pt-BR:
         grade_ids: "Séries:"
         opinion: "Parecer"
         validated: "Plano de ensino validado"
+        teacher_id: "Professor(a)"
 
     errors:
       models:

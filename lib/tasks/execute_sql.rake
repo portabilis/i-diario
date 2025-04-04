@@ -18,7 +18,7 @@ namespace :execute_sql do
 
     Entity.active.each do |entity|
       entity.using_connection do
-        IeducarApiSynchronization.cancel_not_running_synchronizations(entity, restart: true)
+        IeducarApiSynchronization.cancel_locked_synchronizations(entity, restart: true)
       end
     end
 

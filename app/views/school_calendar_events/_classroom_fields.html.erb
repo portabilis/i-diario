@@ -9,8 +9,8 @@
   <div class="col col-sm-4">
     <%= f.association :course, as: :select2, elements: courses, required: true %>
   </div>
-
 </div>
+
 <div class="row">
   <div class="col col-sm-4">
     <%= f.association :grade, as: :select2, elements: grades, required: true %>
@@ -28,18 +28,23 @@
   <div class="col col-sm-4">
     <%= f.input :description %>
   </div>
-
   <div class="col col-sm-4">
     <%= f.input :event_type, as: :select2, elements: EventTypes.to_select.to_json %>
   </div>
-    <div class="col col-sm-4">
-      <%= f.input :periods, as: :select2, multiple: true, elements: PeriodsDecorator.data_for_select2, required: true,
-          input_html: { value: f.object.periods.join(','), data: { without_json_parser: true } } %>
-    </div>
+  <div class="col col-sm-4">
+    <%= f.input :periods, as: :select2, multiple: true, elements: PeriodsDecorator.data_for_select2, required: true,
+        input_html: { value: f.object.periods.join(','), data: { without_json_parser: true } } %>
+  </div>
   <div class="col col-sm-4 hidden" data-event-legend-container>
     <%= f.input :legend, input_html: { maxlength: 1 }, required: true %>
   </div>
   <div class="col col-sm-4 hidden" data-event-checkbox-container>
     <%= f.input :show_in_frequency_record, as: :boolean, label: false, inline_label: true %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col col-sm-12">
+    <%= f.input :general_description, input_html: { maxlength: 500 } %>
   </div>
 </div>

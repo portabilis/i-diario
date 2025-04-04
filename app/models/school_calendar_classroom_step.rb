@@ -56,10 +56,6 @@ class SchoolCalendarClassroomStep < ApplicationRecord
     school_calendar.day_allows_entry?(date, classroom.grade_ids, classroom_id)
   end
 
-  def first_school_calendar_date
-    school_calendar.school_day_checker(start_at, classroom.grade_ids, classroom_id).next_school_day
-  end
-
   def school_calendar
     school_calendar_classroom.school_calendar if school_calendar_classroom.present?
   end

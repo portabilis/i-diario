@@ -49,16 +49,6 @@ class SchoolDayChecker
     end
   end
 
-  def next_school_day
-    date = @date
-
-    while not date_is_school_day?(date)
-      date = date.next_day
-    end
-
-    date
-  end
-
   def school_dates_between(start_date, end_date)
     start_date.upto(end_date).select do |current_date|
       date_is_school_day?(current_date)

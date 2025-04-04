@@ -13,7 +13,7 @@ pt-BR:
       expired_password: 'Sua senha expirou, altere-a para continuar usando o sistema. Sua senha deve conter uma combinação de letras maiúsculas e minúsculas, números e símbolos (!@#$%*).'
       weak_password: 'Sua senha deve conter uma combinação de letras maiúsculas e minúsculas, números e símbolos (!@#$%*)'
     messages:
-      extension_white_list_error: Tipo de arquivo não suportado
+      extension_whitelist_error: Tipo de arquivo não suportado
   ieducar_api:
     error:
       messages:

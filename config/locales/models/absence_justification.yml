@@ -10,6 +10,7 @@ pt-BR:
         author_id: "Autor"
         author: "Autor"
         justification: "Justificativa"
+        school_calendar_id: "Calendário letivo"
         absence_date: "Data inicial"
         absence_date_end: "Data final"
         students: "Alunos"
@@ -23,6 +24,10 @@ pt-BR:
         author: "Autor"
         class_number: "Aula"
         period: "Turno"
+        teacher_id: "Professor"
+        legacy: "Antigo?"
+        user_id: "Usuário"
+        discarded_at: "Descartado?"
 
     errors:
       models:

@@ -33,7 +33,7 @@ class ApplicationPolicy
   end
 
   def form?
-    update?
+    update? || index?
   end
 
   def save?

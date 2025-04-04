@@ -110,7 +110,8 @@ class SchoolCalendarEventsController < ApplicationController
   helper_method :grades
 
   def classrooms
-    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id, @school_calendar_event.grade_id).by_year(@school_calendar.year).ordered || {}
+    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id,@school_calendar_event.grade_id)
+                             .by_year(@school_calendar.year).ordered || {}
   end
   helper_method :classrooms
 
@@ -133,8 +134,19 @@ class SchoolCalendarEventsController < ApplicationController
 
   def resource_params
     params.require(:school_calendar_event).permit(
-      :coverage, :course_id, :grade_id, :classroom_id, :discipline_id,
-      :description, :start_date, :end_date, :event_type, :periods, :legend, :show_in_frequency_record
+      :coverage,
+      :course_id,
+      :grade_id,
+      :classroom_id,
+      :discipline_id,
+      :description,
+      :start_date,
+      :end_date,
+      :event_type,
+      :periods,
+      :legend,
+      :show_in_frequency_record,
+      :general_description
     )
   end
 
