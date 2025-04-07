@@ -1,0 +1,3 @@
+pt-BR:
+  daily_note:
+    duplicate_students: "Os seguintes alunos estão com matrículas duplicadas e com situação cursando: %{students}. Por favor, entre em contato com a secretaria da sua escola." 
