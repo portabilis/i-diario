@@ -314,10 +314,10 @@ class DailyNotesController < ApplicationController
                             .values
                             .flatten
                             .uniq
-  
+
     if duplicate_students.any?
       flash[:error] = t(
-        'daily_note.duplicate_students',
+        'daily_notes.duplicate_students',
         students: duplicate_students.map(&:name).join(', ')
       )
     end
