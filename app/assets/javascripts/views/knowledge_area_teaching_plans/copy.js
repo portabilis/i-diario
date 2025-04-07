@@ -1,63 +1,48 @@
 $(document).ready(function () {
-  $("#all-unities").click(function () {
-    let unities;
+  function handleSelectAll(buttonId, inputId, clearButtonId) {
+    $(buttonId).click(function () {
+      const elements = $(inputId).attr("data-elements");
+      const ids = JSON.parse(elements)
+        .map((item) => item.id)
+        .filter(Number.isInteger);
 
-    unities = $("#copy_knowledge_area_teaching_plan_form_unities_ids").attr(
-      "data-elements"
-    );
-    unities = JSON.parse(unities);
-    unities = unities.map(function (unity) {
-      return unity.id;
+      $(inputId).val(ids.join(",")).trigger("change");
+
+      $(clearButtonId).show();
+      $(buttonId).hide();
     });
-    unities = unities.filter(function (id) {
-      return Number.isInteger(id);
+  }
+
+  function handleClear(buttonId, inputId, selectAllButtonId) {
+    $(buttonId).click(function () {
+      $(inputId).val("").trigger("change");
+
+      $(buttonId).hide();
+      $(selectAllButtonId).show();
     });
+  }
 
-    $("#copy_knowledge_area_teaching_plan_form_unities_ids").val(
-      unities.join(",")
-    );
-    $("#copy_knowledge_area_teaching_plan_form_unities_ids").trigger("change");
+  handleSelectAll(
+    "#all-unities",
+    "#copy_knowledge_area_teaching_plan_form_unities_ids",
+    "#clear-unities"
+  );
 
-    $("#clear-unities").show();
-    $("#all-unities").hide();
-  });
+  handleClear(
+    "#clear-unities",
+    "#copy_knowledge_area_teaching_plan_form_unities_ids",
+    "#all-unities"
+  );
 
-  $("#clear-unities").click(function () {
-    $("#copy_knowledge_area_teaching_plan_form_unities_ids").val("");
-    $("#copy_knowledge_area_teaching_plan_form_unities_ids").trigger("change");
+  handleSelectAll(
+    "#all-grades",
+    "#copy_knowledge_area_teaching_plan_form_grades_ids",
+    "#clear-grades"
+  );
 
-    $("#clear-unities").hide();
-    $("#all-unities").show();
-  });
-
-  $("#all-grades").click(function () {
-    let grades;
-
-    grades = $("#copy_knowledge_area_teaching_plan_form_grades_ids").attr(
-      "data-elements"
-    );
-    grades = JSON.parse(grades);
-    grades = grades.map(function (grade) {
-      return grade.id;
-    });
-    grades = grades.filter(function (id) {
-      return Number.isInteger(id);
-    });
-
-    $("#copy_knowledge_area_teaching_plan_form_grades_ids").val(
-      grades.join(",")
-    );
-    $("#copy_knowledge_area_teaching_plan_form_grades_ids").trigger("change");
-
-    $("#clear-grades").show();
-    $("#all-grades").hide();
-  });
-
-  $("#clear-grades").click(function () {
-    $("#copy_knowledge_area_teaching_plan_form_grades_ids").val("");
-    $("#copy_knowledge_area_teaching_plan_form_grades_ids").trigger("change");
-
-    $("#clear-grades").hide();
-    $("#all-grades").show();
-  });
+  handleClear(
+    "#clear-grades",
+    "#copy_knowledge_area_teaching_plan_form_grades_ids",
+    "#all-grades"
+  );
 });
