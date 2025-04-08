@@ -1,7 +1,7 @@
 class Content < ApplicationRecord
   include Audit
 
-  audited 
+  audited
   has_associated_audits
 
   acts_as_copy_target
@@ -21,7 +21,7 @@ class Content < ApplicationRecord
   }
 
   scope :start_with_description, lambda { |description|
-    where("description LIKE ?", "#{description.upcase}%").
+    where("description ILIKE ?", "#{description.upcase}%").
       order(created_at: :desc)
   }
 
@@ -32,8 +32,8 @@ class Content < ApplicationRecord
   }
 
   scope :by_teacher_id, lambda { |teacher_id|
-    joins("LEFT JOIN content_records_contents ON content_records_contents.content_id = contents.id")
-    .joins("LEFT JOIN content_records ON content_records.id = content_records_contents.content_record_id")
+    joins("INNER JOIN content_records_contents ON content_records_contents.content_id = contents.id")
+    .joins("INNER JOIN content_records ON content_records.id = content_records_contents.content_record_id")
     .where(content_records: { teacher_id: teacher_id })
     .distinct
   }
