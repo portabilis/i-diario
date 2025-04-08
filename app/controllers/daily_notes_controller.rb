@@ -49,6 +49,7 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     reload_students_list
+    check_duplicate_enrolled_students
   end
 
   def update
@@ -58,6 +59,12 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     destroy_students_not_found
+    check_duplicate_enrolled_students
+
+    if flash[:error].present?
+      render :edit
+      return
+    end
 
     if @daily_note.save
       respond_with @daily_note, location: daily_notes_path
@@ -293,6 +300,26 @@ class DailyNotesController < ApplicationController
     exemptions.each do |exempt|
       students_exempt_from_avaliation[exempt.student_id] ||= []
       students_exempt_from_avaliation[exempt.student_id] << exempt.avaliation_id
+    end
+  end
+
+  def check_duplicate_enrolled_students
+    enrolled_students = set_enrollment_classrooms
+                          .select { |ec| ec[:student_enrollment].status == 3 }
+                          .map { |ec| ec[:student] }
+
+    duplicate_students = enrolled_students
+                            .group_by(&:id)
+                            .select { |_, group| group.size > 1 }
+                            .values
+                            .flatten
+                            .uniq
+
+    if duplicate_students.any?
+      flash[:error] = t(
+        'daily_notes.duplicate_students',
+        students: duplicate_students.map(&:name).join(', ')
+      )
     end
   end
 end
