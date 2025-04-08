@@ -9,6 +9,7 @@ class Content < ApplicationRecord
   has_many :teaching_plans, dependent: :restrict_with_error
   has_many :lesson_plans, dependent: :restrict_with_error
   has_many :content_records, dependent: :restrict_with_error
+  has_and_belongs_to_many :content_records
 
   attr_accessor :is_editable
 
@@ -31,11 +32,8 @@ class Content < ApplicationRecord
     joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
   }
 
-  scope :by_teacher_id, lambda { |teacher_id|
-    joins("INNER JOIN content_records_contents ON content_records_contents.content_id = contents.id")
-    .joins("INNER JOIN content_records ON content_records.id = content_records_contents.content_record_id")
-    .where(content_records: { teacher_id: teacher_id })
-    .distinct
+  scope :by_teacher_id, lambda {|teacher_id|
+    joins(:content_records).where(content_records: {teacher_id: teacher_id}).distinct
   }
 
   after_save :update_description_token
