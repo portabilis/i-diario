@@ -16,18 +16,16 @@ module LessonPlanHelper
 
   def lesson_plan_form_method(action_name)
     case action_name
-    when 'new'
+    when 'new', 'create'
       :post
     when 'show'
-      :patch
-    else
       :patch
     end
   end
 
   def knowledge_area_lesson_plan_form_url(knowledge_area_lesson_plan, action_name)
     case action_name
-    when 'new'
+    when 'new', 'create'
       knowledge_area_lesson_plans_path(locale: I18n.locale)
     when 'edit'
       knowledge_area_lesson_plan_path(knowledge_area_lesson_plan)
