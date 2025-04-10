@@ -54,7 +54,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
     @school_term_recovery_diary_record.recovery_diary_record.current_user = current_user
 
-     authorize @school_term_recovery_diary_record
+    authorize @school_term_recovery_diary_record
 
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
