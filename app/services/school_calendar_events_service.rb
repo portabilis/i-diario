@@ -38,7 +38,7 @@ class SchoolCalendarEventsService
       events = events.where('start_date >= ? AND end_date <= ?', @start_date, @end_date)
     end
 
-    events
+    events.ordered
   end
 
   def format_events(events)
