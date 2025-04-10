@@ -175,8 +175,8 @@ class ConceptualExamsController < ApplicationController
     discipline_score_types = (teacher_differentiated_discipline_score_types(classroom) +
                               teacher_discipline_score_types(classroom)).uniq
 
-    not_concept_score = discipline_score_types.none? do |discipline_score_type|
-      discipline_score_type.include?([ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT])
+    not_concept_score = discipline_score_types.compact.none? do |type|
+      [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT].include?(type)
     end
 
     render json: not_concept_score
