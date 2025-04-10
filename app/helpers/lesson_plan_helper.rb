@@ -5,7 +5,7 @@ module LessonPlanHelper
 
   def discipline_lesson_plan_form_url(discipline_lesson_plan, action_name)
     case action_name
-    when 'new'
+    when 'new', 'create'
       discipline_lesson_plans_path(locale: I18n.locale)
     when 'edit'
       discipline_lesson_plan_path(discipline_lesson_plan)
@@ -18,7 +18,7 @@ module LessonPlanHelper
     case action_name
     when 'new', 'create'
       :post
-    when 'show'
+    when 'show', 'edit'
       :patch
     end
   end
