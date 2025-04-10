@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.6.6'
+ruby '2.7.7'
 
 gem 'active_model_serializers', '0.9.12'
 gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
@@ -63,6 +63,11 @@ gem 'validates_timeliness', '3.0.14'
 gem 'webpacker', '~> 4.x'
 gem 'scenic', '~> 1.7'
 gem 'tilt', '2.1.0'
+gem 'net-protocol', '0.1.3', require: false
+gem 'net-imap', '0.1.4', require: false
+gem 'net-pop', '0.1.1', require: false
+gem 'net-smtp', '0.1.1', require: false
+
 
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
@@ -86,8 +91,9 @@ group :test do
   gem 'database_cleaner', '1.5.1'
   gem 'factory_girl_rails', '4.5.0'
   gem 'faker', '1.9.1'
+  gem 'ffi', '1.15.5'
   gem 'gherkin', '2.12.2'
-  gem 'nokogiri', '1.9.1'
+  gem 'nokogiri', '1.14.0'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
   gem 'rails-controller-testing', '~> 1.0.5'
@@ -104,7 +110,6 @@ group :test do
   gem 'webdrivers', '3.6.0'
   gem 'webmock', '3.14.0'
   gem 'simplecov', require: false
-  gem 'net-http', '0.4.1'
 end
 
 group :test, :development do
