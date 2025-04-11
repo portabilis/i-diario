@@ -136,8 +136,11 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   end
 
   def ensure_recovery_diary_record_association
-    if recovery_diary_record && recovery_diary_record.school_term_recovery_diary_record.nil?
-      recovery_diary_record.school_term_recovery_diary_record = self
-    end
+    return if recovery_diary_record.blank? || @ensuring_association
+
+    @ensuring_association = true
+    recovery_diary_record.school_term_recovery_diary_record ||= self
+  ensure
+    @ensuring_association = false
   end
 end
