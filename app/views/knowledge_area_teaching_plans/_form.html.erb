@@ -55,10 +55,9 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :knowledge_area_ids, as: :select2,
-                elements: @knowledge_areas, multiple: true,
-                input_html: { data: { without_json_parser: true } },
-                readonly: action_name.eql?('show') %>
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
+                input_html: { data: { without_json_parser: true } }, readonly: action_name.eql?('show'),
+                selected: current_user_discipline.knowledge_area.id %>
         </div>
       </div>
 
