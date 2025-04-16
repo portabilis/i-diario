@@ -305,7 +305,11 @@ class DailyNotesController < ApplicationController
 
   def check_duplicate_enrolled_students
     enrolled_students = set_enrollment_classrooms
-                          .select { |ec| ec[:student_enrollment].status == 3 }
+                          .select { |ec|
+                            ec[:student_enrollment].status == 3 &&
+                            ec[:student_enrollment].active == 1 &&
+                            ec[:student_enrollment_classroom].left_at.blank?
+                          }
                           .map { |ec| ec[:student] }
 
     duplicate_students = enrolled_students
