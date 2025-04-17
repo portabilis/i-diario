@@ -15,7 +15,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     set_filters
     set_options_by_user
-    set_knowledge_area_by_classroom(current_user_classroom.id)
+    set_knowledge_area_by_grade(@grades.map(&:id))
     fetch_knowledge_area_teaching_plans
 
     unless current_user.current_role_is_admin_or_employee?
@@ -60,7 +60,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     set_options_by_user
-    set_knowledge_area_by_classroom(current_user_classroom.id)
+    set_knowledge_area_by_grade(current_grade.id)
   end
 
   def create
@@ -87,7 +87,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     else
       yearly_term_type_id
       set_options_by_user
-      @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
+
+      grade_id = @knowledge_area_teaching_plan.teaching_plan.grade_id
+      @knowledge_areas = set_knowledge_area_by_grade(grade_id)
 
       render :new
     end
@@ -165,7 +167,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     )
 
     set_options_by_user
-    set_knowledge_area_by_classroom(@classrooms.map(&:id))
+    set_knowledge_area_by_grade(@grades.map(&:id))
   end
 
   def do_copy
@@ -314,9 +316,9 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_areas
   end
 
-  def set_knowledge_area_by_classroom(classroom_id)
+  def set_knowledge_area_by_grade(grade_id)
     @knowledge_areas = KnowledgeArea.by_teacher(current_teacher)
-                                    .by_classroom_id(classroom_id)
+                                    .by_grade(grade_id)
                                     .ordered
   end
 
