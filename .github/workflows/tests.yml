@@ -47,7 +47,7 @@ jobs:
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "2.6.6"
+          ruby-version: .ruby-version
           bundler: "2.4.22"
           bundler-cache: true
 
