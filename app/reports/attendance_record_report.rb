@@ -1,8 +1,8 @@
 class AttendanceRecordReport < BaseReport
-  # This number represent how many students are printed on each page
+  # Número de alunos impressos por página
   STUDENT_BY_PAGE_COUNT = 29
 
-  # This factor represent the quantitty of students with social name needed to reduce 1 student by page
+  # Fator que representa a quantidade de alunos com nome social necessária para reduzir 1 aluno por página
   SOCIAL_NAME_REDUCTION_FACTOR = 2
 
   def self.build(
@@ -34,7 +34,6 @@ class AttendanceRecordReport < BaseReport
              students_frequencies_percentage,
              current_user,
              classroom_id)
-
   end
 
   def build(
@@ -68,7 +67,6 @@ class AttendanceRecordReport < BaseReport
     @exists_legend_remote = false
     @students_frequency_percentage = students_frequencies_percentage
 
-    # Pré-carregando dados para evitar consultas repetidas
     @classrooms = {}
     @daily_frequencies.each do |df|
       @classrooms[df.classroom_id] = df.classroom if df.classroom
@@ -500,31 +498,24 @@ class AttendanceRecordReport < BaseReport
   def step_number(daily_frequency)
     classroom_id = daily_frequency.classroom_id
 
-    # Lazy loading dos steps por sala, evitando carregar para todas as salas
     @steps_fetchers ||= {}
     @steps_fetchers[classroom_id] ||= StepsFetcher.new(daily_frequency.classroom)
 
-    # Inicializa o mapa de steps só uma vez por sala
     @steps ||= {}
     @steps[classroom_id] ||= @steps_fetchers[classroom_id].steps
 
-    # Cria um mapa por data para consulta rápida (só uma vez)
     @steps_by_date ||= {}
     @steps_by_date[classroom_id] ||= {}
 
-    # Consulta o cache primeiro
     date_key = daily_frequency.frequency_date.to_date
     return @steps_by_date[classroom_id][date_key] if @steps_by_date[classroom_id].has_key?(date_key)
 
-    # Se não estiver no cache, encontra e armazena
     step = @steps[classroom_id].find { |step|
       step[:start_at] <= daily_frequency.frequency_date && step[:end_at] >= daily_frequency.frequency_date
     }
 
-    # Armazena no cache (mesmo se for nil)
     @steps_by_date[classroom_id][date_key] = step&.to_number
 
-    # Retorna o resultado
     @steps_by_date[classroom_id][date_key]
   end
 
