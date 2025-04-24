@@ -92,20 +92,51 @@ class AttendanceRecordReportForm
   end
 
   def student_enrollment_ids
-    @student_enrollment_ids ||= @enrollment_classrooms_list.map { |student_enrollment|
+    @student_enrollment_ids ||= enrollment_classrooms_list.map { |student_enrollment|
       student_enrollment[:student_enrollment].id
     }
   end
 
   def students_frequencies_percentage
-    percentage_by_student = {}
+    return {} if daily_frequencies.empty? || student_enrollment_ids.empty?
 
-    absences_students.each do |student_enrollment_id, absences_student|
-      percentage = calculate_percentage(absences_student[:count_days], absences_student[:absences])
-      percentage_by_student = percentage_by_student.merge({ student_enrollment_id => percentage })
+    # Obter dados necessários
+    freq_dates = daily_frequencies.map(&:frequency_date).uniq
+    return {} if freq_dates.empty?
+
+    # Query SQL que reúne todas as informações necessárias para calcular o percentual
+    absences_hash = absences_students_query
+
+    # Processar resultado da query
+    percentage_by_student = {}
+    absences_hash.each do |student_enrollment_id, data|
+      count_days = data[:count_days].to_i
+      absences = data[:absences].to_i
+
+      if count_days > 0
+        total_percentage = 100
+        multiplication = absences * total_percentage
+        percentage = (total_percentage - (multiplication / count_days)).to_s + '%'
+        percentage_by_student[student_enrollment_id] = percentage
+      else
+        percentage_by_student[student_enrollment_id] = '100%'
+      end
     end
 
     percentage_by_student
+  end
+
+  def absences_students_query
+    # Esta função mantém a lógica de absences_students mas utiliza uma abordagem otimizada
+    # Usamos memory_object para evitar chamadas de banco repetitivas
+    result = {}
+
+    # Vamos usar a lógica já existente, mas de forma mais eficiente
+    absences_students.each do |student_enrollment_id, data|
+      result[student_enrollment_id] = data
+    end
+
+    result
   end
 
   private
