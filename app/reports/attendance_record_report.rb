@@ -500,7 +500,7 @@ class AttendanceRecordReport < BaseReport
   def step_number(daily_frequency)
     classroom_id = daily_frequency.classroom_id
 
-    # Lazy-carrega os steps por sala, evitando carregar para todas as salas
+    # Lazy loading dos steps por sala, evitando carregar para todas as salas
     @steps_fetchers ||= {}
     @steps_fetchers[classroom_id] ||= StepsFetcher.new(daily_frequency.classroom)
 
