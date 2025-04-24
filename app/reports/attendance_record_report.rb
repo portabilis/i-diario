@@ -68,6 +68,12 @@ class AttendanceRecordReport < BaseReport
     @exists_legend_remote = false
     @students_frequency_percentage = students_frequencies_percentage
 
+    # Pré-carregando dados para evitar consultas repetidas
+    @classrooms = {}
+    @daily_frequencies.each do |df|
+      @classrooms[df.classroom_id] = df.classroom if df.classroom
+    end
+
     self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
 
     @general_configuration = GeneralConfiguration.first
@@ -134,7 +140,14 @@ class AttendanceRecordReport < BaseReport
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
-    @daily_frequency_students = DailyFrequencyStudent.by_daily_frequency_id(@daily_frequencies.map(&:id)).to_a
+    @daily_frequency_students = DailyFrequencyStudent
+                                .includes(:student)
+                                .by_daily_frequency_id(@daily_frequencies.map(&:id))
+                                .to_a
+
+    @daily_frequency_students_hash = @daily_frequency_students.group_by do |daily_frequency_student|
+      [daily_frequency_student.daily_frequency_id, daily_frequency_student.student_id]
+    end
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
@@ -148,10 +161,38 @@ class AttendanceRecordReport < BaseReport
       student_enrollment[:student_enrollment].id
     }
 
+    student_ids_by_enrollment = @enrollment_classrooms.each_with_object({}) do |enrollment, hash|
+      hash[enrollment[:student_enrollment].id] = enrollment[:student].id
+    end
+
     active_searches = active_searches_by_range(daily_frequencies, student_enrollment_ids)
-    all_dependances = StudentEnrollmentDependence.where(student_enrollment_id: student_enrollment_ids)
-    all_exempts = StudentEnrollmentExemptedDiscipline.by_student_enrollment(student_enrollment_ids)
-                                                     .includes(student_enrollment: [:student]).to_a
+
+    active_searches_hash = {}
+    active_searches.each do |search|
+      active_searches_hash[search[:date]] ||= []
+      active_searches_hash[search[:date]] += search[:student_ids]
+    end
+
+    all_dependances = StudentEnrollmentDependence
+                      .where(student_enrollment_id: student_enrollment_ids)
+                      .to_a
+
+    dependences_hash = {}
+    all_dependances.each do |dep|
+      dependences_hash[[dep.student_enrollment_id, dep.discipline_id]] = true
+    end
+
+    all_exempts = StudentEnrollmentExemptedDiscipline
+                  .includes(student_enrollment: [:student])
+                  .by_student_enrollment(student_enrollment_ids)
+                  .to_a
+
+    exempts_hash = {}
+    all_exempts.each do |exempt|
+      exempt.steps.split(',').each do |step|
+        exempts_hash[[exempt.student_enrollment_id, exempt.discipline_id, step]] = true
+      end
+    end
 
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
@@ -178,9 +219,9 @@ class AttendanceRecordReport < BaseReport
             left_at = get_left_at(enrollment_classroom[:student_enrollment_classroom].left_at)
             sequence = enrollment_classroom[:student_enrollment_classroom].sequence
 
-            if exempted_from_discipline?(all_exempts, student_enrollment, daily_frequency)
+            if exempted_from_discipline?(exempts_hash, student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
-            elsif in_active_search?(student.id, active_searches, daily_frequency)
+            elsif in_active_search?(student_ids_by_enrollment[student_enrollment.id], active_searches_hash, daily_frequency)
               @show_legend_active_search = true
               student_frequency = ActiveSearchFrequencyStudent.new
             elsif @show_inactive_enrollments
@@ -202,7 +243,7 @@ class AttendanceRecordReport < BaseReport
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
             students[student_enrollment_classroom.id] = {} if students[student_enrollment_classroom.id].nil?
-            students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
+            students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
             students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
@@ -428,26 +469,17 @@ class AttendanceRecordReport < BaseReport
     record.is_a? DailyFrequency
   end
 
-  def student_has_dependence?(all_dependances, student_enrollment, daily_frequency)
-    all_dependances.detect do |dependency|
-      dependency.student_enrollment_id.eql?(student_enrollment.id) &&
-        dependency.discipline_id.eql?(daily_frequency.discipline_id)
-    end
+  def student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
+    return dependences_hash[[student_enrollment.id, daily_frequency.discipline_id]] == true
   end
 
-  def exempted_from_discipline?(all_exempts, student_enrollment, daily_frequency)
+  def exempted_from_discipline?(exempts_hash, student_enrollment, daily_frequency)
     return false if daily_frequency.discipline_id.blank?
 
-    step_number = step_number(daily_frequency)
-    discipline_id = daily_frequency.discipline_id
+    step_num = step_number(daily_frequency)
+    return false unless step_num
 
-    exemption = all_exempts.detect { |exempt|
-                  exempt.student_enrollment_id.eql?(student_enrollment.id) &&
-                    exempt.discipline_id.eql?(discipline_id) &&
-                    exempt.steps.split(',').include?(step_number.to_s)
-                }
-
-    exemption.present?
+    return exempts_hash[[student_enrollment.id, daily_frequency.discipline_id, step_num.to_s]] == true
   end
 
   def student_slice_size(students)
@@ -466,13 +498,34 @@ class AttendanceRecordReport < BaseReport
   end
 
   def step_number(daily_frequency)
-    @steps ||= StepsFetcher.new(daily_frequency.classroom).steps
+    classroom_id = daily_frequency.classroom_id
 
-    step = @steps.detect { |step|
+    # Lazy-carrega os steps por sala, evitando carregar para todas as salas
+    @steps_fetchers ||= {}
+    @steps_fetchers[classroom_id] ||= StepsFetcher.new(daily_frequency.classroom)
+
+    # Inicializa o mapa de steps só uma vez por sala
+    @steps ||= {}
+    @steps[classroom_id] ||= @steps_fetchers[classroom_id].steps
+
+    # Cria um mapa por data para consulta rápida (só uma vez)
+    @steps_by_date ||= {}
+    @steps_by_date[classroom_id] ||= {}
+
+    # Consulta o cache primeiro
+    date_key = daily_frequency.frequency_date.to_date
+    return @steps_by_date[classroom_id][date_key] if @steps_by_date[classroom_id].has_key?(date_key)
+
+    # Se não estiver no cache, encontra e armazena
+    step = @steps[classroom_id].find { |step|
       step[:start_at] <= daily_frequency.frequency_date && step[:end_at] >= daily_frequency.frequency_date
     }
 
-    step&.to_number
+    # Armazena no cache (mesmo se for nil)
+    @steps_by_date[classroom_id][date_key] = step&.to_number
+
+    # Retorna o resultado
+    @steps_by_date[classroom_id][date_key]
   end
 
   def frequency_in_period(daily_frequency)
@@ -490,11 +543,13 @@ class AttendanceRecordReport < BaseReport
   end
 
   def teacher_allow_absence_by_discipline?
-    @teacher_allow_absence_by_discipline ||= TeacherDisciplineClassroom.by_classroom(classroom.id)
-                                                                       .by_teacher_id(@teacher.id)
-                                                                       .by_discipline_id(discipline.id)
-                                                                       .first
-                                                                       .try(:allow_absence_by_discipline)
+    @teacher_allow_absence_by_discipline ||= TeacherDisciplineClassroom
+                                              .includes(:teacher)
+                                              .by_classroom(classroom.id)
+                                              .by_teacher_id(@teacher.id)
+                                              .by_discipline_id(discipline.id)
+                                              .first
+                                              .try(:allow_absence_by_discipline)
   end
 
   def active_searches_by_range(daily_frequencies, student_enrollment_ids)
@@ -503,10 +558,9 @@ class AttendanceRecordReport < BaseReport
     ActiveSearch.new.in_active_search_in_range(student_enrollment_ids, dates)
   end
 
-  def in_active_search?(student_id, active_searches, daily_frequency)
-    active_searches.detect do |active_searche|
-      active_searche[:date].eql?(daily_frequency.frequency_date) && active_searche[:student_ids].include?(student_id)
-    end
+  def in_active_search?(student_id, active_searches_hash, daily_frequency)
+    date_searches = active_searches_hash[daily_frequency.frequency_date] || []
+    return date_searches.include?(student_id)
   end
 
   def general_frequency?
@@ -560,9 +614,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-    student_frequency = @daily_frequency_students.detect { |student_frequency|
-      student_frequency.student_id.eql?(student_enrollment.student_id)
-    }
+    student_frequency = @daily_frequency_students_hash[[daily_frequency.id, student_enrollment.student_id]]&.first
 
     return if student_frequency.blank?
     return if student_frequency.type_of_teaching == TypesOfTeaching::PRESENTIAL
@@ -585,7 +637,10 @@ class AttendanceRecordReport < BaseReport
   def set_teacher(teacher, classroom_id, current_user)
     return teacher unless current_user.current_role_is_admin_or_employee?
 
-    teachers = Classroom.find(classroom_id).teacher_discipline_classrooms.map(&:teacher)
-    teachers.include?(teacher) ? teacher : teachers.first
+    classroom_teachers = Teacher.joins(:teacher_discipline_classrooms)
+                               .where(teacher_discipline_classrooms: { classroom_id: classroom_id })
+                               .distinct
+
+    classroom_teachers.include?(teacher) ? teacher : classroom_teachers.first
   end
 end
