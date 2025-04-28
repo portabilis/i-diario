@@ -33,7 +33,6 @@ class Discipline < ApplicationRecord
   scope :by_score_type, lambda { |score_type, student_id = nil, classroom_id = nil|
     scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
 
-    # Define a consulta padrão que será usada quando não houver casos especiais
     default_query = scoped.where(
       TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type).
       and(
