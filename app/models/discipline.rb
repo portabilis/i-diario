@@ -30,15 +30,15 @@ class Discipline < ApplicationRecord
   # It works only when the query chain has join with
   # teacher_discipline_classrooms. Using scopes like by_teacher_id or
   # by_classroom for example.
-  scope :by_score_type, lambda { |score_type, student_id = nil|
+  scope :by_score_type, lambda { |score_type, student_id = nil, classroom_id = nil|
     scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
 
     # Define a consulta padrão que será usada quando não houver casos especiais
     default_query = scoped.where(
-      ExamRule.arel_table[:score_type].eq(score_type).
-      or(
-        ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
-        and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
+      TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type).
+      and(
+        ExamRule.arel_table[:score_type].eq(score_type).
+        or(ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT))
       )
     ).distinct
 
@@ -58,38 +58,23 @@ class Discipline < ApplicationRecord
           )
         ).distinct
     elsif student_id
-      # Verifica se o estudante está em turma multisseriada (com múltiplas grades)
-      student_classroom_ids = StudentEnrollment.where(student_id: student_id).joins(:student_enrollment_classrooms)
-                                             .select('DISTINCT student_enrollment_classrooms.classroom_id')
+      classroom_grades_count = ClassroomsGrade.where(classroom_id: classroom_id)
+                                            .group(:classroom_id)
+                                            .having('COUNT(grade_id) > 1')
+                                            .pluck(:classroom_id)
 
-      multiserial_classrooms = Classroom.where(id: student_classroom_ids)
-                                      .joins(:classrooms_grades)
-                                      .group('classrooms.id')
-                                      .having('COUNT(classrooms_grades.grade_id) > 1')
-                                      .pluck(:id)
+      if classroom_grades_count.present?
+        student_classroom = ClassroomsGrade.by_student_id(student_id)
+                                        .joins(:classroom)
+                                        .where(classrooms: { id: classroom_id })
+                                        .pluck(:grade_id)
 
-      if multiserial_classrooms.present?
-        # Se estiver em turma multisseriada, retorna todas as disciplinas disponíveis
-        # para qualquer das grades associadas à turma
-        student_grade_ids = ClassroomsGrade.joins(:student_enrollment_classrooms)
-                                         .where(student_enrollment_classrooms: { student_enrollment_id:
-                                           StudentEnrollment.where(student_id: student_id).select(:id)
-                                         })
-                                         .pluck(:grade_id)
-
-        joins(teacher_discipline_classrooms: [classroom: :classrooms_grades])
-          .where(classrooms_grades: { grade_id: student_grade_ids })
-          .joins("INNER JOIN classrooms_grades cg ON cg.classroom_id = teacher_discipline_classrooms.classroom_id")
-          .joins("INNER JOIN exam_rules er ON er.id = cg.exam_rule_id")
-          .where(er: { score_type: score_type })
-          .distinct
+        Discipline.joins(:teacher_discipline_classrooms)
+        .where(teacher_discipline_classrooms: { grade_id: student_classroom, score_type: score_type })
+        .distinct
       else
-        # Caso não seja multisseriada, usa a consulta padrão
         default_query
       end
-    else
-      # Caso padrão, usa a consulta padrão
-      default_query
     end
   }
   scope :by_grade, lambda { |grade| by_grade(grade) }
