@@ -14,7 +14,13 @@ class ClassroomsGrade < ApplicationRecord
   default_scope -> { kept }
 
   scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
-  scope :by_score_type, ->(score_type) { joins(:exam_rule).where(exam_rules: { score_type: score_type }) }
+  scope :by_score_type, ->(score_type) {
+    if score_type == ScoreTypes::CONCEPT
+      joins(:exam_rule).where(exam_rules: { score_type: [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT] })
+    else
+      joins(:exam_rule).where(exam_rules: { score_type: score_type })
+    end
+  }
   scope :by_grade_id, ->(grade_id) { where(grade_id: grade_id) }
   scope :by_opinion_type, ->(opinion_type) { joins(:exam_rule).where(exam_rules: { opinion_type: opinion_type }) }
   scope :by_exam_rule, ->(exam_rule_id) { joins(:exam_rule).where(exam_rules: { id: exam_rule_id }) }
