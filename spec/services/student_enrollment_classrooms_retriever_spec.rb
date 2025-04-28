@@ -498,7 +498,7 @@ RSpec.describe StudentEnrollmentClassroomsRetriever, type: :service do
         ec[:student_enrollment_classroom].classrooms_grade.exam_rule.score_type
       }.uniq
 
-      expect(list_score_type).to contain_exactly(exam_rule_concept.score_type)
+      expect(list_score_type).to contain_exactly(exam_rule_concept.score_type, ScoreTypes::NUMERIC_AND_CONCEPT)
     end
 
     it 'should return list of student_enrollments with score_type both if given nil' do
