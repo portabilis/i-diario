@@ -63,13 +63,13 @@ class Discipline < ApplicationRecord
                                             .pluck(:classroom_id)
 
       if classroom_grades_count.present?
-        student_classroom = ClassroomsGrade.by_student_id(student_id)
+        grade_ids = ClassroomsGrade.by_student_id(student_id)
                                         .joins(:classroom)
                                         .where(classrooms: { id: classroom_id })
                                         .pluck(:grade_id)
 
         Discipline.joins(:teacher_discipline_classrooms)
-        .where(teacher_discipline_classrooms: { grade_id: student_classroom, score_type: score_type })
+        .where(teacher_discipline_classrooms: { grade_id: grade_ids, score_type: score_type })
         .distinct
       else
         default_query
