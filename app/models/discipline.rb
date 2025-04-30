@@ -77,7 +77,7 @@ class Discipline < ApplicationRecord
           default_query
         else
           Discipline.joins(:teacher_discipline_classrooms)
-            .where(teacher_discipline_classrooms: { grade_id: grade_id, score_type: score_type_value })
+            .where(teacher_discipline_classrooms: { grade_id: grade_id, score_type: score_type })
             .distinct
         end
       else
