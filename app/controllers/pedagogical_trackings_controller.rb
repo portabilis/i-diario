@@ -66,6 +66,20 @@ class PedagogicalTrackingsController < ApplicationController
     respond_with @teacher_percents
   end
 
+  def recalculate
+
+    school_calendars = SchoolCalendar.ids
+
+    school_calendars.each do |school_calendar_id|
+
+    SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_id)
+    end
+
+    flash[:notice] = t('pedagogical_trackings.index.recalculate_school_days_success')
+
+    redirect_to pedagogical_trackings_path
+  end
+
   private
 
   def minimum_year
