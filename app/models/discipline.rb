@@ -57,27 +57,28 @@ class Discipline < ApplicationRecord
           )
         ).distinct
     elsif student_id
-      classroom_grades_count = ClassroomsGrade.where(classroom_id: classroom_id)
-                                            .group(:classroom_id)
-                                            .having('COUNT(grade_id) > 1')
-                                            .pluck(:classroom_id)
-      if classroom_grades_count.present?
-        grade_ids = ClassroomsGrade.by_student_id(student_id)
-                                        .joins(:classroom)
-                                        .where(classrooms: { id: classroom_id })
-                                        .pluck(:grade_id)
+      has_more_than_one_grade = ClassroomsGrade
+        .where(classroom_id: classroom_id)
+        .group(:classroom_id)
+        .having('COUNT(grade_id) > 1').exists?
 
-        score_types = ExamRule.joins(:classrooms_grades)
-                                        .where(classrooms_grades: { classroom_id: classroom_id, grade_id: grade_ids })
-                                        .pluck(:score_type)
-                                        .first
+      if has_more_than_one_grade
+        grade_and_score_type = ClassroomsGrade
+          .by_student_id(student_id)
+          .joins(:classroom, :exam_rule)
+          .where(classrooms: { id: classroom_id })
+          .pluck(:grade_id, 'exam_rules.score_type')
+          .first
 
-        if score_types == ScoreTypes::CONCEPT
+        grade_id = grade_and_score_type&.first
+        score_type_value = grade_and_score_type&.last
+
+        if score_type_value == ScoreTypes::CONCEPT
           default_query
         else
           Discipline.joins(:teacher_discipline_classrooms)
-          .where(teacher_discipline_classrooms: { grade_id: grade_ids, score_type: score_type })
-          .distinct
+            .where(teacher_discipline_classrooms: { grade_id: grade_id, score_type: score_type_value })
+            .distinct
         end
       else
         default_query
