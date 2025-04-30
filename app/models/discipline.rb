@@ -34,10 +34,10 @@ class Discipline < ApplicationRecord
     scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
 
     default_query = scoped.where(
-      TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type).
-      and(
-        ExamRule.arel_table[:score_type].eq(score_type).
-        or(ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT))
+      ExamRule.arel_table[:score_type].eq(score_type).
+      or(
+        ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
+        and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
       )
     ).distinct
 
@@ -61,16 +61,24 @@ class Discipline < ApplicationRecord
                                             .group(:classroom_id)
                                             .having('COUNT(grade_id) > 1')
                                             .pluck(:classroom_id)
-
       if classroom_grades_count.present?
         grade_ids = ClassroomsGrade.by_student_id(student_id)
                                         .joins(:classroom)
                                         .where(classrooms: { id: classroom_id })
                                         .pluck(:grade_id)
 
-        Discipline.joins(:teacher_discipline_classrooms)
-        .where(teacher_discipline_classrooms: { grade_id: grade_ids, score_type: score_type })
-        .distinct
+        score_types = ExamRule.joins(:classrooms_grades)
+                                        .where(classrooms_grades: { classroom_id: classroom_id, grade_id: grade_ids })
+                                        .pluck(:score_type)
+                                        .first
+
+        if score_types == ScoreTypes::CONCEPT
+          default_query
+        else
+          Discipline.joins(:teacher_discipline_classrooms)
+          .where(teacher_discipline_classrooms: { grade_id: grade_ids, score_type: score_type })
+          .distinct
+        end
       else
         default_query
       end
