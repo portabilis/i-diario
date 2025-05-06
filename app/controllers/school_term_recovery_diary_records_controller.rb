@@ -294,7 +294,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     base_query
       .joins(recovery_diary_record: :classroom)
       .joins('INNER JOIN teacher_discipline_classrooms tdc ON tdc.classroom_id = classrooms.id AND tdc.discipline_id = recovery_diary_records.discipline_id')
-      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL', current_teacher.id)
+      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL AND tdc.year = ?', current_teacher.id, current_user_school_year)
   end
 
   def school_term_recovery_diary_records_for_admin
