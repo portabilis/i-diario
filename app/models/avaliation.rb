@@ -289,9 +289,7 @@ class Avaliation < ApplicationRecord
     return unless weight_changed?
     return unless daily_notes.any?
 
-    has_notes = daily_notes.any? do |daily_note|
-      daily_note.students.any? { |daily_note_student| daily_note_student.note.present? }
-    end
+    has_notes = daily_notes.joins(:students).where.not(daily_note_students: { note: nil }).exists?
 
     errors.add(:weight, :cannot_be_changed_with_daily_notes) if has_notes
   end
