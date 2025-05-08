@@ -16,7 +16,9 @@ class SynchronizerBuilder
         params[:year] = year
         params[:unity_api_code] = unity_api_code
 
-        SynchronizerExecuterEnqueueWorker.perform_async(params)
+        SynchronizerExecuterEnqueueWorker.set(
+          queue: synchronization.full_synchronization? ? :critical_full : :critical
+        ).perform_async(params)
       end
     end
   end

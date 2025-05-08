@@ -9,13 +9,13 @@ class SynchronizerExecuterEnqueueWorker
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
       return if !synchronization.started?
 
-      enqueue_job(params)
+      enqueue_job(params, synchronization)
     end
   end
 
   private
 
-  def enqueue_job(params)
+  def enqueue_job(params, synchronization)
     worker_batch = WorkerBatch.find(params[:worker_batch_id])
     orchestrator = SynchronizationOrchestrator.new(worker_batch, params[:klass], params)
 
@@ -23,7 +23,9 @@ class SynchronizerExecuterEnqueueWorker
 
     worker_state = create_worker_state(worker_state_params(params, worker_batch))
 
-    SynchronizerExecuterWorker.perform_async(synchronizer_executer_params(params, worker_state.id))
+    SynchronizerExecuterWorker.set(
+      queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
+    ).perform_async(synchronizer_executer_params(params, worker_state.id))
   end
 
   def create_worker_state(params)

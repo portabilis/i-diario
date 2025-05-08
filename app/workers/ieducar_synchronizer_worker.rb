@@ -45,7 +45,9 @@ class IeducarSynchronizerWorker
 
       break unless synchronization.try(:started?)
 
-      UnitiesSynchronizerWorker.perform_async(
+      UnitiesSynchronizerWorker.set(
+        queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
+      ).perform_async(
         entity_id: entity.id,
         synchronization_id: synchronization.id,
         current_years: current_years
