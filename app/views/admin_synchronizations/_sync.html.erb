@@ -1,1 +1,68 @@
-<%= render 'ieducar_api_configurations/sync', sync: sync %>
+<% unless with_environment %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/ieducar_api_configurations/sync' %>
+  <% end %>
+<% end %>
+
+<% sync_id = SecureRandom.uuid %>
+<tr>
+  <% if with_environment %>
+    <td><%= entity_name %></td>
+  <% end %>
+  <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
+  <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
+  <td><span id="time_running"><%= sync.time_running %></span> minutos</td>
+  <td><%= "#{average_time} minutos" if average_time %></td>
+  <td>
+    <%= t("enumerations.api_synchronization_status.#{sync.status}") %>
+    <% if sync.started? %>
+      <%= "(<span id=\"done_percentage\">#{sync.done_percentage}</span>%)".html_safe %>
+    <% end %>
+    <% if sync.error? %>
+      <a href="#" data-toggle="modal" data-target="#<%= sync_id %>">
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+      </a>
+    <% end %>
+  </td>
+</tr>
+
+<% if sync.error? %>
+  <div class="modal fade" id="<%= sync_id %>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel">Erro completo</h4>
+        </div>
+        <div class="modal-body">
+          <%= sync.error_message.html_safe %>
+          <% if current_user.admin? %>
+            <% if sync.full_error_message.present? %>
+              <hr>
+              <%= sync.full_error_message.html_safe %>
+            <% end %>
+            <hr>
+            <div style="max-height: 500px;overflow-y: auto;overflow-x: hidden;">
+              <% worker_batch = sync.worker_batch %>
+              <% if worker_batch.present? %>
+                <% worker_states = worker_batch.worker_states.by_status(ApiSynchronizationStatus::ERROR) %>
+                <% worker_states.each do |worker_state| %>
+                  <% worker_state.error_list.each do |error| %>
+                    <p><%= error %></p>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            <%= t('ieducar_api_configuration.sync_error_modal.close') %>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
