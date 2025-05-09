@@ -49,6 +49,7 @@ class Avaliation < ApplicationRecord
   validate :weight_not_greater_than_test_setting_maximum_score, if: :arithmetic_and_sum_calculation_type?
   validate :grades_belongs_to_test_setting
   validate :discipline_in_grade?
+  validate :weight_cannot_be_changed_with_daily_notes, on: :update
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id|
     includes(:teacher_discipline_classrooms).where(teacher_discipline_classrooms:
@@ -282,5 +283,14 @@ class Avaliation < ApplicationRecord
     )
 
     errors.add(:grades, :discipline_not_in_grades)
+  end
+
+  def weight_cannot_be_changed_with_daily_notes
+    return unless weight_changed?
+    return unless daily_notes.any?
+
+    has_notes = daily_notes.joins(:students).where.not(daily_note_students: { note: nil }).exists?
+
+    errors.add(:weight, :cannot_be_changed_with_daily_notes) if has_notes
   end
 end
