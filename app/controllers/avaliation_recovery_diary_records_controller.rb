@@ -8,7 +8,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def index
     set_options_by_user
-    fetch_avaliation_recovery_diary_records_by_user
+    set_avaliation_recovery_diary_records_by_user
 
     authorize @avaliation_recovery_diary_records
 
@@ -125,16 +125,34 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   private
 
-  def fetch_avaliation_recovery_diary_records_by_user
-    @avaliation_recovery_diary_records =
-      apply_scopes(AvaliationRecoveryDiaryRecord)
-        .select('DISTINCT ON (avaliation_recovery_diary_records.id, recovery_diary_records.recorded_at) avaliation_recovery_diary_records.*')
-        .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
-        .by_unity_id(current_unity.id)
-        .by_classroom_id(@classrooms.map(&:id))
-        .by_discipline_id(@disciplines.map(&:id))
-        .by_teacher_id(current_teacher.id)
-        .ordered
+  def set_avaliation_recovery_diary_records_by_user
+    @avaliation_recovery_diary_records = if current_user.current_role_is_admin_or_employee?
+                                          avaliation_recovery_diary_records_for_admin
+                                        else
+                                          avaliation_recovery_diary_records_for_teacher
+                                        end
+
+    @avaliation_recovery_diary_records = @avaliation_recovery_diary_records.ordered
+  end
+
+  def avaliation_recovery_diary_records_for_teacher
+    base_query
+      .joins(recovery_diary_record: :classroom)
+      .joins('INNER JOIN teacher_discipline_classrooms tdc ON tdc.classroom_id = classrooms.id AND tdc.discipline_id = recovery_diary_records.discipline_id')
+      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL AND tdc.year = ?', current_teacher.id, current_school_year)
+      .by_unity_id(current_unity.id)
+  end
+
+  def avaliation_recovery_diary_records_for_admin
+    base_query
+      .by_classroom_id(@classrooms.pluck(:id))
+      .by_discipline_id(@disciplines.pluck(:id))
+  end
+
+  def base_query
+    apply_scopes(AvaliationRecoveryDiaryRecord)
+      .select('DISTINCT ON (avaliation_recovery_diary_records.id, recovery_diary_records.recorded_at) avaliation_recovery_diary_records.*')
+      .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
   end
 
   def resource_params
