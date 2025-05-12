@@ -58,6 +58,7 @@ services:
     environment:
       POSTGRES_DB: idiario_development
       POSTGRES_PASSWORD: postgres
+
     ports:
       - ${DOCKER_POSTGRES_PORT:-5432}:5432
 

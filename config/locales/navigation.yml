@@ -49,6 +49,7 @@ pt-BR:
     absence_justifications: "Justificativas de falta"
     observation_diary_records: "Diário de observações"
     conceptual_exams: "Diário de avaliações conceituais"
+    conceptual_exams_in_batchs: "Diário de avaliações conceituais em lote"
     descriptive_exams: "Avaliações descritivas"
     reports: "Relatórios"
     exam_record_report: "Registro de avaliações numéricas"

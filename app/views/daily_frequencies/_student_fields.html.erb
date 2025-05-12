@@ -42,11 +42,14 @@
           <% if absence_justification_student_id %>
             <label title="Falta Justificada" class="checkbox checkbox-frequency justified">
               <input type="checkbox" disabled><i></i>
+              <span class="hide">Falta Justificada</span>
             </label>
           <% else %>
             <label class="checkbox checkbox-frequency <%= ignore_student ? "state-disabled" : "" %>">
               <%= f.check_box :present, disabled: ignore_student, data: { id: 'checkbox-id' }%>
               <i></i>
+              <input type="checkbox" class="hide">
+              <span class="hide">Lançar frequência</span>
             </label>
           <% end %>
 
