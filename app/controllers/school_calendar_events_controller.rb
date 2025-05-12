@@ -24,9 +24,17 @@ class SchoolCalendarEventsController < ApplicationController
 
     authorize resource
 
-    if resource.save
-      update_school_days
+    if resource.valid?
+      SchoolCalendarEventDays.update_school_days(
+        [school_calendar],
+        [resource],
+        action_name,
+        resource.start_date,
+        resource.end_date
+      )
+    end
 
+    if resource.save
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates
@@ -51,8 +59,15 @@ class SchoolCalendarEventsController < ApplicationController
     end
 
     if resource.save
-      update_school_days(old_start_date, old_end_date) if dates_changed
-
+      if dates_changed
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendar],
+          [resource],
+          action_name,
+          old_start_date,
+          old_end_date
+        )
+      end
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates
@@ -63,9 +78,11 @@ class SchoolCalendarEventsController < ApplicationController
   def destroy
     authorize resource
 
-    resource.destroy
+    SchoolCalendarEventDays.update_school_days(
+      [school_calendar], [resource], action_name
+    )
 
-    update_school_days
+    resource.destroy
 
     respond_with resource, location: school_calendar_school_calendar_events_path
   end
@@ -93,12 +110,16 @@ class SchoolCalendarEventsController < ApplicationController
   helper_method :grades
 
   def classrooms
-    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id, @school_calendar_event.grade_id).by_year(@school_calendar.year).ordered || {}
+    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id,@school_calendar_event.grade_id)
+                             .by_year(@school_calendar.year).ordered || {}
   end
   helper_method :classrooms
 
   def disciplines
-    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id).by_classroom(@school_calendar_event.classroom_id).ordered || []
+    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id, current_school_year)
+                               .by_classroom(@school_calendar_event.classroom_id)
+                               .grouper
+                               .ordered || []
   end
   helper_method :disciplines
 
@@ -113,8 +134,19 @@ class SchoolCalendarEventsController < ApplicationController
 
   def resource_params
     params.require(:school_calendar_event).permit(
-      :coverage, :course_id, :grade_id, :classroom_id, :discipline_id,
-      :description, :start_date, :end_date, :event_type, :periods, :legend, :show_in_frequency_record
+      :coverage,
+      :course_id,
+      :grade_id,
+      :classroom_id,
+      :discipline_id,
+      :description,
+      :start_date,
+      :end_date,
+      :event_type,
+      :periods,
+      :legend,
+      :show_in_frequency_record,
+      :general_description
     )
   end
 
@@ -123,17 +155,11 @@ class SchoolCalendarEventsController < ApplicationController
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:start_date].to_date
-    rescue ArgumentError
-      @school_calendar_event.start_date = ''
-    end
+    start_date = resource_params[:start_date]
+    end_date = resource_params[:end_date]
 
-    begin
-      resource_params[:end_date].to_date
-    rescue ArgumentError
-      @school_calendar_event.end_date = ''
-    end
+    @school_calendar_event.start_date = '' unless start_date.try(:to_date)
+    @school_calendar_event.end_date = '' unless end_date.try(:to_date)
   end
 
   def check_user_unity
@@ -150,47 +176,5 @@ class SchoolCalendarEventsController < ApplicationController
 
   def current_user_role
     current_user.current_user_role || current_user.user_roles.first
-  end
-
-  def update_school_days(old_start_date = nil, old_end_date = nil)
-    frequency_day = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(resource.event_type)
-    school_days = (resource.start_date..resource.end_date).to_a
-
-    case action_name
-    when 'create'
-      frequency_day ? create_school_days(school_days) : destroy_school_days(school_days)
-    when 'destroy'
-      frequency_day ? destroy_school_days(school_days) : create_school_days(school_days)
-    when 'update'
-      old_days = (old_start_date..old_end_date).to_a
-
-      if frequency_day
-        create_school_days(school_days - old_days)
-        destroy_school_days(old_days - school_days)
-      else
-        create_school_days(old_days - school_days)
-        destroy_school_days(school_days - old_days)
-      end
-    end
-  end
-
-  def create_school_days(school_days)
-    school_days.each do |school_day|
-      events_by_date = @school_calendar.events.by_date(school_day)
-      next if events_by_date.where.not(coverage: "by_unity").exists?
-      next if !SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
-
-      SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil,).create(@event)
-    end
-  end
-
-  def destroy_school_days(school_days)
-    school_days.each do |school_day|
-      next if SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
-
-      SchoolDayChecker.new(resource.school_calendar, school_day, nil ,nil ,nil).destroy(@event)
-
-      DailyFrequency.where(unity_id: resource.school_calendar.unity_id, frequency_date: school_day).destroy_all
-    end
   end
 end

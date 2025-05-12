@@ -1,4 +1,4 @@
-class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
+class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   include Audit
   include Stepable
   include Filterable
@@ -10,7 +10,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -27,16 +27,15 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id })
   }
   scope :by_recorded_at, lambda { |recorded_at| where(recorded_at: recorded_at) }
+  scope :by_not_poster, ->(poster_sent) { where("school_term_recovery_diary_records.updated_at > ?", poster_sent) }
   scope :ordered, -> { order(arel_table[:recorded_at].desc) }
 
   before_validation :set_recorded_at, on: [:create, :update]
-
+  before_validation :ensure_recovery_diary_record_association
   validates :recovery_diary_record, presence: true
   validate :recovery_type_must_allow_recovery_for_step
   validate :recovery_type_must_allow_recovery_for_classroom
   validate :uniqueness_of_school_term_recovery_diary_record
-
-  delegate :classroom, :classroom_id, :discipline_id, :discipline, to: :recovery_diary_record
 
   def test_date
     recorded_at
@@ -86,9 +85,27 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     end
   end
 
+  def classroom_grades_with_recovery_rule
+    return @classroom_grade if @classroom_grade.present?
+
+    @classroom_grade = []
+
+    classroom_grades&.each { |classroom_grade| @classroom_grade << classroom_grade unless classroom_grade.exam_rule.recovery_type.eql?(0) }
+
+    if @classroom_grade.empty?
+      classroom_grades
+    else
+      @classroom_grade
+    end
+  end
+
+  def classroom_grades
+    classroom.classrooms_grades.includes(:exam_rule)
+  end
+
   def recovery_type_must_allow_recovery_for_classroom
     return if recovery_diary_record.blank? || classroom.blank?
-    if classroom.first_exam_rule.recovery_type == RecoveryTypes::DONT_USE
+    if classroom_grades_with_recovery_rule.first.exam_rule.recovery_type == RecoveryTypes::DONT_USE
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery_for_classroom)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery_for_classroom)
     end
@@ -96,9 +113,9 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   def recovery_type_must_allow_recovery_for_step
     return if recovery_diary_record.blank? || classroom.blank? || step.blank?
-    return if classroom.first_exam_rule.recovery_type != RecoveryTypes::SPECIFIC
+    return if classroom_grades_with_recovery_rule.first.exam_rule.recovery_type != RecoveryTypes::SPECIFIC
 
-    if classroom.first_exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
+    if classroom_grades_with_recovery_rule.first.exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
       errors.add(:step_id, :recovery_type_must_allow_recovery_for_step)
     end
   end
@@ -116,5 +133,14 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
         true
       end
     end
+  end
+
+  def ensure_recovery_diary_record_association
+    return if recovery_diary_record.blank? || @ensuring_association
+
+    @ensuring_association = true
+    recovery_diary_record.school_term_recovery_diary_record ||= self
+  ensure
+    @ensuring_association = false
   end
 end

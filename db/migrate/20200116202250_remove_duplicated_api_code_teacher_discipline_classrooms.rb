@@ -1,4 +1,4 @@
-class RemoveDuplicatedApiCodeTeacherDisciplineClassrooms < ActiveRecord::Migration
+class RemoveDuplicatedApiCodeTeacherDisciplineClassrooms < ActiveRecord::Migration[4.2]
   def change
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.group(
       :api_code, :teacher_id, :year, :discipline_id

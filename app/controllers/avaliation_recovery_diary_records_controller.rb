@@ -7,29 +7,27 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    @avaliation_recovery_diary_records =
-      apply_scopes(AvaliationRecoveryDiaryRecord)
-      .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
-      .by_unity_id(current_unity.id)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .ordered
+    set_options_by_user
+    set_avaliation_recovery_diary_records_by_user
 
     authorize @avaliation_recovery_diary_records
 
-    @classrooms = fetch_classrooms
-    @disciplines = fetch_disciplines
-    @school_calendar_steps = current_school_calendar.steps
+    @school_calendar_steps = steps_fetcher.steps
   end
 
   def new
+    set_options_by_user
+
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
     @avaliation_recovery_diary_record.build_recovery_diary_record
     @avaliation_recovery_diary_record.recovery_diary_record.unity = current_unity
+    @avaliation_recovery_diary_record.recovery_diary_record.classroom = current_user_classroom
+    @avaliation_recovery_diary_record.recovery_diary_record.discipline = current_user_discipline
 
     @unities = fetch_unities
-    @classrooms = fetch_classrooms
-    @school_calendar_steps = current_school_calendar.steps
+    @school_calendar_steps = steps_fetcher.steps
+
+    fetch_disciplines_by_classroom
 
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
@@ -44,7 +42,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def create
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
-    @avaliation_recovery_diary_record.assign_attributes(resource_params)
+    @avaliation_recovery_diary_record.assign_attributes(resource_params.to_h)
     @avaliation_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
 
     authorize @avaliation_recovery_diary_record
@@ -52,10 +50,9 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if @avaliation_recovery_diary_record.save
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
-      @school_calendar_steps = current_school_calendar.steps
-      @student_notes = fetch_student_notes
+      set_options_by_user
+      fetch_disciplines_by_classroom
+
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       reload_students_list if daily_note_students.present?
 
@@ -64,7 +61,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def edit
+    set_options_by_user
+
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
+
+    fetch_disciplines_by_classroom
 
     authorize @avaliation_recovery_diary_record
 
@@ -73,8 +74,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     @student_notes = fetch_student_notes
     @unities = fetch_unities
-    @classrooms = fetch_classrooms
-    @school_calendar_steps = current_school_calendar.steps
+    @school_calendar_steps = steps_fetcher.steps
     @avaliations = fetch_avaliations
     reload_students_list
 
@@ -84,7 +84,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def update
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
-    @avaliation_recovery_diary_record.assign_attributes(resource_params)
+
+    # Reorganiza resource_params quando temos alunos com enturmacoes ativas e inativas
+    reload_resource_params = list_students_by_active(resource_params.to_h)
+
+    @avaliation_recovery_diary_record.assign_attributes(reload_resource_params)
     @avaliation_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
     @avaliation_recovery_diary_record.recovery_diary_record.current_user = current_user
 
@@ -93,12 +97,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     if @avaliation_recovery_diary_record.save
       respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
-      @school_calendar_steps = current_school_calendar.steps
+      set_options_by_user
+      fetch_disciplines_by_classroom
+
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      @student_notes = fetch_student_notes
-      reload_students_list
+      reload_students_list if daily_note_students.present?
 
       render :edit
     end
@@ -115,12 +118,42 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   def destroy
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id])
 
-    @avaliation_recovery_diary_record.destroy
+    @avaliation_recovery_diary_record.recovery_diary_record.destroy
 
     respond_with @avaliation_recovery_diary_record, location: avaliation_recovery_diary_records_path
   end
 
   private
+
+  def set_avaliation_recovery_diary_records_by_user
+    @avaliation_recovery_diary_records = if current_user.current_role_is_admin_or_employee?
+                                          avaliation_recovery_diary_records_for_admin
+                                        else
+                                          avaliation_recovery_diary_records_for_teacher
+                                        end
+
+    @avaliation_recovery_diary_records = @avaliation_recovery_diary_records.ordered
+  end
+
+  def avaliation_recovery_diary_records_for_teacher
+    base_query
+      .joins(recovery_diary_record: :classroom)
+      .joins('INNER JOIN teacher_discipline_classrooms tdc ON tdc.classroom_id = classrooms.id AND tdc.discipline_id = recovery_diary_records.discipline_id')
+      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL AND tdc.year = ?', current_teacher.id, current_school_year)
+      .by_unity_id(current_unity.id)
+  end
+
+  def avaliation_recovery_diary_records_for_admin
+    base_query
+      .by_classroom_id(@classrooms.pluck(:id))
+      .by_discipline_id(@disciplines.pluck(:id))
+  end
+
+  def base_query
+    apply_scopes(AvaliationRecoveryDiaryRecord)
+      .select('DISTINCT ON (avaliation_recovery_diary_records.id, recovery_diary_records.recorded_at) avaliation_recovery_diary_records.*')
+      .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
+  end
 
   def resource_params
     params.require(:avaliation_recovery_diary_record).permit(
@@ -135,7 +168,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
           :id,
           :student_id,
           :score,
-          :_destroy
+          :_destroy,
+          :active
         ]
       ]
     )
@@ -146,8 +180,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-    .ordered
+    Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_disciplines
@@ -215,20 +248,23 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def reload_students_list
-    student_enrollments = fetch_student_enrollments
+    return unless (student_enrollments = fetch_student_enrollments)
 
-    return unless fetch_student_enrollments
-    return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
+    recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
+
+    return unless recovery_diary_record.recorded_at
 
     @students = []
-
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
-        recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
-        note_student = (recovery_diary_record.students.where(student_id: student.id).first || recovery_diary_record.students.build(student_id: student.id, student: student))
+        recovery_student = recovery_diary_record.students.find_by(student_id: student.id)
+        note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
         note_student.active = student_active_on_date?(student_enrollment)
-        note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record)
+        note_student.exempted_from_discipline = student_exempted_from_discipline?(
+          student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record
+        )
+
         @students << note_student
       end
     end
@@ -273,14 +309,74 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     discipline_id = recovery_diary_record.discipline.id
     test_date = avaliation_recovery_diary_record.avaliation.test_date
-    step_number = avaliation_recovery_diary_record.avaliation.school_calendar.step(test_date).to_number
 
-    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
+    step_number = fetch_step_number(avaliation_recovery_diary_record, recovery_diary_record.classroom_id, test_date)
+
+    student_enrollment.exempted_disciplines
+                      .by_discipline(discipline_id)
+                      .by_step_number(step_number)
+                      .any?
+  end
+
+  def fetch_step_number(avaliation_recovery_diary_record, classroom_id, date)
+    school_calendar = avaliation_recovery_diary_record.avaliation.school_calendar
+
+    school_calendar_classroom = school_calendar.classrooms.find_by_classroom_id(classroom_id)
+
+    return school_calendar_classroom.classroom_step(date) if school_calendar_classroom.present?
+
+    school_calendar.step(date).to_number
   end
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def list_students_by_active(resource_params_hash)
+    group_students = resource_params_hash['recovery_diary_record_attributes']['students_attributes'].group_by { |key, value| value['id'] }
+
+    note_students_uniq = group_students.select { |_k, value| value.count == 1 }
+                                       .values
+                                       .flat_map { |student| student.map(&:second) }
+
+    note_students_active = group_students.reject { |_k, value| value.count == 1 }
+                                         .flat_map { |_k, value| value.map(&:second) }
+                                         .reject { |student| student['active'] == 'false' }
+
+    note_students_uniq.push(note_students_active)
+
+    resource_params_hash['recovery_diary_record_attributes']['students_attributes'] = note_students_uniq.flatten
+
+    resource_params_hash
+  end
+
+  def set_options_by_user
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= fetch_classrooms
+    @disciplines ||= fetch_disciplines
+  end
+
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def fetch_disciplines_by_classroom
+    return if current_user.current_role_is_admin_or_employee?
+
+    classroom = @avaliation_recovery_diary_record.recovery_diary_record.classroom
+    @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+  end
+
+  def steps_fetcher
+    classroom = if @avaliation_recovery_diary_record.present?
+                  @avaliation_recovery_diary_record.recovery_diary_record.classroom
+                else
+                  current_user_classroom
+                end
+
+    @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 end

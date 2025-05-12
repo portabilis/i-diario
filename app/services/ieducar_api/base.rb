@@ -1,6 +1,7 @@
 module IeducarApi
   class Base
     class ApiError < RuntimeError; end
+    class GenericError < RuntimeError; end
     class NetworkException < StandardError; end
 
     RETRY_NETWORK_ERRORS = ['Temporary failure in name resolution', '502 Bad Gateway'].freeze
@@ -90,39 +91,35 @@ module IeducarApi
         result = if method == RequestMethods::GET
                    yield(endpoint, request_params)
                  else
+                   request_params[:action] = params[:resource]
                    yield(endpoint, request_params, payload)
                  end
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
+        Honeybadger.notify(error)
+
         if RETRY_NETWORK_ERRORS.any? { |network_error| error.message.include?(network_error) }
           raise NetworkException, error.message
         end
 
         raise ApiError, 'URL do i-Educar informada não é válida.'
       rescue StandardError => error
-        raise ApiError, error.message
+        Honeybadger.notify(error)
+
+        raise GenericError, error.message
       end
 
       message = result['msgs'].map { |r| r['msg'] }.join(', ')
 
-      stop_api_synchronization(message)
-
       response = IeducarResponseDecorator.new(result)
       raise_exception = response.any_error_message? && !response.known_error?
-      raise ApiError, message if raise_exception
+      raise GenericError, message if raise_exception
 
       result
     end
 
     def last_synchronization_date
       @last_synchronization_date ||= current_api_configuration.synchronized_at
-    end
-    def stop_api_synchronization(message)
-      return if message.blank?
-      return unless message.eql?('Chave de acesso inválida!')
-
-      synchronization = current_api_configuration.synchronizations.started.first
-      synchronization&.update(status: 'error', error_message: message, full_error_message: '')
     end
 
     def current_api_configuration

@@ -9,6 +9,8 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
         )['escolas']
       )
     )
+  rescue IeducarApi::Base::ApiError => error
+    synchronization.mark_as_error!(error.message)
   end
 
   private
@@ -34,6 +36,8 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
       next if school_calendar.blank?
 
+      remove_school_calendar_classrooms(school_calendar, school_calendar_record)
+
       school_calendar_record.etapas_de_turmas.each do |school_calendar_classroom_record|
         classroom_id = classroom(school_calendar_classroom_record.turma_id).try(&:id)
 
@@ -41,10 +45,10 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
         begin
           SchoolCalendarClassroom.find_or_initialize_by(
-            classroom_id: classroom_id,
-            school_calendar_id: school_calendar.id
+            classroom_id: classroom_id
           ).tap do |school_calendar_classroom|
             school_calendar_classroom.step_type_description = school_calendar_classroom_record.descricao
+            school_calendar_classroom.school_calendar_id = school_calendar.id
 
             school_calendar_classroom.save! if school_calendar_classroom.changed?
 
@@ -132,5 +136,19 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
       nil,
       school_calendar_classroom.id
     )
+  end
+
+  def remove_school_calendar_classrooms(school_calendar, school_calendar_record)
+    school_calendar_classrooms = SchoolCalendarClassroom
+      .joins(:classroom)
+      .where(school_calendar_id: school_calendar.id)
+
+    school_calendar_classrooms.each do |school_calendar_classroom|
+      api_code = school_calendar_classroom.classroom.api_code.to_i
+
+      next if school_calendar_record.etapas_de_turmas.pluck(:turma_id).include?(api_code)
+
+      school_calendar_classroom.destroy
+    end
   end
 end

@@ -31,12 +31,11 @@ class ContentsRecordFetcher
   end
 
   def other_teacher_teaching_plans
-    step_teaching_plans = teaching_plans.by_school_term_type_step_id(school_term_type_steps_ids)
+    other_teachers_plans = teaching_plans.by_other_teacher_id(@teacher.id)
 
-    other_theachers_plans = step_teaching_plans.by_other_teacher_id(@teacher.id)
-    return other_theachers_plans if other_theachers_plans.present?
+    return other_teachers_plans if other_teachers_plans.present?
 
-    step_teaching_plans.by_secretary
+    teaching_plans.by_secretary
   end
 
   def steps_fetcher
@@ -65,6 +64,6 @@ class ContentsRecordFetcher
   end
 
   def yearly_school_term_type_id
-    SchoolTermType.find_by(description: 'Anual').id
+    SchoolTermType.where("description = ? OR description = ?", 'Anual', 'Anual (1 etapa)').pluck(:id)
   end
 end

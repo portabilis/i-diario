@@ -1,4 +1,4 @@
-<div class="modal fade" tabindex="-1" role="dialog" id="copy-objectives-modal" aria-hidden="true">
+<div class="modal fade" tabindex="-1" role="dialog" id="<%= modal_id %>" aria-hidden="true">
   <div class="modal-dialog" style="<%= 'width: 800px;' if type != 'disciplines' %>">
     <div class="modal-content">
       <div class="modal-header">
@@ -6,43 +6,96 @@
           <span aria-hidden="true">&times;</span>
           <span class="sr-only">Fechar</span>
         </button>
-        <h4 class="modal-title">
-          <%= type == 'disciplines' ? 'Componentes curriculares'  : 'Campos de experiência' %>
-        </h4>
-      </div>
-      <div class="modal-body smart-form">
-        <% (type == 'disciplines' ? BnccDisciplines : BnccExperienceFields).to_a.each do |value| %>
-          <div class="row">
-            <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
-              <div class="control-group boolean">
-                <div class="controls input">
-                  <label class="checkbox">
-                    <input type="checkbox"
-                           class="boolean optional"
-                           data-id="<%= value[1] %>"
-                           name="experience_fields[]" />
-                    <%= value[0] %> <i></i>
-                  </label>
-                </div>
-              </div>
+
+        <div class="modal-body smart-form">
+          <ul class="nav nav-tabs bordered">
+            <li id='li-general' class="<%= 'active' %>">
+              <a id='a-general' href="#general" data-toggle="tab">
+                <%= type == 'disciplines' ? 'Componentes curriculares'  : 'Campos de experiência' %>
+              </a>
+            </li>
+
+            <li id='li-eja' class="<%= 'active' if @active_users_tab %>">
+              <a id='a-eja' href="#eja" data-toggle="tab">
+                <%= type == 'disciplines' ? 'Componentes curriculares EJA'  : 'Campos de experiência EJA' %>
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane" id="eja">
+              <fieldset>
+                <table class="table table-striped table-bordered table-condensed">
+                  <% (type == 'disciplines' ? BnccDisciplines : BnccExperienceFields).to_a.each do |value| %>
+                    <div class="row">
+                      <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
+                        <div class="control-group boolean">
+                          <div class="controls input">
+                            <label class="checkbox">
+                              <input type="checkbox"
+                                     class="boolean optional"
+                                     data-id="<%= value[1] %>"
+                                     name="experience_fields[]" />
+                                     <%= value[0] %> <i></i>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-1 grades" style="margin-top: 13px; display: none;">
+                        <%= t('activerecord.attributes.teaching_plan.grade_ids') %>
+                      </div>
+                      <div class="<%= type == 'disciplines' ? 'col-sm-6' : 'col-sm-4' %> grades"
+                           style="margin-top: 5px; margin-left: -27px; display: none;">
+                           <%= f.input :grade_ids, as: :select2, label: false, multiple: true,
+                             elements: BnccObjectivesAndSkillsDecorator.education_fields_by_type('adult_and_youth_education').to_json,
+                             input_html: { class: 'grade_ids', data: { without_json_parser: true } } %>
+                      </div>
+                    </div>
+                  <% end %>
+                </table>
+              </fieldset>
             </div>
-            <div class="col-sm-1 grades" style="margin-top: 13px; display: none;">
-              <%= t('activerecord.attributes.teaching_plan.grade_ids') %>
-            </div>
-            <div class="<%= type == 'disciplines' ? 'col-sm-6' : 'col-sm-4' %> grades"
-              style="margin-top: 5px; margin-left: -27px; display: none;">
-              <%= f.input :grade_ids, as: :select2, label: false, multiple: true,
-                elements: BnccObjectivesAndSkillsDecorator.education_fields_by_type(type).to_json,
-                input_html: { class: 'grade_ids', data: { without_json_parser: true } } %>
+
+            <div class="tab-pane <%= 'active' %>" id="general">
+              <fieldset>
+                <table class="table table-striped table-bordered table-condensed">
+                  <% (type == 'disciplines' ? BnccDisciplines : BnccExperienceFields).to_a.each do |value| %>
+                    <div class="row">
+                      <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
+                        <div class="control-group boolean">
+                          <div class="controls input">
+                            <label class="checkbox">
+                              <input type="checkbox"
+                                     class="boolean optional"
+                                     data-id="<%= value[1] %>"
+                                     name="experience_fields[]" />
+                                     <%= value[0] %> <i></i>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-1 grades" style="margin-top: 13px; display: none;">
+                        <%= t('activerecord.attributes.teaching_plan.grade_ids') %>
+                      </div>
+                      <div class="<%= type == 'disciplines' ? 'col-sm-6' : 'col-sm-4' %> grades"
+                           style="margin-top: 5px; margin-left: -27px; display: none;">
+                           <%= f.input :grade_ids, as: :select2, label: false, multiple: true,
+                             elements: BnccObjectivesAndSkillsDecorator.education_fields_by_type(type).to_json,
+                             input_html: { class: 'grade_ids', data: { without_json_parser: true } } %>
+                      </div>
+                    </div>
+                  <% end %>
+                </table>
+              </fieldset>
             </div>
           </div>
-        <% end %>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">
           Cancelar
         </button>
-        <button type="button" data-type="<%= type %>" id="confirm-copy-objectives-modal" class="btn btn-primary">
+        <button type="button" data-type="<%= type %>" id="<%= confirm_btn %>" class="btn btn-primary">
           Confirmar
         </button>
       </div>

@@ -218,10 +218,24 @@ class DisciplineLessonPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    text_box_truncate('Atividades/metodologia', (lesson_plan.activities || '-'))
-    text_box_truncate('Recursos', (lesson_plan.resources || '-'))
-    text_box_truncate('Avaliação', (lesson_plan.evaluation || '-'))
-    text_box_truncate('Referências', (lesson_plan.bibliography || '-'))
+    key_prefix = @discipline_lesson_plan.present? ? 'discipline' : 'knowledge_area'
+
+    actives_methodology_label = Translation.find_by(key: "navigation.actives_methodology_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Atividades/metodologia'
+    resources_label = Translation.find_by(key: "navigation.resources_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Recursos'
+    evaluation_label = Translation.find_by(key: "navigation.avaliation_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Avaliação'
+    references_label = Translation.find_by(key: "navigation.references_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Referências'
+    curriculum_adaptation_label = Translation.find_by(key: "navigation.curriculum_adaptation_by_#{key_prefix}",
+      group: 'lesson_plans')&.translation.presence || 'Adaptação curricular'
+
+    text_box_truncate(actives_methodology_label, (lesson_plan.activities || '-'))
+    text_box_truncate(resources_label, (lesson_plan.resources || '-'))
+    text_box_truncate(evaluation_label, (lesson_plan.evaluation || '-'))
+    text_box_truncate(references_label, (lesson_plan.bibliography || '-'))
+    text_box_truncate(curriculum_adaptation_label, (lesson_plan.curriculum_adaptation || '-'))
   end
 
   def additional_information

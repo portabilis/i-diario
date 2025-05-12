@@ -18,9 +18,9 @@ class DefaultSynchronizer
     )
 
     SynchronizationConfigs.without_dependencies.each do |synchronizer|
-      SynchronizerBuilderWorker.perform_async(
+      SynchronizerBuilder.enqueue(
         klass: synchronizer[:klass],
-        synchronization_id: @synchronization.id,
+        synchronization: @synchronization,
         worker_batch_id: @worker_batch.id,
         entity_id: @entity_id,
         years: years_to_synchronize,

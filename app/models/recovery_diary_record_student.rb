@@ -1,4 +1,4 @@
-class RecoveryDiaryRecordStudent < ActiveRecord::Base
+class RecoveryDiaryRecordStudent < ApplicationRecord
   include Audit
   include Discardable
 
@@ -15,6 +15,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
 
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_recovery_diary_record_id, lambda { |recovery_diary_record_id| where(recovery_diary_record_id: recovery_diary_record_id) }
+  scope :by_not_poster, ->(poster_sent) { where("recovery_diary_record_students.updated_at > ?", poster_sent) }
 
   scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
 
@@ -31,12 +32,12 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   def maximum_score
     if recovery_diary_record.school_term_recovery_diary_record.present?
       maximum_score_for_school_term_recovery
-    elsif recovery_diary_record.final_recovery_diary_record.present?
+    elsif final_recovery?
       maximum_score_for_final_recovery
     elsif recovery_diary_record.avaliation_recovery_diary_record.present?
       maximum_score_for_avaliation_recovery
     else
-      maximum_score_for_final_recovery
+      maximum_score_for_avaliation_recovery
     end
   end
 
@@ -70,10 +71,13 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   end
 
   def maximum_score_for_avaliation_recovery
-    MaximumScoreFetcher.new(avaliation).maximum_score
+    TestSettingFetcher.current(
+      recovery_diary_record.classroom
+    ).maximum_score
   end
 
-  def avaliation
-    recovery_diary_record.avaliation_recovery_diary_record.avaliation
+  def final_recovery?
+    recovery_diary_record.final_recovery_diary_record.present? ||
+      recovery_diary_record.creator_type.eql?('final_recovery_diary_record')
   end
 end

@@ -1,4 +1,4 @@
-class Content < ActiveRecord::Base
+class Content < ApplicationRecord
   include Audit
 
   audited
@@ -9,19 +9,31 @@ class Content < ActiveRecord::Base
   has_many :teaching_plans, dependent: :restrict_with_error
   has_many :lesson_plans, dependent: :restrict_with_error
   has_many :content_records, dependent: :restrict_with_error
+  has_and_belongs_to_many :content_records
 
   attr_accessor :is_editable
 
   validates :description, presence: true
 
   scope :by_description, lambda { |description|
+    select("contents.*, ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) as rank").
     where("contents.document_tokens @@ plainto_tsquery('portuguese', ?)", description).
-      order("ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) desc")
+    order("rank desc")
   }
+
+  scope :start_with_description, lambda { |description|
+    where("description ILIKE ?", "#{description.upcase}%").
+      order(created_at: :desc)
+  }
+
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_id, -> { order(id: :asc) }
   scope :find_and_order_by_id_sequence, lambda { |ids|
     joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
+  }
+
+  scope :by_teacher_id, lambda {|teacher_id|
+    joins(:content_records).where(content_records: {teacher_id: teacher_id}).distinct
   }
 
   after_save :update_description_token

@@ -1,4 +1,4 @@
-class TeachingPlan < ActiveRecord::Base
+class TeachingPlan < ApplicationRecord
   include Audit
   include TeacherRelationable
   include Translatable
@@ -22,9 +22,9 @@ class TeachingPlan < ActiveRecord::Base
   validates :school_term_type_step, presence: { unless: :yearly? }
 
   has_many :contents_teaching_plans, dependent: :destroy
-  deferred_has_many :contents, through: :contents_teaching_plans
+  deferred_has_many :contents, through: :contents_teaching_plans, dependent: :destroy
   has_many :objectives_teaching_plans, dependent: :destroy
-  deferred_has_many :objectives, through: :objectives_teaching_plans
+  deferred_has_many :objectives, through: :objectives_teaching_plans, dependent: :destroy
   has_many :teaching_plan_attachments, dependent: :destroy
 
   has_one :discipline_teaching_plan, dependent: :restrict_with_error
@@ -80,7 +80,7 @@ class TeachingPlan < ActiveRecord::Base
   def yearly?
     return unless school_term_type
 
-    school_term_type.id == SchoolTermType.find_by(description: 'Anual').id
+    SchoolTermType.where("description ILIKE 'Anual%'").where(id: school_term_type.id).exists?
   end
 
   private

@@ -1,4 +1,4 @@
-class SchoolCalendarEvent < ActiveRecord::Base
+class SchoolCalendarEvent < ApplicationRecord
   acts_as_copy_target
 
   audited
@@ -41,6 +41,8 @@ class SchoolCalendarEvent < ActiveRecord::Base
     where(event_type: [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL])
   }
   scope :extra_school_without_frequency, -> { where(event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY) }
+  scope :events_to_report, -> { where(event_type: [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
+  scope :events_with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil)) }
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil)) }
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil)) }
@@ -225,17 +227,18 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   def start_at_and_end_at_in_step
     return if school_calendar.nil?
+    return if errors[:start_date].any? || errors[:end_date].any?
 
     start_date_in_any_step = false
     end_date_in_any_step = false
 
     school_calendar.steps.each do |step|
-        start_date_in_step = start_date.between?(step.start_at, step.end_at)
-        end_date_in_step = end_date.between?(step.start_at, step.end_at)
-        start_date_in_any_step = true if start_date_in_step
-        end_date_in_any_step = true if end_date_in_step
+      start_date_in_step = start_date.between?(step.start_at, step.end_at)
+      end_date_in_step = end_date.between?(step.start_at, step.end_at)
+      start_date_in_any_step = true if start_date_in_step
+      end_date_in_any_step = true if end_date_in_step
 
-        break if start_date_in_step && end_date_in_step
+      break if start_date_in_step && end_date_in_step
     end
 
     errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_any_step

@@ -1,4 +1,4 @@
-class DeleteInactiveSteps < ActiveRecord::Migration
+class DeleteInactiveSteps < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DELETE

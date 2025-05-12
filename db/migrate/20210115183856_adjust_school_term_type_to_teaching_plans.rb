@@ -1,4 +1,4 @@
-class AdjustSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
+class AdjustSchoolTermTypeToTeachingPlans < ActiveRecord::Migration[4.2]
   def change
     TeachingPlan.where(school_term_type: nil).each do |teaching_plan|
       audited = teaching_plan.audits

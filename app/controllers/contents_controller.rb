@@ -18,7 +18,9 @@ class ContentsController < ApplicationController
       return unless teacher && classroom && knowledge_areas && date
       @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
     elsif !params[:merge_objectives_by_code] || params[:filter][:by_description]
-      @contents = apply_scopes(Content)
+      @contents = apply_scopes(Content).by_teacher_id(current_teacher.id)
+    elsif params[:filter][:start_with_description]
+      @contents = Content.by_teacher_id(current_teacher.id).start_with_description(params[:filter][:start_with_description])
     end
 
     if params[:merge_objectives_by_code]

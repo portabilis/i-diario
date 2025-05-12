@@ -1,4 +1,4 @@
-class CreateAvaliationRecoveryDiaryRecord < ActiveRecord::Migration
+class CreateAvaliationRecoveryDiaryRecord < ActiveRecord::Migration[4.2]
   def change
     create_table :avaliation_recovery_diary_records do |t|
       t.references :recovery_diary_record, foreign_key: true

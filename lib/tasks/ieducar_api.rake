@@ -6,8 +6,8 @@ namespace :ieducar_api do
       current_years: true
     )
 
-    full_synchronization = ActiveRecord::Type::Boolean.new.type_cast_from_user(args.full_synchronization)
-    current_years = ActiveRecord::Type::Boolean.new.type_cast_from_user(args.current_years)
+    full_synchronization = ActiveRecord::Type::Boolean.new.cast(args.full_synchronization)
+    current_years = ActiveRecord::Type::Boolean.new.cast(args.current_years)
 
     IeducarSynchronizerWorker.perform_async(nil, nil, full_synchronization, current_years)
   end

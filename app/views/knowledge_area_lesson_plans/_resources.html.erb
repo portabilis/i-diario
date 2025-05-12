@@ -28,6 +28,7 @@
             </span>
           <% end %>
         </td>
+        <td class="experience_field"><%= knowledge_area_lesson_plan.experience_fields %></td>
         <td class="start_at"><%= l(knowledge_area_lesson_plan.lesson_plan.start_at) %></td>
         <td class="end_at"><%= l(knowledge_area_lesson_plan.lesson_plan.end_at) %></td>
         <td><%= knowledge_area_lesson_plan.lesson_plan.decorator.author(current_teacher) %></td>
@@ -52,7 +53,7 @@
                 data: { original_title: t('views.index.tooltips.show') }) %>
           <%= link_to(
                 t('helpers.links.print_html'),
-                knowledge_area_lesson_plan_path(knowledge_area_lesson_plan, format: :pdf),
+                print_knowledge_area_lesson_plans_path(id: knowledge_area_lesson_plan),
                 class: 'btn btn-info apply_tooltip',
                 target: '_blank',
                 data: { original_title: t('views.index.tooltips.print') }) %>
@@ -69,7 +70,7 @@
                   disabled: !lesson_plan_destroy?(knowledge_area_lesson_plan.lesson_plan),
                   method: 'delete',
                   data: {
-                    confirm: t('views.index.confirm'),
+                    confirm: t('views.index.confirm_deletion'),
                     original_title: t('views.index.tooltips.delete')
                   }
                 ) %>

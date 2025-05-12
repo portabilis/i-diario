@@ -9,4 +9,11 @@ class StudentDecorator
 
     students.to_json
   end
+
+  def self.data_for_search_autocomplete(students)
+    structured_students = students.map do |student|
+      { id: student.id, value: student.to_s }
+    end
+    structured_students.to_json
+  end
 end

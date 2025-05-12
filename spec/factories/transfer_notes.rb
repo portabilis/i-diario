@@ -10,10 +10,14 @@ FactoryGirl.define do
     transfer_date { Date.current }
 
     after(:build) do |transfer_note|
-      step = transfer_note.classroom.calendar.classroom_steps.first if transfer_note.classroom.calendar.present?
+      if transfer_note.classroom.calendar.present?
+        step = transfer_note.classroom.calendar.classroom_steps.first
+      else
+        step = transfer_note.classroom.unity.school_calendars.find_by(year: Date.current.year).steps.first
+      end
 
       if transfer_note.recorded_at.blank?
-        transfer_note.recorded_at = step.try(:first_school_calendar_date) || Date.current
+        transfer_note.recorded_at = Date.current
       end
 
       transfer_note.step_number = step.try(:step_number) || 1 if transfer_note.step_number.zero?

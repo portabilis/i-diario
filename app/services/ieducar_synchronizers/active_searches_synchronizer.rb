@@ -8,6 +8,8 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
         )['busca_ativa']
       )
     )
+  rescue IeducarApi::Base::ApiError => error
+    synchronization.mark_as_error!(error.message)
   end
 
   private
@@ -18,10 +20,11 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
 
   def update_records(active_searches)
     active_searches.each do |active_search_record|
+      api_code = active_search_record.id
       student_enrollment = StudentEnrollment.find_by(api_code: active_search_record.ref_cod_matricula)
       next if student_enrollment.nil?
 
-      ActiveSearchSynchronizer.new.perform(student_enrollment.id, active_search_record)
+      ActiveSearchSynchronizer.new.perform(api_code, student_enrollment.id, active_search_record)
     end
   end
 end

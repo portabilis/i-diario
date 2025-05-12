@@ -1,7 +1,7 @@
-class FrequencyInBatchForm < ActiveRecord::Base
+class FrequencyInBatchForm < ApplicationRecord
   has_no_table
 
-  attr_accessor :unity_id, :classroom_id, :period, :discipline_id, :start_date, :end_date
+  attr_accessor :unity_id, :classroom_id, :period, :discipline_id, :start_date, :end_date, :receive_email_confirmation
 
   validates_date :start_date, :end_date
 
@@ -21,5 +21,4 @@ class FrequencyInBatchForm < ActiveRecord::Base
       errors.add(:end_date, :must_be_less_than_or_equal_to_today)
     end
   end
-
 end

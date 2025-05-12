@@ -1,11 +1,15 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
+  <%= javascript_include_tag 'summernote' %>
   <%= javascript_include_tag 'views/knowledge_area_lesson_plans/form' %>
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
 <%= hidden_field_tag :action_name, action_name %>
-<%= simple_form_for @knowledge_area_lesson_plan, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @knowledge_area_lesson_plan,
+    url: knowledge_area_lesson_plan_form_url(@knowledge_area_lesson_plan, action_name),
+    method: lesson_plan_form_method(action_name),
+    html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :lesson_plan, @knowledge_area_lesson_plan.lesson_plan.localized do |lesson_plan| %>
@@ -15,7 +19,8 @@
 
     <fieldset>
       <% if action_name != 'show' %>
-        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'experience_fields' %>
+      <% school_type = GeneralConfiguration.current.group_children_education ? 'group_child_schools' : 'experience_fields' %>
+        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: school_type, modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-btn' %>
       <% end %>
 
       <div class="row">
@@ -37,7 +42,7 @@
       </div>
     </fieldset>
 
-    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan } %>
+    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan, modal_id: '#confirm-copy-objectives-modal', } %>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 

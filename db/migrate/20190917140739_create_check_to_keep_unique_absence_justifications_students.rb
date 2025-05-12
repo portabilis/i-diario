@@ -1,4 +1,4 @@
-class CreateCheckToKeepUniqueAbsenceJustificationsStudents < ActiveRecord::Migration
+class CreateCheckToKeepUniqueAbsenceJustificationsStudents < ActiveRecord::Migration[4.2]
   def up
     execute <<-SQL
       ALTER TABLE absence_justifications_students

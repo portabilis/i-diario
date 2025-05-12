@@ -1,0 +1,23 @@
+<% if f.object.errors[:permissions].present? %>
+  <div class="alert alert-danger alert-block ">
+    <i class="fa-fw fa fa-times"></i>
+    <span class="help-inline">
+      <%= raw(f.object.errors[:permissions].join("<br />")) %>
+    </span>
+  </div>
+<% end %>
+<%= hidden_field_tag :user_id, f.object.id %>
+<% @permissions.each do |permission| %>
+  <%= f.fields_for :permissions, permission do |permission_form| %>
+    <tr class="nested-fields" id="user-<%= permission.feature %>" <%= access_level_tags(permission) %> >
+      <td>
+        <%= permission.feature_humanize %>
+        <%= permission_form.hidden_field :feature %>
+        <%= permission_form.hidden_field :id %>
+      </td>
+      <td>
+        <%= permission_form.input :permission, as: :select2, elements: permissions(permission.feature), label_html: { class: "hidden" } %>
+      </td>
+    </tr>
+  <% end %>
+<% end %>

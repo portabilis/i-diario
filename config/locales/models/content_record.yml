@@ -12,9 +12,11 @@ pt-BR:
         classroom: "Turma"
         classroom_id: "Turma"
         record_date: "Data"
-        daily_activities_record: "Registro diário das atividades"
+        daily_activities_record: "Registro das atividades"
         contents: "Conteúdos"
         contents_tags: "Adicionar novo"
+        teacher_id: "Professor(a)"
+        origin: "Origem"
     errors:
       models:
         content_record:

@@ -1,4 +1,4 @@
-class AddMaximumScoreAndNumberOfDecimalPlacesToSchoolCalendar < ActiveRecord::Migration
+class AddMaximumScoreAndNumberOfDecimalPlacesToSchoolCalendar < ActiveRecord::Migration[4.2]
   def change
     add_column :school_calendars, :maximum_score, :integer, default: 10
     add_column :school_calendars, :number_of_decimal_places, :integer, default: 2

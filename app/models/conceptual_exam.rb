@@ -72,16 +72,21 @@ class ConceptualExam < ActiveRecord::Base
   def self.by_teacher(teacher_id)
     active.where(
       TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id)
-    ).uniq
+    ).distinct
   end
 
   def self.by_status(classroom_id, teacher_id, status)
     discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
                                                .by_teacher_id(teacher_id)
                                                .pluck(:discipline_id)
-    incomplete_conceptual_exams_ids = ConceptualExamValue.joins(:conceptual_exam).active
-                                                         .where(value: nil)
+
+    exempted_discipline_ids = SpecificStep.where(classroom_id: classroom_id)
+                                          .where.not(used_steps: '')
+                                          .pluck(:discipline_id)
+
+    incomplete_conceptual_exams_ids = ConceptualExamValue.joins(:conceptual_exam).active.where(value: nil)
                                                          .where(conceptual_exams: { classroom_id: classroom_id })
+                                                         .where.not(discipline_id: exempted_discipline_ids)
                                                          .by_discipline_id(discipline_ids)
                                                          .group(:conceptual_exam_id)
                                                          .pluck(:conceptual_exam_id)
@@ -94,14 +99,21 @@ class ConceptualExam < ActiveRecord::Base
     end
   end
 
+
   def status
     discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)
                                                .pluck(:discipline_id)
+
+    exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
+      classroom.id,
+      step_number
+    )
+
     values = ConceptualExamValue.where(
       conceptual_exam_id: id,
       exempted_discipline: false,
       discipline_id: discipline_ids
-    )
+    ).where.not(discipline_id: exempted_discipline_ids)
 
     return ConceptualExamStatus::INCOMPLETE if values.blank?
 
@@ -145,7 +157,7 @@ class ConceptualExam < ActiveRecord::Base
   private
 
   def student_must_have_conceptual_exam_score_type
-    return if student.blank? || classroom.blank?
+    return if student.blank? || classroom.blank? || validation_type.eql?(:destroy)
 
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
     classroom_grade = ClassroomsGrade.by_student_id(student.id).by_classroom_id(classroom.id)&.first

@@ -14,7 +14,7 @@
         <td><%= avaliation_exemption.created_at %></td>
         <td>
           <%= link_to t('views.index.edit'), edit_avaliation_exemption_path(avaliation_exemption), class: "btn btn-success pull-left" %>
-          <%= link_to 'Excluir', avaliation_exemption_path(avaliation_exemption), class: "btn btn-danger pull-right", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <%= link_to 'Excluir', avaliation_exemption_path(avaliation_exemption), class: "btn btn-danger pull-right", method: "delete", data: { confirm: t('views.index.confirm_deletion') } %>
         </td>
       </tr>
     <% end %>

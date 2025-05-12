@@ -11,7 +11,6 @@ class SchoolCalendarStep < ActiveRecord::Base
   validate :start_at_must_not_have_conflicting_date, if: :school_calendar
   validate :end_at_must_not_have_conflicting_date, if: :school_calendar
   validate :start_at_must_be_less_than_end_at
-  validate :dates_for_posting_less_than_start_date
   validate :end_date_less_than_start_date_for_posting
 
   scope :by_school_calendar_id, ->(school_calendar_id) { where(school_calendar_id: school_calendar_id) }
@@ -44,8 +43,12 @@ class SchoolCalendarStep < ActiveRecord::Base
     school_calendar.school_day?(date)
   end
 
-  def first_school_calendar_date
-    school_calendar.school_day_checker(start_at).next_school_day
+  def school_calendar_day_allows_entry?(date)
+    step_from_date = school_calendar.step(date)
+
+    return false unless step_from_date.eql?(self)
+
+    school_calendar.day_allows_entry?(date)
   end
 
   def school_day_dates
@@ -76,16 +79,6 @@ class SchoolCalendarStep < ActiveRecord::Base
     return if errors[:start_at].any? || errors[:end_at].any?
 
     errors.add(:start_at, :must_be_less_than_end_at) if start_at.to_date >= end_at.to_date
-  end
-
-  def dates_for_posting_less_than_start_date
-    return if start_at.blank?
-
-    if start_date_for_posting.present? && start_date_for_posting < start_at
-      errors.add(:start_date_for_posting, :must_be_greater_than_start_at)
-    elsif end_date_for_posting.present? && end_date_for_posting < start_at
-      errors.add(:end_date_for_posting, :must_be_greater_than_start_at)
-    end
   end
 
   def end_date_less_than_start_date_for_posting

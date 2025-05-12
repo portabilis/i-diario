@@ -22,6 +22,7 @@ pt-BR:
         resources: "Recursos"
         evaluation: "Avaliação"
         bibliography: "Referências"
+        curriculum_adaptation: "Adaptação curricular"
         opinion: "Parecer"
         contents_tags: "Conteúdos"
         validated: "Plano de aula validado"
@@ -30,15 +31,15 @@ pt-BR:
       models:
         lesson_plan:
           attributes:
-              start_at:
-                uniqueness_of_knowledge_area_lesson_plan:
-                  one: "já existe um plano de aula para a área de conhecimento informada"
-                  other: "já existe um plano de aula para uma das áreas de conhecimento informadas"
-              end_at:
-                uniqueness_of_knowledge_area_lesson_plan:
-                  one: "já existe um plano de aula para a área de conhecimento informada"
-                  other: "já existe um plano de aula para uma das áreas de conhecimento informadas"
-              base:
-                crescent_date_range: "A data final deve ser maior que a data inicial"
-              contents:
-                at_least_one_content: "Conteúdos não pode ficar em branco"
+            start_at:
+              uniqueness_of_knowledge_area_lesson_plan:
+                one: "já existe um plano de aula para a área de conhecimento informada"
+                other: "já existe um plano de aula para uma das áreas de conhecimento informadas"
+            end_at:
+              uniqueness_of_knowledge_area_lesson_plan:
+                one: "já existe um plano de aula para a área de conhecimento informada"
+                other: "já existe um plano de aula para uma das áreas de conhecimento informadas"
+            base:
+              crescent_date_range: "A data final deve ser maior que a data inicial"
+            contents:
+              at_least_one_content: "Conteúdos não pode ficar em branco"

@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   acts_as_copy_target
 
   audited allow_mass_assignment: true,
@@ -20,13 +20,14 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   after_save :update_fullname_tokens
+  before_save :remove_spaces_from_name
+  after_validation :status_changed
 
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
 
   belongs_to :student
   belongs_to :teacher
-
   belongs_to :assumed_teacher, foreign_key: :assumed_teacher_id, class_name: 'Teacher'
   belongs_to :current_discipline, foreign_key: :current_discipline_id, class_name: 'Discipline'
   belongs_to :current_knowledge_area, foreign_key: :current_knowledge_area_id, class_name: 'KnowledgeArea'
@@ -35,44 +36,44 @@ class User < ActiveRecord::Base
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
+  has_many :permissions, class_name: "UserPermission", dependent: :destroy
   has_many :logins, class_name: "UserLogin", dependent: :destroy
-  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
-
+  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id,
+    dependent: :restrict_with_error
   has_many :system_notification_targets, dependent: :destroy
-  has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
+  has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets,
+    source: :system_notification
   has_many :unread_notifications, -> { where(system_notification_targets: { read: false }) },
-           through: :system_notification_targets, source: :system_notification
-
-  has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
-
+    through: :system_notification_targets, source: :system_notification
+  has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id,
+    dependent: :restrict_with_error
   has_and_belongs_to_many :students, dependent: :restrict_with_error
-
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
   has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :permissions, reject_if: :all_blank, allow_destroy: true
 
   mount_uploader :profile_picture, UserProfilePictureUploader
 
   validates :first_name, presence: true
-  validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
+  validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true,
+    uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
   validates :login, uniqueness: true, allow_blank: true
   validates :teacher_id, uniqueness: true, allow_blank: true
-  validates :student, presence: true, if: :only_student?
 
   validates_associated :user_roles
 
   validate :valid_password
-  validate :status_changed
   validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
-  validate :status_changed
+  validate :validate_student_presence, if: :only_student?
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -84,7 +85,7 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name)}%") }
+  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name.squish)}%") }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :by_cpf, lambda { |cpf|
@@ -93,6 +94,18 @@ class User < ActiveRecord::Base
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
+
+  def build_permissions!
+    existing_features = permissions.to_a.pluck(:feature).to_set
+
+    Features.list.each do |feature|
+      next if existing_features.include?(feature)
+
+      permissions.find_or_create_by(feature: feature) do |p|
+        p.permission = Permissions::DENIED
+      end
+    end
+  end
 
   def self.current=(user)
     Thread.current[:user] = user
@@ -113,13 +126,16 @@ class User < ActiveRecord::Base
       'Status',
       'Aluno vinculado',
       'Professor Vinculado',
-      'Permissões'
+      'Permissões',
+      'Data de expiração'
     ]
 
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+      users = all.includes(:teacher, :student, user_roles: [:role, :unity]).ordered
+
+      users.each do |user|
         csv << [
           user.first_name,
           user.last_name,
@@ -130,7 +146,8 @@ class User < ActiveRecord::Base
           I18n.t("enumerations.user_status.#{user.status}"),
           user.student,
           user.teacher,
-          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact },
+          user.expiration_date&.strftime("%d/%m/%Y")
         ]
       end
     end
@@ -145,6 +162,11 @@ class User < ActiveRecord::Base
     else
       where(%Q(users.login = :credential OR users.email = :credential), credential: credential).first
     end
+  end
+
+  def first_access?
+    email&.include?('ambiente.portabilis.com.br') &&
+      created_at.to_date >= last_password_change.to_date
   end
 
   def expired?
@@ -177,8 +199,7 @@ class User < ActiveRecord::Base
   end
 
   def status_changed
-    return if new_record?
-    return if status_was == status
+    return if self.errors.any? || new_record? || (status_was == status)
 
     if status == UserStatus::ACTIVE
       update_last_activity_at
@@ -201,7 +222,7 @@ class User < ActiveRecord::Base
   end
 
   def update_last_activity_at
-    update_column :last_activity_at, Date.current
+    self.last_activity_at = Date.current
   end
 
   def can_show?(feature)
@@ -211,7 +232,8 @@ class User < ActiveRecord::Base
     return true if admin?
     return unless current_user_role
 
-    current_user_role.role.can_show?(feature)
+    return true if current_user_role.role.can_show?(feature)
+    permissions.can_show?(feature)
   end
 
   def can_change?(feature)
@@ -221,7 +243,8 @@ class User < ActiveRecord::Base
     return true if admin?
     return unless current_user_role
 
-    current_user_role.role.can_change?(feature)
+    return true if current_user_role.role.can_change?(feature)
+    permissions.can_change?(feature)
   end
 
   def update_tracked_fields!(request)
@@ -492,5 +515,14 @@ class User < ActiveRecord::Base
                             .any?
       errors.add(:email, :invalid_email)
     end
+  end
+
+  def remove_spaces_from_name
+    write_attribute(:first_name, first_name.squish) if first_name.present?
+    write_attribute(:last_name, last_name.squish) if last_name.present?
+  end
+
+  def validate_student_presence
+    errors.add(:student, :blank) if student.blank?
   end
 end

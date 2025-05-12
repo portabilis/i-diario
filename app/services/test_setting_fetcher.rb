@@ -54,10 +54,12 @@ class TestSettingFetcher
                       .find_by(step_number: step_number)
   end
 
+  # TODO - Entender o porquê algumas vezes @classroom.grade_ids está vindo vazio
+  # TODO - Está fazendo essa consulta muitas vezes no banco
   def general_by_school_test_setting
-    TestSetting.where(year: @year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
+    @general_by_school_test_setting ||= TestSetting.where(year: @year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                .by_unities(@classroom.unity)
-               .where("grades && ARRAY[?]::integer[] OR grades = '{}'", @classroom.grade_ids)
+               .where("grades && ARRAY[?]::integer[] OR grades = '{}'", @classroom.grades.pluck(:id))
                .first
   end
 

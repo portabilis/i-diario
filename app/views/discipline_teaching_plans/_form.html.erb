@@ -1,6 +1,7 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'attachemnt_size_validator' %>
+  <%= javascript_include_tag 'summernote' %>
   <%= javascript_include_tag 'views/teaching_plans/shared' %>
   <%= javascript_include_tag 'views/discipline_teaching_plans/form' %>
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
@@ -9,10 +10,10 @@
 <%= hidden_field_tag :action_name, action_name %>
 <%= hidden_field_tag :yearly_school_term_type_id, @yearly_term_type_id %>
 
-<%= simple_form_for @discipline_teaching_plan, html: {
-    class: 'smart-form',
-    id: 'discipline_teaching_plan'
-  } do |f| %>
+<%= simple_form_for @discipline_teaching_plan,
+    url: discipline_teaching_plan_form_url(@discipline_teaching_plan, action_name),
+    method: teaching_plan_form_method(action_name),
+    html: { class: 'smart-form', id: 'discipline_teaching_plan' } do |f| %>
 
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
@@ -21,7 +22,10 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
-      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: 'disciplines' %>
+      <%= render 'teaching_plans/diciplines_modal', f: teaching_plan_form %>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        <%= render 'teaching_plans/experience_fields_modal', f: teaching_plan_form %>
+      <% end %>
 
       <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
         <i class='fa-fw fa fa-info'></i>
@@ -41,32 +45,48 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
-                                             readonly: action_name.eql?('show')  %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
+                                               selected: @discipline_teaching_plan.teaching_plan.grade_id,
+                                               readonly: ['show', 'edit'].include?(action_name) %>
+          <% else %>
+            <%= teaching_plan_form.association :grade, as: :select2, elements: @grades, user: current_user,
+                                               selected: @discipline_teaching_plan.teaching_plan.grade_id,
+                                               readonly: ['show', 'edit'].include?(action_name)  %>
+          <% end %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
-                grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
+          <% if current_user.current_role_is_admin_or_employee? %>
+            <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
+                              grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
+          <% else %>
+            <%= f.association :discipline, as: :select2, elements: @disciplines, user: current_user, record: f.object,
+                              grade_id: @discipline_teaching_plan.teaching_plan.grade_id, readonly: ['show', 'edit'].include?(action_name) %>
+          <% end %>
         </div>
       </div>
 
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.association :school_term_type, as: :select2, required: true,
-                elements: SchoolTermType.to_select2(
-                  current_user.current_school_year,
-                  current_user.current_unity_id,
-                  add_empty_element: false
-                ).to_json,
-                input_html: { value: teaching_plan_form.object.school_term_type_id,
-                              data: { without_json_parser: true } },
-                readonly: action_name.eql?('show') %>
+            elements: SchoolTermType.to_select2(
+              current_user.current_school_year,
+              current_user.current_unity_id,
+              add_empty_element: false
+            ).to_json,
+            input_html: { value: teaching_plan_form.object.school_term_type_id,
+                          data: { without_json_parser: true } },
+            readonly: action_name.eql?('show') %>
         </div>
 
         <div id="school-term-container" class="col col-sm-4">
-          <%= teaching_plan_form.association :school_term_type_step, as: :select2, elements: [], required: true,
-                readonly: action_name == 'show' %>
+          <%= teaching_plan_form.association :school_term_type_step, as: :select2,
+                                             input_html: { value: teaching_plan_form.object.school_term_type_step_id,
+                                                           data: { without_json_parser: true }
+                                                         },
+                                             elements: [], required: true,
+                                             readonly: action_name == 'show' %>
         </div>
 
         <div class="col col-sm-4">
@@ -141,9 +161,14 @@
             </div>
           <% end %>
           <% if !action_name.eql?('show') %>
-            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+            <a href="#" data-toggle="modal" data-target="#disciplines-modal">
               Copiar objetivos/habilidades por área
             </a>
+            <% if @allows_copy_experience_fields_in_lesson_plans %>
+              |<a href="#" data-toggle="modal" data-target="#experience-modal">
+                Copiar objetivos por campos de experiência
+              </a>
+            <% end %>
           <% end %>
 
             <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
@@ -194,23 +219,27 @@
       </div>
       <% end %>
 
+      <% @methodology_translation = Translation.find_by(key: 'navigation.methodology_by_discipline', group: 'teaching_plans').translation %>
+      <% @evaluation_translation = Translation.find_by(key: 'navigation.avaliation_by_discipline', group: 'teaching_plans').translation %>
+      <% @references_translation = Translation.find_by(key: 'navigation.references_by_discipline', group: 'teaching_plans').translation %>
+
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :methodology, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :evaluation, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :evaluation,label: @evaluation_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :references, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12' },
                 readonly: action_name.eql?('show') %>
         </div>
       </div>

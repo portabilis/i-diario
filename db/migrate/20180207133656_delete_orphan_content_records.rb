@@ -1,4 +1,4 @@
-class DeleteOrphanContentRecords < ActiveRecord::Migration
+class DeleteOrphanContentRecords < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       DO $$DECLARE r record;

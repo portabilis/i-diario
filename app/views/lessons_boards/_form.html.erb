@@ -7,8 +7,8 @@
 
       <div class="col col-sm-3">
         <% if action_name == "new" %>
-          <%= f.input :unity, as: :select2, elements: unities, hide_empty_element: true, label: t('lessons_boards.index.unity'),
-                      placeholder: t('lessons_boards.index.unity'), readonly: !can_change_unity?, input_html: { value: !can_change_unity? ? unities.first.id : ''  }, required: true  %>
+          <%= f.input :unity, as: :select2, elements: @unities, hide_empty_element: true, label: t('lessons_boards.index.unity'),
+                      placeholder: t('lessons_boards.index.unity'), readonly: !@role_administrator, input_html: { value: !@role_administrator ? @unities.first.id : ''  }, required: true  %>
         <% else %>
           <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classroom.unity.name }, required: true  %>
         <% end %>
@@ -24,7 +24,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : @classrooms), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
+        <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : [@classroom]), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
         <%= f.hidden_field :lessons_number, id: 'lessons_number_classroom_id' %>
       </div>
 

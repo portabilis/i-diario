@@ -1,4 +1,4 @@
-class IeducarApiSynchronization < ActiveRecord::Base
+class IeducarApiSynchronization < ApplicationRecord
   acts_as_copy_target
 
   has_enumeration_for :status,
@@ -8,6 +8,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
 
   belongs_to :ieducar_api_configuration
   belongs_to :author, class_name: 'User'
+  has_one :worker_batch, as: :stateable, dependent: :restrict_with_error
 
   validates :ieducar_api_configuration, presence: true
   validates :ieducar_api_configuration_id, uniqueness: { scope: :status }, if: :started?
@@ -16,16 +17,12 @@ class IeducarApiSynchronization < ActiveRecord::Base
   delegate :done_percentage, :started_at, :ended_at, to: :worker_batch, allow_nil: true
 
   scope :unnotified, -> { where(notified: false) }
-
-  def worker_batch
-    @worker_batch ||= WorkerBatch.where(
-      main_job_class: 'IeducarSynchronizerWorker',
-      main_job_id: job_id
-    ).first
-  end
+  scope :by_full_synchronizations,    -> { where(full_synchronization: true) }
+  scope :by_partial_synchronizations, -> { where(full_synchronization: false) }
+  scope :ordered, -> { order(id: :desc) }
 
   def time_running
-    return unless started_at
+    return 0 unless started_at
 
     if ended_at
       ((ended_at - started_at) / 60.0).round
@@ -34,10 +31,38 @@ class IeducarApiSynchronization < ActiveRecord::Base
     end
   end
 
-  def self.average_time
-    valid = completed.last(10).select(&:ended_at)
+  def self.average_time(scope, limit)
+    subquery = scope
+                .completed
+                .joins(:worker_batch)
+                .order('ieducar_api_synchronizations.id DESC')
+                .limit(limit)
+                .select('worker_batches.started_at, worker_batches.ended_at')
 
-    valid.sum(&:time_running) / valid.size if valid.present?
+    from("(#{subquery.to_sql}) AS subquery")
+      .select("ROUND(AVG(EXTRACT(EPOCH FROM subquery.ended_at - subquery.started_at) / 60.0))::integer AS avg_time")
+      .take
+      &.avg_time
+  end
+
+  def self.average_time_by_full_synchronizations
+    Rails.cache.fetch("ieducar_api_synchronization/average_time_by_full_synchronizations/entity-#{Entity.current}", expires_in: 24.hour) do
+      average_time(by_full_synchronizations, 5)
+    end
+  end
+
+  def self.average_time_by_partial_synchronizations
+    Rails.cache.fetch("ieducar_api_synchronization/average_time_by_partial_synchronizations/entity-#{Entity.current}", expires_in: 24.hour) do
+      average_time(by_partial_synchronizations, 10)
+    end
+  end
+
+  def average_time
+    if full_synchronization?
+      IeducarApiSynchronization.average_time_by_full_synchronizations
+    else
+      IeducarApiSynchronization.average_time_by_partial_synchronizations
+    end
   end
 
   def self.completed_unnotified
@@ -61,7 +86,6 @@ class IeducarApiSynchronization < ActiveRecord::Base
     update_last_synchronization_date
 
     update(status: ApiSynchronizationStatus::COMPLETED)
-    worker_batch.try(:end!)
   end
 
   def notified!
@@ -72,37 +96,28 @@ class IeducarApiSynchronization < ActiveRecord::Base
     update_attribute(:job_id, job_id)
   end
 
-  def running?
-    started? && job_is_running?
-  end
-
-  # Irá ver se o batch rodou até o fim. Se não rodou e está há mais de uma hora
-  # sem updates, vai fazer um double check no sidekiq.
-  def job_is_running?
-    return false if worker_batch.completed?
-    return true if worker_batch.updated_at > 1.hour.ago
-
-    running = Sidekiq::Queue.new('default').find_job(job_id)
-    running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
-    running ||= Sidekiq::RetrySet.new.find_job(job_id)
-    running ||= Sidekiq::Workers.new.any? do |_process_id, _thread_id, work|
-      work['payload']['jid'] == job_id
-    end
-
-    running.present?
-  end
-
-  def self.cancel_not_running_synchronizations(current_entity, options = {})
+  def self.cancel_locked_synchronizations(current_entity, options = {})
     restart = options.fetch(:restart, false)
 
-    started.reject(&:running?).each do |sync|
-      sync.mark_as_error! I18n.t('ieducar_api_synchronization.public_error_feedback'),
-                          I18n.t('ieducar_api_synchronization.private_error_feedback')
-
-      if restart
-        configuration = IeducarApiConfiguration.current
-        configuration.start_synchronization(sync.author, current_entity.id)
+    started.each do |sync|
+      if sync.locked?
+        sync.cancel!(restart, current_entity.id)
       end
+    end
+  end
+
+  # Considerado travado quando a sincronização está rodando a mais de 3x o tempo médio
+  # e a última atualização do batch foi há mais de 30 minutos
+  def locked?
+    time_running > average_time * 3 && worker_batch.updated_at < 30.minutes.ago
+  end
+
+  def cancel!(restart = false, current_entity_id = nil, error = I18n.t('ieducar_api_synchronization.timedout'))
+    mark_as_error! error
+
+    if restart
+      configuration = IeducarApiConfiguration.current
+      configuration.start_synchronization(author, current_entity_id)
     end
   end
 

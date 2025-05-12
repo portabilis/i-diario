@@ -1,11 +1,13 @@
 *.rbc
 capybara-*.html
 /log
+/coverage
 /tmp
 /db/*.sqlite3
 /public/system
 /coverage/
 /spec/tmp
+.env
 **.orig
 rerun.txt
 pickle-email-*.html
@@ -23,6 +25,7 @@ config/puma.rb
 /public/relatorios/*
 !/public/relatorios/.keep
 .idea
+.env
 
 ## Environment normalisation:
 /.bundle

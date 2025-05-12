@@ -1,4 +1,4 @@
-class StudentUnification < ActiveRecord::Base
+class StudentUnification < ApplicationRecord
   audited
 
   belongs_to :student

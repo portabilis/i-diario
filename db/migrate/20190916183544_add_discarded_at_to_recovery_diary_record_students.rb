@@ -1,4 +1,4 @@
-class AddDiscardedAtToRecoveryDiaryRecordStudents < ActiveRecord::Migration
+class AddDiscardedAtToRecoveryDiaryRecordStudents < ActiveRecord::Migration[4.2]
   def change
     add_column :recovery_diary_record_students, :discarded_at, :datetime
 

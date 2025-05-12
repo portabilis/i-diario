@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :complementary_exam do
     discipline
 
-    association :classroom, factory: [:classroom, :with_classroom_semester_steps]
+    association :classroom, factory: [:classroom, :with_classroom_semester_steps, :score_type_numeric]
     association :complementary_exam_setting, factory: [:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom]
     unity { classroom.unity }
 
@@ -18,7 +18,7 @@ FactoryGirl.define do
       end
 
       if complementary_exam.recorded_at.blank?
-        complementary_exam.recorded_at = step.try(:first_school_calendar_date) || Date.current
+        complementary_exam.recorded_at = Date.current
       end
 
       complementary_exam.step_number = step.try(:step_number) || 1 if complementary_exam.step_number.blank?

@@ -5,7 +5,7 @@ class SchoolCalendarsController < ApplicationController
 
   def index
     @school_calendars = apply_scopes(SchoolCalendar).includes(:unity)
-                                                    .filter(filtering_params(params[:search]))
+                                                    .filter_from_params(filtering_params(params[:search]))
                                                     .ordered
 
     unless show_all_unities?
@@ -24,7 +24,7 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -57,7 +57,7 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def years_from_unity
-    only_opened_years = ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:only_opened_years])
+    only_opened_years = ActiveRecord::Type::Boolean.new.cast(params[:only_opened_years])
     @years = YearsFromUnityFetcher.new(params[:unity_id], only_opened_years).fetch.map { |year|
       { id: year, name: year }
     }

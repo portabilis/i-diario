@@ -25,7 +25,7 @@ pt-BR:
         student_id: "Aluno"
         role_id: "Permissão"
         role: "Permissão"
-        admin: "Admin?"
+        admin: "Usuário administrador"
         teacher: "Professor"
         teacher_id: "Professor"
         assumed_teacher_id: "Professor"
@@ -56,5 +56,9 @@ pt-BR:
               can_not_be_an_email: "não pode ser um email"
             email:
               invalid_email: 'não pode usar esse email, reservado para alunos'
+              must_be_changed: 'Precisa ser alterado'
             receive_news:
               must_fill_receive_news_options: "Por favor, selecione pelo menos uma das opções abaixo."
+            password:
+              must_be_changed: 'Precisa ser alterado'
+

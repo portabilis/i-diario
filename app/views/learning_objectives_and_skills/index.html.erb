@@ -12,10 +12,10 @@
             <%= f.input :by_step, as: :select2, label: false, placeholder: "Filtrar etapa",
               elements: BnccSteps.to_select.to_json %>
           </td>
-          <td>
-            <%= f.input :by_grade, as: :select2, label: false, placeholder: "Filtrar série",
-              elements: (ChildEducations.to_select + ElementaryEducations.to_select[1..-1]).to_json %>
-          </td>
+            <td>
+              <%= f.input :by_grade, as: :select2, label: false, placeholder: "Filtrar série",
+                elements: @grades.to_json %>
+            </td>
           <td class="actions">
           </td>
         </tr>

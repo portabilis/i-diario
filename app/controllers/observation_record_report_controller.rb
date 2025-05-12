@@ -6,7 +6,8 @@ class ObservationRecordReportController < ApplicationController
       teacher_id: current_teacher.id,
       unity_id: current_unity.id,
       start_at: Time.zone.today,
-      end_at: Time.zone.today
+      end_at: Time.zone.today,
+      current_user_id: current_user.id
     ).localized
   end
 
@@ -29,6 +30,15 @@ class ObservationRecordReportController < ApplicationController
     end
   end
 
+  def unities
+    if current_user.current_user_role.try(:role_administrator?)
+      Unity.ordered
+    else
+      [current_user_unity]
+    end
+  end
+  helper_method :unities
+
   private
 
   def resource_params
@@ -38,21 +48,16 @@ class ObservationRecordReportController < ApplicationController
       :classroom_id,
       :discipline_id,
       :start_at,
-      :end_at
+      :end_at,
+      :current_user_id
     )
   end
 
   def clear_invalid_dates
-    begin
-      resource_params[:start_at].to_date
-    rescue ArgumentError
-      @observation_record_report_form.start_at = ''
-    end
+    start_at = resource_params[:start_at]
+    end_at = resource_params[:end_at]
 
-    begin
-      resource_params[:end_at].to_date
-    rescue ArgumentError
-      @observation_record_report_form.end_at = ''
-    end
+    @observation_record_report_form.start_at = '' unless start_at.try(:to_date)
+    @observation_record_report_form.end_at = '' unless end_at.try(:to_date)
   end
 end

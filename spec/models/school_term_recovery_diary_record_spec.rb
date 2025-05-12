@@ -12,16 +12,15 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
   end
 
   describe 'associations' do
-    it { expect(subject).to belong_to(:recovery_diary_record).dependent(:destroy) }
+    it { expect(subject).to belong_to(:recovery_diary_record) }
   end
 
   describe 'validations' do
     it 'should validate uniqueness of school term recovery diary record' do
-      exam_rule = create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL)
       classroom = create(
         :classroom,
         :with_classroom_semester_steps,
-        exam_rule: exam_rule
+        :score_type_numeric_and_concept_create_rule
       )
       another_recovery_diary_record = create(
         :recovery_diary_record,
@@ -32,7 +31,6 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
 
       current_user.current_classroom_id = another_recovery_diary_record.classroom_id
       current_user.current_discipline_id = another_recovery_diary_record.discipline_id
-
       another_recovery_diary_record.current_user = current_user
 
       another_school_term_recovery_diary_record = create(
