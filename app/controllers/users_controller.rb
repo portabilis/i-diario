@@ -79,7 +79,7 @@ class UsersController < ApplicationController
       'search[status]': params.dig(:search, :status)
     }
 
-    respond_with @user, location: users_path(search_params)
+    respond_with @user, location: routes.users_path(search_params)
   end
 
   def history
