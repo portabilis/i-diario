@@ -1,4 +1,4 @@
-class AddAuthorIdToAbsenceJustifications < ActiveRecord::Migration
+class AddAuthorIdToAbsenceJustifications < ActiveRecord::Migration[4.2]
   def change
     add_column :absence_justifications, :author_id, :integer
     add_index :absence_justifications, :author_id

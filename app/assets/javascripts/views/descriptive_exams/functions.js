@@ -3,6 +3,8 @@ function createSummerNote(element, options = {}) {
     lang: 'pt-BR',
     toolbar: options.toolbar || [],
     disableDragAndDrop : true,
+    height: 300,
+    width: 600,
     callbacks : {
       onPaste : function (event) {
         var thisNote = $(this);

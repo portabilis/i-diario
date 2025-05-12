@@ -1,0 +1,7 @@
+pt-BR:
+  enumerations:
+    require_daily_activities_record_types:
+      does_not_require: "Não obrigar"
+      on_discipline_content_records: "Somente no Registro de conteúdo por disciplina"
+      on_knowledge_area_content_records: "Somente no Registro de conteúdo por áreas de conhecimento"
+      always: "Obrigar Registro de conteúdo por disciplina e por áreas de conhecimento"

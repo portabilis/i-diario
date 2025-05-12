@@ -15,8 +15,21 @@ class KnowledgeAreasController < ApplicationController
 
       disciplines_ids = Discipline.by_teacher_and_classroom(current_teacher.id, classroom_id)
         .ordered
-        .uniq
+        .distinct
         .map { |discipline| discipline.id }
+
+      @knowledge_areas = @knowledge_areas.by_discipline_id(disciplines_ids)
+    end
+
+    if params[:grade_id].present? && params[:unity_id].present?
+      grade_id = params[:grade_id]
+      unity_id = params[:unity_id]
+      year = current_school_calendar.year
+      classrooms = Classroom.by_grade(grade_id).by_year(year).by_unity(unity_id).distinct
+      disciplines_ids = Discipline.by_teacher_and_classroom(current_teacher.id, classrooms.map(&:id))
+                                  .ordered
+                                  .distinct
+                                  .map { |discipline| discipline.id }
 
       @knowledge_areas = @knowledge_areas.by_discipline_id(disciplines_ids)
     end

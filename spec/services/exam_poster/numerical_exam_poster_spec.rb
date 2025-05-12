@@ -7,9 +7,8 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     create(
       :classroom,
       :with_classroom_semester_steps,
-      :with_student_enrollment_classroom,
-      :score_type_numeric,
-      exam_rule: exam_rule
+      :with_student_enrollment_classroom_with_date,
+      :score_type_numeric_and_concept_create_rule
     )
   }
   let!(:teacher_discipline_classroom) {
@@ -27,12 +26,22 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       teacher: teacher_discipline_classroom.teacher
     )
   }
+  let!(:grade) { create(:grade) }
+  let!(:school_calendar_discipline_grade) {
+    create(
+      :school_calendar_discipline_grade,
+      school_calendar: classroom.calendar.school_calendar,
+      discipline: discipline,
+      grade: grade
+    )
+  }
   let!(:avaliation) {
     create(
       :avaliation,
       teacher_id: teacher_discipline_classroom.teacher.id,
       classroom: classroom,
-      discipline: discipline
+      discipline: discipline,
+      grade_ids: [grade.id]
     )
   }
   let!(:daily_note) { create(:daily_note, avaliation: avaliation) }
@@ -44,12 +53,11 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       note: 4
     )
   }
-  let!(:test_setting) { create(:test_setting, year: classroom.year) }
   let(:complementary_exam_setting) {
     create(
       :complementary_exam_setting,
       :with_teacher_discipline_classroom,
-      grades: [classroom.grade],
+      grades: [grade],
       calculation_type: CalculationTypes::SUM
     )
   }
@@ -153,8 +161,6 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     }
     context 'hasnt complementary exams' do
       it 'queued request score match to recovery score' do
-        skip
-
         subject.post!
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score
@@ -164,7 +170,9 @@ RSpec.describe ExamPoster::NumericalExamPoster do
           Entity.first.id,
           exam_posting.id,
           request,
-          info
+          info,
+          "critical",
+          0
         )
       end
     end
@@ -175,8 +183,6 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       end
 
       it 'change score of queued request' do
-        skip
-
         subject.post!
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score + complementary_exam_student.score
@@ -186,7 +192,9 @@ RSpec.describe ExamPoster::NumericalExamPoster do
           Entity.first.id,
           exam_posting.id,
           request,
-          info
+          info,
+          "critical",
+          0
         )
       end
     end
@@ -195,12 +203,20 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       score_rounder = double(:score_rounder)
 
       expect(ScoreRounder).to receive(:new)
-        .with(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+        .with(
+          classroom,
+          RoundedAvaliations::SCHOOL_TERM_RECOVERY,
+          classroom.calendar.classroom_steps.first
+        )
         .and_return(score_rounder)
         .at_least(:once)
 
       expect(ScoreRounder).to receive(:new)
-        .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
+        .with(
+          classroom,
+          RoundedAvaliations::NUMERICAL_EXAM,
+          classroom.calendar.classroom_steps.first
+        )
         .and_return(score_rounder)
         .at_least(:once)
 

@@ -2,15 +2,19 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - tc-gh-actions
   pull_request:
 
 jobs:
   default:
-
     name: Unit and Integration
 
+    if: "! github.event.pull_request.draft"
+
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     env:
       RAILS_ENV: test
@@ -24,7 +28,11 @@ jobs:
           POSTGRES_DB: idiario_test
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        options:
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
 
       redis:
         image: redis
@@ -34,13 +42,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.4.10'
-          bundler: '1.17.3'
+          ruby-version: "2.6.6"
+          bundler: "2.4.22"
           bundler-cache: true
 
       - name: Configure database
@@ -51,11 +59,17 @@ jobs:
           echo -e "
             test:
               secret_key_base: `bundle exec rake secret`
-              redis_url: redis://localhost:6379
+              REDIS_URL: 'redis://localhost:6379/'
+              REDIS_DB_CACHE: '0'
+              REDIS_DB_SESSION: '1'
+              REDIS_DB_SIDEKIQ: '2'
+              REDIS_MODE: 'standalone'
           " > config/secrets.yml
 
       - name: Migrate
-        run: RAILS_ENV=test bundle exec rake db:migrate
+        run: |
+          RAILS_ENV=test bundle exec rake db:migrate
 
       - name: Tests
-        run: bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
+        run: |
+          RAILS_ENV=test bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'

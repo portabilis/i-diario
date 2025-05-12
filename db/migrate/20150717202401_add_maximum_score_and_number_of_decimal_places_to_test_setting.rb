@@ -1,4 +1,4 @@
-class AddMaximumScoreAndNumberOfDecimalPlacesToTestSetting < ActiveRecord::Migration
+class AddMaximumScoreAndNumberOfDecimalPlacesToTestSetting < ActiveRecord::Migration[4.2]
   def change
     add_column :test_settings, :maximum_score, :integer, default: 10
     add_column :test_settings, :number_of_decimal_places, :integer, default: 2

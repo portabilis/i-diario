@@ -16,7 +16,7 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
       :complementary_exam,
       :with_teacher_discipline_classroom,
       classroom: classroom,
-      recorded_at: step.first_school_calendar_date,
+      recorded_at: Date.current,
       step_id: step.id,
       complementary_exam_setting: complementary_exam_setting
     )
@@ -50,13 +50,16 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
     end
 
     it 'return complementary_exam score plus value passed as parameter' do
+      test_setting = TestSetting.find_by(year: classroom.year)
+      test_setting.update(maximum_score: 100)
       expect(subject.calculate(score).round(4)).to eq((complementary_exam_student.score + score).to_f.round(4))
     end
 
     context 'calculation exceeds test setting maximum score' do
       it 'returns test setting maximum score' do
         score = 110
-        test_setting = create(:test_setting, year: classroom.year, maximum_score: score)
+        test_setting = TestSetting.find_by(year: classroom.year)
+        test_setting.update(maximum_score: score)
         expect(subject.calculate(score)).to eq(test_setting.maximum_score.to_f)
       end
     end
@@ -71,6 +74,8 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
       before { complementary_exam_student.update_attribute(:score, score - 0.5) }
 
       it 'return value passed as parameter' do
+        test_setting = TestSetting.find_by(year: classroom.year)
+        test_setting.update(maximum_score: 100)
         expect(subject.calculate(score)).to eq(score)
       end
     end
@@ -79,6 +84,8 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
       before { complementary_exam_student.update_attribute(:score, score + 0.5) }
 
       it 'return value passed as parameter' do
+        test_setting = TestSetting.find_by(year: classroom.year)
+        test_setting.update(maximum_score: 100)
         expect(subject.calculate(score)).to eq(complementary_exam_student.score)
       end
     end

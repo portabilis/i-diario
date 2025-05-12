@@ -183,6 +183,9 @@ navigation:
         - menu:
             type: "avaliation_recovery_diary_records"
             path: "avaliation_recovery_diary_records_path"
+        - menu:
+            type: "avaliation_recovery_lowest_notes"
+            path: "avaliation_recovery_lowest_notes_path"
   - menu:
       type: "observation_diary_records"
       icon: "fa-sticky-note-o"
@@ -197,6 +200,9 @@ navigation:
         - menu:
             type: "attendance_record_report"
             path: "attendance_record_report_path"
+        - menu:
+            type: "attendance_record_report_by_students"
+            path: "attendance_record_report_by_students_path"
         - menu:
             type: "observation_record_report"
             path: "observation_record_report_path"

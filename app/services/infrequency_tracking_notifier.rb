@@ -12,6 +12,8 @@ class InfrequencyTrackingNotifier
 
       students_with_absences(classroom.id, start_at).each do |student_id|
         InfrequencyTrackingTypes.list.each do |type|
+          next if school_dates.empty?
+
           start_at = school_dates.first
           last_notification_date = last_notification_date(classroom.id, student_id, type) || start_at
           start_at = last_notification_date < start_at ? start_at : last_notification_date
@@ -45,10 +47,11 @@ class InfrequencyTrackingNotifier
 
     UniqueDailyFrequencyStudent.frequency_date_between(start_at, end_at)
                                .where(present: false)
+                               .includes(:classroom)
   end
 
   def classrooms_with_absences
-    students_with_absences_query.map(&:classroom).uniq
+    @students_with_absences ||= students_with_absences_query.map(&:classroom).compact.uniq
   end
 
   def students_with_absences(classroom_id, start_at)
@@ -65,12 +68,15 @@ class InfrequencyTrackingNotifier
 
   def school_dates(end_at, classroom)
     days = general_configuration.days_to_consider_alternate_absences
+    school_dates = []
 
-    SchoolDayChecker.new(
-      school_calendar(classroom), end_at, classroom.grade_ids, classroom.id, nil
-    ).school_dates_since(
-      end_at, days
-    ).sort
+    classroom.grade_ids.each do |grade|
+      school_dates << SchoolDayChecker.new(school_calendar(classroom), end_at, grade, classroom.id, nil)
+                                      .school_dates_since(end_at, days)
+                                      .sort
+    end
+
+    school_dates.flatten
   end
 
   def consecutive_school_dates(school_dates)
@@ -135,13 +141,13 @@ class InfrequencyTrackingNotifier
   end
 
   def users_to_notify(unity_id = nil)
-    role_ids = RolePermission.where(
-      feature: :infrequency_trackings,
-      permission: :change
-    ).pluck(:role_id)
-    user_roles = UserRole.where(role_id: role_ids)
-    user_roles = user_roles.where('(unity_id IS NULL OR unity_id = ?)', unity_id) if unity_id.present?
-    User.joins(:user_roles).merge(user_roles)
+    User.joins(:user_roles)
+        .where(user_roles: {
+                 role_id: RolePermission
+                             .where(feature: :infrequency_trackings, permission: :change)
+                             .select(:role_id)
+               })
+        .where('user_roles.unity_id IS NULL OR user_roles.unity_id = ?', unity_id)
   end
 
   def need_send_notification?(type, school_dates, absence_dates)

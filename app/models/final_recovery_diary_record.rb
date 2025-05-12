@@ -1,4 +1,4 @@
-class FinalRecoveryDiaryRecord < ActiveRecord::Base
+class FinalRecoveryDiaryRecord < ApplicationRecord
   include Audit
   include Filterable
 
@@ -9,7 +9,7 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  belongs_to :recovery_diary_record, dependent: :destroy
+  belongs_to :recovery_diary_record
   belongs_to :school_calendar
 
   accepts_nested_attributes_for :recovery_diary_record
@@ -73,7 +73,7 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
     steps = school_calendar.classrooms.by_classroom_id(recovery_diary_record.classroom_id).first.try(&:classroom_steps)
     steps ||= school_calendar.steps
 
-    unless steps.to_a.last.school_calendar_step_day?(recovery_diary_record.recorded_at)
+    unless steps.to_a.last.school_calendar_day_allows_entry?(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_in_last_school_calendar_step)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_in_last_school_calendar_step)
     end

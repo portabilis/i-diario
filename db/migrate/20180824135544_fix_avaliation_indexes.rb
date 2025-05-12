@@ -1,4 +1,4 @@
-class FixAvaliationIndexes < ActiveRecord::Migration
+class FixAvaliationIndexes < ActiveRecord::Migration[4.2]
   def change
     remove_index :avaliations, :classroom_id
     remove_index :avaliations, :discipline_id

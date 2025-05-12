@@ -1,0 +1,111 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/knowledge_area_teaching_plans/copy' %>
+<% end %>
+
+<div class="widget-body no-padding">
+
+  <%= simple_form_for @copy_knowledge_area_teaching_plan, url: :copy_knowledge_area_teaching_plans, html: {
+    class: 'smart-form',
+    id: 'copy_knowledge_area_teaching_plan'
+  } do |f| %>
+
+    <%= f.error_notification %>
+    <%= render 'base_errors', f: f %>
+
+    <div class="alert alert-info">
+      <i class='fa-fw fa fa-info'></i>
+      <strong>Importante</strong>
+      <span>
+        o plano de ensino por área de conhecimento só será replicado para escolas de destino que possuírem turmas com
+        vínculo a área de conhecimento de origem e vínculo a uma das séries de destino.
+      </span>
+    </div>
+
+    <%= f.simple_fields_for :teaching_plan, @knowledge_area_teaching_plan.teaching_plan do |teaching_plan_form| %>
+      <fieldset>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.input :year, readonly: true, required: false %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :unity, as: :select2, elements: Unity.to_select, required: false, readonly: true %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :grade, as: :select2, elements: Grade.to_select, required: false, readonly: true %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= f.simple_fields_for :teaching_plan, @knowledge_area_teaching_plan do |form| %>
+              <%= form.input :knowledge_area_ids, as: :select2,
+                                           elements: @knowledge_areas, multiple: true,
+                                           input_html: { data: { without_json_parser: true } },
+                                           readonly: true %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :school_term_type, as: :select2, required: false, elements: SchoolTermType.to_select2(
+              current_user.current_school_year,
+              current_user.current_unity_id,
+              add_empty_element: false
+            ).to_json, input_html: { value: teaching_plan_form.object.school_term_type_id, data: { without_json_parser: true } }, readonly: true %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :school_term_type_step, as: :select2, required: false, elements: SchoolTermTypeStep.to_select2(
+              current_user.current_school_year,
+              current_user.current_unity_id
+            ).to_json, input_html: { value: teaching_plan_form.object.school_term_type_step_id, data: { without_json_parser: true } }, readonly: true %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= f.simple_fields_for :teaching_plan, @knowledge_area_teaching_plan do |form| %>
+              <%= form.input :experience_fields, readonly: true %>
+            <% end %>
+          </div>
+        </div>
+
+      </fieldset>
+
+      <%= f.hidden_field :id, value: @knowledge_area_teaching_plan.id %>
+
+      <fieldset>
+        <legend>Copiar para:</legend>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= f.input :year, required: true, input_html: { value: teaching_plan_form.object.year } %>
+          </div>
+
+          <div class="col col-sm-4">
+            <a id="clear-unities" href="javascript:void(0)" style="float: right; display: none">Limpar</a>
+            <a id="all-unities" href="javascript:void(0)" style="float: right">Selecionar tudo</a>
+            <%= f.input :unities_ids, as: :select2, required: true, multiple: true, hide_empty_element: true, elements: Unity.to_select, input_html: { data: { without_json_parser: true } } %>
+          </div>
+
+          <div class="col col-sm-4">
+            <a id="clear-grades" href="javascript:void(0)" style="float: right; display: none">Limpar</a>
+            <a id="all-grades" href="javascript:void(0)" style="float: right">Selecionar tudo</a>
+            <%= f.input :grades_ids, as: :select2, required: true, multiple: true, hide_empty_element: true, elements: Grade.to_select, input_html: { data: { without_json_parser: true } } %>
+          </div>
+
+        </div>
+
+      </fieldset>
+
+    <% end %>
+
+    <footer>
+      <%= link_to t('views.form.back'), knowledge_area_teaching_plans_path, class: 'btn btn-default' %>
+      <%= f.submit t('views.form.copy'), class: 'btn btn-primary', data: { disable_with: 'Copiando...' } %>
+    </footer>
+  <% end %>
+
+</div>

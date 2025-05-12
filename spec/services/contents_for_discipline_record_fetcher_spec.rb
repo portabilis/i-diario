@@ -3,19 +3,29 @@ require 'rails_helper'
 RSpec.describe ContentsForDisciplineRecordFetcher do
   let(:teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
-  let(:school_term_type) { create(:school_term_type) }
+  let(:school_term_type) { create(:school_term_type, description: 'Anual') }
   let(:school_term_type_step) { create(:school_term_type_step) }
   let(:classroom) {
     create(
       :classroom,
-      :with_teacher_discipline_classroom,
-      :with_classroom_semester_steps,
+      :with_classroom_semester_steps
+    )
+  }
+  let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+  let(:teacher_discipline_classroom) {
+    create(
+      :teacher_discipline_classroom,
       discipline: discipline,
-      teacher: teacher
+      teacher: teacher,
+      classroom: classroom,
+      grade: classrooms_grade.grade
     )
   }
 
-  before(:all) { skip }
+  before do
+    teacher_discipline_classroom
+    allow_any_instance_of(TeachingPlan).to receive(:yearly?).and_return(true)
+  end
 
   it 'fetches contents from lesson plan' do
     lesson_plan = create(
@@ -27,7 +37,7 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
     date = lesson_plan.start_at
     teaching_plan = create(
       :teaching_plan,
-      grade: classroom.grade,
+      grade: classroom.first_grade,
       teacher: teacher,
       teacher_id: teacher.id,
       year: date.year
@@ -52,13 +62,13 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
   end
 
   it 'fetches contents from teaching plan' do
-    date = classroom.calendar.classroom_steps.first.first_school_calendar_date
+    date = Date.current
 
     teaching_plan = create(
       :teaching_plan,
       school_term_type: school_term_type,
       school_term_type_step: school_term_type_step,
-      grade: classroom.grade,
+      grade: classroom.first_grade,
       teacher: teacher,
       teacher_id: teacher.id,
       year: classroom.calendar.school_calendar.year,

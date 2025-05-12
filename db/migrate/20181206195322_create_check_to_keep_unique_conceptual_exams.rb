@@ -1,4 +1,4 @@
-class CreateCheckToKeepUniqueConceptualExams < ActiveRecord::Migration
+class CreateCheckToKeepUniqueConceptualExams < ActiveRecord::Migration[4.2]
   def change
     execute <<-SQL
       ALTER TABLE conceptual_exams

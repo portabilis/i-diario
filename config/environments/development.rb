@@ -33,12 +33,16 @@ Rails.application.configure do
   # Raises helpful error messages.
   config.assets.raise_runtime_errors = true
 
+  config.assets.quiet = true
+
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
   config.action_mailer.delivery_method = :letter_opener_web
   config.action_mailer.smtp_settings = { :address => "localhost", :port => 1025 }
+
+  config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   # Bullet configuration
   config.after_initialize do

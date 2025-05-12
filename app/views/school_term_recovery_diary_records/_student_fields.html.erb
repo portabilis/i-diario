@@ -1,4 +1,4 @@
-<tr class="nested-fields
+<tr class="nested-fields"
     style="<%= 'display: none;' if f.object.marked_for_destruction? %>"
     id="<%= f.object.student_id %>">
   <td>
@@ -7,9 +7,11 @@
       <%= f.hidden_field :_destroy %>
     <% end %>
 
-    <% present(f.object) do |student| %>
+    <% present(f.object) do |recovery_diary_record_student| %>
       <%= f.input :student_id, as: :hidden %>
-      <span class="<%= student.student_name_class %>"><%= student.student_name %></span>
+      <span class="<%= recovery_diary_record_student.student_name_class %>">
+        <%= recovery_diary_record_student.student_name %>
+      </span>
     <% end %>
   </td>
 
@@ -26,8 +28,9 @@
   </td>
 
   <td>
-    <%= f.input :score, label: false,
+    <%= f.input :score, label: false, error: false,
         input_html: decimal_input_mask(decimal_places),
-        readonly: !f.object.active || f.object.exempted_from_discipline %>
+        readonly: (!f.object.active && !f.object.active.nil?) || f.object.exempted_from_discipline %>
+    <%= format_error_message(f.error(:score, class: 'error').to_s).html_safe %>
   </td>
 </tr>

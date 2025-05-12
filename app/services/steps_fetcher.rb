@@ -29,6 +29,12 @@ class StepsFetcher
     school_calendar_steps.find_by(id: step_id)
   end
 
+  def last_step_by_year
+    return if school_calendar.blank?
+
+    school_calendar_steps.last
+  end
+
   def current_step
     step_by_date(Date.current)
   end
@@ -50,7 +56,10 @@ class StepsFetcher
   end
 
   def school_calendar
-    @school_calendar ||= SchoolCalendar.find_by(unity_id: @classroom.unity_id, year: @classroom.year)
+    unity_id = @classroom.is_a?(Classroom) ? @classroom.unity_id : @classroom&.map(&:unity_id)&.first
+    year = @classroom.is_a?(Classroom) ? @classroom.year : @classroom&.map(&:year)&.first
+
+    @school_calendar ||= SchoolCalendar.find_by(unity_id: unity_id, year: year)
   end
 
   private
@@ -58,7 +67,8 @@ class StepsFetcher
   def school_calendar_classroom
     return if school_calendar.blank?
 
-    @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: @classroom.id)
+    classroom_id = @classroom.is_a?(Classroom) ? @classroom.id : @classroom&.map(&:id)
+    @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: classroom_id)
   end
 
   def school_calendar_steps

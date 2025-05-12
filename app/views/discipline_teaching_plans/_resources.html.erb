@@ -22,8 +22,9 @@
         </td>
         <td><%= discipline_teaching_plan.teaching_plan.grade %></td>
         <td><%= discipline_teaching_plan.discipline %></td>
+        <td><%= discipline_teaching_plan.thematic_unit %></td>
         <td><%= discipline_teaching_plan.teaching_plan.school_term_type %></td>
-        <td><%= discipline_teaching_plan.teaching_plan.school_term_type_step_humanize %></td>
+        <td><%= discipline_teaching_plan.teaching_plan.school_term_type_step %></td>
         <td><%= discipline_teaching_plan.teaching_plan.decorator.author(current_teacher) %></td>
         <td class="actions">
           <%= link_to(
@@ -56,7 +57,7 @@
                   disabled: !teaching_plan_destroy?(discipline_teaching_plan.teaching_plan),
                   method: 'delete',
                   data: {
-                    confirm: t('views.index.confirm'),
+                    confirm: t('views.index.confirm_deletion'),
                     original_title: t('views.index.tooltips.delete')
                   }
                 ) %>

@@ -13,13 +13,10 @@ pt-BR:
         discipline_id: "Disciplina"
         author: "Autor"
         objectives: "Objetivos"
+        objective_id: "Objetivo"
         objectives_tags: "Objetivos"
         contents_tags: "Conteúdos"
         contents: "Conteúdos"
         thematic_unit: "Unidade temática"
-    errors:
-      models:
-        discipline_teaching_plan:
-          attributes:
-            base:
-              uniqueness_of_discipline_teaching_plan: "Já existe um plano de ensino para o período informado"
+        objective_id: "Objetivos"
+        position: "Posição"

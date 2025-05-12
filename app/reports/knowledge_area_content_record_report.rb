@@ -105,7 +105,7 @@ class KnowledgeAreaContentRecordReport < BaseReport
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     if @show_daily_activities_in_knowledge_area_content_record_report
-      @daily_acitivies_header = make_cell(content: 'Registro diário das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+      @daily_acitivies_header = make_cell(content: 'Registro das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     end
 
     @unity_cell = make_cell(content:  @knowledge_area_content_records.first.content_record.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4])

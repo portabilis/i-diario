@@ -1,4 +1,4 @@
-class ChangeUserReceiveNewsDefault < ActiveRecord::Migration
+class ChangeUserReceiveNewsDefault < ActiveRecord::Migration[4.2]
   def change
     change_column_default :users, :receive_news, true
     change_column_default :users, :receive_news_related_daily_teacher, true

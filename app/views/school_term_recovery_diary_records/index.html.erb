@@ -6,8 +6,14 @@
         <thead>
           <tr>
             <td></td>
-            <td></td>
-            <td></td>
+            <td>
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
+                            label: false, placeholder: t('.by_classroom_id') %>
+            </td>
+            <td>
+              <%= f.input :by_discipline_id, as: :select2, elements: @disciplines,
+                           label: false, placeholder: t('.by_discipline_id') %>
+            </td>
             <td>
               <%= f.input :by_step_id, as: :select2_step, classroom: current_user_classroom,
                 label: false, placeholder: t('.by_step_id') %>

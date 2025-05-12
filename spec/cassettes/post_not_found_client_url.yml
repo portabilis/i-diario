@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://botucat.ieducar.com.br/request-invalid/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - botucat.ieducar.com.br
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 20:55:46 GMT
+      Content-Type:
+      - text/html
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAEA7PJKMnNsePlsslITUyxsynJLMlJtTMxMFHwyy9RcMsvzUux0YcI2uiDlQCVJuWnVIK0JKfmlaQW2dlkGKLrAIrY6EOlQWYDFUF5eemZeRXIcvow0/ShLgEAC9lhM5IAAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:26:40 GMT
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/request-invalid/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: UTF-8
+      string: resource=faltas-geral&etapa=1&faltas=1&oper=post
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '48'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 27 Jun 2022 20:57:50 GMT
+      Content-Type:
+      - text/html
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAEA7PJKMnNsePlsslITUyxsynJLMlJtTMxMFHwyy9RcMsvzUux0YcI2uiDlQCVJuWnVIK0JKfmlaQW2dlkGKLrAIrY6EOlQWYDFUF5eemZeRXIcvow0/ShLgEAC9lhM5IAAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:28:44 GMT
+recorded_with: VCR 3.0.0

@@ -1,10 +1,10 @@
-class DescriptiveExamStudent < ActiveRecord::Base
+class DescriptiveExamStudent < ApplicationRecord
   include Discardable
   acts_as_copy_target
 
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
 
-  attr_accessor :exempted_from_discipline
+  attr_accessor :exempted_from_discipline, :inactive_student
 
   belongs_to :descriptive_exam
   belongs_to :student
@@ -24,6 +24,8 @@ class DescriptiveExamStudent < ActiveRecord::Base
     )
   }
   scope :ordered, -> { order(:updated_at) }
+  scope :by_not_poster, ->(poster_sent) { where("descriptive_exam_students.updated_at > ?", poster_sent) }
+
 
   validates :descriptive_exam, :student, presence: true
 end

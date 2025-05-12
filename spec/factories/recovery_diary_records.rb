@@ -16,7 +16,7 @@ FactoryGirl.define do
     trait :with_classroom_semester_steps do
       association :classroom, factory: [
         :classroom,
-        :score_type_numeric_and_concept,
+        :score_type_numeric_and_concept_create_rule,
         :with_classroom_semester_steps
       ]
     end
@@ -26,6 +26,9 @@ FactoryGirl.define do
         teacher = Teacher.find(recovery_diary_record.teacher_id) if recovery_diary_record.teacher_id.present?
         teacher ||= evaluator.teacher || create(:teacher)
         recovery_diary_record.teacher_id = teacher.id if recovery_diary_record.teacher_id.blank?
+
+        user = create(:user, current_classroom_id: recovery_diary_record.classroom.id)
+        recovery_diary_record.current_user = user
 
         create(
           :teacher_discipline_classroom,

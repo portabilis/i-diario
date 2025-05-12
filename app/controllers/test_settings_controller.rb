@@ -26,7 +26,7 @@ class TestSettingsController < ApplicationController
   end
 
   def create
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -48,7 +48,7 @@ class TestSettingsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params.to_h)
 
     authorize resource
 
@@ -102,6 +102,7 @@ class TestSettingsController < ApplicationController
                                :year,
                                :school_term_type_step_id,
                                :maximum_score,
+                               :minimum_score,
                                :number_of_decimal_places,
                                :average_calculation_type,
                                :unities,
