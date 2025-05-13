@@ -23,8 +23,8 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: idiario
+          POSTGRES_PASSWORD: idiario
           POSTGRES_DB: idiario_test
         ports:
           - 5432:5432
