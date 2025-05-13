@@ -1,9 +1,11 @@
 class AbsenceJustificationsDiscardWorker < BaseStudentDependenciesDiscarderWorker
   def perform(entity_id, student_id)
     super do
-      discardable_absence_justifications(student_id).each do |absence_justification|
+      Audited.audit_class.as_user("absence_justifications_sync") do
+        discardable_absence_justifications(student_id).each do |absence_justification|
         absence_justification.discarded_at = Time.current
-        absence_justification.save!(validate: false)
+          absence_justification.save!(validate: false)
+        end
       end
     end
   end
