@@ -1,0 +1,30 @@
+<% record_class = (f.object.new_record? ? 'dynamic' : 'existing') %>
+<% record_style = (f.object.marked_for_destruction? || f.object.marked_as_invisible? ? 'display: none;' : '') %>
+<tbody id="conceptual_exam_values">
+<tr class='nested-fields <%= record_class %>' style='<%= record_style %>'>
+  <td> <%= student.name %> </td>
+  <td>
+    <%= f.hidden_field :student_id, value: student.id %>
+    <%= f.hidden_field :id %>
+    <%= f.hidden_field :discipline_id %>
+    <%= f.hidden_field :exempted_discipline %>
+    <%= f.hidden_field :_destroy %>
+    <span class='<%= conceptual_exam_value_student_name_class(f.object) %>'>
+      <%= conceptual_exam_value_student_name(f.object) %>
+    </span>
+  </td>
+  <% if old_values.present? %>
+    <% old_values[f.object.conceptual_exam_id].each do |step| %>
+      <td class="old_step_column"><%= step[:values]["#{f.object.discipline_id}"] || '-' %></td>
+    <% end %>
+  <% end %>
+
+  <td>
+    <%= f.input :value, as: :select2,
+                elements: f.object.decorator.data_for_select2,
+                label_html: { class: 'hidden' },
+                wrapper_html: { style: 'margin-bottom: 0px;' },
+                readonly: (f.object.exempted_discipline.to_s == 'true') %>
+  </td>
+</tr>
+</tbody>
