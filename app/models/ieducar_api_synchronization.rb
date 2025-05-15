@@ -101,7 +101,7 @@ class IeducarApiSynchronization < ApplicationRecord
 
     started.each do |sync|
       if sync.locked?
-        sync.cancel!(restart)
+        sync.cancel!(restart, current_entity.id)
       end
     end
   end
@@ -112,12 +112,12 @@ class IeducarApiSynchronization < ApplicationRecord
     time_running > average_time * 3 && worker_batch.updated_at < 30.minutes.ago
   end
 
-  def cancel!(restart = false, error = I18n.t('ieducar_api_synchronization.timedout'))
+  def cancel!(restart = false, current_entity_id = nil, error = I18n.t('ieducar_api_synchronization.timedout'))
     mark_as_error! error
 
     if restart
       configuration = IeducarApiConfiguration.current
-      configuration.start_synchronization(author, current_entity.id)
+      configuration.start_synchronization(author, current_entity_id)
     end
   end
 

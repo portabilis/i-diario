@@ -104,9 +104,9 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) if score_type == StudentEnrollmentScoreTypeFilters::BOTH
 
     score_type = case score_type
-                 when StudentEnrollmentScoreTypeFilters::CONCEPT then ScoreTypes::CONCEPT
-                 when StudentEnrollmentScoreTypeFilters::BOTH then ScoreTypes::NUMERIC_AND_CONCEPT
-                 else ScoreTypes::NUMERIC
+                 when StudentEnrollmentScoreTypeFilters::CONCEPT then [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
+                 when StudentEnrollmentScoreTypeFilters::BOTH then [ScoreTypes::NUMERIC_AND_CONCEPT]
+                 else [ScoreTypes::NUMERIC]
                  end
 
     classrooms_grades = ClassroomsGrade.by_classroom_id(classroom_id).by_score_type(score_type)
