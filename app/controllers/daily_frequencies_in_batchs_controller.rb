@@ -31,7 +31,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     classroom_id = params[:frequency_in_batch_form][:classroom_id]
     grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
 
-    if  invalid_dates?(start_date, end_date, classroom_id, grade_id)
+    if invalid_dates?(start_date, end_date, classroom_id, grade_id)
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
 
@@ -204,7 +204,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period : current_teacher_period
+    @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period.to_i : current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
