@@ -144,7 +144,8 @@ $(function () {
   }
 
   var updateFieldsBasedOnTestSetting = function () {
-    $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function (data) {
+    var testSettingId = $('#avaliation_test_setting_id').select2('val');
+    var jsonRequest = $.getJSON('/configuracoes-de-avaliacoes-numericas/' + testSettingId).always(function (data) {
       if ($.inArray(data.test_setting.exam_setting_type, ['general', 'general_by_school']) != -1) {
         $('.avaliation_test_setting').hide();
       }
@@ -172,13 +173,14 @@ $(function () {
           console.log("Behavior not yet implemented for this average calculation type: " + data.test_setting.average_calculation_type);
       }
 
-      $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data['test_setting']['number_of_decimal_places']) || 0));
+      $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data.test_setting.number_of_decimal_places) || 0));
       $weight_input.inputmask('customDecimal');
     });
 
-    var params = { test_setting_id: $('#avaliation_test_setting_id').select2('val') };
+    var params = { test_setting_id: testSettingId };
     window.testSettingTests = [];
-    if (_.isEmpty($('#avaliation_test_setting_id').select2('val'))) {
+
+    if (_.isEmpty(testSettingId)) {
       $('#avaliation_test_setting_test_id').val('');
       $('#avaliation_test_setting_test_id').select2({ data: [] });
     } else {
@@ -192,7 +194,8 @@ $(function () {
         });
       });
     }
-  }
+  return jsonRequest;
+};
 
   $('#avaliation_test_setting_id').on('change', function (e) {
     updateFieldsBasedOnTestSetting();
