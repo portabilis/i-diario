@@ -220,9 +220,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     params['dates'].each { |date| dates << date['date'] }
 
     if dates.empty?
-      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.no_school_day')
+      flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.no_school_day')
 
-      render :new
+      redirect_to new_daily_frequencies_in_batch_path
 
       return false
     end
@@ -249,9 +249,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     if @students.blank?
-      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
+      flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
 
-      render :new
+      redirect_to new_daily_frequencies_in_batch_path
 
       return false
     end
