@@ -86,7 +86,10 @@ class AbsenceJustificationsController < ApplicationController
       redirect_to form_daily_frequencies_in_batchs_path(
         frequency_in_batch_form: {
           start_date: parameters[:start_date],
-          end_date: parameters[:end_date]
+          end_date: parameters[:end_date],
+          classroom_id: parameters[:classroom_id],
+          discipline_id: parameters[:discipline_id],
+          period: parameters[:period]
         }
       )
     # Se vier da tela de lançamento de diário de frequência
