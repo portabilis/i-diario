@@ -41,6 +41,7 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     reload_students_list
+    check_duplicate_enrolled_students
   end
 
   def update
@@ -50,6 +51,12 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     destroy_students_not_found
+    check_duplicate_enrolled_students
+
+    if flash[:error].present?
+      render :edit
+      return
+    end
 
     if @daily_note.save
       respond_with @daily_note, location: daily_notes_path
@@ -93,7 +100,7 @@ class DailyNotesController < ApplicationController
     @students_ids = params[:exemption_students_ids].split(',')
 
     @students_ids.each do |student_id|
-      begin
+
         avaliation_exemption = AvaliationExemption.find_or_initialize_by(
           student_id: student_id,
           avaliation_id: params[:exemption_avaliation_id]
@@ -105,11 +112,11 @@ class DailyNotesController < ApplicationController
         delete_note(params[:id], student_id)
 
         avaliation_exemption.save!
-      rescue Exception => expection
+    rescue Exception => expection
         Honeybadger.notify(expection)
 
         @students_ids.delete(student_id)
-      end
+
     end
 
     @students_ids = @students_ids.to_json.html_safe
@@ -221,8 +228,10 @@ class DailyNotesController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
+current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC,
+                                                                       ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
 
@@ -262,7 +271,8 @@ class DailyNotesController < ApplicationController
     @student_ids = set_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student].id
     }
-    @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids, disciplines: @discipline)
+    @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids,
+disciplines: @discipline)
     @exempted_from_discipline = StudentsExemptFromDiscipline.call(
       student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step
     )
@@ -304,5 +314,29 @@ class DailyNotesController < ApplicationController
     params[:filter] ||= {}
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
     params[:filter][:by_discipline_id] ||= current_user_discipline.id
+  end
+
+  def check_duplicate_enrolled_students
+    enrolled_students = set_enrollment_classrooms
+                          .select { |ec|
+                            ec[:student_enrollment].status == 3 &&
+                              ec[:student_enrollment].active == 1 &&
+                              ec[:student_enrollment_classroom].left_at.blank?
+                          }
+                          .map { |ec| ec[:student] }
+
+    duplicate_students = enrolled_students
+                            .group_by(&:id)
+                            .select { |_, group| group.size > 1 }
+                            .values
+                            .flatten
+                            .uniq
+
+    if duplicate_students.any?
+      flash[:error] = t(
+        'daily_notes.duplicate_students',
+        students: duplicate_students.map(&:name).join(', ')
+      )
+    end
   end
 end

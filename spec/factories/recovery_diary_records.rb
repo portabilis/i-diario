@@ -27,6 +27,9 @@ FactoryGirl.define do
         teacher ||= evaluator.teacher || create(:teacher)
         recovery_diary_record.teacher_id = teacher.id if recovery_diary_record.teacher_id.blank?
 
+        user = create(:user, current_classroom_id: recovery_diary_record.classroom.id)
+        recovery_diary_record.current_user = user
+
         create(
           :teacher_discipline_classroom,
           classroom: recovery_diary_record.classroom,

@@ -37,7 +37,7 @@ class DisciplinesController < ApplicationController
       end.compact
 
       @disciplines = @disciplines.not_grouper
-                                 .by_score_type(ScoreTypes::CONCEPT, params[:student_id])
+                                 .by_score_type(ScoreTypes::CONCEPT, params[:student_id], params[:classroom_id])
                                  .where(id: disciplines_in_grade_ids)
 
     end

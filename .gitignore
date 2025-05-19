@@ -25,6 +25,7 @@ config/puma.rb
 /public/relatorios/*
 !/public/relatorios/.keep
 .idea
+.env
 
 ## Environment normalisation:
 /.bundle
