@@ -55,10 +55,9 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :knowledge_area_ids, as: :select2,
-                elements: @knowledge_areas, multiple: true,
-                input_html: { data: { without_json_parser: true } },
-                readonly: action_name.eql?('show') %>
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
+                input_html: { data: { without_json_parser: true } }, readonly: action_name.eql?('show'),
+                selected: current_user_discipline.knowledge_area.id %>
         </div>
       </div>
 
@@ -212,22 +211,19 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name.eql?('show') %>
+          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name.eql?('show') %>
+          <%= teaching_plan_form.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name.eql?('show') %>
+          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
         </div>
       </div>
 
