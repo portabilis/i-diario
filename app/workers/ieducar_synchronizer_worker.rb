@@ -27,11 +27,20 @@ class IeducarSynchronizerWorker
     else
       all_entities.each do |entity|
         entity.using_connection do
-          configuration = IeducarApiConfiguration.current
+          Rails.logger.info "[IeducarSynchronizerWorker] Iniciando sincronização para o cliente #{entity.name} - #{entity.name}"
 
-          next unless configuration.persisted?
+          entity.using_connection do
+            configuration = IeducarApiConfiguration.current
 
-          configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years)
+            unless configuration.persisted?
+              Rails.logger.warn "[IeducarSynchronizerWorker] Configuração ausente para o cliente #{entity.name} - #{entity.name}"
+              next
+            end
+
+            configuration.start_synchronization(User.first, entity.name, full_synchronization, current_years)
+
+            Rails.logger.info "[IeducarSynchronizerWorker] Sincronização agendada para o cliente #{entity.name} - #{entity.name}"
+          end
         end
       end
     end
