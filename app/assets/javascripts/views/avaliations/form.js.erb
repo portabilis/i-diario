@@ -155,6 +155,7 @@ $(function () {
           $('.avaliation_test_setting_test').show();
           $('.avaliation_description').hide();
           $('.avaliation_weight').hide();
+          updateFieldsBaseOnTestSettingTest();
           break;
 
         case "arithmetic":
@@ -194,8 +195,8 @@ $(function () {
         });
       });
     }
-  return jsonRequest;
-};
+    return jsonRequest;
+  };
 
   $('#avaliation_test_setting_id').on('change', function (e) {
     updateFieldsBasedOnTestSetting();
