@@ -1,7 +1,11 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false, queue: :critical
+  sidekiq_options unique: :until_and_while_executing,
+                  unique_args: ->(args) { [args.first] },
+                  retry: 3,
+                  dead: false,
+                  queue: :critical
 
   sidekiq_retries_exhausted do |msg, exception|
     entity_id, synchronization_id = msg['args']
@@ -27,20 +31,11 @@ class IeducarSynchronizerWorker
     else
       all_entities.each do |entity|
         entity.using_connection do
-          Rails.logger.info "[IeducarSynchronizerWorker] Iniciando sincronização para o cliente #{entity.name} - #{entity.name}"
+          configuration = IeducarApiConfiguration.current
 
-          entity.using_connection do
-            configuration = IeducarApiConfiguration.current
+          next unless configuration.persisted?
 
-            unless configuration.persisted?
-              Rails.logger.warn "[IeducarSynchronizerWorker] Configuração ausente para o cliente #{entity.name} - #{entity.name}"
-              next
-            end
-
-            configuration.start_synchronization(User.first, entity.name, full_synchronization, current_years)
-
-            Rails.logger.info "[IeducarSynchronizerWorker] Sincronização agendada para o cliente #{entity.name} - #{entity.name}"
-          end
+          configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years)
         end
       end
     end
