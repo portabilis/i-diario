@@ -31,7 +31,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
       )
 
       job_id = IeducarSynchronizerWorker.set(
-        queue: synchronization.full_synchronization ? :critical_full : :critical
+        queue: synchronization.full_synchronization ? :synchonizer_full : :synchronizer
       ).perform_in(
         1.second,
         entity_id,
