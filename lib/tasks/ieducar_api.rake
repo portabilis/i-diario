@@ -12,7 +12,7 @@ namespace :ieducar_api do
     puts "Iniciando sincronização com I-Educar API (#{full_synchronization ? 'completa' : 'simples'})"
 
     job_id = IeducarSynchronizerWorker.set(
-      queue: full_synchronization ? :synchonizer_full : :synchronizer
+      queue: full_synchronization ? :synchronizer_full : :synchronizer
     ).perform_async(nil, nil, full_synchronization, current_years)
 
     if job_id.present?

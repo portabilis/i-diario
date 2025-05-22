@@ -7,7 +7,7 @@ class SynchronizerBuilder
     years = params[:years] if params[:filtered_by_year]
     years ||= [params[:years].join(',')]
     by_unity = params[:filtered_by_unity] &&
-                (synchronization.full_synchronization || params[:klass] == SchoolCalendarsSynchronizer.to_s)
+               (synchronization.full_synchronization || params[:klass] == SchoolCalendarsSynchronizer.to_s)
     unities = params[:unities_api_code] if by_unity
     unities ||= [params[:unities_api_code].join(',')]
 
@@ -17,7 +17,7 @@ class SynchronizerBuilder
         params[:unity_api_code] = unity_api_code
 
         SynchronizerExecuterEnqueueWorker.set(
-          queue: synchronization.full_synchronization? ? :critical_full : :critical
+          queue: synchronization.full_synchronization? ? :synchonizer_full : :critical
         ).perform_async(params)
       end
     end
