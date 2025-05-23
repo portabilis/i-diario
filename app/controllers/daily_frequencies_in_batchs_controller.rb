@@ -130,13 +130,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
       NotifyByEmailDailyFrequencyInBatchWorker.perform_async(
         current_user.first_name,
         current_user.email,
-        create_or_update_multiple_daily_frequencies_in_batchs_path(
+        "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path(
           start_date: params[:start_date],
           end_date: params[:end_date],
           classroom_id: classroom.id,
           discipline_id: daily_frequency_attributes[:discipline_id],
           period: daily_frequency_attributes[:period]
-        ),
+        )}",
         dates,
         classroom,
         unity
