@@ -43,7 +43,7 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
-      respond_with @user, location: users_path
+      respond_with @user, location: users_path()
     else
       @teachers = Teacher.active.order_by_name
       @active_user_tab = true
