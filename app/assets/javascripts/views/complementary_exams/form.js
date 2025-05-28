@@ -190,6 +190,18 @@ $(function () {
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
+  $(document).on('keydown', '.nested-fields input.decimal', function(e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      var inputs = $('.nested-fields input.decimal');
+      var currentIndex = inputs.index(this);
+
+      if (currentIndex < inputs.length - 1) {
+        inputs.eq(currentIndex + 1).focus();
+      }
+    }
+  });
+
   function buildStudentField(element_id, student, index = null) {
     var html = JST['templates/complementary_exams/student_fields']({
       id: student.id,
