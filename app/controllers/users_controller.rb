@@ -71,13 +71,7 @@ class UsersController < ApplicationController
 
     @user.destroy
 
-    search_params = {
-      'search[by_name]': params.dig(:search, :by_name),
-      'search[by_cpf]': params.dig(:search, :by_cpf),
-      'search[email]': params.dig(:search, :email),
-      'search[login]': params.dig(:search, :login),
-      'search[status]': params.dig(:search, :status)
-    }
+    search_params = build_search_params
 
     respond_with @user, location: users_path(search_params)
   end
@@ -190,5 +184,33 @@ class UsersController < ApplicationController
                          params[:active_permissions_tab].blank?
                        end
     @permissions = @user.permissions
+  end
+
+  # Novo método para construir parâmetros de busca de forma mais robusta
+  def build_search_params
+    search_params = {}
+
+    # Apenas adicionar parâmetros que estão presentes
+    if params.dig(:search, :by_name).present?
+      search_params['search[by_name]'] = params.dig(:search, :by_name)
+    end
+
+    if params.dig(:search, :by_cpf).present?
+      search_params['search[by_cpf]'] = params.dig(:search, :by_cpf)
+    end
+
+    if params.dig(:search, :email).present?
+      search_params['search[email]'] = params.dig(:search, :email)
+    end
+
+    if params.dig(:search, :login).present?
+      search_params['search[login]'] = params.dig(:search, :login)
+    end
+
+    if params.dig(:search, :status).present?
+      search_params['search[status]'] = params.dig(:search, :status)
+    end
+
+    search_params
   end
 end
