@@ -9,6 +9,7 @@ class DisciplineLessonPlansController < ApplicationController
 
   def index
     params[:filter] ||= {}
+    set_filters
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
@@ -209,7 +210,8 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
+current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms]
     @disciplines = @fetch_linked_by_teacher[:disciplines]
   end
@@ -367,5 +369,10 @@ class DisciplineLessonPlansController < ApplicationController
     fetch_linked_by_teacher
     classroom = @discipline_lesson_plan.lesson_plan.classroom
     @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+  end
+
+  def set_filters
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end
