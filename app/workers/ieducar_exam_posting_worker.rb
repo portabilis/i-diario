@@ -5,7 +5,8 @@ class IeducarExamPostingWorker
                   queue: :exam_posting,
                   unique: :until_and_while_executing,
                   unique_args: ->(args) { args },
-                  dead: false
+                  dead: false,
+                  on_conflict: { client: :log, server: :reject }
 
   sidekiq_retries_exhausted do |message, exception|
     entity_id, posting_id, params = message['args']

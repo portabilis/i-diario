@@ -5,7 +5,8 @@ class IeducarSynchronizerWorker
                   unique_args: ->(args) { args },
                   retry: 3,
                   dead: false,
-                  queue: :synchronizer
+                  queue: :synchronizer,
+                  on_conflict: { client: :log, server: :reject }
 
   sidekiq_retries_exhausted do |msg, exception|
     entity_id, synchronization_id = msg['args']
