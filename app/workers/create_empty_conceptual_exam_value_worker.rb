@@ -1,7 +1,7 @@
 class CreateEmptyConceptualExamValueWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, queue: :low
+  sidekiq_options unique: :until_and_while_executing, unique_args: ->(args) { args }, queue: :low
 
   def perform(entity_id, classroom_id, teacher_id, grade_id, discipline_id)
     Entity.find(entity_id).using_connection do

@@ -1,7 +1,7 @@
 class SchoolTermTypeUpdaterWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, queue: :low
+  sidekiq_options unique: :until_and_while_executing, unique_args: ->(args) { args }, queue: :low
 
   def perform(entity_id, school_calendar_id = nil, school_calendar_classroom_id = nil)
     Entity.find(entity_id).using_connection do

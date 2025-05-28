@@ -1,7 +1,7 @@
 class RemoveDailyNoteStudentsWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, queue: :low
+  sidekiq_options unique: :until_and_while_executing, unique_args: ->(args) { args }, queue: :low
 
   def perform(entity_id, joined_at, left_at, student_id, classroom_id)
     Entity.find(entity_id).using_connection do

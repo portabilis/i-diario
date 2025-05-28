@@ -2,7 +2,7 @@ class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
   sidekiq_options unique: :until_and_while_executing,
-                  unique_args: ->(args) { [args.first] },
+                  unique_args: ->(args) { args },
                   retry: 3,
                   dead: false,
                   queue: :synchronizer

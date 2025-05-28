@@ -1,14 +1,15 @@
 class SynchronizerBuilderEnqueueWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, queue: :synchronizer_enqueue_next_job
+  sidekiq_options unique: :until_and_while_executing,
+                  unique_args: ->(args) { args }, queue: :synchronizer_enqueue_next_job
 
   def perform(params)
     params = params.with_indifferent_access
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
-      return if !synchronization.started?
+      return unless synchronization.started?
       worker_batch = WorkerBatch.find(params[:worker_batch_id])
 
       SynchronizationOrchestrator.new(

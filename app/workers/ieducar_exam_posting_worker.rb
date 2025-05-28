@@ -1,7 +1,11 @@
 class IeducarExamPostingWorker
   include Sidekiq::Worker
 
-  sidekiq_options retry: 2, queue: :exam_posting, unique: :until_and_while_executing, dead: false
+  sidekiq_options retry: 2,
+                  queue: :exam_posting,
+                  unique: :until_and_while_executing,
+                  unique_args: ->(args) { args },
+                  dead: false
 
   sidekiq_retries_exhausted do |message, exception|
     entity_id, posting_id, params = message['args']
