@@ -279,7 +279,7 @@ class DailyNotesController < ApplicationController
     }
     @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids, disciplines: @discipline)
     @exempted_from_discipline = StudentsExemptFromDiscipline.call(
-      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step
+      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step.step_number
     )
     @exempted_from_avaliation = students_exempted_from_avaliations(@avaliation_id, @student_ids)
     @active = ActiveStudentsOnDate.call(student_enrollments: @student_enrollment_ids, date: @test_date)
