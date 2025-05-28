@@ -1,7 +1,10 @@
 class SynchronizerExecuterEnqueueWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, queue: :synchronizer_enqueue_next_job
+  sidekiq_options unique: :until_and_while_executing,
+                  unique_args: ->(args) { args },
+                  queue: :synchronizer_enqueue_next_job,
+                  on_conflict: { client: :log, server: :reject }
 
   def perform(params)
     params = params.with_indifferent_access

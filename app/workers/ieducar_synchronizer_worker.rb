@@ -2,10 +2,11 @@ class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
   sidekiq_options unique: :until_and_while_executing,
-                  unique_args: ->(args) { [args.first] },
+                  unique_args: ->(args) { args },
                   retry: 3,
                   dead: false,
-                  queue: :synchronizer
+                  queue: :synchronizer,
+                  on_conflict: { client: :log, server: :reject }
 
   sidekiq_retries_exhausted do |msg, exception|
     entity_id, synchronization_id = msg['args']
