@@ -43,11 +43,10 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
-      respond_with @user, location: users_path()
+      redirect_to users_path
     else
       @teachers = Teacher.active.order_by_name
       @active_user_tab = true
-
       render :edit
     end
   end
