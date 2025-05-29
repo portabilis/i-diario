@@ -118,9 +118,23 @@ $(function () {
     fetchStudentsInFinalRecovery();
   });
 
-  // On load
+  $(document).on('keydown', '.nested-fields input.decimal', function(e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      var inputs = $('.nested-fields input.decimal');
+      var currentIndex = inputs.index(this);
 
-  removeStudents();
-  fetchStudentsInFinalRecovery();
+      if (currentIndex < inputs.length - 1) {
+        inputs.eq(currentIndex + 1).focus();
+      }
+    }
+  });
+
+  // On load
+  if ($('.nested-fields').length === 0) {
+    removeStudents();
+    fetchStudentsInFinalRecovery();
+  }
+
   loadDecimalMasks();
 });
