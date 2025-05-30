@@ -23,7 +23,7 @@ class SynchronizationOrchestrator
 
       next if by_year && params[:year].blank?
       next if by_unity && params[:unity_api_code].blank?
-      next if config[:only_simple_synchronization] && params[:synchronization].full_synchronization
+      next if params[:synchronization].full_synchronization
       next unless dependencies_solved?(klass, by_year, by_unity)
 
       enqueue_job(config)

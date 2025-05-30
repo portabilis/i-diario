@@ -102,7 +102,7 @@ class DefaultSynchronizer
 
   def synchronizers_by_year_to_full_synchronization
     @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      synchronizer[:by_year] && !synchronizer[:by_unity] && !synchronizer[:only_simple_synchronization]
+      synchronizer[:by_year] && !synchronizer[:by_unity]
     }
   end
 
