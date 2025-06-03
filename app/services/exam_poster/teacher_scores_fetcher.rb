@@ -36,18 +36,40 @@ module ExamPoster
                                             .where(student: students)
                                             .by_test_date_between(@step.start_at, @step.end_at)
                                             .active
+
+      student_ids = daily_note_students.map(&:student_id).uniq
+
+      student_enrollment_ids = StudentEnrollmentClassroom.joins(:student_enrollment)
+                                                      .by_classroom(@classroom)
+                                                      .where(student_enrollments: { student_id: student_ids })
+                                                      .pluck(:student_enrollment_id)
+
+      students_in_active_searches = ActiveSearch.where(student_enrollment_id: student_enrollment_ids)
+                                              .includes(student_enrollment: :student)
+
+      active_searches_by_student = students_in_active_searches.group_by { |s| s.student_enrollment.student_id }
+
       student_scores = {}
 
       @scores = daily_note_students.map do |dns|
+        student = dns.student
+        exam_date = dns.daily_note.avaliation.test_date
+
+        in_active_search = active_searches_by_student[student.id]&.any? do |search|
+          search.start_date <= exam_date && (search.end_date.nil? || exam_date <= search.end_date)
+        end
+
+        next student if in_active_search
+
         pending_exam = dns if dns.note.blank? && !dns.exempted?
 
         if pending_exam.present?
           pending_exam_string = pending_exam.daily_note.avaliation.description_to_teacher
-          student_scores[dns.student] ||= []
-          student_scores[dns.student] << pending_exam_string
+          student_scores[student] ||= []
+          student_scores[student] << pending_exam_string
         end
 
-        dns.student
+        student
       end.uniq
 
       student_scores.each do |student, pending_exams|
