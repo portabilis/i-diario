@@ -24,8 +24,10 @@ class IeducarSynchronizerWorker
 
   def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, current_years = true)
     if entity_id.present? && synchronization_id.present?
+      entity = Entity.find(entity_id)
+
       perform_for_entity(
-        Entity.find(entity_id),
+        entity,
         synchronization_id,
         current_years
       )
@@ -52,6 +54,10 @@ class IeducarSynchronizerWorker
       synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
 
       break unless synchronization.try(:started?)
+
+      # Log informativo sobre o tipo de sincronização
+      sync_type = synchronization.full_synchronization? ? "completa" : "simples"
+      Rails.logger.info("[#{entity.name}] Iniciando sincronização #{sync_type} - ID: #{synchronization.id}")
 
       UnitiesSynchronizerWorker.set(
         queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
