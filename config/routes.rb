@@ -348,7 +348,7 @@ Rails.application.routes.draw do
         get :fetch_frequency_type
         get :fetch_teacher_allocated
         get :form
-        put :create_or_update_multiple
+        match :create_or_update_multiple, via: [:get, :put]
         delete :destroy_multiple
       end
     end
