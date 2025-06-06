@@ -11,7 +11,7 @@ class TransferNotesController < ApplicationController
 
     set_options_by_user
 
-    @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
+    @transfer_notes = apply_scopes(TransferNote).includes({ classroom: :unity }, :discipline)
                                                 .by_classroom_id(@classrooms.map(&:id))
                                                 .by_discipline_id(@disciplines.map(&:id))
 

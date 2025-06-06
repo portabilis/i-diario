@@ -8,7 +8,7 @@ class AvaliationExemptionsController < ApplicationController
     set_filters
     set_options_by_user
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
-                             .includes(:avaliation)
+                             .includes(:student, avaliation: [{ classroom: :unity }, :discipline])
                              .by_unity(current_unity)
                              .by_classroom(@classrooms.map(&:id))
                              .by_discipline(@disciplines.map(&:id))
@@ -87,7 +87,8 @@ class AvaliationExemptionsController < ApplicationController
 
     @avaliation_exemption.destroy
 
-    respond_with @avaliation_exemption, location: avaliation_exemptions_path, alert: @avaliation_exemption.errors.to_a
+    respond_with @avaliation_exemption, location: avaliation_exemptions_path,
+alert: @avaliation_exemption.errors.to_a
   end
 
   def history
