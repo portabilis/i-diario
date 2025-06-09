@@ -23,9 +23,15 @@ module Api
       end
 
       def has_activities
-        teacher_id = Teacher.find_by!(api_code: params[:teacher_id])
-        classroom_id = Classroom.find_by!(api_code: params[:classroom_id])
-        checker = TeacherClassroomActivity.new(teacher_id, classroom_id)
+        teacher = Teacher.find_by(api_code: params[:teacher_id])
+        classroom = Classroom.find_by(api_code: params[:classroom_id])
+
+        if teacher.blank? || classroom.blank?
+          render json: { error: 'Professor ou turma não encontrados' }, status: :not_found
+          return
+        end
+
+        checker = TeacherClassroomActivity.new(teacher.id, classroom.id)
 
         render json: checker.any_activity?
       end
