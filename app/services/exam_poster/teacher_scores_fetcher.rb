@@ -31,45 +31,43 @@ module ExamPoster
       students = fetch_student(daily_notes, exams)
 
       daily_note_students = DailyNoteStudent.includes(:student)
+                                            .joins(:daily_note)
+                                            .joins("LEFT JOIN (
+                                              SELECT DISTINCT ON (student_enrollments.student_id)
+                                                active_searches.*,
+                                                student_enrollments.student_id
+                                              FROM active_searches
+                                              INNER JOIN student_enrollments ON student_enrollments.id = active_searches.student_enrollment_id
+                                              WHERE active_searches.discarded_at IS NULL
+                                              ORDER BY student_enrollments.student_id, active_searches.start_date DESC
+                                            ) AS latest_active_search ON latest_active_search.student_id = daily_note_students.student_id
+                                              AND latest_active_search.start_date <= (
+                                                SELECT test_date FROM avaliations WHERE id = daily_notes.avaliation_id
+                                              )
+                                              AND (latest_active_search.end_date IS NULL OR latest_active_search.end_date >= (
+                                                SELECT test_date FROM avaliations WHERE id = daily_notes.avaliation_id
+                                              )
+                                              )")
+                                            .select('daily_note_students.*')
                                             .by_classroom_id(@classroom)
                                             .by_discipline_id(@discipline)
                                             .where(student: students)
+                                            .where('latest_active_search.id IS NULL')
                                             .by_test_date_between(@step.start_at, @step.end_at)
                                             .active
-
-      student_ids = daily_note_students.map(&:student_id).uniq
-
-      student_enrollment_ids = StudentEnrollmentClassroom.joins(:student_enrollment)
-                                                      .by_classroom(@classroom)
-                                                      .where(student_enrollments: { student_id: student_ids })
-                                                      .pluck(:student_enrollment_id)
-
-      students_in_active_searches = ActiveSearch.where(student_enrollment_id: student_enrollment_ids)
-                                              .includes(student_enrollment: :student)
-
-      active_searches_by_student = students_in_active_searches.group_by { |s| s.student_enrollment.student_id }
 
       student_scores = {}
 
       @scores = daily_note_students.map do |dns|
-        student = dns.student
-        exam_date = dns.daily_note.avaliation.test_date
-
-        in_active_search = active_searches_by_student[student.id]&.any? do |search|
-          search.start_date <= exam_date && (search.end_date.nil? || exam_date <= search.end_date)
-        end
-
-        next student if in_active_search
-
         pending_exam = dns if dns.note.blank? && !dns.exempted?
 
         if pending_exam.present?
           pending_exam_string = pending_exam.daily_note.avaliation.description_to_teacher
-          student_scores[student] ||= []
-          student_scores[student] << pending_exam_string
+          student_scores[dns.student] ||= []
+          student_scores[dns.student] << pending_exam_string
         end
 
-        student
+        dns.student
       end.uniq
 
       student_scores.each do |student, pending_exams|
