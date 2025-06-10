@@ -1,12 +1,12 @@
 class DisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records(
-      HashDecorator.new(
-        api.fetch['disciplinas']
+    handle_api_exceptions do
+      update_records(
+        HashDecorator.new(
+          api.fetch['disciplinas']
+        )
       )
-    )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
+    end
   end
 
   private

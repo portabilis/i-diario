@@ -1,14 +1,15 @@
 class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_students(
-      HashDecorator.new(
-        api.fetch(
-          escola: unity_api_code
-        )['alunos']
+    handle_api_exceptions do
+      update_students(
+        HashDecorator.new(
+          api.fetch(
+            escola: unity_api_code,
+            ano: year
+          )['alunos']
+        )
       )
-    )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
+    end
   end
 
   private

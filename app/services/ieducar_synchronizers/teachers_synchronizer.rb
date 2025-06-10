@@ -1,12 +1,12 @@
 class TeachersSynchronizer < BaseSynchronizer
   def synchronize!
-    update_teachers(
-      HashDecorator.new(
-        api.fetch['servidores']
+    handle_api_exceptions do
+      update_teachers(
+        HashDecorator.new(
+          api.fetch['servidores']
+        )
       )
-    )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
+    end
   end
 
   private

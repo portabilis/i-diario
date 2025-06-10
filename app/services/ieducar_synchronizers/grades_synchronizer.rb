@@ -1,12 +1,12 @@
 class GradesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_grades(
-      HashDecorator.new(
-        api.fetch['series']
+    handle_api_exceptions do
+      update_grades(
+        HashDecorator.new(
+          api.fetch['series']
+        )
       )
-    )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
+    end
   end
 
   private
