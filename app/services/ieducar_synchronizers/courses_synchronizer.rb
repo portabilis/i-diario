@@ -1,12 +1,10 @@
 class CoursesSynchronizer < BaseSynchronizer
   def synchronize!
-    handle_api_exceptions do
-      update_courses(
-        HashDecorator.new(
-          api.fetch['cursos']
-        )
+    update_courses(
+      HashDecorator.new(
+        api.fetch['cursos']
       )
-    end
+    )
   end
 
   private

@@ -1,12 +1,10 @@
 class GradesSynchronizer < BaseSynchronizer
   def synchronize!
-    handle_api_exceptions do
-      update_grades(
-        HashDecorator.new(
-          api.fetch['series']
-        )
+    update_grades(
+      HashDecorator.new(
+        api.fetch['series']
       )
-    end
+    )
   end
 
   private

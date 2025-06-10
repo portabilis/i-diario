@@ -1,12 +1,10 @@
 class DisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
-    handle_api_exceptions do
-      update_records(
-        HashDecorator.new(
-          api.fetch['disciplinas']
-        )
+    update_records(
+      HashDecorator.new(
+        api.fetch['disciplinas']
       )
-    end
+    )
   end
 
   private

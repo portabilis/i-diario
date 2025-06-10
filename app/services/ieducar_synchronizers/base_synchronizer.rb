@@ -148,12 +148,4 @@ class BaseSynchronizer
     @rounding_tables ||= {}
     @rounding_tables[api_code] ||= RoundingTable.find_by(api_code: api_code)
   end
-
-  # Método para tratar exceções de API de forma consistente
-  def handle_api_exceptions
-    yield
-  rescue IeducarApi::Base::GenericError => error
-    synchronization.mark_as_error!(error.message)
-    raise error unless error.message.include?('Chave de acesso inválida!')
-  end
 end

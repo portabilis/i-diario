@@ -1,15 +1,13 @@
 class ClassroomsSynchronizer < BaseSynchronizer
   def synchronize!
-    handle_api_exceptions do
-      update_classrooms(
-        HashDecorator.new(
-          api.fetch(
-            ano: year,
-            escola: unity_api_code
-          )['turmas']
-        )
+    update_classrooms(
+      HashDecorator.new(
+        api.fetch(
+          ano: year,
+          escola: unity_api_code
+        )['turmas']
       )
-    end
+    )
   end
 
   private

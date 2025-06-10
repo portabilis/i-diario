@@ -18,9 +18,6 @@ class UnitiesSynchronizer
         api.fetch_all['escolas']
       )
     )
-  rescue IeducarApi::Base::GenericError => error
-    synchronization.mark_as_error!(error.message)
-    raise error unless error.message.include?('Chave de acesso inválida!')
   end
 
   private
