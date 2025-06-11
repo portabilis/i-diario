@@ -11,6 +11,9 @@ class SynchronizerExecuterWorker < BaseSynchronizerWorker
       params[:klass].constantize.synchronize!(
         synchronizer_params(params, synchronization, worker_batch)
       )
+    rescue IeducarApi::Base::GenericError => error
+      synchronization.mark_as_error!(error.message)
+      raise error unless error.message.include?('Chave de acesso inválida!')
     end
   end
 
