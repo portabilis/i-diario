@@ -3,8 +3,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
     update_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: year,
-          escola: unity_api_code
+          escola: unity_api_code,
+          ano: year
         )['turmas']
       )
     )
