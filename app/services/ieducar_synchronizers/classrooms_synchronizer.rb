@@ -56,7 +56,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          ClassroomGrade.with_discarded.find_or_initialize_by(
+          ClassroomsGrade.with_discarded.find_or_initialize_by(
             classroom_id: classroom.id,
             grade_id: grade.id
           ).tap do |classroom_grade|
