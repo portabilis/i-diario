@@ -8,8 +8,6 @@ class ClassroomsSynchronizer < BaseSynchronizer
         )['turmas']
       )
     )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
   end
 
   private
@@ -58,7 +56,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          ClassroomsGrade.with_discarded.find_or_initialize_by(classroom_id: classroom.id, grade_id: grade.id).tap do |classroom_grade|
+          ClassroomsGrade.with_discarded.find_or_initialize_by(
+            classroom_id: classroom.id,
+            grade_id: grade.id
+          ).tap do |classroom_grade|
             classroom_grade.exam_rule_id = exam_rule.id
             classroom_grade.save!
           end
