@@ -4,7 +4,7 @@ class SynchronizerExecuterWorker < BaseSynchronizerWorker
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
-      return if !synchronization.started?
+      return unless synchronization.started?
 
       worker_batch = WorkerBatch.find(params[:worker_batch_id])
 
@@ -13,7 +13,13 @@ class SynchronizerExecuterWorker < BaseSynchronizerWorker
       )
     rescue IeducarApi::Base::GenericError => error
       synchronization.mark_as_error!(error.message)
-      raise error unless error.message.include?('Chave de acesso inválida!')
+
+      known_errors = [
+        'Chave de acesso inválida!',
+        'Desculpe, mas não existem escolas cadastradas'
+      ]
+
+      raise error unless known_errors.any? { |msg| error.message.include?(msg) }
     end
   end
 
