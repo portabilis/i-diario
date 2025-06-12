@@ -30,31 +30,7 @@ module ExamPoster
 
       students = fetch_student(daily_notes, exams)
 
-      daily_note_students = DailyNoteStudent.includes(:student)
-                                            .joins(:daily_note)
-                                            .joins("LEFT JOIN (
-                                              SELECT DISTINCT ON (student_enrollments.student_id)
-                                                active_searches.*,
-                                                student_enrollments.student_id
-                                              FROM active_searches
-                                              INNER JOIN student_enrollments ON student_enrollments.id = active_searches.student_enrollment_id
-                                              WHERE active_searches.discarded_at IS NULL
-                                              ORDER BY student_enrollments.student_id, active_searches.start_date DESC
-                                            ) AS latest_active_search ON latest_active_search.student_id = daily_note_students.student_id
-                                              AND latest_active_search.start_date <= (
-                                                SELECT test_date FROM avaliations WHERE id = daily_notes.avaliation_id
-                                              )
-                                              AND (latest_active_search.end_date IS NULL OR latest_active_search.end_date >= (
-                                                SELECT test_date FROM avaliations WHERE id = daily_notes.avaliation_id
-                                              )
-                                              )")
-                                            .select('daily_note_students.*')
-                                            .by_classroom_id(@classroom)
-                                            .by_discipline_id(@discipline)
-                                            .where(student: students)
-                                            .where('latest_active_search.id IS NULL')
-                                            .by_test_date_between(@step.start_at, @step.end_at)
-                                            .active
+      daily_note_students = query_daily_notes_students(students)
 
       student_scores = {}
 
@@ -81,6 +57,39 @@ module ExamPoster
     end
 
     private
+
+    def query_daily_notes_students(students)
+      step_year = @step.start_at.year
+
+      DailyNoteStudent.includes(:student)
+                      .joins(:daily_note)
+                      .joins(build_active_search_join_sql(step_year))
+                      .select('daily_note_students.*')
+                      .by_classroom_id(@classroom)
+                      .by_discipline_id(@discipline)
+                      .where(student: students)
+                      .where('latest_active_search.id IS NULL')
+                      .by_test_date_between(@step.start_at, @step.end_at)
+                      .active
+    end
+
+    def build_active_search_join_sql(step_year)
+      <<-SQL.squish
+        LEFT JOIN (
+          SELECT DISTINCT ON (student_enrollments.student_id)
+            active_searches.*,
+            student_enrollments.student_id
+          FROM active_searches
+          INNER JOIN student_enrollments ON student_enrollments.id = active_searches.student_enrollment_id
+          WHERE active_searches.discarded_at IS NULL
+            AND EXTRACT(YEAR FROM active_searches.start_date) = #{step_year}
+          ORDER BY student_enrollments.student_id, active_searches.start_date DESC
+        ) AS latest_active_search
+        ON latest_active_search.student_id = daily_note_students.student_id
+        AND latest_active_search.start_date <= avaliations.test_date
+        AND (latest_active_search.end_date IS NULL OR latest_active_search.end_date >= avaliations.test_date)
+      SQL
+    end
 
     def validate_exam_quantity(number_of_exams)
       return unless number_of_exams.zero?
