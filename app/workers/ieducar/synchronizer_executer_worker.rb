@@ -39,4 +39,9 @@ class SynchronizerExecuterWorker < BaseSynchronizerWorker
       worker_batch: worker_batch
     )
   end
+
+  def last_synchronization_date
+    datetime = @last_synchronization_date ||= current_api_configuration.synchronized_at
+    datetime&.to_date&.to_s
+  end
 end
