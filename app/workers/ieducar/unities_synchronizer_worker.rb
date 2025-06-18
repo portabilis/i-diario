@@ -16,11 +16,12 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
         )
         UnitiesSynchronizer.new(params).synchronize!
       end
-    rescue IeducarApi::Base::GenericError => error
+    rescue IeducarApi::Base::GenericError, IeducarApi::Base::ApiError => error
       synchronization.mark_as_error!(error.message)
       known_errors = [
         'Chave de acesso inválida!',
-        'Desculpe, mas não existem escolas cadastradas'
+        'Desculpe, mas não existem escolas cadastradas',
+        'URL do i-Educar informada não é válida.'
       ]
 
       raise error unless known_errors.any? { |msg| error.message.include?(msg) }
