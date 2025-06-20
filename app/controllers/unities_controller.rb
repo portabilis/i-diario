@@ -37,6 +37,8 @@ class UnitiesController < ApplicationController
     @unity = Unity.find(params[:id])
     @unity.build_address unless @unity.address
 
+    @school_calendars = apply_scopes(@unity.school_calendars.includes(:unity).ordered).per(5)
+
     authorize @unity
   end
 
