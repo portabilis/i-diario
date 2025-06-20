@@ -7,12 +7,12 @@ pt-BR:
 
     attributes:
       school_calendar:
+        opened_year: "Situação"
         unity_id: "Escola"
         unity: "Escola"
         year: "Ano"
         number_of_classes: "Número de aulas por turno"
         school_calendar_steps: "a"
-
 
     errors:
       models:
