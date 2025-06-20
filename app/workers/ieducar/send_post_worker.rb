@@ -2,6 +2,7 @@ module Ieducar
   class SendPostWorker
     class IeducarException < StandardError; end
 
+    # Erros que devem ser reenviados
     RETRY_ERRORS = [
       %(duplicate key value violates unique constraint "modules_nota_aluno_matricula_id_unique"),
       %(duplicate key value violates unique constraint "modules_parecer_aluno_matricula_id_unique"),
@@ -11,7 +12,19 @@ module Ieducar
       %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
       %(duplicate key value violates unique constraint "parecer_geral_pkey")
     ].freeze
-    IEDUCAR_ERRORS = ['Exception: SQLSTATE', '500 Internal Server Error'].freeze
+
+    # Apenas erros de validação do usuário que NÃO devem ir para o Honeybadger
+    VALIDATION_ERRORS = [
+      'não é um valor numérico',
+      'Exception: O parâmetro',
+      'não pode estar vazio',
+      'é obrigatório',
+      'valor inválido',
+      'formato inválido',
+      'deve ser numérico',
+      'URL do i-Educar informada não é válida'
+    ].freeze
+
     MAX_RETRY_COUNT = 10
 
     extend Ieducar::SendPostPerformer
@@ -24,7 +37,10 @@ module Ieducar
       args = msg['args'][0..-3]
 
       performer(*args) do |posting, _, _|
-        Honeybadger.notify(ex)
+        # Só NÃO envia para o Honeybadger se for erro de validação
+        unless self.validation_error?(ex)
+          Honeybadger.notify(ex)
+        end
 
         if !posting.error_message?
           custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
@@ -49,27 +65,52 @@ module Ieducar
 
           posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
         rescue StandardError => error
-          if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
-            Rails.logger.info(
-              key: 'Ieducar::SendPostWorker#perform',
-              info: information,
-              params: params,
-              posting_id: posting_id,
-              entity_id: entity_id
-            )
-
-            retry
-          end
-
-          if IEDUCAR_ERRORS.any? { |ieducar_error| error.message.include?(ieducar_error) }
-            raise IeducarException, "#{information} Erro: #{error.message}"
-          end
-
-          return if delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
-
-          raise StandardError, "#{information} Erro: #{error.message}"
+          handle_error(error, information, posting, entity_id, posting_id, params, info, queue, retry_count)
         end
       end
+    end
+
+    private
+
+    def handle_error(error, information, posting, entity_id, posting_id, params, info, queue, retry_count)
+      # Erros que devem ser reenviados
+      if should_retry_error?(error)
+        log_retry_attempt(information, params, posting_id, entity_id)
+        retry
+      end
+
+      # Se for erro de validação, apenas adiciona ao posting (não vai para Honeybadger)
+      if self.class.validation_error?(error)
+        posting.add_error!(
+          I18n.t('ieducar_api.error.messages.post_error'),
+          "#{information} Erro: #{error.message}"
+        )
+        return
+      end
+
+      # Tenta retry com delay para erros de rede
+      return if delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
+
+      # Todos os outros erros vão para o Honeybadger
+      raise StandardError, "#{information} Erro: #{error.message}"
+    end
+
+    def should_retry_error?(error)
+      RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
+    end
+
+    def self.validation_error?(error)
+      VALIDATION_ERRORS.any? { |validation_error| error.message.include?(validation_error) }
+    end
+
+    def log_retry_attempt(information, params, posting_id, entity_id)
+      Rails.logger.info(
+        key: 'Ieducar::SendPostWorker#perform',
+        info: information,
+        params: params,
+        posting_id: posting_id,
+        entity_id: entity_id
+      )
     end
 
     def delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
