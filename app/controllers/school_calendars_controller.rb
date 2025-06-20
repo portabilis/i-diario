@@ -72,6 +72,25 @@ class SchoolCalendarsController < ApplicationController
     render json: @step.to_json
   end
 
+  def close
+    @school_calendar = SchoolCalendar.find(params[:id])
+    authorize @school_calendar
+
+    if @school_calendar.update(opened_year: false)
+      respond_to do |format|
+        format.html {
+          redirect_to edit_unity_path(@school_calendar.unity), notice: 'Ano letivo fechado com sucesso.'
+        }
+        format.js
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to edit_unity_path(@school_calendar.unity), alert: 'Erro ao fechar ano letivo.' }
+        format.js { render json: { error: 'Erro ao fechar ano letivo.' }, status: :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
   def filtering_params(params)
