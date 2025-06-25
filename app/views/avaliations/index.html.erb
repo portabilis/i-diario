@@ -4,16 +4,16 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <td></td>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
-            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
-            <td>
+            <th scope="col"></th>
+            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></th>
+            <th scope="col"><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
+            <th scope="col">
               <%= f.input :by_test_date, as: :date, label: false,
                     placeholder: t('.by_test_date') %>
-            </td>
-            <td><%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %></td>
-            <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
-            <td class="actions" style="width: 160px;">
+            </th>
+            <th scope="col"><%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %></th>
+            <th scope="col"><%= f.input :by_description, label: false, placeholder: t('.by_description') %></th>
+            <th scope="col" class="actions" style="width: 160px;">
               <div class="btn-group">
                 <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                   <%= t('.new_html') %> <span class="caret"></span>
@@ -27,16 +27,16 @@
                   </li>
                 </ul>
               </div>
-            </td>
+            </th>
           </tr>
           <tr>
-            <th><%= Avaliation.human_attribute_name :unity %></th>
-            <th><%= Avaliation.human_attribute_name :classroom %></th>
-            <th><%= Avaliation.human_attribute_name :discipline %></th>
-            <th><%= Avaliation.human_attribute_name :test_date %></th>
-            <th><%= Avaliation.human_attribute_name :step %></th>
-            <th><%= Avaliation.human_attribute_name :description %></th>
-            <td width="190px"></td>
+            <th scope="col"><%= Avaliation.human_attribute_name :unity %></th>
+            <th scope="col"><%= Avaliation.human_attribute_name :classroom %></th>
+            <th scope="col"><%= Avaliation.human_attribute_name :discipline %></th>
+            <th scope="col"><%= Avaliation.human_attribute_name :test_date %></th>
+            <th scope="col"><%= Avaliation.human_attribute_name :step %></th>
+            <th scope="col"><%= Avaliation.human_attribute_name :description %></th>
+            <th scope="col" style="width: 190px"></th>
           </tr>
         </thead>
 
