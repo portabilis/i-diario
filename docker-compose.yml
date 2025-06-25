@@ -34,8 +34,8 @@ services:
     container_name: idiario-puma
     command: bundle exec rails server -b 0.0.0.0
     ports:
-      - ${DOCKER_APP_PORT:-80}:80
-      - ${DOCKER_APP_SSL_PORT:-443}:443
+      - ${DOCKER_APP_PORT:-80}:3000
+      - ${DOCKER_APP_SSL_PORT:-443}:3000
 
   sidekiq:
     <<: *ruby
@@ -46,7 +46,25 @@ services:
   sidekiq-enqueue:
     <<: *ruby
     container_name: idiario-sidekiq-enqueue
-    command: bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 --logfile log/sidekiq.log
+    command: bundle exec sidekiq -q synchronizer_enqueue_next_job -q synchronizer_enqueue_next_job_full -c 1 --logfile log/sidekiq.log
+    restart: always
+
+  sidekiq-synchronizer-full:
+    <<: *ruby
+    container_name: sidekiq-synchronizer-full
+    command: bundle exec sidekiq -q synchronizer_full -c 1 --logfile log/sidekiq-synchronizer-full.log
+    restart: always
+
+  sidekiq-synchronizer:
+    <<: *ruby
+    container_name: sidekiq-synchronizer
+    command: bundle exec sidekiq -q synchronizer -c 1 --logfile log/sidekiq-synchronizer.log
+    restart: always
+
+  sidekiq-critical:
+    <<: *ruby
+    container_name: idiario-sidekiq-critical
+    command: bundle exec sidekiq -q critical -c 1 --logfile log/sidekiq.log
     restart: always
 
   postgres:

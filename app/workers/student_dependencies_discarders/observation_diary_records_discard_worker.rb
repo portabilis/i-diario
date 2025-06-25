@@ -1,7 +1,9 @@
 class ObservationDiaryRecordsDiscardWorker < BaseStudentDependenciesDiscarderWorker
   def perform(entity_id, student_id)
     super do
-      discard_observation_diary_record_note_students(student_id)
+      Audited.audit_class.as_user("observation_diary_records_sync") do
+        discard_observation_diary_record_note_students(student_id)
+      end
     end
   end
 

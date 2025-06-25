@@ -97,7 +97,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   def edit
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
-    @knowledge_areas = @knowledge_area_teaching_plan.knowledge_areas
+    grade_id = @knowledge_area_teaching_plan.teaching_plan.grade_id
+    @knowledge_areas = set_knowledge_area_by_grade(grade_id)
 
     set_options_by_user
 
