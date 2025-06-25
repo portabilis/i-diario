@@ -47,7 +47,7 @@ class DisciplineLessonPlanPdf < BaseReport
         position: :center,
         vposition: :center
       )
-    rescue
+    rescue StandardError
       entity_logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
 
@@ -117,25 +117,38 @@ class DisciplineLessonPlanPdf < BaseReport
       colspan: 4
     )
 
-    teacher_discipline_classroom = TeacherDisciplineClassroom.where discipline_id: @discipline_lesson_plan.discipline.id, classroom_id: lesson_plan.classroom.id
+    teacher_discipline_classroom = TeacherDisciplineClassroom.where discipline_id: @discipline_lesson_plan.discipline.id,
+                                                                    classroom_id: lesson_plan.classroom.id
 
-    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @teacher_cell = make_cell(content: @current_teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: %i[left right top],
+                                padding: [2, 2, 4, 4], colspan: 2)
+    @teacher_cell = make_cell(content: @current_teacher.name, size: 10, borders: %i[bottom left right],
+                              padding: [0, 2, 4, 4], colspan: 2)
 
-    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 6)
-    @unity_cell = make_cell(content: lesson_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 6)
+    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: %i[left right top],
+                              padding: [2, 2, 4, 4], colspan: 6)
+    @unity_cell = make_cell(content: lesson_plan.unity.name, size: 10, borders: %i[bottom left right],
+                            padding: [0, 2, 4, 4], colspan: 6)
 
-    @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @start_at_cell = make_cell(content: lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: %i[left right top],
+                                 padding: [2, 2, 4, 4], colspan: 2)
+    @start_at_cell = make_cell(content: lesson_plan.start_at.strftime('%d/%m/%Y'), size: 10,
+                               borders: %i[bottom left right], padding: [0, 2, 4, 4], colspan: 2)
 
-    @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @end_at_cell = make_cell(content: lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: %i[left right top],
+                               padding: [2, 2, 4, 4], colspan: 2)
+    @end_at_cell = make_cell(content: lesson_plan.end_at.strftime('%d/%m/%Y'), size: 10,
+                             borders: %i[bottom left right], padding: [0, 2, 4, 4], colspan: 2)
 
-    @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @classroom_cell = make_cell(content: lesson_plan.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: %i[left right top],
+                                  padding: [2, 2, 4, 4], colspan: 2)
+    @classroom_cell = make_cell(content: lesson_plan.classroom.description, size: 10,
+                                borders: %i[bottom left right], padding: [0, 2, 4, 4], colspan: 2)
 
-    @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
-    @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
+    @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: %i[left right top],
+                                   padding: [2, 2, 4, 4], colspan: 4)
+    @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.to_s, size: 10,
+                                 borders: %i[bottom left right], padding: [0, 2, 4, 4], colspan: 4)
 
     if @discipline_lesson_plan.thematic_unit.present?
       thematic_unit_cell_content = inline_formated_cell_header(
@@ -145,7 +158,7 @@ class DisciplineLessonPlanPdf < BaseReport
       @thematic_unit_cell = make_cell(
         content: thematic_unit_cell_content,
         size: 10,
-        borders: [:bottom, :left, :right, :top],
+        borders: %i[bottom left right top],
         padding: [0, 2, 4, 4], colspan: 4
       )
     end
@@ -155,7 +168,8 @@ class DisciplineLessonPlanPdf < BaseReport
     ) + (
       lesson_plan.contents.present? ? lesson_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
     )
-    @conteudo_cell = make_cell(content: conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    @conteudo_cell = make_cell(content: conteudo_cell_content, size: 10, borders: %i[bottom left right top],
+                               padding: [0, 2, 4, 4], colspan: 4)
 
     objectives_cell_content = inline_formated_cell_header(
       Translator.t('activerecord.attributes.discipline_lesson_plan.objectives')
@@ -165,7 +179,7 @@ class DisciplineLessonPlanPdf < BaseReport
     @objectives_cell = make_cell(
       content: objectives_cell_content,
       size: 10,
-      borders: [:bottom, :left, :right, :top],
+      borders: %i[bottom left right top],
       padding: [0, 2, 4, 4], colspan: 4
     )
 
@@ -173,7 +187,7 @@ class DisciplineLessonPlanPdf < BaseReport
     @opinion_cell = make_cell(
       content: opinion_cell_content,
       size: 10,
-      borders: [:bottom, :left, :right, :top],
+      borders: %i[bottom left right top],
       padding: [0, 2, 4, 4],
       colspan: 4
     )
@@ -221,15 +235,15 @@ class DisciplineLessonPlanPdf < BaseReport
     key_prefix = @discipline_lesson_plan.present? ? 'discipline' : 'knowledge_area'
 
     actives_methodology_label = Translation.find_by(key: "navigation.actives_methodology_by_#{key_prefix}",
-      group: 'lesson_plans')&.translation.presence || 'Atividades/metodologia'
+                                                    group: 'lesson_plans')&.translation.presence || 'Atividades/metodologia'
     resources_label = Translation.find_by(key: "navigation.resources_by_#{key_prefix}",
-      group: 'lesson_plans')&.translation.presence || 'Recursos'
+                                          group: 'lesson_plans')&.translation.presence || 'Recursos'
     evaluation_label = Translation.find_by(key: "navigation.avaliation_by_#{key_prefix}",
-      group: 'lesson_plans')&.translation.presence || 'Avaliação'
+                                           group: 'lesson_plans')&.translation.presence || 'Avaliação'
     references_label = Translation.find_by(key: "navigation.references_by_#{key_prefix}",
-      group: 'lesson_plans')&.translation.presence || 'Referências'
+                                           group: 'lesson_plans')&.translation.presence || 'Referências'
     curriculum_adaptation_label = Translation.find_by(key: "navigation.curriculum_adaptation_by_#{key_prefix}",
-      group: 'lesson_plans')&.translation.presence || 'Adaptação curricular'
+                                                      group: 'lesson_plans')&.translation.presence || 'Adaptação curricular'
 
     text_box_truncate(actives_methodology_label, (lesson_plan.activities || '-'))
     text_box_truncate(resources_label, (lesson_plan.resources || '-'))
