@@ -1,4 +1,6 @@
-$(function() {
+$(function () {
+  "use strict";
+
   var $classroom = $("#daily_note_classroom_id"),
     $discipline = $("#daily_note_discipline_id"),
     $avaliation = $("#daily_note_avaliation_id"),
@@ -7,44 +9,37 @@ $(function() {
 
   toggleSubmitButton();
 
-  $classroom.on("change", function(e) {
+  $classroom.on("change", function (e) {
     if (!_.isEmpty(e.val)) {
       fetchDisciplines(e.val);
+    } else {
+      $discipline.select2({ data: [] });
     }
   });
 
-  $avaliation.on("change", function() {
+  $avaliation.on("change", function () {
     toggleSubmitButton();
   });
 
   function fetchDisciplines(classroom_id) {
     $.ajax({
-      url: Routes.by_classroom_disciplines_pt_br_path({
+      url: Routes.disciplines_pt_br_path({
         classroom_id: classroom_id,
-        format: "json"
+        format: "json",
       }),
       success: handleFetchDisciplinesSuccess,
-      error: handleFetchDisciplinesError
+      error: handleFetchDisciplinesError,
     });
   }
 
-  function handleFetchDisciplinesSuccess(data) {
-    if (data.disciplines.length == 0) {
-      flashMessages.error("Não existem disciplinas para a turma selecionada.");
-      return;
-    }
-
-    var selectedDisciplines = data.disciplines.map(function(discipline) {
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var selectedDisciplines = _.map(disciplines, function (discipline) {
       return {
-        id: discipline.table.id,
-        name: discipline.table.name,
-        text: discipline.table.text
+        id: discipline["id"],
+        text: discipline["description"],
       };
     });
-
     $discipline.select2({ data: selectedDisciplines });
-    // Define a primeira opção como selecionada por padrão
-    $discipline.val(selectedDisciplines[0].id).trigger("change");
   }
 
   function handleFetchDisciplinesError() {
