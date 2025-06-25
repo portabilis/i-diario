@@ -52,6 +52,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.assign_attributes(resource_params.to_h)
     @school_term_recovery_diary_record.step_number = @school_term_recovery_diary_record.step.try(:step_number)
     @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
+    @school_term_recovery_diary_record.recovery_diary_record.current_user = current_user
 
     authorize @school_term_recovery_diary_record
 
@@ -63,6 +64,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       else
         fetch_linked_by_teacher
       end
+      set_options_by_user
       fetch_disciplines_by_classroom
 
       render :new
@@ -87,12 +89,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     authorize @school_term_recovery_diary_record
 
     reload_students_list
+    filter_students_in_recovery
 
-    students_in_recovery = fetch_students_in_recovery
-    mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    mark_exempted_disciplines(students_in_recovery)
-
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting&.number_of_decimal_places ||
                                 current_test_setting_step(step)&.number_of_decimal_places
   end
@@ -108,13 +106,17 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
+      set_options_by_user
+
+      @students = @school_term_recovery_diary_record.recovery_diary_record.students
+
       if @admin_or_teacher
         @number_of_decimal_places = current_test_setting.number_of_decimal_places
       else
         fetch_linked_by_teacher
       end
-      reload_students_list
       fetch_disciplines_by_classroom
+      filter_students_in_recovery
 
       render :edit
     end
@@ -292,7 +294,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     base_query
       .joins(recovery_diary_record: :classroom)
       .joins('INNER JOIN teacher_discipline_classrooms tdc ON tdc.classroom_id = classrooms.id AND tdc.discipline_id = recovery_diary_records.discipline_id')
-      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL', current_teacher.id)
+      .where('tdc.teacher_id = ? AND tdc.discarded_at IS NULL AND tdc.year = ?', current_teacher.id, current_user_school_year)
   end
 
   def school_term_recovery_diary_records_for_admin
@@ -311,5 +313,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     classroom = @school_term_recovery_diary_record.recovery_diary_record.classroom
     @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+  end
+
+  def filter_students_in_recovery
+    students_in_recovery = fetch_students_in_recovery
+    mark_students_not_in_recovery_for_destruction(students_in_recovery)
+    mark_exempted_disciplines(students_in_recovery)
+
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 end

@@ -10,7 +10,10 @@
 <%= hidden_field_tag :action_name, action_name %>
 <%= hidden_field_tag :yearly_school_term_type_id, @yearly_term_type_id %>
 
-<%= simple_form_for @knowledge_area_teaching_plan, html: { class: 'smart-form', id: 'knowledge_area_teaching_plan' } do |f| %>
+<%= simple_form_for @knowledge_area_teaching_plan,
+    url: knowledge_area_teaching_plan_form_url(@knowledge_area_teaching_plan, action_name),
+    method: teaching_plan_form_method(action_name),
+    html: { class: 'smart-form', id: 'knowledge_area_teaching_plan' } do |f| %>
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
 
@@ -52,10 +55,9 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :knowledge_area_ids, as: :select2,
-                elements: @knowledge_areas, multiple: true,
-                input_html: { data: { without_json_parser: true } },
-                readonly: action_name.eql?('show') %>
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
+                input_html: { data: { without_json_parser: true } }, readonly: action_name.eql?('show'),
+                selected: current_user_discipline.knowledge_area.id %>
         </div>
       </div>
 

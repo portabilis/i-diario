@@ -7,18 +7,20 @@
   <% if @entity_syncs.started.present? %>
     <h2><%= t('enumerations.api_synchronization_status.started') %></h2>
 
-    <%= render 'ieducar_api_configurations/synchronizations', entity_syncs: @entity_syncs.started, with_environment: true %>
+    <%= render 'admin_synchronizations/synchronizations', entity_syncs: @entity_syncs.started, with_environment: true %>
   <% end %>
 
   <% if @entity_syncs.error.present? %>
     <h2><%= t('enumerations.api_synchronization_status.error') %></h2>
 
-    <%= render 'ieducar_api_configurations/synchronizations', entity_syncs: @entity_syncs.error, with_environment: true %>
+    <%= render 'admin_synchronizations/synchronizations', entity_syncs: @entity_syncs.error, with_environment: true %>
   <% end %>
 
   <% if @entity_syncs.completed.present? %>
     <h2><%= t('enumerations.api_synchronization_status.completed') %></h2>
 
-    <%= render 'ieducar_api_configurations/synchronizations', entity_syncs: @entity_syncs.completed, with_environment: true %>
+    <%= render 'admin_synchronizations/synchronizations', entity_syncs: @entity_syncs.completed, with_environment: true %>
   <% end %>
 </div>
+
+<%= javascript_pack_tag 'sync_status' %>

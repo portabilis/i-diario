@@ -6,7 +6,7 @@ pt-BR:
       started_at: 'Iniciado em'
       ended_at: 'Finalizado em'
       time: 'Tempo em andamento'
-      estimated_time: 'Tempo estimado'
+      averaged_time: 'Tempo médio'
       status: 'Estado atual'
     sync_error_modal:
       close: 'Fechar'

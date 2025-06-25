@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/lessons_boards/show' %>
+<% end %>
+
 <div class="widget-body no-padding">
 <%= simple_form_for @lessons_board, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
@@ -19,12 +23,10 @@
       <div class="col col-sm-3" style="display: inline" id="period">
         <%= f.input :period, label: t('lessons_boards.form.period'), readonly: true, input_html: { value: Periods.translate(Periods.key_for(f.object.period.to_s)) }  %>
       </div>
-
     </div>
   </fieldset>
 
   <fieldset>
-
     <% if f.object.errors.added? :base %>
       <div class="alert alert-danger fade in">
         <i class="fa-fw fa fa-times"></i>
@@ -32,28 +34,30 @@
       </div>
     <% end %>
 
-    <table class="table table-striped table-bordered table-condensed records table_lessons">
+    <table class="table table-striped table-bordered table-condensed records table_lessons" id="lessons-board-table">
       <thead>
-      <tr>
-        <th style="width: 40px;"><%= ' Aula ' %></th>
-        <% Workdays.translations.each do |translation| %>
-          <th class="table_lessons_td"><%= translation %></th>
-        <% end %>
-      </tr>
+        <tr>
+          <th style="width: 40px;"><%= ' Aula ' %></th>
+          <% Workdays.translations.each do |translation| %>
+            <th class="table_lessons_td"><%= translation %></th>
+          <% end %>
+        </tr>
       </thead>
 
       <tbody id="lessons-board-lessons">
-      <tr>
-        <td class="no_item_found" colspan="7" style="<%= f.object.lessons_board_lessons.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
-      </tr>
-      <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
-        <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
-      <% end %>
+        <tr>
+          <td class="no_item_found" colspan="7" style="<%= f.object.lessons_board_lessons.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+        </tr>
+        <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
+          <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
+        <% end %>
       </tbody>
     </table>
   </fieldset>
 
   <footer>
+    <%= link_to 'Imprimir', generate_lesson_board_pdf_lessons_boards_path(id: @lessons_board.id, format: :pdf),
+          class: "btn btn-default", target: "_blank" %>
     <%= link_to t('views.form.back'), lessons_boards_path, class: "btn btn-default" %>
   </footer>
 <% end %>

@@ -40,7 +40,8 @@ module ApplicationHelper
       'Menus',
       controller_name,
       user_role_cache || current_user.cache_key,
-      Translation.cache_key
+      Translation.cache_key,
+      current_user.updated_at.to_i
     ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
@@ -210,6 +211,16 @@ module ApplicationHelper
       profiles: current_profile.teacher_profiles_as_json
 
     }
+  end
+
+  def format_error_number(number)
+    return number unless number.is_a?(Numeric)
+    number_with_precision(number, precision: 2, separator: ',', delimiter: '.')
+  end
+
+  def format_error_message(message)
+    return message unless message.is_a?(String)
+    message.gsub(/\d+\.\d+/) { |match| format_error_number(match.to_f) }
   end
 
   private

@@ -23,7 +23,6 @@ x-ruby: &ruby
     REDIS_URL: redis://idiario-redis
 
 services:
-
   ruby:
     <<: *ruby
     container_name: idiario-ruby

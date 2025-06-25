@@ -168,9 +168,9 @@ class PedagogicalTrackingCalculator
       end_date = data[:end_date]
       total_days = data[:school_days]
 
-      total_frequencies += frequency_done_percentage(unity_id, start_date, end_date, total_days)
+      total_frequencies += frequency_done_percentage(unity_id, start_date, end_date, total_days)[:frequency_percentage]
       total_unknown_teachers += unknown_teacher_frequency_done(unity_id, start_date, end_date, total_days)
-      total_content_records += content_record_done_percentage(unity_id, start_date, end_date, total_days)
+      total_content_records += content_record_done_percentage(unity_id, start_date, end_date, total_days)[:content_record_percentage]
     end
 
     return {
@@ -196,8 +196,11 @@ class PedagogicalTrackingCalculator
     }
   
     distinct_days = records.map(&:last).uniq.size
-  
-    ((distinct_days * 100).to_f / school_days).round(2)
+    
+    {
+      frequency_percentage: ((distinct_days * 100).to_f / school_days).round(2),
+      done_frequencies: distinct_days
+    }
   end
   
   def content_record_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
@@ -210,7 +213,10 @@ class PedagogicalTrackingCalculator
     }
   
     distinct_days = records.map(&:last).uniq.size
-    ((distinct_days * 100).to_f / school_days).round(2)
+    {
+      content_record_percentage: ((distinct_days * 100).to_f / school_days).round(2),
+      done_content_records: distinct_days
+    }
   end
   
   def unknown_teacher_frequency_done(unity_id, start_date, end_date, school_days)
@@ -266,8 +272,8 @@ class PedagogicalTrackingCalculator
   end
 
   def build_percent_table(unity, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
-    frequency_percentage = frequency_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
-    content_record_percentage = content_record_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
+    frequency_data = frequency_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
+    content_data = content_record_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
 
     if classroom_id
       classroom = Classroom.find(classroom_id)
@@ -279,8 +285,10 @@ class PedagogicalTrackingCalculator
           start_date: start_date,
           end_date: end_date,
           classroom_description: classroom.description,
-          frequency_percentage: frequency_percentage,
-          content_record_percentage: content_record_percentage
+          frequency_percentage: frequency_data[:frequency_percentage],
+          frequency_days: frequency_data[:done_frequencies],
+          content_record_percentage: content_data[:content_record_percentage],
+          content_record_days: content_data[:done_content_records]
         )
       else
         teacher = Teacher.find(teacher_id)
@@ -289,8 +297,10 @@ class PedagogicalTrackingCalculator
           start_date: start_date,
           end_date: end_date,
           teacher_name: teacher.name,
-          frequency_percentage: frequency_percentage,
-          content_record_percentage: content_record_percentage
+          frequency_percentage: frequency_data[:frequency_percentage],
+          frequency_days: frequency_data[:done_frequencies],
+          content_record_percentage: content_data[:content_record_percentage],
+          content_record_days: content_data[:done_content_records]
         )
       end
     else
@@ -299,8 +309,10 @@ class PedagogicalTrackingCalculator
         unity_name: unity.name,
         start_date: start_date,
         end_date: end_date,
-        frequency_percentage: frequency_percentage,
-        content_record_percentage: content_record_percentage
+        frequency_percentage: frequency_data[:frequency_percentage],
+        frequency_days: frequency_data[:done_frequencies],
+        content_record_percentage: content_data[:content_record_percentage],
+        content_record_days: content_data[:done_content_records]
       )
     end
   end
