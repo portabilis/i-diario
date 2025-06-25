@@ -1,9 +1,11 @@
 class DescriptiveExamStudentsDiscardWorker < BaseStudentDependenciesDiscarderWorker
   def perform(entity_id, student_id)
     super do
-      discardable_descriptive_exam_students(student_id).each do |descriptive_exam_student|
-        descriptive_exam_student.discarded_at = Time.current
-        descriptive_exam_student.save!(validate: false)
+      Audited.audit_class.as_user("descriptive_exams_students_sync") do
+        discardable_descriptive_exam_students(student_id).each do |descriptive_exam_student|
+          descriptive_exam_student.discarded_at = Time.current
+          descriptive_exam_student.save!(validate: false)
+        end
       end
     end
   end

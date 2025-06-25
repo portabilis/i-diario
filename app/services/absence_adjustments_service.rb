@@ -88,25 +88,40 @@ class AbsenceAdjustmentsService
 
   def adjust_general_to_by_discipline_specific_area
     daily_frequencies_general_when_teacher_has_specific_area.each do |daily_frequency|
-      daily_frequency
-        .classroom.teacher_discipline_classrooms
-        .by_teacher_id(daily_frequency.owner_teacher_id)
-        .where(allow_absence_by_discipline: 1)
-        .each do |teacher_discipline_classroom|
-        DailyFrequency.create_with(
-          class_number: DEFAULT_CLASS_NUMBER,
-          owner_teacher_id: daily_frequency.owner_teacher_id,
-        ).find_or_create_by(
-          unity_id: daily_frequency.unity_id,
-          frequency_date: daily_frequency.frequency_date,
-          school_calendar_id: daily_frequency.school_calendar_id,
-          discipline_id: teacher_discipline_classroom.discipline_id,
-          classroom_id: teacher_discipline_classroom.classroom_id,
-          period: daily_frequency.period,
-        )
-      end
+      original_frequency_students = daily_frequency.students.to_a
 
-      daily_frequency.destroy!
+      Audited.audit_class.as_user("frequency_adjustments") do
+        daily_frequency
+          .classroom.teacher_discipline_classrooms
+          .by_teacher_id(daily_frequency.owner_teacher_id)
+          .where(allow_absence_by_discipline: 1)
+          .each do |teacher_discipline_classroom|
+          new_daily_frequency = DailyFrequency.create_with(
+            class_number: DEFAULT_CLASS_NUMBER,
+            owner_teacher_id: daily_frequency.owner_teacher_id,
+          ).find_or_create_by(
+            unity_id: daily_frequency.unity_id,
+            frequency_date: daily_frequency.frequency_date,
+            school_calendar_id: daily_frequency.school_calendar_id,
+            discipline_id: teacher_discipline_classroom.discipline_id,
+            classroom_id: teacher_discipline_classroom.classroom_id,
+            period: daily_frequency.period,
+          )
+
+          original_frequency_students.each do |student|
+            new_daily_frequency.students.create!(
+              student_id: student.student_id,
+              present: student.present,
+              dependence: student.dependence,
+              active: student.active,
+              type_of_teaching: student.type_of_teaching,
+              absence_justification_student_id: student.absence_justification_student_id
+            )
+          end
+        end
+
+        daily_frequency.destroy!
+      end
     end
   end
 

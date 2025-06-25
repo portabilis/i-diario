@@ -26,25 +26,28 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
-    classroom_id = params[:frequency_in_batch_form][:classroom_id]
-    grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
+    params[:start_date] = params[:frequency_in_batch_form][:start_date].to_date
+    params[:end_date] = params[:frequency_in_batch_form][:end_date].to_date
+    params[:classroom_id] = params[:frequency_in_batch_form][:classroom_id]
+    grade_id = ClassroomsGrade.find_by(classroom_id: params[:classroom_id]).grade_id
 
-    if  invalid_dates?(start_date, end_date, classroom_id, grade_id)
+    if invalid_dates?(params[:start_date], params[:end_date], params[:classroom_id], grade_id)
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
 
-    @dates = [*start_date..end_date]
-    @classroom = Classroom.includes(:unity).find(params[:frequency_in_batch_form][:classroom_id])
-    @discipline = Discipline.find(params[:frequency_in_batch_form][:discipline_id]) if params[:frequency_in_batch_form][:discipline_id].present?
+    if params[:frequency_in_batch_form][:discipline_id].present?
+      params[:discipline_id] = params[:frequency_in_batch_form][:discipline_id]
+    end
 
-    return unless view_data
-
-    render :create_or_update_multiple
+    setup_for_create_or_update_multiple
   end
 
   def create_or_update_multiple
+    if request.get?
+      setup_for_create_or_update_multiple
+      return
+    end
+
     daily_frequency_attributes = daily_frequency_in_batchs_params
     daily_frequencies_attributes = daily_frequencies_in_batch_params
     receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
@@ -121,13 +124,22 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     if receive_email_confirmation
-      ReceiptMailer.delay.notify_daily_frequency_in_batch_success(
+      classroom = Classroom.find(daily_frequency_attributes[:classroom_id])
+      unity = Unity.find(daily_frequency_attributes[:unity_id].to_i).name
+
+      NotifyByEmailDailyFrequencyInBatchWorker.perform_async(
         current_user.first_name,
         current_user.email,
-        "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path}",
+        "#{request.base_url}#{create_or_update_multiple_daily_frequencies_in_batchs_path(
+          start_date: params[:start_date],
+          end_date: params[:end_date],
+          classroom_id: classroom.id,
+          discipline_id: daily_frequency_attributes[:discipline_id],
+          period: daily_frequency_attributes[:period]
+        )}",
         dates,
-        Classroom.find(daily_frequency_attributes[:classroom_id].to_i).description,
-        Unity.find(daily_frequency_attributes[:unity_id].to_i).name
+        classroom,
+        unity
       )
     end
 
@@ -259,7 +271,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     dependences = student_has_dependence(student_enrollments_ids, dates)
     inactives_on_date = students_inactive_on_range(enrollment_classrooms.map{|i|
                                                                           i[:student_enrollment_classroom]
-                                                                        }, dates)
+                                                   }, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
 
@@ -659,5 +671,17 @@ current_school_year)
       @disciplines << discipline if lesson_board
     end
     @disciplines.uniq
+  end
+
+  def setup_for_create_or_update_multiple
+    @dates = [*params[:start_date].to_date..params[:end_date].to_date]
+    @classroom = Classroom.includes(:unity).find(params[:classroom_id])
+    @discipline = Discipline.find(params[:discipline_id]) if params[:discipline_id].present?
+    @period = params[:period]
+
+    authorize_daily_frequency
+    view_data
+
+    render :create_or_update_multiple
   end
 end
