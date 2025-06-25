@@ -184,7 +184,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def test_setting
-    @test_setting ||= TestSettingFetcher.current(current_user_classroom, @school_term_recovery_diary_record.step)
+    classroom = @school_term_recovery_diary_record&.recovery_diary_record&.classroom || current_user_classroom
+
+    @test_setting ||= TestSettingFetcher.current(classroom, @school_term_recovery_diary_record.step)
   end
 
   def decimal_places
