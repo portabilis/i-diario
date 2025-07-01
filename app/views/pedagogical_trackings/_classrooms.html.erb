@@ -13,20 +13,20 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <td>
+            <th scope="col">
               <%= f.input :classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('pedagogical_trackings.index.filter_classrooms') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :frequency_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_frequency') %>
               <%= f.input :frequency_percentage, label: false, input_html: { type: 'number' } %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :content_record_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_content_record') %>
               <%= f.input :content_record_percentage, label: false, input_html: { type: 'number' } %>
-            </td>
-            <td style="text-align: center;">
+            </th>
+            <th scope="col" style="text-align: center;">
               <span>Ação</span>
-            </td>
+            </th>
           </tr>
         </thead>
 

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
+    <title><%= title %></title>
     <%= render 'layouts/datalayer' %>
     <%= render 'layouts/google_tag_manager_head' %>
-    <%= render 'layouts/default_headers', title: title %>
+    <%= render 'layouts/default_headers' %>
     <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
   </head>
 
@@ -64,7 +65,7 @@
                   <%= yield(:help_button_tag) if content_for?(:help_button_tag) %>
                 </header>
 
-                <div id="content-page" role="content">
+                <div id="content-page">
                   <%= yield %>
                 </div>
               </div>

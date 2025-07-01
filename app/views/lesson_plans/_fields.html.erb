@@ -158,36 +158,31 @@
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :activities, label: @methodology_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+    <%= f.input :activities, label: @methodology_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :resources, label: @resources_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+    <%= f.input :resources, label: @resources_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+    <%= f.input :evaluation, label: @evaluation_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :bibliography, label: @references_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+    <%= f.input :bibliography, label: @references_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :curriculum_adaptation, label: @curriculum_adaptation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+    <%= f.input :curriculum_adaptation, label: @curriculum_adaptation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
   </div>
 </div>
 
@@ -210,9 +205,9 @@
     <table class="table table-striped table-bordered table-condensed records">
       <thead>
         <tr>
-          <th>Anexo</th>
+          <th scope="col">Anexo</th>
           <% if action_name != 'show' %>
-            <td width="73px"></td>
+            <th scope="col" style="width: 73px"></th>
           <% end %>
         </tr>
       </thead>

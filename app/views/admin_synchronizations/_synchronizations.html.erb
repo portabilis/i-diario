@@ -1,0 +1,23 @@
+<div class="table-responsive">
+  <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+    <thead>
+      <tr>
+        <% if with_environment %>
+          <th><%= t('ieducar_api_configuration.sync_table.environment') %></th>
+        <% end %>
+        <th><%= t('ieducar_api_configuration.sync_table.started_at') %></th>
+        <th><%= t('ieducar_api_configuration.sync_table.ended_at') %></th>
+        <th><%= t('ieducar_api_configuration.sync_table.time') %></th>
+        <th><%= t('ieducar_api_configuration.sync_table.estimated_time') %></th>
+        <th><%= t('ieducar_api_configuration.sync_table.status') %></th>
+      </tr>
+    </thead>
+
+    <tbody id="resources-tbody">
+      <% entity_syncs.each do |entity_name, sync_data| %>
+        <%= render 'sync', with_environment: with_environment, entity_name: entity_name, sync: sync_data[:started_sync], average_time: sync_data[:average_time] if sync_data[:started_sync] %>
+        <%= render 'sync', with_environment: with_environment, entity_name: entity_name, sync: sync_data[:finished_sync], average_time: sync_data[:average_time] if sync_data[:finished_sync] %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

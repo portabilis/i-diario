@@ -26,7 +26,9 @@ class TeacherRelationFetcher
   end
 
   def exists_all_grades_in_relation?
-    found_grade_ids = teacher_discipline_classrooms.by_grade_id(@grade_ids).pluck(:grade_id)
+    classroom_ids = teacher_discipline_classrooms.by_grade_id(@grade_ids).pluck(:classroom_id)
+    found_grade_ids = ClassroomsGrade.where(classroom_id: classroom_ids, grade_id: @grade_ids)
+                                     .pluck(:grade_id).uniq
 
     (@grade_ids & found_grade_ids) == @grade_ids
   end

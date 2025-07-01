@@ -363,7 +363,7 @@ class ConceptualExamsController < ApplicationController
     fetcher.fetch!
 
     @disciplines = fetcher.disciplines
-    @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, @conceptual_exam.try(:student_id)) if @disciplines.present?
+    @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, @conceptual_exam.try(:student_id), @conceptual_exam.classroom_id) if @disciplines.present?
 
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
       @conceptual_exam.classroom_id,

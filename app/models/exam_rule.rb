@@ -15,6 +15,7 @@ class ExamRule < ApplicationRecord
   belongs_to :differentiated_exam_rule, class_name: 'ExamRule'
   belongs_to :rounding_table_concept, class_name: 'RoundingTable'
   has_many :recovery_exam_rules
+  has_many :classrooms_grades
 
   validates :api_code,
     :score_type,

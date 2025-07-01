@@ -52,9 +52,7 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
 
   describe "#start_synchronization" do
     it "starts a synchronization with a given user" do
-      expect(IeducarSynchronizerWorker).
-        to receive(:perform_in).
-        and_return(rand(999))
+      allow(IeducarSynchronizerWorker).to receive_message_chain(:set, :perform_in).and_return(rand(999))
 
       user = create(:user)
       subject = create(:ieducar_api_configuration)
