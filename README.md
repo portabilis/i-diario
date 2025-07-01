@@ -109,28 +109,3 @@ RAILS_ENV=test bundle exec rails db:migrate
 # (Docker) docker-compose run ruby bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
 bin/rspec spec
 ```
-
-### Upgrades
-
-### Upgrade para a versão 1.1.0
-
-Nessa atualização a sincronização entre i-Educar e i-Diário foi completamente reestruturada e com isso o i-Diário
- passa a ter dependência da versão **2.1.18** do i-Educar.
-
-Para o upgrade é necessário atualizar o i-Diário para a versão
- [1.1.0](https://github.com/portabilis/i-diario/releases/tag/1.1.0).
-
-* Executar as migrations:
-
-```bash
-# (Docker) docker-compose exec app bundle exec rake db:migrate
-bundle exec rake db:migrate
-```
-
-* Executar a rake task que irá fazer a atualização do banco de dados e executar a sincronização completa em todas
- as entidades:
-
-```bash
-# (Docker) docker-compose exec app bundle exec rake upgrade:versions:1_1_0
-bundle exec rake upgrade:versions:1_1_0
-```

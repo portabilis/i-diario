@@ -4,41 +4,41 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td></td>
-            <td>
+            <th scope="col"></th>
+            <th scope="col">
               <%= f.input :by_grade, as: :select2, elements: @grades,
                     label: false, placeholder: t('.by_grade') %>
-            </td>
-            <td colspan="2">
+            </th>
+            <th scope="col" colspan="2">
               <%= f.input :by_discipline, as: :select2, elements: @disciplines,
                     label: false, placeholder: t('.by_discipline') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_school_term_type_id, as: :select2, elements: @school_term_type,
                     label: false, placeholder: t('.by_school_term_type') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_school_term_type_step_id, as: :select2, elements: @school_term_type_step,
                     label: false, placeholder: t('.by_school_term_type_step') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_author, as: :select2_plans, label: false %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= link_to t('.new_html'), new_discipline_teaching_plan_path,
                     class: 'btn btn-primary pull-right', style: 'width: 100%;' %>
-            </td>
+            </th>
           </tr>
 
           <tr>
-            <th><%= TeachingPlan.human_attribute_name :unity %></th>
-            <th><%= TeachingPlan.human_attribute_name :grade %></th>
-            <th><%= DisciplineTeachingPlan.human_attribute_name :discipline %></th>
-            <th><%= DisciplineTeachingPlan.human_attribute_name :thematic_unit %></th>
-            <th><%= TeachingPlan.human_attribute_name :school_term_type %></th>
-            <th><%= TeachingPlan.human_attribute_name :school_term_type_step %></th>
-            <th><%= DisciplineTeachingPlan.human_attribute_name :author %></th>
-            <th style="width: 230px"></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :unity %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :grade %></th>
+            <th scope="col"><%= DisciplineTeachingPlan.human_attribute_name :discipline %></th>
+            <th scope="col"><%= DisciplineTeachingPlan.human_attribute_name :thematic_unit %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :school_term_type %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :school_term_type_step %></th>
+            <th scope="col"><%= DisciplineTeachingPlan.human_attribute_name :author %></th>
+            <th scope="col" style="width: 230px"></th>
           </tr>
         </thead>
 
