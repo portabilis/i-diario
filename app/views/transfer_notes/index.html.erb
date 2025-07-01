@@ -4,23 +4,23 @@
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></td>
-            <td><%= f.input :by_discipline_description, label: false, placeholder: t('.by_discipline_description') %></td>
-            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
-            <td>
+            <th scope="col"><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></th>
+            <th scope="col"><%= f.input :by_discipline_description, label: false, placeholder: t('.by_discipline_description') %></th>
+            <th scope="col"><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></th>
+            <th scope="col">
               <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
                 label: false, placeholder: t('.by_step') %>
-            </td>
-            <td><%= f.input :by_transfer_date, as: :date, label: false, placeholder: t('.by_transfer_date') %></td>
-            <td><%= link_to t('.new_html'), new_transfer_note_path, class: 'btn btn-primary pull-right' %></td>
+            </th>
+            <th scope="col"><%= f.input :by_transfer_date, as: :date, label: false, placeholder: t('.by_transfer_date') %></th>
+            <th scope="col"><%= link_to t('.new_html'), new_transfer_note_path, class: 'btn btn-primary pull-right' %></th>
           </tr>
           <tr>
-            <th><%= TransferNote.human_attribute_name :classroom %></th>
-            <th><%= TransferNote.human_attribute_name :discipline %></th>
-            <th><%= TransferNote.human_attribute_name :student %></th>
-            <th><%= TransferNote.human_attribute_name :step %></th>
-            <th><%= TransferNote.human_attribute_name :transfer_date %></th>
-            <td width='190px'></td>
+            <th scope="col"><%= TransferNote.human_attribute_name :classroom %></th>
+            <th scope="col"><%= TransferNote.human_attribute_name :discipline %></th>
+            <th scope="col"><%= TransferNote.human_attribute_name :student %></th>
+            <th scope="col"><%= TransferNote.human_attribute_name :step %></th>
+            <th scope="col"><%= TransferNote.human_attribute_name :transfer_date %></th>
+            <th scope="col" width='190px'></th>
           </tr>
         </thead>
 
