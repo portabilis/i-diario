@@ -89,33 +89,33 @@ class DefaultSynchronizer
   end
 
   def single_synchronizers
-    @single_synchronizers ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @single_synchronizers ||= SynchronizationConfigs::ALL.select do |synchronizer|
       !synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_year
-    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select do |synchronizer|
       synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_year_to_full_synchronization
-    @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select do |synchronizer|
       synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_unity
-    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select do |synchronizer|
       !synchronizer[:by_year] && synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_year_and_unity
-    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select do |synchronizer|
       synchronizer[:by_year] && synchronizer[:by_unity]
-    }
+    end
   end
 
   def school_calendars_simple_synchronization_count
