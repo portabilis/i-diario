@@ -2,7 +2,7 @@ class AvaliationExemptionsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :require_allow_to_modify_prev_years, only: %i[create update destroy]
 
   def index
     set_filters
@@ -88,7 +88,7 @@ class AvaliationExemptionsController < ApplicationController
     @avaliation_exemption.destroy
 
     respond_with @avaliation_exemption, location: avaliation_exemptions_path,
-alert: @avaliation_exemption.errors.to_a
+                                        alert: @avaliation_exemption.errors.to_a
   end
 
   def history
@@ -117,20 +117,20 @@ alert: @avaliation_exemption.errors.to_a
 
   def fetch_avaliations
     @avaliations ||= Avaliation.by_classroom_id(@avaliation_exemption.classroom_id)
-      .by_discipline_id(@avaliation_exemption.discipline_id)
+                               .by_discipline_id(@avaliation_exemption.discipline_id)
   end
 
   def fetch_students
     @students = []
     if @avaliation_exemption.avaliation.try(:classroom).present?
       @student_ids = StudentEnrollment
-        .by_classroom(current_user_classroom)
-        .by_discipline(current_user_discipline)
-        .by_date(@avaliation_exemption.avaliation.test_date)
-        .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, current_user_classroom)
-        .active
-        .ordered
-        .collect(&:student_id)
+                     .by_classroom(current_user_classroom)
+                     .by_discipline(current_user_discipline)
+                     .by_date(@avaliation_exemption.avaliation.test_date)
+                     .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, current_user_classroom)
+                     .active
+                     .ordered
+                     .collect(&:student_id)
       @students = Student.where(id: @student_ids)
     end
   end
@@ -168,7 +168,7 @@ alert: @avaliation_exemption.errors.to_a
 
   def set_filters
     params[:filter] ||= {}
-    params[:filter][:by_classroom_id] ||= current_user_classroom.id
-    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+    params[:filter][:by_classroom] ||= current_user_classroom.id
+    params[:filter][:by_discipline] ||= current_user_discipline.id
   end
 end
