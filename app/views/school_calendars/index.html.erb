@@ -4,26 +4,26 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-              <td width="10%"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
-              <td>
+              <th scope="col" width="10%"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></th>
+              <th scope="col">
                 <% if show_all_unities? %>
                   <%= f.input :by_unity_id, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity_id') %>
                 <% end %>
-              </td>
-              <td></td>
-              <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px">
+              </th>
+              <th scope="col"></th>
+              <th scope="col" class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px">
                 <% if current_user.roles.any? { |role| role.administrator? } %>
                   <%= link_to 'Eventos em lote',
                               school_calendar_event_batches_path,
                               class: "btn btn-info pull-right" %>
                 <% end %>
-              </td>
+              </th>
             </tr>
           <tr>
-            <th><%= SchoolCalendar.human_attribute_name :year %></th>
-            <th><%= SchoolCalendar.human_attribute_name :unity %></th>
-            <th><%= SchoolCalendar.human_attribute_name :number_of_classes %></th>
-            <td></td>
+            <th scope="col"><%= SchoolCalendar.human_attribute_name :year %></th>
+            <th scope="col"><%= SchoolCalendar.human_attribute_name :unity %></th>
+            <th scope="col"><%= SchoolCalendar.human_attribute_name :number_of_classes %></th>
+            <th scope="col"></th>
           </tr>
         </thead>
 

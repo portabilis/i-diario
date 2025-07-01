@@ -7,32 +7,32 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td></td>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
-            <td><%= f.input :by_knowledge_area_id, as: :select2, elements: @knowledge_areas, label: false, placeholder: t('.by_knowledge_area_id') %></td>
-            <td><%= f.input :by_experience_fields, label: false, placeholder: t('.by_experience_field') %></td>
-            <td colspan="2">
+            <th scope="col"></th>
+            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></th>
+            <th scope="col"><%= f.input :by_knowledge_area_id, as: :select2, elements: @knowledge_areas, label: false, placeholder: t('.by_knowledge_area_id') %></th>
+            <th scope="col"><%= f.input :by_experience_fields, label: false, placeholder: t('.by_experience_field') %></th>
+            <th scope="col" colspan="2">
               <%= f.input :by_date, as: :date, label: false,
                     placeholder: t('.by_date') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_author, as: :select2_plans, label: false %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= link_to t('.new_html'), new_knowledge_area_lesson_plan_path,
                     class: 'btn btn-primary pull-right', style: 'width: 210px;' %>
-            </td>
+            </th>
           </tr>
 
           <tr>
-            <th><%= LessonPlan.human_attribute_name :unity %></th>
-            <th width="14%"><%= LessonPlan.human_attribute_name :classroom %></th>
-            <th width="16%"><%= KnowledgeAreaLessonPlan.human_attribute_name :knowledge_areas %>
-            <th width="16%"><%= KnowledgeAreaLessonPlan.human_attribute_name :experience_fields %>
-            <th width="7%"><%= LessonPlan.human_attribute_name :start_at %></th>
-            <th width="7%"><%= LessonPlan.human_attribute_name :end_at %></th>
-            <th width="7%"><%= KnowledgeAreaLessonPlan.human_attribute_name :author %></th>
-            <td width="230px"></td>
+            <th scope="col"><%= LessonPlan.human_attribute_name :unity %></th>
+            <th scope="col" style="width: 14%"><%= LessonPlan.human_attribute_name :classroom %></th>
+            <th scope="col" style="width: 16%"><%= KnowledgeAreaLessonPlan.human_attribute_name :knowledge_areas %>
+            <th scope="col" style="width: 16%"><%= KnowledgeAreaLessonPlan.human_attribute_name :experience_fields %>
+            <th scope="col" style="width: 7%"><%= LessonPlan.human_attribute_name :start_at %></th>
+            <th scope="col" style="width: 7%"><%= LessonPlan.human_attribute_name :end_at %></th>
+            <th scope="col" style="width: 7%"><%= KnowledgeAreaLessonPlan.human_attribute_name :author %></th>
+            <th scope="col" style="width: 230px"></th>
           </tr>
         </thead>
 

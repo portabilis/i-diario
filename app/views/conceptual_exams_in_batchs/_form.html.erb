@@ -1,0 +1,39 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'beta_function' %>
+<% end %>
+
+<%= simple_form_for @conceptual_exam, url: conceptual_exams_in_batchs_path, method: :post,
+                    html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+  <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
+  <%= render 'base_errors', f: f %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :classroom_id, as: :select2, elements: classrooms_by_current_profile,
+                    label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :step_id, as: :select2, elements: steps_current_classroom, required: true,
+                    readonly: @conceptual_exam.persisted? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :recorded_at %>
+      </div>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), conceptual_exams_in_batchs_path, class: 'btn btn-default' %>
+    <%= f.submit 'Criar', id: 'btn-save', class: 'btn btn-primary'%>
+  </footer>
+<% end %>
