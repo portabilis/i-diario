@@ -9,23 +9,23 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <td></td>
-          <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar turma" %></td>
-          <td><%= f.input :by_student, label: false, placeholder: "Filtrar aluno" %></td>
-          <td colspan="3"><%= f.input :by_date, as: :date, label: false, placeholder: "Filtrar data" %></td>
-          <td><%= f.input :by_author, as: :select2, elements: AbsenceJustificationAuthors.to_select.to_json,
-                label: false, placeholder: t('.by_author') %></td>
-          <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
+          <th scope="col"></th>
+          <th scope="col"><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar turma" %></th>
+          <th scope="col"><%= f.input :by_student, label: false, placeholder: "Filtrar aluno" %></th>
+          <th scope="colgroup" colspan="3"><%= f.input :by_date, as: :date, label: false, placeholder: "Filtrar data" %></th>
+          <th scope="col"><%= f.input :by_author, as: :select2, elements: AbsenceJustificationAuthors.to_select.to_json,
+                label: false, placeholder: t('.by_author') %></th>
+          <th scope="col" class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></th>
         </tr>
         <tr>
-          <th><%= AbsenceJustification.human_attribute_name :unity %></th>
-          <th><%= AbsenceJustification.human_attribute_name :classroom %></th>
-          <th><%= AbsenceJustification.human_attribute_name :student %></th>
-          <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
-          <th><%= AbsenceJustification.human_attribute_name :absence_date_end %></th>
-          <th><%= AbsenceJustification.human_attribute_name :class_number %></th>
-          <th><%= AbsenceJustification.human_attribute_name :author %></th>
-          <td></td>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :unity %></th>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :classroom %></th>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :student %></th>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :absence_date %></th>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :absence_date_end %></th>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :class_number %></th>
+          <th scope="col"><%= AbsenceJustification.human_attribute_name :author %></th>
+          <th scope="col"></th>
         </tr>
       </thead>
 
