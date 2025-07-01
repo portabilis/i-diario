@@ -85,7 +85,7 @@ $(function () {
       }else{
         $globalAbsence.val(0);
         $hideWhenGlobalAbsence.hide();
-        $showKnowledge_area.show;
+        $showKnowledge_area.show();
 
         // Display alert
         $examRuleNotFoundAlert.removeClass('hidden');

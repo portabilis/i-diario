@@ -96,9 +96,8 @@ module IeducarApi
                  end
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
-        Honeybadger.notify(error)
-
         if RETRY_NETWORK_ERRORS.any? { |network_error| error.message.include?(network_error) }
+          Honeybadger.notify(error)
           raise NetworkException, error.message
         end
 
