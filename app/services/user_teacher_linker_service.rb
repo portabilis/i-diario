@@ -5,7 +5,11 @@ class UserTeacherLinkerService
 
   def call
     users = load_users_with_matching_cpf
-    return if users.empty?
+
+    if users.empty?
+      Rails.logger.info 'Nenhum usuário encontrado para vinculação automática usuário-professor por CPF'
+      return
+    end
 
     users_by_teacher = users.group_by(&:teacher_id)
     used_teacher_ids = load_used_teacher_ids
