@@ -20,6 +20,7 @@ class TeachersSynchronizer < BaseSynchronizer
       Teacher.with_discarded.find_or_initialize_by(api_code: teacher_record.servidor_id).tap do |teacher|
         teacher.name = teacher_record.nome
         teacher.active = teacher_record.ativo.to_s == IeducarBooleanState::ACTIVE
+        teacher.cpf = teacher_record.cpf
         teacher.save! if teacher.changed?
       end
     end
