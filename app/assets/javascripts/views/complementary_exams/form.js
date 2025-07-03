@@ -193,7 +193,7 @@ $(function () {
   $(document).on('keydown', '.nested-fields input.decimal', function(e) {
     if (e.keyCode === 13) {
       e.preventDefault();
-      var inputs = $('.nested-fields input.decimal');
+      var inputs = $('.nested-fields input.decimal:not([readonly])');
       var currentIndex = inputs.index(this);
 
       if (currentIndex < inputs.length - 1) {
