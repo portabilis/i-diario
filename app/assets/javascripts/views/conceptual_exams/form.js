@@ -6,7 +6,6 @@ $(function() {
   var $student = $("#conceptual_exam_student_id");
   var old_values = {};
   var flashMessages = new FlashMessages();
-  let isNavigating = false;
 
   $classroom.on("change", async function() {
     await getStep();
