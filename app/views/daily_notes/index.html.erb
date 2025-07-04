@@ -4,23 +4,23 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td></td>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom') %></td>
-            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline') %></td>
-            <td><%= f.input :by_avaliation_id, as: :select2, elements: @avaliations, label: false, placeholder: t('.by_avaliation') %></td>
-            <td><%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %></td>
-            <td><%= f.input :by_status, as: :select2, elements: DailyNoteStatuses.to_select.to_json, label: false, placeholder: t('.by_status') %></td>
-            <td><%= link_to t('.new_html'), new_daily_note_path, class: 'btn btn-primary pull-right' %></td>
+            <th scope="col"></th>
+            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom') %></th>
+            <th scope="col"><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline') %></th>
+            <th scope="col"><%= f.input :by_avaliation_id, as: :select2, elements: @avaliations, label: false, placeholder: t('.by_avaliation') %></th>
+            <th scope="col"><%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %></th>
+            <th scope="col"><%= f.input :by_status, as: :select2, elements: DailyNoteStatuses.to_select.to_json, label: false, placeholder: t('.by_status') %></th>
+            <th scope="col"><%= link_to t('.new_html'), new_daily_note_path, class: 'btn btn-primary pull-right' %></th>
           </tr>
 
           <tr>
-            <th><%= DailyNote.human_attribute_name :unity %></th>
-            <th><%= DailyNote.human_attribute_name :classroom %></th>
-            <th><%= DailyNote.human_attribute_name :discipline %></th>
-            <th><%= DailyNote.human_attribute_name :avaliation %></th>
-            <th><%= DailyNote.human_attribute_name :step %></th>
-            <th><%= DailyNote.human_attribute_name :status %></th>
-            <th></th>
+            <th scope="col"><%= DailyNote.human_attribute_name :unity %></th>
+            <th scope="col"><%= DailyNote.human_attribute_name :classroom %></th>
+            <th scope="col"><%= DailyNote.human_attribute_name :discipline %></th>
+            <th scope="col"><%= DailyNote.human_attribute_name :avaliation %></th>
+            <th scope="col"><%= DailyNote.human_attribute_name :step %></th>
+            <th scope="col"><%= DailyNote.human_attribute_name :status %></th>
+            <th scope="col"></th>
           </tr>
         </thead>
 

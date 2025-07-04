@@ -4,22 +4,22 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <td><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
-            <td><%= f.input :by_unity_id, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity_id') %></td>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
-            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
-            <td><%= f.input :by_school_term_type_id, as: :select2, elements: SchoolTermType.to_select2(current_user.current_school_year, current_user.current_unity_id).to_json, label: false, placeholder: t('.by_school_term_type') %></td>
-            <td><%= f.input :by_school_term_type_step_id, as: :select2, elements: SchoolTermTypeStep.to_select2(current_user.current_school_year, current_user.current_unity_id).to_json, label: false, placeholder: t('.by_school_term_type_step') %></td>
-            <td><%= link_to t('.new_html'), new_teaching_plan_path, class: "btn btn-primary pull-right" %></td>
+            <th scope="col"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></th>
+            <th scope="col"><%= f.input :by_unity_id, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity_id') %></th>
+            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></th>
+            <th scope="col"><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
+            <th scope="col"><%= f.input :by_school_term_type_id, as: :select2, elements: SchoolTermType.to_select2(current_user.current_school_year, current_user.current_unity_id).to_json, label: false, placeholder: t('.by_school_term_type') %></th>
+            <th scope="col"><%= f.input :by_school_term_type_step_id, as: :select2, elements: SchoolTermTypeStep.to_select2(current_user.current_school_year, current_user.current_unity_id).to_json, label: false, placeholder: t('.by_school_term_type_step') %></th>
+            <th scope="col"><%= link_to t('.new_html'), new_teaching_plan_path, class: "btn btn-primary pull-right" %></th>
           </tr>
           <tr>
-            <th width="110"><%= TeachingPlan.human_attribute_name :year %></th>
-            <th><%= Classroom.human_attribute_name :unity %></th>
-            <th><%= TeachingPlan.human_attribute_name :classroom %></th>
-            <th><%= TeachingPlan.human_attribute_name :discipline %></th>
-            <th><%= TeachingPlan.human_attribute_name :school_term_type %></th>
-            <th><%= TeachingPlan.human_attribute_name :school_term_type_step %></th>
-            <td width="153px"></td>
+            <th scope="col" width="110"><%= TeachingPlan.human_attribute_name :year %></th>
+            <th scope="col"><%= Classroom.human_attribute_name :unity %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :classroom %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :discipline %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :school_term_type %></th>
+            <th scope="col"><%= TeachingPlan.human_attribute_name :school_term_type_step %></th>
+            <th scope="col" style="width: 153px"></th>
           </tr>
         </thead>
 

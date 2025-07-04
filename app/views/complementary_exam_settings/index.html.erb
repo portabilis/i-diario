@@ -4,38 +4,38 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <td style="max-width:85px"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
-            <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
-            <td><%= f.input :by_initials, label: false, placeholder: t('.by_initials') %></td>
-            <td><%= f.input :by_calculation_type, as: :select2, elements: CalculationTypes.to_select.to_json, label: false, placeholder: t('.by_calculation_type') %></td>
-            <td><%= f.input :by_affected_score, as: :select2, elements: AffectedScoreTypes.to_select.to_json, label: false, placeholder: t('.by_affected_score') %></td>
-            <td><%= f.input :by_grade_id, as: :select2, elements: grades, label: false, placeholder: t('.by_grade_id') %></td>
-            <td class="actions" style="width: 160px;">
+            <th scope="col" style="max-width:85px"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></th>
+            <th scope="col"><%= f.input :by_description, label: false, placeholder: t('.by_description') %></th>
+            <th scope="col"><%= f.input :by_initials, label: false, placeholder: t('.by_initials') %></th>
+            <th scope="col"><%= f.input :by_calculation_type, as: :select2, elements: CalculationTypes.to_select.to_json, label: false, placeholder: t('.by_calculation_type') %></th>
+            <th scope="col"><%= f.input :by_affected_score, as: :select2, elements: AffectedScoreTypes.to_select.to_json, label: false, placeholder: t('.by_affected_score') %></th>
+            <th scope="col"><%= f.input :by_grade_id, as: :select2, elements: grades, label: false, placeholder: t('.by_grade_id') %></th>
+            <th scope="col" class="actions" style="width: 160px;">
                 <%= link_to t('.new_html'), new_complementary_exam_setting_path, class: "btn btn-primary" %>
-            </td>
+            </th>
           </tr>
           <tr>
-            <th><%= ComplementaryExamSetting.human_attribute_name :year %></th>
-            <th><%= ComplementaryExamSetting.human_attribute_name :description %></th>
-            <th><%= ComplementaryExamSetting.human_attribute_name :initials %></th>
-            <th><%= ComplementaryExamSetting.human_attribute_name :calculation_type %></th>
-            <th><%= ComplementaryExamSetting.human_attribute_name :affected_score %></th>
-            <th><%= ComplementaryExamSetting.human_attribute_name :grades %></th>
-            <td width="160px"></td>
+            <th scope="col"><%= ComplementaryExamSetting.human_attribute_name :year %></th>
+            <th scope="col"><%= ComplementaryExamSetting.human_attribute_name :description %></th>
+            <th scope="col"><%= ComplementaryExamSetting.human_attribute_name :initials %></th>
+            <th scope="col"><%= ComplementaryExamSetting.human_attribute_name :calculation_type %></th>
+            <th scope="col"><%= ComplementaryExamSetting.human_attribute_name :affected_score %></th>
+            <th scope="col"><%= ComplementaryExamSetting.human_attribute_name :grades %></th>
+            <th scope="col" style="width: 160px"></th>
           </tr>
         </thead>
 
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
+          <th colspan="7">
             <div id="page_entries_info" class="pull-left hidden-xs">
               <%= page_entries_info @complementary_exam_settings %>
             </div>
             <div class="pull-right">
               <%= paginate @complementary_exam_settings %>
             </div>
-          </td>
+          </th>
         </tfoot>
       </table>
     </div>

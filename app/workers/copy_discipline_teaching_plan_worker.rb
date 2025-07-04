@@ -17,6 +17,7 @@ class CopyDisciplineTeachingPlanWorker
         grades_ids
       )
 
+      return if discipline_teaching_plans_created.blank?
       SystemNotificationCreator.create!(
         source: discipline_teaching_plans_created.first,
         title: I18n.t('copy_discipline_teaching_plan_worker.title'),

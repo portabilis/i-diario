@@ -5,7 +5,7 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover selectable" id="resources">
       <thead>
         <tr>
-          <td>
+          <th scope="col">
             <div class="btn-group">
               <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
                 Ações <span class="caret"></span>
@@ -16,16 +16,16 @@
                 </li>
               </ul>
             </div>
-          </td>
+          </th>
 
-          <td><%= f.input :search_name, label: false, placeholder: "Filtrar nome" %></td>
-          <td><%= f.input :unit_type, as: :select, label: false,
-                                   prompt: "Filtrar tipo de unidade", collection: UnitTypes %></td>
-          <td><%= f.input :phone, as: :tel, label: false, placeholder: "Filtrar telefone" %></td>
-          <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail" %></td>
-          <td><%= f.input :responsible, label: false, placeholder: "Filtrar responsável" %></td>
+          <th scope="col"><%= f.input :search_name, label: false, placeholder: "Filtrar nome" %></th>
+          <th scope="col"><%= f.input :unit_type, as: :select, label: false,
+                                   prompt: "Filtrar tipo de unidade", collection: UnitTypes %></th>
+          <th scope="col"><%= f.input :phone, as: :tel, label: false, placeholder: "Filtrar telefone" %></th>
+          <th scope="col"><%= f.input :email, label: false, placeholder: "Filtrar e-mail" %></th>
+          <th scope="col"><%= f.input :responsible, label: false, placeholder: "Filtrar responsável" %></th>
 
-          <td class="actions">
+          <th scope="col" class="actions">
             <a onclick="goToSync()" class="btn btn-info">
               <i class="fa fa-refresh"></i> Sincronizar
             </a>
@@ -36,20 +36,20 @@
                 location.href = Routes.edit_ieducar_api_configurations_pt_br_path();
               }
             </script>
-          </td>
+          </th>
         </tr>
         <tr>
-          <th><input type="checkbox" id="select-all"></th>
-          <th><%= Unity.human_attribute_name :name %></th>
-          <th><%= Unity.human_attribute_name :unit_type %></th>
-          <th><%= Unity.human_attribute_name :phone %></th>
-          <th><%= Unity.human_attribute_name :email %></th>
-          <th><%= Unity.human_attribute_name :responsible %></th>
-          <td class="actions" style="width: 160px;">
+          <th scope="col"><input type="checkbox" id="select-all"></th>
+          <th scope="col"><%= Unity.human_attribute_name :name %></th>
+          <th scope="col"><%= Unity.human_attribute_name :unit_type %></th>
+          <th scope="col"><%= Unity.human_attribute_name :phone %></th>
+          <th scope="col"><%= Unity.human_attribute_name :email %></th>
+          <th scope="col"><%= Unity.human_attribute_name :responsible %></th>
+          <th scope="col" class="actions" style="width: 160px;">
             <% if policy(Unity).new? %>
                 <%= link_to t('.new_html'), new_unity_path, class: "btn btn-primary" %>
             <% end %>
-          </td>
+          </th>
         </tr>
       </thead>
 

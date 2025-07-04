@@ -6,12 +6,12 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <td style="width: 180px"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
-          <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
-          <td><%= f.input :by_type, label: false, as: :select2, elements: EventTypes.to_select.to_json, placeholder: t('.by_type') %></td>
-          <td><%= f.input :by_grade, as: :select2, elements: grades, label: false, placeholder: t('.by_grade') %></td>
-          <td><%= f.input :by_classroom, label: false, placeholder: t('.by_classroom') %></td>
-          <td class="actions" style="width: 160px;">
+          <th scope="col" style="width: 180px"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></th>
+          <th scope="col"><%= f.input :by_description, label: false, placeholder: t('.by_description') %></th>
+          <th scope="col"><%= f.input :by_type, label: false, as: :select2, elements: EventTypes.to_select.to_json, placeholder: t('.by_type') %></th>
+          <th scope="col"><%= f.input :by_grade, as: :select2, elements: grades, label: false, placeholder: t('.by_grade') %></th>
+          <th scope="col"><%= f.input :by_classroom, label: false, placeholder: t('.by_classroom') %></th>
+          <th scope="col" class="actions" style="width: 160px;">
             <div class="btn-group">
               <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                 <%= t('.new_html') %> <span class="caret"></span>
@@ -24,15 +24,15 @@
                 <% end %>
               </ul>
             </div>
-          </td>
+          </th>
         </tr>
         <tr>
-          <th><%= SchoolCalendarEvent.human_attribute_name :duration %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :description %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :event_type %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :grade %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :classroom %></th>
-          <th></th>
+          <th scope="col"><%= SchoolCalendarEvent.human_attribute_name :duration %></th>
+          <th scope="col"><%= SchoolCalendarEvent.human_attribute_name :description %></th>
+          <th scope="col"><%= SchoolCalendarEvent.human_attribute_name :event_type %></th>
+          <th scope="col"><%= SchoolCalendarEvent.human_attribute_name :grade %></th>
+          <th scope="col"><%= SchoolCalendarEvent.human_attribute_name :classroom %></th>
+          <th scope="col"></th>
         </tr>
       </thead>
 

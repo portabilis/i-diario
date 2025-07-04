@@ -55,9 +55,13 @@ class UserByCsvCreator
           assign_user_attributes(user, new_user)
           set_password(user, new_user)
 
-          if user.changed? && !user.save
-            errors << invalid_user_error(user)
-            next
+          if user.new_record?
+            user.save(validate: false)
+          else
+            unless user.save
+              errors << invalid_user_error(user)
+              next
+            end
           end
 
           log_user_action(user, was_new_record)

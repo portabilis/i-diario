@@ -1,9 +1,11 @@
 class ConceptualExamsDiscardWorker < BaseStudentDependenciesDiscarderWorker
   def perform(entity_id, student_id)
     super do
-      discardable_conceptual_exams(student_id).each do |conceptual_exam|
-        conceptual_exam.discarded_at = Time.current
-        conceptual_exam.save!(validate: false)
+      Audited.audit_class.as_user("conceptual_exams_sync") do
+        discardable_conceptual_exams(student_id).each do |conceptual_exam|
+          conceptual_exam.discarded_at = Time.current
+          conceptual_exam.save!(validate: false)
+        end
       end
     end
   end

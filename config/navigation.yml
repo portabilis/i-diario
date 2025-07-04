@@ -148,6 +148,10 @@ navigation:
             path: "conceptual_exams_path"
             shortcut: true
         - menu:
+            type: "conceptual_exams_in_batchs"
+            path: "conceptual_exams_in_batchs_path"
+            shortcut: true
+        - menu:
             type: "descriptive_exams"
             path: "new_descriptive_exam_path"
             shortcut: true

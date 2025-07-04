@@ -9,7 +9,7 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <td>
+          <th scope="col">
             <div class="btn-group">
               <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
                 Ações <span class="caret"></span>
@@ -24,24 +24,24 @@
                 </li>
               </ul>
             </div>
-          </td>
-          <td><%= f.input :by_name, label: false, placeholder: "Filtrar nome", input_html: { value: @search_by_name } %></td>
-          <td><%= f.input :by_cpf, label: false, placeholder: "Filtrar CPF", input_html: { value: @search_by_cpf } %></td>
-          <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail", input_html: { value: @search_email } %></td>
-          <td><%= f.input :login, label: false, placeholder: "Filtrar nome de usuário", input_html: { value: @search_login } %></td>
-          <td><%= f.input :status, as: :select, label: false, prompt: "Filtrar status", collection: UserStatus, input_html: { value: @search_status }, selected: @search_status %></td>
-          <td></td>
+          </th>
+          <th scope="col"><%= f.input :by_name, label: false, placeholder: "Filtrar nome", input_html: { value: @search_by_name } %></th>
+          <th scope="col"><%= f.input :by_cpf, label: false, placeholder: "Filtrar CPF", input_html: { value: @search_by_cpf } %></th>
+          <th scope="col"><%= f.input :email, label: false, placeholder: "Filtrar e-mail", input_html: { value: @search_email } %></th>
+          <th scope="col"><%= f.input :login, label: false, placeholder: "Filtrar nome de usuário", input_html: { value: @search_login } %></th>
+          <th scope="col"><%= f.input :status, as: :select, label: false, prompt: "Filtrar status", collection: UserStatus, input_html: { value: @search_status }, selected: @search_status %></th>
+          <th scope="col"></th>
         </tr>
         <tr>
-          <th class="actions" style="width: 100px;">
+          <th scope="col" class="actions" style="width: 100px;">
             <input type="checkbox" id="select-all">
           </th>
-          <th><%= User.human_attribute_name :name %></th>
-          <th><%= User.human_attribute_name :cpf %></th>
-          <th><%= User.human_attribute_name :email %></th>
-          <th><%= User.human_attribute_name :login %></th>
-          <th><%= User.human_attribute_name :status %></th>
-          <td class="actions" style="width: 160px;"> </td>
+          <th scope="col"><%= User.human_attribute_name :name %></th>
+          <th scope="col"><%= User.human_attribute_name :cpf %></th>
+          <th scope="col"><%= User.human_attribute_name :email %></th>
+          <th scope="col"><%= User.human_attribute_name :login %></th>
+          <th scope="col"><%= User.human_attribute_name :status %></th>
+          <th scope="col" class="actions" style="width: 160px;"> </th>
         </tr>
       </thead>
 

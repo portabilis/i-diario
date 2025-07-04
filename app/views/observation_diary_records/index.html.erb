@@ -1,29 +1,24 @@
 <div class="widget-body no-padding">
-  <% content_for :help_button_tag do %>
-    <a href="https://form.jotform.com/230033071798656" class="help-link" target="_blank">
-      Estou com problemas ou dúvidas sobre a tela
-    </a>
-  <% end %>
   <%= simple_form_for :filter, { url: observation_diary_records_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
     <div class="table-responsive">
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td></td>
-            <td><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></td>
-            <td width="400px"><%= f.input :by_student_id, as: :select2, elements: @students, label: false, placeholder: t('.by_student') %></td>
-            <td><%= f.input :by_discipline, as: :select2, elements: disciplines, label: false, placeholder: t('.by_discipline') %></td>
-            <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
-            <td width="215px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></td>
+            <th scope="col"></th>
+            <th scope="col"><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></th>
+            <th scope="col" style="width: 400px"><%= f.input :by_student_id, as: :select2, elements: @students, label: false, placeholder: t('.by_student') %></th>
+            <th scope="col"><%= f.input :by_discipline, as: :select2, elements: disciplines, label: false, placeholder: t('.by_discipline') %></th>
+            <th scope="col"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></th>
+            <th scope="col" style="width: 215px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></th>
           </tr>
 
           <tr>
-            <th><%= ObservationDiaryRecord.human_attribute_name :unity %></th>
-            <th><%= ObservationDiaryRecord.human_attribute_name :classroom %></th>
-            <th><%= t('.student') %></th>
-            <th><%= ObservationDiaryRecord.human_attribute_name :discipline %>
-            <th><%= ObservationDiaryRecord.human_attribute_name :date %></th>
-            <th>
+            <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :unity %></th>
+            <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :classroom %></th>
+            <th scope="col"><%= t('.student') %></th>
+            <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :discipline %>
+            <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :date %></th>
+            <th scope="col">
           </tr>
         </thead>
 

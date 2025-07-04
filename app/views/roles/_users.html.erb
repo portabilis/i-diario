@@ -4,7 +4,7 @@
          style="table-layout: fixed; width: 100%;">
     <thead>
       <tr>
-        <td style='width: auto;'>
+        <th scope="col" style='width: auto;'>
           <div class='control-group string required search_full_name'>
             <div class="controls input">
               <%= text_field_tag :user_name,
@@ -14,8 +14,8 @@
                                  class: "form-control string required" %>
               </div>
             </div>
-          </td>
-        <td style='width: auto;'>
+          </th>
+        <th scope="col" style='width: auto;'>
           <div class='control-group string required search_full_name'>
             <div class="controls input">
               <%= text_field_tag :unity_name,
@@ -25,16 +25,16 @@
                                  class: "form-control string required" %>
               </div>
             </div>
-          </td>
-        <td style="text-align: center; width: 135px;">
+          </th>
+        <th scope="col" style="text-align: center; width: 135px;">
           <button id='filter_user_roles' type="button" class="btn btn-primary">Filtrar</button>
           <button id='clean_filter' type="button" class="btn btn-danger">Limpar</button>
-        </td>
+        </th>
       </tr>
       <tr>
-        <th><%= UserRole.human_attribute_name :user %></th>
-        <th><%= UserRole.human_attribute_name :unity %></th>
-        <th></th>
+        <th scope="col"><%= UserRole.human_attribute_name :user %></th>
+        <th scope="col"><%= UserRole.human_attribute_name :unity %></th>
+        <th scope="col"></th>
       </tr>
     </thead>
 

@@ -5,8 +5,6 @@ class DisciplinesSynchronizer < BaseSynchronizer
         api.fetch['disciplinas']
       )
     )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
   end
 
   private

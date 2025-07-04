@@ -1,0 +1,43 @@
+<tbody id='resources-tbody'>
+  <% if @conceptual_exams.empty? %>
+    <tr>
+      <td class='no_record_found' colspan='7'><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @conceptual_exams.each do |conceptual_exam| %>
+      <tr>
+        <td><%= conceptual_exam.classroom.unity %></td>
+        <td><%= conceptual_exam.classroom %></td>
+        <td><%= conceptual_exam.step %></td>
+        <td>
+          <% conceptual_exam.teacher_id = current_teacher_id %>
+          <span class='<%= conceptual_exam_label(@status[conceptual_exam.step_number]) %>'>
+            <%= ConceptualExamStatus.t(@status[conceptual_exam.step_number]) %>
+          </span>
+        </td>
+        <td class='actions'>
+          <%= link_to t('helpers.links.show_html'), '#', style: "width: 31%;",
+                      class: 'btn btn-info apply_tooltip disabled', title: t('conceptual_exams.form.show') %>
+          <% params = {
+               conceptual_exam:
+                 {
+                   classroom_id: conceptual_exam.classroom_id,
+                   step_id: conceptual_exam.step.id,
+                   step_number: conceptual_exam.step.step_number,
+                   recorded_at: first_conceptual_exam_by_params(conceptual_exam, current_user_discipline.id).recorded_at,
+                   discipline_id: current_user_discipline.id
+                 }
+             }
+          %>
+          <% if current_user.can_change?(:conceptual_exams) %>
+            <%= link_to t('helpers.links.edit_html'), conceptual_exams_in_batchs_path(params), method: :post, style: "width: 31%;",
+                        class: 'btn btn-success apply_tooltip', title: t('conceptual_exams.form.edit') %>
+            <%= link_to t('helpers.links.destroy_html'), destroy_multiple_conceptual_exams_in_batchs_path(params), style: "width: 31%;",
+                        class: 'btn btn-danger apply_tooltip', method: 'delete', title: t('conceptual_exams.form.destroy'),
+                        data: { confirm: t('views.index.confirm') } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

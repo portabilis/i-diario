@@ -1,0 +1,21 @@
+pt-BR:
+  conceptual_exams_in_batchs:
+    messages:
+      create_success: 'Avaliações conceituais foram criadas ou atualizadas com sucesso!'
+      create_error: 'Ocorreu um erro ao criar as avaliações conceituais!'
+      destroy_success: 'Avaliações conceituais foram excluídas com sucesso!'
+      destroy_error: 'Ocorreu um erro ao excluír as avaliações conceituais!'
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
+      by_classroom: 'Filtrar turma'
+      by_student_name: 'Filtrar aluno'
+      by_step: 'Filtrar etapa'
+      by_status: 'Filtrar situação'
+
+    edit_multiple:
+      save: 'Salvar'
+      no_item_found: 'Nenhuma disciplina'
+      exempted_students_from_discipline_legend: '**** Disciplina dispensada para o aluno'
+      show: 'Visualizar'
+      edit: 'Editar'
+      destroy: 'Excluir'

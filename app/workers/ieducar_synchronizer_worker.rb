@@ -1,7 +1,12 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false, queue: :critical
+  sidekiq_options unique: :until_and_while_executing,
+                  unique_args: ->(args) { args },
+                  retry: 3,
+                  dead: false,
+                  queue: :synchronizer,
+                  on_conflict: { client: :log, server: :reject }
 
   sidekiq_retries_exhausted do |msg, exception|
     entity_id, synchronization_id = msg['args']
@@ -29,9 +34,12 @@ class IeducarSynchronizerWorker
         entity.using_connection do
           configuration = IeducarApiConfiguration.current
 
-          next unless configuration.persisted?
-
-          configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years)
+          if configuration.persisted?
+            Rails.logger.info("[#{entity.name}] Configuração encontrada: #{configuration.url}")
+            configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years)
+          else
+            Rails.logger.warn("[#{entity.name}] Nenhuma configuração persistida encontrada.")
+          end
         end
       end
     end
@@ -45,7 +53,9 @@ class IeducarSynchronizerWorker
 
       break unless synchronization.try(:started?)
 
-      UnitiesSynchronizerWorker.perform_async(
+      UnitiesSynchronizerWorker.set(
+        queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
+      ).perform_async(
         entity_id: entity.id,
         synchronization_id: synchronization.id,
         current_years: current_years

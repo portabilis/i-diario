@@ -7,30 +7,30 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td></td>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
-            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
-            <td colspan="2">
+            <th scope="col"></th>
+            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></th>
+            <th scope="col"><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
+            <th scope="colgroup" colspan="2">
               <%= f.input :by_date, as: :date, label: false,
                     placeholder: t('.by_date') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_author, as: :select2_plans, label: false %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= link_to t('.new_html'), new_discipline_lesson_plan_path,
                   class: 'btn btn-primary pull-right', style: 'width: 210px;' %>
-            </td>
+            </th>
           </tr>
 
           <tr>
-            <th><%= LessonPlan.human_attribute_name :unity %></th>
-            <th width="20%"><%= LessonPlan.human_attribute_name :classroom %></th>
-            <th width="20%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
-            <th width="7%"><%= LessonPlan.human_attribute_name :start_at %></th>
-            <th width="7%"><%= LessonPlan.human_attribute_name :end_at %></th>
-            <th width="7%"><%= DisciplineLessonPlan.human_attribute_name :author %></th>
-            <td width="230px"></td>
+            <th scope="col"><%= LessonPlan.human_attribute_name :unity %></th>
+            <th scope="col" style="width: 20%"><%= LessonPlan.human_attribute_name :classroom %></th>
+            <th scope="col" style="width: 20%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
+            <th scope="col" style="width: 7%"><%= LessonPlan.human_attribute_name :start_at %></th>
+            <th scope="col" style="width: 7%"><%= LessonPlan.human_attribute_name :end_at %></th>
+            <th scope="col" style="width: 7%"><%= DisciplineLessonPlan.human_attribute_name :author %></th>
+            <th scope="col" style="width: 230px"></th>
           </tr>
         </thead>
 

@@ -66,6 +66,28 @@ class PedagogicalTrackingsController < ApplicationController
     respond_with @teacher_percents
   end
 
+  def recalculate
+    if current_user.employee?
+      school_calendars = SchoolCalendar.joins(:unity)
+        .where(unities: { id: employee_unities.map(&:id) })
+        .where(year: current_user_school_year)
+        .pluck(:id)
+    else
+      school_calendars = SchoolCalendar.joins(:unity)
+        .where(year: current_user_school_year)
+        .distinct
+        .pluck(:id)
+    end
+
+    school_calendars.each do |school_calendar_id|
+      SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_id)
+    end
+
+    flash[:notice] = t('pedagogical_trackings.index.recalculate_school_days_success')
+
+    redirect_to pedagogical_trackings_path
+  end
+
   private
 
   def minimum_year

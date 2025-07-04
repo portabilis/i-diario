@@ -30,8 +30,16 @@ class Discipline < ApplicationRecord
   # It works only when the query chain has join with
   # teacher_discipline_classrooms. Using scopes like by_teacher_id or
   # by_classroom for example.
-  scope :by_score_type, lambda { |score_type, student_id = nil|
+  scope :by_score_type, lambda { |score_type, student_id = nil, classroom_id = nil|
     scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
+
+    default_query = scoped.where(
+      ExamRule.arel_table[:score_type].eq(score_type).
+      or(
+        ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
+        and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
+      )
+    ).distinct
 
     if student_id && Student.find(student_id).try(:uses_differentiated_exam_rule)
       exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms_grades')
@@ -48,14 +56,33 @@ class Discipline < ApplicationRecord
             differentiated_exam_rules[:score_type].eq(score_type)
           )
         ).distinct
-    else
-      scoped.where(
-        ExamRule.arel_table[:score_type].eq(score_type).
-        or(
-          ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
-          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
-        )
-      ).distinct
+    elsif student_id
+      has_more_than_one_grade = ClassroomsGrade
+        .where(classroom_id: classroom_id)
+        .group(:classroom_id)
+        .having('COUNT(grade_id) > 1').exists?
+
+      if has_more_than_one_grade
+        grade_and_score_type = ClassroomsGrade
+          .by_student_id(student_id)
+          .joins(:classroom, :exam_rule)
+          .where(classrooms: { id: classroom_id })
+          .pluck(:grade_id, 'exam_rules.score_type')
+          .first
+
+        grade_id = grade_and_score_type&.first
+        score_type_value = grade_and_score_type&.last
+
+        if score_type_value == ScoreTypes::CONCEPT
+          default_query
+        else
+          Discipline.joins(:teacher_discipline_classrooms)
+            .where(teacher_discipline_classrooms: { grade_id: grade_id, score_type: score_type })
+            .distinct
+        end
+      else
+        default_query
+      end
     end
   }
   scope :by_grade, lambda { |grade| by_grade(grade) }

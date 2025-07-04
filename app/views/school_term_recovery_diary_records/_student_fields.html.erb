@@ -28,8 +28,9 @@
   </td>
 
   <td>
-    <%= f.input :score, label: false,
+    <%= f.input :score, label: false, error: false,
         input_html: decimal_input_mask(decimal_places),
         readonly: (!f.object.active && !f.object.active.nil?) || f.object.exempted_from_discipline %>
+    <%= format_error_message(f.error(:score, class: 'error').to_s).html_safe %>
   </td>
 </tr>

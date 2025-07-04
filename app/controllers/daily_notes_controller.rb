@@ -279,7 +279,7 @@ class DailyNotesController < ApplicationController
     }
     @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids, disciplines: @discipline)
     @exempted_from_discipline = StudentsExemptFromDiscipline.call(
-      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step
+      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step.step_number
     )
     @exempted_from_avaliation = students_exempted_from_avaliations(@avaliation_id, @student_ids)
     @active = ActiveStudentsOnDate.call(student_enrollments: @student_enrollment_ids, date: @test_date)
@@ -305,7 +305,11 @@ class DailyNotesController < ApplicationController
 
   def check_duplicate_enrolled_students
     enrolled_students = set_enrollment_classrooms
-                          .select { |ec| ec[:student_enrollment].status == 3 }
+                          .select { |ec|
+                            ec[:student_enrollment].status == 3 &&
+                            ec[:student_enrollment].active == 1 &&
+                            ec[:student_enrollment_classroom].left_at.blank?
+                          }
                           .map { |ec| ec[:student] }
 
     duplicate_students = enrolled_students

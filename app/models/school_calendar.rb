@@ -58,7 +58,14 @@ class SchoolCalendar < ApplicationRecord
   end
 
   def step(date)
-    steps.all.started_after_and_before(date).first
+    # Memorização para evitar consultas repetidas ao banco
+    @steps_by_date ||= {}
+
+    # Se já calculamos para esta data, retornamos o resultado em cache
+    return @steps_by_date[date.to_date] if @steps_by_date.key?(date.to_date)
+
+    # Caso contrário, consultamos e armazenamos em cache
+    @steps_by_date[date.to_date] = steps.all.started_after_and_before(date).first
   end
 
   def step_by_number(step_number)

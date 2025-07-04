@@ -213,6 +213,16 @@ module ApplicationHelper
     }
   end
 
+  def format_error_number(number)
+    return number unless number.is_a?(Numeric)
+    number_with_precision(number, precision: 2, separator: ',', delimiter: '.')
+  end
+
+  def format_error_message(message)
+    return message unless message.is_a?(String)
+    message.gsub(/\d+\.\d+/) { |match| format_error_number(match.to_f) }
+  end
+
   private
 
   def cache_key_to_user

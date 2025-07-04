@@ -31,7 +31,6 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
 
       current_user.current_classroom_id = another_recovery_diary_record.classroom_id
       current_user.current_discipline_id = another_recovery_diary_record.discipline_id
-
       another_recovery_diary_record.current_user = current_user
 
       another_school_term_recovery_diary_record = create(

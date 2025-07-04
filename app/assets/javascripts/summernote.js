@@ -66,3 +66,10 @@ function getTags(htmlString){
 
   return tags
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  $('.summernote-field').each(function () {
+    const isDisabled = $(this).data('disabled');
+    createSummerNote(this, { disabled: isDisabled });
+  });
+});

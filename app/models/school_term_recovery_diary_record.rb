@@ -31,7 +31,7 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   scope :ordered, -> { order(arel_table[:recorded_at].desc) }
 
   before_validation :set_recorded_at, on: [:create, :update]
-
+  before_validation :ensure_recovery_diary_record_association
   validates :recovery_diary_record, presence: true
   validate :recovery_type_must_allow_recovery_for_step
   validate :recovery_type_must_allow_recovery_for_classroom
@@ -133,5 +133,14 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
         true
       end
     end
+  end
+
+  def ensure_recovery_diary_record_association
+    return if recovery_diary_record.blank? || @ensuring_association
+
+    @ensuring_association = true
+    recovery_diary_record.school_term_recovery_diary_record ||= self
+  ensure
+    @ensuring_association = false
   end
 end

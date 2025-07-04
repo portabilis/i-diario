@@ -1,0 +1,53 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'beta_function' %>
+<% end %>
+
+<div class='widget-body no-padding'>
+  <%= simple_form_for :filter, { url: conceptual_exams_in_batchs_path, method: :get,
+    html: { class: 'filterable_search_form' } } do |f| %>
+    <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
+    <div class='table-responsive'>
+      <table id='resources' class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover'>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col">
+              <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
+                label: false, placeholder: t('.by_step') %>
+            </th>
+            <th scope="col">
+              <%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json,
+                label: false, placeholder: t('.by_status') %>
+            </th>
+            <th scope="col">
+              <%= link_to t('.new_html'), new_conceptual_exams_in_batch_path, class: 'btn btn-primary pull-right' %>
+            </th>
+          </tr>
+
+          <tr>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :unity_id %></th>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :classroom %></th>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :step %></th>
+            <th scope="col"><%= ConceptualExam.human_attribute_name :status %></th>
+            <th scope="col" style="width: 160px"></th>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id='paginator' class='remote'>
+          <td colspan='7'>
+            <div id='page_entries_info' class='pull-left hidden-xs'>
+              <%= page_entries_info @conceptual_exams %>
+            </div>
+
+            <div class='pull-right'>
+              <%= paginate @conceptual_exams %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

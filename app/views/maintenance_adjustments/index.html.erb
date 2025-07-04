@@ -4,30 +4,30 @@
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <td>
+            <th scope="col">
               <%= f.input :by_kind, as: :select2, elements: MaintenanceAdjustmentKinds.to_select.to_json,
                 label: false, placeholder: t('.by_kind') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_unity, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_year, as: :integer, label: false, placeholder: t('.by_year') %>
-            </td>
-            <td>
+            </th>
+            <th scope="col">
               <%= f.input :by_status, as: :select2, elements: MaintenanceAdjustmentStatus.to_select.to_json,
                 label: false, placeholder: t('.by_status') %>
-            </td>
-            <td class='actions' style='min-width: 155px;'>
+            </th>
+            <th scope="col" class='actions' style='min-width: 155px;'>
               <%= link_to t('.new_html'), new_maintenance_adjustment_path, class: 'btn btn-primary' %>
-            </td>
+            </th>
           </tr>
           <tr>
-            <th style='width: 30%;'><%= MaintenanceAdjustment.human_attribute_name :kind %></th>
-            <th style='width: 50%;'><%= MaintenanceAdjustment.human_attribute_name :unities %></th>
-            <th style='width: 10%;'><%= MaintenanceAdjustment.human_attribute_name :year %></th>
-            <th style='width: 10%;'><%= MaintenanceAdjustment.human_attribute_name :status %></th>
-            <td></td>
+            <th scope="col" style='width: 30%;'><%= MaintenanceAdjustment.human_attribute_name :kind %></th>
+            <th scope="col" style='width: 50%;'><%= MaintenanceAdjustment.human_attribute_name :unities %></th>
+            <th scope="col" style='width: 10%;'><%= MaintenanceAdjustment.human_attribute_name :year %></th>
+            <th scope="col" style='width: 10%;'><%= MaintenanceAdjustment.human_attribute_name :status %></th>
+            <th scope="col"></th>
           </tr>
         </thead>
 
