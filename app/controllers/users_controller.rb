@@ -169,7 +169,7 @@ class UsersController < ApplicationController
   end
 
   def valid_search_params?(params_search)
-    return true if params_search.blank?
+    return true if params_search.blank? || params_search.empty?
 
     params_search.values.any?(&:present?)
   end
