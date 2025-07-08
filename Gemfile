@@ -4,7 +4,7 @@ ruby '2.6.6'
 
 gem 'active_model_serializers', '0.9.12'
 gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
-gem "activerecord-tablefree", "~> 3.0"
+gem 'activerecord-tablefree', '~> 3.0'
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
@@ -53,10 +53,12 @@ gem 'responders', '2.4.1'
 gem 'rest-client', '2.0.2'
 gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git', tag: 'v5.10.0'
 gem 'rubyzip', '>= 1.3.0', require: 'zip'
+gem 'scenic', '< 1.9.0'
 gem 'sidekiq', '6.5.12'
 gem 'sidekiq-unique-jobs', '7.1.33'
 gem 'simple_form', '4.0.0'
 gem 'therubyracer', '0.12.3'
+gem 'tilt', '2.1.0'
 gem 'twitter-bootstrap-rails', '3.2.2'
 gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
@@ -68,15 +70,15 @@ gem 'tilt', '2.1.0'
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
-  gem 'rack-mini-profiler', '~> 2.3.4'
+  gem 'letter_opener_web', '~> 1.3.4'
+  gem 'listen', '~> 3.0.5'
   gem 'meta_request', '0.7.4'
   gem 'pry-byebug', '3.4.2'
+  gem 'rack-mini-profiler', '~> 2.3.4'
   gem 'rubocop', '1.10', require: false
   gem 'rubocop-rails'
   gem 'spring', '2.1.1'
   gem 'spring-commands-rspec', '1.0.4'
-  gem 'letter_opener_web', '~> 1.3.4'
-  gem 'listen', '~> 3.0.5'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
@@ -88,24 +90,24 @@ group :test do
   gem 'factory_girl_rails', '4.5.0'
   gem 'faker', '1.9.1'
   gem 'gherkin', '2.12.2'
+  gem 'mock_redis', '0.36.0'
+  gem 'net-http', '0.4.1'
   gem 'nokogiri', '1.9.1'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
   gem 'rails-controller-testing', '~> 1.0.5'
-  gem 'mock_redis', '0.36.0'
   gem 'rspec-rails', '3.5.2'
   gem 'rspec-retry', '0.6.2 '
   gem 'rspec-sidekiq', '3.0.3'
   gem 'rspec-wait', '0.0.9'
   gem 'selenium-webdriver', '~> 3.0'
   gem 'shoulda-matchers', '~> 3.1', '>= 3.1.0'
+  gem 'simplecov', require: false
   gem 'timecop', '0.8.1'
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
   gem 'webdrivers', '3.6.0'
   gem 'webmock', '3.14.0'
-  gem 'simplecov', require: false
-  gem 'net-http', '0.4.1'
 end
 
 group :test, :development do
