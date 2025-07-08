@@ -64,6 +64,8 @@ gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
 gem 'webpacker', '~> 4.x'
+gem 'scenic', '< 1.9.0'
+gem 'tilt', '2.1.0'
 
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
