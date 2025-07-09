@@ -55,23 +55,23 @@
           Sincronizando
         <% end %>
       <% else %>
+        <%= link_to t('.synchronize'), ieducar_api_configurations_synchronizations_path, method: 'post',
+          class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px;',
+          data: { disable_with: t('.sending') } %>
+
         <% if current_user.admin? || current_user.can_change?(:full_synchronization) %>
+          <%= link_to t('.synchronize_last_two_years'), 
+            ieducar_api_configurations_synchronizations_path(period: SynchronizationPeriods::LAST_TWO_YEARS),
+            method: 'post', 
+            class: 'btn bg-color-orange txt-color-white pull-right',
+            style: 'margin-top: 20px; margin-left: 10px;',
+            data: { disable_with: t('.sending') } %>
+            
           <%= link_to t('.synchronize_current_year'), 
             ieducar_api_configurations_synchronizations_path(period: SynchronizationPeriods::CURRENT_YEAR),
             method: 'post', 
             class: 'btn bg-color-blue txt-color-white pull-right',
             style: 'margin-top: 20px; margin-left: 10px;',
-            data: { disable_with: t('.sending') } %>
-            
-          <%= link_to t('.synchronize_last_two_years'), 
-            ieducar_api_configurations_synchronizations_path(period: SynchronizationPeriods::LAST_TWO_YEARS),
-            method: 'post', 
-            class: 'btn bg-color-red txt-color-white pull-right',
-            style: 'margin-top: 20px;',
-            data: { disable_with: t('.sending') } %>
-        <% else %>
-          <%= link_to t('.synchronize'), ieducar_api_configurations_synchronizations_path, method: 'post',
-            class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px;',
             data: { disable_with: t('.sending') } %>
         <% end %>
       <% end %>
