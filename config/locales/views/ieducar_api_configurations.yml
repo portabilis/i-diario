@@ -8,6 +8,7 @@ pt-BR:
       time: 'Tempo em andamento'
       averaged_time: 'Tempo médio'
       status: 'Estado atual'
+      id: 'Código'
     sync_error_modal:
       close: 'Fechar'
   ieducar_api_configurations:
