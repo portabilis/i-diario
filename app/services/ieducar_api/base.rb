@@ -77,8 +77,16 @@ module IeducarApi
       payload = {}
       method == RequestMethods::GET ? request_params.reverse_merge!(params) : payload = params
 
-      Rails.logger.info "#{method.upcase} #{endpoint}?#{request_params.to_query} payload: #{payload}"
-      Sidekiq.logger.info "#{method.upcase} #{endpoint}?#{request_params.to_query} payload: #{payload}"
+      if Rails.application.secrets.debug_ieducar_api
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Starting request to i-Educar API"
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Method: #{method.upcase}"
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Endpoint: #{endpoint}"
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Request params: #{request_params.to_json}"
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Payload: #{payload.to_json}" if payload.present?
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Full URL: #{endpoint}?#{request_params.to_query}"
+        
+        Sidekiq.logger.info "[DEBUG_IEDUCAR_API] #{method.upcase} #{endpoint}?#{request_params.to_query} payload: #{payload}"
+      end
 
       Honeybadger.context(
         endpoint: endpoint,
@@ -94,8 +102,21 @@ module IeducarApi
                    request_params[:action] = params[:resource]
                    yield(endpoint, request_params, payload)
                  end
+        if Rails.application.secrets.debug_ieducar_api
+          Rails.logger.info "[DEBUG_IEDUCAR_API] Response received (raw): #{result.truncate(1000)}"
+        end
+        
         result = JSON.parse(result)
+        
+        if Rails.application.secrets.debug_ieducar_api
+          Rails.logger.info "[DEBUG_IEDUCAR_API] Response parsed successfully"
+          Rails.logger.info "[DEBUG_IEDUCAR_API] Response data: #{result.to_json.truncate(1000)}"
+        end
       rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
+        if Rails.application.secrets.debug_ieducar_api
+          Rails.logger.error "[DEBUG_IEDUCAR_API] Network error occurred: #{error.class} - #{error.message}"
+        end
+        
         if RETRY_NETWORK_ERRORS.any? { |network_error| error.message.include?(network_error) }
           Honeybadger.notify(error)
           raise NetworkException, error.message
@@ -103,6 +124,11 @@ module IeducarApi
 
         raise ApiError, 'URL do i-Educar informada não é válida.'
       rescue StandardError => error
+        if Rails.application.secrets.debug_ieducar_api
+          Rails.logger.error "[DEBUG_IEDUCAR_API] Error occurred: #{error.class} - #{error.message}"
+          Rails.logger.error "[DEBUG_IEDUCAR_API] Backtrace: #{error.backtrace.first(5).join("\n")}"
+        end
+        
         Honeybadger.notify(error)
 
         raise GenericError, error.message
@@ -112,6 +138,14 @@ module IeducarApi
 
       response = IeducarResponseDecorator.new(result)
       raise_exception = response.any_error_message? && !response.known_error?
+      
+      if Rails.application.secrets.debug_ieducar_api
+        Rails.logger.info "[DEBUG_IEDUCAR_API] API messages: #{message}" if message.present?
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Response has errors: #{response.any_error_message?}"
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Known error: #{response.known_error?}"
+        Rails.logger.info "[DEBUG_IEDUCAR_API] Will raise exception: #{raise_exception}"
+      end
+      
       raise GenericError, message if raise_exception
 
       result
