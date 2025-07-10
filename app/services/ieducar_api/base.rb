@@ -122,11 +122,14 @@ module IeducarApi
         last_sync = current_api_configuration.synchronized_at
         # Se a última sincronização foi nil, usa 7 dias atrás
         base_date = last_sync || 7.days.ago
-        # A sincronização completa roda todo domingo, então a parcial vamos garantir 
+        # A sincronização completa roda todo domingo, então a parcial vamos garantir
         # pegar todos os dados desde o último domingo para evitar perder dados
         # Encontra o último domingo (0 = domingo no Ruby)
         days_since_sunday = base_date.wday
-        base_date.beginning_of_day - days_since_sunday.days
+        # Se estamos no domingo (wday = 0), vamos para o domingo anterior (7 dias atrás)
+        # Se não, vamos para o domingo da semana passada
+        days_to_subtract = days_since_sunday == 0 ? 7 : days_since_sunday
+        base_date.beginning_of_day - days_to_subtract.days
       end
     end
 
