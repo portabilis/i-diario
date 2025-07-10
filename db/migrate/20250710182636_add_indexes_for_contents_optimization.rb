@@ -2,10 +2,12 @@ class AddIndexesForContentsOptimization < ActiveRecord::Migration
   disable_ddl_transaction!
   
   def change
-    # Índice para queries exatas em description (find_or_create_by)
-    add_index :contents, :description, 
-              name: 'index_contents_on_description',
-              algorithm: :concurrently
+    # Índice hash para queries exatas em description (find_or_create_by)
+    # Usa HASH pois algumas descrições excedem o limite do B-tree (2704 bytes)
+    execute <<-SQL
+      CREATE INDEX CONCURRENTLY index_contents_on_description 
+      ON contents USING hash (description);
+    SQL
     
     # Índice para ordenação por created_at (usado em start_with_description)
     add_index :contents, :created_at, 
