@@ -123,6 +123,26 @@ class DefaultSynchronizer
   end
 
   def slice_years(years)
+    # Verificar se há período customizado na sincronização
+    if @synchronization.period.present?
+      case @synchronization.period
+      when SynchronizationPeriods::CURRENT_YEAR
+        years.take(1)
+      when SynchronizationPeriods::LAST_TWO_YEARS
+        years.take(2)
+      else
+        # Comportamento padrão se período desconhecido
+        default_slice_years(years)
+      end
+    else
+      # Comportamento atual
+      default_slice_years(years)
+    end
+  end
+
+  private
+
+  def default_slice_years(years)
     if Date.current.month <= 3 || years.include?(Date.current.year + 1) || @synchronization.full_synchronization
       years.take(2)
     else

@@ -18,7 +18,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
     first.presence || new
   end
 
-  def start_synchronization(user = nil, entity_id = nil, full_synchronization = false, current_years = true)
+  def start_synchronization(user = nil, entity_id = nil, full_synchronization = false, current_years = true, period = nil)
     transaction do
       synchronization = IeducarApiSynchronization.started.first
 
@@ -27,7 +27,8 @@ class IeducarApiConfiguration < ActiveRecord::Base
       synchronization = synchronizations.create!(
         status: ApiSynchronizationStatus::STARTED,
         author: user,
-        full_synchronization: full_synchronization
+        full_synchronization: full_synchronization,
+        period: period
       )
 
       job_id = IeducarSynchronizerWorker.set(
@@ -37,7 +38,8 @@ class IeducarApiConfiguration < ActiveRecord::Base
         entity_id,
         synchronization.id,
         full_synchronization,
-        current_years
+        current_years,
+        period
       )
 
       synchronization.set_job_id!(job_id)

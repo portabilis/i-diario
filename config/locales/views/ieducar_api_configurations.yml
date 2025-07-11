@@ -16,5 +16,7 @@ pt-BR:
       sending: 'Enviando...'
       synchronize: 'Sincronizar'
       full_synchronization: 'Sincronização completa'
+      synchronize_current_year: 'Sincronizar ano atual'
+      synchronize_last_two_years: 'Sincronizar últimos 2 anos'
       history: 'Histórico'
       save: 'Salvar'
