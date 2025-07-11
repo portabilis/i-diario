@@ -76,6 +76,16 @@ class SchoolCalendarsController < ApplicationController
     @school_calendar = SchoolCalendar.find(params[:id])
     authorize @school_calendar
 
+    if !@school_calendar.opened_year?
+      respond_to do |format|
+        format.html {
+          redirect_to edit_unity_path(@school_calendar.unity), alert: 'Ano letivo já está fechado.'
+        }
+        format.js { head :ok }
+      end
+      return
+    end
+
     if @school_calendar.update(opened_year: false)
       respond_to do |format|
         format.html {
