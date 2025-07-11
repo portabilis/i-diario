@@ -28,7 +28,7 @@ module IeducarApi
 
     def fetch(params = {})
       ignore_modified = params.delete(:ignore_modified)
-      params.reverse_merge!(modified: last_synchronization_date) unless full_synchronization || ignore_modified
+      params.reverse_merge!(modified: get_modified_date) unless full_synchronization || ignore_modified
 
       assign_staging_secret_keys if Rails.env.staging?
 
@@ -151,8 +151,20 @@ module IeducarApi
       result
     end
 
-    def last_synchronization_date
-      @last_synchronization_date ||= current_api_configuration.synchronized_at
+    def get_modified_date
+      @get_modified_date ||= begin
+        last_sync = current_api_configuration.synchronized_at
+        # Se a última sincronização foi nil, usa 7 dias atrás
+        base_date = last_sync || 7.days.ago
+        # A sincronização completa roda todo domingo, então a parcial vamos garantir
+        # pegar todos os dados desde o último domingo para evitar perder dados
+        # Encontra o último domingo (0 = domingo no Ruby)
+        days_since_sunday = base_date.wday
+        # Se estamos no domingo (wday = 0), vamos para o domingo anterior (7 dias atrás)
+        # Se não, vamos para o domingo da semana passada
+        days_to_subtract = days_since_sunday == 0 ? 7 : days_since_sunday
+        base_date.beginning_of_day - days_to_subtract.days
+      end
     end
 
     def current_api_configuration
