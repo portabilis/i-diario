@@ -13,8 +13,7 @@ class SchoolCalendarStatus
     return false if school_calendar_data.nil?
 
     school_calendar_data['ano_em_aberto'] == false
-  rescue StandardError => e
-    Rails.logger.error("Erro ao consultar i-Educar: #{e.message}")
-    false
+  rescue StandardError => error
+    Honeybadger.notify(error)
   end
 end
