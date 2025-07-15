@@ -189,7 +189,6 @@ synchronizers:
     klass: GradeExamRulesSynchronizer
     by_year: true
     by_unity: false
-    only_simple_synchronization: true
     dependencies: [
       ClassroomsSynchronizer
     ]
