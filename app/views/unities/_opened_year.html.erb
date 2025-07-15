@@ -21,13 +21,21 @@
             <%= school_calendar.opened_year ? 'Aberto' : 'Fechado' %>
           </td>
           <td class="actions">
-            <%= link_to 'Fechar',
-                close_school_calendar_path(school_calendar),
-                method: :patch,
-                class: 'btn btn-success btn-sm',
-                data: {
-                  confirm: 'Tem certeza que deseja fechar este ano letivo?',
-                }, disabled: school_calendar.opened_year ? false : true %>
+            <% if school_calendar.opened_year %>
+              <%= link_to 'Fechar',
+                    close_school_calendar_path(school_calendar),
+                    method: :patch,
+                    class: 'btn btn-success btn-sm',
+                    data: {
+                      confirm: "Tem certeza que deseja fechar o ano letivo #{school_calendar.year}?"
+                    },
+                    title: 'Fechar o ano letivo' %>
+            <% else %>
+              <span title="Ano letivo já está fechado.">
+                <a class="btn btn-success btn-sm disabled">Fechar</a>
+              </span>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
