@@ -8,7 +8,11 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   before_action :arithmetic_test_setting
 
   def index
-    step_id = (params[:filter] || []).delete(:by_step_id)
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    step_id = params[:filter].delete(:by_step_id)
     set_options_by_user
 
     @lowest_note_recoverys = apply_scopes(AvaliationRecoveryLowestNote)
