@@ -263,7 +263,7 @@ class AvaliationsController < ApplicationController
   end
 
   def school_calendar_by_classroom?
-    classroom_ids = @classrooms.map(&:id)
+    classroom_ids = @classrooms
 
     current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
   end
@@ -271,7 +271,7 @@ class AvaliationsController < ApplicationController
   def fetch_avaliations_by_user
     current_unity_id = current_unity.id if current_unity
     @avaliations = apply_scopes(Avaliation
-      .includes(:classroom, :discipline, :test_setting_test)
+      .includes(:classroom, :discipline, :test_setting_test, :school_calendar)
       .by_unity_id(current_unity_id)
       .teacher_avaliations(
         current_teacher.id,
