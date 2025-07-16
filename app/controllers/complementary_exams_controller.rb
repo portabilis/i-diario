@@ -6,14 +6,14 @@ class ComplementaryExamsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
+    set_filters
     step_id = (params[:filter] || []).delete(:by_step_id)
 
-    set_filters
     set_options_by_user
     @complementary_exams = fetch_complementary_exams
 
-    if step_id
-      @complementary_exams = @complementary_exams.by_step_id(@classroom.map(&:id), step_id)
+    if step_id.present?
+      @complementary_exams = @complementary_exams.by_step_id(@classrooms, step_id)
       params[:filter][:by_step_id] = step_id
     end
 
@@ -211,10 +211,10 @@ class ComplementaryExamsController < ApplicationController
 
   def fetch_complementary_exams
     apply_scopes(ComplementaryExam).includes(:complementary_exam_setting, :unity, :classroom, :discipline)
-                                   .by_unity_id(current_unity.id)
-                                   .by_classroom_id(@classrooms.map(&:id))
-                                   .by_discipline_id(@disciplines.map(&:id))
-                                   .ordered
+                                            .by_unity_id(current_unity.id)
+                                            .by_classroom_id(@classrooms.map(&:id))
+                                            .by_discipline_id(@disciplines.map(&:id))
+                                            .ordered
   end
 
   def set_options_by_user
