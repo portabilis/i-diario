@@ -1,4 +1,5 @@
 <tr class="sync-status-<%= sync.status %>">
+  <td><%= sync.id %></td>
   <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
   <td><span class="time_running"><%= sync.time_running %></span> minutos</td>

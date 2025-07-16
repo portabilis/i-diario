@@ -77,7 +77,6 @@
                   <label class="checkbox checkbox-frequency <%= response_data[:response_class] ? 'state-disabled never-change ' + response_data[:response_class] : '' %>" style="bottom: 15px;" title="<%= response_data[:response_tooltip] %>">
                     <%= f.check_box :present, class: 'class-number-checkbox' + (response_data[:response_class] ? ' never-change ' + response_data[:response_class] : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: response_data[:response_class] ? true : false %>
                     <i class="checkbox-frequency-in-batch"></i>
-                    <input type="checkbox" class="hide">
                     <span class="hide">Lançar frequência</span>
                   </label>
                 <% end %>

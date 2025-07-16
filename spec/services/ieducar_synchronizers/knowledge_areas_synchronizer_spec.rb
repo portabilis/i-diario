@@ -21,9 +21,9 @@ RSpec.describe KnowledgeAreasSynchronizer do
         expect(KnowledgeArea.count).to eq 14
         first = KnowledgeArea.order(:id).first
         expect(first).to have_attributes(
-          'description': '1º Ano - Artes',
-          'api_code': '10',
-          'sequence': 99_999
+          'description': 'Artes e Música',
+          'api_code': '7',
+          'sequence': 3
         )
       end
     end
@@ -46,9 +46,9 @@ RSpec.describe KnowledgeAreasSynchronizer do
     
         expect(KnowledgeArea.count).to eq 14
         expect(knowledge_area.reload).to have_attributes(
-          'description': 'EDUCAÇÃO FÍSICA',
+          'description': 'Linguagem Oral e Escrita',
           'api_code': '8',
-          'sequence': 99_999
+          'sequence': 4
         )
       end
     end

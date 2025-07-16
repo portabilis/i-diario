@@ -11,7 +11,7 @@ class SystemNotificationsController < ApplicationController
     render(
       json: {
         system_notifications: ActiveModel::ArraySerializer.new(current_user.system_notifications.limit(10).ordered, each_serializer: SystemNotificationSerializer),
-        unread_notifications_count: current_user.unread_notifications.count
+        unread_notifications_count: current_user.unread_notifications_count
       }
     )
   end
