@@ -41,14 +41,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @complementary_exams %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @complementary_exams %>
-            </div>
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @complementary_exams %>
           </td>
         </tfoot>
       </table>
