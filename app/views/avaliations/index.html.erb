@@ -43,13 +43,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @avaliations %>
-            </div>
-            <div class="pull-right">
-              <%= paginate @avaliations %>
-            </div>
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @avaliations %>
           </td>
         </tfoot>
       </table>
