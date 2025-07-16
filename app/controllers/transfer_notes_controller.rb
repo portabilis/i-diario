@@ -7,16 +7,19 @@ class TransferNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
     step_id = (params[:filter] || []).delete(:by_step)
 
     set_options_by_user
 
-    @transfer_notes = apply_scopes(TransferNote).includes({ classroom: :unity }, :discipline)
+    @transfer_notes = apply_scopes(TransferNote).includes({ classroom: :unity }, :discipline, :student)
                                                 .by_classroom_id(@classrooms.map(&:id))
                                                 .by_discipline_id(@disciplines.map(&:id))
 
     if step_id.present?
-      @transfer_notes = @transfer_notes.by_step_id(@classrooms.map(&:id), step_id)
+      @transfer_notes = @transfer_notes.by_step_id(@classrooms, step_id)
       params[:filter][:by_step] = step_id
     end
 
