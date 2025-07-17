@@ -6,7 +6,11 @@
         <thead>
           <tr>
             <th scope="col"></th>
-            <th scope="col"></th>
+            <th scope="col">
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
+                            label: false, placeholder: t('.by_classroom_id'),
+                            input_html: { value: current_user_classroom.id } %>
+            </th>
             <th scope="col">
               <%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %>
             </th>
@@ -35,15 +39,9 @@
 
         <%= render 'resources' %>
 
-        <tfoot id='paginator' class='remote'>
-          <td colspan='7'>
-            <div id='page_entries_info' class='pull-left hidden-xs'>
-              <%= page_entries_info @conceptual_exams %>
-            </div>
-
-            <div class='pull-right'>
-              <%= paginate @conceptual_exams %>
-            </div>
+        <tfoot id="paginator" class="remote">
+          <td id="pagination-tfoot" colspan="8">
+            <%= render 'shared/pagination', records: @conceptual_exams %>
           </td>
         </tfoot>
       </table>
