@@ -9,6 +9,7 @@ class ConceptualExamsController < ApplicationController
   before_action :view_data, only: [:edit, :show]
 
   def index
+    set_filters
     step_id = (params[:filter] || []).delete(:by_step)
     status = (params[:filter] || []).delete(:by_status)
 
@@ -565,5 +566,10 @@ class ConceptualExamsController < ApplicationController
                               steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
                               steps
                             end
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
   end
 end
