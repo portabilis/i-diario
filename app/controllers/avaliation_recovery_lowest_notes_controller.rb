@@ -8,10 +8,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   before_action :arithmetic_test_setting
 
   def index
-    params[:filter] ||= {}
-    params[:filter][:by_classroom_id] ||= current_user_classroom.id
-    params[:filter][:by_discipline_id] ||= current_user_discipline.id
-
+    set_filters
     step_id = params[:filter].delete(:by_step_id)
     set_options_by_user
 
@@ -342,5 +339,17 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @disciplines = @disciplines.by_classroom(
       @lowest_note_recovery.recovery_diary_record.classroom
     ).not_descriptor
+  end
+
+  def set_filters
+    unless params.key?(:filter) || params.key?(:page)
+      params[:filter] = {
+        by_classroom_id: current_user_classroom.id,
+        by_discipline_id: current_user_discipline.id
+      }
+    end
+
+    params[:filter] ||= {}
+    @filter = OpenStruct.new(params[:filter])
   end
 end
