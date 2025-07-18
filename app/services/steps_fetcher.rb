@@ -14,7 +14,14 @@ class StepsFetcher
   def step_by_date(date)
     return if school_calendar.blank?
 
-    school_calendar_steps.started_after_and_before(date).first
+    # Memorização para evitar consultas repetidas ao banco
+    @steps_by_date ||= {}
+
+    # Se já calculamos para esta data, retornamos o resultado em cache
+    return @steps_by_date[date.to_date] if @steps_by_date.key?(date.to_date)
+
+    # Caso contrário, consultamos e armazenamos em cache
+    @steps_by_date[date.to_date] = school_calendar_steps.started_after_and_before(date).first
   end
 
   def steps_by_date_range(start_date, end_date)
@@ -82,11 +89,17 @@ class StepsFetcher
   def step_by_number(step_number)
     return if school_calendar.blank?
 
-    school_calendar_steps.each do |step|
-      return step if step.step_number == step_number.to_i
-    end
+    # Memorização para evitar consultas repetidas
+    @steps_by_number ||= {}
 
-    nil
+    # Se já calculamos para este número, retornamos o resultado em cache
+    return @steps_by_number[step_number.to_i] if @steps_by_number.key?(step_number.to_i)
+
+    # Carregar todos os steps se ainda não tiver feito
+    steps = school_calendar_steps.to_a
+
+    # Encontrar o step pelo número e armazenar em cache
+    @steps_by_number[step_number.to_i] = steps.find { |step| step.step_number == step_number.to_i }
   end
 
   def old_steps_by_step_number(step_number)

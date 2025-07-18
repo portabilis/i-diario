@@ -12,7 +12,7 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exams = fetch_complementary_exams
 
     if step_id
-      @complementary_exams = @complementary_exams.by_step_id(@classroom.map(&:id), step_id)
+      @complementary_exams = @complementary_exams.by_step_id(@classrooms, step_id)
       params[:filter][:by_step_id] = step_id
     end
 
