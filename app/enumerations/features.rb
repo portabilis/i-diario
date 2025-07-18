@@ -25,6 +25,7 @@ class Features < EnumerateIt::Base
                    :entity_configurations,
                    :exam_record_report,
                    :final_recovery_diary_records,
+                   :full_synchronization,
                    :ieducar_api_configurations,
                    :ieducar_api_exam_posting_without_restrictions,
                    :ieducar_api_exam_postings,
