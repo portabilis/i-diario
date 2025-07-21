@@ -7,9 +7,7 @@ class TransferNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    params[:filter] ||= {}
-    params[:filter][:by_classroom_id] ||= current_user_classroom.id
-    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+    set_filters
     step_id = (params[:filter] || []).delete(:by_step)
 
     set_options_by_user
@@ -179,6 +177,19 @@ class TransferNotesController < ApplicationController
     @unities ||= [current_user_classroom.unity]
     @disciplines ||= [current_user_discipline]
     @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+  end
+
+  def set_filters
+    unless params.key?(:filter) || params.key?(:page)
+      params[:filter] = {
+        by_classroom_id: current_user_classroom.id,
+        by_discipline_id: current_user_discipline.id
+      }
+    end
+
+    params[:filter] ||= {}
+
+    @filter = OpenStruct.new(params[:filter])
   end
 
   def fetch_linked_by_teacher
