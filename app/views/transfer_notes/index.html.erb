@@ -1,5 +1,5 @@
 <div class='widget-body no-padding'>
-  <%= simple_form_for :filter, { url: transfer_notes_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: transfer_notes_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class='table-responsive'>
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
@@ -8,10 +8,10 @@
               <%= f.input :by_unity_id, elements: @unities, as: :select2, label: false, placeholder: t('.by_unity_id'), input_html: { value: current_user_classroom.unity_id } %>
             </th>
             <th scope="col">
-              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id'), input_html: { value: current_user_classroom.id } %>
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %>
             </th>
             <th scope="col">
-              <%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id'), input_html: { value: current_user_discipline.id } %></th>
+              <%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
             <th scope="col"><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></th>
             <th scope="col">
               <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
