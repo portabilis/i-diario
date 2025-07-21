@@ -23,31 +23,22 @@ namespace :notifications do
           if old_notifications_count > 0
             puts "  Encontradas #{old_notifications_count} notificações para remover"
 
-            entity_deleted_count = 0
-            entity_targets_deleted = 0
-            batch_size = 1000
+            # Usa transação para garantir atomicidade
+            ActiveRecord::Base.transaction do
+              # Remove primeiro os targets (registros de leitura por usuário)
+              # usando join para evitar carregar todas as notificações em memória
+              entity_targets_deleted = SystemNotificationTarget
+                .joins(:system_notification)
+                .where('system_notifications.created_at < ?', cutoff_date)
+                .delete_all
 
-            # Processa em lotes para evitar sobrecarga de memória
-            SystemNotification.where('created_at < ?', cutoff_date).find_in_batches(batch_size: batch_size) do |batch|
-              # Usa transação para garantir atomicidade
-              ActiveRecord::Base.transaction do
-                notification_ids = batch.map(&:id)
+              # Remove as notificações
+              entity_deleted_count = SystemNotification.where('created_at < ?', cutoff_date).delete_all
 
-                # Remove primeiro os targets (registros de leitura por usuário)
-                targets_deleted = SystemNotificationTarget.where(system_notification_id: notification_ids).delete_all
-                entity_targets_deleted += targets_deleted
-
-                # Remove as notificações
-                deleted = SystemNotification.where(id: notification_ids).delete_all
-                entity_deleted_count += deleted
-
-                puts "    Lote processado: #{deleted} notificações e #{targets_deleted} targets removidos"
-              end
+              total_deleted += entity_deleted_count
+              puts "  Total removido: #{entity_deleted_count} notificações e #{entity_targets_deleted} targets"
+              Rails.logger.info "Entidade #{entity.name} (ID: #{entity.id}): removidas #{entity_deleted_count} notificações antigas e #{entity_targets_deleted} targets"
             end
-
-            total_deleted += entity_deleted_count
-            puts "  Total removido: #{entity_deleted_count} notificações e #{entity_targets_deleted} targets"
-            Rails.logger.info "Entidade #{entity.name} (ID: #{entity.id}): removidas #{entity_deleted_count} notificações antigas e #{entity_targets_deleted} targets"
           else
             puts "  Nenhuma notificação com mais de 18 meses encontrada"
           end
