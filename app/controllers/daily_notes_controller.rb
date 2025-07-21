@@ -7,9 +7,8 @@ class DailyNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    set_options_by_user
     set_filters
-
+    set_options_by_user
     fetch_daily_notes_and_avaliations
 
     authorize @daily_notes
@@ -208,7 +207,6 @@ class DailyNotesController < ApplicationController
 
     @classrooms ||= [current_user_classroom]
     @disciplines ||= [current_user_discipline]
-    @steps ||= SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def fetch_daily_notes_and_avaliations
@@ -225,6 +223,7 @@ class DailyNotesController < ApplicationController
     )
 
     @avaliations = Avaliation.by_classroom_id(@classrooms.map(&:id)).by_discipline_id(@disciplines.map(&:id))
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
   end
 
   def fetch_linked_by_teacher
@@ -299,21 +298,22 @@ disciplines: @discipline)
   end
 
   def set_filters
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-
-      key = if current_school_calendar.classrooms.exists?(classroom_id: current_user_classroom&.id)
-              :by_school_calendar_classroom_step_id
-            else
-              :by_school_calendar_step_id
-            end
-
-      params[:filter][key] = step_id
+    unless params.key?(:filter) || params.key?(:page)
+      params[:filter] = {
+        by_classroom_id: current_user_classroom.id,
+        by_discipline_id: current_user_discipline.id
+      }
     end
 
     params[:filter] ||= {}
-    params[:filter][:by_classroom_id] ||= current_user_classroom.id
-    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    if params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+      params[:filter][school_calendar_step] = step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = params[:filter][school_calendar_step]
   end
 
   def check_duplicate_enrolled_students
@@ -337,6 +337,16 @@ disciplines: @discipline)
         'daily_notes.duplicate_students',
         students: duplicate_students.map(&:name).join(', ')
       )
+    end
+  end
+
+  def school_calendar_step
+    classroom_id = params.dig(:filter, :by_classroom_id) || current_user_classroom&.id
+
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step_id
+    else
+      :by_school_calendar_step_id
     end
   end
 end
