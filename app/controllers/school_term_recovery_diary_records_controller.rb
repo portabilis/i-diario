@@ -10,7 +10,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     set_filters
     step_id = (params[:filter] || []).delete(:by_step_id)
 
-    fetch_linked_by_teacher
+    set_options_by_user
 
     set_school_term_recovery_diary_records
 
