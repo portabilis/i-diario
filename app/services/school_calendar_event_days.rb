@@ -45,6 +45,7 @@ class SchoolCalendarEventDays
       when 'update'
         if @event_type_changed && event_type_includes_no_school?
           destroy_school_days(days)
+          process_school_days(event_type, days, :destroy)
         else
           update_school_days_for_event_type(event_type, days)
         end
@@ -67,6 +68,13 @@ class SchoolCalendarEventDays
 
     @school_calendars.each do |school_calendar|
       school_days.each do |school_day|
+
+        if action == :destroy && event_type_includes_no_school?
+          days_to_process << school_day
+          unities_ids << school_calendar.unity_id
+          next
+        end
+
         next unless valid_school_day?(school_calendar, school_day, action == :create)
 
         days_to_process << school_day
@@ -78,7 +86,9 @@ class SchoolCalendarEventDays
       end
     end
 
-    update_daily_frequencies(unities_ids.uniq, days_to_process)
+    if event_type_includes_no_school?
+      update_daily_frequencies(unities_ids.uniq, days_to_process)
+    end
   end
 
   def valid_school_day?(school_calendar, school_day, creating)
