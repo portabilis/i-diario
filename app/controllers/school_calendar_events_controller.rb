@@ -75,6 +75,7 @@ class SchoolCalendarEventsController < ApplicationController
       clear_invalid_dates
       render :edit
     end
+    respond_with resource, location: school_calendar_school_calendar_events_path
   end
 
   def destroy
