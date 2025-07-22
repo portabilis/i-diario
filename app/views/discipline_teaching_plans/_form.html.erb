@@ -10,10 +10,10 @@
 <%= hidden_field_tag :action_name, action_name %>
 <%= hidden_field_tag :yearly_school_term_type_id, @yearly_term_type_id %>
 
-<%= simple_form_for @discipline_teaching_plan, html: {
-    class: 'smart-form',
-    id: 'discipline_teaching_plan'
-  } do |f| %>
+<%= simple_form_for @discipline_teaching_plan,
+    url: discipline_teaching_plan_form_url(@discipline_teaching_plan, action_name),
+    method: teaching_plan_form_method(action_name),
+    html: { class: 'smart-form', id: 'discipline_teaching_plan' } do |f| %>
 
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
@@ -225,22 +225,19 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name.eql?('show') %>
+          <%= teaching_plan_form.input :methodology, label: @methodology_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :evaluation,label: @evaluation_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name.eql?('show') %>
+          <%= teaching_plan_form.input :evaluation,label: @evaluation_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name.eql?('show') %>
+          <%= teaching_plan_form.input :references, label: @references_translation, input_html: { class: 'col col-sm-12 summernote-field', data: { disabled: action_name.eql?('show') }} %>
         </div>
       </div>
 
@@ -263,9 +260,9 @@
           <table class="table table-striped table-bordered table-condensed records">
             <thead>
               <tr>
-                <th><%= t('.attachments') %></th>
+                <th scope="col"><%= t('.attachments') %></th>
                 <% if !action_name.eql?('show') %>
-                  <td width="73px"></td>
+                  <th scope="col" style="width: 73px"></th>
                 <% end %>
               </tr>
             </thead>

@@ -49,6 +49,7 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     reload_students_list
+    check_duplicate_enrolled_students
   end
 
   def update
@@ -58,6 +59,12 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     destroy_students_not_found
+    check_duplicate_enrolled_students
+
+    if flash[:error].present?
+      render :edit
+      return
+    end
 
     if @daily_note.save
       respond_with @daily_note, location: daily_notes_path
@@ -113,7 +120,9 @@ class DailyNotesController < ApplicationController
         delete_note(params[:id], student_id)
 
         avaliation_exemption.save!
-      rescue Exception
+      rescue Exception => expection
+        Honeybadger.notify(expection)
+
         @students_ids.delete(student_id)
       end
     end
@@ -270,7 +279,7 @@ class DailyNotesController < ApplicationController
     }
     @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids, disciplines: @discipline)
     @exempted_from_discipline = StudentsExemptFromDiscipline.call(
-      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step
+      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step.step_number
     )
     @exempted_from_avaliation = students_exempted_from_avaliations(@avaliation_id, @student_ids)
     @active = ActiveStudentsOnDate.call(student_enrollments: @student_enrollment_ids, date: @test_date)
@@ -291,6 +300,30 @@ class DailyNotesController < ApplicationController
     exemptions.each do |exempt|
       students_exempt_from_avaliation[exempt.student_id] ||= []
       students_exempt_from_avaliation[exempt.student_id] << exempt.avaliation_id
+    end
+  end
+
+  def check_duplicate_enrolled_students
+    enrolled_students = set_enrollment_classrooms
+                          .select { |ec|
+                            ec[:student_enrollment].status == 3 &&
+                            ec[:student_enrollment].active == 1 &&
+                            ec[:student_enrollment_classroom].left_at.blank?
+                          }
+                          .map { |ec| ec[:student] }
+
+    duplicate_students = enrolled_students
+                            .group_by(&:id)
+                            .select { |_, group| group.size > 1 }
+                            .values
+                            .flatten
+                            .uniq
+
+    if duplicate_students.any?
+      flash[:error] = t(
+        'daily_notes.duplicate_students',
+        students: duplicate_students.map(&:name).join(', ')
+      )
     end
   end
 end

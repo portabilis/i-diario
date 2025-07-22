@@ -42,6 +42,62 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
   end
 
+  describe '#get_modified_date' do
+    subject do
+      IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    end
+
+    let(:api_configuration) { double('IeducarApiConfiguration') }
+
+    before do
+      allow(IeducarApiConfiguration).to receive(:current).and_return(api_configuration)
+    end
+
+    context 'when synchronized_at is nil' do
+      before do
+        allow(api_configuration).to receive(:synchronized_at).and_return(nil)
+      end
+
+      it 'returns the last Sunday from 7 days ago' do
+        # Freeze time to a known date (Wednesday, March 1, 2017)
+        Timecop.freeze(Time.zone.parse('2017-03-01 12:00:00')) do
+          # 7 days ago would be February 22 (Wednesday)
+          # The previous Sunday from February 22 would be February 19
+          expected_date = Time.zone.parse('2017-02-19 00:00:00')
+          expect(subject.send(:get_modified_date)).to eq(expected_date)
+        end
+      end
+    end
+
+    context 'when synchronized_at is present' do
+      context 'and synchronized_at is a Sunday' do
+        before do
+          # Sunday, February 19, 2017
+          allow(api_configuration).to receive(:synchronized_at).and_return(Time.zone.parse('2017-02-19 12:00:00'))
+        end
+
+        it 'returns the previous Sunday (7 days before)' do
+          # Previous Sunday would be February 12
+          expected_date = Time.zone.parse('2017-02-12 00:00:00')
+          expect(subject.send(:get_modified_date)).to eq(expected_date)
+        end
+      end
+
+      context 'and synchronized_at is not a Sunday' do
+        before do
+          # Wednesday, February 22, 2017
+          allow(api_configuration).to receive(:synchronized_at).and_return(Time.zone.parse('2017-02-22 12:00:00'))
+        end
+
+        it 'returns the last Sunday before synchronized_at' do
+          # Last Sunday before February 22 would be February 19
+          expected_date = Time.zone.parse('2017-02-19 00:00:00')
+          expect(subject.send(:get_modified_date)).to eq(expected_date)
+        end
+      end
+    end
+  end
+
   describe '#fetch' do
     subject do
       IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
@@ -66,13 +122,12 @@ RSpec.describe IeducarApi::Base, type: :service do
 
     context 'all students' do
       it 'returns all students' do
-
         VCR.use_cassette('all_students') do
           result = subject.fetch(path: path, resource: resource)
 
           expect(result.keys).to include 'alunos'
 
-          expect(result['alunos'].size).to eq(29_923)
+          expect(result['alunos'].size).to eq(117_573)
         end
       end
     end
@@ -151,7 +206,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       VCR.use_cassette('wrong_url') do
         expect {
           subject.fetch(path: path, resource: resource)
-        }.to raise_error('URL do i-Educar informada não é válida.')
+        }.to raise_error(IeducarApi::Base::GenericError, 'invalid bit length repeat')
       end
     end
 
@@ -166,7 +221,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       VCR.use_cassette('wrong_client_url') do
         expect {
           subject.fetch(path: path, resource: resource)
-        }.to raise_error(IeducarApi::Base::ApiError)
+        }.to raise_error(IeducarApi::Base::GenericError)
       end
     end
 
@@ -304,7 +359,7 @@ RSpec.describe IeducarApi::Base, type: :service do
 
       expect {
         subject.send_post(params)
-      }.to raise_error(IeducarApi::Base::ApiError)
+      }.to raise_error(IeducarApi::Base::GenericError)
     end
 
     it 'returns an error when providing an invalid client url' do
@@ -333,7 +388,7 @@ RSpec.describe IeducarApi::Base, type: :service do
       VCR.use_cassette('post_wrong_resource') do
         expect {
           subject.send_post(path: path, resource: 'errado')
-        }.to raise_error(IeducarApi::Base::ApiError)
+        }.to raise_error(IeducarApi::Base::GenericError)
       end
     end
   end

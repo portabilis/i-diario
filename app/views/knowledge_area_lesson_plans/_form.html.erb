@@ -6,7 +6,10 @@
 <% end %>
 
 <%= hidden_field_tag :action_name, action_name %>
-<%= simple_form_for @knowledge_area_lesson_plan, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @knowledge_area_lesson_plan,
+    url: knowledge_area_lesson_plan_form_url(@knowledge_area_lesson_plan, action_name),
+    method: lesson_plan_form_method(action_name),
+    html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :lesson_plan, @knowledge_area_lesson_plan.lesson_plan.localized do |lesson_plan| %>

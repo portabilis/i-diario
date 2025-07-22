@@ -18,7 +18,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
     first.presence || new
   end
 
-  def start_synchronization(user = nil, entity_id = nil, full_synchronization = false, current_years = true)
+  def start_synchronization(user = nil, entity_id = nil, full_synchronization = false, current_years = true, period = nil)
     transaction do
       synchronization = IeducarApiSynchronization.started.first
 
@@ -27,24 +27,28 @@ class IeducarApiConfiguration < ActiveRecord::Base
       synchronization = synchronizations.create!(
         status: ApiSynchronizationStatus::STARTED,
         author: user,
-        full_synchronization: full_synchronization
+        full_synchronization: full_synchronization,
+        period: period
       )
 
-      job_id = IeducarSynchronizerWorker.perform_in(
+      job_id = IeducarSynchronizerWorker.set(
+        queue: synchronization.full_synchronization ? :synchronizer_full : :synchronizer
+      ).perform_in(
         1.second,
         entity_id,
         synchronization.id,
         full_synchronization,
-        current_years
+        current_years,
+        period
       )
 
       synchronization.set_job_id!(job_id)
 
       worker_batch = WorkerBatch.find_or_create_by!(
         main_job_class: IeducarSynchronizerWorker.to_s,
-        main_job_id: synchronization.job_id
+        main_job_id: synchronization.job_id,
+        stateable: synchronization
       )
-      worker_batch.start!
 
       Rails.logger.info(
         key: 'IeducarApiConfiguration#start_synchronization',
@@ -58,7 +62,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
   end
 
   def synchronization_in_progress?
-    synchronizations.started.select(:running?).any?
+    synchronizations.started.any?
   end
 
   def authenticate!(token)

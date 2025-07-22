@@ -6,7 +6,6 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
       synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
       if synchronization
         @worker_batch = synchronization.worker_batch
-        @worker_batch.start!
 
         params = build_params(
           params[:entity_id],
@@ -15,8 +14,17 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
           @worker_batch.id,
           params[:current_years]
         )
-        UnitiesSynchronizer.synchronize!(params)
+        UnitiesSynchronizer.new(params).synchronize!
       end
+    rescue IeducarApi::Base::GenericError, IeducarApi::Base::ApiError => error
+      synchronization.mark_as_error!(error.message)
+      known_errors = [
+        'Chave de acesso inválida!',
+        'Desculpe, mas não existem escolas cadastradas',
+        'URL do i-Educar informada não é válida.'
+      ]
+
+      raise error unless known_errors.any? { |msg| error.message.include?(msg) }
     end
   end
 

@@ -18,9 +18,9 @@ class DefaultSynchronizer
     )
 
     SynchronizationConfigs.without_dependencies.each do |synchronizer|
-      SynchronizerBuilderWorker.perform_async(
+      SynchronizerBuilder.enqueue(
         klass: synchronizer[:klass],
-        synchronization_id: @synchronization.id,
+        synchronization: @synchronization,
         worker_batch_id: @worker_batch.id,
         entity_id: @entity_id,
         years: years_to_synchronize,
@@ -89,33 +89,33 @@ class DefaultSynchronizer
   end
 
   def single_synchronizers
-    @single_synchronizers ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @single_synchronizers ||= SynchronizationConfigs::ALL.select do |synchronizer|
       !synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_year
-    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select do |synchronizer|
       synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_year_to_full_synchronization
-    @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      synchronizer[:by_year] && !synchronizer[:by_unity] && !synchronizer[:only_simple_synchronization]
-    }
+    @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select do |synchronizer|
+      synchronizer[:by_year] && !synchronizer[:by_unity]
+    end
   end
 
   def synchronizers_by_unity
-    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select do |synchronizer|
       !synchronizer[:by_year] && synchronizer[:by_unity]
-    }
+    end
   end
 
   def synchronizers_by_year_and_unity
-    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
+    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select do |synchronizer|
       synchronizer[:by_year] && synchronizer[:by_unity]
-    }
+    end
   end
 
   def school_calendars_simple_synchronization_count
@@ -123,6 +123,26 @@ class DefaultSynchronizer
   end
 
   def slice_years(years)
+    # Verificar se há período customizado na sincronização
+    if @synchronization.period.present?
+      case @synchronization.period
+      when SynchronizationPeriods::CURRENT_YEAR
+        years.take(1)
+      when SynchronizationPeriods::LAST_TWO_YEARS
+        years.take(2)
+      else
+        # Comportamento padrão se período desconhecido
+        default_slice_years(years)
+      end
+    else
+      # Comportamento atual
+      default_slice_years(years)
+    end
+  end
+
+  private
+
+  def default_slice_years(years)
     if Date.current.month <= 3 || years.include?(Date.current.year + 1) || @synchronization.full_synchronization
       years.take(2)
     else

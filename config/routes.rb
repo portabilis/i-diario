@@ -131,7 +131,11 @@ Rails.application.routes.draw do
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
     resource :terms_dictionaries, only: [:edit, :update], concerns: :history
-    resources :admin_synchronizations, only: [:index]
+    resources :admin_synchronizations, only: [:index] do
+      collection do
+        post :cancel
+      end
+    end
     resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history do
       collection do
@@ -321,6 +325,14 @@ Rails.application.routes.draw do
         get :fetch_score_type
       end
     end
+    resources :conceptual_exams_in_batchs, concerns: :history do
+      collection do
+        get :edit_multiple
+        get :get_steps
+        put :create_or_update_multiple
+        delete :destroy_multiple
+      end
+    end
     resources :old_steps_conceptual_values, except: [:only]
     resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
@@ -344,7 +356,7 @@ Rails.application.routes.draw do
         get :fetch_frequency_type
         get :fetch_teacher_allocated
         get :form
-        put :create_or_update_multiple
+        match :create_or_update_multiple, via: [:get, :put]
         delete :destroy_multiple
       end
     end
@@ -441,5 +453,8 @@ Rails.application.routes.draw do
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
 
     resources :data_exportations, only: [:index, :create]
+
+    resources :teaching_plan_opinions, only: [:update]
+    resources :lesson_plan_opinions, only: [:update]
   end
 end

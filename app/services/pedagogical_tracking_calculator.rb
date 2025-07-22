@@ -113,32 +113,32 @@ class PedagogicalTrackingCalculator
                 .by_date_between(start_date, end_date)
                 .distinct
                 .pluck(:unity_id, :classroom_id, :teacher_id, :frequency_date)
-  
+
     frequencies_hash = Hash.new { |h, k| h[k] = [] }
-  
+
     records.each do |u_id, c_id, t_id, f_date|
       frequencies_hash[u_id] << [c_id, t_id, f_date]
     end
-  
+
     frequencies_hash
   end
-  
+
   def load_contents_by_unity(unity_ids, start_date, end_date)
     records = MvwContentRecordBySchoolClassroomTeacher
                 .by_unity_id(unity_ids)
                 .by_date_between(start_date, end_date)
                 .distinct
                 .pluck(:unity_id, :classroom_id, :teacher_id, :record_date)
-  
+
     contents_hash = Hash.new { |h, k| h[k] = [] }
-  
+
     records.each do |u_id, c_id, t_id, r_date|
       contents_hash[u_id] << [c_id, t_id, r_date]
     end
-  
+
     contents_hash
   end
-  
+
   def load_unknown_frequencies_by_unity(unity_ids, start_date, end_date)
     records = DailyFrequency
                 .joins(classroom: :unity)
@@ -148,16 +148,16 @@ class PedagogicalTrackingCalculator
                 .where(frequency_date: start_date..end_date)
                 .distinct
                 .pluck('unities.id', 'classrooms.id', 'NULL', 'daily_frequencies.frequency_date')
-  
+
     unknown_hash = Hash.new { |h, k| h[k] = [] }
-  
+
     records.each do |u_id, c_id, _null_t_id, f_date|
       unknown_hash[u_id] << [c_id, nil, f_date]
     end
-  
+
     unknown_hash
   end
- 
+
   def calculate_all_percentages
     total_frequencies = 0
     total_unknown_teachers = 0
@@ -168,9 +168,9 @@ class PedagogicalTrackingCalculator
       end_date = data[:end_date]
       total_days = data[:school_days]
 
-      total_frequencies += frequency_done_percentage(unity_id, start_date, end_date, total_days)
+      total_frequencies += frequency_done_percentage(unity_id, start_date, end_date, total_days)[:frequency_percentage]
       total_unknown_teachers += unknown_teacher_frequency_done(unity_id, start_date, end_date, total_days)
-      total_content_records += content_record_done_percentage(unity_id, start_date, end_date, total_days)
+      total_content_records += content_record_done_percentage(unity_id, start_date, end_date, total_days)[:content_record_percentage]
     end
 
     return {
@@ -187,39 +187,82 @@ class PedagogicalTrackingCalculator
   end
 
   def frequency_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
-    records = @frequencies_by_unity[unity_id] || []
-  
-    records = records.select { |c_id, t_id, date|
-      (classroom_id.nil? || c_id == classroom_id.to_i) &&
-      (teacher_id.nil? || t_id == teacher_id.to_i) &&
-      date >= start_date && date <= end_date
-    }
-  
-    distinct_days = records.map(&:last).uniq.size
-  
-    ((distinct_days * 100).to_f / school_days).round(2)
+    if classroom_id
+      records = @frequencies_by_unity[unity_id] || []
+      records = records.select { |c_id, t_id, date|
+        (classroom_id.nil? || c_id == classroom_id.to_i) &&
+        (teacher_id.nil? || t_id == teacher_id.to_i) &&
+        date >= start_date && date <= end_date
+      }
+
+      distinct_days = records.map(&:last).uniq.size
+
+      {
+        frequency_percentage: ((distinct_days * 100).to_f / school_days).round(2),
+        done_frequencies: distinct_days
+      }
+    else
+      classrooms = Classroom.where(unity_id: unity_id, year: @year)
+      return { frequency_percentage: 0, done_frequencies: 0 } if classrooms.empty?
+
+      total_distinct_days = classrooms.sum do |classroom|
+        records = @frequencies_by_unity[unity_id]&.select { |c_id, _t_id, date|
+          c_id == classroom.id &&
+          date >= start_date && date <= end_date
+        } || []
+        distinct_days = records.map(&:last).uniq.size
+      end
+
+      total_school_days_for_all_classrooms = classrooms.size * school_days
+
+      {
+        frequency_percentage: (total_distinct_days * 100.0 / total_school_days_for_all_classrooms).round(2)
+      }
+    end
   end
-  
+
   def content_record_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
-    records = @contents_by_unity[unity_id] || []
-  
-    records = records.select { |c_id, t_id, date|
-      (classroom_id.nil? || c_id == classroom_id.to_i) &&
-      (teacher_id.nil? || t_id == teacher_id.to_i) &&
-      date >= start_date && date <= end_date
-    }
-  
-    distinct_days = records.map(&:last).uniq.size
-    ((distinct_days * 100).to_f / school_days).round(2)
+    if classroom_id
+      records = @contents_by_unity[unity_id] || []
+
+      records = records.select { |c_id, t_id, date|
+        (classroom_id.nil? || c_id == classroom_id.to_i) &&
+        (teacher_id.nil? || t_id == teacher_id.to_i) &&
+        date >= start_date && date <= end_date
+      }
+
+      distinct_days = records.map(&:last).uniq.size
+      {
+        content_record_percentage: ((distinct_days * 100).to_f / school_days).round(2),
+        done_content_records: distinct_days
+      }
+    else
+      classrooms = Classroom.where(unity_id: unity_id, year: @year)
+      return { content_record_percentage: 0, done_content_records: 0 } if classrooms.empty?
+
+      total_distinct_days = classrooms.sum do |classroom|
+        records = @contents_by_unity[unity_id]&.select { |c_id, _t_id, date|
+          c_id == classroom.id &&
+          date >= start_date && date <= end_date
+        } || []
+        distinct_days = records.map(&:last).uniq.size
+      end
+
+      total_school_days_for_all_classrooms = classrooms.size * school_days
+
+      {
+        content_record_percentage: (total_distinct_days * 100.0 / total_school_days_for_all_classrooms).round(2)
+      }
+    end
   end
-  
+
   def unknown_teacher_frequency_done(unity_id, start_date, end_date, school_days)
     records = @unknown_frequencies_by_unity[unity_id] || []
-  
+
     records = records.select { |c_id, t_id, date|
       date >= start_date && date <= end_date
     }
-  
+
     distinct_days = records.map(&:last).uniq.size
     ((distinct_days * 100).to_f / school_days).round(2)
   end
@@ -266,8 +309,8 @@ class PedagogicalTrackingCalculator
   end
 
   def build_percent_table(unity, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
-    frequency_percentage = frequency_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
-    content_record_percentage = content_record_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
+    frequency_data = frequency_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
+    content_data = content_record_done_percentage(unity.id, start_date, end_date, school_days, classroom_id, teacher_id)
 
     if classroom_id
       classroom = Classroom.find(classroom_id)
@@ -279,8 +322,10 @@ class PedagogicalTrackingCalculator
           start_date: start_date,
           end_date: end_date,
           classroom_description: classroom.description,
-          frequency_percentage: frequency_percentage,
-          content_record_percentage: content_record_percentage
+          frequency_percentage: frequency_data[:frequency_percentage],
+          frequency_days: frequency_data[:done_frequencies],
+          content_record_percentage: content_data[:content_record_percentage],
+          content_record_days: content_data[:done_content_records]
         )
       else
         teacher = Teacher.find(teacher_id)
@@ -289,8 +334,10 @@ class PedagogicalTrackingCalculator
           start_date: start_date,
           end_date: end_date,
           teacher_name: teacher.name,
-          frequency_percentage: frequency_percentage,
-          content_record_percentage: content_record_percentage
+          frequency_percentage: frequency_data[:frequency_percentage],
+          frequency_days: frequency_data[:done_frequencies],
+          content_record_percentage: content_data[:content_record_percentage],
+          content_record_days: content_data[:done_content_records]
         )
       end
     else
@@ -299,8 +346,10 @@ class PedagogicalTrackingCalculator
         unity_name: unity.name,
         start_date: start_date,
         end_date: end_date,
-        frequency_percentage: frequency_percentage,
-        content_record_percentage: content_record_percentage
+        frequency_percentage: frequency_data[:frequency_percentage],
+        frequency_days: frequency_data[:done_frequencies],
+        content_record_percentage: content_data[:content_record_percentage],
+        content_record_days: content_data[:done_content_records]
       )
     end
   end

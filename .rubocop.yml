@@ -1,10 +1,8 @@
-inherit_from: .rubocop_todo.yml
-
-require: rubocop-rails
-
 AllCops:
-  TargetRailsVersion: 5.0
+  TargetRubyVersion: 2.6
+  NewCops: enable
   Exclude:
+   - 'node_modules/**/*'
    - 'bin/**/*'
    - 'vendor/**/*'
    - 'db/**/*'
@@ -12,44 +10,30 @@ AllCops:
    - 'script/**/*'
    - 'spec/rails_helper.rb'
 
-Metrics/AbcSize:
+Layout/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Max: 25
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Naming/VariableName:
+  EnforcedStyle: snake_case
+
+Lint/AmbiguousBlockAssociation:
   Enabled: false
 
-Metrics/ClassLength:
-  Enabled: false
+Layout/IndentationStyle:
+  EnforcedStyle: spaces
 
-Metrics/LineLength:
-  Max: 115
+Layout/IndentationWidth:
+  Width: 2
 
-Metrics/MethodLength:
-  Enabled: false
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: consistent
 
-Metrics/ModuleLength:
-  Enabled: false
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
 
-Rails:
-  Enabled: true
-
-Rails/ReversibleMigration:
-  Enabled: false
-
-Style/BlockDelimiters:
-  EnforcedStyle: semantic
-
-Style/ConditionalAssignment:
-  EnforcedStyle: assign_to_condition
-
-Style/Documentation:
-  Enabled: false
-
-Style/Encoding:
-  Enabled: false
-
-Style/SymbolArray:
-  EnforcedStyle: brackets
-
-Style/WordArray:
-  EnforcedStyle: brackets
-
-Style/FrozenStringLiteralComment:
-  Enabled: false

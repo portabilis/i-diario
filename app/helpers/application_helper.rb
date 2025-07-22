@@ -5,7 +5,7 @@ module ApplicationHelper
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
-    @unread_notifications_count ||= current_user.unread_notifications.count
+    @unread_notifications_count ||= current_user.unread_notifications_count
   end
 
   def last_system_notifications
@@ -211,6 +211,16 @@ module ApplicationHelper
       profiles: current_profile.teacher_profiles_as_json
 
     }
+  end
+
+  def format_error_number(number)
+    return number unless number.is_a?(Numeric)
+    number_with_precision(number, precision: 2, separator: ',', delimiter: '.')
+  end
+
+  def format_error_message(message)
+    return message unless message.is_a?(String)
+    message.gsub(/\d+\.\d+/) { |match| format_error_number(match.to_f) }
   end
 
   private

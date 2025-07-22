@@ -3,26 +3,26 @@
 class UnitiesSynchronizer
   DEFAULT_COUNTRY = 'Brasil'
 
-  def self.synchronize!(params)
-    synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
-    api = IeducarApi::Schools.new(synchronization.to_api, synchronization.full_synchronization)
-
-    new(params).update_schools(
-      HashDecorator.new(
-        api.fetch_all['escolas']
-      )
-    )
-  rescue IeducarApi::Base::ApiError => error
-    synchronization.mark_as_error!(error.message)
-  end
-
   def initialize(params)
-    self.synchronization_id = params[:synchronization_id]
     self.worker_batch_id = params[:worker_batch_id]
     self.worker_state_id = params[:worker_state_id]
     self.entity_id = params[:entity_id]
     self.current_years = params[:current_years]
+    self.synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
+    self.api = IeducarApi::Schools.new(synchronization.to_api, synchronization.full_synchronization)
   end
+
+  def synchronize!
+    update_schools(
+      HashDecorator.new(
+        api.fetch_all['escolas']
+      )
+    )
+  end
+
+  private
+
+  attr_accessor :synchronization, :worker_batch_id, :worker_state_id, :entity_id, :current_years, :api
 
   def update_schools(schools)
     worker_state = start_worker_state
@@ -34,9 +34,9 @@ class UnitiesSynchronizer
 
     unities_api_code = Unity.with_api_code.pluck(:api_code).uniq
 
-    SynchronizerBuilderWorker.perform_async(
+    SynchronizerBuilder.enqueue(
       klass: SchoolCalendarsSynchronizer.to_s,
-      synchronization_id: synchronization_id,
+      synchronization: @synchronization,
       worker_batch_id: worker_batch_id,
       entity_id: entity_id,
       years: [],
@@ -50,10 +50,6 @@ class UnitiesSynchronizer
 
     raise error
   end
-
-  private
-
-  attr_accessor :synchronization_id, :worker_batch_id, :worker_state_id, :entity_id, :current_years
 
   def create_or_update_schools(schools)
     schools.each do |school_record|
