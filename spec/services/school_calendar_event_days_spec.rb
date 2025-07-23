@@ -303,5 +303,58 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
         }.by(0)
       end
     end
+
+    context 'when the event is edited to NO_SCHOOL' do
+      let!(:school_calendar_event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-10',
+          end_date: '2017-02-16'
+        )
+      }
+      let!(:daily_frequency) {
+        create(
+          :daily_frequency,
+          classroom: list_classrooms_for_unity.first,
+          frequency_date: '2017-02-15',
+          unity: school_calendars.last.unity,
+          school_calendar: school_calendars.last,
+          period: Periods::MATUTINAL
+        )
+      }
+      let!(:unity_school_day) {
+        create(
+          :unity_school_day,
+          unity: school_calendars.last.unity,
+          school_day: '2017-02-15'
+        )
+      }
+
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [school_calendar_event],
+          'update',
+          '2017-02-10',
+          '2017-02-16',
+          true
+        )
+      end
+
+      it 'deletes the attendance and unity_school_day when changing to NO_SCHOOL' do
+        expect {
+          subject
+        }.to change { DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
+         .and change { UnitySchoolDay.where(id: unity_school_day.id).count }.by(-1)
+      end
+    end
   end
 end
