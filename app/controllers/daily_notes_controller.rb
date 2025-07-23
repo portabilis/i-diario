@@ -66,11 +66,25 @@ class DailyNotesController < ApplicationController
       return
     end
 
-    if @daily_note.save
-      respond_with @daily_note, location: daily_notes_path
-    else
-      reload_students_list
-      render :edit
+    begin
+      if @daily_note.save
+        respond_with @daily_note, location: daily_notes_path
+      else
+        reload_students_list
+        render :edit
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      if e.message.include?('idx_unique_daily_note_students_active_not_discarded')
+        flash.now[:alert] = "Provavelmente os dados já foram salvos em outra aba. Verifique os valores e salve novamente."
+        @daily_note.reload
+        reload_students_list
+        render :edit
+      else
+        Honeybadger.notify(e)
+        flash.now[:alert] = "Houve um problema ao salvar. Por favor, tente novamente."
+        reload_students_list
+        render :edit
+      end
     end
   end
 
@@ -326,4 +340,5 @@ class DailyNotesController < ApplicationController
       )
     end
   end
+
 end
