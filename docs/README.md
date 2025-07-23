@@ -20,6 +20,9 @@ Detalha o processo de sincronização com o i-Educar:
 - Configuração e monitoramento
 - Tratamento de erros
 
+### [Sistema de Monitoramento](./sistema-de-monitoramento-honeybadger.md)
+Detalha o processo de ativação do monitoramento para o i-Diário:
+
 ## Como Contribuir
 
 Para adicionar nova documentação:
