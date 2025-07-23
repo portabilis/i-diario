@@ -475,4 +475,19 @@ $(function() {
   $("#conceptual_exam_recorded_at").on("change", function() {
     fetchStudents();
   });
+
+  $(document).on('select2-selecting', '.control-group.select2 input[type="hidden"]', function() {
+    let $currentInput = $(this);
+    let $selects = $('.control-group.select2 input[type="hidden"]').filter(function() {
+      return $(this).closest('tr').is(':visible');
+    });
+    let currentIndex = $selects.index($currentInput);
+
+    setTimeout(function() {
+        let $nextInput = $selects.eq(currentIndex + 1);
+        if ($nextInput.length) {
+            $nextInput.select2('focus');
+        }
+    }, 100);
+  });
 });
