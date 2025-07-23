@@ -36,6 +36,10 @@ ajudar a alcançar nossos objetivos.
 
 Consulte o passo a passo no [guia de instalação](INSTALL.md).
 
+## Documentação técnica
+
+Consulte a [documentação técnica](docs/README.md).
+
 ## Perguntas frequentes (FAQ)
 
 Algumas perguntas aparecem recorrentemente. Olhe primeiro por aqui: [FAQ](https://github.com/portabilis/i-educar-website/blob/master/docs/faq.md).
