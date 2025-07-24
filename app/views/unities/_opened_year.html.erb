@@ -1,12 +1,12 @@
 <fieldset>
-  <legend><%= t('activerecord.models.school_calendar', count: 2) %></legend>
+  <legend><%= t('tables.school_year', count: 2) %></legend>
 
   <table class="table table-striped table-bordered table-condensed records">
     <thead>
       <tr>
         <th><%= SchoolCalendar.human_attribute_name :year %></th>
         <th><%= SchoolCalendar.human_attribute_name :opened_year %></th>
-        <th class="actions" style="width: 60px;"> </th>
+        <th class="actions" style="width: 60px;"> <%=  t('tables.actions')%> </th>
       </tr>
     </thead>
 
@@ -21,18 +21,24 @@
             <%= school_calendar.opened_year ? 'Aberto' : 'Fechado' %>
           </td>
           <td class="actions">
-            <% if school_calendar.opened_year %>
-              <%= link_to 'Fechar',
-                    close_school_calendar_path(school_calendar),
-                    method: :patch,
-                    class: 'btn btn-success btn-sm',
-                    data: {
-                      confirm: "Tem certeza que deseja fechar o ano letivo #{school_calendar.year}?"
-                    },
-                    title: 'Fechar o ano letivo' %>
+            <% if policy(@unity).manage_school_calendars? %>
+              <% if school_calendar.opened_year %>
+                <%= link_to "Fechar",
+                      close_school_calendar_path(school_calendar),
+                      method: :patch,
+                      class: 'btn btn-success btn-sm',
+                      data: {
+                        confirm: t('confirmations.close_school_year', year: school_calendar.year)
+                      },
+                      title: t('tooltips.close_school_year') %>
+              <% else %>
+                <span title="<%= t('tooltips.school_year_closed') %>">
+                  <a class="btn btn-success btn-sm disabled"> Fechar </a>
+                </span>
+              <% end %>
             <% else %>
-              <span title="Ano letivo já está fechado.">
-                <a class="btn btn-success btn-sm disabled">Fechar</a>
+              <span title="<%= t('tooltips.no_permission_to_close') %>">
+                <a class="btn btn-success btn-sm disabled"> Fechar </a>
               </span>
             <% end %>
           </td>
