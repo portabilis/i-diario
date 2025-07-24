@@ -43,7 +43,7 @@
     <%= render 'address/shared_form', f: a, show_map: !Rails.env.test? %>
   <% end %>
 
-  <% if @unity.persisted? && policy(@unity).manage_school_calendars? %>
+  <% if @unity.persisted? && policy(@unity).view_school_calendars? %>
     <%= render 'opened_year' %>
   <% end %>
 
