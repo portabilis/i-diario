@@ -204,6 +204,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
+    # Converte para inteiro pois @classroom.period pode vir como string do banco
     @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period.to_i : current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
