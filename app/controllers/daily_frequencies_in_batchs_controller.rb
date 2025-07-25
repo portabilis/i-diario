@@ -686,4 +686,14 @@ current_school_year)
 
     render :create_or_update_multiple
   end
+
+  def format_date(date_string)
+    return date_string if date_string.is_a?(Date)
+    Date.parse(date_string)
+  rescue ArgumentError => e
+    Rails.logger.error("Invalid date format: #{date_string}")
+    date_string
+  end
+
+  helper_method :format_date
 end
