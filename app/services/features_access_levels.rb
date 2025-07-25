@@ -19,6 +19,7 @@ class FeaturesAccessLevels
       :avaliation_recovery_diary_records,
       :avaliations,
       :conceptual_exams,
+      :conceptual_exams_in_batchs,
       :daily_frequencies,
       :daily_notes,
       :descriptive_exams,

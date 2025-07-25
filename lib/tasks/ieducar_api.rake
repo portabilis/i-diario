@@ -9,7 +9,17 @@ namespace :ieducar_api do
     full_synchronization = ActiveRecord::Type::Boolean.new.cast(args.full_synchronization)
     current_years = ActiveRecord::Type::Boolean.new.cast(args.current_years)
 
-    IeducarSynchronizerWorker.perform_async(nil, nil, full_synchronization, current_years)
+    puts "Iniciando sincronização com I-Educar API (#{full_synchronization ? 'completa' : 'simples'})"
+
+    job_id = IeducarSynchronizerWorker.set(
+      queue: full_synchronization ? :synchronizer_full : :synchronizer
+    ).perform_async(nil, nil, full_synchronization, current_years)
+
+    if job_id.present?
+      puts "Job agendado com sucesso! Job ID: #{job_id}"
+    else
+      puts "Falha ao agendar o job."
+    end
   end
 
   desc 'Cancela envio de notas travados há 1 dia ou mais'

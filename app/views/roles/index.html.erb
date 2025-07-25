@@ -3,11 +3,11 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <th><%= Role.human_attribute_name :name %></th>
-          <th><%= Role.human_attribute_name :author %></th>
-          <th><%= Role.human_attribute_name :access_level %></th>
+          <th scope="col"><%= Role.human_attribute_name :name %></th>
+          <th scope="col"><%= Role.human_attribute_name :author %></th>
+          <th scope="col"><%= Role.human_attribute_name :access_level %></th>
           <% if policy(@roles).update? %>
-            <td style="text-align: right; width: 150px;"><%= link_to t('.new_html'), new_role_path, class: "btn btn-primary" %></td>
+            <th scope="col" style="text-align: right; width: 150px;"><%= link_to t('.new_html'), new_role_path, class: "btn btn-primary" %></th>
           <% end %>
         </tr>
       </thead>

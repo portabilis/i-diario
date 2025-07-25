@@ -223,15 +223,14 @@ student_id: student.id)
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student.id,
 recovery_diary_record_id: exam.recovery_diary_record_id)
             score = if recovery_student.present?
-  recovery_student.try(:score)
+                      recovery_student.try(:score)
                     else
-  (if student_enrolled_on_date?(student,
-exam.recorded_at)
-  ''
-   else
-  NullDailyNoteStudent.new.note
-end)
-end
+                      (if student_enrolled_on_date?(student,exam.recorded_at)
+                      ''
+                      else
+                      NullDailyNoteStudent.new.note
+                      end)
+                    end
             school_term_recovery_scores[student_enrollment.id] = recovery_student.try(:score)
           end
 
@@ -305,8 +304,13 @@ background_color: 'FFFFFF', align: :center, width: 30)
 
           recovery_average = SchoolTermAverageCalculator.new(classroom)
                                                         .calculate(@averages[key], recovery_score)
-          @averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, @school_calendar_step)
-                                      .round(recovery_average)
+
+          if @averages[key].present? && @averages[key] < recovery_average
+            @averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY, @school_calendar_step)
+                                    .round(recovery_average)
+          else
+            @averages[key] = recovery_average
+          end
 
           average = @averages[key]
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)

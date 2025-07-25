@@ -10,6 +10,7 @@ class Features < EnumerateIt::Base
                    :complementary_exam_settings,
                    :complementary_exams,
                    :conceptual_exams,
+                   :conceptual_exams_in_batchs,
                    :copy_discipline_teaching_plan,
                    :copy_knowledge_area_teaching_plan,
                    :custom_rounding_tables,
@@ -24,6 +25,7 @@ class Features < EnumerateIt::Base
                    :entity_configurations,
                    :exam_record_report,
                    :final_recovery_diary_records,
+                   :full_synchronization,
                    :ieducar_api_configurations,
                    :ieducar_api_exam_posting_without_restrictions,
                    :ieducar_api_exam_postings,
@@ -52,7 +54,6 @@ class Features < EnumerateIt::Base
                    :daily_frequencies_in_batchs,
                    :avaliation_recovery_lowest_notes,
                    :attendance_record_report_by_students
-
 
   sort_by :translation
 end

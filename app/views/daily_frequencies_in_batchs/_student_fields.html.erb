@@ -71,11 +71,13 @@
                 <% if absence_justification_student_id %>
                   <label title="Falta Justificada" class="checkbox checkbox-frequency justified" style="margin-top: -5px">
                     <input type="checkbox" disabled><i></i>
+                    <span class="hide">Falta Justificada</span>
                   </label>
                 <% else %>
                   <label class="checkbox checkbox-frequency <%= response_data[:response_class] ? 'state-disabled never-change ' + response_data[:response_class] : '' %>" style="bottom: 15px;" title="<%= response_data[:response_tooltip] %>">
                     <%= f.check_box :present, class: 'class-number-checkbox' + (response_data[:response_class] ? ' never-change ' + response_data[:response_class] : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: response_data[:response_class] ? true : false %>
                     <i class="checkbox-frequency-in-batch"></i>
+                    <span class="hide">Lançar frequência</span>
                   </label>
                 <% end %>
 
@@ -100,8 +102,8 @@
     </td>
   <% end %>
   <td style="width: 25px; text-align: center; vertical-align: middle;">
-    <label class="student-absences-count">
+    <span class="student-absences-count">
       <%= absences_on_the_period %>
-    </label>
+    </span>
   </td>
 </tr>

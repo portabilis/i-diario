@@ -3,14 +3,14 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <th><%= TestSetting.human_attribute_name :exam_setting_type %></th>
-          <th><%= TestSetting.human_attribute_name :year %></th>
-          <th><%= TestSetting.human_attribute_name :unities %></th>
-          <th><%= TestSetting.human_attribute_name :school_term_type_step %></th>
-          <th><%= TestSetting.human_attribute_name :maximum_score %></th>
-          <th><%= TestSetting.human_attribute_name :number_of_decimal_places %></th>
-          <th><%= TestSetting.human_attribute_name :average_calculation_type %></th>
-          <td class="actions" style="width: 160px;"><%= link_to t('.new_html'), new_test_setting_path, class: "btn btn-primary" %></td>
+          <th scope="col"><%= TestSetting.human_attribute_name :exam_setting_type %></th>
+          <th scope="col"><%= TestSetting.human_attribute_name :year %></th>
+          <th scope="col"><%= TestSetting.human_attribute_name :unities %></th>
+          <th scope="col"><%= TestSetting.human_attribute_name :school_term_type_step %></th>
+          <th scope="col"><%= TestSetting.human_attribute_name :maximum_score %></th>
+          <th scope="col"><%= TestSetting.human_attribute_name :number_of_decimal_places %></th>
+          <th scope="col"><%= TestSetting.human_attribute_name :average_calculation_type %></th>
+          <th scope="col" class="actions" style="width: 160px;"><%= link_to t('.new_html'), new_test_setting_path, class: "btn btn-primary" %></th>
         </tr>
       </thead>
 

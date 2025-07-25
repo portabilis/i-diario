@@ -66,11 +66,25 @@ class DailyNotesController < ApplicationController
       return
     end
 
-    if @daily_note.save
-      respond_with @daily_note, location: daily_notes_path
-    else
-      reload_students_list
-      render :edit
+    begin
+      if @daily_note.save
+        respond_with @daily_note, location: daily_notes_path
+      else
+        reload_students_list
+        render :edit
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      if e.message.include?('idx_unique_daily_note_students_active_not_discarded')
+        flash.now[:alert] = "Provavelmente os dados já foram salvos em outra aba. Verifique os valores e salve novamente."
+        @daily_note.reload
+        reload_students_list
+        render :edit
+      else
+        Honeybadger.notify(e)
+        flash.now[:alert] = "Houve um problema ao salvar. Por favor, tente novamente."
+        reload_students_list
+        render :edit
+      end
     end
   end
 
@@ -279,7 +293,7 @@ class DailyNotesController < ApplicationController
     }
     @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids, disciplines: @discipline)
     @exempted_from_discipline = StudentsExemptFromDiscipline.call(
-      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step
+      student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step.step_number
     )
     @exempted_from_avaliation = students_exempted_from_avaliations(@avaliation_id, @student_ids)
     @active = ActiveStudentsOnDate.call(student_enrollments: @student_enrollment_ids, date: @test_date)
@@ -326,4 +340,5 @@ class DailyNotesController < ApplicationController
       )
     end
   end
+
 end

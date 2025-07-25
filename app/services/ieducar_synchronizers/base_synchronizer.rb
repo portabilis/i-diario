@@ -20,7 +20,9 @@ class BaseSynchronizer
 
       worker_batch.increment
       finish_worker(worker_state, worker_batch, params[:synchronization])
-      SynchronizerBuilderEnqueueWorker.perform_in(
+      SynchronizerBuilderEnqueueWorker.set(
+        queue: params[:synchronization].full_synchronization? ? :synchronizer_enqueue_next_job_full : :synchronizer_enqueue_next_job
+      ).perform_in(
         1.second,
         synchronizer_builder_enqueue_worker_params(params, worker_batch.id)
       )
