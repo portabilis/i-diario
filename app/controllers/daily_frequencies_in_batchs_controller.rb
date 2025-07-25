@@ -681,7 +681,8 @@ current_school_year)
     @period = params[:period]
 
     authorize_daily_frequency
-    view_data
+
+    return unless view_data
 
     render :create_or_update_multiple
   end
