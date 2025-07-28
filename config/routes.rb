@@ -173,6 +173,10 @@ Rails.application.routes.draw do
         get :years_from_unity
       end
 
+      member do
+        patch :close
+      end
+
       resources :school_calendar_steps, only: [:index]
       resources :school_calendar_events, concerns: :history do
         collection do

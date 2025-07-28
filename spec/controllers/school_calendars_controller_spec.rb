@@ -65,4 +65,58 @@ RSpec.describe SchoolCalendarsController, type: :controller do
       it_behaves_like 'test_user_role_access'
     end
   end
+
+  describe 'PATCH #close' do
+    let!(:school_calendar) { create(:school_calendar, unity: unity, opened_year: true) }
+    let(:params) { { id: school_calendar.id, locale: 'pt-BR' } }
+
+    before do
+      allow(SchoolCalendarStatus).to receive(:new).and_return(double(year_closed_in_ieducar?: year_closed_in_ieducar))
+      allow_any_instance_of(SchoolCalendar).to receive(:opened_year?).and_return(opened_year)
+    end
+
+    shared_examples 'redirects with alert' do |message|
+      it "redirects with alert: #{message}" do
+        patch :close, params: params
+        expect(response).to redirect_to(edit_unity_path(school_calendar.unity))
+        expect(flash[:alert]).to eq(message)
+      end
+    end
+
+    context 'when the school year is still open on i-Educar' do
+      let(:year_closed_in_ieducar) { false }
+      let(:opened_year) { true }
+
+      include_examples 'redirects with alert', 'Ano letivo ainda está aberto no i-Educar. Não será possível fechar.'
+    end
+
+    context 'when the school year is already closed' do
+      let(:year_closed_in_ieducar) { true }
+      let(:opened_year) { false }
+
+      include_examples 'redirects with alert', 'Ano letivo já está fechado.'
+    end
+
+    context 'when the school year is successfully closed' do
+      let(:year_closed_in_ieducar) { true }
+      let(:opened_year) { true }
+
+      before { allow_any_instance_of(SchoolCalendar).to receive(:update).and_return(true) }
+
+      it 'redirects with success message' do
+        patch :close, params: params
+        expect(response).to redirect_to(edit_unity_path(school_calendar.unity))
+        expect(flash[:notice]).to eq('Ano letivo fechado com sucesso.')
+      end
+    end
+
+    context 'when an error occurs when closing the school year' do
+      let(:year_closed_in_ieducar) { true }
+      let(:opened_year) { true }
+
+      before { allow_any_instance_of(SchoolCalendar).to receive(:update).and_return(false) }
+
+      include_examples 'redirects with alert', 'Erro ao fechar ano letivo.'
+    end
+  end
 end
