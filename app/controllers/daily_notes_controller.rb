@@ -312,14 +312,9 @@ disciplines: @discipline)
   end
 
   def set_filters
-    unless params.key?(:filter) || params.key?(:page)
-      params[:filter] = {
-        by_classroom_id: current_user_classroom.id,
-        by_discipline_id: current_user_discipline.id
-      }
-    end
-
     params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
 
     if params[:filter][:by_step_id].present?
       step_id = params[:filter].delete(:by_step_id)
