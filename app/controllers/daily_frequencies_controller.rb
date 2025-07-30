@@ -84,6 +84,7 @@ class DailyFrequenciesController < ApplicationController
     @dependence_students = false
     @absence_justification = AbsenceJustification.new
     @absence_justification.school_calendar = current_school_calendar
+    @is_new_record = @daily_frequencies.first.new_record?
     enrollment_classrooms = fetch_enrollment_classrooms
 
     student_enrollment_ids = enrollment_classrooms.map { |student_enrollment|
@@ -110,6 +111,15 @@ class DailyFrequenciesController < ApplicationController
       period: @period
     )
 
+    @physical_frequencies = {}
+
+    if @is_new_record
+      @physical_frequencies = PhysicalFrequencyOnDate.call(
+        student_enrollment_ids: student_enrollment_ids,
+        start_date: @daily_frequency.frequency_date
+      )
+    end
+
     enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment_id]
@@ -130,6 +140,7 @@ class DailyFrequenciesController < ApplicationController
       @students_list << student
       @students << {
         student: student,
+        student_enrollment_id: student_enrollment_id,
         dependence: has_dependence,
         active: activated_student,
         exempted_from_discipline: has_exempted,
@@ -411,10 +422,17 @@ class DailyFrequenciesController < ApplicationController
         next if student[:exempted_from_discipline]
         next if current_student_ids.any? { |student_id| student_id == student[:student].id }
 
+        is_present = true
+
+        if @is_new_record && @physical_frequencies.present?
+          physical_presence_exists = @physical_frequencies.key?(student[:student_enrollment_id])
+          is_present = physical_presence_exists
+        end
+
         daily_frequency.students.build(
           student_id: student[:student].id,
           dependence: student[:dependence],
-          present: true,
+          present: is_present,
           active: student[:active]
         )
       end
