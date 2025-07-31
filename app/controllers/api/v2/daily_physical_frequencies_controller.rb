@@ -3,6 +3,15 @@ module Api
     class DailyPhysicalFrequenciesController < Api::V2::BaseController
       before_action :authenticate_api!
 
+      def index
+        physical_attendance_diary_records = DailyPhysicalFrequency.includes(:unity, :student_enrollment)
+                                           .by_unity_api_code(filter_params[:unity_api_code])
+                                           .by_student_enrollment_api_code(filter_params[:student_enrollment_api_code])
+                                           .by_frequency_date(filter_params[:frequency_date])
+
+        render json: physical_attendance_diary_records, status: :ok
+      end
+
       def create
         unless params[:_json].present? && params[:_json].is_a?(Array)
           return render json: { error: "Payload deve ser um array válido" }, status: :bad_request
@@ -27,12 +36,15 @@ module Api
             next
           end
 
-          daily_physical_frequency = DailyPhysicalFrequency.new(
-                                      unity_id: unity.id,
-                                      student_enrollment_id: student_enrollment.id,
-                                      frequency_date: frequency_params[:frequency_date],
-                                      present: frequency_params[:present]
-                                    )
+          daily_physical_frequency = DailyPhysicalFrequency.find_or_initialize_by(
+            unity_id: unity.id,
+            student_enrollment_id: student_enrollment.id,
+            frequency_date: frequency_params[:frequency_date]
+          )
+
+          daily_physical_frequency.assign_attributes(
+            present: frequency_params[:present]
+          )
 
           unless daily_physical_frequency.valid?
             errors << { record: index, error: daily_physical_frequency.errors.full_messages }
@@ -54,6 +66,10 @@ module Api
       end
 
       private
+
+      def filter_params
+        params.permit(:unity_api_code, :student_enrollment_api_code, :frequency_date)
+      end
 
       def batch_params
         params.permit(_json: [:unity_api_code, :student_enrollment_api_code, :frequency_date, :present])
