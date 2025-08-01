@@ -46,7 +46,7 @@ Rails.application.routes.draw do
           end
         end
         resources :teaching_plans, only: [:index]
-        resources :daily_physical_frequencies, only: [:create]
+        resources :daily_physical_frequencies, only: [:create, :index]
       end
     end
 
