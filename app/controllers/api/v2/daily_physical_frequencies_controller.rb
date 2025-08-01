@@ -4,12 +4,12 @@ module Api
       before_action :authenticate_api!
 
       def index
-        physical_attendance_diary_records = DailyPhysicalFrequency.includes(:unity, :student_enrollment)
-                                           .by_unity_api_code(filter_params[:unity_api_code])
-                                           .by_student_enrollment_api_code(filter_params[:student_enrollment_api_code])
-                                           .by_frequency_date(filter_params[:frequency_date])
+        paginated_records = paginate_records(filtered_records)
 
-        render json: physical_attendance_diary_records, status: :ok
+        render json: {
+          daily_physical_frequencies: serialize_records(paginated_records),
+          pagination: pagination_metadata(paginated_records)
+        }, status: :ok
       end
 
       def create
@@ -67,8 +67,51 @@ module Api
 
       private
 
+      def filtered_records
+        DailyPhysicalFrequency.includes(:unity, :student_enrollment)
+                              .by_unity_api_code(filter_params[:unity_api_code])
+                              .by_student_enrollment_api_code(filter_params[:student_enrollment_api_code])
+                              .by_frequency_date(filter_params[:frequency_date])
+      end
+
+      def paginate_records(records)
+        records.page(pagination_params[:page]).per(pagination_params[:per_page])
+      end
+
+      def serialize_records(records)
+        records.map do |record|
+          {
+            id: record.id,
+            student_enrollment_api_code: record.student_enrollment_api_code,
+            unity_api_code: record.unity_api_code,
+            frequency_date: record.frequency_date,
+            present: record.present,
+            created_at: record.created_at,
+            updated_at: record.updated_at
+          }
+        end
+      end
+
+      def pagination_metadata(paginated_records)
+        {
+          current_page: paginated_records.current_page,
+          total_pages: paginated_records.total_pages,
+          total_count: paginated_records.total_count,
+          per_page: paginated_records.limit_value,
+          next_page: paginated_records.next_page,
+          prev_page: paginated_records.prev_page
+        }
+      end
+
+      def pagination_params
+        {
+          page: params[:page] || 1,
+          per_page: [params[:per_page]&.to_i || 25, 100].min
+        }
+      end
+
       def filter_params
-        params.permit(:unity_api_code, :student_enrollment_api_code, :frequency_date)
+        params.permit(:unity_api_code, :student_enrollment_api_code, :frequency_date, :page, :per_page)
       end
 
       def batch_params
