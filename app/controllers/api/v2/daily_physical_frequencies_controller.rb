@@ -7,7 +7,7 @@ module Api
         paginated_records = paginate_records(filtered_records)
 
         render json: {
-          daily_physical_frequencies: serialize_records(paginated_records),
+          data: serialize_records(paginated_records),
           pagination: pagination_metadata(paginated_records)
         }, status: :ok
       end
