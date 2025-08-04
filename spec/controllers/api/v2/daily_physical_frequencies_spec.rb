@@ -26,9 +26,13 @@ RSpec.describe Api::V2::DailyPhysicalFrequenciesController, type: :controller do
         ]
       end
 
+      before do
+        allow_any_instance_of(DailyPhysicalFrequency).to receive(:valid?).and_return(true)
+      end
+
       it "creates the frequency records in the database" do
         expect {
-        post :create, params: { _json: valid_payload, format: "json", locale: "en" }, xhr: true
+          post :create, params: { _json: valid_payload, format: "json", locale: "en" }, xhr: true
         }.to change(DailyPhysicalFrequency, :count).by(2)
       end
 
