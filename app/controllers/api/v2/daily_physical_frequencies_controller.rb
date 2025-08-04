@@ -82,8 +82,8 @@ module Api
         records.map do |record|
           {
             id: record.id,
-            student_enrollment_api_code: record.student_enrollment_api_code,
-            unity_api_code: record.unity_api_code,
+            student_enrollment_api_code: record.student_enrollment.api_code,
+            unity_api_code: record.unity.api_code,
             frequency_date: record.frequency_date,
             present: record.present,
             created_at: record.created_at,
