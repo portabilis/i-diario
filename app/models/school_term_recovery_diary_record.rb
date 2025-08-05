@@ -36,6 +36,7 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
   validate :recovery_type_must_allow_recovery_for_step
   validate :recovery_type_must_allow_recovery_for_classroom
   validate :uniqueness_of_school_term_recovery_diary_record
+  after_validation :propagate_recorded_at_errors_from_child
 
   def test_date
     recorded_at
@@ -142,5 +143,13 @@ class SchoolTermRecoveryDiaryRecord < ApplicationRecord
     recovery_diary_record.school_term_recovery_diary_record ||= self
   ensure
     @ensuring_association = false
+  end
+
+  def propagate_recorded_at_errors_from_child
+    return if recovery_diary_record&.errors[:recorded_at].blank?
+
+    recovery_diary_record.errors[:recorded_at].each do |message|
+      errors.add(:recorded_at, message) unless errors[:recorded_at].include?(message)
+    end
   end
 end
