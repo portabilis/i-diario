@@ -7,12 +7,12 @@ pt-BR:
 
     attributes:
       school_calendar:
+        opened_year: "Situação"
         unity_id: "Escola"
         unity: "Escola"
         year: "Ano"
         number_of_classes: "Número de aulas por turno"
         school_calendar_steps: "a"
-
 
     errors:
       models:
@@ -20,3 +20,17 @@ pt-BR:
           attributes:
             steps:
               at_least_one_step: "É necessário adicionar pelo menos uma etapa"
+
+  tables:
+    actions: "Ações"
+    school_year:
+      one: "Ano letivo"
+      other: "Anos letivos"
+
+  confirmations:
+    close_school_year: "Tem certeza que deseja fechar o ano letivo %{year}?"
+
+  tooltips:
+    close_school_year: "Fechar o ano letivo"
+    school_year_closed: "Ano letivo já está fechado."
+    no_permission_to_close: "Você não tem permissão para fechar o ano letivo."
