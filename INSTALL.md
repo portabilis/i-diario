@@ -165,6 +165,7 @@ cp public/500.html.sample public/500.html
 echo -e "
 development:
   secret_key_base: `bundle exec rails secret`
+  REDIS_URL: 'redis://localhost'
 " > config/secrets.yml
 ```
 
