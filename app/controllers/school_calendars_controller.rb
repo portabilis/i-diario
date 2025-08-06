@@ -72,6 +72,49 @@ class SchoolCalendarsController < ApplicationController
     render json: @step.to_json
   end
 
+  def close
+    @school_calendar = SchoolCalendar.find(params[:id])
+    authorize @school_calendar
+
+    unless SchoolCalendarStatus.new(
+      current_configuration,
+      @school_calendar.unity.api_code,
+      @school_calendar.year
+      ).year_closed_in_ieducar?
+      respond_to do |format|
+        format.html {
+          redirect_to edit_unity_path(@school_calendar.unity), alert: 'Ano letivo ainda está aberto no i-Educar. Não será possível fechar.'
+        }
+        format.js { render json: { error: 'Ano letivo ainda está aberto no i-Educar.' }, status: :unprocessable_entity }
+      end
+      return
+    end
+
+    if !@school_calendar.opened_year?
+      respond_to do |format|
+        format.html {
+          redirect_to edit_unity_path(@school_calendar.unity), alert: 'Ano letivo já está fechado.'
+        }
+        format.js { head :ok }
+      end
+      return
+    end
+
+    if @school_calendar.update(opened_year: false)
+      respond_to do |format|
+        format.html {
+          redirect_to edit_unity_path(@school_calendar.unity), notice: 'Ano letivo fechado com sucesso.'
+        }
+        format.js
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to edit_unity_path(@school_calendar.unity), alert: 'Erro ao fechar ano letivo.' }
+        format.js { render json: { error: 'Erro ao fechar ano letivo.' }, status: :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
   def filtering_params(params)

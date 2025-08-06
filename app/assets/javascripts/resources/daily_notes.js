@@ -122,17 +122,15 @@ $(function () {
 
   fetchAvaliationsRequest($('#daily_note_discipline_id'));
 
-  $('input.string[id^=daily_note_students_attributes][id*=_note]').bind("keypress", function(e) {
-    if (e.keyCode == 13) {
+  $(document).on('keydown', 'input.string[id^=daily_note_students_attributes][id*=_note]', function(e) {
+    if (e.keyCode === 13) {
       e.preventDefault();
-      var inps = $('input.string[id^=daily_note_students_attributes][id*=_note]');
-      for (var x = 0; x < inps.length; x++) {
-        if (inps[x] == this) {
-          while (inps[x + 1] && (inps[x]).name == (inps[x + 1]).name) {
-            x++;
-          }
-          if ((x + 1) < inps.length) $(inps[x + 1]).focus();
-        }
+
+      var $inputs = $('input.string[id^=daily_note_students_attributes][id*=_note]:not([readonly])');
+      var currentIndex = $inputs.index(this);
+
+      if (currentIndex < $inputs.length - 1) {
+        $inputs.eq(currentIndex + 1).focus();
       }
     }
   });
