@@ -255,6 +255,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       @students_list << student
       @students << {
         student: student,
+        student_enrollment_id: student_enrollment[:student_enrollment].id,
         type_of_teaching: type_of_teaching,
         left_at: left_at,
         joined_at: joined_at
@@ -283,6 +284,18 @@ class DailyFrequenciesInBatchsController < ApplicationController
       classroom: current_user_classroom.id,
       period: @period
     )
+
+    all_daily_frequencies = params['dates'].flat_map { |d| d[:daily_frequencies] }
+    @is_new_record = all_daily_frequencies.any?(&:new_record?)
+
+    @physical_frequencies = {}
+    if @is_new_record
+      @physical_frequencies = PhysicalFrequencyOnDate.call(
+        student_enrollment_ids: student_enrollments_ids,
+        start_date: dates.first,
+        end_date: dates.last
+      )
+    end
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
