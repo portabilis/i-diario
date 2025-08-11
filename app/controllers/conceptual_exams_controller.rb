@@ -183,6 +183,18 @@ class ConceptualExamsController < ApplicationController
     render json: not_concept_score
   end
 
+  def fetch_students_by_classroom
+    students = Student.joins(:conceptual_exams)
+                    .where(conceptual_exams: { classroom_id: params[:classroom_id] })
+                    .distinct
+                    .ordered
+                    .pluck(:id, :name)
+
+    students_data = students.map { |id, name| { id: id, name: name } }
+
+    render json: students_data.to_json
+  end
+
   def fetch_period
     return if params[:classroom_id].blank?
 
@@ -522,7 +534,7 @@ class ConceptualExamsController < ApplicationController
 
   def check_status_and_step(step_id, status)
     if step_id.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(@classrooms, step_id)
+      @conceptual_exams = @conceptual_exams.by_step_id(filtered_classrooms, step_id)
       params[:filter][:by_step] = step_id
     end
 
@@ -544,6 +556,15 @@ class ConceptualExamsController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::CONCEPT)
+  end
+
+  def filtered_classrooms
+    if params.dig(:filter, :by_classroom_id).present?
+      filtered_ids = Array(params[:filter][:by_classroom_id])
+      @classrooms.select { |c| filtered_ids.include?(c.id.to_s) }
+    else
+      @classrooms
+    end
   end
 
   def allow_teacher_modify_prev_years
