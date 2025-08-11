@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/conceptual_exams/index' %>
+<% end %>
+
 <div class='widget-body no-padding'>
   <%= simple_form_for :filter, { url: conceptual_exams_path, method: :get,
     html: { class: 'filterable_search_form' } } do |f| %>
@@ -12,7 +16,8 @@
                             input_html: { value: current_user_classroom.id } %>
             </th>
             <th scope="col">
-              <%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %>
+              <%= f.input :by_student_id, as: :select2, elements: [],
+                            label: false, placeholder: t('.by_student_name') %>
             </th>
             <th scope="col">
               <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
