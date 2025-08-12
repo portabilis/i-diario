@@ -136,8 +136,10 @@ cd ~
 Instale o Node, NPM e Yarn, é necessária uma instalação especial devido a versão:
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
-apt install -y nodejs npm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install 14
+nvm use 14
 npm install -g yarn
 ```
 
