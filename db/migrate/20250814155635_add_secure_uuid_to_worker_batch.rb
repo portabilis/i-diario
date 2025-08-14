@@ -1,8 +1,5 @@
 class AddSecureUuidToWorkerBatch < ActiveRecord::Migration[5.0]
   def up
-    # Adiciona extensão pgcrypto para gerar UUIDs seguros
-    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
-
     # Adiciona coluna UUID com valor padrão gerado pelo PostgreSQL
     add_column :worker_batches, :secure_uuid, :uuid, default: 'gen_random_uuid()', null: false
 
