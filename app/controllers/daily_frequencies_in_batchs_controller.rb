@@ -64,6 +64,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
     dates = []
 
     ActiveRecord::Base.transaction do
+      daily_frequency_students_to_save = []
+      absence_justifications_to_save = []
+      worker_calls = []
+
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
         daily_frequency_data = daily_frequency_attributes
         daily_frequency_data[:frequency_date] = daily_frequency_students_params[:date]
@@ -80,6 +84,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                                 daily_frequency_data[:classroom_id],
                                                                 daily_frequency_data[:discipline_id],
                                                                 daily_frequency_data[:period])
+
+        if daily_frequency.new_record?
+          daily_frequency.save!
+        end
 
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
@@ -102,10 +110,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             absence_justification.school_calendar = current_school_calendar
             absence_justification.period = daily_frequency_data[:period]
 
-            absence_justification.save
-
-            student_attributes[:absence_justification_student_id] =
-              absence_justification.absence_justifications_students.first.id
+            absence_justifications_to_save << absence_justification
           end
 
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
@@ -113,21 +118,42 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.active = student_attributes[:active]
           daily_frequency_student.absence_justification_student_id = student_attributes[:absence_justification_student_id]
 
-          daily_frequency.save!
-          daily_frequency_student.save!
+          if daily_frequency_student.changed?
+            daily_frequency_students_to_save << daily_frequency_student
+          end
         end
 
-        if daily_frequency.save!
-          UniqueDailyFrequencyStudentsCreator.call_worker(
-            current_entity.id,
-            daily_frequency.classroom_id,
-            daily_frequency.frequency_date,
-            current_teacher_id
-          )
+        worker_calls << {
+          entity_id: current_entity.id,
+          classroom_id: daily_frequency.classroom_id,
+          frequency_date: daily_frequency.frequency_date,
+          teacher_id: current_teacher_id
+        }
 
-          dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
+        dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
+      end
+
+      absence_justifications_to_save.each do |absence_justification|
+        absence_justification.save!
+        
+        student_id = absence_justification.student_ids.first
+        matching_student = daily_frequency_students_to_save.find { |dfs| dfs.student_id == student_id }
+        if matching_student && absence_justification.absence_justifications_students.first
+          matching_student.absence_justification_student_id = absence_justification.absence_justifications_students.first.id
         end
+      end
 
+      daily_frequency_students_to_save.reject! { |dfs| dfs.absence_justification_student_id == -1 }
+      daily_frequency_students_to_save.each(&:save!)
+
+      unique_worker_calls = worker_calls.uniq { |call| [call[:classroom_id], call[:frequency_date]] }
+      unique_worker_calls.each do |worker_call|
+        UniqueDailyFrequencyStudentsCreator.call_worker(
+          worker_call[:entity_id],
+          worker_call[:classroom_id],
+          worker_call[:frequency_date],
+          worker_call[:teacher_id]
+        )
       end
     end
 
