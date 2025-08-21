@@ -48,10 +48,18 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return
     end
 
-    daily_frequency_attributes = daily_frequency_in_batchs_params
-    daily_frequencies_attributes = daily_frequencies_in_batch_params
+    if request.content_type == 'application/json'
+      json_data = JSON.parse(request.body.read)
+      daily_frequency_attributes = parse_json_frequency_attributes(json_data)
+      daily_frequencies_attributes = parse_json_frequencies_attributes(json_data)
+    else
+      daily_frequency_attributes = daily_frequency_in_batchs_params
+      daily_frequencies_attributes = daily_frequencies_in_batch_params
+    end
+
     receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
-      daily_frequency_attributes[:frequency_in_batch_form][:receive_email_confirmation]
+      daily_frequency_attributes.dig(:frequency_in_batch_form, :receive_email_confirmation) ||
+      daily_frequency_attributes[:receive_email_confirmation]
     )
     dates = []
 
@@ -145,6 +153,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     flash[:success] = t('.daily_frequency_success')
 
+    if request.content_type == 'application/json'
+      render json: {
+        success: true,
+        message: t('.daily_frequency_success'),
+        dates: dates,
+        redirect_url: new_daily_frequencies_in_batch_path
+      }
+      return
+    end
+
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
     @classroom = Classroom.includes(:unity).find(daily_frequency_attributes[:classroom_id])
 
@@ -156,8 +174,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     render :create_or_update_multiple
   rescue ActiveRecord::RecordInvalid => e
+    if request.content_type == 'application/json'
+      render json: {
+        success: false,
+        message: e.message,
+        errors: e.record&.errors&.full_messages || [e.message]
+      }, status: :unprocessable_entity
+    else
       flash[:error] = e.message
       redirect_to new_daily_frequencies_in_batch_path
+    end
   end
 
   def destroy_multiple
@@ -709,4 +735,49 @@ current_school_year)
   end
 
   helper_method :format_date
+
+  private
+  def parse_json_frequency_attributes(json_data)
+    {
+      unity_id: json_data['unity_id'],
+      classroom_id: json_data['classroom_id'],
+      discipline_id: json_data['discipline_id'],
+      frequency_type: json_data['frequency_type'],
+      period: json_data['period'],
+      receive_email_confirmation: json_data['receive_email_confirmation']
+    }
+  end
+
+  def parse_json_frequencies_attributes(json_data)
+    daily_frequencies = {}
+    
+    json_data['daily_frequencies']&.each do |freq_id, freq_data|
+      daily_frequencies[freq_id] = {
+        date: freq_data['date'],
+        class_number: freq_data['class_number'],
+        students_attributes: parse_students_attributes(freq_data['students_attributes'])
+      }
+    end
+
+    { daily_frequencies: daily_frequencies }
+  end
+
+  def parse_students_attributes(students_data)
+    students_attributes = {}
+    
+    students_data&.each do |student_id, student_data|
+      students_attributes[student_id] = {
+        id: student_data['id'],
+        daily_frequency_id: student_data['daily_frequency_id'],
+        student_id: student_data['student_id'],
+        present: student_data['present'],
+        active: student_data['active'],
+        dependence: student_data['dependence'],
+        type_of_teaching: student_data['type_of_teaching'],
+        absence_justification_student_id: student_data['absence_justification_student_id']
+      }
+    end
+
+    students_attributes
+  end
 end
