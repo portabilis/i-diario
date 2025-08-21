@@ -71,7 +71,7 @@ module ExamPoster
         teacher_recovery_score_fetcher.fetch!
 
         student_scores = teacher_score_fetcher.scores + teacher_recovery_score_fetcher.scores
-        exam_rules = fetch_exam_rules(classroom, student_scores)
+        exam_rules = fetch_exam_rules(classroom, student_scores, step)
         exempted_disciplines = exempt_discipline_students(classroom, discipline.id, student_scores, step)
         exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number)
 
@@ -118,11 +118,11 @@ module ExamPoster
       scores
     end
 
-    def fetch_exam_rules(classroom, students)
+    def fetch_exam_rules(classroom, students, step)
       enrollment_classrooms = StudentEnrollmentClassroom.includes(
         student_enrollment: :student,
         classrooms_grade: :exam_rule
-      ).by_student(students).by_classroom(classroom).by_date(Date.current)
+      ).by_student(students).by_classroom(classroom).by_date(step.end_at)
       classrooms_grades = classroom.classrooms_grades.where(
         id: enrollment_classrooms.map(&:classrooms_grade).uniq
       ).first
