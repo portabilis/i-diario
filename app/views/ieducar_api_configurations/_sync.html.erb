@@ -1,4 +1,5 @@
 <tr class="sync-status-<%= sync.status %>">
+  <td><%= sync.id %></td>
   <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
   <td><span class="time_running"><%= sync.time_running %></span> minutos</td>
@@ -37,7 +38,7 @@
           <h4 class="modal-title" id="myModalLabel">Erro completo</h4>
         </div>
         <div class="modal-body">
-          <%= sync.error_message.html_safe %>
+          <%= sync&.error_message&.html_safe %>
           <% if current_user.admin? %>
             <% if sync.full_error_message.present? %>
               <hr>

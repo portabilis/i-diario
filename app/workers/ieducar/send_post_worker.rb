@@ -2,6 +2,18 @@ module Ieducar
   class SendPostWorker
     class IeducarException < StandardError; end
 
+    RETRY_ERRORS = [
+      %(duplicate key value violates unique constraint "modules_nota_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "modules_parecer_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "falta_componente_curricular_pkey"),
+      %(duplicate key value violates unique constraint "modules_falta_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "falta_geral_pkey"),
+      %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
+      %(duplicate key value violates unique constraint "parecer_geral_pkey")
+    ].freeze
+    IEDUCAR_ERRORS = ['Exception: SQLSTATE', '500 Internal Server Error'].freeze
+    MAX_RETRY_COUNT = 10
+
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
@@ -12,10 +24,7 @@ module Ieducar
       args = msg['args'][0..-3]
 
       performer(*args) do |posting, _, _|
-        # Só NÃO envia para o Honeybadger se for erro de validação
-        unless IeducarApi::ErrorHandlerService.validation_error?(ex)
-          Honeybadger.notify(ex)
-        end
+        Honeybadger.notify(ex)
 
         if !posting.error_message?
           custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
@@ -32,30 +41,95 @@ module Ieducar
       Honeybadger.context(posting_id: posting_id)
 
       performer(entity_id, posting_id, params, info) do |posting, params|
-        IeducarApi::PostRequestService.new(posting).execute(params, info)
-      rescue IeducarApi::ErrorHandlerService::RetryableError => error
-        handle_retryable_error(error, entity_id, posting_id, params, info, queue, retry_count)
-        retry
-      rescue IeducarApi::ErrorHandlerService::NetworkError => error
-        handle_network_error(error, entity_id, posting_id, params, info, queue, retry_count)
+        params = params.with_indifferent_access
+        information = info_message(info)
+
+        begin
+          response = IeducarResponseDecorator.new(api(posting).send_post(params))
+
+          posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
+        rescue StandardError => error
+          if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
+            Rails.logger.info(
+              key: 'Ieducar::SendPostWorker#perform',
+              info: information,
+              params: params,
+              posting_id: posting_id,
+              entity_id: entity_id
+            )
+
+            retry
+          end
+
+          if IEDUCAR_ERRORS.any? { |ieducar_error| error.message.include?(ieducar_error) }
+            raise IeducarException, "#{information} Erro: #{error.message}"
+          end
+
+          return if delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
+
+          raise StandardError, "#{information} Erro: #{error.message}"
+        end
       end
     end
 
-    private
+    def delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
+      return false if retry_count == MAX_RETRY_COUNT
+      return false unless error.is_a?(IeducarApi::Base::NetworkException)
 
-    def handle_retryable_error(_error, entity_id, posting_id, params, info, _queue, _retry_count)
-      information = IeducarApi::InfoMessageBuilder.new(info).build
-      retry_service.log_retry_attempt(information, params, posting_id, entity_id)
+      self.class.set(queue: queue).perform_in(
+        ((retry_count + 1) * 2).seconds,
+        entity_id,
+        posting_id,
+        params, info,
+        queue,
+        retry_count + 1
+      )
     end
 
-    def handle_network_error(error, entity_id, posting_id, params, info, queue, retry_count)
-      return if retry_service.schedule_retry(error, entity_id, posting_id, params, info, queue, retry_count)
+    def info_message(info)
+      message = ''
 
-      raise error
+      message += "Turma: #{classroom(info['classroom'])};<br>" if info.key?('classroom')
+      message += "Aluno: #{student(info['student'])};<br>" if info.key?('student')
+      message += "Componente curricular: #{discipline(info['discipline'])};<br>" if info.key?('discipline')
+
+      message
     end
 
-    def retry_service
-      @retry_service ||= IeducarApi::RetryService.new(self.class)
+    def student(api_code)
+      @students ||= {}
+      @students[api_code] ||= Student.find_by(api_code: api_code).try(:name)
+    end
+
+    def discipline(api_code)
+      @disciplines ||= {}
+      @disciplines[api_code] ||= Discipline.find_by(api_code: api_code).try(:description)
+    end
+
+    def classroom(api_code)
+      @classrooms ||= {}
+      @classrooms[api_code] ||= Classroom.find_by(api_code: api_code).try(:description)
+    end
+
+    def data(params)
+      params[:faltas] || params[:notas] || params[:pareceres]
+    end
+
+    def api(posting)
+      case posting.post_type
+      when ApiPostingTypes::NUMERICAL_EXAM
+        IeducarApi::PostExams.new(posting.to_api)
+      when ApiPostingTypes::CONCEPTUAL_EXAM
+        IeducarApi::PostExams.new(posting.to_api)
+      when ApiPostingTypes::DESCRIPTIVE_EXAM
+        IeducarApi::PostDescriptiveExams.new(posting.to_api)
+      when ApiPostingTypes::ABSENCE
+        IeducarApi::PostAbsences.new(posting.to_api)
+      when ApiPostingTypes::FINAL_RECOVERY
+        IeducarApi::FinalRecoveries.new(posting.to_api)
+      when ApiPostingTypes::SCHOOL_TERM_RECOVERY
+        IeducarApi::PostRecoveries.new(posting.to_api)
+      end
     end
   end
 end

@@ -83,22 +83,10 @@ class AbsenceJustificationsController < ApplicationController
 
     # Se vier da tela de lançamento de frequência em lote, redireciona para ela
     if valid && parameters[:start_date] && parameters[:end_date]
-      redirect_to form_daily_frequencies_in_batchs_path(
-        frequency_in_batch_form: {
-          start_date: parameters[:start_date],
-          end_date: parameters[:end_date]
-        }
-      )
+      redirect_to form_daily_frequencies_in_batchs_path(redirect_params_for_batch_frequency)
     # Se vier da tela de lançamento de diário de frequência
     elsif valid && parameters[:frequency_date]
-      redirect_to form_daily_frequencies_path(
-        unity_id: parameters[:unity_id],
-        classroom_id: parameters[:classroom_id],
-        frequency_date: parameters[:frequency_date],
-        discipline_id: parameters[:discipline_id],
-        period: parameters[:period],
-        class_numbers: parameters[:class_numbers_original]
-      )
+      redirect_to form_daily_frequencies_path(redirect_params_for_daily_frequency)
     elsif valid
       respond_with @absence_justification, location: absence_justifications_path
     else
@@ -206,6 +194,29 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   private
+
+  def redirect_params_for_batch_frequency
+    {
+      frequency_in_batch_form: {
+        start_date: params.dig(:absence_justification, :start_date),
+        end_date: params.dig(:absence_justification, :end_date),
+        classroom_id: params.dig(:absence_justification, :classroom_id),
+        discipline_id: params.dig(:absence_justification, :discipline_id),
+        period: params.dig(:absence_justification, :period)
+      }
+    }
+  end
+
+  def redirect_params_for_daily_frequency
+    {
+      unity_id: params.dig(:absence_justification, :unity_id),
+      classroom_id: params.dig(:absence_justification, :classroom_id),
+      frequency_date: params.dig(:absence_justification, :frequency_date),
+      discipline_id: params.dig(:absence_justification, :discipline_id),
+      period: params.dig(:absence_justification, :period),
+      class_numbers: params.dig(:absence_justification, :class_numbers_original)
+    }
+  end
 
   def class_numbers(class_numbers)
     return [nil] if class_numbers.blank? || class_numbers.empty?

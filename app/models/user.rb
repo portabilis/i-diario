@@ -169,6 +169,10 @@ class User < ApplicationRecord
       created_at.to_date >= last_password_change.to_date
   end
 
+  def unread_notifications_count
+    system_notification_targets.where(read: false).count
+  end
+
   def expired?
     return false if admin? || new_record?
 

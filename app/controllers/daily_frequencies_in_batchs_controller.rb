@@ -216,7 +216,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def view_data
-    @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period : current_teacher_period
+    # Converte para inteiro pois @classroom.period pode vir como string do banco
+    @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period.to_i : current_teacher_period
     @general_configuration = GeneralConfiguration.current
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
@@ -232,9 +233,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     params['dates'].each { |date| dates << date['date'] }
 
     if dates.empty?
-      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.no_school_day')
+      flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.no_school_day')
 
-      render :new
+      redirect_to new_daily_frequencies_in_batch_path
 
       return false
     end
@@ -254,6 +255,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       @students_list << student
       @students << {
         student: student,
+        student_enrollment_id: student_enrollment[:student_enrollment].id,
         type_of_teaching: type_of_teaching,
         left_at: left_at,
         joined_at: joined_at
@@ -261,9 +263,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     if @students.blank?
-      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
+      flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
 
-      render :new
+      redirect_to new_daily_frequencies_in_batch_path
 
       return false
     end
@@ -282,6 +284,18 @@ class DailyFrequenciesInBatchsController < ApplicationController
       classroom: current_user_classroom.id,
       period: @period
     )
+
+    all_daily_frequencies = params['dates'].flat_map { |d| d[:daily_frequencies] }
+    @is_new_record = all_daily_frequencies.any?(&:new_record?)
+
+    @physical_frequencies = {}
+    if @is_new_record
+      @physical_frequencies = PhysicalFrequencyOnDate.call(
+        student_enrollment_ids: student_enrollments_ids,
+        start_date: dates.first,
+        end_date: dates.last
+      )
+    end
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
@@ -680,8 +694,19 @@ current_school_year)
     @period = params[:period]
 
     authorize_daily_frequency
-    view_data
+
+    return unless view_data
 
     render :create_or_update_multiple
   end
+
+  def format_date(date_string)
+    return date_string if date_string.is_a?(Date)
+    Date.parse(date_string)
+  rescue ArgumentError => e
+    Rails.logger.error("Invalid date format: #{date_string}")
+    date_string
+  end
+
+  helper_method :format_date
 end

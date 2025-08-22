@@ -46,6 +46,7 @@ Rails.application.routes.draw do
           end
         end
         resources :teaching_plans, only: [:index]
+        resources :daily_physical_frequencies, only: [:create, :index]
       end
     end
 
@@ -171,6 +172,10 @@ Rails.application.routes.draw do
       collection do
         get :step
         get :years_from_unity
+      end
+
+      member do
+        patch :close
       end
 
       resources :school_calendar_steps, only: [:index]

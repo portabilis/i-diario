@@ -1,8 +1,22 @@
 class SynchronizationsController < ApplicationController
   def create
-    full_synchronization = params.fetch(:full, false)
+    period = params.fetch(:period, nil)
+    
+    # Verificar permissão para sincronização customizada
+    if period.present? && !current_user.admin? && !current_user.can_change?(:full_synchronization)
+      raise Pundit::NotAuthorizedError
+    end
+    
+    full_synchronization = period.present? || params.fetch(:full, false)
+    
     configuration = IeducarApiConfiguration.current
-    @synchronization = configuration.start_synchronization(current_user, current_entity.id, full_synchronization)
+    @synchronization = configuration.start_synchronization(
+      current_user, 
+      current_entity.id, 
+      full_synchronization,
+      true,
+      period
+    )
 
     if @synchronization.persisted?
       respond_with @synchronization, location: edit_ieducar_api_configurations_path

@@ -49,11 +49,11 @@
                    value="<%= @frequency_type == FrequencyTypes::GENERAL ? nil : class_number %>">
 
             <% daily_frequency_student_path = "#{daily_frequency_path}[students_attributes]" %>
-
+            <% presenter = DailyFrequencyPresenter.new(student: student, date: date, daily_frequency: daily_frequency, response_data: response_data, physical_frequencies: @physical_frequencies) %>
 
             <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
             <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
-                                  daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
+                      daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id], default_presence: presenter.default_presence) do |f| %>
 
               <div class="<%= class_number != nil ? '' : 'hidden' %>">
                 <span>
@@ -74,12 +74,18 @@
                     <span class="hide">Falta Justificada</span>
                   </label>
                 <% else %>
-                  <label class="checkbox checkbox-frequency <%= response_data[:response_class] ? 'state-disabled never-change ' + response_data[:response_class] : '' %>" style="bottom: 15px;" title="<%= response_data[:response_tooltip] %>">
-                    <%= f.check_box :present, class: 'class-number-checkbox' + (response_data[:response_class] ? ' never-change ' + response_data[:response_class] : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: response_data[:response_class] ? true : false %>
-                    <i class="checkbox-frequency-in-batch"></i>
-                    <input type="checkbox" class="hide">
-                    <span class="hide">Lançar frequência</span>
-                  </label>
+                  <% if presenter.ignored? %>
+                    <label class="checkbox checkbox-frequency state-disabled" style="bottom: 15px;" title="<%= response_data[:response_tooltip] %>">
+                      <input type="checkbox" disabled="disabled" checked="checked">
+                      <i class="checkbox-frequency-in-batch"></i>
+                    </label>
+                  <% else %>
+                    <label class="checkbox checkbox-frequency" style="bottom: 15px;" title="<%= response_data[:response_tooltip] %>">
+                      <%= f.check_box :present, class: 'class-number-checkbox' %>
+                      <i class="checkbox-frequency-in-batch"></i>
+                      <span class="hide">Lançar frequência</span>
+                    </label>
+                  <% end %>
                 <% end %>
 
                 <% if daily_frequency_student.persisted? %>

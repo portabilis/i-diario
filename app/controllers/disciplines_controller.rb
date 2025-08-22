@@ -51,7 +51,8 @@ class DisciplinesController < ApplicationController
 
   def search
     params[:filter][:by_teacher_id] = current_user.teacher_id if params[:use_user_teacher]
-    @disciplines = apply_scopes(Discipline.grouper).ordered
+
+    @disciplines = apply_scopes(Discipline.grouper, params.fetch(:filter, {})).ordered
 
     render json: @disciplines
   end
