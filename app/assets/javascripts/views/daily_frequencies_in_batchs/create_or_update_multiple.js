@@ -79,7 +79,12 @@ $(function () {
   $('.daily_frequency').on('submit', function (e) {
     e.preventDefault();
     showConfirmation = false;
-    submitFormAsJSON();
+    try {
+      submitFormAsJSON();
+    } catch (error) {
+      console.error('Erro ao enviar formulário:', error);
+      this.submit();
+    }
   });
 
   $('.alert-success, .alert-danger').fadeTo(700, 0.1).fadeTo(700, 1.0);
@@ -236,13 +241,13 @@ function submitFormAsJSON() {
   const form = document.getElementById('frequency-batch-form');
   const submitBtn = document.getElementById('save-frequencies-btn');
   const formData = new FormData(form);
-
-  showBatchLoadingScreen();
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Salvando...';
-
   const jsonData = serializeFormToJSON(formData);
+
+  const $loadingTextNode = $('#page-loading').contents().filter(function() {
+    return this.nodeType === 3 && this.nodeValue.trim().length > 1;
+  });
+
+  $loadingTextNode.replaceWith(' Salvando frequência em lote...');
 
   $.ajax({
     url: form.action,
@@ -251,47 +256,30 @@ function submitFormAsJSON() {
     data: JSON.stringify(jsonData),
     beforeSend: function (xhr) {
       xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+      submitBtn.disabled = true;
     },
     success: function (response) {
-      if (response.success) {
-        updateLoadingScreen('success', response.message);
-
-        setTimeout(function () {
-          window.location.href = response.redirect_url;
-        }, 1500);
+      if (response.success && response.redirect_url) {
+        window.location.href = response.redirect_url;
       } else {
-        updateLoadingScreen('error', 'Erro nos dados enviados');
-
-        setTimeout(function () {
-          hideBatchLoadingScreen();
-          handleFormErrors(response.errors || [response.message]);
-        }, 2000);
+        handleFormErrors(response.errors || [response.message]);
       }
     },
     error: function (xhr, status, error) {
       let errorMessage = 'Erro ao salvar frequências.';
-
       if (xhr.responseJSON) {
         errorMessage = xhr.responseJSON.message || errorMessage;
-        updateLoadingScreen('error', errorMessage);
-
-        setTimeout(function () {
-          hideBatchLoadingScreen();
-          handleFormErrors(xhr.responseJSON.errors || [errorMessage]);
-        }, 2000);
+        handleFormErrors(xhr.responseJSON.errors || [errorMessage]);
       } else {
-        updateLoadingScreen('error', errorMessage);
-
-        setTimeout(function () {
-          hideBatchLoadingScreen();
-          showNotification(errorMessage, 'error');
-        }, 2000);
+        showNotification(errorMessage, 'error');
       }
     },
     complete: function () {
-      // Reabilitar botão (a tela de loading é controlada nos handlers success/error)
+      const $currentTextNode = $('#page-loading').contents().filter(function() {
+          return this.nodeType === 3;
+      });
+      $currentTextNode.replaceWith(' Carregando ...');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Salvar';
     }
   });
 }
@@ -340,7 +328,11 @@ function serializeFormToJSON(formData) {
             if (fieldName === 'present' || fieldName === 'active' || fieldName === 'dependence') {
               processedValue = value === '1' || value === 'true';
             } else if (fieldName === 'student_id' || fieldName === 'daily_frequency_id') {
-              processedValue = value ? parseInt(value) : null;
+              if (value && !isNaN(value)) {
+                processedValue = parseInt(value, 10);
+              } else {
+                processedValue = null;
+              }
             }
 
             data.daily_frequencies[frequencyId].students_attributes[studentId][fieldName] = processedValue;
@@ -388,254 +380,3 @@ function handleFormErrors(errors) {
   showNotification(errorMessage, 'error');
 }
 
-function showBatchLoadingScreen() {
-  let $loadingClone = $('#page-loading').clone(true);
-  $loadingClone.attr('id', 'frequency-batch-loading');
-
-  $loadingClone.html(`
-    <div style="
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      background: rgba(33, 37, 41, 0.9);
-      color: white;
-      padding: 30px 40px;
-      border-radius: 8px;
-      min-width: 300px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    ">
-      <div style="margin-bottom: 15px;">
-        <i class="fa fa-cog fa-spin" style="font-size: 42px; color: #1ab394;"></i>
-      </div>
-      
-      <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">
-        Processando Frequências
-      </div>
-      
-      <div id="progress-message" style="font-size: 14px; margin-bottom: 20px; color: #ccc;">
-        Salvando frequências em lote...
-      </div>
-      
-      <div class="progress-container" style="
-        width: 100%;
-        background: rgba(255,255,255,0.2);
-        border-radius: 10px;
-        height: 20px;
-        margin-bottom: 10px;
-        overflow: hidden;
-      ">
-        <div class="progress-bar" style="
-          width: 0%;
-          height: 100%;
-          background: linear-gradient(90deg, #1ab394 0%, #2ed8b6 100%);
-          border-radius: 10px;
-          transition: width 0.3s ease;
-          position: relative;
-        ">
-          <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, 
-              transparent 0%, 
-              rgba(255,255,255,0.3) 50%, 
-              transparent 100%);
-            animation: progress-shimmer 2s infinite;
-          "></div>
-        </div>
-      </div>
-      
-      <div class="progress-text" style="font-size: 14px; color: #1ab394; font-weight: bold;">
-        0%
-      </div>
-    </div>
-  `);
-
-  if (!$('#frequency-loading-styles').length) {
-    $('head').append(`
-      <style id="frequency-loading-styles">
-        @keyframes progress-shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      </style>
-    `);
-  }
-
-  $loadingClone.css({
-    'position': 'fixed',
-    'top': '0',
-    'left': '0',
-    'width': '100%',
-    'height': '100%',
-    'background': 'rgba(0,0,0,0.7)',
-    'z-index': '999999'
-  });
-
-  $('body').append($loadingClone);
-  $loadingClone.removeClass('hidden');
-
-  startProgressAnimation();
-}
-
-function hideBatchLoadingScreen() {
-  currentProgress = 0;
-  currentStepIndex = 0;
-
-  $('#frequency-batch-loading').fadeOut(300, function () {
-    $(this).remove();
-  });
-}
-
-let currentProgress = 0;
-let progressSteps = [];
-let currentStepIndex = 0;
-let stepStartTime = 0;
-
-function startProgressAnimation() {
-  currentProgress = 5;
-  currentStepIndex = 0;
-
-  progressSteps = [
-    { progress: 5, message: "Preparando dados...", duration: 200 },
-    { progress: 15, message: "Validando informações...", duration: 300 },
-    { progress: 25, message: "Processando alunos...", duration: 800 },
-    { progress: 45, message: "Salvando frequências...", duration: 1200 },
-    { progress: 65, message: "Atualizando registros...", duration: 900 },
-    { progress: 80, message: "Finalizando processamento...", duration: 600 },
-    { progress: 90, message: "Aguardando confirmação do servidor...", duration: 0 }
-  ];
-
-  updateProgress(5, "Iniciando processamento...");
-  processNextStep();
-}
-
-function processNextStep() {
-  if (currentStepIndex >= progressSteps.length) return;
-
-  const step = progressSteps[currentStepIndex];
-  stepStartTime = Date.now();
-
-  updateProgressMessage(step.message);
-
-  if (step.duration > 0) {
-    animateStepProgress(step);
-  } else {
-    updateProgress(step.progress, step.message);
-  }
-}
-
-function animateStepProgress(step) {
-  const startProgress = currentProgress;
-  const targetProgress = step.progress;
-  const duration = step.duration;
-  const startTime = stepStartTime;
-
-  const animate = () => {
-    const elapsed = Date.now() - startTime;
-    const progressRatio = Math.min(elapsed / duration, 1);
-
-    const easedProgress = easeOutQuart(progressRatio);
-    const newProgress = startProgress + (targetProgress - startProgress) * easedProgress;
-
-    updateProgress(Math.round(newProgress));
-
-    if (progressRatio < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      currentProgress = targetProgress;
-      currentStepIndex++;
-
-      setTimeout(() => {
-        processNextStep();
-      }, 100);
-    }
-  };
-
-  requestAnimationFrame(animate);
-}
-
-function easeOutQuart(t) {
-  return 1 - Math.pow(1 - t, 4);
-}
-
-function updateProgress(percentage, message) {
-  const $loading = $('#frequency-batch-loading');
-  if ($loading.length) {
-    $loading.find('.progress-bar').css('width', percentage + '%');
-    $loading.find('.progress-text').text(percentage + '%');
-
-    if (message) {
-      $loading.find('#progress-message').text(message);
-    }
-  }
-}
-
-function updateProgressMessage(message) {
-  const $loading = $('#frequency-batch-loading');
-  if ($loading.length) {
-    $loading.find('#progress-message').text(message);
-  }
-}
-
-function completeProgress() {
-  currentProgress = 100;
-  updateProgress(100, "Processamento concluído!");
-}
-
-function updateLoadingScreen(status, message) {
-  const $loadingScreen = $('#frequency-batch-loading');
-
-  if (status === 'success') {
-    completeProgress();
-
-    setTimeout(function () {
-      $loadingScreen.find('.fa-cog').removeClass('fa-spin fa-cog').addClass('fa-check-circle');
-      $loadingScreen.find('.fa-check-circle').css('color', '#1ab394');
-
-      $loadingScreen.find('div:contains("Processando Frequências")').text('Frequências Salvas!');
-      $loadingScreen.find('#progress-message').text('Processamento concluído. Redirecionando...');
-
-      $loadingScreen.find('.progress-container').html(`
-        <div style="
-          color: #1ab394;
-          font-size: 16px;
-          font-weight: bold;
-          text-align: center;
-          padding: 10px;
-        ">
-          <i class="fa fa-check-circle" style="margin-right: 8px;"></i>
-          Concluído com Sucesso
-        </div>
-      `);
-
-      $loadingScreen.find('.progress-text').text('100%').css('color', '#1ab394');
-    }, 300);
-
-  } else if (status === 'error') {
-    $loadingScreen.find('.fa-cog').removeClass('fa-spin fa-cog').addClass('fa-exclamation-triangle');
-    $loadingScreen.find('.fa-exclamation-triangle').css('color', '#ed5565');
-
-    $loadingScreen.find('div:contains("Processando Frequências")').text('Erro no Processamento');
-    $loadingScreen.find('#progress-message').text(message || 'Ocorreu um erro ao processar as frequências.');
-
-    $loadingScreen.find('.progress-container').html(`
-      <div style="
-        color: #ed5565;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        padding: 10px;
-      ">
-        <i class="fa fa-exclamation-triangle" style="margin-right: 8px;"></i>
-        Erro no Processamento
-      </div>
-    `);
-
-    $loadingScreen.find('.progress-text').text('Erro').css('color', '#ed5565');
-  }
-}
