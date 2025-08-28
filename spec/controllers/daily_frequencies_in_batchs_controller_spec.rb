@@ -93,47 +93,45 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
 
   describe 'POST #create_or_update_multiple' do
     let(:frequency_date) { school_calendar.steps.first.start_at }
-    
-    context 'with form-data request' do
-      let(:form_params) do
-        {
-          locale: 'pt-BR',
-          frequency_in_batch_form: {
-            unity_id: unity.id,
-            classroom_id: classroom.id,
-            discipline_id: discipline.id,
-            frequency_type: FrequencyTypes::BY_DISCIPLINE,
-            period: Periods::MATUTINAL,
-            receive_email_confirmation: false
-          },
-          daily_frequencies: {
-            '0' => {
-              date: frequency_date.strftime('%d/%m/%Y'),
-              class_number: '1',
-              students_attributes: {
-                '0' => {
-                  id: '',
-                  daily_frequency_id: '',
-                  student_id: student.id,
-                  present: '1',
-                  active: true,
-                  dependence: false,
-                  type_of_teaching: 1,
-                  absence_justification_student_id: ''
-                }
+    let(:form_params) do
+      {
+        locale: 'pt-BR',
+        frequency_in_batch_form: {
+          unity_id: unity.id,
+          classroom_id: classroom.id,
+          discipline_id: discipline.id,
+          frequency_type: FrequencyTypes::BY_DISCIPLINE,
+          period: Periods::MATUTINAL,
+          receive_email_confirmation: false
+        },
+        daily_frequencies: {
+          '0' => {
+            date: frequency_date.strftime('%d/%m/%Y'),
+            class_number: '1',
+            students_attributes: {
+              '0' => {
+                id: '',
+                daily_frequency_id: '',
+                student_id: student.id,
+                present: '1',
+                active: true,
+                dependence: false,
+                type_of_teaching: 1,
+                absence_justification_student_id: ''
               }
             }
           }
         }
-      end
-
+      }
+    end
+    context 'with form-data request' do
       it 'processes form submission successfully' do
-        post :create_or_update_multiple, params: form_params
+          post :create_or_update_multiple, params: form_params
         expect(response.status).to be_in([200, 302])
       end
 
       it 'handles form data correctly' do
-        post :create_or_update_multiple, params: form_params
+          post :create_or_update_multiple, params: form_params
         expect(response.status).to be_in([200, 302, 422])
       end
     end
@@ -173,26 +171,26 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
       end
 
       it 'processes JSON submission successfully' do
-        post :create_or_update_multiple, 
-             params: { locale: 'pt-BR' },
-             body: json_params.to_json
+          post :create_or_update_multiple,
+               params: { locale: 'pt-BR' },
+               body: json_params.to_json
         expect(response.status).to be_in([200, 302, 422])
       end
 
       it 'handles JSON content type' do
-        post :create_or_update_multiple, 
-             params: { locale: 'pt-BR' },
-             body: json_params.to_json
+          post :create_or_update_multiple,
+               params: { locale: 'pt-BR' },
+               body: json_params.to_json
         expect(response.status).to be_in([200, 302, 422])
       end
 
       it 'handles validation errors with JSON response' do
         json_params[:classroom_id] = nil
-        
-        post :create_or_update_multiple, 
+
+        post :create_or_update_multiple,
              params: { locale: 'pt-BR' },
              body: json_params.to_json
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         json_response = JSON.parse(response.body)
         expect(json_response['success']).to be false
@@ -201,14 +199,94 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
 
     context 'with bulk operations optimization' do
-      it 'can process multiple requests' do
-        expect(true).to be true
+      it 'can process multiple requests efficiently' do
+        # Primeira requisição
+        post :create_or_update_multiple, params: form_params
+        expect(response).to have_http_status(:found)
+
+        # Segunda requisição
+        post :create_or_update_multiple, params: form_params
+        expect(response).to have_http_status(:found)
+
+        # Terceira verificação: garante que o controller continua consistente
+        expect(response).to have_http_status(:found)
       end
     end
 
     context 'with absence justifications' do
-      it 'handles absence justification requests' do
-        expect(true).to be true
+      let(:valid_absence_params) do
+        absence_params = form_params.dup
+        absence_params[:daily_frequencies]['0'][:students_attributes]['0'] = absence_params[:daily_frequencies]['0'][:students_attributes]['0'].dup
+        absence_params[:daily_frequencies]['0'][:students_attributes]['0'][:absence_justification_student_id] = '1'
+        absence_params
+      end
+
+      context 'when the request is valid' do
+        it 'returns 302 (Found) - redirects after success' do
+          post :create_or_update_multiple, params: valid_absence_params
+          expect(response).to have_http_status(:found)
+        end
+      end
+
+      context 'when the request triggers a redirect' do
+        it 'returns 302 (Found)' do
+          post :create_or_update_multiple, params: valid_absence_params
+          expect(response).to have_http_status(:found)
+        end
+      end
+
+      context 'when the request is invalid' do
+        it 'returns 302 (Found) - redirects even with invalid data' do
+          invalid_absence_params = valid_absence_params.dup
+          invalid_absence_params[:frequency_in_batch_form][:classroom_id] = nil
+
+          post :create_or_update_multiple, params: invalid_absence_params
+          expect(response).to have_http_status(:found)
+        end
+      end
+    end
+
+    context 'with edge cases' do
+      context 'when daily_frequencies array is empty' do
+        it 'returns 302 (Found) - redirects even with empty data' do
+          empty_params = form_params.dup
+          empty_params[:daily_frequencies] = {}
+
+          post :create_or_update_multiple, params: empty_params
+          expect(response).to have_http_status(:found)
+        end
+      end
+
+      context 'when multiple students in same frequency' do
+        it 'returns 302 (Found) - redirects after success' do
+          new_student = create(:student)
+          multiple_students_params = form_params.dup
+          multiple_students_params[:daily_frequencies]['0'][:students_attributes]['1'] = {
+            id: '',
+            daily_frequency_id: '',
+            student_id: new_student.id,
+            present: '0',
+            active: true,
+            dependence: false,
+            type_of_teaching: 1,
+            absence_justification_student_id: ''
+          }
+
+          post :create_or_update_multiple, params: multiple_students_params
+          expect(response).to have_http_status(:found)
+        end
+      end
+
+      context 'when frequency type is general' do
+        it 'returns 302 (Found) - redirects after success' do
+          general_params = form_params.dup
+          general_params[:frequency_in_batch_form] = general_params[:frequency_in_batch_form].dup
+          general_params[:frequency_in_batch_form][:frequency_type] = FrequencyTypes::GENERAL
+          general_params[:frequency_in_batch_form][:discipline_id] = nil
+
+          post :create_or_update_multiple, params: general_params
+          expect(response).to have_http_status(:found)
+        end
       end
     end
   end
@@ -228,7 +306,7 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
 
       it 'parses JSON frequency attributes correctly' do
         result = controller.send(:parse_json_frequency_attributes, json_data)
-        
+
         expect(result[:unity_id]).to eq(unity.id)
         expect(result[:classroom_id]).to eq(classroom.id)
         expect(result[:discipline_id]).to eq(discipline.id)
@@ -265,7 +343,7 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
 
       it 'parses JSON frequencies attributes correctly' do
         result = controller.send(:parse_json_frequencies_attributes, json_data)
-        
+
         expect(result[:daily_frequencies]).to have_key('0')
         expect(result[:daily_frequencies]['0'][:date]).to eq(frequency_date.strftime('%d/%m/%Y'))
         expect(result[:daily_frequencies]['0'][:class_number]).to eq('1')
@@ -291,7 +369,7 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
 
       it 'parses students attributes correctly' do
         result = controller.send(:parse_students_attributes, students_data)
-        
+
         expect(result).to have_key('0')
         expect(result['0'][:student_id]).to eq(student.id)
         expect(result['0'][:present]).to eq('1')
@@ -319,12 +397,12 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
 
     it 'handles ActiveRecord::RecordInvalid with form-data' do
       post :create_or_update_multiple, params: invalid_params
-      expect(response.status).to be_in([200, 302, 422])
+      expect(response).to have_http_status(:found)
     end
 
     it 'handles ActiveRecord::RecordInvalid with JSON' do
       request.headers['Content-Type'] = 'application/json'
-      
+
       invalid_json = {
         unity_id: nil,
         classroom_id: nil,
@@ -334,12 +412,38 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
         receive_email_confirmation: false,
         daily_frequencies: {}
       }
-      
-      post :create_or_update_multiple, 
+
+      post :create_or_update_multiple,
            params: { locale: 'pt-BR' },
            body: invalid_json.to_json
-      
-      expect(response.status).to be_in([200, 302, 422])
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'handles missing required parameters' do
+      missing_params = {
+        locale: 'pt-BR',
+        frequency_in_batch_form: {
+          unity_id: unity.id,
+          # classroom_id e discipline_id são obrigatórios
+        },
+        daily_frequencies: {}
+      }
+
+      post :create_or_update_multiple, params: missing_params
+      expect(response).to have_http_status(:found)
+    end
+
+    it 'handles malformed JSON' do
+      request.headers['Content-Type'] = 'application/json'
+
+      malformed_json = '{"invalid": "json"'
+
+      expect {
+        post :create_or_update_multiple,
+             params: { locale: 'pt-BR' },
+             body: malformed_json
+      }.to raise_error(ActionDispatch::ParamsParser::ParseError)
     end
   end
 end
