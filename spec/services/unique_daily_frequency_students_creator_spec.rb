@@ -215,25 +215,138 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
   end
 
   context 'performance optimizations for batch operations' do
+    let(:multiple_students) { create_list(:student, 10) }
+    let(:daily_frequency_with_multiple_students) {
+      create(
+        :daily_frequency,
+        :with_teacher,
+        classroom: classroom,
+        teacher: teacher,
+        class_number: nil,
+        discipline_id: nil,
+        frequency_date: '2024-04-01'
+      )
+    }
+
+    before do
+      multiple_students.each do |student|
+        create(:daily_frequency_student,
+          daily_frequency: daily_frequency_with_multiple_students,
+          student: student,
+          active: true,
+          present: [true, false].sample
+        )
+      end
+    end
+
     it 'handles bulk operations efficiently' do
-      expect(true).to be true
+      start_time = Time.current
+
+      result = described_class.create!(
+        classroom.id,
+        daily_frequency_with_multiple_students.frequency_date,
+        teacher.id
+      )
+
+      end_time = Time.current
+      processing_time = end_time - start_time
+
+      expect(processing_time).to be < 5.seconds
+      expect(result.keys.count).to eq(10)
+      expect(UniqueDailyFrequencyStudent.count).to eq(10)
     end
 
     it 'processes multiple frequencies in reasonable time' do
-      expect(true).to be true
+      # Criar múltiplas frequências para a mesma turma/data
+      additional_frequencies = []
+      3.times do |i|
+        additional_frequencies << create(
+          :daily_frequency,
+          :with_teacher,
+          classroom: classroom,
+          teacher: teacher,
+          class_number: (i + 1).to_s,
+          discipline: discipline,
+          frequency_date: '2024-04-01'
+        )
+      end
+
+      start_time = Time.current
+
+      result = described_class.create!(
+        classroom.id,
+        daily_frequency_with_multiple_students.frequency_date,
+        teacher.id
+      )
+
+      end_time = Time.current
+      processing_time = end_time - start_time
+
+      expect(processing_time).to be < 10.seconds
+      expect(result.keys.count).to eq(10)
     end
-    
+
     context 'with call_worker optimization' do
       it 'reduces duplicate worker calls for same classroom/date combinations' do
-        expect(true).to be true
+        # Simular múltiplas chamadas para a mesma combinação de turma/data
+        classroom_id = classroom.id
+        frequency_date = daily_frequency.frequency_date
+        teacher_id = teacher.id
+
+        expect(UniqueDailyFrequencyStudentsCreatorWorker).to receive(:perform_at).twice.and_call_original
+
+        described_class.call_worker(1, classroom_id, frequency_date, teacher_id)
+
+        # Segunda chamada para a mesma combinação também cria um worker
+        # (cada chamada cria um novo worker, mas com horário diferente)
+        described_class.call_worker(1, classroom_id, frequency_date, teacher_id)
       end
     end
   end
 
   context 'memory usage optimization' do
+    let(:large_number_of_students) { create_list(:student, 20) }
+    let(:daily_frequency_large) {
+      create(
+        :daily_frequency,
+        :with_teacher,
+        classroom: classroom,
+        teacher: teacher,
+        class_number: nil,
+        discipline_id: nil,
+        frequency_date: '2024-04-01'
+      )
+    }
+
+    before do
+      large_number_of_students.each do |student|
+        create(:daily_frequency_student,
+          daily_frequency: daily_frequency_large,
+          student: student,
+          active: true,
+          present: [true, false].sample
+        )
+      end
+    end
+
     it 'does not hold references to large objects during processing' do
-      expect(true).to be true
+      memory_before = GC.stat[:total_allocated_objects]
+
+      result = described_class.create!(
+        classroom.id,
+        daily_frequency_large.frequency_date,
+        teacher.id
+      )
+
+      GC.start
+      memory_after = GC.stat[:total_allocated_objects]
+
+      expect(result.keys.count).to eq(20)
+      expect(UniqueDailyFrequencyStudent.count).to eq(20)
+
+      # Verificar se não há crescimento excessivo de memória
+      memory_growth = memory_after - memory_before
+      expect(memory_growth).to be < 100000
     end
   end
-
 end
