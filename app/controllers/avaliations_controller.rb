@@ -14,8 +14,8 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    set_filters
     set_options_by_user
+    set_filters
     fetch_avaliations_by_user
 
     authorize @avaliations
@@ -263,7 +263,7 @@ class AvaliationsController < ApplicationController
   end
 
   def school_calendar_by_classroom?
-    classroom_ids = @classrooms
+    classroom_ids = @classrooms.map(&:id)
 
     current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
   end
