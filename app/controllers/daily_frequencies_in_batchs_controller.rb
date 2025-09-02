@@ -48,14 +48,34 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return
     end
 
-    daily_frequency_attributes = daily_frequency_in_batchs_params
-    daily_frequencies_attributes = daily_frequencies_in_batch_params
+    if request.content_type == 'application/json'
+      body = request.body.read
+      max_size = 10.megabytes
+
+      if body.bytesize > max_size
+        render json: { success: false, message: 'Payload muito grande' }, status: :payload_too_large
+        return
+      end
+
+      json_data = JSON.parse(body)
+      daily_frequency_attributes = parse_json_frequency_attributes(json_data)
+      daily_frequencies_attributes = parse_json_frequencies_attributes(json_data)
+    else
+      daily_frequency_attributes = daily_frequency_in_batchs_params
+      daily_frequencies_attributes = daily_frequencies_in_batch_params
+    end
+
     receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
-      daily_frequency_attributes[:frequency_in_batch_form][:receive_email_confirmation]
+      daily_frequency_attributes.dig(:frequency_in_batch_form, :receive_email_confirmation) ||
+      daily_frequency_attributes[:receive_email_confirmation]
     )
     dates = []
 
     ActiveRecord::Base.transaction do
+      daily_frequency_students_to_save = []
+      absence_justifications_to_save = []
+      worker_calls = []
+
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
         daily_frequency_data = daily_frequency_attributes
         daily_frequency_data[:frequency_date] = daily_frequency_students_params[:date]
@@ -73,31 +93,57 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                                 daily_frequency_data[:discipline_id],
                                                                 daily_frequency_data[:period])
 
+        if daily_frequency.new_record? || daily_frequency.changed?
+          daily_frequency.save!
+        end
+
         daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
           away = 0
           daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
 
           if student_attributes[:absence_justification_student_id].to_i.eql?(-1)
-            params = {
-              student_ids: [student_attributes[:student_id]],
-              absence_date: daily_frequency_data[:frequency_date],
-              justification: nil,
-              absence_date_end: daily_frequency_data[:frequency_date],
-              unity_id: daily_frequency_data[:unity_id],
-              classroom_id: daily_frequency_data[:classroom_id],
-              class_number: daily_frequency_data[:class_number],
-            }
+            student_id = student_attributes[:student_id]
+            date = daily_frequency_data[:frequency_date]
 
-            absence_justification = AbsenceJustification.new(params)
-            absence_justification.teacher = current_teacher
-            absence_justification.user = current_user
-            absence_justification.school_calendar = current_school_calendar
-            absence_justification.period = daily_frequency_data[:period]
+            absence_justification = ActiveRecord::Base.transaction do
+              lock_key = "absence_#{student_id}_#{date}"
+              ActiveRecord::Base.connection.execute("SELECT pg_advisory_xact_lock(hashtext('#{lock_key}'))")
 
-            absence_justification.save
+              existing_justification = AbsenceJustification
+                .by_student_id(student_id)
+                .by_date_range(date, date)
+                .by_classroom(daily_frequency_data[:classroom_id])
+                .by_school_calendar(current_school_calendar)
+                .by_period(daily_frequency_data[:period])
+                .where(
+                  unity_id: daily_frequency_data[:unity_id],
+                  class_number: daily_frequency_data[:class_number]
+                )
+                .first
 
-            student_attributes[:absence_justification_student_id] =
-              absence_justification.absence_justifications_students.first.id
+              if existing_justification
+                existing_justification.current_user = current_user
+                existing_justification
+              else
+                new_justification = AbsenceJustification.new(
+                  absence_date: daily_frequency_data[:frequency_date],
+                  justification: nil,
+                  absence_date_end: daily_frequency_data[:frequency_date],
+                  unity_id: daily_frequency_data[:unity_id],
+                  classroom_id: daily_frequency_data[:classroom_id],
+                  class_number: daily_frequency_data[:class_number],
+                  school_calendar: current_school_calendar,
+                  period: daily_frequency_data[:period]
+                )
+
+                new_justification.student_ids = [student_id]
+                new_justification.teacher = current_teacher
+                new_justification.user = current_user
+                new_justification
+              end
+            end
+
+            absence_justifications_to_save << absence_justification
           end
 
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
@@ -105,21 +151,47 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student.active = student_attributes[:active]
           daily_frequency_student.absence_justification_student_id = student_attributes[:absence_justification_student_id]
 
-          daily_frequency.save!
-          daily_frequency_student.save!
+          if daily_frequency_student.changed?
+            daily_frequency_students_to_save << daily_frequency_student
+          end
         end
 
-        if daily_frequency.save!
-          UniqueDailyFrequencyStudentsCreator.call_worker(
-            current_entity.id,
-            daily_frequency.classroom_id,
-            daily_frequency.frequency_date,
-            current_teacher_id
-          )
+        worker_calls << {
+          entity_id: current_entity.id,
+          classroom_id: daily_frequency.classroom_id,
+          frequency_date: daily_frequency.frequency_date,
+          teacher_id: current_teacher_id
+        }
 
-          dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
+        dates << daily_frequency.frequency_date.to_date.strftime('%d/%m/%Y')
+      end
+
+      absence_justifications_to_save.each do |absence_justification|
+        absence_justification.save!
+
+        student_id = absence_justification.student_ids.first
+        matching_student = daily_frequency_students_to_save.find { |dfs| dfs.student_id == student_id }
+        if matching_student && absence_justification.absence_justifications_students.first
+          matching_student.absence_justification_student_id = absence_justification.absence_justifications_students.first.id
         end
+      end
 
+      daily_frequency_students_to_save.each do |dfs|
+        if dfs.absence_justification_student_id == -1
+          Rails.logger.warn("DailyFrequencyStudent não salvo por absence_justification_student_id inválido: #{dfs.inspect}")
+          next
+        end
+        dfs.save!
+      end
+
+      unique_worker_calls = worker_calls.uniq { |call| [call[:classroom_id], call[:frequency_date]] }
+      unique_worker_calls.each do |worker_call|
+        UniqueDailyFrequencyStudentsCreator.call_worker(
+          worker_call[:entity_id],
+          worker_call[:classroom_id],
+          worker_call[:frequency_date],
+          worker_call[:teacher_id]
+        )
       end
     end
 
@@ -145,6 +217,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     flash[:success] = t('.daily_frequency_success')
 
+    if request.content_type == 'application/json'
+      render json: {
+        success: true,
+        message: t('.daily_frequency_success'),
+        dates: dates,
+        redirect_url: new_daily_frequencies_in_batch_path
+      }
+      return
+    end
+
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
     @classroom = Classroom.includes(:unity).find(daily_frequency_attributes[:classroom_id])
 
@@ -156,8 +238,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     render :create_or_update_multiple
   rescue ActiveRecord::RecordInvalid => e
+    if request.content_type == 'application/json'
+      render json: {
+        success: false,
+        message: e.message,
+        errors: e.record&.errors&.full_messages || [e.message]
+      }, status: :unprocessable_entity
+    else
       flash[:error] = e.message
       redirect_to new_daily_frequencies_in_batch_path
+    end
   end
 
   def destroy_multiple
@@ -709,4 +799,49 @@ current_school_year)
   end
 
   helper_method :format_date
+
+  private
+  def parse_json_frequency_attributes(json_data)
+    {
+      unity_id: json_data['unity_id'],
+      classroom_id: json_data['classroom_id'],
+      discipline_id: json_data['discipline_id'],
+      frequency_type: json_data['frequency_type'],
+      period: json_data['period'],
+      receive_email_confirmation: json_data['receive_email_confirmation']
+    }
+  end
+
+  def parse_json_frequencies_attributes(json_data)
+    daily_frequencies = {}
+
+    json_data['daily_frequencies']&.each do |freq_id, freq_data|
+      daily_frequencies[freq_id] = {
+        date: freq_data['date'],
+        class_number: freq_data['class_number'],
+        students_attributes: parse_students_attributes(freq_data['students_attributes'])
+      }
+    end
+
+    { daily_frequencies: daily_frequencies }
+  end
+
+  def parse_students_attributes(students_data)
+    students_attributes = {}
+
+    students_data&.each do |student_id, student_data|
+      students_attributes[student_id] = {
+        id: student_data['id'],
+        daily_frequency_id: student_data['daily_frequency_id'],
+        student_id: student_data['student_id'],
+        present: student_data['present'],
+        active: student_data['active'],
+        dependence: student_data['dependence'],
+        type_of_teaching: student_data['type_of_teaching'],
+        absence_justification_student_id: student_data['absence_justification_student_id']
+      }
+    end
+
+    students_attributes
+  end
 end
