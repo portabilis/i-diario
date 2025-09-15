@@ -14,7 +14,7 @@ class UserTeacherLinkerService
     teachers = Teacher.where(api_code: @teacher_records.map(&:servidor_id), active: true, discarded_at: nil)
                      .index_by { |t| t.api_code.to_s }
     
-    users = User.joins(:user_roles).where(teacher_id: nil).distinct.index_by(&:cpf)
+    users = User.where(teacher_id: nil).index_by(&:cpf)
     
     [teachers, users]
   end
@@ -43,7 +43,8 @@ class UserTeacherLinkerService
         user = user_teacher_id_update[:user]
         teacher_id = user_teacher_id_update[:teacher_id]
 
-        if user.update(teacher_id: teacher_id)
+        user.teacher_id = teacher_id
+        if user.save(validate: false)
           Rails.logger.info "Usuário #{user.id} (#{user.name}) vinculado ao professor #{teacher_id} pelo CPF"
         else
           Rails.logger.warn "Falha ao vincular usuário #{user.id}: #{user.errors.full_messages.join(', ')}"
