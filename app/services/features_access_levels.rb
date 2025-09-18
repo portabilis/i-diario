@@ -77,7 +77,8 @@ class FeaturesAccessLevels
       :roles,
       :unities,
       :terms_dictionaries,
-      :translations
+      :translations,
+      :manage_school_years_of_the_unit
     ]
   end
 end

@@ -1,0 +1,59 @@
+<fieldset>
+  <legend><%= t('tables.school_year', count: 2) %></legend>
+
+  <table class="table table-striped table-bordered table-condensed records">
+    <thead>
+      <tr>
+        <th><%= SchoolCalendar.human_attribute_name :year %></th>
+        <th><%= SchoolCalendar.human_attribute_name :opened_year %></th>
+        <th class="actions" style="width: 60px;"> <%=  t('tables.actions')%> </th>
+      </tr>
+    </thead>
+
+    <tbody id="school-calendar">
+      <% @school_calendars.each do |school_calendar| %>
+        <tr class="nested-fields">
+          <td>
+            <%= school_calendar.year %>
+          </td>
+
+          <td>
+            <%= school_calendar.opened_year ? 'Aberto' : 'Fechado' %>
+          </td>
+          <td class="actions">
+            <% if policy(@unity).manage_school_calendars? %>
+              <% if school_calendar.opened_year %>
+                <%= link_to "Fechar",
+                      close_school_calendar_path(school_calendar),
+                      method: :patch,
+                      class: 'btn btn-success btn-sm',
+                      data: {
+                        confirm: t('confirmations.close_school_year', year: school_calendar.year)
+                      },
+                      title: t('tooltips.close_school_year') %>
+              <% else %>
+                <span title="<%= t('tooltips.school_year_closed') %>">
+                  <a class="btn btn-success btn-sm disabled"> Fechar </a>
+                </span>
+              <% end %>
+            <% else %>
+              <span title="<%= t('tooltips.no_permission_to_close') %>">
+                <a class="btn btn-success btn-sm disabled"> Fechar </a>
+              </span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot id="paginator" class="remote">
+      <td colspan="7">
+        <div id="page_entries_info" class="pull-left hidden-xs">
+          <%= page_entries_info @school_calendars %>
+        </div>
+        <div class="pull-right">
+          <%= paginate @school_calendars %>
+        </div>
+      </td>
+    </tfoot>
+  </table>
+</fieldset>

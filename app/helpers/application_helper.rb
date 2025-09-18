@@ -5,7 +5,7 @@ module ApplicationHelper
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
-    @unread_notifications_count ||= current_user.unread_notifications.count
+    @unread_notifications_count ||= current_user.unread_notifications_count
   end
 
   def last_system_notifications

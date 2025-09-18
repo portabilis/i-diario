@@ -12,7 +12,7 @@ class SchoolCalendar < ApplicationRecord
 
   belongs_to :unity
 
-  has_many :steps, -> { includes(:school_calendar).ordered }, class_name: 'SchoolCalendarStep', dependent: :destroy
+  has_many :steps, -> { ordered }, class_name: 'SchoolCalendarStep', dependent: :destroy
   has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
   has_many :absence_justifications, dependent: :restrict_with_exception

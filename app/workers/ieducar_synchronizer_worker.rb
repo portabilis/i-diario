@@ -22,12 +22,15 @@ class IeducarSynchronizerWorker
     Honeybadger.notify(exception)
   end
 
-  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, current_years = true)
+  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, current_years = true, period = nil)
     if entity_id.present? && synchronization_id.present?
+      entity = Entity.find(entity_id)
+
       perform_for_entity(
-        Entity.find(entity_id),
+        entity,
         synchronization_id,
-        current_years
+        current_years,
+        period
       )
     else
       all_entities.each do |entity|
@@ -36,7 +39,7 @@ class IeducarSynchronizerWorker
 
           if configuration.persisted?
             Rails.logger.info("[#{entity.name}] Configuração encontrada: #{configuration.url}")
-            configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years)
+            configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years, period)
           else
             Rails.logger.warn("[#{entity.name}] Nenhuma configuração persistida encontrada.")
           end
@@ -47,18 +50,23 @@ class IeducarSynchronizerWorker
 
   private
 
-  def perform_for_entity(entity, synchronization_id, current_years)
+  def perform_for_entity(entity, synchronization_id, current_years, period = nil)
     entity.using_connection do
       synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
 
       break unless synchronization.try(:started?)
+
+      # Log informativo sobre o tipo de sincronização
+      sync_type = synchronization.full_synchronization? ? "completa" : "simples"
+      Rails.logger.info("[#{entity.name}] Iniciando sincronização #{sync_type} - ID: #{synchronization.id}")
 
       UnitiesSynchronizerWorker.set(
         queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
       ).perform_async(
         entity_id: entity.id,
         synchronization_id: synchronization.id,
-        current_years: current_years
+        current_years: current_years,
+        period: period
       )
     end
   end

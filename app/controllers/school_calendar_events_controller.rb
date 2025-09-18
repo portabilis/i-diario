@@ -58,21 +58,24 @@ class SchoolCalendarEventsController < ApplicationController
       old_end_date = resource.end_date_was
     end
 
+    event_type_changed = resource.event_type_changed?
+
     if resource.save
-      if dates_changed
+      if dates_changed || event_type_changed
         SchoolCalendarEventDays.update_school_days(
           [school_calendar],
           [resource],
           action_name,
-          old_start_date,
-          old_end_date
+          old_start_date || resource.start_date,
+          old_end_date || resource.end_date,
+          event_type_changed
         )
       end
-      respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates
       render :edit
     end
+    respond_with resource, location: school_calendar_school_calendar_events_path
   end
 
   def destroy

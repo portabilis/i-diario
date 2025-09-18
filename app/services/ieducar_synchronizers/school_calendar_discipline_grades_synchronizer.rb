@@ -133,6 +133,7 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
 
   def destroy_removed_disciplines(existing_school_calendar_discipline_grade)
     return if @unity.nil?
+    return unless synchronization.full_synchronization?
 
     SchoolCalendarDisciplineGrade
       .where.not(id: existing_school_calendar_discipline_grade)

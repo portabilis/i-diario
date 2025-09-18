@@ -63,7 +63,9 @@ class WorkerBatch < ApplicationRecord
   private
 
   def redis_key
-    "worker_batch:#{id}:done_workers"
+    # Usa combinação de ID + UUID para garantir unicidade entre tenants
+    # O UUID previne colisão entre diferentes instâncias/tenants
+    "worker_batch:#{id}:#{secure_uuid}:done_workers"
   end
 
   def reset

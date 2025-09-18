@@ -11,7 +11,8 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
       :with_teacher_discipline_classroom,
       :with_students,
       classroom: classroom,
-      recorded_at: school_calendar.steps.last.start_at + 1.day
+      recorded_at: school_calendar.steps.last.start_at + 1.day,
+      students_count: 2
     )
 
     current_user.current_classroom_id = recovery_diary_record.classroom_id
@@ -58,5 +59,42 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
       .at_least(:once)
 
     subject.post!
+  end
+
+  context 'when student has blank score' do
+    it 'does not call score_rounder for students with blank scores' do
+      # Set up one student with score and one without
+      recovery_diary_record.students.first.update(score: 8.5)
+      recovery_diary_record.students.last.update(score: nil)
+      recovery_diary_record.students.last.update(score: '')
+      
+      score_rounder = double(:score_rounder)
+      allow(ScoreRounder).to receive(:new).and_return(score_rounder)
+      allow(score_rounder).to receive(:round).with(8.5).and_return(8.5)
+      
+      subject.post!
+      
+      expect(score_rounder).to have_received(:round).with(8.5).once
+      expect(score_rounder).not_to have_received(:round).with(nil)
+      expect(score_rounder).not_to have_received(:round).with('')
+    end
+  end
+
+  context 'when score_rounder returns nil' do
+    it 'does not include nil scores in the request' do
+      recovery_diary_record.students.each { |s| s.update(score: 5.5) }
+      
+      score_rounder = double(:score_rounder)
+      allow(ScoreRounder).to receive(:new).and_return(score_rounder)
+      allow(score_rounder).to receive(:round).with(5.5).and_return(nil)
+      
+      # Mock the worker batch to avoid errors
+      allow_any_instance_of(WorkerBatch).to receive(:update_attributes!)
+      
+      subject.post!
+      
+      # Verify no requests are generated when all scores round to nil
+      expect(subject.requests).to be_empty
+    end
   end
 end

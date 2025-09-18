@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    attributes:
+      daily_physical_frequency:
+        frequency_date: "Data"
+    errors:
+      models:
+        daily_physical_frequency:
+          attributes:
+              frequency_date:
+                must_be_less_than_or_equal_to_today: "deve ser menor ou igual a data de hoje"
+              base:
+                no_active_classroom_enrollment: "Não foi encontrado um vínculo de turma ativa para o aluno(a) %{student_name}, matrícula: %{student_enrollment_api_code} nesta data."

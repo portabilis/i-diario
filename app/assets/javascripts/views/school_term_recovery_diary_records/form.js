@@ -278,6 +278,18 @@ $(function () {
     $recorded_at.unbind();
   });
 
+  $(document).on('keydown', '.nested-fields input.decimal', function(e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      var inputs = $('.nested-fields input.decimal:not([readonly])');
+      var currentIndex = inputs.index(this);
+
+      if (currentIndex < inputs.length - 1) {
+        inputs.eq(currentIndex + 1).focus();
+      }
+    }
+  });
+
   fetchExamRule();
   loadDecimalMasks();
 });

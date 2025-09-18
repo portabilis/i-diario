@@ -22,7 +22,6 @@ class SchoolDayChecker
       return if event.coverage != "by_unity"
 
       school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]
-      without_frequency = [EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY, EventTypes::NO_SCHOOL]
       dates = [*event.start_date..event.end_date]
 
       dates.each do |date|
@@ -30,7 +29,7 @@ class SchoolDayChecker
           unities_ids.each do |unity_id|
             UnitySchoolDay.find_or_create_by(unity_id: unity_id, school_day: date)
           end
-        elsif without_frequency.include?(event.event_type)
+        elsif event.event_type == EventTypes::NO_SCHOOL
           UnitySchoolDay.where(unity_id: unities_ids, school_day: date).destroy_all
         end
       end

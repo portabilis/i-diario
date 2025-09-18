@@ -8,6 +8,26 @@ RSpec.describe User, type: :model do
     it { expect(subject).to have_many(:synchronizations) }
     it { expect(subject).to have_many(:user_roles) }
     it { expect(subject).to have_and_belong_to_many(:students) }
+    it { expect(subject).to have_many(:system_notification_targets) }
+    it { expect(subject).to have_many(:system_notifications) }
+    it { expect(subject).to have_many(:unread_notifications) }
+    
+    describe 'system_notifications association optimization' do
+      it 'loads system_notifications without includes optimization but maintains functionality' do
+        user = create(:user)
+        expect(user.system_notifications).to be_an(ActiveRecord::Relation)
+      end
+      
+      it 'maintains unread_notifications functionality after include removal' do
+        user = create(:user)
+        expect(user.unread_notifications).to be_an(ActiveRecord::Relation)
+      end
+      
+      it 'does not break when accessing through association' do
+        user = create(:user)
+        expect(user.system_notifications.count).to eq(0)
+      end
+    end
   end
 
   context 'validations' do

@@ -117,9 +117,14 @@ class DailyFrequency < ApplicationRecord
     students.find_by_student_id(student_id)
   end
 
-  def build_or_find_by_student(student_id)
-    students.find_by(student_id: student_id) || students.build(student_id: student_id, present: 1,
-                                                               type_of_teaching: default_type_of_teaching(student_id))
+  def build_or_find_by_student(student_id, default_presence: true)
+    students.target.find { |s| s.student_id == student_id } ||
+    students.find_by(student_id: student_id) ||
+    students.build(
+      student_id: student_id,
+      present: default_presence,
+      type_of_teaching: default_type_of_teaching(student_id)
+    )
   end
 
   def default_type_of_teaching(student_id)

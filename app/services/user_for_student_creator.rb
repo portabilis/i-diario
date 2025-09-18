@@ -22,6 +22,7 @@ class UserForStudentCreator
 
     return if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
     return if User.find_by(email: email, kind: RoleKind::STUDENT)
+    return if student.birth_date.blank?
 
     password = I18n.l(student.birth_date).tr('/', '') + student.api_code
     login = User.find_by(login: student.api_code) ? '' : student.api_code

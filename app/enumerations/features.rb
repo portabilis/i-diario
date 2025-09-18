@@ -25,6 +25,7 @@ class Features < EnumerateIt::Base
                    :entity_configurations,
                    :exam_record_report,
                    :final_recovery_diary_records,
+                   :full_synchronization,
                    :ieducar_api_configurations,
                    :ieducar_api_exam_posting_without_restrictions,
                    :ieducar_api_exam_postings,
@@ -52,7 +53,8 @@ class Features < EnumerateIt::Base
                    :lessons_boards,
                    :daily_frequencies_in_batchs,
                    :avaliation_recovery_lowest_notes,
-                   :attendance_record_report_by_students
+                   :attendance_record_report_by_students,
+                   :manage_school_years_of_the_unit
 
   sort_by :translation
 end

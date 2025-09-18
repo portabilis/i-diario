@@ -4,13 +4,15 @@ class SchoolCalendarEventDays
     events,
     action_name,
     old_start_date = nil,
-    old_end_date = nil
+    old_end_date = nil,
+    event_type_changed = false
   )
     @school_calendars = school_calendars
     @events = events
     @action_name = action_name
     @old_start_date = old_start_date
     @old_end_date = old_end_date
+    @event_type_changed = event_type_changed
   end
 
   def self.update_school_days(
@@ -18,13 +20,16 @@ class SchoolCalendarEventDays
     events,
     action_name,
     old_start_date = nil,
-    old_end_date = nil
+    old_end_date = nil,
+    event_type_changed = false
   )
     new(
       school_calendars,
-      events, action_name,
+      events,
+      action_name,
       old_start_date,
-      old_end_date
+      old_end_date,
+      event_type_changed
     ).update_school_days
   end
 
@@ -34,11 +39,16 @@ class SchoolCalendarEventDays
     events_and_days.each do |event_type, days|
       case @action_name
       when 'create'
-        event_type ? create_school_days(days) : destroy_school_days(days)
+        process_school_days(event_type, days, :create)
       when 'destroy'
-        event_type ? destroy_school_days(days) : create_school_days(days)
+        process_school_days(event_type, days, :destroy)
       when 'update'
-        update_school_days_for_event_type(event_type, days)
+        if @event_type_changed && event_type_includes_no_school?
+          destroy_school_days(days)
+          process_school_days(event_type, days, :destroy)
+        else
+          update_school_days_for_event_type(event_type, days)
+        end
       end
     end
   end
@@ -52,41 +62,50 @@ class SchoolCalendarEventDays
     end
   end
 
-  def create_school_days(school_days)
-    days_to_destroy = []
+  def process_school_days(_event_type, school_days, action)
+    days_to_process = []
     unities_ids = []
 
     @school_calendars.each do |school_calendar|
       school_days.each do |school_day|
-        events_by_date = school_calendar.events.by_date(school_day)
-        next if events_by_date.where.not(coverage: "by_unity").exists?
-        next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
 
-        days_to_destroy << school_day
+        if action == :destroy && event_type_includes_no_school?
+          days_to_process << school_day
+          unities_ids << school_calendar.unity_id
+          next
+        end
+
+        next unless valid_school_day?(school_calendar, school_day, action == :create)
+
+        days_to_process << school_day
         unities_ids << school_calendar.unity_id
 
-        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).create(@events)
+        unless @events.pluck(:event_type).include?(EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY)
+          SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).send(action, @events)
+        end
       end
     end
 
-    coverage = @events.map(&:coverage).uniq
-    classroom_ids = search_classrooms(coverage, unities_ids.uniq)
-
-    DailyFrequency.where(
-      unity_id: unities_ids.uniq,
-      classroom_id: classroom_ids,
-      frequency_date: days_to_destroy
-    ).destroy_all
+    if event_type_includes_no_school?
+      update_daily_frequencies(unities_ids.uniq, days_to_process)
+    end
   end
 
-  def destroy_school_days(school_days)
-    @school_calendars.each do |school_calendar|
-      school_days.each do |school_day|
-        next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+  def valid_school_day?(school_calendar, school_day, creating)
+    return false if creating && school_calendar.events.by_date(school_day).where.not(coverage: 'by_unity').exists?
 
-        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@events)
-      end
-    end
+    SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+  end
+
+  def update_daily_frequencies(unities_ids, days_to_process)
+    coverage = @events.map(&:coverage).uniq
+    classroom_ids = search_classrooms(coverage, unities_ids)
+
+    DailyFrequency.where(
+      unity_id: unities_ids,
+      classroom_id: classroom_ids,
+      frequency_date: days_to_process
+    ).destroy_all
   end
 
   def search_classrooms(coverage, unities_ids)
@@ -113,11 +132,25 @@ class SchoolCalendarEventDays
     old_days = (@old_start_date..@old_end_date).to_a
 
     if event_type
-      create_school_days(days - old_days)
-      destroy_school_days(old_days - days)
+      process_school_days(true, days - old_days, :create)
+      process_school_days(true, old_days - days, :destroy)
     else
-      create_school_days(old_days - days)
-      destroy_school_days(days - old_days)
+      process_school_days(false, old_days - days, :create)
+      process_school_days(false, days - old_days, :destroy)
     end
+  end
+
+  def destroy_school_days(school_days)
+    @school_calendars.each do |school_calendar|
+      school_days.each do |school_day|
+        next unless SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+
+        SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).destroy(@events)
+      end
+    end
+  end
+
+  def event_type_includes_no_school?
+    (@events.pluck(:event_type) & [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]).any?
   end
 end

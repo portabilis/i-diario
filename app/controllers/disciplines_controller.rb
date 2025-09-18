@@ -33,7 +33,7 @@ class DisciplinesController < ApplicationController
         school_calendar_id: school_calendar.id,
         grade_id: student_grade_id
       ).pluck(:discipline_id, :steps).flat_map do |discipline_id, steps|
-        discipline_id if steps.nil? || steps.include?([step_number].to_s)
+        discipline_id if steps.nil? || steps.include?(step_number.to_s)
       end.compact
 
       @disciplines = @disciplines.not_grouper
@@ -51,7 +51,8 @@ class DisciplinesController < ApplicationController
 
   def search
     params[:filter][:by_teacher_id] = current_user.teacher_id if params[:use_user_teacher]
-    @disciplines = apply_scopes(Discipline.grouper).ordered
+
+    @disciplines = apply_scopes(Discipline.grouper, params.fetch(:filter, {})).ordered
 
     render json: @disciplines
   end

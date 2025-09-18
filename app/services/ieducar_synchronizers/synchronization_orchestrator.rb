@@ -23,7 +23,6 @@ class SynchronizationOrchestrator
 
       next if by_year && params[:year].blank?
       next if by_unity && params[:unity_api_code].blank?
-      next if config[:only_simple_synchronization] && params[:synchronization].full_synchronization
       next unless dependencies_solved?(klass, by_year, by_unity)
 
       enqueue_job(config)
@@ -41,13 +40,13 @@ class SynchronizationOrchestrator
   end
 
   def completed_dependencies_count(worker_name, current_worker_by_year, current_worker_by_unity)
-    SynchronizationConfigs.dependencies_by_klass(worker_name).select { |klass|
+    SynchronizationConfigs.dependencies_by_klass(worker_name).select do |klass|
       config = SynchronizationConfigs.find(klass)
       by_year = config[:by_year] && current_worker_by_year
       by_unity = config[:by_unity] && current_worker_by_unity
 
       worker_completed?(klass, by_year, by_unity)
-    }.size
+    end.size
   end
 
   def worker_completed?(worker_name, by_year, by_unity)

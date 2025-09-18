@@ -3,6 +3,7 @@
   <%= f.hidden_field :classroom_id, value: @classroom.id %>
   <%= f.hidden_field :start_date, value: @dates.first %>
   <%= f.hidden_field :end_date, value: @dates.last %>
+  <%= f.hidden_field :period, value: @period %>
   <div class="modal fade" tabindex="-1" role="dialog" id="absence-justification-modal" aria-hidden="true">
     <div class="modal-dialog" style="width: 480px;">
       <div class="modal-content" style="background-color: #F8F8F8">
