@@ -36,7 +36,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
     end
   }
   scope :order_by_classroom, lambda {
-    joins(content_record: :classroom).order(Classroom.arel_table[:description].desc)
+    joins(content_record: :classroom).order(Classroom.arel_table[:description].asc)
   }
 
   validates :content_record, presence: true
