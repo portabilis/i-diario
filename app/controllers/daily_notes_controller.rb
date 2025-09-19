@@ -7,8 +7,8 @@ class DailyNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    set_filters
     set_options_by_user
+    set_filters
     fetch_daily_notes_and_avaliations
 
     authorize @daily_notes
@@ -350,12 +350,16 @@ disciplines: @discipline)
   end
 
   def school_calendar_step
-    classroom_id = params.dig(:filter, :by_classroom_id) || current_user_classroom&.id
+    return :by_school_calendar_classroom_step_id if school_calendar_by_classroom?
 
-    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
-      :by_school_calendar_classroom_step_id
-    else
-      :by_school_calendar_step_id
-    end
+    :by_school_calendar_step_id
+  end
+
+  def school_calendar_by_classroom?
+    classroom_ids = @classrooms.map(&:id)
+
+binding.pry
+
+    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
   end
 end
