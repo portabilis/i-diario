@@ -13,7 +13,7 @@ class SchoolCalendarDecorator
   end
 
   def self.current_steps_for_select2_by_classrooms(school_calendar, classrooms)
-    steps = current_steps_by_classrooms(school_calendar, classrooms).map do |item|
+    steps = current_steps_by_classrooms(school_calendar, classrooms).uniq(&:to_s).map do |item|
       { id: item.id, name: item.to_s, text: item.to_s }
     end
 
