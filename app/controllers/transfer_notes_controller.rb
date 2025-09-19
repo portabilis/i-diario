@@ -17,7 +17,7 @@ class TransferNotesController < ApplicationController
                                                 .by_discipline_id(@disciplines.map(&:id))
 
     if step_id.present?
-      @transfer_notes = @transfer_notes.by_step_id(@classrooms, step_id)
+      @transfer_notes = @transfer_notes.by_step_id(current_user_classroom, step_id)
       params[:filter][:by_step] = step_id
     end
 
@@ -174,7 +174,6 @@ class TransferNotesController < ApplicationController
     return fetch_linked_by_teacher unless @admin_or_teacher
 
     @classrooms ||= [current_user_classroom]
-    @unities ||= [current_user_classroom.unity]
     @disciplines ||= [current_user_discipline]
     @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
