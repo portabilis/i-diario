@@ -87,6 +87,7 @@ class AvaliationExemption < ActiveRecord::Base
   }
 
   scope :by_created_at, lambda { |created_at| where('avaliation_exemptions.created_at::DATE = ?', created_at.to_date) }
+  scope :ordered, -> { order(created_at: :desc) }
 
   def school_calendar_step
     school_calendar_step = SchoolCalendarStep
