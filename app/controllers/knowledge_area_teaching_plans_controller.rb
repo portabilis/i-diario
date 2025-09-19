@@ -345,8 +345,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       .by_year(current_school_year)
       .by_grade(@grades.map(&:id))
       .order_by_grades
-      .order_by_school_term_type_step
-                                                 )
+      .order('teaching_plans.school_term_type_step_id')
+    )
   end
 
   def set_filters
