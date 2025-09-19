@@ -12,6 +12,7 @@ class AvaliationExemptionsController < ApplicationController
                              .by_unity(current_unity)
                              .by_classroom(@classrooms.map(&:id))
                              .by_discipline(@disciplines.map(&:id))
+                             .ordered
 
     authorize @avaliation_exemptions
   end
