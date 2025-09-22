@@ -358,8 +358,6 @@ disciplines: @discipline)
   def school_calendar_by_classroom?
     classroom_ids = @classrooms.map(&:id)
 
-binding.pry
-
     current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
   end
 end
