@@ -9,14 +9,12 @@ class ConceptualExamsController < ApplicationController
   before_action :view_data, only: [:edit, :show]
 
   def index
+    set_options_by_user
     set_filters
     step_id = (params[:filter] || []).delete(:by_step)
     status = (params[:filter] || []).delete(:by_status)
 
-    set_options_by_user
-
-    @conceptual_exams = fetch_conceptual_exams
-
+    fetch_conceptual_exams
     check_status_and_step(step_id, status)
 
     authorize @conceptual_exams
@@ -206,6 +204,18 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
+
+  def school_calendar_step
+    return :by_school_calendar_classroom_step if school_calendar_by_classroom?
+
+    :by_school_calendar_step
+  end
+
+  def school_calendar_by_classroom?
+    classroom_ids = @classrooms.map(&:id)
+
+    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
+  end
 
   def view_data
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
@@ -534,7 +544,7 @@ class ConceptualExamsController < ApplicationController
 
   def check_status_and_step(step_id, status)
     if step_id.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(filtered_classrooms, step_id)
+      @conceptual_exams = @conceptual_exams.send(school_calendar_step, step_id)
       params[:filter][:by_step] = step_id
     end
 
@@ -545,11 +555,13 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_conceptual_exams
-    apply_scopes(ConceptualExam).includes(:student, :classroom)
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
       .by_unity(current_unity)
       .by_classroom(@classrooms.map(&:id))
       .by_teacher(current_teacher_id)
       .ordered_by_date_and_student
+
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
   end
 
   def fetch_linked_by_teacher
@@ -592,5 +604,7 @@ class ConceptualExamsController < ApplicationController
   def set_filters
     params[:filter] ||= {}
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
+
+    @filter = OpenStruct.new(params[:filter])
   end
 end
