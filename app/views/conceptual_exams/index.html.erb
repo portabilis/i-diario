@@ -3,8 +3,8 @@
 <% end %>
 
 <div class='widget-body no-padding'>
-  <%= simple_form_for :filter, { url: conceptual_exams_path, method: :get,
-    html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: conceptual_exams_path, method: :get,
+    html: { class: 'filterable_search_form' } do |f| %>
     <div class='table-responsive'>
       <table id='resources' class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover'>
         <thead>
@@ -17,12 +17,12 @@
             </th>
             <th scope="col">
               <%= f.input :by_student_id, as: :select2, elements: [],
-                            label: false, placeholder: t('.by_student_name') %>
+                            label: false, placeholder: t('.by_student_name'),
+                            input_html: { class: 'conceptual-exam-student-filter' } %>
             </th>
             <th scope="col">
-              <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
-                label: false, placeholder: t('.by_step') %>
-            </th>
+              <%= f.input :by_step, as: :select2, elements: @steps,
+                label: false, placeholder: t('.by_step') %></th>
             <th scope="col">
               <%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json,
                 label: false, placeholder: t('.by_status') %>
