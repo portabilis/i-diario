@@ -48,8 +48,8 @@ RSpec.describe TeachersSynchronizer, type: :service do
     context 'with valid data' do
       let(:teachers_data) do
         [
-          double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1'),
-          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1')
+          double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01'),
+          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1', cpf: '987.654.321-00')
         ]
       end
 
@@ -65,8 +65,8 @@ RSpec.describe TeachersSynchronizer, type: :service do
     context 'with invalid data' do
       let(:teachers_data) do
         [
-          double('teacher1', nome: '', servidor_id: '12345', ativo: '1'),
-          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1')
+          double('teacher1', nome: '', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01'),
+          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1', cpf: '987.654.321-00')
         ]
       end
 
@@ -83,7 +83,7 @@ RSpec.describe TeachersSynchronizer, type: :service do
       let!(:existing_teacher) { create(:teacher, api_code: '12345', name: 'João Silva') }
       let(:duplicate_teacher_data) do
         [
-          double('teacher2', nome: 'João Silva Duplicado', servidor_id: '12345', ativo: '1')
+          double('teacher2', nome: 'João Silva Duplicado', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01')
         ]
       end
 
@@ -104,7 +104,7 @@ RSpec.describe TeachersSynchronizer, type: :service do
       existing_teacher = create(:teacher, api_code: '12345', name: 'João Silva')
 
       duplicate_data = [
-        double('teacher1', nome: 'João Silva Atualizado', servidor_id: '12345', ativo: '1')
+        double('teacher1', nome: 'João Silva Atualizado', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01')
       ]
 
       synchronizer = described_class.new(
@@ -125,8 +125,8 @@ RSpec.describe TeachersSynchronizer, type: :service do
 
     it 'allows synchronizing data with unique api_codes' do
       unique_data = [
-        double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1'),
-        double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1')
+        double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01'),
+        double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1', cpf: '987.654.321-00')
       ]
 
       synchronizer = described_class.new(
