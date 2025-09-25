@@ -7,7 +7,7 @@ class SchoolCalendarStatus
 
   def year_closed_in_ieducar?
     api = IeducarApi::SchoolCalendars.new(@api_configuration.to_api)
-    response = api.fetch(escola: @unity_api_code, classroom_steps: false)
+    response = api.fetch(escola: @unity_api_code, ano: @year, classroom_steps: false)
     school_calendar_data = response['escolas'].find { |e| e['ano'].to_i == @year }
 
     return false if school_calendar_data.nil?
