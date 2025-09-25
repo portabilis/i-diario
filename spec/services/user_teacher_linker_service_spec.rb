@@ -140,7 +140,7 @@ RSpec.describe UserTeacherLinkerService, type: :service do
 
       before do
         create(:user_role, user: user)
-        allow_any_instance_of(User).to receive(:update).and_return(false)
+        allow_any_instance_of(User).to receive(:save).with(validate: false).and_return(false)
         allow_any_instance_of(User).to receive(:errors).and_return(
           double(full_messages: ['Custom validation error'])
         )
