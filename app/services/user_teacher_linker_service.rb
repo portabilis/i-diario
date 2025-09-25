@@ -13,9 +13,9 @@ class UserTeacherLinkerService
   def load_teachers_and_users
     teachers = Teacher.where(api_code: @teacher_records.map(&:servidor_id), active: true, discarded_at: nil)
                      .index_by { |t| t.api_code.to_s }
-    
+
     users = User.where(teacher_id: nil).index_by(&:cpf)
-    
+
     [teachers, users]
   end
 
@@ -30,7 +30,9 @@ class UserTeacherLinkerService
 
       next unless user && teacher
 
-      user_teacher_id_updates << { user: user, teacher_id: teacher.id } if user.teacher_id != teacher.id
+      if user.teacher_id != teacher.id && !teacher_already_occupied?(teacher, user)
+        user_teacher_id_updates << { user: user, teacher_id: teacher.id }
+      end
     end
 
     if user_teacher_id_updates.empty?
@@ -51,8 +53,18 @@ class UserTeacherLinkerService
         end
       end
     end
-    
+
     Rails.logger.info 'Vinculação automática usuário-professor por CPF executada'
+  end
+
+  private
+
+  def teacher_already_occupied?(teacher, current_user)
+    existing_user = teacher.users.first
+    if existing_user.present? && existing_user.id != current_user.id
+      return true
+    end
+    false
   end
 end
 
