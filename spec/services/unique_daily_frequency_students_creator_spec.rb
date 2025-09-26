@@ -293,11 +293,11 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
         frequency_date = daily_frequency.frequency_date
         teacher_id = teacher.id
 
-        expect(UniqueDailyFrequencyStudentsCreatorWorker).to receive(:perform_at).twice.and_call_original
+        expect(UniqueDailyFrequencyStudentsCreatorWorker).to receive(:perform_at).twice
 
         described_class.call_worker(1, classroom_id, frequency_date, teacher_id)
 
-        # Segunda chamada para a mesma combinação também cria um worker
+        # Segunda chamada para a mesma combinação
         # (cada chamada cria um novo worker, mas com horário diferente)
         described_class.call_worker(1, classroom_id, frequency_date, teacher_id)
       end
