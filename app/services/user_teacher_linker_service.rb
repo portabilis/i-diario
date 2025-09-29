@@ -30,7 +30,7 @@ class UserTeacherLinkerService
 
       next unless user && teacher
 
-      if user.teacher_id != teacher.id && !teacher_already_occupied?(teacher, user)
+      if !teacher_already_occupied?(teacher)
         user_teacher_id_updates << { user: user, teacher_id: teacher.id }
       end
     end
@@ -59,12 +59,8 @@ class UserTeacherLinkerService
 
   private
 
-  def teacher_already_occupied?(teacher, current_user)
-    existing_user = teacher.users.first
-    if existing_user.present? && existing_user.id != current_user.id
-      return true
-    end
-    false
+  def teacher_already_occupied?(teacher)
+    teacher.users.exists?
   end
 end
 
