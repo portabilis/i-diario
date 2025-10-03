@@ -31,7 +31,7 @@ class AbsenceJustificationsStudent < ApplicationRecord
                   absence_justification.period
                 end
 
-      daily_frequency_students.by_period(periods)
+      daily_frequency_students = daily_frequency_students.by_period(periods)
     end
 
     daily_frequency_students.each do |daily_frequency_student|
