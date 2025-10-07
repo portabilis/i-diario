@@ -12,12 +12,13 @@ class StudentsExemptFromDiscipline
   end
 
   def call
-    return {} if @discipline.blank? || @student_enrollments.blank?
+    return {} if @student_enrollments.blank?
 
-    student_enrollments_exempt = StudentEnrollmentExemptedDiscipline.by_discipline(@discipline.id)
-                                                                    .by_step_number(@step)
+    student_enrollments_exempt = StudentEnrollmentExemptedDiscipline.by_step_number(@step)
                                                                     .by_student_enrollment(@student_enrollments)
                                                                     .includes(student_enrollment: [:student])
+
+    student_enrollments_exempt = student_enrollments_exempt.by_discipline(@discipline.id) if @discipline.present?
 
     student_has_exempt_for_step(student_enrollments_exempt)
   rescue NoMethodError => errors
