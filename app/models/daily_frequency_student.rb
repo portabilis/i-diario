@@ -11,6 +11,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   before_save :default_type_of_teaching
 
+  before_save :preserve_absence_justification
+
   after_save :update_student_enrollment_classroom
 
   belongs_to :daily_frequency, inverse_of: :students
@@ -94,5 +96,12 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   def nullify_presence_for_inactive_students
     self.present = nil if !self.active
+  end
+
+  def preserve_absence_justification
+    if absence_justification_student_id_was.present? && absence_justification_student_id.nil?
+      self.absence_justification_student_id = absence_justification_student_id_was
+      self.present = false
+    end
   end
 end
