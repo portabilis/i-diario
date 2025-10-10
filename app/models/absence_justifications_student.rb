@@ -25,13 +25,11 @@ class AbsenceJustificationsStudent < ApplicationRecord
     daily_frequency_students = daily_frequency_students.by_class_number(absence_justification.class_number) if absence_justification.class_number.present?
 
     if absence_justification.period.present?
-      classroom = absence_justification.classroom
-      classroom_period = classroom.period
-
-      periods = if absence_justification.period == Periods::FULL.to_i
-                  [Periods::MATUTINAL, Periods::VESPERTINE, Periods::NIGHTLY, Periods::FULL]
-                elsif classroom.period == Periods::FULL
-                  [absence_justification.period, Periods::FULL.to_i]
+      classroom_period = absence_justification.classroom.period
+      periods = if absence_justification.period&.to_s == Periods::FULL
+                  Periods.for_full
+                elsif classroom_period.to_s == Periods::FULL
+                  [absence_justification.period&.to_s, Periods::FULL, nil]
                 else
                   absence_justification.period
                 end
