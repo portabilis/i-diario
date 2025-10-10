@@ -16,7 +16,7 @@ class AbsenceJustifiedOnDate
   end
 
   def call
-    periods = period.nil? ? Periods.to_hash.except("Intermediário").values.push(nil) : period
+    periods = normalize_periods
 
     absence_justified_on_date(periods)
   end
@@ -44,5 +44,15 @@ class AbsenceJustifiedOnDate
     end
 
     absence_justified
+  end
+
+  private
+
+  def normalize_periods
+    if period.nil? || period.to_s == Periods::FULL
+      Periods.to_hash.except("Intermediário").values.push(nil)
+    else
+      [period.to_s, Periods::FULL, nil]
+    end
   end
 end
