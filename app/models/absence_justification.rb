@@ -81,15 +81,7 @@ class AbsenceJustification < ApplicationRecord
       where.not(user_id: current_user_id)
     end
   }
-  scope :by_period, ->(period) {
-    if period.is_a?(Array)
-      where(period: period)
-    elsif period == Periods::FULL || period == Periods::FULL.to_i
-      where(period: [Periods::MATUTINAL, Periods::VESPERTINE, Periods::NIGHTLY, Periods::FULL, nil])
-    else
-      where(period: [period, Periods::FULL, nil])
-    end
-  }
+  scope :by_period, ->(period) { where(period: period) }
 
   private
 
