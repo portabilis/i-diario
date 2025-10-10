@@ -223,6 +223,13 @@ class DailyFrequenciesController < ApplicationController
 
             daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
+
+          # Verifica se existem justificativas lançadas durante o registro de frequência
+          check_and_preserve_existing_justifications(
+            daily_frequency_students_params,
+            daily_frequency_attributes
+          )
+
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
 
           daily_frequency_record.save!
@@ -545,5 +552,40 @@ class DailyFrequenciesController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def check_and_preserve_existing_justifications(daily_frequency_students_params, daily_frequency_attributes)
+    frequency_date = daily_frequency_attributes[:frequency_date].to_date
+    classroom_id = daily_frequency_attributes[:classroom_id]
+    period = daily_frequency_attributes[:period]
+    class_number = (daily_frequency_students_params[:class_number] || 0).to_i
+
+    student_ids = daily_frequency_students_params[:students_attributes].values.map { |s| s[:student_id].to_i }
+
+    absence_justifications = AbsenceJustifiedOnDate.call(
+      students: student_ids,
+      date: frequency_date,
+      end_date: frequency_date,
+      classroom: classroom_id,
+      period: period
+    )
+
+    # Para cada aluno, verifica se existe justificativa e preserva ela
+    daily_frequency_students_params[:students_attributes].each_value do |daily_frequency_student|
+      student_id = daily_frequency_student[:student_id].to_i
+
+      absence_justification = absence_justifications[student_id] || {}
+      absence_justification = absence_justification[frequency_date] || {}
+
+      # Busca justificativa APENAS para o class_number específico ou geral (0)
+      absence_justification_student_id = absence_justification[class_number] || absence_justification[0]
+
+      # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+      # (mesmo que o professor tenha marcado presença)
+      if absence_justification_student_id.present?
+        daily_frequency_student[:present] = false
+        daily_frequency_student[:absence_justification_student_id] = absence_justification_student_id
+      end
+    end
   end
 end
