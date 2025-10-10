@@ -446,4 +446,192 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
       }.to raise_error(ActionDispatch::ParamsParser::ParseError)
     end
   end
+
+  describe '#check_and_preserve_existing_justifications_batch' do
+  # Esse teste tem como objetivo sempre presenvar a justificativa.
+  # Exemplo: Porfessor abre a tela de frequência, secretaria cadastra a justificativa, professor marca o aluno como presente/ausente e salva.
+  # Nesse caso, a justificativa deve ser preservada e o aluno deve ser marcado com FJ
+    let(:frequency_date) { school_calendar.steps.first.start_at }
+    let(:student_2) { create(:student) }
+
+    let(:daily_frequency) do
+      instance_double(
+        DailyFrequency,
+        frequency_date: frequency_date,
+        classroom_id: classroom.id,
+        period: Periods::MATUTINAL,
+        class_number: 1,
+        present?: true
+      )
+    end
+
+    let(:daily_frequency_student_1) do
+      instance_double(
+        DailyFrequencyStudent,
+        daily_frequency: daily_frequency,
+        student_id: student.id,
+        present: true,
+        absence_justification_student_id: nil
+      ).tap do |dfs|
+        allow(dfs).to receive(:present=)
+        allow(dfs).to receive(:absence_justification_student_id=)
+      end
+    end
+
+    let(:daily_frequency_student_2) do
+      instance_double(
+        DailyFrequencyStudent,
+        daily_frequency: daily_frequency,
+        student_id: student_2.id,
+        present: true,
+        absence_justification_student_id: nil
+      ).tap do |dfs|
+        allow(dfs).to receive(:present=)
+        allow(dfs).to receive(:absence_justification_student_id=)
+      end
+    end
+
+    let(:absence_justification_student_id_1) { 123 }
+
+    context 'when there are existing absence justifications for students' do
+      it 'preserves existing justifications and marks students as absent' do
+        students_to_save = [daily_frequency_student_1, daily_frequency_student_2]
+
+        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
+          student.id => {
+            frequency_date.to_date => {
+              1 => absence_justification_student_id_1
+            }
+          }
+        )
+
+        expect(daily_frequency_student_1).to receive(:present=).with(false)
+        expect(daily_frequency_student_1).to receive(:absence_justification_student_id=).with(absence_justification_student_id_1)
+
+        controller.send(
+          :check_and_preserve_existing_justifications_batch,
+          students_to_save
+        )
+      end
+    end
+
+    context 'when there are general absence justifications (class_number 0)' do
+      let(:absence_justification_student_id_2) { 456 }
+
+      it 'applies general justification when no specific class_number justification exists' do
+        students_to_save = [daily_frequency_student_1, daily_frequency_student_2]
+
+        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
+          student.id => {
+            frequency_date.to_date => {
+              1 => absence_justification_student_id_1
+            }
+          },
+          student_2.id => {
+            frequency_date.to_date => {
+              0 => absence_justification_student_id_2
+            }
+          }
+        )
+
+        expect(daily_frequency_student_1).to receive(:present=).with(false)
+        expect(daily_frequency_student_1).to receive(:absence_justification_student_id=).with(absence_justification_student_id_1)
+        expect(daily_frequency_student_2).to receive(:present=).with(false)
+        expect(daily_frequency_student_2).to receive(:absence_justification_student_id=).with(absence_justification_student_id_2)
+
+        controller.send(
+          :check_and_preserve_existing_justifications_batch,
+          students_to_save
+        )
+      end
+    end
+
+    context 'when processing multiple daily frequencies' do
+      let(:daily_frequency_2) do
+        instance_double(
+          DailyFrequency,
+          frequency_date: frequency_date + 1.day,
+          classroom_id: classroom.id,
+          period: Periods::MATUTINAL,
+          class_number: 2,
+          present?: true
+        )
+      end
+
+      let(:daily_frequency_student_3) do
+        instance_double(
+          DailyFrequencyStudent,
+          daily_frequency: daily_frequency_2,
+          student_id: student.id,
+          present: true,
+          absence_justification_student_id: nil
+        ).tap do |dfs|
+          allow(dfs).to receive(:present=)
+          allow(dfs).to receive(:absence_justification_student_id=)
+        end
+      end
+
+      it 'processes each daily frequency separately' do
+        students_to_save = [daily_frequency_student_1, daily_frequency_student_3]
+
+        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
+          student.id => {
+            frequency_date.to_date => {
+              1 => absence_justification_student_id_1
+            }
+          }
+        ).at_least(:once)
+
+        expect(daily_frequency_student_1).to receive(:present=).with(false)
+        expect(daily_frequency_student_1).to receive(:absence_justification_student_id=).with(absence_justification_student_id_1)
+
+        controller.send(
+          :check_and_preserve_existing_justifications_batch,
+          students_to_save
+        )
+      end
+    end
+
+    context 'when there are no absence justifications' do
+      it 'does not modify student data' do
+        students_to_save = [daily_frequency_student_1, daily_frequency_student_2]
+
+        allow(AbsenceJustifiedOnDate).to receive(:call).and_return({})
+
+        expect(daily_frequency_student_1).not_to receive(:present=)
+        expect(daily_frequency_student_1).not_to receive(:absence_justification_student_id=)
+        expect(daily_frequency_student_2).not_to receive(:present=)
+        expect(daily_frequency_student_2).not_to receive(:absence_justification_student_id=)
+
+        controller.send(
+          :check_and_preserve_existing_justifications_batch,
+          students_to_save
+        )
+      end
+    end
+
+    context 'when students are marked present but have justifications from secretary' do
+      it 'overrides teacher presence with secretary justifications' do
+        students_to_save = [daily_frequency_student_1, daily_frequency_student_2]
+
+        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
+          student.id => {
+            frequency_date.to_date => {
+              1 => absence_justification_student_id_1
+            }
+          }
+        )
+
+        expect(daily_frequency_student_1).to receive(:present=).with(false)
+        expect(daily_frequency_student_1).to receive(:absence_justification_student_id=).with(absence_justification_student_id_1)
+        expect(daily_frequency_student_2).not_to receive(:present=)
+        expect(daily_frequency_student_2).not_to receive(:absence_justification_student_id=)
+
+        controller.send(
+          :check_and_preserve_existing_justifications_batch,
+          students_to_save
+        )
+      end
+    end
+  end
 end
