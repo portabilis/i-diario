@@ -176,6 +176,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
       end
 
+      # Verifica se existem justificativas lançadas durante o registro de frequência
+      check_and_preserve_existing_justifications_batch(daily_frequency_students_to_save)
+
       daily_frequency_students_to_save.each do |dfs|
         if dfs.absence_justification_student_id == -1
           Rails.logger.warn("DailyFrequencyStudent não salvo por absence_justification_student_id inválido: #{dfs.inspect}")
@@ -843,5 +846,45 @@ current_school_year)
     end
 
     students_attributes
+  end
+
+  def check_and_preserve_existing_justifications_batch(daily_frequency_students_to_save)
+    students_by_frequency = daily_frequency_students_to_save.group_by(&:daily_frequency)
+
+    students_by_frequency.each do |daily_frequency, students|
+      next unless daily_frequency.present?
+
+      frequency_date = daily_frequency.frequency_date.to_date
+      classroom_id = daily_frequency.classroom_id
+      period = daily_frequency.period
+      class_number = (daily_frequency.class_number || 0).to_i
+      student_ids = students.map(&:student_id)
+
+      absence_justifications = AbsenceJustifiedOnDate.call(
+        students: student_ids,
+        date: frequency_date,
+        end_date: frequency_date,
+        classroom: classroom_id,
+        period: period
+      )
+
+      # Para cada aluno, verifica se existe justificativa e preserva ela
+      students.each do |daily_frequency_student|
+        student_id = daily_frequency_student.student_id
+
+        absence_justification = absence_justifications[student_id] || {}
+        absence_justification = absence_justification[frequency_date] || {}
+
+        # Busca justificativa APENAS para o class_number específico ou geral (0)
+        absence_justification_student_id = absence_justification[class_number] || absence_justification[0]
+
+      # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+      # (mesmo que o professor tenha marcado presença)
+        if absence_justification_student_id.present?
+          daily_frequency_student.present = false
+          daily_frequency_student.absence_justification_student_id = absence_justification_student_id
+        end
+      end
+    end
   end
 end
