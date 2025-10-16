@@ -860,29 +860,23 @@ current_school_year)
       class_number = (daily_frequency.class_number || 0).to_i
       student_ids = students.map(&:student_id)
 
-      absence_justifications = AbsenceJustifiedOnDate.call(
-        students: student_ids,
-        date: frequency_date,
-        end_date: frequency_date,
-        classroom: classroom_id,
-        period: period
+      existing_justifications = AbsenceJustificationPreserver.call(
+        frequency_date: frequency_date,
+        classroom_id: classroom_id,
+        period: period,
+        class_number: class_number,
+        student_ids: student_ids
       )
 
       # Para cada aluno, verifica se existe justificativa e preserva ela
       students.each do |daily_frequency_student|
         student_id = daily_frequency_student.student_id
 
-        absence_justification = absence_justifications[student_id] || {}
-        absence_justification = absence_justification[frequency_date] || {}
-
-        # Busca justificativa APENAS para o class_number específico ou geral (0)
-        absence_justification_student_id = absence_justification[class_number] || absence_justification[0]
-
-      # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
-      # (mesmo que o professor tenha marcado presença)
-        if absence_justification_student_id.present?
+        # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+        # (mesmo que o professor tenha marcado presença)
+        if existing_justifications[student_id].present?
           daily_frequency_student.present = false
-          daily_frequency_student.absence_justification_student_id = absence_justification_student_id
+          daily_frequency_student.absence_justification_student_id = existing_justifications[student_id]
         end
       end
     end
