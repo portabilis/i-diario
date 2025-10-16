@@ -287,11 +287,25 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
     end
 
     context 'with call_worker optimization' do
+      # Usa um daily_frequency isolado para evitar conflitos com outros testes
+      let(:daily_frequency_2) {
+        create(
+          :daily_frequency,
+          :with_teacher,
+          :with_students,
+          classroom: classroom,
+          teacher: teacher,
+          class_number: '6',
+          discipline_id: discipline.id,
+          frequency_date: '2024-04-01'
+        )
+      }
+
       it 'reduces duplicate worker calls for same classroom/date combinations' do
         # Simular múltiplas chamadas para a mesma combinação de turma/data
-        classroom_id = classroom.id
-        frequency_date = daily_frequency.frequency_date
-        teacher_id = teacher.id
+        classroom_id = daily_frequency_2.classroom_id
+        frequency_date = daily_frequency_2.frequency_date
+        teacher_id = daily_frequency_2.teacher_id
 
         expect(UniqueDailyFrequencyStudentsCreatorWorker).to receive(:perform_at).twice.and_call_original
 
