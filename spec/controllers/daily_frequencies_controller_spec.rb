@@ -160,9 +160,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
   end
 
   describe '#check_and_preserve_existing_justifications' do
-    # Esse teste tem como objetivo sempre presenvar a justificativa.
-    # Exemplo: Porfessor abre a tela de frequência, secretaria cadastra a justificativa, professor marca o aluno como presente/ausente e salva.
-    # Nesse caso, a justificativa deve ser preservada e o aluno deve ser marcado com FJ
+    # Esse teste verifica que o controller chama o AbsenceJustificationPreserver corretamente
     let(:frequency_date) { school_calendar.steps.first.start_at }
     let(:student) { create(:student) }
     let(:student_enrollment) { create(:student_enrollment, student: student) }
@@ -171,22 +169,6 @@ RSpec.describe DailyFrequenciesController, type: :controller do
         :student_enrollment_classroom,
         student_enrollment: student_enrollment,
         classrooms_grade: classrooms_grade
-      )
-    end
-    let(:absence_justification) do
-      create(
-        :absence_justification,
-        classroom: classroom,
-        unity: unity,
-        absence_date: frequency_date,
-        absence_date_end: frequency_date
-      )
-    end
-    let!(:absence_justification_student) do
-      create(
-        :absence_justifications_student,
-        absence_justification: absence_justification,
-        student: student
       )
     end
 
@@ -211,91 +193,38 @@ RSpec.describe DailyFrequenciesController, type: :controller do
       }
     end
 
-    context 'when there is an existing absence justification for the student' do
-      it 'preserves the existing justification and marks student as absent' do
-        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
-          student.id => {
-            frequency_date.to_date => {
-              1 => absence_justification_student.id
-            }
-          }
-        )
+    it 'calls AbsenceJustificationPreserver with correct parameters' do
+      expect(AbsenceJustificationPreserver).to receive(:call).with(
+        frequency_date: frequency_date,
+        classroom_id: classroom.id,
+        period: Periods::MATUTINAL,
+        class_number: 1,
+        student_ids: [student.id]
+      ).and_return({})
 
-        controller.send(
-          :check_and_preserve_existing_justifications,
-          daily_frequency_students_params,
-          daily_frequency_attributes
-        )
-
-        student_data = daily_frequency_students_params[:students_attributes]['0']
-        expect(student_data[:present]).to be false
-        expect(student_data[:absence_justification_student_id]).to eq(absence_justification_student.id)
-      end
+      controller.send(
+        :check_and_preserve_existing_justifications,
+        daily_frequency_students_params,
+        daily_frequency_attributes
+      )
     end
 
-    context 'when there is a general absence justification (class_number 0)' do
-      it 'applies the general justification when no specific class_number justification exists' do
-        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
-          student.id => {
-            frequency_date.to_date => {
-              0 => absence_justification_student.id
-            }
-          }
-        )
+    it 'applies justifications returned by the service' do
+      justification_id = 999
 
-        controller.send(
-          :check_and_preserve_existing_justifications,
-          daily_frequency_students_params,
-          daily_frequency_attributes
-        )
+      allow(AbsenceJustificationPreserver).to receive(:call).and_return(
+        student.id => justification_id
+      )
 
-        student_data = daily_frequency_students_params[:students_attributes]['0']
-        expect(student_data[:present]).to be false
-        expect(student_data[:absence_justification_student_id]).to eq(absence_justification_student.id)
-      end
-    end
+      controller.send(
+        :check_and_preserve_existing_justifications,
+        daily_frequency_students_params,
+        daily_frequency_attributes
+      )
 
-    context 'when there is no absence justification for the student' do
-      it 'does not modify student data' do
-        allow(AbsenceJustifiedOnDate).to receive(:call).and_return({})
-
-        original_present = daily_frequency_students_params[:students_attributes]['0'][:present]
-        original_justification = daily_frequency_students_params[:students_attributes]['0'][:absence_justification_student_id]
-
-        controller.send(
-          :check_and_preserve_existing_justifications,
-          daily_frequency_students_params,
-          daily_frequency_attributes
-        )
-
-        student_data = daily_frequency_students_params[:students_attributes]['0']
-        expect(student_data[:present]).to eq(original_present)
-        expect(student_data[:absence_justification_student_id]).to eq(original_justification)
-      end
-    end
-
-    context 'when student is marked present but has justification from secretary' do
-      it 'overrides teacher presence with secretary justification' do
-        allow(AbsenceJustifiedOnDate).to receive(:call).and_return(
-          student.id => {
-            frequency_date.to_date => {
-              1 => absence_justification_student.id
-            }
-          }
-        )
-
-        daily_frequency_students_params[:students_attributes]['0'][:present] = true
-
-        controller.send(
-          :check_and_preserve_existing_justifications,
-          daily_frequency_students_params,
-          daily_frequency_attributes
-        )
-
-        student_data = daily_frequency_students_params[:students_attributes]['0']
-        expect(student_data[:present]).to be false
-        expect(student_data[:absence_justification_student_id]).to eq(absence_justification_student.id)
-      end
+      student_data = daily_frequency_students_params[:students_attributes]['0']
+      expect(student_data[:present]).to be false
+      expect(student_data[:absence_justification_student_id]).to eq(justification_id)
     end
   end
 end
