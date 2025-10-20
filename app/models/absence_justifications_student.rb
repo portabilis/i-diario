@@ -29,6 +29,7 @@ class AbsenceJustificationsStudent < ApplicationRecord
       periods = if absence_justification.period&.to_s == Periods::FULL
                   Periods.for_full
                 elsif classroom_period.to_s == Periods::FULL
+                  # Se turma for integral(FULL), justificativa de faltas for parcial, a justificativa sera aplicada ao turno da justificativa + turno FULL.
                   [absence_justification.period&.to_s, Periods::FULL, nil]
                 else
                   absence_justification.period
@@ -40,7 +41,17 @@ class AbsenceJustificationsStudent < ApplicationRecord
     daily_frequency_students.each do |daily_frequency_student|
       daily_frequency_student.present = false
       daily_frequency_student.absence_justification_student_id = id
-      daily_frequency_student.save
+
+      next if daily_frequency_student.save
+
+      Honeybadger.notify(
+        StandardError.new('Failed to justify old absence'),
+        context: {
+          daily_frequency_student_id: daily_frequency_student.id,
+          absence_justification_id: id,
+          errors: daily_frequency_student.errors.full_messages
+        }
+      )
     end
   end
 end
