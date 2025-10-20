@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AbsenceJustifiedOnDate
-  attr_reader :date, :end_date, :classroom, :students, :period
+  attr_reader :date, :end_date, :classroom_id, :students, :period
 
   def self.call(params)
     new(params).call
@@ -11,7 +11,7 @@ class AbsenceJustifiedOnDate
     @students = params.fetch(:students)
     @date = params.fetch(:date)
     @end_date = params.fetch(:end_date)
-    @classroom = params.fetch(:classroom)
+    @classroom_id = params.fetch(:classroom)
     @period = params.fetch(:period)
   end
 
@@ -25,7 +25,7 @@ class AbsenceJustifiedOnDate
     absence_justifications = AbsenceJustification.includes(:absence_justifications_students)
                                                  .by_date_range(date, end_date)
                                                  .by_student_id(students)
-                                                 .by_classroom(classroom)
+                                                 .by_classroom(classroom_id)
                                                  .by_period(periods)
 
     absence_justified = {}
@@ -49,10 +49,19 @@ class AbsenceJustifiedOnDate
   private
 
   def normalize_periods
+    classroom_period = classroom.period
+
     if period.nil? || period.to_s == Periods::FULL
-      Periods.to_hash.except("Intermediário").values.push(nil)
-    else
+      Periods.for_full.push(nil)
+    elsif classroom_period == Periods::FULL
+      # Period é do professor, porem se a turma for integral(FULL), é necessário filtrar o turno do professor + turno FULL e nil para listar as justificativas.
       [period.to_s, Periods::FULL, nil]
+    else
+      period
     end
+  end
+
+  def classroom
+    @classroom ||= Classroom.find(@classroom_id)
   end
 end
