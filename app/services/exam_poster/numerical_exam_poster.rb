@@ -110,7 +110,15 @@ module ExamPoster
           end
 
           if (recovery_value = score_rounder.round(school_term_recovery))
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
+            if value.present?
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
+            else
+              student_name = Student.find_by(api_code: student_score.api_code)&.name || student_score.api_code
+              classroom_description = classroom.description
+              discipline_description = discipline.description
+
+              @warning_messages << "Aluno #{student_name} tem recuperação, mas falta a nota regular na turma #{classroom_description}, disciplina #{discipline_description}. A recuperação só será enviada após o lançamento da nota regular."
+            end
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
         end
