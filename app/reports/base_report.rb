@@ -196,9 +196,6 @@ class BaseReport
   end
 
   def normalize_text_content(information)
-
-    binding.pry
-
     return information.to_s unless information.is_a?(Array)
 
     information.map { |item| item.is_a?(Hash) ? item[:text] : item.to_s }.join("")
