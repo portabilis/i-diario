@@ -150,25 +150,6 @@ class DisciplineLessonPlanPdf < BaseReport
       )
     end
 
-    conteudo_cell_content = inline_formated_cell_header(
-      Translator.t('activerecord.attributes.discipline_lesson_plan.contents')
-    ) + (
-      lesson_plan.contents.present? ? lesson_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
-    )
-    @conteudo_cell = make_cell(content: conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    objectives_cell_content = inline_formated_cell_header(
-      Translator.t('activerecord.attributes.discipline_lesson_plan.objectives')
-    ) + (
-      lesson_plan.objectives.present? ? lesson_plan.objectives_ordered.map(&:to_s).join("\n ") : '-'
-    )
-    @objectives_cell = make_cell(
-      content: objectives_cell_content,
-      size: 10,
-      borders: [:bottom, :left, :right, :top],
-      padding: [0, 2, 4, 4], colspan: 4
-    )
-
     opinion_cell_content = inline_formated_cell_header('Parecer') + lesson_plan.opinion.to_s
     @opinion_cell = make_cell(
       content: opinion_cell_content,
@@ -203,9 +184,7 @@ class DisciplineLessonPlanPdf < BaseReport
 
   def class_plan
     class_plan_table_data = [
-      [@class_plan_header_cell],
-      [@conteudo_cell],
-      [@objectives_cell]
+      [@class_plan_header_cell]
     ]
 
     class_plan_table_data.insert(1, [@thematic_unit_cell]) if @discipline_lesson_plan.thematic_unit.present?
@@ -219,6 +198,14 @@ class DisciplineLessonPlanPdf < BaseReport
     end
 
     key_prefix = @discipline_lesson_plan.present? ? 'discipline' : 'knowledge_area'
+
+    contents_label = Translator.t('activerecord.attributes.discipline_lesson_plan.contents')
+    contents_text = lesson_plan.contents.present? ? lesson_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
+    text_box_with_auto_page_break(contents_label, contents_text)
+
+    objectives_label = Translator.t('activerecord.attributes.discipline_lesson_plan.objectives')
+    objectives_text = lesson_plan.objectives.present? ? lesson_plan.objectives_ordered.map(&:to_s).join("\n ") : '-'
+    text_box_with_auto_page_break(objectives_label, objectives_text)
 
     actives_methodology_label = Translation.find_by(key: "navigation.actives_methodology_by_#{key_prefix}",
       group: 'lesson_plans')&.translation.presence || 'Atividades/metodologia'
