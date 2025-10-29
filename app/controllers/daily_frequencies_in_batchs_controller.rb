@@ -176,6 +176,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
       end
 
+      # Verifica se existem justificativas lançadas durante o registro de frequência
+      check_and_preserve_existing_justifications_batch(daily_frequency_students_to_save)
+
       daily_frequency_students_to_save.each do |dfs|
         if dfs.absence_justification_student_id == -1
           Rails.logger.warn("DailyFrequencyStudent não salvo por absence_justification_student_id inválido: #{dfs.inspect}")
@@ -843,5 +846,39 @@ current_school_year)
     end
 
     students_attributes
+  end
+
+  def check_and_preserve_existing_justifications_batch(daily_frequency_students_to_save)
+    students_by_frequency = daily_frequency_students_to_save.group_by(&:daily_frequency)
+
+    students_by_frequency.each do |daily_frequency, students|
+      next unless daily_frequency.present?
+
+      frequency_date = daily_frequency.frequency_date.to_date
+      classroom_id = daily_frequency.classroom_id
+      period = daily_frequency.period
+      class_number = (daily_frequency.class_number || 0).to_i
+      student_ids = students.map(&:student_id)
+
+      existing_justifications = AbsenceJustificationPreserver.call(
+        frequency_date: frequency_date,
+        classroom_id: classroom_id,
+        period: period,
+        class_number: class_number,
+        student_ids: student_ids
+      )
+
+      # Para cada aluno, verifica se existe justificativa e preserva ela
+      students.each do |daily_frequency_student|
+        student_id = daily_frequency_student.student_id
+
+        # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+        # (mesmo que o professor tenha marcado presença)
+        if existing_justifications[student_id].present?
+          daily_frequency_student.present = false
+          daily_frequency_student.absence_justification_student_id = existing_justifications[student_id]
+        end
+      end
+    end
   end
 end

@@ -1,20 +1,23 @@
 <h1>Quadro de Aulas</h1>
 
 <table class="info-table">
-  <tr class="info-header">
-    <td><strong><%= t('lessons_boards.index.unity') %></strong></td>
-    <td><strong><%= t('lessons_boards.index.grade') %></strong></td>
-    <td><strong><%= t('lessons_boards.index.classroom') %></strong></td>
-    <td><strong><%= t('lessons_boards.form.period') %></strong></td>
-  </tr>
-  <tr>
-    <td><%= @lesson_board.classrooms_grade.classroom.unity.name %></td>
-    <td><%= @lesson_board.classrooms_grade.grade.description %></td>
-    <td><%= @lesson_board.classrooms_grade.classroom.description %></td>
-    <td><%= Periods.translate(Periods.key_for(@lesson_board.period.to_s)) %></td>
-  </tr>
+  <thead>
+    <tr class="info-header">
+      <th><strong><%= t('lessons_boards.index.unity') %></strong></th>
+      <th><strong><%= t('lessons_boards.index.grade') %></strong></th>
+      <th><strong><%= t('lessons_boards.index.classroom') %></strong></th>
+      <th><strong><%= t('lessons_boards.form.period') %></strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= @lesson_board.classrooms_grade.classroom.unity.name %></td>
+      <td><%= @lesson_board.classrooms_grade.grade.description %></td>
+      <td><%= @lesson_board.classrooms_grade.classroom.description %></td>
+      <td><%= Periods.translate(Periods.key_for(@lesson_board.period.to_s)) %></td>
+    </tr>
+  </tbody>
 </table>
-
 
 <table class="lessons-table">
   <thead>
