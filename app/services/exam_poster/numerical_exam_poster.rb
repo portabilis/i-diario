@@ -117,7 +117,7 @@ module ExamPoster
               classroom_description = classroom.description
               discipline_description = discipline.description
 
-              @warning_messages << "Aluno #{student_name} tem recuperação, mas falta a nota regular na turma #{classroom_description}, disciplina #{discipline_description}. A recuperação só será enviada após o lançamento da nota regular."
+              @warning_messages << "Aluno #{student_name} tem recuperação, mas falta a nota regular na disciplina #{discipline_description} da turma #{classroom_description}. A recuperação só será enviada após o lançamento da nota regular."
             end
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
