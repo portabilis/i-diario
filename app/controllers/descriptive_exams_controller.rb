@@ -258,7 +258,8 @@ class DescriptiveExamsController < ApplicationController
     StudentsExemptFromDiscipline.call(
       student_enrollments: student_enrollment_ids,
       discipline: @discipline,
-      step: @step_number
+      step: @step_number,
+      classroom_id: @descriptive_exam.classroom_id
     )
   end
 
