@@ -15,7 +15,7 @@ class TransferNotesController < ApplicationController
                                                 .by_discipline_id(@disciplines.map(&:id))
 
     if step_id.present?
-      @transfer_notes = @transfer_notes.by_step_id(@classrooms.map(&:id), step_id)
+      @transfer_notes = @transfer_notes.by_step_id(current_user_classroom, step_id)
       params[:filter][:by_step] = step_id
     end
 
