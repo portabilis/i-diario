@@ -49,13 +49,11 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam.teacher_id = current_teacher_id
     adjusted_period
 
-    regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
       value_by_student = resource_params[:students_attributes].values.detect do |student|
         student[:student_id] == exam_student.student_id.to_s && student[:inactive_student] == 'false'
       end
       exam_student.value = value_by_student['value'] if value_by_student.present?
-      exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
     end
 
     authorize @descriptive_exam
@@ -232,8 +230,6 @@ class DescriptiveExamsController < ApplicationController
       (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
       exam_student.dependence = dependencies[:student_enrollment] ? true : false
       exam_student.exempted_from_discipline = student_exempted[student_enrollment.id] ? true : false
-      regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
-      exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
       exam_student.inactive_student = left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
 
       @students << exam_student
