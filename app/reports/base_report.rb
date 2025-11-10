@@ -21,7 +21,8 @@ class BaseReport
       left_margin: 5.mm,
       right_margin: 5.mm,
       top_margin: 5.mm,
-      bottom_margin: 5.mm
+      bottom_margin: 5.mm,
+      compress: true
     )
   end
 
