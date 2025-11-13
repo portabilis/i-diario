@@ -124,7 +124,7 @@ RSpec.describe AbsenceJustification, type: :model do
         legacy_with_disciplines.disciplines << discipline
         legacy_with_disciplines.current_user = user
 
-        expect { legacy_with_disciplines.valid? }.not_to raise_error
+        expect(legacy_with_disciplines.valid?).to be true
       end
     end
 
@@ -150,7 +150,7 @@ RSpec.describe AbsenceJustification, type: :model do
         )
         new_absence.current_user = user
 
-        expect { new_absence.valid? }.not_to raise_error
+        expect(new_absence.valid?).to be true
       end
 
       it 'validates by period when present' do
@@ -167,7 +167,7 @@ RSpec.describe AbsenceJustification, type: :model do
         )
         absence_with_period.current_user = user
 
-        expect { absence_with_period.valid? }.not_to raise_error
+        expect(absence_with_period.valid?).to be true
       end
 
       it 'validates by class_number correctly including nil values' do
@@ -185,7 +185,7 @@ RSpec.describe AbsenceJustification, type: :model do
           class_number: 1
         )
         with_class_number.current_user = user
-        expect { with_class_number.valid? }.not_to raise_error
+        expect(with_class_number.valid?).to be true
 
         # Teste com class_number nil
         without_class_number = build(:absence_justification,
@@ -201,7 +201,7 @@ RSpec.describe AbsenceJustification, type: :model do
           class_number: nil
         )
         without_class_number.current_user = user
-        expect { without_class_number.valid? }.not_to raise_error
+        expect(without_class_number.valid?).to be true
       end
 
       it 'when it identifies duplicate records of justified absences with class_number = nil' do
