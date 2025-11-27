@@ -146,6 +146,50 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         subject.adjust
         expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
       end
+
+      context 'when frequency by discipline already exists with same students' do
+        let!(:student) { create(:student) }
+        let!(:discipline) { classroom.teacher_discipline_classrooms.first.discipline }
+        let!(:daily_frequency_student_1) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: true
+          )
+        }
+        let!(:existing_daily_frequency_by_discipline) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            frequency_date: daily_frequency_1.frequency_date,
+            period: daily_frequency_1.period,
+            class_number: 1
+          )
+        }
+        let!(:existing_daily_frequency_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: existing_daily_frequency_by_discipline,
+            student: student,
+            present: false
+          )
+        }
+
+        it 'does not raise duplicate key error when student already exists' do
+          expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be true
+          expect { subject.adjust }.not_to raise_error
+          expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
+        end
+
+        it 'destroys the general frequency' do
+          subject.adjust
+          expect(DailyFrequency.find_by(id: daily_frequency_1.id)).to be_nil
+        end
+      end
     end
   end
 
