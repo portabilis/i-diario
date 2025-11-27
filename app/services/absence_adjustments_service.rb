@@ -109,14 +109,13 @@ class AbsenceAdjustmentsService
           )
 
           original_frequency_students.each do |student|
-            new_daily_frequency.students.create!(
-              student_id: student.student_id,
-              present: student.present,
-              dependence: student.dependence,
-              active: student.active,
-              type_of_teaching: student.type_of_teaching,
-              absence_justification_student_id: student.absence_justification_student_id
-            )
+            new_daily_frequency.students.find_or_create_by!(student_id: student.student_id) do |new_student|
+              new_student.present = student.present
+              new_student.dependence = student.dependence
+              new_student.active = student.active
+              new_student.type_of_teaching = student.type_of_teaching
+              new_student.absence_justification_student_id = student.absence_justification_student_id
+            end
           end
         end
 
