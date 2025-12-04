@@ -68,7 +68,7 @@ services:
 
   postgres:
     container_name: idiario-postgres
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     volumes:
       - postgres:/var/lib/postgresql/data
     environment:
