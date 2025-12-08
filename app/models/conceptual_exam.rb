@@ -78,6 +78,7 @@ class ConceptualExam < ActiveRecord::Base
   def self.by_status(classroom_id, teacher_id, status)
     discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
                                                .by_teacher_id(teacher_id)
+                                               .where('score_type IS NULL OR score_type = ?', ScoreTypes::CONCEPT)
                                                .pluck(:discipline_id)
 
     exempted_discipline_ids = SpecificStep.where(classroom_id: classroom_id)
@@ -102,6 +103,7 @@ class ConceptualExam < ActiveRecord::Base
 
   def status
     discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)
+                                               .where('score_type IS NULL OR score_type = ?', ScoreTypes::CONCEPT)
                                                .pluck(:discipline_id)
 
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(

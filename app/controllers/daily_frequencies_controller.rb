@@ -84,6 +84,7 @@ class DailyFrequenciesController < ApplicationController
     @dependence_students = false
     @absence_justification = AbsenceJustification.new
     @absence_justification.school_calendar = current_school_calendar
+    @is_new_record = @daily_frequencies.first.new_record?
     enrollment_classrooms = fetch_enrollment_classrooms
 
     student_enrollment_ids = enrollment_classrooms.map { |student_enrollment|
@@ -99,7 +100,12 @@ class DailyFrequenciesController < ApplicationController
     frequency_date = @daily_frequency.frequency_date
 
     dependencies = StudentsInDependency.call(student_enrollments: student_enrollment_ids, disciplines: discipline)
-    exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, step: step)
+    exempt = StudentsExemptFromDiscipline.call(
+      student_enrollments: student_enrollment_ids,
+      discipline: discipline,
+      step: step,
+      classroom_id: @daily_frequency.classroom_id
+    )
     active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
     absence_justifications = AbsenceJustifiedOnDate.call(
@@ -109,6 +115,15 @@ class DailyFrequenciesController < ApplicationController
       classroom: @daily_frequency.classroom_id,
       period: @period
     )
+
+    @physical_frequencies = {}
+
+    if @is_new_record
+      @physical_frequencies = PhysicalFrequencyOnDate.call(
+        student_enrollment_ids: student_enrollment_ids,
+        start_date: @daily_frequency.frequency_date
+      )
+    end
 
     enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
@@ -130,6 +145,7 @@ class DailyFrequenciesController < ApplicationController
       @students_list << student
       @students << {
         student: student,
+        student_enrollment_id: student_enrollment_id,
         dependence: has_dependence,
         active: activated_student,
         exempted_from_discipline: has_exempted,
@@ -212,6 +228,13 @@ class DailyFrequenciesController < ApplicationController
 
             daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
+
+          # Verifica se existem justificativas lançadas durante o registro de frequência
+          check_and_preserve_existing_justifications(
+            daily_frequency_students_params,
+            daily_frequency_attributes
+          )
+
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
 
           daily_frequency_record.save!
@@ -411,10 +434,17 @@ class DailyFrequenciesController < ApplicationController
         next if student[:exempted_from_discipline]
         next if current_student_ids.any? { |student_id| student_id == student[:student].id }
 
+        is_present = true
+
+        if @is_new_record && @physical_frequencies.present?
+          physical_presence_exists = @physical_frequencies.key?(student[:student_enrollment_id])
+          is_present = physical_presence_exists
+        end
+
         daily_frequency.students.build(
           student_id: student[:student].id,
           dependence: student[:dependence],
-          present: true,
+          present: is_present,
           active: student[:active]
         )
       end
@@ -527,5 +557,34 @@ class DailyFrequenciesController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def check_and_preserve_existing_justifications(daily_frequency_students_params, daily_frequency_attributes)
+    frequency_date = daily_frequency_attributes[:frequency_date].to_date
+    classroom_id = daily_frequency_attributes[:classroom_id]
+    period = daily_frequency_attributes[:period]
+    class_number = (daily_frequency_students_params[:class_number] || 0).to_i
+
+    student_ids = daily_frequency_students_params[:students_attributes].values.map { |s| s[:student_id].to_i }
+
+    existing_justifications = AbsenceJustificationPreserver.call(
+      frequency_date: frequency_date,
+      classroom_id: classroom_id,
+      period: period,
+      class_number: class_number,
+      student_ids: student_ids
+    )
+
+    # Para cada aluno, verifica se existe justificativa e preserva ela
+    daily_frequency_students_params[:students_attributes].each_value do |daily_frequency_student|
+      student_id = daily_frequency_student[:student_id].to_i
+
+      # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+      # (mesmo que o professor tenha marcado presença)
+      if existing_justifications[student_id].present?
+        daily_frequency_student[:present] = false
+        daily_frequency_student[:absence_justification_student_id] = existing_justifications[student_id]
+      end
+    end
   end
 end

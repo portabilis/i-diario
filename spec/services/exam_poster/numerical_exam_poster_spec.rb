@@ -248,4 +248,75 @@ RSpec.describe ExamPoster::NumericalExamPoster do
         .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
     end
   end
+
+  context 'when student has recovery score but no regular score' do
+    let(:current_user) { create(:user) }
+    let(:student_without_regular_score) { create(:student) }
+    let!(:student_enrollment) {
+      create(
+        :student_enrollment,
+        student: student_without_regular_score
+      )
+    }
+    let!(:student_enrollment_classroom) {
+      create(
+        :student_enrollment_classroom,
+        student_enrollment: student_enrollment,
+        classrooms_grade: classroom.classrooms_grades.first,
+        joined_at: classroom.calendar.classroom_steps.first.start_at
+      )
+    }
+    let!(:recovery_diary_record) {
+      recovery_diary_record = create(
+        :recovery_diary_record,
+        :with_teacher_discipline_classroom,
+        unity: classroom.unity,
+        classroom: classroom,
+        discipline: avaliation.discipline,
+        students: [
+          build(
+            :recovery_diary_record_student,
+            recovery_diary_record: nil,
+            student: student_without_regular_score,
+            score: 8
+          )
+        ]
+      )
+      current_user.current_classroom_id = recovery_diary_record.classroom_id
+      current_user.current_discipline_id = recovery_diary_record.discipline_id
+      allow(recovery_diary_record).to receive(:current_user).and_return(current_user)
+
+      recovery_diary_record
+    }
+    let!(:school_term_recovery_diary_record) {
+      step = StepsFetcher.new(recovery_diary_record.classroom).step_by_date(recovery_diary_record.recorded_at)
+      create(
+        :school_term_recovery_diary_record,
+        recovery_diary_record: recovery_diary_record,
+        step_id: step.id,
+        step_number: step.step_number
+      )
+    }
+
+    it 'does not send recovery score and adds warning message' do
+      subject.post!
+
+      # Verifica que não há job com recuperação para este aluno específico sem nota regular
+      has_recovery_job = Ieducar::SendPostWorker.jobs.any? do |job|
+        request_data = job["args"][2]
+        request_data.dig('notas', classroom.api_code, student_without_regular_score.api_code, discipline.api_code, 'recuperacao').present?
+      end
+
+      expect(has_recovery_job).to be_falsey
+
+      # Verifica que a mensagem de aviso foi adicionada
+      exam_posting.reload
+      warning_notices = exam_posting.notices.where(kind: NoticeTypes::WARNING)
+
+      expect(warning_notices).to be_present
+      expect(warning_notices.pluck(:text)).to include(
+        a_string_including(student_without_regular_score.name)
+      )
+    end
+  end
 end
