@@ -1,0 +1,31 @@
+name: Deploy Manual
+
+on:
+  workflow_dispatch:
+    # É IMPORTANTE que esses inputs sejam iguais aos da sua branch de dev.
+    # São eles que geram o formulário na tela do GitHub.
+    inputs:
+      environment:
+        description: 'Ambiente Alvo'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      git_ref:
+        description: 'Branch, Tag ou Commit SHA'
+        required: true
+        default: 'main'
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, production]
+    
+    steps:
+      - name: Aviso de Segurança
+        run: |
+          echo "Você executou o workflow a partir da definição da branch MAIN."
+          echo "Se você selecionou outra branch no dropdown 'Use workflow from', o GitHub ignorou este passo e rodou o que está lá."
+          echo "Ambiente selecionado: ${{ inputs.environment }}"
+          echo "Ref selecionada: ${{ inputs.git_ref }}"
