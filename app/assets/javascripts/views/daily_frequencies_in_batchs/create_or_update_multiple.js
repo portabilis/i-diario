@@ -285,6 +285,9 @@ function submitFormAsJSON() {
 }
 
 function serializeFormToJSON(formData) {
+  const emailConfirmationValues = formData.getAll('frequency_in_batch_form[receive_email_confirmation]');
+  const receiveEmailConfirmation = emailConfirmationValues.includes('1');
+
   const data = {
     unity_id: formData.get('unity_id'),
     classroom_id: formData.get('classroom_id'),
@@ -293,7 +296,7 @@ function serializeFormToJSON(formData) {
     period: formData.get('period'),
     start_date: formData.get('start_date'),
     end_date: formData.get('end_date'),
-    receive_email_confirmation: formData.get('frequency_in_batch_form[receive_email_confirmation]') === '1',
+    receive_email_confirmation: receiveEmailConfirmation,
     daily_frequencies: {}
   };
 
