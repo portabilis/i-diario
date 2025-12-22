@@ -357,4 +357,127 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
     end
   end
+
+  describe 'when creating NO_SCHOOL event with existing event on same date' do
+    let!(:list_classrooms_for_unity) { create_list(:classroom, 3, unity: school_calendars.last.unity) }
+    let!(:classroom_grades) {
+      list_classrooms_for_unity.map do |classroom|
+        create(:classrooms_grade, classroom: classroom)
+      end
+    }
+
+    context 'when by_classroom event already exists and creating by_unity NO_SCHOOL event' do
+      let!(:existing_event) {
+        create(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_classroom',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: classroom_grades.first.grade_id,
+          course_id: classroom_grades.first.grade.course_id,
+          classroom_id: list_classrooms_for_unity.first.id,
+          show_in_frequency_record: false,
+          start_date: '2017-02-15',
+          end_date: '2017-02-15'
+        )
+      }
+      let!(:new_event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-15',
+          end_date: '2017-02-15'
+        )
+      }
+      let!(:daily_frequency) {
+        create(
+          :daily_frequency,
+          classroom: list_classrooms_for_unity.second,
+          frequency_date: '2017-02-15',
+          unity: school_calendars.last.unity,
+          school_calendar: school_calendars.last,
+          period: Periods::MATUTINAL
+        )
+      }
+
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [new_event],
+          'create',
+          '2017-02-15',
+          '2017-02-15'
+        )
+      end
+
+      it 'deletes daily_frequency even when another event exists on the same date' do
+        expect { subject }.to change { DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
+      end
+    end
+
+    context 'when by_grade event already exists and creating by_unity NO_SCHOOL event' do
+      let!(:existing_event) {
+        create(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_grade',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: classroom_grades.first.grade_id,
+          course_id: classroom_grades.first.grade.course_id,
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-15',
+          end_date: '2017-02-15'
+        )
+      }
+      let!(:new_event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-15',
+          end_date: '2017-02-15'
+        )
+      }
+      let!(:daily_frequency) {
+        create(
+          :daily_frequency,
+          classroom: list_classrooms_for_unity.second,
+          frequency_date: '2017-02-15',
+          unity: school_calendars.last.unity,
+          school_calendar: school_calendars.last,
+          period: Periods::MATUTINAL
+        )
+      }
+
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [new_event],
+          'create',
+          '2017-02-15',
+          '2017-02-15'
+        )
+      end
+
+      it 'deletes daily_frequency even when another event exists on the same date' do
+        expect { subject }.to change { DailyFrequency.where(id: daily_frequency.id).count }.by(-1)
+      end
+    end
+  end
 end
