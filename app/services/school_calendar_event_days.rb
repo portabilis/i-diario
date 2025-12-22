@@ -69,16 +69,18 @@ class SchoolCalendarEventDays
     @school_calendars.each do |school_calendar|
       school_days.each do |school_day|
 
-        if action == :destroy && event_type_includes_no_school?
+        if event_type_includes_no_school?
           days_to_process << school_day
           unities_ids << school_calendar.unity_id
-          next
+          next if action == :destroy
         end
 
         next unless valid_school_day?(school_calendar, school_day, action == :create)
 
-        days_to_process << school_day
-        unities_ids << school_calendar.unity_id
+        unless event_type_includes_no_school?
+          days_to_process << school_day
+          unities_ids << school_calendar.unity_id
+        end
 
         unless @events.pluck(:event_type).include?(EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY)
           SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).send(action, @events)
