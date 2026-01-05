@@ -12,10 +12,15 @@ class ObservationRecordReportQuery
   def observation_diary_records
     if @classroom_id.eql?('all')
       user = User.find(current_user_id)
+      year = user.current_school_year
       @classroom_id = if user.teacher?
-                        Classroom.by_unity_and_teacher(unity_id, user.teacher_id).pluck(:id)
+                        Classroom.by_unity_and_teacher(unity_id, user.teacher_id)
+                                 .by_year(year)
+                                 .pluck(:id)
                       else
-                        Classroom.by_unity(unity_id).pluck(:id)
+                        Classroom.by_unity(unity_id)
+                                 .by_year(year)
+                                 .pluck(:id)
                       end
     end
     relation = ObservationDiaryRecord.includes(notes: :students)
