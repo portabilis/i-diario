@@ -5,6 +5,7 @@ $(function () {
   let $unity = $('#observation_record_report_form_unity_id');
   let $classroom = $('#observation_record_report_form_classroom_id');
   let $discipline = $('#observation_record_report_form_discipline_id');
+  let $teacherId = $('#observation_record_report_form_teacher_id');
 
   $(document).ready(function() {
     $('#btn-submit').attr("disabled", true);
@@ -67,10 +68,17 @@ $(function () {
 
   function getDisciplines() {
     const classroom_id = $classroom.select2('val');
+    const unity_id = $unity.select2('val');
+    const teacher_id = $teacherId.val();
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
-        url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        url: Routes.observation_record_report_disciplines_pt_br_path({
+          classroom_id: classroom_id,
+          unity_id: unity_id,
+          teacher_id: teacher_id,
+          format: 'json'
+        }),
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError
       });
@@ -79,7 +87,7 @@ $(function () {
 
   function handleFetchDisciplinesSuccess(data) {
     let selectedDisciplines = _.map(data.disciplines, function(discipline) {
-      return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
+      return { id: discipline.id, name: discipline.name, text: discipline.text };
     });
 
     if (selectedDisciplines.length > 1) {
