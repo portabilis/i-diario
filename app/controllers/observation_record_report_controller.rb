@@ -39,6 +39,34 @@ class ObservationRecordReportController < ApplicationController
   end
   helper_method :unities
 
+  def disciplines
+    return render json: { disciplines: [] } if params[:teacher_id].blank?
+
+    disciplines = if params[:classroom_id] == 'all'
+                    return render json: { disciplines: [] } if params[:unity_id].blank?
+
+                    Discipline.by_unity_id(params[:unity_id], current_school_year)
+                              .by_teacher_id(params[:teacher_id], current_school_year)
+                              .not_descriptor
+                  else
+                    return render json: { disciplines: [] } if params[:classroom_id].blank?
+
+                    Discipline.by_classroom_id(params[:classroom_id])
+                              .by_teacher_id(params[:teacher_id], current_school_year)
+                              .not_descriptor
+                  end
+
+    render json: {
+      disciplines: disciplines.map do |discipline|
+        {
+          id: discipline.id,
+          name: discipline.description.to_s,
+          text: discipline.description.to_s
+        }
+      end
+    }
+  end
+
   private
 
   def resource_params
