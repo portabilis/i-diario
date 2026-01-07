@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/transfer_notes/index' %>
+<% end %>
+
 <div class='widget-body no-padding'>
   <%= simple_form_for @filter, as: :filter, url: transfer_notes_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class='table-responsive'>
@@ -12,8 +16,7 @@
               <%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
             <th scope="col"><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></th>
             <th scope="col">
-              <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
-                label: false, placeholder: t('.by_step') %>
+              <%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step') %>
             </th>
             <th scope="col"><%= f.input :by_transfer_date, as: :date, label: false, placeholder: t('.by_transfer_date') %></th>
             <th scope="col"><%= link_to t('.new_html'), new_transfer_note_path, class: 'btn btn-primary pull-right' %></th>

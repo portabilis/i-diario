@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/complementary_exams/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @filter, as: :filter, url: complementary_exams_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class="table-responsive">
@@ -17,7 +21,7 @@
               <%= f.input :by_complementary_exam_setting, as: :select2, elements: ComplementaryExamSetting.ordered, label: false, placeholder: t('.by_complementary_exam_setting') %>
             </th>
             <th scope="col">
-              <%= f.input :by_step_id, as: :select2, elements: steps, label: false, placeholder: t('.by_step_id') %>
+              <%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %>
             </th>
             <th scope="col">
               <%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>
