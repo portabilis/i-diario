@@ -273,6 +273,7 @@ Rails.application.routes.draw do
         get :set_avaliation_setting
         get :set_grades_by_classrooms
         get :set_type_score_for_discipline
+        get :fetch_steps
         post :create_multiple_classrooms
       end
     end
@@ -280,6 +281,7 @@ Rails.application.routes.draw do
     resources :complementary_exams, concerns: :history do
       collection do
         get :settings
+        get :fetch_steps
       end
     end
     resources :teacher_avaliations, only: :index
@@ -287,6 +289,7 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :fetch_classrooms
+        get :fetch_steps
       end
       member do
         post :exempt_students
@@ -309,6 +312,7 @@ Rails.application.routes.draw do
       collection do
         get :current_notes
         get :find_step_number_by_classroom
+        get :fetch_steps
       end
     end
     resources :final_recovery_diary_records, concerns: :history
