@@ -109,6 +109,25 @@ class DailyNotesController < ApplicationController
     render json: @daily_notes
   end
 
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
+  end
+
   def exempt_students
     @students_ids = params[:exemption_students_ids].split(',')
 
@@ -192,10 +211,6 @@ class DailyNotesController < ApplicationController
     @any_in_active_search = @students.select(&:in_active_search).any?
   end
 
-  def configuration
-    @configuration ||= IeducarApiConfiguration.current
-  end
-
   def resource_params
     params.require(:daily_note).permit(
       :avaliation_id,
@@ -237,7 +252,10 @@ class DailyNotesController < ApplicationController
     )
 
     @avaliations = Avaliation.by_classroom_id(@classrooms.map(&:id)).by_discipline_id(@disciplines.map(&:id))
-    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
   end
 
   def fetch_linked_by_teacher
@@ -316,13 +334,20 @@ disciplines: @discipline)
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
     params[:filter][:by_discipline_id] ||= current_user_discipline.id
 
+    @step_id = nil
+    step_from_classroom_id = nil
+
     if params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      params[:filter][school_calendar_step] = step_id
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
     end
 
     @filter = OpenStruct.new(params[:filter])
-    @filter.by_step_id = params[:filter][school_calendar_step]
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
   end
 
   def check_duplicate_enrolled_students
@@ -349,15 +374,17 @@ disciplines: @discipline)
     end
   end
 
-  def school_calendar_step
-    return :by_school_calendar_classroom_step_id if school_calendar_by_classroom?
-
-    :by_school_calendar_step_id
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step_id
+    else
+      :by_school_calendar_step_id
+    end
   end
 
-  def school_calendar_by_classroom?
-    classroom_ids = @classrooms.map(&:id)
-
-    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 end

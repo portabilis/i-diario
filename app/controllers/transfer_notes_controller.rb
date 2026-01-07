@@ -7,19 +7,21 @@ class TransferNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    set_filters
-    step_id = (params[:filter] || []).delete(:by_step)
-
     set_options_by_user
+    set_filters
 
     @transfer_notes = apply_scopes(TransferNote).includes({ classroom: :unity }, :discipline, :student)
                                                 .by_classroom_id(@classrooms.map(&:id))
                                                 .by_discipline_id(@disciplines.map(&:id))
 
-    if step_id.present?
-      @transfer_notes = @transfer_notes.by_step_id(current_user_classroom, step_id)
-      params[:filter][:by_step] = step_id
+    if @step_id.present? && @step_classroom.present?
+      @transfer_notes = @transfer_notes.by_step_id(@step_classroom, @step_id)
     end
+
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
 
     authorize @transfer_notes
   end
@@ -139,6 +141,25 @@ class TransferNotesController < ApplicationController
     render json: steps.to_json
   end
 
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
+  end
+
   private
 
   def resource_params
@@ -175,7 +196,6 @@ class TransferNotesController < ApplicationController
 
     @classrooms ||= [current_user_classroom]
     @disciplines ||= [current_user_discipline]
-    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def set_filters
@@ -183,7 +203,25 @@ class TransferNotesController < ApplicationController
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
     params[:filter][:by_discipline_id] ||= current_user_discipline.id
 
+    @step_id = nil
+    @step_classroom = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step].present?
+      step_value = params[:filter].delete(:by_step)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+      @step_classroom = @classrooms.find { |c| c.id == step_from_classroom_id.to_i }
+    end
+
     @filter = OpenStruct.new(params[:filter])
+    @filter.by_step = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 
   def fetch_linked_by_teacher
