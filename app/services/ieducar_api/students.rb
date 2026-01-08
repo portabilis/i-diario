@@ -16,5 +16,13 @@ module IeducarApi
         aluno_id: student_code
       )
     end
+
+    def fetch_by_id(student_id)
+      fetch(
+        resource: 'aluno',
+        id: student_id,
+        ignore_modified: true
+      )
+    end
   end
 end

@@ -27,29 +27,27 @@ module Api
 
         daily_frequency = creator.daily_frequencies[0]
 
-        absence_justifications = AbsenceJustifiedOnDate.call(
-          students: [params[:student_id]],
-          date: frequency_date,
-          end_date: frequency_date,
-          classroom: params[:classroom_id],
-          period: period
-        )
-
         if daily_frequency
+          existing_justification = AbsenceJustificationPreserver.call(
+            frequency_date: frequency_date,
+            classroom_id: params[:classroom_id],
+            period: period,
+            class_number: params[:class_number] || 0,
+            student_ids: [student_id]
+          )
+
           begin
             daily_frequency_student = DailyFrequencyStudent.find_or_initialize_by(
               daily_frequency_id: daily_frequency.id,
               student_id: student_id
             )
 
-            absence_justification = absence_justifications[student_id] || {}
-            absence_justification = absence_justification[frequency_date] || {}
-            absence_justification_student_id = absence_justification[0] || absence_justification[daily_frequency.class_number]
+            absence_justification_student_id = existing_justification[student_id]
 
             if absence_justification_student_id
               daily_frequency_student.present = false
               daily_frequency_student.absence_justification_student_id = absence_justification_student_id
-            elsif
+            else
               daily_frequency_student.present = params[:present]
             end
 

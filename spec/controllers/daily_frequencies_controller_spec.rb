@@ -158,4 +158,73 @@ RSpec.describe DailyFrequenciesController, type: :controller do
       it_behaves_like 'delete_all_frequencies'
     end
   end
+
+  describe '#check_and_preserve_existing_justifications' do
+    # Esse teste verifica que o controller chama o AbsenceJustificationPreserver corretamente
+    let(:frequency_date) { school_calendar.steps.first.start_at }
+    let(:student) { create(:student) }
+    let(:student_enrollment) { create(:student_enrollment, student: student) }
+    let!(:student_enrollment_classroom) do
+      create(
+        :student_enrollment_classroom,
+        student_enrollment: student_enrollment,
+        classrooms_grade: classrooms_grade
+      )
+    end
+
+    let(:daily_frequency_students_params) do
+      {
+        class_number: 1,
+        students_attributes: {
+          '0' => {
+            student_id: student.id,
+            present: true,
+            absence_justification_student_id: nil
+          }
+        }
+      }
+    end
+
+    let(:daily_frequency_attributes) do
+      {
+        frequency_date: frequency_date,
+        classroom_id: classroom.id,
+        period: Periods::MATUTINAL
+      }
+    end
+
+    it 'calls AbsenceJustificationPreserver with correct parameters' do
+      expect(AbsenceJustificationPreserver).to receive(:call).with(
+        frequency_date: frequency_date,
+        classroom_id: classroom.id,
+        period: Periods::MATUTINAL,
+        class_number: 1,
+        student_ids: [student.id]
+      ).and_return({})
+
+      controller.send(
+        :check_and_preserve_existing_justifications,
+        daily_frequency_students_params,
+        daily_frequency_attributes
+      )
+    end
+
+    it 'applies justifications returned by the service' do
+      justification_id = 999
+
+      allow(AbsenceJustificationPreserver).to receive(:call).and_return(
+        student.id => justification_id
+      )
+
+      controller.send(
+        :check_and_preserve_existing_justifications,
+        daily_frequency_students_params,
+        daily_frequency_attributes
+      )
+
+      student_data = daily_frequency_students_params[:students_attributes]['0']
+      expect(student_data[:present]).to be false
+      expect(student_data[:absence_justification_student_id]).to eq(justification_id)
+    end
+  end
 end

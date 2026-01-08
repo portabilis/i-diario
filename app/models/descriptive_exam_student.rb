@@ -1,5 +1,6 @@
 class DescriptiveExamStudent < ApplicationRecord
   include Discardable
+
   acts_as_copy_target
 
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
@@ -26,6 +27,20 @@ class DescriptiveExamStudent < ApplicationRecord
   scope :ordered, -> { order(:updated_at) }
   scope :by_not_poster, ->(poster_sent) { where("descriptive_exam_students.updated_at > ?", poster_sent) }
 
-
   validates :descriptive_exam, :student, presence: true
+
+  before_validation :sanitize_value_content
+
+  private
+
+  # Sanitiza conteúdo HTML permitindo apenas tags básicas (div, p, b, i, u, br)
+  def sanitize_value_content
+    return if value.blank?
+
+    self.value = ApplicationController.helpers.sanitize(
+      value,
+      tags: %w[div p b i u br],
+      attributes: []
+    )
+  end
 end

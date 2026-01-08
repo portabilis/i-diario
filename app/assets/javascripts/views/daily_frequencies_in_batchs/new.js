@@ -105,4 +105,8 @@ $(document).ready( function() {
   function handleFetchTeacherAllocatedError() {
     flashMessages.error('Erro ao buscar alocação no quadro de aula da turma para o(a) professor(a) vinculado(a) ao perfil. Por favor, validar no registro do quadro de aula e tentar novamente.');
   };
+
+  $('form.smart-form').on('submit', function() {
+    $('#page-loading').removeClass('hidden');
+  });
 })

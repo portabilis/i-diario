@@ -6,4 +6,13 @@ class Periods < EnumerateIt::Base
                    intermediate: '5'
 
   sort_by :none
+
+  def self.for_full
+    [
+      MATUTINAL,
+      VESPERTINE,
+      NIGHTLY,
+      FULL
+    ]
+  end
 end

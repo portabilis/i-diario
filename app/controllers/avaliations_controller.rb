@@ -152,7 +152,7 @@ class AvaliationsController < ApplicationController
     message = if resource.destroy
                 { notice: t('flash.female.destroy.notice', resource_name: resource_name) }
               else
-                { alert: t('flash.female.destroy.alert', resource_name: resource_name) }
+                { alert: t('flash.avaliations.destroy.alert', resource_name: resource_name, reason: destroy_reason) }
               end
 
     redirect_to avaliations_path, message
@@ -275,6 +275,13 @@ class AvaliationsController < ApplicationController
 
   private
 
+  def destroy_reason
+    return t('flash.avaliations.destroy_reasons.has_recovery') if resource.avaliation_recovery_diary_record.present?
+    return t('flash.avaliations.destroy_reasons.out_of_posting_period') if resource.errors[:test_date].present?
+
+    t('flash.avaliations.destroy_reasons.has_daily_notes')
+  end
+
   def school_calendar_step_for_classroom(classroom_id)
     if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
       :by_school_calendar_classroom_step
@@ -327,7 +334,7 @@ class AvaliationsController < ApplicationController
         render 'daily_notes/new'
       end
     else
-      redirect_to avaliations_path
+      respond_with resource, location: avaliations_path
     end
   end
 
