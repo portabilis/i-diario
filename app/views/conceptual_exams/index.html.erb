@@ -21,8 +21,8 @@
                             input_html: { class: 'conceptual-exam-student-filter' } %>
             </th>
             <th scope="col">
-              <%= f.input :by_step, as: :select2, elements: @steps,
-                label: false, placeholder: t('.by_step') %></th>
+              <%= f.input :by_step_id, as: :select2, elements: @steps,
+                label: false, placeholder: t('.by_step_id') %></th>
             <th scope="col">
               <%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json,
                 label: false, placeholder: t('.by_status') %>
