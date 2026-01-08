@@ -11,11 +11,10 @@ class ConceptualExamsController < ApplicationController
   def index
     set_options_by_user
     set_filters
-    step_id = (params[:filter] || []).delete(:by_step)
     status = (params[:filter] || []).delete(:by_status)
 
     fetch_conceptual_exams
-    check_status_and_step(step_id, status)
+    check_status_and_step(status)
 
     authorize @conceptual_exams
   end
@@ -201,6 +200,25 @@ class ConceptualExamsController < ApplicationController
       params[:classroom_id],
       current_user_discipline
     ).teacher_period
+  end
+
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
   end
 
   private
@@ -542,10 +560,9 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
-  def check_status_and_step(step_id, status)
-    if step_id.present?
-      @conceptual_exams = @conceptual_exams.send(school_calendar_step, step_id)
-      params[:filter][:by_step] = step_id
+  def check_status_and_step(status)
+    if @step_id.present? && @step_classroom.present?
+      @conceptual_exams = @conceptual_exams.by_step_id(@step_classroom, @step_id)
     end
 
     if status.present?
@@ -561,22 +578,16 @@ class ConceptualExamsController < ApplicationController
       .by_teacher(current_teacher_id)
       .ordered_by_date_and_student
 
-    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
   end
 
   def fetch_linked_by_teacher
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::CONCEPT)
-  end
-
-  def filtered_classrooms
-    if params.dig(:filter, :by_classroom_id).present?
-      filtered_ids = Array(params[:filter][:by_classroom_id])
-      @classrooms.select { |c| filtered_ids.include?(c.id.to_s) }
-    else
-      @classrooms
-    end
   end
 
   def allow_teacher_modify_prev_years
@@ -605,6 +616,24 @@ class ConceptualExamsController < ApplicationController
     params[:filter] ||= {}
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
 
+    @step_id = nil
+    @step_classroom = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+      @step_classroom = @classrooms.find { |c| c.id == step_from_classroom_id.to_i }
+    end
+
     @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 end

@@ -324,6 +324,7 @@ Rails.application.routes.draw do
         get :find_step_number_by_classroom
         get :fetch_students_by_classroom
         get :fetch_score_type
+        get :fetch_steps
       end
     end
     resources :conceptual_exams_in_batchs, concerns: :history do
