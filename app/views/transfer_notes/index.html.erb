@@ -16,7 +16,7 @@
               <%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
             <th scope="col"><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></th>
             <th scope="col">
-              <%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step') %>
+              <%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %>
             </th>
             <th scope="col"><%= f.input :by_transfer_date, as: :date, label: false, placeholder: t('.by_transfer_date') %></th>
             <th scope="col"><%= link_to t('.new_html'), new_transfer_note_path, class: 'btn btn-primary pull-right' %></th>

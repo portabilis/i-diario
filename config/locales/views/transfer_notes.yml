@@ -5,7 +5,7 @@ pt-BR:
       by_classroom_id: "Filtrar turma"
       by_discipline_id: "Filtrar disciplina"
       by_student_name: "Filtrar aluno"
-      by_step: "Filtrar etapa"
+      by_step_id: "Filtrar etapa"
       by_transfer_date: "Filtrar data"
       new_html: "<i class='fa fa-plus'></i> Novo lançamento"
     form:

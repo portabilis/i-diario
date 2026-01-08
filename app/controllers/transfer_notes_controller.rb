@@ -207,15 +207,15 @@ class TransferNotesController < ApplicationController
     @step_classroom = nil
     step_from_classroom_id = nil
 
-    if params[:filter][:by_step].present?
-      step_value = params[:filter].delete(:by_step)
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
       @step_id, step_from_classroom_id = step_value.split(':')
       params[:filter][:by_classroom_id] = step_from_classroom_id
       @step_classroom = @classrooms.find { |c| c.id == step_from_classroom_id.to_i }
     end
 
     @filter = OpenStruct.new(params[:filter])
-    @filter.by_step = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
   end
 
   def classrooms_for_steps_filter
