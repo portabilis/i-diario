@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/school_term_recovery_diary_records/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @filter, as: :filter, url: school_term_recovery_diary_records_path, method: :get,
     html: { class: 'filterable_search_form' } do |f| %>
@@ -15,7 +19,7 @@
                            label: false, placeholder: t('.by_discipline_id') %>
             </th>
             <th scope="col">
-              <%= f.input :by_step_id, as: :select2_step, classroom: current_user_classroom,
+              <%= f.input :by_step_id, as: :select2, elements: @steps,
                 label: false, placeholder: t('.by_step_id') %>
             </th>
             <th scope="col">

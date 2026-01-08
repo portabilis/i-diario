@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_recovery_lowest_notes/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @filter, as: :filter, url: avaliation_recovery_lowest_notes_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class="table-responsive">
@@ -14,7 +18,7 @@
                            label: false, placeholder: t('.by_discipline_id') %>
             </th>
             <th scope="col">
-              <%= f.input :by_step_id, as: :select2_step, classroom: current_user_classroom,
+              <%= f.input :by_step_id, as: :select2, elements: @steps,
                            label: false, placeholder: t('.by_step_id') %>
             </th>
             <th scope="col">
