@@ -12,15 +12,14 @@ class IeducarStudentTransferPostingWorker
 
   def perform(entity_id, student_id, classroom_id, callback_url)
     @callback_url = callback_url
-    @student_api_code = nil
-    @classroom_api_code = nil
+    @student_enrollment_api_code = nil
 
     Entity.find(entity_id).using_connection do
       student = Student.find(student_id)
       classroom = Classroom.find(classroom_id)
 
-      @student_api_code = student.api_code
-      @classroom_api_code = classroom.api_code
+      student_enrollment = StudentEnrollment.find_by!(student: student)
+      @student_enrollment_api_code = student_enrollment.api_code
 
       fetcher = IeducarStudentTransferDataFetcher.new(
         student: student,
@@ -44,8 +43,7 @@ class IeducarStudentTransferPostingWorker
 
     payload = {
       status: status,
-      student_id: @student_api_code,
-      classroom_id: @classroom_api_code
+      student_enrollment_api_code: @student_enrollment_api_code
     }
 
     payload[:error] = error_message if error_message.present?

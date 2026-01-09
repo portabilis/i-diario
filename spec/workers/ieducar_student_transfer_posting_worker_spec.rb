@@ -60,8 +60,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
         expect(WebMock).to have_requested(:post, callback_url).with { |req|
           body = JSON.parse(req.body)
           body['status'] == 'success' &&
-            body['student_id'] == student.api_code &&
-            body['classroom_id'] == classroom.api_code &&
+            body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
             !body.key?('error')
         }
       end
@@ -83,8 +82,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
         expect(WebMock).to have_requested(:post, callback_url).with { |req|
           body = JSON.parse(req.body)
           body['status'] == 'error' &&
-            body['student_id'] == student.api_code &&
-            body['classroom_id'] == classroom.api_code &&
+            body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
             body['error'] == 'Test error'
         }
       end
