@@ -11,9 +11,7 @@ RSpec.describe ObservationRecordReportController, type: :controller do
 
   let(:unity) { create(:unity) }
   let(:current_teacher) { create(:teacher) }
-  let(:other_teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
-  let(:other_discipline) { create(:discipline) }
   let(:school_calendar) {
     create(
       :school_calendar,
@@ -35,7 +33,7 @@ RSpec.describe ObservationRecordReportController, type: :controller do
     )
   }
 
-  let(:user) do
+  let(:teacher_user) do
     create(
       :user_with_user_role,
       admin: false,
@@ -47,16 +45,16 @@ RSpec.describe ObservationRecordReportController, type: :controller do
     )
   end
 
-  before(:each) do
-    sign_in(user)
-    allow(controller).to receive(:authorize).and_return(true)
-    allow(controller).to receive(:current_school_year).and_return(classroom.year)
-  end
-
   describe 'GET #disciplines' do
-    context 'when teacher_id is blank' do
+    before(:each) do
+      sign_in(teacher_user)
+      allow(controller).to receive(:authorize).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(classroom.year)
+    end
+
+    context 'when classroom_id is blank' do
       it 'returns an empty disciplines array' do
-        get :disciplines, params: { locale: 'pt-BR', format: 'json', teacher_id: '' }
+        get :disciplines, params: { locale: 'pt-BR', format: 'json', classroom_id: '' }
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
@@ -65,28 +63,12 @@ RSpec.describe ObservationRecordReportController, type: :controller do
     end
 
     context 'when classroom_id is a specific classroom' do
-      context 'when classroom_id is blank' do
-        it 'returns an empty disciplines array' do
-          get :disciplines, params: {
-            locale: 'pt-BR',
-            format: 'json',
-            teacher_id: current_teacher.id,
-            classroom_id: ''
-          }
-
-          expect(response).to have_http_status(:ok)
-          json_response = JSON.parse(response.body)
-          expect(json_response['disciplines']).to eq([])
-        end
-      end
-
-      it 'returns disciplines filtered by classroom and teacher' do
+      it 'returns disciplines filtered by classroom and current teacher' do
         classroom
 
         get :disciplines, params: {
           locale: 'pt-BR',
           format: 'json',
-          teacher_id: current_teacher.id,
           classroom_id: classroom.id
         }
 
@@ -94,21 +76,6 @@ RSpec.describe ObservationRecordReportController, type: :controller do
         json_response = JSON.parse(response.body)
         expect(json_response['disciplines']).to be_an(Array)
         expect(json_response['disciplines'].map { |d| d['id'] }).to include(discipline.id)
-      end
-
-      it 'does not return disciplines from other teachers' do
-        classroom
-
-        get :disciplines, params: {
-          locale: 'pt-BR',
-          format: 'json',
-          teacher_id: other_teacher.id,
-          classroom_id: classroom.id
-        }
-
-        expect(response).to have_http_status(:ok)
-        json_response = JSON.parse(response.body)
-        expect(json_response['disciplines'].map { |d| d['id'] }).not_to include(discipline.id)
       end
     end
 
@@ -118,7 +85,6 @@ RSpec.describe ObservationRecordReportController, type: :controller do
           get :disciplines, params: {
             locale: 'pt-BR',
             format: 'json',
-            teacher_id: current_teacher.id,
             classroom_id: 'all',
             unity_id: ''
           }
@@ -129,13 +95,12 @@ RSpec.describe ObservationRecordReportController, type: :controller do
         end
       end
 
-      it 'returns disciplines filtered by unity and teacher' do
+      it 'returns disciplines filtered by unity and current teacher' do
         classroom
 
         get :disciplines, params: {
           locale: 'pt-BR',
           format: 'json',
-          teacher_id: current_teacher.id,
           classroom_id: 'all',
           unity_id: unity.id
         }
@@ -153,7 +118,6 @@ RSpec.describe ObservationRecordReportController, type: :controller do
       get :disciplines, params: {
         locale: 'pt-BR',
         format: 'json',
-        teacher_id: current_teacher.id,
         classroom_id: classroom.id
       }
 
@@ -163,6 +127,53 @@ RSpec.describe ObservationRecordReportController, type: :controller do
       expect(json_response['disciplines'].first).to have_key('id')
       expect(json_response['disciplines'].first).to have_key('name')
       expect(json_response['disciplines'].first).to have_key('text')
+    end
+  end
+
+  describe 'GET #disciplines as admin user' do
+    let(:admin_user) do
+      create(:user, :with_user_role_administrator, current_unity_id: unity.id)
+    end
+
+    before(:each) do
+      sign_in(admin_user)
+      allow(controller).to receive(:authorize).and_return(true)
+      allow(controller).to receive(:require_current_teacher).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(classroom.year)
+    end
+
+    context 'when classroom_id is a specific classroom' do
+      it 'returns all disciplines for the classroom' do
+        classroom
+
+        get :disciplines, params: {
+          locale: 'pt-BR',
+          format: 'json',
+          classroom_id: classroom.id
+        }
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+        expect(json_response['disciplines']).to be_an(Array)
+        expect(json_response['disciplines'].map { |d| d['id'] }).to include(discipline.id)
+      end
+    end
+
+    context 'when classroom_id is "all"' do
+      it 'returns all disciplines for the unity' do
+        classroom
+
+        get :disciplines, params: {
+          locale: 'pt-BR',
+          format: 'json',
+          classroom_id: 'all',
+          unity_id: unity.id
+        }
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+        expect(json_response['disciplines']).to be_an(Array)
+      end
     end
   end
 end
