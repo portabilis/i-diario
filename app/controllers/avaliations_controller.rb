@@ -430,11 +430,13 @@ class AvaliationsController < ApplicationController
   end
 
   def test_settings
-    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
+    classroom = @avaliation&.classroom || current_user_classroom
+    return unless (year_test_setting = TestSetting.where(year: classroom.year))
 
-    @test_settings ||= general_by_school_test_setting(year_test_setting) ||
+    @test_settings ||= general_by_school_test_setting(year_test_setting, classroom) ||
       general_test_setting(year_test_setting) ||
-      by_school_term_test_setting(year_test_setting)
+      by_school_term_test_setting(year_test_setting) ||
+      []
   end
 
   def general_by_school_test_setting(year_test_setting, classroom = nil)

@@ -273,7 +273,13 @@ class Avaliation < ApplicationRecord
     return unless test_setting.general_by_school?
     return if (grade_ids - test_setting.grades).empty?
 
-    errors.add(:grades, :should_be_in_test_setting)
+    general = TestSetting.find_by(year: test_setting.year, exam_setting_type: ExamSettingTypes::GENERAL)
+
+    if general
+      self.test_setting = general
+    else
+      errors.add(:grades, :should_be_in_test_setting)
+    end
   end
 
   def discipline_in_grade?
