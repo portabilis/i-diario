@@ -5,7 +5,7 @@ class MaintenanceAdjustment < ApplicationRecord
   audited
   has_associated_audits
 
-  has_and_belongs_to_many :unities
+  has_and_belongs_to_many :unities, validate: false
   has_enumeration_for :status, with: MaintenanceAdjustmentStatus, create_helpers: true
   has_enumeration_for :kind, with: MaintenanceAdjustmentKinds, create_helpers: true
 

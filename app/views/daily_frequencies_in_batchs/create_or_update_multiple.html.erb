@@ -18,10 +18,12 @@
     <td><%= @frequency_type == FrequencyTypes::BY_DISCIPLINE ? @discipline.description : 'Todas' %></td>
     <% start_date = params[:start_date] || params[:frequency_in_batch_form][:start_date] %>
     <% end_date = params[:end_date] || params[:frequency_in_batch_form][:end_date] %>
+    <% start_date = format_date(start_date) %>
+    <% end_date = format_date(end_date) %>
     <% if start_date == end_date %>
-      <td><%= start_date.to_s %></td>
+      <td><%= l(start_date, format: :default) %></td>
     <% else %>
-      <td><%= start_date.to_s + ' a ' + end_date.to_s %></td>
+      <td><%= l(start_date, format: :default) + ' a ' + l(end_date, format: :default) %></td>
     <% end %>
     </tbody>
     <div id="flash-message">
@@ -32,8 +34,8 @@
     </div>
   </table>
 
-  <%= simple_form_for @frequency_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
-                      html: { class: 'smart-form daily_frequency' } do |f| %>
+  <%= simple_form_for @frequency_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :post,
+                      html: { class: 'smart-form daily_frequency', id: 'frequency-batch-form' } do |f| %>
 
     <div class="frequency-legend">
       <strong>Legenda:</strong>
@@ -179,7 +181,7 @@
         <% end %>
       </div>
       <div class="pull-right">
-        <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
+        <%= f.submit t('.save'), class: 'btn new-save-style', id: 'save-frequencies-btn', data: { disable_with: 'Salvando...' } %>
       </div>
       <div class="pull-right" style="margin-right: 10px;">
         <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>

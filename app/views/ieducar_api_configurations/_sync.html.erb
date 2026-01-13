@@ -38,7 +38,7 @@
           <h4 class="modal-title" id="myModalLabel">Erro completo</h4>
         </div>
         <div class="modal-body">
-          <%= sync.error_message.html_safe %>
+          <%= sync&.error_message&.html_safe %>
           <% if current_user.admin? %>
             <% if sync.full_error_message.present? %>
               <hr>

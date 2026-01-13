@@ -56,7 +56,11 @@ module ExamPoster
                                     discipline: recovery_diary_record_student.recovery_diary_record.discipline,
                                     student: recovery_diary_record_student.student })[:final_recovery]
 
+          next if recovery_diary_record_student.score.blank?
+
           value = score_rounder.round(recovery_diary_record_student.score)
+
+          next if value.nil?
 
           params[classroom_api_code][recovery_diary_record_student.student.api_code][discipline_api_code]['nota'] = value
         end

@@ -308,13 +308,13 @@ class ConceptualExamsController < ApplicationController
     missing_disciplines = []
 
     grades = @classrooms.first.grades
-    current_step = [@conceptual_exam.step_number].to_s
+    current_step = @conceptual_exam.step_number.to_s
 
     disciplines_in_grade_ids = SchoolCalendarDisciplineGrade.where(
       school_calendar: current_school_calendar,
       grade: grades
     ).pluck(:discipline_id, :steps).flat_map do |discipline_id, steps|
-      discipline_id if steps.nil? || steps.include?([current_step].to_s)
+      discipline_id if steps.nil? || steps.include?(current_step)
     end.compact
 
     filter_discipline = @disciplines.select { |d| d.id.in?(disciplines_in_grade_ids) }
