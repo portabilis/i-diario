@@ -212,7 +212,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           discipline_id: daily_frequency_attributes[:discipline_id],
           period: daily_frequency_attributes[:period]
         )}",
-        dates,
+        dates.uniq,
         classroom,
         unity
       )

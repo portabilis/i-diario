@@ -52,7 +52,7 @@ class AttendanceRecordReportForm
   end
 
   def school_calendar_events
-    events_by_day = []
+    events_by_day = {}
     events = school_calendar.events
                             .events_to_report
                             .by_date_between(start_at, end_at)
@@ -66,15 +66,36 @@ class AttendanceRecordReportForm
 
     events.each do |event|
       (event.start_date..event.end_date).each do |date|
-        events_by_day << {
+        event_data = {
           date: date,
           legend: event.legend,
           description: event.description,
-          type: event.event_type
+          type: event.event_type,
+          coverage: event.coverage
         }
+
+        # Mantém apenas o evento mais específico por data
+        if events_by_day[date].nil? || more_specific_event?(event_data, events_by_day[date])
+          events_by_day[date] = event_data
+        end
       end
     end
-    events_by_day
+
+    events_by_day.values
+  end
+
+  def more_specific_event?(new_event, existing_event)
+    priority = {
+      'by_classroom' => 4,
+      'by_grade' => 3,
+      'by_course' => 2,
+      'by_unity' => 1
+    }
+
+    new_priority = priority[new_event[:coverage]] || 0
+    existing_priority = priority[existing_event[:coverage]] || 0
+
+    new_priority > existing_priority
   end
 
   def enrollment_classrooms_list
