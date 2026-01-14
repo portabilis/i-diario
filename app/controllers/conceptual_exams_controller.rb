@@ -28,14 +28,12 @@ class ConceptualExamsController < ApplicationController
     end
 
     if not_concept_score
-      if current_user.current_role_is_admin_or_employee?
+      if current_user.current_role_is_admin_or_employee? || teacher_has_no_conceptual_disciplines?
         redirect_to(
           conceptual_exams_path,
           alert: t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
         ) && return
       end
-
-      flash.now[:alert] = t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
     end
 
     return if performed?
@@ -635,5 +633,12 @@ class ConceptualExamsController < ApplicationController
     filtered_classroom_id = params.dig(:filter, :by_classroom_id)
     classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
     classroom ? [classroom] : @classrooms
+  end
+
+  def teacher_has_no_conceptual_disciplines?
+    TeacherDisciplineClassroom
+      .where(teacher_id: current_teacher.id, classroom_id: current_user_classroom.id, active: true)
+      .where(score_type: ScoreTypes::CONCEPT)
+      .none?
   end
 end
