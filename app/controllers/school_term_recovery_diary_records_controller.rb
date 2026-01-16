@@ -12,13 +12,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     set_school_term_recovery_diary_records
 
-    if @step_id.present? && @step_classroom.present?
-      @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(
-        @step_classroom,
-        @step_id
-      )
-    end
-
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
       current_school_calendar,
       classrooms_for_steps_filter
@@ -352,18 +345,27 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     params[:filter][:by_discipline_id] ||= current_user_discipline.id
 
     @step_id = nil
-    @step_classroom = nil
     step_from_classroom_id = nil
 
     if params[:filter][:by_step_id].present?
       step_value = params[:filter].delete(:by_step_id)
       @step_id, step_from_classroom_id = step_value.split(':')
       params[:filter][:by_classroom_id] = step_from_classroom_id
-      @step_classroom = @classrooms.find { |c| c.id == step_from_classroom_id.to_i }
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
     end
 
     @filter = OpenStruct.new(params[:filter])
     @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
   end
 
   def classrooms_for_steps_filter
