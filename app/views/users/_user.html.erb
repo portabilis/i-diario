@@ -40,6 +40,12 @@
 
     <div class="col col-sm-6">
       <%= f.input :teacher_id, as: :select2, elements: @teachers %>
+      <% if f.object.teacher_id.blank? %>
+        <div class="alert alert-warning" style="margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+          <i class="fa fa-info-circle"></i>
+          Este campo deve ser preenchido caso o usuário seja um professor.
+        </div>
+      <% end %>
     </div>
   </div>
   <div class="row">

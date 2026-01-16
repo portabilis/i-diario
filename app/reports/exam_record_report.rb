@@ -78,6 +78,7 @@ class ExamRecordReport < BaseReport
 
   def student_enrolled_on_date?(student, date)
     StudentEnrollmentClassroom.by_student(student)
+                              .by_classroom(classroom.id)
                               .by_date(date)
                               .exists?
   end

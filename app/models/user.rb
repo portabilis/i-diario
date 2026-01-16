@@ -41,7 +41,7 @@ class User < ApplicationRecord
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id,
     dependent: :restrict_with_error
   has_many :system_notification_targets, dependent: :destroy
-  has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets,
+  has_many :system_notifications, through: :system_notification_targets,
     source: :system_notification
   has_many :unread_notifications, -> { where(system_notification_targets: { read: false }) },
     through: :system_notification_targets, source: :system_notification
@@ -167,6 +167,10 @@ class User < ApplicationRecord
   def first_access?
     email&.include?('ambiente.portabilis.com.br') &&
       created_at.to_date >= last_password_change.to_date
+  end
+
+  def unread_notifications_count
+    system_notification_targets.where(read: false).count
   end
 
   def expired?

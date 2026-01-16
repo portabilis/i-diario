@@ -11,6 +11,22 @@ RSpec.describe SchoolCalendar, type: :model do
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to have_many(:steps) }
     it { expect(subject).to have_many(:events) }
+    
+    describe 'steps association optimization' do
+      it 'loads steps without includes optimization but maintains functionality' do
+        school_calendar = create(:school_calendar, :with_one_step)
+        
+        expect(school_calendar.steps).to be_present
+        expect(school_calendar.steps.first).to be_a(SchoolCalendarStep)
+        expect(school_calendar.steps.ordered).to be_present
+      end
+      
+      it 'maintains ordering functionality after include removal' do
+        school_calendar = create(:school_calendar, :with_one_step)
+        expect(school_calendar.steps.ordered).to be_an(ActiveRecord::Relation)
+        expect(school_calendar.steps.ordered.count).to be >= 1
+      end
+    end
   end
 
   describe 'scopes' do

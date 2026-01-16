@@ -21,7 +21,8 @@ class BaseReport
       left_margin: 5.mm,
       right_margin: 5.mm,
       top_margin: 5.mm,
-      bottom_margin: 5.mm
+      bottom_margin: 5.mm,
+      compress: true
     )
   end
 
@@ -158,5 +159,46 @@ class BaseReport
         height = bounds.height
       end
     end while information.present?
+  end
+
+  def text_box_with_auto_page_break(title, information)
+    start_new_page if cursor < 45
+
+    draw_text(title, size: 8, style: :bold, at: [5, cursor - 10])
+
+    information = normalize_text_content(information)
+
+    content_height = height_of(information, width: bounds.width - 10, size: 10)
+    required_height = content_height + 30
+
+    begin
+      box_height = [cursor - 15, required_height].min
+
+      bounding_box([0, cursor], width: bounds.width, height: box_height) do
+        line_width 0.5
+        stroke_bounds
+        information = text_box(
+          information,
+          width: bounds.width - 10,
+          overflow: :truncate,
+          size: 10,
+          at: [5, box_height - 15],
+          inline_format: true
+        )
+      end
+
+      if information.present?
+        start_new_page
+        information = normalize_text_content(information)
+        content_height = height_of(information, width: bounds.width - 10, size: 10)
+        required_height = content_height + 15
+      end
+    end while information.present?
+  end
+
+  def normalize_text_content(information)
+    return information.to_s unless information.is_a?(Array)
+
+    information.map { |item| item.is_a?(Hash) ? item[:text] : item.to_s }.join("")
   end
 end
