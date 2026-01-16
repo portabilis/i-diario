@@ -14,7 +14,7 @@ class ConceptualExamsController < ApplicationController
     status = (params[:filter] || []).delete(:by_status)
 
     fetch_conceptual_exams
-    check_status_and_step(status)
+    check_status(status)
 
     authorize @conceptual_exams
   end
@@ -220,18 +220,6 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
-
-  def school_calendar_step
-    return :by_school_calendar_classroom_step if school_calendar_by_classroom?
-
-    :by_school_calendar_step
-  end
-
-  def school_calendar_by_classroom?
-    classroom_ids = @classrooms.map(&:id)
-
-    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
-  end
 
   def view_data
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
@@ -558,15 +546,11 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
-  def check_status_and_step(status)
-    if @step_id.present? && @step_classroom.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(@step_classroom, @step_id)
-    end
+  def check_status(status)
+    return unless status.present?
 
-    if status.present?
-      @conceptual_exams = @conceptual_exams.by_status(@classrooms.to_a, current_teacher_id, status)
-      params[:filter][:by_status] = status
-    end
+    @conceptual_exams = @conceptual_exams.by_status(@classrooms.to_a, current_teacher_id, status)
+    params[:filter][:by_status] = status
   end
 
   def fetch_conceptual_exams
@@ -615,18 +599,27 @@ class ConceptualExamsController < ApplicationController
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
 
     @step_id = nil
-    @step_classroom = nil
     step_from_classroom_id = nil
 
     if params[:filter][:by_step_id].present?
       step_value = params[:filter].delete(:by_step_id)
       @step_id, step_from_classroom_id = step_value.split(':')
       params[:filter][:by_classroom_id] = step_from_classroom_id
-      @step_classroom = @classrooms.find { |c| c.id == step_from_classroom_id.to_i }
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
     end
 
     @filter = OpenStruct.new(params[:filter])
     @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
   end
 
   def classrooms_for_steps_filter
