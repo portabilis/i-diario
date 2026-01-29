@@ -107,5 +107,42 @@ RSpec.describe ExamRulesSynchronizer do
       expect(ExamRule.where(api_code: '999').count).to eq(1)
       expect(existing.reload.score_type).to eq('1')
     end
+
+    it 'raises error after MAX_RETRIES attempts' do
+      # Simula race condition persistente que sempre falha
+      allow(ExamRule).to receive(:find_or_initialize_by).and_wrap_original do |method, *args|
+        result = method.call(*args)
+
+        # Sempre cria conflito se for novo registro
+        if result.new_record?
+          ExamRule.create!(
+            api_code: '999',
+            score_type: 1,
+            frequency_type: 1,
+            recovery_type: 0,
+            opinion_type: 2,
+            final_recovery_maximum_score: 10
+          ) unless ExamRule.exists?(api_code: '999')
+        end
+
+        # Força retornar sempre um novo registro para simular race persistente
+        ExamRule.new(api_code: '999')
+      end
+
+      synchronizer = ExamRulesSynchronizer.new(
+        synchronization: create(:ieducar_api_synchronization),
+        worker_batch: nil,
+        worker_state: nil,
+        entity_id: nil,
+        year: 2025,
+        unity_api_code: nil,
+        current_years: [2025]
+      )
+
+      allow_any_instance_of(IeducarApi::ExamRules).to receive(:fetch).and_return(api_response)
+
+      # Deve lançar erro após MAX_RETRIES tentativas
+      expect { synchronizer.synchronize! }.to raise_error(ActiveRecord::RecordInvalid)
+    end
   end
 end

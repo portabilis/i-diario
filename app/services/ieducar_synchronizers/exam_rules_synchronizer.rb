@@ -1,4 +1,6 @@
 class ExamRulesSynchronizer < BaseSynchronizer
+  MAX_RETRIES = 3
+
   def synchronize!
     update_exam_rules(
       HashDecorator.new(
@@ -19,6 +21,8 @@ class ExamRulesSynchronizer < BaseSynchronizer
     differentiated_exam_rules = []
 
     exam_rules.each do |exam_rule_record|
+      retries = 0
+
       begin
         ExamRule.find_or_initialize_by(api_code: exam_rule_record.id.to_s).tap do |exam_rule|
           exam_rule.score_type = exam_rule_record.tipo_nota
@@ -47,6 +51,9 @@ class ExamRulesSynchronizer < BaseSynchronizer
         end
       rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
         raise e unless e.message.include?('Api code')
+
+        retries += 1
+        raise e if retries > MAX_RETRIES
 
         retry
       end
