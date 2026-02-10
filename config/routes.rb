@@ -374,7 +374,11 @@ Rails.application.routes.draw do
         get :valid_teacher_period_in_classroom
       end
     end
-    resources :observation_diary_records, concerns: :history
+    resources :observation_diary_records, concerns: :history do
+      collection do
+        get :fetch_students_by_classroom
+      end
+    end
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage
