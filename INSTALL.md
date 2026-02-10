@@ -133,11 +133,11 @@ sudo -u postgres psql -U postgres -c "ALTER USER idiario WITH PASSWORD 'idiario'
 cd ~
 ```
 
-Instale o Node, NPM e Yarn, é necessária uma instalação especial devido a versão:
+Instale o Node.js 22 LTS, NPM e Yarn:
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
-apt install -y nodejs npm
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs
 npm install -g yarn
 ```
 
