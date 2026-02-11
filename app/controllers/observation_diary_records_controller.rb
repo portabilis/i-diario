@@ -29,7 +29,8 @@ class ObservationDiaryRecordsController < ApplicationController
       unity_id: @observation_diary_record.unity_id,
       classroom_id: @observation_diary_record.classroom.id,
       start_at: @observation_diary_record.date,
-      end_at: @observation_diary_record.date
+      end_at: @observation_diary_record.date,
+      current_user_id: current_user.id
     ).localized
 
     if @observation_record_report_form.valid?
