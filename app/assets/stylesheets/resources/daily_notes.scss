@@ -22,14 +22,14 @@ div.control-group.daily_note_students_note{
   background-color: #F5F5F5 !important;
   border-color:#CCCCCC !important;
   color: #CCCCCC !important;
-  background-image: url(<%= asset_path 'exemption_disabled.svg' %>);
+  background-image: asset-url('exemption_disabled.svg');
 }
 
 .btn-exempt-students-enabled {
   background-color: #3B9FF3 !important;
   border-color:#3698EB !important;
   color: #FFFFFF !important;
-  background-image: url(<%= asset_path 'exemption.svg' %>);
+  background-image: asset-url('exemption.svg');
 }
 
 .exempted-student {
@@ -46,13 +46,13 @@ div.control-group.daily_note_students_note{
 .undo-exemption {
   background-color: #ECF4FF !important;
   border-color: #3B9FF3 !important;
-  background-image: url(<%= asset_path 'undo_exemption.svg' %>);
+  background-image: asset-url('undo_exemption.svg');
 }
 
 .do-exemption {
   background-color: #3B9FF3 !important;
   border-color: #3698EB !important;
-  background-image: url(<%= asset_path 'exemption.svg' %>);
+  background-image: asset-url('exemption.svg');
 }
 
 .do-exemption:hover {
