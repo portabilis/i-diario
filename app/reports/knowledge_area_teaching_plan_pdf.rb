@@ -39,7 +39,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
 
     begin
       entity_logo_cell = make_cell(
-        image: open(@entity_configuration.logo.url),
+        image: @entity_configuration.cached_logo,
         fit: [50, 50],
         width: 70,
         rowspan: 4,
