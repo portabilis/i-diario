@@ -517,8 +517,7 @@ class AvaliationsController < ApplicationController
 
   def set_filters
     params[:filter] ||= {}
-    params[:filter][:by_classroom_id] ||= current_user_classroom.id
-    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+    set_default_filter_params
 
     @step_id = nil
     step_from_classroom_id = nil
@@ -534,6 +533,27 @@ class AvaliationsController < ApplicationController
 
     @filter = OpenStruct.new(params[:filter])
     @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def set_default_filter_params
+    return set_default_filter_for_admin_or_employee if current_user.current_role_is_admin_or_employee?
+
+    classroom_id = current_user_classroom&.id
+    discipline_id = current_user_discipline&.id
+    classroom_in_list = @classrooms.any? { |c| c.id == classroom_id }
+    discipline_in_list = @disciplines.any? { |d| d.id == discipline_id }
+
+    if classroom_in_list && discipline_in_list
+      params[:filter][:by_classroom_id] ||= classroom_id
+      params[:filter][:by_discipline_id] ||= discipline_id
+    else
+      flash.now[:alert] = t('avaliation.grades_not_allow_numeric_exam') unless classroom_in_list
+    end
+  end
+
+  def set_default_filter_for_admin_or_employee
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 
   def classrooms_for_steps_filter
