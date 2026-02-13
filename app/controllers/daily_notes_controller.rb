@@ -249,6 +249,7 @@ class DailyNotesController < ApplicationController
       )
       .order_by_classroom
       .order_by_avaliation_test_date_desc
+      .distinct
     )
 
     @avaliations = Avaliation.by_classroom_id(@classrooms.map(&:id)).by_discipline_id(@disciplines.map(&:id))

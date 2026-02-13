@@ -302,6 +302,7 @@ class AvaliationsController < ApplicationController
       )
       .order_by_classroom
       .ordered
+      .distinct
     )
 
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
