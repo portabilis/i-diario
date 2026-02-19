@@ -36,7 +36,7 @@ module Api
             current_entity.id,
             daily_frequency.classroom_id,
             daily_frequency.frequency_date,
-            current_teacher_id
+            current_teacher_id || current_user.teacher_id
           )
         end
 
