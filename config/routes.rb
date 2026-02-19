@@ -348,6 +348,7 @@ Rails.application.routes.draw do
     end
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
+        get '/', to: redirect('/diario-de-frequencia/novo')
         get :edit_multiple
         get :form
         put :create_or_update_multiple
@@ -357,6 +358,7 @@ Rails.application.routes.draw do
 
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
+        get '/', to: redirect('/frequencia-em-lote/novo')
         get :history_multiple
         get :fetch_frequency_type
         get :fetch_teacher_allocated
