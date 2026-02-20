@@ -240,7 +240,7 @@ class DailyNotesController < ApplicationController
 
   def fetch_daily_notes_and_avaliations
     @daily_notes = apply_scopes(DailyNote
-      .includes(:avaliation)
+      .eager_load(avaliation: :classroom)
       .by_unity_id(current_unity)
       .teacher_avaliations(
         current_teacher.id,
