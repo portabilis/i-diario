@@ -21,6 +21,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def update_student_enrollments(student_enrollments)
     return if student_enrollments.blank?
 
+    preload_students(student_enrollments.map(&:aluno_id))
+    preload_student_enrollments(student_enrollments.map(&:matricula_id))
+
     student_enrollments.each do |student_enrollment_record|
       student = student(student_enrollment_record.aluno_id)
 
@@ -29,14 +32,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       end
 
       if student.nil? || student.id.blank? || student.discarded?
-        StudentEnrollment.find_by(api_code: student_enrollment_record.matricula_id)&.discard
+        student_enrollment(student_enrollment_record.matricula_id)&.discard
 
         next
       end
 
-
-      StudentEnrollment.with_discarded.find_or_initialize_by(
-        api_code: student_enrollment_record.matricula_id
+      (
+        student_enrollment(student_enrollment_record.matricula_id) ||
+        StudentEnrollment.with_discarded.find_or_initialize_by(api_code: student_enrollment_record.matricula_id)
       ).tap do |student_enrollment|
         student_enrollment.status = student_enrollment_record.situacao
         student_enrollment.student_id = student.id
