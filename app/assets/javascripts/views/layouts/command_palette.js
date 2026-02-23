@@ -63,7 +63,7 @@
         'padding: 1px 5px; font-size: 11px; font-family: inherit; color: #444;' +
       '}' +
       '#cp-trigger {' +
-        'display: flex; align-items: center; padding: 8px 10px; margin: 0 0 8px 0;' +
+        'display: flex; align-items: center; padding: 8px 10px; margin: 10px 0 14px 0;' +
         'background: #fff; border: 1px solid #ddd; border-radius: 4px;' +
         'cursor: pointer; transition: border-color 0.15s;' +
       '}' +
