@@ -5,4 +5,4 @@ Rails.application.config.assets.version = '5.0'
 
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-Rails.application.config.assets.precompile += %w[404.html 422.html 500.html views/layouts/command_palette.js]
+Rails.application.config.assets.precompile += %w[404.html 422.html 500.html command_palette.js]
