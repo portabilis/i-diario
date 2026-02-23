@@ -7,7 +7,7 @@ module TeachingPlanHelper
     case action_name
     when 'new', 'create'
       discipline_teaching_plans_path(locale: I18n.locale)
-    when 'edit'
+    when 'edit', 'update'
       discipline_teaching_plan_path(discipline_teaching_plan)
     when 'show'
       teaching_plan_opinion_path(discipline_teaching_plan.teaching_plan.id, locale: I18n.locale)
@@ -18,7 +18,7 @@ module TeachingPlanHelper
     case action_name
     when 'new', 'create'
       :post
-    when 'show', 'edit'
+    when 'show', 'edit', 'update'
       :patch
     end
   end
@@ -27,7 +27,7 @@ module TeachingPlanHelper
     case action_name
     when 'new', 'create'
       knowledge_area_teaching_plans_path(locale: I18n.locale)
-    when 'edit'
+    when 'edit', 'update'
       knowledge_area_teaching_plan_path(knowledge_area_teaching_plan)
     when 'show'
       teaching_plan_opinion_path(knowledge_area_teaching_plan.teaching_plan.id, locale: I18n.locale)
