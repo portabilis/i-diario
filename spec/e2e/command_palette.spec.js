@@ -21,7 +21,7 @@ test.describe('Paleta de comandos', () => {
     });
 
     test('abre a paleta ao clicar', async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
 
       const overlay = page.locator('#command-palette-overlay');
       await expect(overlay).toHaveClass(/open/);
@@ -69,7 +69,7 @@ test.describe('Paleta de comandos', () => {
 
   test.describe('estrutura do modal', () => {
     test.beforeEach(async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
     });
 
     test('exibe o campo de busca com placeholder', async ({ page }) => {
@@ -81,15 +81,13 @@ test.describe('Paleta de comandos', () => {
     test('exibe a lista de resultados', async ({ page }) => {
       const list = page.locator('#command-palette-list');
       await expect(list).toBeVisible();
-      await expect(list.locator('.cp-item')).not.toHaveCount(0);
+      await expect(list.locator('.cp-item').first()).toBeVisible();
     });
 
     test('exibe o footer com dicas de atalho', async ({ page }) => {
       const footer = page.locator('#command-palette-footer');
       await expect(footer).toBeVisible();
-
-      const kbds = footer.locator('kbd');
-      await expect(kbds).not.toHaveCount(0);
+      await expect(footer.locator('kbd').first()).toBeVisible();
     });
 
     test('fecha ao clicar no overlay', async ({ page }) => {
@@ -113,14 +111,12 @@ test.describe('Paleta de comandos', () => {
 
   test.describe('itens do menu', () => {
     test.beforeEach(async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
     });
 
     test('lista itens de navegação do menu', async ({ page }) => {
       const items = page.locator('#command-palette-list .cp-item');
-      const count = await items.count();
-
-      expect(count).toBeGreaterThan(0);
+      await expect(items.first()).toBeVisible();
 
       // Cada item deve ter label e href válido
       const firstItem = items.first();
@@ -131,11 +127,8 @@ test.describe('Paleta de comandos', () => {
     });
 
     test('itens de submenu mostram a categoria do pai', async ({ page }) => {
-      // Procura qualquer item que tenha categoria
       const itemsWithCategory = page.locator('#command-palette-list .cp-item .cp-category');
-      const count = await itemsWithCategory.count();
-
-      expect(count).toBeGreaterThan(0);
+      await expect(itemsWithCategory.first()).toBeVisible();
     });
 
     test('itens preservam ícones do menu original', async ({ page }) => {
@@ -148,7 +141,7 @@ test.describe('Paleta de comandos', () => {
 
   test.describe('busca e filtragem', () => {
     test.beforeEach(async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
     });
 
     test('filtra itens ao digitar', async ({ page }) => {
@@ -158,7 +151,8 @@ test.describe('Paleta de comandos', () => {
       const totalBefore = await items.count();
 
       await input.fill('Configura');
-      await page.waitForTimeout(100);
+      // Espera a filtragem reduzir os itens
+      await expect(items).not.toHaveCount(totalBefore);
 
       const totalAfter = await items.count();
       expect(totalAfter).toBeLessThan(totalBefore);
@@ -170,11 +164,12 @@ test.describe('Paleta de comandos', () => {
 
       // Busca sem acento deve encontrar itens com acento
       await input.fill('frequencia');
-      await page.waitForTimeout(100);
 
       const items = page.locator('#command-palette-list .cp-item');
-      const count = await items.count();
+      // Espera a lista estabilizar (pode ter itens ou não, dependendo do menu)
+      await expect(input).toHaveValue('frequencia');
 
+      const count = await items.count();
       // Deve encontrar pelo menos "Frequências" se o menu tiver esse item
       // Se não tiver, o teste simplesmente verifica que a busca não quebra
       expect(count).toBeGreaterThanOrEqual(0);
@@ -184,11 +179,11 @@ test.describe('Paleta de comandos', () => {
       const input = page.locator('#command-palette-input');
 
       await input.fill('CONFIGURA');
-      await page.waitForTimeout(100);
+      // Espera a filtragem retornar resultados
+      await expect(page.locator('#command-palette-list .cp-item').first()).toBeVisible();
 
       const items = page.locator('#command-palette-list .cp-item');
       const count = await items.count();
-
       expect(count).toBeGreaterThan(0);
     });
 
@@ -196,10 +191,8 @@ test.describe('Paleta de comandos', () => {
       const input = page.locator('#command-palette-input');
 
       await input.fill('xyztermoqueninguntemnoMenu123');
-      await page.waitForTimeout(100);
-
-      await expect(page.locator('#command-palette-list .cp-item')).toHaveCount(0);
       await expect(page.locator('#command-palette-empty')).toBeVisible();
+      await expect(page.locator('#command-palette-list .cp-item')).toHaveCount(0);
     });
 
     test('restaura todos os itens ao limpar a busca', async ({ page }) => {
@@ -209,19 +202,16 @@ test.describe('Paleta de comandos', () => {
       const totalOriginal = await items.count();
 
       await input.fill('Configura');
-      await page.waitForTimeout(100);
+      await expect(items).not.toHaveCount(totalOriginal);
 
       await input.fill('');
-      await page.waitForTimeout(100);
-
-      const totalAfterClear = await items.count();
-      expect(totalAfterClear).toBe(totalOriginal);
+      await expect(items).toHaveCount(totalOriginal);
     });
   });
 
   test.describe('navegação por teclado', () => {
     test.beforeEach(async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
       // Espera o input receber foco (open() usa setTimeout de 50ms)
       await expect(page.locator('#command-palette-input')).toBeFocused();
     });
@@ -262,18 +252,18 @@ test.describe('Paleta de comandos', () => {
 
   test.describe('ciclo abrir/fechar', () => {
     test('limpa a busca ao reabrir', async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
       const input = page.locator('#command-palette-input');
       await expect(input).toBeFocused();
       await input.fill('teste');
       await page.keyboard.press('Escape');
 
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
       await expect(input).toHaveValue('');
     });
 
     test('restaura todos os itens ao reabrir', async ({ page }) => {
-      await page.click('#cp-trigger');
+      await page.locator('#cp-trigger').click();
       const input = page.locator('#command-palette-input');
       await expect(input).toBeFocused();
 
@@ -281,13 +271,11 @@ test.describe('Paleta de comandos', () => {
       const totalOriginal = await items.count();
 
       await input.fill('Configura');
-      await page.waitForTimeout(100);
+      await expect(items).not.toHaveCount(totalOriginal);
       await page.keyboard.press('Escape');
 
-      await page.click('#cp-trigger');
-      const totalAfterReopen = await items.count();
-
-      expect(totalAfterReopen).toBe(totalOriginal);
+      await page.locator('#cp-trigger').click();
+      await expect(items).toHaveCount(totalOriginal);
     });
   });
 });

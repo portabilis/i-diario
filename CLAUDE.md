@@ -46,6 +46,15 @@ docker-compose run ruby bundle exec rubocop
 
 # Run linter with auto-fix
 docker-compose run ruby bundle exec rubocop -a
+
+# Run JavaScript unit tests (Jest)
+npm test
+
+# Run E2E tests (Playwright) — requires app running and credentials configured
+env $(cat .env.e2e | xargs) npm run test:e2e
+
+# Run E2E tests with visual UI
+env $(cat .env.e2e | xargs) npm run test:e2e:ui
 ```
 
 ### Development
@@ -117,6 +126,8 @@ docker-compose exec puma bundle exec rake -T
 - DatabaseCleaner for test isolation
 - Tests organized by type: models, controllers, services, queries, etc.
 - Acceptance tests in `/spec/acceptance/` (usually excluded)
+- **Jest** with jsdom for JavaScript unit tests (`spec/javascript/`)
+- **Playwright** for E2E browser tests (`spec/e2e/`) — see [docs/testes-e2e.md](docs/testes-e2e.md)
 
 ## Important Notes
 
