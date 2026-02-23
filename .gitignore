@@ -70,5 +70,11 @@ yarn-debug.log*
 # Carrierwave
 config/initializers/custom_carrierwave.rb
 
+# E2E test credentials
+.env.e2e
+
+# E2E test results
+/test-results/
+
 # Claude local configuration
 CLAUDE.local.md
