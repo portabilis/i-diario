@@ -61,7 +61,28 @@
       '#command-palette-footer kbd {' +
         'background: #e8e8e8; border: 1px solid #bbb; border-radius: 3px;' +
         'padding: 1px 5px; font-size: 11px; font-family: inherit; color: #444;' +
-      '}';
+      '}' +
+      '#cp-trigger {' +
+        'display: flex; align-items: center; padding: 8px 10px; margin: 0 0 8px 0;' +
+        'background: #fff; border: 1px solid #ddd; border-radius: 4px;' +
+        'cursor: pointer; transition: border-color 0.15s;' +
+      '}' +
+      '#cp-trigger:hover { border-color: #aaa; }' +
+      '#cp-trigger .cp-trigger-icon {' +
+        'color: #999; margin-right: 8px; font-size: 13px; flex-shrink: 0;' +
+      '}' +
+      '#cp-trigger .cp-trigger-text {' +
+        'flex: 1; color: #999; font-size: 12px;' +
+      '}' +
+      '#cp-trigger .cp-trigger-kbd {' +
+        'background: #eee; border: 1px solid #ddd; border-radius: 3px;' +
+        'padding: 1px 6px; font-size: 10px; color: #777; font-family: inherit;' +
+        'flex-shrink: 0;' +
+      '}' +
+      '.minified #cp-trigger .cp-trigger-text,' +
+      '.minified #cp-trigger .cp-trigger-kbd { display: none; }' +
+      '.minified #cp-trigger { justify-content: center; padding: 8px; }' +
+      '.minified #cp-trigger .cp-trigger-icon { margin-right: 0; }';
 
     document.head.appendChild(style);
   }
@@ -353,6 +374,41 @@
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
     if (target.isContentEditable) return true;
     return false;
+  }
+
+  function createTrigger() {
+    var panel = document.getElementById('left-panel');
+    if (!panel) return;
+
+    var nav = panel.querySelector('nav');
+    if (!nav) return;
+
+    if (document.getElementById('cp-trigger')) return;
+
+    injectStyles();
+
+    var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    var shortcutLabel = isMac ? '\u2318K' : 'Ctrl+K';
+
+    var trigger = el('div', { id: 'cp-trigger', title: 'Buscar no menu (' + shortcutLabel + ')' }, [
+      el('i', { className: 'cp-trigger-icon fa fa-search' }),
+      el('span', { className: 'cp-trigger-text', textContent: 'Buscar...' }),
+      el('span', { className: 'cp-trigger-kbd', textContent: shortcutLabel })
+    ]);
+
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      open();
+    });
+
+    panel.insertBefore(trigger, nav);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createTrigger);
+  } else {
+    createTrigger();
   }
 
   document.addEventListener('keydown', function(e) {
