@@ -94,5 +94,9 @@
     <%= stylesheet_pack_tag 'app' %>
 
     <%= yield :js %>
+
+    <% if user_signed_in? %>
+      <%= javascript_include_tag 'views/layouts/command_palette' %>
+    <% end %>
   </body>
 </html>
