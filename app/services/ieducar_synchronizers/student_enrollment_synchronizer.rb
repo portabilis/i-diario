@@ -80,7 +80,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       if student.changed?
         student.save!
         @students ||= {}
-        @students[student_data['id']] = student
+        @students[student_data['id'].to_s] = student
       end
 
       discarded = student_data['destroyed_at'].present?
