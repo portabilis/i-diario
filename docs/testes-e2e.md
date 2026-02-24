@@ -30,7 +30,7 @@ E2E_USER_EMAIL=admin@portabilis.com.br
 E2E_USER_PASSWORD=sua_senha_aqui
 ```
 
-> O arquivo `.env.e2e` já está no `.gitignore`.
+> O arquivo `.env.e2e` já está no `.gitignore`. As variáveis são carregadas automaticamente via `dotenv` no `playwright.config.js`.
 
 ### Opção 2: Variável de ambiente inline
 
@@ -51,41 +51,52 @@ E2E_USER_PASSWORD='sua_senha' npx playwright test
 ### Com `.env.e2e` configurado
 
 ```bash
-# Carregar variáveis e rodar todos os testes
-env $(cat .env.e2e | xargs) npx playwright test
+# Rodar todos os testes (dotenv carrega variáveis automaticamente)
+npm run test:e2e
 
-# Ou usar o script npm
-env $(cat .env.e2e | xargs) npm run test:e2e
+# Ou diretamente
+npx playwright test
 ```
 
 ### Rodar um teste específico
 
 ```bash
-env $(cat .env.e2e | xargs) npx playwright test command_palette
+npx playwright test command_palette
 ```
 
 ### Rodar com interface visual (debug)
 
 ```bash
-env $(cat .env.e2e | xargs) npx playwright test --ui
+npx playwright test --ui
 ```
 
 ### Rodar com navegador visível
 
 ```bash
-env $(cat .env.e2e | xargs) npx playwright test --headed
+npx playwright test --headed
 ```
 
 ## Estrutura de arquivos
 
 ```
 spec/e2e/
-├── helpers/
-│   └── auth.js            # Helper de autenticação (login via formulário)
-└── command_palette.spec.js # Testes da paleta de comandos
-playwright.config.js        # Configuração do Playwright
-.env.e2e.example            # Exemplo de variáveis de ambiente
+├── .auth/                      # Estado de sessão salvo (gitignored)
+│   └── user.json
+├── auth.setup.js               # Setup de autenticação (login uma única vez)
+└── command_palette.spec.js     # Testes da paleta de comandos
+playwright.config.js            # Configuração do Playwright
+.env.e2e.example                # Exemplo de variáveis de ambiente
 ```
+
+## Autenticação
+
+O Playwright usa o padrão de **setup project** para autenticação. O login é executado **uma única vez** antes de todos os testes, e o estado de sessão é salvo em `spec/e2e/.auth/user.json`. Todos os testes subsequentes reutilizam essa sessão, tornando a execução mais rápida.
+
+O fluxo é:
+
+1. O projeto `setup` executa `auth.setup.js` (faz login e salva `storageState`)
+2. O projeto `chromium` depende do `setup` e usa o `storageState` salvo
+3. Cada teste inicia já autenticado — basta navegar para a página desejada
 
 ## Criando novos testes
 
@@ -95,16 +106,17 @@ Crie um arquivo em `spec/e2e/` com a extensão `.spec.js`:
 
 ```javascript
 const { test, expect } = require('@playwright/test');
-const { login } = require('./helpers/auth');
 
 test.describe('Nome da funcionalidade', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    // Navega para a página — a autenticação já foi feita pelo setup
+    await page.goto('/');
+    await expect(page.locator('#left-panel')).toBeVisible({ timeout: 15000 });
   });
 
   test('descrição do cenário', async ({ page }) => {
     // Interaja com a página
-    await page.click('#meu-elemento');
+    await page.locator('#meu-elemento').click();
 
     // Faça asserções
     await expect(page.locator('#resultado')).toBeVisible();
@@ -112,21 +124,7 @@ test.describe('Nome da funcionalidade', () => {
 });
 ```
 
-### 2. Use o helper de autenticação
-
-O `login(page)` navega para a página inicial, preenche o formulário e aguarda o menu lateral carregar:
-
-```javascript
-const { login } = require('./helpers/auth');
-
-// Login com credenciais padrão (variáveis de ambiente)
-await login(page);
-
-// Login com credenciais específicas
-await login(page, { email: 'outro@email.com', password: 'outra_senha' });
-```
-
-### 3. Boas práticas
+### 2. Boas práticas
 
 - **Seletores**: prefira `#id` e `[data-testid]` em vez de classes CSS
 - **Esperas**: use `await expect(locator).toBeVisible()` em vez de `waitForTimeout`
@@ -134,14 +132,14 @@ await login(page, { email: 'outro@email.com', password: 'outra_senha' });
 - **Isolamento**: cada teste deve ser independente — não dependa do estado de testes anteriores
 - **Idioma**: descreva os testes em português (consistente com o projeto), mas escreva código em inglês
 
-### 4. Dicas de debug
+### 3. Dicas de debug
 
 ```bash
 # Ver trace de um teste falhando (gerado automaticamente no retry)
 npx playwright show-trace test-results/<pasta-do-teste>/trace.zip
 
 # Rodar com screenshots a cada passo
-env $(cat .env.e2e | xargs) npx playwright test --headed --screenshot on
+npx playwright test --headed --screenshot on
 
 # Pausar execução para inspecionar
 await page.pause(); // adicione no teste
@@ -158,6 +156,8 @@ O arquivo `playwright.config.js` define:
 - **trace**: captura de trace no primeiro retry
 - **browser**: Chromium
 - **locale**: pt-BR
+- **auth**: setup project com `storageState` para login único
+- **dotenv**: carrega `.env.e2e` automaticamente
 
 ## Troubleshooting
 

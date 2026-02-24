@@ -1,7 +1,12 @@
+require('dotenv').config({ path: '.env.e2e' });
+
 const { defineConfig } = require('@playwright/test');
+
+const STORAGE_STATE = 'spec/e2e/.auth/user.json';
 
 module.exports = defineConfig({
   testDir: './spec/e2e',
+  testIgnore: ['**/auth.setup.js'],
   timeout: 30000,
   retries: 1,
   use: {
@@ -13,8 +18,16 @@ module.exports = defineConfig({
   },
   projects: [
     {
+      name: 'setup',
+      testMatch: /auth\.setup\.js/
+    },
+    {
       name: 'chromium',
-      use: { browserName: 'chromium' }
+      use: {
+        browserName: 'chromium',
+        storageState: STORAGE_STATE
+      },
+      dependencies: ['setup']
     }
   ]
 });

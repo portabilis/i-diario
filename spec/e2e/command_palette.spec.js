@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
-const { login } = require('./helpers/auth');
 
 test.describe('Paleta de comandos', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    await page.goto('/');
+    // Aguarda a página carregar completamente com o menu lateral
+    await expect(page.locator('#left-panel')).toBeVisible({ timeout: 15000 });
   });
 
   test.describe('gatilho de busca no menu lateral', () => {
