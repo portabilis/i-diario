@@ -4,6 +4,8 @@
   var items = [];
   var selectedIndex = 0;
   var isOpen = false;
+  var lastQuery = null;
+  var lastFiltered = [];
 
   var dom = {};
 
@@ -113,7 +115,7 @@
             label: subLabel,
             category: label,
             href: subHref,
-            iconClass: iconClass,
+            iconClass: ensureFixedWidth(iconClass),
             searchText: normalize(label + ' ' + subLabel)
           });
         }
@@ -122,7 +124,7 @@
           label: label,
           category: '',
           href: href,
-          iconClass: iconClass,
+          iconClass: ensureFixedWidth(iconClass),
           searchText: normalize(label)
         });
       }
@@ -147,9 +149,17 @@
     return true;
   }
 
+  function ensureFixedWidth(iconClass) {
+    if (!iconClass) return 'fa fa-fw fa-circle-o';
+    if (iconClass.indexOf('fa-fw') === -1) {
+      return iconClass + ' fa-fw';
+    }
+    return iconClass;
+  }
+
   function buildItemElement(item, index, filtered) {
     var iconSpan = el('span', { className: 'cp-icon' }, [
-      el('i', { className: item.iconClass || 'fa fa-lg fa-fw fa-circle-o' })
+      el('i', { className: item.iconClass })
     ]);
 
     var labelSpan = el('span', { className: 'cp-label', textContent: item.label });
@@ -217,9 +227,12 @@
   }
 
   function getFilteredItems(query) {
-    return items.filter(function(item) {
+    if (query === lastQuery) return lastFiltered;
+    lastQuery = query;
+    lastFiltered = items.filter(function(item) {
       return fuzzyMatch(query, item.searchText);
     });
+    return lastFiltered;
   }
 
   function open() {
@@ -230,6 +243,8 @@
 
     items = extractMenuItems();
     selectedIndex = 0;
+    lastQuery = null;
+    lastFiltered = [];
 
     dom.input.value = '';
     renderItems(items);
@@ -343,4 +358,14 @@
     e.preventDefault();
     open();
   });
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      normalize: normalize,
+      fuzzyMatch: fuzzyMatch,
+      ensureFixedWidth: ensureFixedWidth,
+      isEditableElement: isEditableElement,
+      extractMenuItems: extractMenuItems
+    };
+  }
 })();

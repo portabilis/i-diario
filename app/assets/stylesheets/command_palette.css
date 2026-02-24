@@ -83,6 +83,14 @@
   flex-shrink: 0;
 }
 
+/* Reset global SmartAdmin .fa styles that break icon alignment inside the palette */
+.cp-item .cp-icon i {
+  width: auto;
+  height: auto;
+  padding-top: 0;
+  display: inline;
+}
+
 .cp-item .cp-label {
   flex: 1;
   font-size: 14px;

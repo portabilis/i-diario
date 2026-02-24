@@ -2,15 +2,24 @@
  * @jest-environment jsdom
  */
 
-// Loads command_palette.js into jsdom and tests behavior via DOM interaction.
-// The IIFE pattern means all functions are private, so we test through the public interface:
-// keyboard shortcuts, DOM elements, click events, and search filtering.
+// Tests for command_palette.js
+// Uses two approaches:
+// 1. Direct imports for pure function unit tests (normalize, fuzzyMatch, etc.)
+// 2. DOM interaction for integration tests (keyboard shortcuts, menu extraction, etc.)
 
 const fs = require('fs');
 const path = require('path');
 
 const SCRIPT_PATH = path.resolve(__dirname, '../../app/assets/javascripts/command_palette.js');
 const scriptContent = fs.readFileSync(SCRIPT_PATH, 'utf-8');
+
+// Direct imports of pure functions via module.exports guard
+const {
+  normalize,
+  fuzzyMatch,
+  ensureFixedWidth,
+  isEditableElement
+} = require('../../app/assets/javascripts/command_palette');
 
 // jsdom does not implement scrollIntoView - stub it globally for tests
 Element.prototype.scrollIntoView = function() {};
@@ -114,10 +123,10 @@ function buildMenuDOM() {
 
 // Executes the IIFE script within jsdom's window context so it has access
 // to document, window, navigator, etc. Uses Function constructor because
-// the script is our own source file (not external input), loaded at test setup.
+// the script is our own trusted source file, loaded at test setup.
 function loadCommandPalette() {
   // eslint-disable-next-line no-new-func
-  var fn = new Function(scriptContent);
+  var fn = new Function(scriptContent); // nosec: trusted own source file
   fn.call(window);
 }
 
@@ -151,6 +160,105 @@ function isOverlayOpen() {
   var overlay = document.getElementById('command-palette-overlay');
   return !!(overlay && overlay.classList.contains('open'));
 }
+
+// ============================================================
+// Unit tests for pure functions (direct imports)
+// ============================================================
+
+describe('normalize', function() {
+  it('converts to lowercase', function() {
+    expect(normalize('Cadastros')).toBe('cadastros');
+  });
+
+  it('removes accents', function() {
+    expect(normalize('Frequências')).toBe('frequencias');
+  });
+
+  it('handles combined diacritics', function() {
+    expect(normalize('Avaliações Conceituais')).toBe('avaliacoes conceituais');
+  });
+
+  it('returns empty string for empty input', function() {
+    expect(normalize('')).toBe('');
+  });
+});
+
+describe('fuzzyMatch', function() {
+  it('returns true for empty query', function() {
+    expect(fuzzyMatch('', 'anything')).toBe(true);
+  });
+
+  it('matches single word', function() {
+    expect(fuzzyMatch('aluno', 'cadastros alunos')).toBe(true);
+  });
+
+  it('matches multiple words', function() {
+    expect(fuzzyMatch('diario frequencia', 'diario frequencias')).toBe(true);
+  });
+
+  it('returns false when word is missing', function() {
+    expect(fuzzyMatch('xyz', 'cadastros alunos')).toBe(false);
+  });
+
+  it('is case insensitive (normalizes query internally)', function() {
+    expect(fuzzyMatch('ALUNO', normalize('Alunos'))).toBe(true);
+    expect(fuzzyMatch('aluno', normalize('Alunos'))).toBe(true);
+  });
+});
+
+describe('ensureFixedWidth', function() {
+  it('returns default class for empty input', function() {
+    expect(ensureFixedWidth('')).toBe('fa fa-fw fa-circle-o');
+  });
+
+  it('returns default class for null input', function() {
+    expect(ensureFixedWidth(null)).toBe('fa fa-fw fa-circle-o');
+  });
+
+  it('adds fa-fw when missing', function() {
+    expect(ensureFixedWidth('fa fa-lg fa-users')).toBe('fa fa-lg fa-users fa-fw');
+  });
+
+  it('does not duplicate fa-fw', function() {
+    expect(ensureFixedWidth('fa fa-fw fa-users')).toBe('fa fa-fw fa-users');
+  });
+});
+
+describe('isEditableElement', function() {
+  it('returns false for null', function() {
+    expect(isEditableElement(null)).toBe(false);
+  });
+
+  it('returns true for input', function() {
+    var input = document.createElement('input');
+    expect(isEditableElement(input)).toBe(true);
+  });
+
+  it('returns true for textarea', function() {
+    var textarea = document.createElement('textarea');
+    expect(isEditableElement(textarea)).toBe(true);
+  });
+
+  it('returns true for select', function() {
+    var select = document.createElement('select');
+    expect(isEditableElement(select)).toBe(true);
+  });
+
+  it('returns true for contentEditable element', function() {
+    var div = document.createElement('div');
+    Object.defineProperty(div, 'isContentEditable', { value: true });
+    expect(isEditableElement(div)).toBe(true);
+  });
+
+  it('returns false for regular div', function() {
+    var div = document.createElement('div');
+    expect(isEditableElement(div)).toBe(false);
+  });
+});
+
+// ============================================================
+// Integration tests via DOM interaction
+// ============================================================
 
 describe('Command Palette', function() {
   beforeEach(function() {
@@ -383,7 +491,7 @@ describe('Command Palette', function() {
       expect(labels).not.toContain('Separador');
     });
 
-    it('preserves icon classes from menu', function() {
+    it('preserves icon classes from menu with fa-fw', function() {
       var items = getVisibleItems();
       var alunosItem = Array.from(items).find(function(el) {
         return el.querySelector('.cp-label').textContent === 'Alunos';
@@ -391,6 +499,7 @@ describe('Command Palette', function() {
 
       var icon = alunosItem.querySelector('.cp-icon i');
       expect(icon.className).toContain('fa-users');
+      expect(icon.className).toContain('fa-fw');
     });
 
     it('sets correct href on items', function() {
