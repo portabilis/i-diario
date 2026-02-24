@@ -95,8 +95,5 @@
 
     <%= yield :js %>
 
-    <% if user_signed_in? %>
-      <%= javascript_include_tag 'command_palette' %>
-    <% end %>
   </body>
 </html>
