@@ -20,6 +20,7 @@ class IeducarStudentTransferPostingWorker
 
       student_enrollment = StudentEnrollment.find_by!(student: student)
       @student_enrollment_api_code = student_enrollment.api_code
+      @api_security_token = IeducarApiConfiguration.current.api_security_token
 
       fetcher = IeducarStudentTransferDataFetcher.new(
         student: student,
@@ -48,7 +49,10 @@ class IeducarStudentTransferPostingWorker
 
     payload[:error] = error_message if error_message.present?
 
-    RestClient.post(@callback_url, payload.to_json, content_type: :json)
+    headers = { content_type: :json }
+    headers[:token] = @api_security_token if @api_security_token.present?
+
+    RestClient.post(@callback_url, payload.to_json, headers)
   rescue StandardError => e
     Rails.logger.error(
       "IeducarStudentTransferPostingWorker: Failed to send confirmation webhook - #{e.message}"

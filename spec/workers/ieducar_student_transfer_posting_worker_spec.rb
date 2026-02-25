@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
   let(:entity) { Entity.find_by_domain('test.host') }
-  let!(:ieducar_api_configuration) { create(:ieducar_api_configuration) }
+  let!(:ieducar_api_configuration) { create(:ieducar_api_configuration, api_security_token: 'test-security-token') }
   let!(:unity) { create(:unity) }
   let!(:classroom) do
     create(
@@ -36,6 +36,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
     before do
       allow(IeducarStudentTransferDataFetcher).to receive(:new).and_return(fetcher_double)
       allow(fetcher_double).to receive(:post_to_ieducar!)
+      allow(IeducarApiConfiguration).to receive(:current).and_return(ieducar_api_configuration)
     end
 
     it 'calls the data fetcher with correct student and classroom' do
@@ -51,7 +52,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
     end
 
     context 'when processing succeeds' do
-      it 'sends success webhook with correct payload' do
+      it 'sends success webhook with correct payload and token header' do
         webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
 
         described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
@@ -61,7 +62,8 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
           body = JSON.parse(req.body)
           body['status'] == 'success' &&
             body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
-            !body.key?('error')
+            !body.key?('error') &&
+            req.headers['Token'] == ieducar_api_configuration.api_security_token
         }
       end
     end
@@ -71,7 +73,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
         allow(fetcher_double).to receive(:post_to_ieducar!).and_raise(StandardError, 'Test error')
       end
 
-      it 'sends error webhook and re-raises exception' do
+      it 'sends error webhook with token header and re-raises exception' do
         webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
 
         expect do
@@ -83,7 +85,8 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
           body = JSON.parse(req.body)
           body['status'] == 'error' &&
             body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
-            body['error'] == 'Test error'
+            body['error'] == 'Test error' &&
+            req.headers['Token'] == ieducar_api_configuration.api_security_token
         }
       end
     end
