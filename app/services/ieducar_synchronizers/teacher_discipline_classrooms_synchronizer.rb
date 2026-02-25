@@ -106,10 +106,11 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     ).where.not(classroom_id: classroom_id)
 
     if link_modifiers.exists?
-      link_modifiers.each(&:discard)
+      records = link_modifiers.to_a
+      records.each(&:discard)
 
       # Verifica se existe + vinculos de disciplinas agrupadoras e descarta os vinculos
-      classroom_old = link_modifiers.map(&:classroom_id).uniq
+      classroom_old = records.map(&:classroom_id).uniq
       destroy_grouped_links(classroom_old, teacher_id)
     end
 
