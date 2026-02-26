@@ -25,8 +25,8 @@ cp .env.e2e.example .env.e2e
 Edite `.env.e2e` e preencha a senha:
 
 ```
-E2E_BASE_URL=http://ararangua.localhost:3000
-E2E_USER_EMAIL=admin@portabilis.com.br
+E2E_BASE_URL=http://entity.localhost:3000
+E2E_USER_EMAIL=admin@example.com
 E2E_USER_PASSWORD=sua_senha_aqui
 ```
 
@@ -42,8 +42,8 @@ E2E_USER_PASSWORD='sua_senha' npx playwright test
 
 | Variável | Padrão | Descrição |
 |---|---|---|
-| `E2E_BASE_URL` | `http://ararangua.localhost:3000` | URL base da aplicação |
-| `E2E_USER_EMAIL` | `admin@portabilis.com.br` | Email de login |
+| `E2E_BASE_URL` | `http://entity.localhost:3000` | URL base da aplicação |
+| `E2E_USER_EMAIL` | `admin@example.com` | Email de login |
 | `E2E_USER_PASSWORD` | *(obrigatório)* | Senha de login |
 
 ## Executando os testes
@@ -170,7 +170,7 @@ As credenciais não foram carregadas. Verifique se o `.env.e2e` existe e está p
 A aplicação pode estar lenta para responder. Verifique se o Docker está rodando e a aplicação está acessível no URL configurado:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}" http://ararangua.localhost:3000
+curl -s -o /dev/null -w "%{http_code}" http://entity.localhost:3000
 # Deve retornar 200 ou 302
 ```
 

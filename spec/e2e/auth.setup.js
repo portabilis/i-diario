@@ -7,7 +7,7 @@ const { test, expect } = require('@playwright/test');
 const STORAGE_STATE = 'spec/e2e/.auth/user.json';
 
 test('autenticação', async ({ page }) => {
-  const email = process.env.E2E_USER_EMAIL || 'admin@portabilis.com.br';
+  const email = process.env.E2E_USER_EMAIL || 'admin@example.com';
   const password = process.env.E2E_USER_PASSWORD;
 
   if (!password) {

@@ -10,7 +10,7 @@ module.exports = defineConfig({
   timeout: 30000,
   retries: 1,
   use: {
-    baseURL: process.env.E2E_BASE_URL || 'http://ararangua.localhost:3000',
+    baseURL: process.env.E2E_BASE_URL || 'http://entity.localhost:3000',
     headless: true,
     locale: 'pt-BR',
     screenshot: 'only-on-failure',
