@@ -3,7 +3,11 @@ class SynchronizerBuilder
     params = params.with_indifferent_access
 
     synchronization = params[:synchronization]
+    synchronization ||= IeducarApiSynchronization.find(params[:synchronization_id])
+
     params[:synchronization_id] = synchronization.id
+    params.delete(:synchronization)
+
     years = params[:years] if params[:filtered_by_year]
     years ||= [params[:years].join(',')]
     by_unity = params[:filtered_by_unity] &&

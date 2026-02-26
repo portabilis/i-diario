@@ -61,7 +61,7 @@ class SynchronizerBuilderEnqueueWorker
       :unity_api_code,
       :current_years
     ).merge(
-      synchronization: synchronization
+      synchronization_id: synchronization.id
     )
   end
 end
