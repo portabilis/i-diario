@@ -9,14 +9,12 @@ class ConceptualExamsController < ApplicationController
   before_action :view_data, only: [:edit, :show]
 
   def index
-    step_id = (params[:filter] || []).delete(:by_step)
+    set_options_by_user
+    set_filters
     status = (params[:filter] || []).delete(:by_status)
 
-    set_options_by_user
-
-    @conceptual_exams = fetch_conceptual_exams
-
-    check_status_and_step(step_id, status)
+    fetch_conceptual_exams
+    check_status(status)
 
     authorize @conceptual_exams
   end
@@ -30,14 +28,12 @@ class ConceptualExamsController < ApplicationController
     end
 
     if not_concept_score
-      if current_user.current_role_is_admin_or_employee?
+      if current_user.current_role_is_admin_or_employee? || teacher_has_no_conceptual_disciplines?
         redirect_to(
           conceptual_exams_path,
           alert: t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
         ) && return
       end
-
-      flash.now[:alert] = t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
     end
 
     return if performed?
@@ -182,6 +178,18 @@ class ConceptualExamsController < ApplicationController
     render json: not_concept_score
   end
 
+  def fetch_students_by_classroom
+    students = Student.joins(:conceptual_exams)
+                    .where(conceptual_exams: { classroom_id: params[:classroom_id] })
+                    .distinct
+                    .ordered
+                    .pluck(:id, :name)
+
+    students_data = students.map { |id, name| { id: id, name: name } }
+
+    render json: students_data.to_json
+  end
+
   def fetch_period
     return if params[:classroom_id].blank?
 
@@ -190,6 +198,25 @@ class ConceptualExamsController < ApplicationController
       params[:classroom_id],
       current_user_discipline
     ).teacher_period
+  end
+
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
   end
 
   private
@@ -519,24 +546,24 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
-  def check_status_and_step(step_id, status)
-    if step_id.present?
-      @conceptual_exams = @conceptual_exams.by_step_id(@classrooms, step_id)
-      params[:filter][:by_step] = step_id
-    end
+  def check_status(status)
+    return unless status.present?
 
-    if status.present?
-      @conceptual_exams = @conceptual_exams.by_status(@classrooms.to_a, current_teacher_id, status)
-      params[:filter][:by_status] = status
-    end
+    @conceptual_exams = @conceptual_exams.by_status(@classrooms.to_a, current_teacher_id, status)
+    params[:filter][:by_status] = status
   end
 
   def fetch_conceptual_exams
-    apply_scopes(ConceptualExam).includes(:student, :classroom)
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
       .by_unity(current_unity)
       .by_classroom(@classrooms.map(&:id))
       .by_teacher(current_teacher_id)
       .ordered_by_date_and_student
+
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
   end
 
   def fetch_linked_by_teacher
@@ -565,5 +592,46 @@ class ConceptualExamsController < ApplicationController
                               steps ||= SchoolCalendar.find_by(unity_id: current_unity.id, year: year).steps
                               steps
                             end
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
+  end
+
+  def teacher_has_no_conceptual_disciplines?
+    TeacherDisciplineClassroom
+      .where(teacher_id: current_teacher.id, classroom_id: current_user_classroom.id, active: true)
+      .where(score_type: ScoreTypes::CONCEPT)
+      .none?
   end
 end

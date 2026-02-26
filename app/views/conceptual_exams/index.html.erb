@@ -1,19 +1,28 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/conceptual_exams/index' %>
+<% end %>
+
 <div class='widget-body no-padding'>
-  <%= simple_form_for :filter, { url: conceptual_exams_path, method: :get,
-    html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: conceptual_exams_path, method: :get,
+    html: { class: 'filterable_search_form' } do |f| %>
     <div class='table-responsive'>
       <table id='resources' class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover'>
         <thead>
           <tr>
             <th scope="col"></th>
-            <th scope="col"></th>
             <th scope="col">
-              <%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %>
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
+                            label: false, placeholder: t('.by_classroom_id'),
+                            input_html: { value: current_user_classroom.id } %>
             </th>
             <th scope="col">
-              <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
-                label: false, placeholder: t('.by_step') %>
+              <%= f.input :by_student_id, as: :select2, elements: [],
+                            label: false, placeholder: t('.by_student_name'),
+                            input_html: { class: 'conceptual-exam-student-filter' } %>
             </th>
+            <th scope="col">
+              <%= f.input :by_step_id, as: :select2, elements: @steps,
+                label: false, placeholder: t('.by_step_id') %></th>
             <th scope="col">
               <%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json,
                 label: false, placeholder: t('.by_status') %>
@@ -35,15 +44,9 @@
 
         <%= render 'resources' %>
 
-        <tfoot id='paginator' class='remote'>
-          <td colspan='7'>
-            <div id='page_entries_info' class='pull-left hidden-xs'>
-              <%= page_entries_info @conceptual_exams %>
-            </div>
-
-            <div class='pull-right'>
-              <%= paginate @conceptual_exams %>
-            </div>
+        <tfoot id="paginator" class="remote">
+          <td id="pagination-tfoot" colspan="8">
+            <%= render 'shared/pagination', records: @conceptual_exams %>
           </td>
         </tfoot>
       </table>
