@@ -7,8 +7,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
+    set_filters
     set_options_by_user
-
     fetch_recovery_diary_records_by_user
 
     authorize @final_recovery_diary_records
@@ -130,7 +130,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_records =
       apply_scopes(FinalRecoveryDiaryRecord)
         .includes(recovery_diary_record: [:unity, :classroom, :discipline])
-        .filter_from_params(filtering_params(params[:search]))
+        .filter_from_params(filtering_params(params[:filter]))
         .by_unity_id(current_unity.id)
         .by_teacher_id(current_teacher.id)
         .by_classroom_id(@classrooms.map(&:id))
@@ -188,7 +188,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def add_missing_students(students_in_final_recovery)
-    current_students_ids = @final_recovery_diary_record.recovery_diary_record.students.map(&:student_id)
+    current_students_ids = @final_recovery_diary_record.recovery_diary_record.students.pluck(:student_id)
 
     students_missing = students_in_final_recovery.select do |student_in_final_recovery|
       !current_students_ids.include?(student_in_final_recovery.id)
@@ -247,5 +247,13 @@ current_school_year)
 
     classroom = @final_recovery_diary_record.recovery_diary_record.classroom
     @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    @filter = OpenStruct.new(params[:filter])
   end
 end

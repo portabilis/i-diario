@@ -1,21 +1,34 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/observation_diary_records/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
-  <%= simple_form_for :filter, { url: observation_diary_records_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: observation_diary_records_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class="table-responsive">
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
             <th scope="col"></th>
-            <th scope="col"><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></th>
-            <th scope="col" style="width: 400px"><%= f.input :by_student_id, as: :select2, elements: @students, label: false, placeholder: t('.by_student') %></th>
-            <th scope="col"><%= f.input :by_discipline, as: :select2, elements: disciplines, label: false, placeholder: t('.by_discipline') %></th>
+            <th scope="col" style="width: 400px">
+              <%= f.input :by_student_id, as: :select2, elements: @students,
+                          label: false, placeholder: t('.by_student') %>
+            </th>
+            <th scope="col">
+              <%= f.input :by_classroom, as: :select2, elements: @classrooms,
+                          label: false, placeholder: t('.by_classroom') %>
+            </th>
+            <th scope="col">
+              <%= f.input :by_discipline, as: :select2, elements: @disciplines,
+                          label: false, placeholder: t('.by_discipline') %>
+            </th>
             <th scope="col"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></th>
             <th scope="col" style="width: 215px"><%= link_to t('.new_html'), new_observation_diary_record_path, class: 'btn btn-primary pull-right' %></th>
           </tr>
 
           <tr>
             <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :unity %></th>
-            <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :classroom %></th>
             <th scope="col"><%= t('.student') %></th>
+            <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :classroom %></th>
             <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :discipline %>
             <th scope="col"><%= ObservationDiaryRecord.human_attribute_name :date %></th>
             <th scope="col">
@@ -25,14 +38,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="6">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @observation_diary_records %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @observation_diary_records %>
-            </div>
+          <td id="pagination-tfoot" colspan="6">
+            <%= render 'shared/pagination', records: @observation_diary_records %>
           </td>
         </tfoot>
       </table>

@@ -303,6 +303,7 @@ Rails.application.routes.draw do
     resources :school_term_recovery_diary_records, concerns: :history do
       collection do
         get :fetch_step
+        get :fetch_steps_for_filter
         get :fetch_number_of_decimal_places
       end
     end
@@ -320,6 +321,7 @@ Rails.application.routes.draw do
         get :recorded_at_in_selected_step
         get :fetch_exam_setting_arithmetic
         get :fetch_step
+        get :fetch_steps_for_filter
       end
     end
     resources :conceptual_exams, concerns: :history do
@@ -374,7 +376,11 @@ Rails.application.routes.draw do
         get :valid_teacher_period_in_classroom
       end
     end
-    resources :observation_diary_records, concerns: :history
+    resources :observation_diary_records, concerns: :history do
+      collection do
+        get :fetch_students_by_classroom
+      end
+    end
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage

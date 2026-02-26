@@ -7,6 +7,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
+    set_filters
     set_options_by_user
     set_avaliation_recovery_diary_records_by_user
 
@@ -378,5 +379,13 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
                 end
 
     @steps_fetcher ||= StepsFetcher.new(classroom)
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    @filter = OpenStruct.new(params[:filter])
   end
 end
