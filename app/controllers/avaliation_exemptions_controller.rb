@@ -2,15 +2,17 @@ class AvaliationExemptionsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :require_allow_to_modify_prev_years, only: %i[create update destroy]
 
   def index
+    set_filters
     set_options_by_user
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
-                             .includes(:avaliation)
+                             .includes(:student, avaliation: [{ classroom: :unity }, :discipline])
                              .by_unity(current_unity)
                              .by_classroom(@classrooms.map(&:id))
                              .by_discipline(@disciplines.map(&:id))
+                             .ordered
 
     authorize @avaliation_exemptions
   end
@@ -86,7 +88,8 @@ class AvaliationExemptionsController < ApplicationController
 
     @avaliation_exemption.destroy
 
-    respond_with @avaliation_exemption, location: avaliation_exemptions_path, alert: @avaliation_exemption.errors.to_a
+    respond_with @avaliation_exemption, location: avaliation_exemptions_path,
+                                        alert: @avaliation_exemption.errors.to_a
   end
 
   def history
@@ -115,20 +118,20 @@ class AvaliationExemptionsController < ApplicationController
 
   def fetch_avaliations
     @avaliations ||= Avaliation.by_classroom_id(@avaliation_exemption.classroom_id)
-      .by_discipline_id(@avaliation_exemption.discipline_id)
+                               .by_discipline_id(@avaliation_exemption.discipline_id)
   end
 
   def fetch_students
     @students = []
     if @avaliation_exemption.avaliation.try(:classroom).present?
       @student_ids = StudentEnrollment
-        .by_classroom(current_user_classroom)
-        .by_discipline(current_user_discipline)
-        .by_date(@avaliation_exemption.avaliation.test_date)
-        .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, current_user_classroom)
-        .active
-        .ordered
-        .collect(&:student_id)
+                     .by_classroom(current_user_classroom)
+                     .by_discipline(current_user_discipline)
+                     .by_date(@avaliation_exemption.avaliation.test_date)
+                     .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, current_user_classroom)
+                     .active
+                     .ordered
+                     .collect(&:student_id)
       @students = Student.where(id: @student_ids)
     end
   end
@@ -146,18 +149,29 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms ||= [current_user_classroom]
-      @disciplines ||= [current_user_discipline]
-    else
-      fetch_linked_by_teacher
-    end
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms]
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([
+                                                                          ScoreTypes::NUMERIC,
+                                                                          ScoreTypes::NUMERIC_AND_CONCEPT
+                                                                        ])
     @disciplines ||= @fetch_linked_by_teacher[:disciplines].distinct
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom] ||= current_user_classroom.id
+    params[:filter][:by_discipline] ||= current_user_discipline.id
+
+    @filter = OpenStruct.new(params[:filter])
   end
 end

@@ -1,5 +1,9 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/daily_notes/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
-  <%= simple_form_for :filter, { url: daily_notes_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: daily_notes_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class="table-responsive">
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
@@ -27,14 +31,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="8">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @daily_notes %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @daily_notes %>
-            </div>
+          <td id="pagination-tfoot" colspan="8">
+            <%= render 'shared/pagination', records: @daily_notes %>
           </td>
         </tfoot>
       </table>
