@@ -13,10 +13,10 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_teaching_plans = fetch_knowledge_area_teaching_plans
-
+    set_filters
     set_options_by_user
     set_knowledge_area_by_grade(@grades.map(&:id))
+    fetch_knowledge_area_teaching_plans
 
     unless current_user.current_role_is_admin_or_employee?
       @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_grade(@grades.map(&:id))
@@ -314,6 +314,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     @grades ||= current_user_classroom.classrooms_grades.map(&:grade).uniq
     @classrooms ||= [current_user_classroom]
+    @knowledge_areas
   end
 
   def set_knowledge_area_by_grade(grade_id)
@@ -332,24 +333,28 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       current_unity,
       current_school_year
     )
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
 
   def fetch_knowledge_area_teaching_plans
-    apply_scopes(
-      KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan:
-                                  [:unity, :grade, :teaching_plan_attachments, :teacher,
-                                   :school_term_type, :school_term_type_step])
-                                .by_unity(current_unity)
-                                .by_year(current_school_year)
-                                .order_by_grades
-                                .order_by_school_term_type_step
+    @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan
+      .includes(:knowledge_areas, teaching_plan:
+        [:unity, :grade, :teaching_plan_attachments, :teacher, :school_term_type, :school_term_type_step])
+      .by_unity(current_unity)
+      .by_year(current_school_year)
+      .by_grade(@grades.map(&:id))
+      .order_by_grades
+      .order('teaching_plans.school_term_type_step_id')
     )
   end
 
+  def set_filters
+    params[:filter][:by_grade] ||= current_user_classroom.grades.first.id
+    params[:filter][:by_knowledge_area] ||= current_user_discipline.knowledge_area_id
+  end
+
   def current_grade
-    current_user_grade = ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
+    ClassroomsGrade.by_classroom_id(current_user_classroom.id).first.grade
   end
 end

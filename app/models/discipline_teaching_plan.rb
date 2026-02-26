@@ -45,7 +45,7 @@ class DisciplineTeachingPlan < ApplicationRecord
   scope :order_by_school_term_type_step, lambda {
     joins(:teaching_plan).order('teaching_plans.school_term_type_step_id IS NULL')
   }
-  scope :order_by_grades, -> { joins(teaching_plan: :grade).order(Grade.arel_table[:description].desc) }
+  scope :order_by_grades, -> { joins(teaching_plan: :grade).order(Grade.arel_table[:description].asc) }
 
   validates :teaching_plan, presence: true
   validates :discipline, presence: true
