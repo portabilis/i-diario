@@ -1,4 +1,6 @@
 class DisciplineTeachingPlansController < ApplicationController
+  include GroupedDisciplines
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -341,8 +343,6 @@ class DisciplineTeachingPlansController < ApplicationController
     if current_user.current_role_is_admin_or_employee?
       fetch_grades
       fetch_disciplines
-
-      discipline = current_user_discipline&.grouper? ? Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all : [current_user_discipline]
     else
       fetch_linked_by_teacher
     end
@@ -352,7 +352,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
       current_teacher.id, current_unity, current_school_year
     )
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @disciplines ||= exclude_non_grouper_disciplines(@fetch_linked_by_teacher[:disciplines])
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
 
@@ -393,16 +393,7 @@ class DisciplineTeachingPlansController < ApplicationController
   def discipline_teaching_plans_with_filters
     params[:filter][:by_grade] ||= current_user_classroom.grades.first.id
     params[:filter][:by_discipline] ||= current_user_discipline.id
-    knowledge_area_id = current_user_discipline.knowledge_area_id
 
-    if params[:filter][:by_discipline].eql?(current_user_discipline.id)
-      discipline_ids = [current_user_discipline.id]
-      if current_user_discipline.grouper?
-        discipline_ids = Discipline.where(knowledge_area_id: knowledge_area_id).map(&:id)
-      end
-    end
-    discipline_ids = params[:filter][:by_discipline]
-
-    @discipline_teaching_plans = fetch_discipline_teaching_plans(discipline_ids)
+    @discipline_teaching_plans = fetch_discipline_teaching_plans(params[:filter][:by_discipline])
   end
 end

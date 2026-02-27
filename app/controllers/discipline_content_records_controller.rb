@@ -1,4 +1,6 @@
 class DisciplineContentRecordsController < ApplicationController
+  include GroupedDisciplines
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -274,7 +276,7 @@ class DisciplineContentRecordsController < ApplicationController
       current_teacher.id, current_unity,current_school_year
     )
     @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @disciplines ||= exclude_non_grouper_disciplines(@fetch_linked_by_teacher[:disciplines])
   end
 
   def set_filters
