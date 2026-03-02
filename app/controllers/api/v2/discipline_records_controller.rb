@@ -11,7 +11,7 @@ module Api
         render json: counter.call, root: false
       end
 
-      def destroy
+      def destroy_batch
         return render_missing_year unless params[:year].present?
 
         destroyer = Api::DisciplineRecordsDestroyer.new(**record_params)

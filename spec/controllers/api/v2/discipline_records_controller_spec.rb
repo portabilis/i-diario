@@ -102,21 +102,21 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
     end
   end
 
-  describe 'POST #destroy' do
+  describe 'POST #destroy_batch' do
     before do
-      request.env['REQUEST_PATH'] = '/api/v2/discipline_records/destroy'
+      request.env['REQUEST_PATH'] = '/api/v2/discipline_records/destroy_batch'
     end
 
     it 'returns 401 without valid token' do
       request.headers['token'] = 'invalid_token'
 
-      post :destroy, params: { year: year, format: 'json', locale: 'en' }, xhr: true
+      post :destroy_batch, params: { year: year, format: 'json', locale: 'en' }, xhr: true
 
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'returns 422 without year parameter' do
-      post :destroy, params: { format: 'json', locale: 'en' }, xhr: true
+      post :destroy_batch, params: { format: 'json', locale: 'en' }, xhr: true
 
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
@@ -142,7 +142,7 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       }
 
       expect {
-        post :destroy, params: params, xhr: true
+        post :destroy_batch, params: params, xhr: true
       }.to change(DailyFrequency, :count).by(-1)
 
       expect(response).to have_http_status(:ok)
@@ -172,7 +172,7 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       }
 
       expect {
-        post :destroy, params: params, xhr: true
+        post :destroy_batch, params: params, xhr: true
       }.not_to change(DailyFrequency, :count)
 
       json = JSON.parse(response.body)

@@ -50,7 +50,7 @@ Rails.application.routes.draw do
         resources :discipline_records, only: [] do
           collection do
             post :count
-            post :destroy
+            post :destroy_batch
           end
         end
       end
