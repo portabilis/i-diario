@@ -213,6 +213,59 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     end
   end
 
+  describe 'GET #opinion_types' do
+    context 'when teacher accesses opinion_types for a classroom without exam rules' do
+      let(:teacher_user) { create(:user, :with_user_role_teacher) }
+      let(:classroom_without_grades) {
+        create(
+          :classroom,
+          unity: unity
+        )
+      }
+
+      before do
+        sign_in(teacher_user)
+        allow(controller).to receive(:current_user_classroom).and_return(classroom_without_grades)
+        allow(controller).to receive(:current_teacher).and_return(current_teacher)
+        allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
+      end
+
+      it 'does not raise an error' do
+        expect {
+          get :opinion_types, params: { classroom_id: classroom_without_grades.id, format: :json, locale: 'pt-BR' }
+        }.not_to raise_error
+      end
+    end
+
+    context 'when teacher accesses opinion_types for a classroom with exam rules that do not allow descriptive exam' do
+      let(:teacher_user) { create(:user, :with_user_role_teacher) }
+      let(:exam_rule_no_descriptive) { create(:exam_rule, opinion_type: OpinionTypes::DONT_USE) }
+      let(:classroom_no_descriptive) {
+        create(
+          :classroom,
+          unity: unity,
+          exam_rule: exam_rule_no_descriptive
+        )
+      }
+      let!(:classrooms_grade_no_descriptive) {
+        create(:classrooms_grade, classroom: classroom_no_descriptive, exam_rule: exam_rule_no_descriptive)
+      }
+
+      before do
+        sign_in(teacher_user)
+        allow(controller).to receive(:current_user_classroom).and_return(classroom_no_descriptive)
+        allow(controller).to receive(:current_teacher).and_return(current_teacher)
+        allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
+      end
+
+      it 'does not raise AbstractController::DoubleRenderError' do
+        expect {
+          get :opinion_types, params: { classroom_id: classroom_no_descriptive.id, format: :json, locale: 'pt-BR' }
+        }.not_to raise_error
+      end
+    end
+  end
+
   describe "GET #find" do
     context "when valid params are provided" do
 
