@@ -72,6 +72,7 @@ module Api
       scope = DisciplineTeachingPlan.joins(:teaching_plan)
                                     .where(teaching_plans: { year: @year })
 
+      scope = scope.where(teaching_plans: { unity_id: @unity_ids }) if @unity_ids.present?
       scope = scope.where(teaching_plans: { grade_id: @grade_ids }) if @grade_ids.present?
       filter_by_discipline(scope)
     end

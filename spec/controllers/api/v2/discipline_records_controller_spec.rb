@@ -148,7 +148,7 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       expect(json['success']).to be true
-      expect(json['deleted']).to be > 0
+      expect(json['deleted']).to eq(1)
     end
 
     it 'does not destroy records from other disciplines' do

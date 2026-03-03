@@ -56,8 +56,14 @@ module Api
       ids = @query.conceptual_exams.pluck(:id)
       return 0 if ids.empty?
 
-      count = ConceptualExamValue.where(conceptual_exam_id: ids).destroy_all.size
-      count + ConceptualExam.where(id: ids).destroy_all.size
+      if @query.discipline_ids.present?
+        count = ConceptualExamValue.where(conceptual_exam_id: ids, discipline_id: @query.discipline_ids).destroy_all.size
+      else
+        count = ConceptualExamValue.where(conceptual_exam_id: ids).destroy_all.size
+      end
+
+      orphan_ids = ids.reject { |id| ConceptualExamValue.where(conceptual_exam_id: id).exists? }
+      count + ConceptualExam.where(id: orphan_ids).destroy_all.size
     end
 
     def destroy_recovery_diary_records_and_children
