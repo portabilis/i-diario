@@ -13,6 +13,7 @@ module Api
       destroy_discipline_teaching_plans
       destroy_observation_diary_records_and_children
       destroy_complementary_exams_and_children
+      destroy_descriptive_exams_and_children
       destroy_transfer_notes
     ].freeze
 
@@ -40,7 +41,7 @@ module Api
       return 0 if avaliation_ids.empty?
 
       count = destroy_daily_notes_for(avaliation_ids)
-      count += AvaliationExemption.where(avaliation_id: avaliation_ids).destroy_all.size
+      count += AvaliationExemption.with_discarded.where(avaliation_id: avaliation_ids).destroy_all.size
       count + Avaliation.where(id: avaliation_ids).destroy_all.size
     end
 
@@ -62,8 +63,11 @@ module Api
         count = ConceptualExamValue.where(conceptual_exam_id: ids).destroy_all.size
       end
 
-      orphan_ids = ids.reject { |id| ConceptualExamValue.where(conceptual_exam_id: id).exists? }
-      count + ConceptualExam.where(id: orphan_ids).destroy_all.size
+      exams_with_values = ConceptualExamValue.where(conceptual_exam_id: ids)
+                                            .distinct
+                                            .pluck(:conceptual_exam_id)
+      orphan_ids = ids - exams_with_values
+      count + ConceptualExam.with_discarded.where(id: orphan_ids).destroy_all.size
     end
 
     def destroy_recovery_diary_records_and_children
@@ -85,8 +89,8 @@ module Api
       ids = @query.daily_frequencies.pluck(:id)
       return 0 if ids.empty?
 
-      count = DailyFrequencyStudent.where(daily_frequency_id: ids).destroy_all.size
-      count + DailyFrequency.where(id: ids).destroy_all.size
+      # DailyFrequencyStudent é auto-deletado via before_destroy do DailyFrequency
+      DailyFrequency.where(id: ids).destroy_all.size
     end
 
     def destroy_discipline_content_records
@@ -115,6 +119,14 @@ module Api
 
       count = ComplementaryExamStudent.where(complementary_exam_id: ids).destroy_all.size
       count + ComplementaryExam.where(id: ids).destroy_all.size
+    end
+
+    def destroy_descriptive_exams_and_children
+      ids = @query.descriptive_exams.pluck(:id)
+      return 0 if ids.empty?
+
+      count = DescriptiveExamStudent.where(descriptive_exam_id: ids).destroy_all.size
+      count + DescriptiveExam.where(id: ids).destroy_all.size
     end
 
     def destroy_transfer_notes

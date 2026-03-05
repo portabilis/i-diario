@@ -98,6 +98,12 @@ module Api
       )
     end
 
+    def descriptive_exams
+      filter_by_discipline(
+        DescriptiveExam.where(classroom_id: classroom_ids)
+      )
+    end
+
     def avaliation_exemptions
       scope = AvaliationExemption.joins(:avaliation)
                                  .where(avaliations: { classroom_id: classroom_ids })

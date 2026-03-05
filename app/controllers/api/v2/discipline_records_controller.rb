@@ -18,8 +18,9 @@ module Api
         total = destroyer.call
 
         render json: { success: true, deleted: total }
-      rescue StandardError => e
-        render json: { success: false, error: e.message }, status: :unprocessable_entity
+      rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::StatementInvalid, ActiveRecord::RecordInvalid => e
+        Honeybadger.notify(e)
+        render json: { success: false, errors: e.message }, status: :unprocessable_entity
       end
 
       private
@@ -35,7 +36,7 @@ module Api
       end
 
       def render_missing_year
-        render json: { success: false, error: 'O parâmetro year é obrigatório' },
+        render json: { success: false, errors: 'O parâmetro year é obrigatório' },
                status: :unprocessable_entity
       end
     end
