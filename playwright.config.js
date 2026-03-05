@@ -6,7 +6,6 @@ const STORAGE_STATE = 'spec/e2e/.auth/user.json';
 
 module.exports = defineConfig({
   testDir: './spec/e2e',
-  testIgnore: ['**/auth.setup.js'],
   timeout: 30000,
   retries: 1,
   use: {
@@ -23,6 +22,7 @@ module.exports = defineConfig({
     },
     {
       name: 'chromium',
+      testIgnore: ['**/auth.setup.js'],
       use: {
         browserName: 'chromium',
         storageState: STORAGE_STATE

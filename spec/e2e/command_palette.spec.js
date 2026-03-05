@@ -1,60 +1,58 @@
 const { test, expect } = require('@playwright/test');
 
+// Helpers reutilizáveis
+const trigger = (page) => page.locator('#cp-trigger');
+const overlay = (page) => page.locator('#command-palette-overlay');
+const input = (page) => page.locator('#command-palette-input');
+const items = (page) => page.locator('#command-palette-list .cp-item');
+
+async function openPalette(page) {
+  await trigger(page).click();
+  await expect(overlay(page)).toHaveClass(/open/);
+  await expect(input(page)).toBeFocused();
+}
+
+async function closePalette(page) {
+  await page.keyboard.press('Escape');
+  await expect(overlay(page)).not.toHaveClass(/open/);
+}
+
 test.describe('Paleta de comandos', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Aguarda a página carregar completamente com o menu lateral
     await expect(page.locator('#left-panel')).toBeVisible({ timeout: 15000 });
   });
 
-  test.describe('gatilho de busca no menu lateral', () => {
-    test('exibe o gatilho com ícone e texto', async ({ page }) => {
-      const trigger = page.locator('#cp-trigger');
-      await expect(trigger).toBeVisible();
-      await expect(trigger.locator('.fa-search')).toBeVisible();
-      await expect(trigger.locator('.cp-trigger-text')).toHaveText('Buscar...');
+  test.describe.serial('gatilho e atalhos de teclado', () => {
+    test('exibe o gatilho com ícone, texto e badge de atalho', async ({ page }) => {
+      const cp = trigger(page);
+      await expect(cp).toBeVisible();
+      await expect(cp.locator('.fa-search')).toBeVisible();
+      await expect(cp.locator('.cp-trigger-text')).toHaveText('Buscar...');
+      await expect(cp.locator('.cp-trigger-kbd')).toBeVisible();
+      await expect(cp.locator('.cp-trigger-kbd')).toHaveText(/Ctrl\+K|⌘K/);
     });
 
-    test('exibe badge com atalho de teclado', async ({ page }) => {
-      const kbd = page.locator('#cp-trigger .cp-trigger-kbd');
-      await expect(kbd).toBeVisible();
-      await expect(kbd).toHaveText(/Ctrl\+K|⌘K/);
+    test('abre a paleta ao clicar e fecha com Escape', async ({ page }) => {
+      await openPalette(page);
+      await closePalette(page);
     });
 
-    test('abre a paleta ao clicar', async ({ page }) => {
-      await page.locator('#cp-trigger').click();
-
-      const overlay = page.locator('#command-palette-overlay');
-      await expect(overlay).toHaveClass(/open/);
-      await expect(page.locator('#command-palette-input')).toBeFocused();
-    });
-  });
-
-  test.describe('atalho de teclado', () => {
-    test('abre a paleta com Ctrl+K', async ({ page }) => {
-      // Garante que nenhum input editável está focado
+    test('abre e fecha com Ctrl+K', async ({ page }) => {
       await page.locator('body').click();
       await page.keyboard.press('Control+k');
-
-      await expect(page.locator('#command-palette-overlay')).toHaveClass(/open/);
-    });
-
-    test('fecha a paleta com Ctrl+K quando já está aberta', async ({ page }) => {
-      await page.locator('body').click();
-      await page.keyboard.press('Control+k');
-      await expect(page.locator('#command-palette-overlay')).toHaveClass(/open/);
+      await expect(overlay(page)).toHaveClass(/open/);
 
       await page.keyboard.press('Control+k');
-      await expect(page.locator('#command-palette-overlay')).not.toHaveClass(/open/);
+      await expect(overlay(page)).not.toHaveClass(/open/);
     });
 
     test('não abre quando o foco está em um campo de texto', async ({ page }) => {
-      // Injeta um input real na página para garantir que existe um campo editável
       await page.evaluate(() => {
-        const input = document.createElement('input');
-        input.id = 'test-editable-input';
-        input.type = 'text';
-        document.body.appendChild(input);
+        const el = document.createElement('input');
+        el.id = 'test-editable-input';
+        el.type = 'text';
+        document.body.appendChild(el);
       });
 
       const testInput = page.locator('#test-editable-input');
@@ -62,221 +60,146 @@ test.describe('Paleta de comandos', () => {
       await expect(testInput).toBeFocused();
 
       await page.keyboard.press('Control+k');
-
-      // Verifica que a paleta NÃO abriu
       await expect(page.locator('#command-palette-overlay.open')).toHaveCount(0);
     });
   });
 
-  test.describe('estrutura do modal', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.locator('#cp-trigger').click();
-    });
+  test.describe.serial('estrutura do modal e itens do menu', () => {
+    test('exibe campo de busca, lista de resultados e footer', async ({ page }) => {
+      await openPalette(page);
 
-    test('exibe o campo de busca com placeholder', async ({ page }) => {
-      const input = page.locator('#command-palette-input');
-      await expect(input).toBeVisible();
-      await expect(input).toHaveAttribute('placeholder', 'Navegar para...');
-    });
+      // Campo de busca
+      await expect(input(page)).toHaveAttribute('placeholder', 'Navegar para...');
 
-    test('exibe a lista de resultados', async ({ page }) => {
+      // Lista de resultados
       const list = page.locator('#command-palette-list');
       await expect(list).toBeVisible();
-      await expect(list.locator('.cp-item').first()).toBeVisible();
-    });
+      await expect(items(page).first()).toBeVisible();
 
-    test('exibe o footer com dicas de atalho', async ({ page }) => {
+      // Footer com atalhos
       const footer = page.locator('#command-palette-footer');
       await expect(footer).toBeVisible();
       await expect(footer.locator('kbd').first()).toBeVisible();
     });
 
-    test('fecha ao clicar no overlay', async ({ page }) => {
-      const overlay = page.locator('#command-palette-overlay');
+    test('itens têm label, href válido, categoria e ícone', async ({ page }) => {
+      await openPalette(page);
 
-      // Clica na parte inferior do overlay (fora do modal que fica centralizado)
-      const box = await overlay.boundingBox();
-      await page.mouse.click(box.x + box.width / 2, box.y + box.height - 10);
-
-      await expect(overlay).not.toHaveClass(/open/);
-    });
-
-    test('fecha ao pressionar Escape', async ({ page }) => {
-      // Espera o input receber foco (open() usa setTimeout de 50ms)
-      await expect(page.locator('#command-palette-input')).toBeFocused();
-      await page.keyboard.press('Escape');
-
-      await expect(page.locator('#command-palette-overlay')).not.toHaveClass(/open/);
-    });
-  });
-
-  test.describe('itens do menu', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.locator('#cp-trigger').click();
-    });
-
-    test('lista itens de navegação do menu', async ({ page }) => {
-      const items = page.locator('#command-palette-list .cp-item');
-      await expect(items.first()).toBeVisible();
-
-      // Cada item deve ter label e href válido
-      const firstItem = items.first();
+      // Label e href
+      const firstItem = items(page).first();
       await expect(firstItem.locator('.cp-label')).toBeVisible();
       const href = await firstItem.getAttribute('href');
       expect(href).toBeTruthy();
       expect(href).not.toBe('#');
-    });
 
-    test('itens de submenu mostram a categoria do pai', async ({ page }) => {
-      const itemsWithCategory = page.locator('#command-palette-list .cp-item .cp-category');
-      await expect(itemsWithCategory.first()).toBeVisible();
-    });
+      // Categoria do pai em subitens
+      await expect(page.locator('#command-palette-list .cp-item .cp-category').first()).toBeVisible();
 
-    test('itens preservam ícones do menu original', async ({ page }) => {
-      const firstIcon = page.locator('#command-palette-list .cp-item .cp-icon i').first();
-      const className = await firstIcon.getAttribute('class');
-
+      // Ícones
+      const className = await page.locator('#command-palette-list .cp-item .cp-icon i').first().getAttribute('class');
       expect(className).toContain('fa');
+    });
+
+    test('fecha ao clicar no overlay', async ({ page }) => {
+      await openPalette(page);
+
+      // Clica no canto esquerdo do overlay (fora do modal centralizado)
+      const box = await overlay(page).boundingBox();
+      await page.mouse.click(box.x + 5, box.y + box.height / 2);
+      await expect(overlay(page)).not.toHaveClass(/open/);
     });
   });
 
-  test.describe('busca e filtragem', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.locator('#cp-trigger').click();
+  test.describe.serial('busca e filtragem', () => {
+    test('filtra itens ao digitar e restaura ao limpar', async ({ page }) => {
+      await openPalette(page);
+
+      const totalOriginal = await items(page).count();
+
+      // Filtra
+      await input(page).fill('Configura');
+      await expect(items(page)).not.toHaveCount(totalOriginal);
+      const filtered = await items(page).count();
+      expect(filtered).toBeLessThan(totalOriginal);
+      expect(filtered).toBeGreaterThan(0);
+
+      // Restaura ao limpar
+      await input(page).fill('');
+      await expect(items(page)).toHaveCount(totalOriginal);
     });
 
-    test('filtra itens ao digitar', async ({ page }) => {
-      const input = page.locator('#command-palette-input');
-      const items = page.locator('#command-palette-list .cp-item');
+    test('busca é case insensitive e normaliza acentos', async ({ page }) => {
+      await openPalette(page);
 
-      const totalBefore = await items.count();
+      // Case insensitive
+      await input(page).fill('CONFIGURA');
+      await expect(items(page).first()).toBeVisible();
+      const countUpper = await items(page).count();
+      expect(countUpper).toBeGreaterThan(0);
 
-      await input.fill('Configura');
-      // Espera a filtragem reduzir os itens
-      await expect(items).not.toHaveCount(totalBefore);
-
-      const totalAfter = await items.count();
-      expect(totalAfter).toBeLessThan(totalBefore);
-      expect(totalAfter).toBeGreaterThan(0);
-    });
-
-    test('normaliza acentos na busca', async ({ page }) => {
-      const input = page.locator('#command-palette-input');
-
-      // Busca sem acento deve encontrar itens com acento
-      await input.fill('frequencia');
-
-      const items = page.locator('#command-palette-list .cp-item');
-      // Espera a lista estabilizar (pode ter itens ou não, dependendo do menu)
-      await expect(input).toHaveValue('frequencia');
-
-      const count = await items.count();
-      // Deve encontrar pelo menos "Frequências" se o menu tiver esse item
-      // Se não tiver, o teste simplesmente verifica que a busca não quebra
+      // Normaliza acentos (busca sem acento encontra com acento)
+      await input(page).fill('frequencia');
+      await expect(input(page)).toHaveValue('frequencia');
+      // Não quebra mesmo que não haja resultados exatos
+      const count = await items(page).count();
       expect(count).toBeGreaterThanOrEqual(0);
     });
 
-    test('busca é case insensitive', async ({ page }) => {
-      const input = page.locator('#command-palette-input');
-
-      await input.fill('CONFIGURA');
-      // Espera a filtragem retornar resultados
-      await expect(page.locator('#command-palette-list .cp-item').first()).toBeVisible();
-
-      const items = page.locator('#command-palette-list .cp-item');
-      const count = await items.count();
-      expect(count).toBeGreaterThan(0);
-    });
-
     test('mostra estado vazio quando não há resultados', async ({ page }) => {
-      const input = page.locator('#command-palette-input');
+      await openPalette(page);
 
-      await input.fill('xyztermoqueninguntemnoMenu123');
+      await input(page).fill('xyztermoqueninguntemnoMenu123');
       await expect(page.locator('#command-palette-empty')).toBeVisible();
-      await expect(page.locator('#command-palette-list .cp-item')).toHaveCount(0);
-    });
-
-    test('restaura todos os itens ao limpar a busca', async ({ page }) => {
-      const input = page.locator('#command-palette-input');
-      const items = page.locator('#command-palette-list .cp-item');
-
-      const totalOriginal = await items.count();
-
-      await input.fill('Configura');
-      await expect(items).not.toHaveCount(totalOriginal);
-
-      await input.fill('');
-      await expect(items).toHaveCount(totalOriginal);
+      await expect(items(page)).toHaveCount(0);
     });
   });
 
-  test.describe('navegação por teclado', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.locator('#cp-trigger').click();
-      // Espera o input receber foco (open() usa setTimeout de 50ms)
-      await expect(page.locator('#command-palette-input')).toBeFocused();
-    });
+  test.describe.serial('navegação por teclado', () => {
+    test('primeiro item selecionado por padrão, navega com setas', async ({ page }) => {
+      await openPalette(page);
 
-    test('primeiro item está selecionado por padrão', async ({ page }) => {
-      const firstItem = page.locator('#command-palette-list .cp-item').first();
-      await expect(firstItem).toHaveClass(/selected/);
-    });
+      // Primeiro item selecionado
+      await expect(items(page).first()).toHaveClass(/selected/);
 
-    test('ArrowDown move a seleção para baixo', async ({ page }) => {
+      // ArrowDown move para baixo
       await page.keyboard.press('ArrowDown');
+      await expect(items(page).nth(1)).toHaveClass(/selected/);
+      await expect(items(page).nth(0)).not.toHaveClass(/selected/);
 
-      const items = page.locator('#command-palette-list .cp-item');
-      await expect(items.nth(1)).toHaveClass(/selected/);
-      await expect(items.nth(0)).not.toHaveClass(/selected/);
-    });
-
-    test('ArrowUp move a seleção para cima (wrap)', async ({ page }) => {
-      // Do primeiro item, ArrowUp vai para o último
+      // ArrowUp volta
       await page.keyboard.press('ArrowUp');
+      await expect(items(page).first()).toHaveClass(/selected/);
 
-      const items = page.locator('#command-palette-list .cp-item');
-      const lastItem = items.last();
-      await expect(lastItem).toHaveClass(/selected/);
+      // ArrowUp do primeiro faz wrap para o último
+      await page.keyboard.press('ArrowUp');
+      await expect(items(page).last()).toHaveClass(/selected/);
     });
 
     test('Enter navega para o item selecionado', async ({ page }) => {
-      const firstItem = page.locator('#command-palette-list .cp-item').first();
-      const targetHref = await firstItem.getAttribute('href');
+      await openPalette(page);
 
+      const targetHref = await items(page).first().getAttribute('href');
       await page.keyboard.press('Enter');
 
-      // Deve navegar para a URL do item
       await page.waitForURL('**' + targetHref, { timeout: 10000 });
       expect(page.url()).toContain(targetHref);
     });
   });
 
-  test.describe('ciclo abrir/fechar', () => {
-    test('limpa a busca ao reabrir', async ({ page }) => {
-      await page.locator('#cp-trigger').click();
-      const input = page.locator('#command-palette-input');
-      await expect(input).toBeFocused();
-      await input.fill('teste');
-      await page.keyboard.press('Escape');
+  test.describe.serial('ciclo abrir/fechar', () => {
+    test('limpa a busca e restaura itens ao reabrir', async ({ page }) => {
+      await openPalette(page);
+      const totalOriginal = await items(page).count();
 
-      await page.locator('#cp-trigger').click();
-      await expect(input).toHaveValue('');
-    });
+      // Digita, filtra e fecha
+      await input(page).fill('Configura');
+      await expect(items(page)).not.toHaveCount(totalOriginal);
+      await closePalette(page);
 
-    test('restaura todos os itens ao reabrir', async ({ page }) => {
-      await page.locator('#cp-trigger').click();
-      const input = page.locator('#command-palette-input');
-      await expect(input).toBeFocused();
-
-      const items = page.locator('#command-palette-list .cp-item');
-      const totalOriginal = await items.count();
-
-      await input.fill('Configura');
-      await expect(items).not.toHaveCount(totalOriginal);
-      await page.keyboard.press('Escape');
-
-      await page.locator('#cp-trigger').click();
-      await expect(items).toHaveCount(totalOriginal);
+      // Reabre: busca limpa e itens restaurados
+      await openPalette(page);
+      await expect(input(page)).toHaveValue('');
+      await expect(items(page)).toHaveCount(totalOriginal);
     });
   });
 });
