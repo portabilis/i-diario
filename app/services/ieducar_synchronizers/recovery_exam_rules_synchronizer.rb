@@ -16,6 +16,8 @@ class RecoveryExamRulesSynchronizer < BaseSynchronizer
   end
 
   def update_recovery_exam_rules(recovery_exam_rules)
+    preload_exam_rules(recovery_exam_rules.map(&:regra_avaliacao_id).compact)
+
     recovery_exam_rules.each do |recovery_exam_rule_record|
       RecoveryExamRule.with_discarded.find_or_initialize_by(
         api_code: recovery_exam_rule_record.id
