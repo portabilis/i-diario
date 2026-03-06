@@ -18,6 +18,10 @@ class ExamRulesSynchronizer < BaseSynchronizer
   end
 
   def update_exam_rules(exam_rules)
+    preload_rounding_tables(
+      (exam_rules.map(&:tabela_arredondamento_id) + exam_rules.map(&:tabela_arredondamento_id_conceitual)).compact
+    )
+
     differentiated_exam_rules = []
 
     exam_rules.each do |exam_rule_record|
