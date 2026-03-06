@@ -19,6 +19,11 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
   end
 
   def update_grade_exam_rules(grade_exam_rules)
+    preload_grades(grade_exam_rules.map(&:serie_id).compact)
+    preload_exam_rules(
+      (grade_exam_rules.map(&:regra_avaliacao_id) + grade_exam_rules.map(&:regra_avaliacao_diferenciada_id)).compact
+    )
+
     grade_exam_rules.each do |grade_exam_rule|
       grade = grade(grade_exam_rule.serie_id)
 
