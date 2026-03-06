@@ -37,42 +37,46 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         next
       end
 
-      StudentEnrollmentClassroom.with_discarded.find_or_initialize_by(
-        api_code: student_enrollment_classroom_record.id
-      ).tap do |student_enrollment_classroom|
-        student_enrollment_classroom.student_enrollment = student_enrollment
-        student_enrollment_classroom.classrooms_grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id,
-                                                                                   grade_id: grade_id).try(:id)
-        student_enrollment_classroom.classroom_code = student_enrollment_classroom_record.turma_id
-        student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
-        student_enrollment_classroom.left_at = student_enrollment_classroom_record.data_saida
-        student_enrollment_classroom.changed_at = student_enrollment_classroom_record.updated_at
+      begin
+        StudentEnrollmentClassroom.with_discarded.find_or_initialize_by(
+          api_code: student_enrollment_classroom_record.id
+        ).tap do |student_enrollment_classroom|
+          student_enrollment_classroom.student_enrollment = student_enrollment
+          student_enrollment_classroom.classrooms_grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id,
+                                                                                     grade_id: grade_id).try(:id)
+          student_enrollment_classroom.classroom_code = student_enrollment_classroom_record.turma_id
+          student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
+          student_enrollment_classroom.left_at = student_enrollment_classroom_record.data_saida
+          student_enrollment_classroom.changed_at = student_enrollment_classroom_record.updated_at
 
-        if student_enrollment_classroom_record.deleted_at.nil?
-          student_enrollment_classroom.sequence = business.generate_sequence(student_enrollment, student_enrollment_classroom, student_enrollment_classroom_record)
-        end
-
-        student_enrollment_classroom.index = student_enrollment_classroom_record.sequencial
-        student_enrollment_classroom.show_as_inactive_when_not_in_date =
-          student_enrollment_classroom_record.apresentar_fora_da_data
-        student_enrollment_classroom.period = student_enrollment_classroom_record.turno_id
-
-        if student_enrollment_classroom.changed?
-          if changes_in_dates?(student_enrollment_classroom)
-            remove_daily_note_students(
-              student_enrollment_classroom,
-              classroom_id,
-              student_enrollment.student_id
-            )
+          if student_enrollment_classroom_record.deleted_at.nil?
+            student_enrollment_classroom.sequence = business.generate_sequence(student_enrollment, student_enrollment_classroom, student_enrollment_classroom_record)
           end
 
-          student_enrollment_classroom.save!
-          changed_student_enrollment_classrooms << [student_enrollment.student_id, classroom_id]
+          student_enrollment_classroom.index = student_enrollment_classroom_record.sequencial
+          student_enrollment_classroom.show_as_inactive_when_not_in_date =
+            student_enrollment_classroom_record.apresentar_fora_da_data
+          student_enrollment_classroom.period = student_enrollment_classroom_record.turno_id
+
+          if student_enrollment_classroom.changed?
+            if changes_in_dates?(student_enrollment_classroom)
+              remove_daily_note_students(
+                student_enrollment_classroom,
+                classroom_id,
+                student_enrollment.student_id
+              )
+            end
+
+            student_enrollment_classroom.save!
+            changed_student_enrollment_classrooms << [student_enrollment.student_id, classroom_id]
+          end
+
+          student_enrollment_classroom.entity_id = entity_id
+
+          student_enrollment_classroom.discard_or_undiscard(student_enrollment_classroom_record.deleted_at.present?)
         end
-
-        student_enrollment_classroom.entity_id = entity_id
-
-        student_enrollment_classroom.discard_or_undiscard(student_enrollment_classroom_record.deleted_at.present?)
+      rescue ActiveRecord::RecordNotUnique
+        retry
       end
     end
 

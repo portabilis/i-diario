@@ -10,21 +10,30 @@ class ObservationRecordReportQuery
   end
 
   def observation_diary_records
+    user = User.find(current_user_id)
+    year = user.current_school_year
+
     if @classroom_id.eql?('all')
-      user = User.find(current_user_id)
       @classroom_id = if user.teacher?
-                        Classroom.by_unity_and_teacher(unity_id, user.teacher_id).pluck(:id)
+                        Classroom.by_unity_and_teacher(unity_id, user.teacher_id)
+                                 .by_year(year)
+                                 .pluck(:id)
                       else
-                        Classroom.by_unity(unity_id).pluck(:id)
+                        Classroom.by_unity(unity_id)
+                                 .by_year(year)
+                                 .pluck(:id)
                       end
     end
+
     relation = ObservationDiaryRecord.includes(notes: :students)
-                                     .by_teacher(teacher_id)
                                      .by_classroom(classroom_id)
                                      .where(date: start_at..end_at)
                                      .order(:date)
 
-    unless @discipline_id.eql?('all')
+    if @discipline_id.eql?('all') && user.teacher?
+      teacher_discipline_ids = Discipline.by_teacher_id(user.teacher_id, year).pluck(:id)
+      relation = relation.by_discipline(teacher_discipline_ids)
+    elsif !@discipline_id.eql?('all')
       relation = relation.by_discipline(@discipline_id)
     end
 

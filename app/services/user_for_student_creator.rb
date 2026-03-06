@@ -44,5 +44,7 @@ class UserForStudentCreator
     user.without_auditing do
       user.save!(validate: false)
     end
+  rescue ActiveRecord::RecordNotUnique
+    nil
   end
 end

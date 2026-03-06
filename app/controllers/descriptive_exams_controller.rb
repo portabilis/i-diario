@@ -105,7 +105,7 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user(params[:classroom_id])
     validate_opinion_type
 
-    render json: @opinion_types.to_json
+    render json: @opinion_types.to_json unless performed?
   end
 
   def find_step_number_by_classroom
@@ -350,7 +350,7 @@ class DescriptiveExamsController < ApplicationController
   def adjusted_period
     teacher_period = current_teacher_period(
       @descriptive_exam.classroom_id,
-      @descriptive_exam.discipline_id,
+      @descriptive_exam.discipline_id
     )
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
@@ -370,6 +370,13 @@ class DescriptiveExamsController < ApplicationController
       current_school_year
     )
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+                     .includes(classrooms_grades: { exam_rule: :differentiated_exam_rule })
+                     .select do |classroom|
+                       classroom.classrooms_grades.any? do |cg|
+                         cg.exam_rule.allow_descriptive_exam? ||
+                           cg.exam_rule.differentiated_exam_rule&.allow_descriptive_exam?
+                       end
+                     end
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @classroom_grades ||= @fetch_linked_by_teacher[:classroom_grades]
   end
