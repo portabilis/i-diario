@@ -1,13 +1,15 @@
 class LessonsBoardsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_lessons_boards(
-      HashDecorator.new(
-        api.fetch(
-          year: year,
-          school_id: unity_api_code
-        )['data']
+    unity_api_code.to_s.split(',').each do |school_id|
+      update_lessons_boards(
+        HashDecorator.new(
+          api.fetch(
+            year: year,
+            school_id: school_id
+          )['data']
+        )
       )
-    )
+    end
   rescue IeducarApi::Base::ApiError => error
     synchronization.mark_as_error!(error.message)
   end
