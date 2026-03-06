@@ -15,27 +15,20 @@ module Api
       resolve_ids
     end
 
-    def start_date
-      @start_date ||= Date.new(@year, 1, 1)
-    end
-
     def daily_frequencies
       filter_by_discipline(
-        DailyFrequency.where(classroom_id: classroom_ids)
-                      .where('frequency_date >= ?', start_date)
+        filter_by_start_date(DailyFrequency, :classroom_id, :frequency_date)
       )
     end
 
     def avaliations
       filter_by_discipline(
-        Avaliation.where(classroom_id: classroom_ids)
-                  .where('test_date >= ?', start_date)
+        filter_by_start_date(Avaliation, :classroom_id, :test_date)
       )
     end
 
     def conceptual_exams
-      scope = ConceptualExam.where(classroom_id: classroom_ids)
-                            .where('recorded_at >= ?', start_date)
+      scope = filter_by_start_date(ConceptualExam, :classroom_id, :recorded_at)
 
       if discipline_ids.present?
         scope = scope.joins(:conceptual_exam_values)
@@ -47,24 +40,25 @@ module Api
 
     def recovery_diary_records
       filter_by_discipline(
-        RecoveryDiaryRecord.where(classroom_id: classroom_ids)
-                           .where('recorded_at >= ?', start_date)
+        filter_by_start_date(RecoveryDiaryRecord, :classroom_id, :recorded_at)
       )
     end
 
     def discipline_content_records
       filter_by_discipline(
-        DisciplineContentRecord.joins(:content_record)
-                               .where(content_records: { classroom_id: classroom_ids })
-                               .where('content_records.record_date >= ?', start_date)
+        filter_by_start_date_joined(
+          DisciplineContentRecord.joins(:content_record),
+          ContentRecord, :classroom_id, :record_date
+        )
       )
     end
 
     def discipline_lesson_plans
       filter_by_discipline(
-        DisciplineLessonPlan.joins(:lesson_plan)
-                            .where(lesson_plans: { classroom_id: classroom_ids })
-                            .where('lesson_plans.start_at >= ?', start_date)
+        filter_by_start_date_joined(
+          DisciplineLessonPlan.joins(:lesson_plan),
+          LessonPlan, :classroom_id, :start_at
+        )
       )
     end
 
@@ -79,35 +73,33 @@ module Api
 
     def observation_diary_records
       filter_by_discipline(
-        ObservationDiaryRecord.where(classroom_id: classroom_ids)
-                              .where('date >= ?', start_date)
+        filter_by_start_date(ObservationDiaryRecord, :classroom_id, :date)
       )
     end
 
     def transfer_notes
       filter_by_discipline(
-        TransferNote.where(classroom_id: classroom_ids)
-                    .where('transfer_date >= ?', start_date)
+        filter_by_start_date(TransferNote, :classroom_id, :transfer_date)
       )
     end
 
     def complementary_exams
       filter_by_discipline(
-        ComplementaryExam.where(classroom_id: classroom_ids)
-                         .where('recorded_at >= ?', start_date)
+        filter_by_start_date(ComplementaryExam, :classroom_id, :recorded_at)
       )
     end
 
     def descriptive_exams
       filter_by_discipline(
-        DescriptiveExam.where(classroom_id: classroom_ids)
+        filter_by_start_date(DescriptiveExam, :classroom_id, :recorded_at)
       )
     end
 
     def avaliation_exemptions
-      scope = AvaliationExemption.joins(:avaliation)
-                                 .where(avaliations: { classroom_id: classroom_ids })
-                                 .where('avaliations.test_date >= ?', start_date)
+      scope = filter_by_start_date_joined(
+        AvaliationExemption.joins(:avaliation),
+        Avaliation, :classroom_id, :test_date
+      )
 
       scope = scope.where(avaliations: { discipline_id: discipline_ids }) if discipline_ids.present?
       scope
@@ -117,6 +109,63 @@ module Api
 
     def filter_by_discipline(scope)
       discipline_ids.present? ? scope.where(discipline_id: discipline_ids) : scope
+    end
+
+    def filter_by_start_date(model, classroom_column, date_column)
+      build_start_date_scope(model.arel_table, model.all, classroom_column, date_column)
+    end
+
+    def filter_by_start_date_joined(base_scope, joined_model, classroom_column, date_column)
+      build_start_date_scope(joined_model.arel_table, base_scope, classroom_column, date_column)
+    end
+
+    def build_start_date_scope(arel, base_scope, classroom_column, date_column)
+      return base_scope.none if classroom_start_dates.empty?
+
+      conditions = classroom_start_dates.map do |start_date, ids|
+        arel[classroom_column].in(ids).and(arel[date_column].gteq(start_date))
+      end
+
+      base_scope.where(conditions.inject(:or))
+    end
+
+    def classroom_start_dates
+      @classroom_start_dates ||= resolve_classroom_start_dates
+    end
+
+    def resolve_classroom_start_dates
+      dates, remaining_ids = classroom_calendar_start_dates
+      school_calendar_start_dates(dates, remaining_ids) if remaining_ids.present?
+      group_by_start_date(dates)
+    end
+
+    def classroom_calendar_start_dates
+      dates = SchoolCalendarClassroomStep.joins(:school_calendar_classroom)
+                                         .where(school_calendar_classrooms: { classroom_id: classroom_ids })
+                                         .group('school_calendar_classrooms.classroom_id')
+                                         .minimum(:start_at)
+
+      [dates, classroom_ids - dates.keys]
+    end
+
+    def school_calendar_start_dates(dates, remaining_ids)
+      classroom_unities = Classroom.where(id: remaining_ids).pluck(:id, :unity_id).to_h
+
+      unity_dates = SchoolCalendarStep.joins(:school_calendar)
+                                      .where(school_calendars: { unity_id: classroom_unities.values.uniq, year: @year })
+                                      .group('school_calendars.unity_id')
+                                      .minimum(:start_at)
+
+      remaining_ids.each do |classroom_id|
+        unity_date = unity_dates[classroom_unities[classroom_id]]
+        dates[classroom_id] = unity_date if unity_date
+      end
+    end
+
+    def group_by_start_date(dates)
+      dates.each_with_object({}) do |(classroom_id, start_date), grouped|
+        (grouped[start_date] ||= []) << classroom_id
+      end
     end
 
     def resolve_ids

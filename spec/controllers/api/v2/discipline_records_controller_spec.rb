@@ -50,7 +50,7 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
 
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
-      expect(json['error']).to be_present
+      expect(json['errors']).to be_present
     end
 
     it 'returns counts with all filters' do
@@ -81,7 +81,7 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       expect(json).to be_an(Array)
       expect(json.size).to eq(11)
 
-      frequency_entry = json.find { |e| e['label'] == 'Frequências diárias' }
+      frequency_entry = json.find { |e| e['label'] == I18n.t('navigation.daily_frequencies') }
       expect(frequency_entry['count']).to eq(1)
     end
 

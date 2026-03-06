@@ -54,7 +54,7 @@ RSpec.describe Api::DisciplineRecordsCounter do
       )
 
       result = subject.call
-      entry = result.find { |e| e[:label] == 'Frequências diárias' }
+      entry = result.find { |e| e[:label] == I18n.t('navigation.daily_frequencies') }
 
       expect(entry[:count]).to eq(1)
     end
