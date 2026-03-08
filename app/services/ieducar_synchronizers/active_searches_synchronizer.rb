@@ -19,11 +19,9 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
   end
 
   def update_records(active_searches)
-    preload_student_enrollments(active_searches.map(&:ref_cod_matricula).compact)
-
     active_searches.each do |active_search_record|
       api_code = active_search_record.id
-      student_enrollment = student_enrollment(active_search_record.ref_cod_matricula)
+      student_enrollment = StudentEnrollment.find_by(api_code: active_search_record.ref_cod_matricula)
       next if student_enrollment.nil?
 
       ActiveSearchSynchronizer.new.perform(api_code, student_enrollment.id, active_search_record)
