@@ -1,6 +1,7 @@
 pt-BR:
   discipline_content_records:
     index:
+      by_unity_id: "Filtrar Escola"
       by_classroom_description: "Filtrar turma"
       by_discipline_description: "Filtrar disciplina"
       by_date: "Filtrar data"

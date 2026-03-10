@@ -1,3 +1,4 @@
 $('#resources-tbody').replaceWith('<%= escape_javascript(render('resources')) %>');
-$('#paginator .pagination').html('<%= escape_javascript(paginate(@final_recovery_diary_records, remote: true).to_s) %>');
-$('#page_entries_info').html('<%= escape_javascript(page_entries_info(@final_recovery_diary_records).to_s) %>');
+$('#pagination-tfoot').html(
+  "<%= escape_javascript(render(partial: 'shared/pagination', locals: { records: @final_recovery_diary_records })) %>"
+);

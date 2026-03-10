@@ -11,10 +11,10 @@ Devise.setup do |config|
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
   # config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
-  config.mailer_sender = 'nao@responda.com.br'
+  config.mailer_sender = "Notificação i-Diário <#{Rails.application.secrets.NO_REPLY_ADDRESS}>"
 
   # Configure the class responsible to send e-mails.
-  # config.mailer = 'Devise::Mailer'
+  config.mailer = 'DeviseCustomMailer'
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and

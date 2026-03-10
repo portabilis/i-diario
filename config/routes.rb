@@ -274,6 +274,7 @@ Rails.application.routes.draw do
         get :set_avaliation_setting
         get :set_grades_by_classrooms
         get :set_type_score_for_discipline
+        get :fetch_steps
         post :create_multiple_classrooms
       end
     end
@@ -281,6 +282,7 @@ Rails.application.routes.draw do
     resources :complementary_exams, concerns: :history do
       collection do
         get :settings
+        get :fetch_steps
       end
     end
     resources :teacher_avaliations, only: :index
@@ -288,6 +290,7 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :fetch_classrooms
+        get :fetch_steps
       end
       member do
         post :exempt_students
@@ -303,6 +306,7 @@ Rails.application.routes.draw do
     resources :school_term_recovery_diary_records, concerns: :history do
       collection do
         get :fetch_step
+        get :fetch_steps_for_filter
         get :fetch_number_of_decimal_places
       end
     end
@@ -310,6 +314,7 @@ Rails.application.routes.draw do
       collection do
         get :current_notes
         get :find_step_number_by_classroom
+        get :fetch_steps
       end
     end
     resources :final_recovery_diary_records, concerns: :history
@@ -320,6 +325,7 @@ Rails.application.routes.draw do
         get :recorded_at_in_selected_step
         get :fetch_exam_setting_arithmetic
         get :fetch_step
+        get :fetch_steps_for_filter
       end
     end
     resources :conceptual_exams, concerns: :history do
@@ -327,7 +333,9 @@ Rails.application.routes.draw do
         get :exempted_disciplines
         get :find_conceptual_exam_by_student
         get :find_step_number_by_classroom
+        get :fetch_students_by_classroom
         get :fetch_score_type
+        get :fetch_steps
       end
     end
     resources :conceptual_exams_in_batchs, concerns: :history do
@@ -348,6 +356,7 @@ Rails.application.routes.draw do
     end
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
+        get '/', to: redirect('/diario-de-frequencia/novo')
         get :edit_multiple
         get :form
         put :create_or_update_multiple
@@ -357,6 +366,7 @@ Rails.application.routes.draw do
 
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
+        get '/', to: redirect('/frequencia-em-lote/novo')
         get :history_multiple
         get :fetch_frequency_type
         get :fetch_teacher_allocated
@@ -372,7 +382,11 @@ Rails.application.routes.draw do
         get :valid_teacher_period_in_classroom
       end
     end
-    resources :observation_diary_records, concerns: :history
+    resources :observation_diary_records, concerns: :history do
+      collection do
+        get :fetch_students_by_classroom
+      end
+    end
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage
