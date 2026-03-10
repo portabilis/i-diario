@@ -1,6 +1,9 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_recovery_lowest_notes/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
-  <%= simple_form_for :filter, { url: avaliation_recovery_lowest_notes_path, method: :get,
-    html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: avaliation_recovery_lowest_notes_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class="table-responsive">
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
@@ -8,15 +11,15 @@
             <th scope="col"></th>
             <th scope="col">
               <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
-                            label: false, placeholder: t('.by_classroom_id') %>
+                            label: false, placeholder: t('.by_classroom_id')%>
             </th>
             <th scope="col">
               <%= f.input :by_discipline_id, as: :select2, elements: @disciplines,
                            label: false, placeholder: t('.by_discipline_id') %>
             </th>
             <th scope="col">
-              <%= f.input :by_step_id, as: :select2_step, classroom: current_user_classroom,
-                label: false, placeholder: t('.by_step_id') %>
+              <%= f.input :by_step_id, as: :select2, elements: @steps,
+                           label: false, placeholder: t('.by_step_id') %>
             </th>
             <th scope="col">
               <%= f.input :by_created_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>
@@ -39,14 +42,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="6">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @lowest_note_recoverys %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @lowest_note_recoverys %>
-            </div>
+          <td id="pagination-tfoot" colspan="8">
+            <%= render 'shared/pagination', records: @lowest_note_recoverys %>
           </td>
         </tfoot>
       </table>

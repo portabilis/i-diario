@@ -7,15 +7,17 @@
             <th scope="col"></th>
             <th scope="col">
               <%= f.input :by_grade, as: :select2, elements: @grades,
-                    label: false, placeholder: t('.by_grade') %>
+                           label: false, placeholder: t('.by_grade'),
+                           input_html: { value: current_user_classroom.grades.first.id } %>
             </th>
             <th scope="col" colspan="2">
               <%= f.input :by_discipline, as: :select2, elements: @disciplines,
-                    label: false, placeholder: t('.by_discipline') %>
+                           label: false, placeholder: t('.by_discipline'),
+                           input_html: { value: current_user_discipline.id } %>
             </th>
             <th scope="col">
               <%= f.input :by_school_term_type_id, as: :select2, elements: @school_term_type,
-                    label: false, placeholder: t('.by_school_term_type') %>
+                           label: false, placeholder: t('.by_school_term_type') %>
             </th>
             <th scope="col">
               <%= f.input :by_school_term_type_step_id, as: :select2, elements: @school_term_type_step,
