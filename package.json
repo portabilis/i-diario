@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "test": "jest",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui"
+  },
   "dependencies": {
     "@rails/webpacker": "4.3.0",
     "axios": "^0.28.0",
@@ -10,6 +15,10 @@
     "vue-template-compiler": "^2.6.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "dotenv": "^16.4.7",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "sass": "^1.57.0",
     "webpack-dev-server": "^3.11.0"
   },
