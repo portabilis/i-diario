@@ -56,18 +56,34 @@ class Content < ApplicationRecord
 
   after_save :update_description_token
 
+  MAX_RETRIES = 3
+
   # Com bang: levanta ActiveRecord::RecordInvalid se a validação falhar (usado nos controllers web)
   def self.find_or_create_by_description!(description)
-    find_or_create_by!(description: description)
-  rescue ActiveRecord::RecordNotUnique
-    retry
+    retries = 0
+
+    begin
+      find_or_create_by!(description: description)
+    rescue ActiveRecord::RecordNotUnique
+      retries += 1
+      retry if retries < MAX_RETRIES
+
+      raise
+    end
   end
 
   # Sem bang: retorna nil em caso de falha (usado na API v2 para não quebrar o sync do app mobile)
   def self.find_or_create_by_description(description)
-    find_or_create_by(description: description)
-  rescue ActiveRecord::RecordNotUnique
-    retry
+    retries = 0
+
+    begin
+      find_or_create_by(description: description)
+    rescue ActiveRecord::RecordNotUnique
+      retries += 1
+      retry if retries < MAX_RETRIES
+
+      raise
+    end
   end
 
   def to_s
