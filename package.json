@@ -10,6 +10,12 @@
     "vue-template-compiler": "^2.6.12"
   },
   "devDependencies": {
+    "sass": "^1.57.0",
     "webpack-dev-server": "^3.11.0"
+  },
+  "resolutions": {
+    "webpack": "^4.47.0",
+    "babel-loader": "^8.2.4",
+    "node-sass": "npm:sass@^1.57.0"
   }
 }
