@@ -28,27 +28,27 @@ sequenceDiagram
 
     Usuário->>iEducar: Confirma exclusão
     iEducar->>API: POST /api/v2/discipline_records/destroy_batch
-    Note over API: Valida token + 6 parâmetros (filtros + user + callback_url)
+    Note over API: Valida token + 6 parâmetros (filtros + user + operation_id)
     API->>DB: Cria DisciplineRecordDeletion (status: processing)
     API->>Sidekiq: Enfileira DisciplineRecordsDestroyerWorker
     API-->>iEducar: { queued: true }
 
     rect rgb(255, 240, 240)
-        Note over Sidekiq,DB: Processamento assíncrono (transação)
-        Sidekiq->>DB: Captura snapshot JSON de todos os registros
-        Sidekiq->>DB: Exclui registros em ordem de FK
-        Sidekiq->>DB: Salva snapshots em discipline_record_deletion_postings
-        Sidekiq->>DB: Cria audits com username identificando operação + usuário
+        Note over Sidekiq,DB: Processamento assíncrono (batch por unidade)
+        loop Para cada unidade
+            Sidekiq->>DB: Snapshot JSON via find_in_batches (chunks de 5.000)
+            Sidekiq->>DB: delete_all em ordem de FK (1 SQL DELETE por tabela)
+        end
         Sidekiq->>DB: Atualiza deletion (status: completed, total_deleted: N)
     end
 
     alt Sucesso
-        Sidekiq->>iEducar: POST callback_url { success: true, deleted: 97 }
+        Sidekiq->>iEducar: IeducarApi::PostComponentBatchCallback { success: true, deleted: 97, operation_id: M }
         iEducar-->>Usuário: "97 registros excluídos com sucesso"
     else Erro
-        Note over Sidekiq,DB: Rollback automático
+        Note over Sidekiq,DB: Rollback automático da unidade com erro
         Sidekiq->>DB: Atualiza deletion (status: error, error_message)
-        Sidekiq->>iEducar: POST callback_url { success: false, error: "mensagem" }
+        Sidekiq->>iEducar: IeducarApi::PostComponentBatchCallback { success: false, error: "mensagem", operation_id: M }
         iEducar-->>Usuário: Exibe erro (nenhum registro foi excluído)
     end
 ```
@@ -65,24 +65,27 @@ flowchart TB
     subgraph Services ["Service Objects"]
         Query["DisciplineRecordsQuery<br/><i>Resolve filtros em IDs internos</i>"]
         Counter["DisciplineRecordsCounter<br/><i>Conta registros por tipo</i>"]
-        Destroyer["DisciplineRecordsDestroyer<br/><i>Exclui em ordem de FK</i>"]
+        Destroyer["DisciplineRecordsDestroyer<br/><i>delete_all em ordem de FK<br/>batch por unidade</i>"]
     end
 
     subgraph Rastreabilidade
         Deletion["discipline_record_deletions<br/><i>1 registro por execução</i>"]
-        Postings["discipline_record_deletion_postings<br/><i>Snapshot JSON completo por tipo</i>"]
-        Audits["audits (Audited)<br/><i>Audit trail vinculado à operação</i>"]
+        Postings["discipline_record_deletion_postings<br/><i>Snapshot JSON em chunks de 5.000</i>"]
+    end
+
+    subgraph Callback
+        CallbackSvc["IeducarApi::PostComponentBatchCallback<br/><i>Segue padrão IeducarApi::Base</i>"]
     end
 
     Controller -- "POST /count" --> Counter
     Controller -- "POST /destroy_batch" --> Worker
     Worker --> Destroyer
-    Worker -- "POST callback_url" --> Callback["i-Educar (callback)"]
+    Worker --> CallbackSvc
+    CallbackSvc -- "POST module/Api/Diario<br/>resource: component-batch-callback" --> iEducar["i-Educar"]
     Counter --> Query
     Destroyer --> Query
     Destroyer --> Deletion
     Destroyer --> Postings
-    Destroyer -- "Audited.as_user" --> Audits
 ```
 
 ---
@@ -132,7 +135,7 @@ flowchart LR
 
 ## Ordem de Exclusão (Destroyer)
 
-A exclusão segue uma ordem específica para respeitar as foreign keys do banco. Antes de cada exclusão, o destroyer captura um snapshot JSON completo dos atributos de todos os registros (pais e filhos) para possibilitar restauração.
+A exclusão é processada **por unidade** (cada uma em sua própria transação), seguindo uma ordem específica para respeitar as foreign keys. Antes de cada `delete_all`, o destroyer captura um snapshot JSON via `find_in_batches(batch_size: 5_000)` para possibilitar restauração.
 
 ```mermaid
 flowchart TB
@@ -175,7 +178,7 @@ flowchart TB
 
     subgraph Step4 ["4. Frequências"]
         direction TB
-        DFS["DailyFrequencyStudent<br/><i>(with_discarded, explícito)</i>"]
+        DFS["DailyFrequencyStudent<br/><i>(with_discarded)</i>"]
         DF["DailyFrequency"]
         DFS --> DF
     end
@@ -242,8 +245,8 @@ flowchart TB
 
     subgraph Step11 ["11. Notas de transferência"]
         direction TB
-        TNDNS["DailyNoteStudent<br/><i>(snapshot antes do callback<br/>que nullifica transfer_note_id e note)</i>"]
-        TN["TransferNote<br/><i>(seta step_id antes do destroy)</i>"]
+        TNDNS["DailyNoteStudent<br/><i>(snapshot antes do update_all<br/>que nullifica transfer_note_id e note)</i>"]
+        TN["TransferNote<br/><i>(delete_all após update_all)</i>"]
         TNDNS -.-> TN
     end
 
@@ -260,18 +263,17 @@ Cada execução do `destroy_batch` cria registros para rastreabilidade:
 
 | Tabela | Descrição | Exemplo |
 |--------|-----------|---------|
-| `discipline_record_deletions` | 1 registro por execução com filtros, usuário e total | `filters: {year: 2025, unities_api_code: ["2"], user_api_code: "1"}, total_deleted: 97` |
-| `discipline_record_deletion_postings` | Snapshot JSON completo dos atributos por tipo de record | `record_type: 'DailyFrequency', records_data: [{id: 101, classroom_id: 5, ...}, ...]` |
-| `audits` (Audited) | Audit trail vinculado à operação | `username: 'discipline_record_deletion_id:1:ieducar_user:1'` |
+| `discipline_record_deletions` | 1 registro por execução com filtros, status e total | `filters: {year: 2025, unities_api_code: ["2"], user_api_code: "1"}, total_deleted: 97, operation_id: 42` |
+| `discipline_record_deletion_postings` | Snapshot JSON em chunks de 5.000 por tipo de record | `record_type: 'DailyFrequency', records_data: [{id: 101, classroom_id: 5, ...}, ...]` |
 
 ### Snapshot JSON
 
-O destroyer captura os **atributos completos** (`.attributes`) de cada registro antes de destruí-lo. Isso inclui:
+O destroyer captura os **atributos completos** (`.attributes`) de cada registro antes de deletá-lo, usando `find_in_batches(batch_size: 5_000)` para manter o uso de memória constante. Isso inclui:
 
 - Todos os campos do registro (incluindo FKs que a gem Audited exclui via `audited except:`)
-- Join tables HABTM sem model (`avaliations_grades`) via SQL direto
+- Join tables HABTM sem model (`avaliations_grades`) via `SELECT *` direto (também em batches por IDs)
 - Filhos com `dependent: :destroy` que seriam perdidos em cascata (`ContentRecord`, `LessonPlan`, `TeachingPlan` e todos os seus filhos)
-- `DailyNoteStudent` vinculados a `TransferNote` (que o callback `before_destroy` nullifica antes da exclusão)
+- `DailyNoteStudent` vinculados a `TransferNote` (que o `update_all` nullifica antes do `delete_all`)
 - Records soft-deleted via `with_discarded` para capturar registros descartados
 
 **Total: 33 record types capturados** em 11 steps de exclusão.
@@ -351,9 +353,9 @@ Retorna a contagem de registros que seriam afetados pelos filtros.
 
 ### POST `/api/v2/discipline_records/destroy_batch`
 
-Enfileira a exclusão dos registros no Sidekiq e retorna imediatamente. O resultado é enviado via callback HTTP ao i-Educar.
+Enfileira a exclusão dos registros no Sidekiq e retorna imediatamente. O resultado é enviado via callback para o i-Educar usando `IeducarApi::PostComponentBatchCallback`.
 
-**Body (JSON):** Mesmo do `count` + campos `user` e `callback_url`:
+**Body (JSON):** Mesmo do `count` + campos `user` e `operation_id`:
 ```json
 {
   "year": 2025,
@@ -362,7 +364,7 @@ Enfileira a exclusão dos registros no Sidekiq e retorna imediatamente. O result
   "grades": ["51", "52"],
   "disciplines": ["10", "15"],
   "user": "1",
-  "callback_url": "https://ieducar.example.com/webhook/component-batch/42"
+  "operation_id": 42
 }
 ```
 
@@ -376,15 +378,16 @@ Enfileira a exclusão dos registros no Sidekiq e retorna imediatamente. O result
 { "success": false, "errors": "Parâmetros obrigatórios ausentes: ..." }
 ```
 
-**Callback (POST para callback_url):**
+**Callback (via `IeducarApi::PostComponentBatchCallback`):**
 
-Quando o worker finaliza, envia um POST para a `callback_url` com header `token` (api_security_token) e body:
+Quando o worker finaliza, envia callback via `IeducarApi::PostComponentBatchCallback` (endpoint `module/Api/Diario`, resource `component-batch-callback`, oper `post`). Autenticação padrão via query params do `IeducarApiConfiguration`. Só é enviado se `operation_id` estiver presente.
+
 ```json
 // Sucesso
-{ "success": true, "deleted": 97 }
+{ "success": true, "deleted": 97, "operation_id": 42 }
 
 // Erro
-{ "success": false, "error": "mensagem de erro" }
+{ "success": false, "error": "mensagem de erro", "operation_id": 42 }
 ```
 
 ### Validações
@@ -410,7 +413,7 @@ Quando o worker finaliza, envia um POST para a `callback_url` com header `token`
 | `grades` | Sim | Array de `api_codes` das séries |
 | `disciplines` | Sim | Array de `api_codes` das disciplinas |
 | `user` | Sim (destroy_batch) | `api_code` do usuário que executou a operação |
-| `callback_url` | Não | URL para receber o resultado via POST quando o processamento finalizar |
+| `operation_id` | Não | ID da operação no i-Educar para vincular ao callback |
 
 ---
 
@@ -421,14 +424,14 @@ Quando o worker finaliza, envia um POST para a `callback_url` com header `token`
 | 1 | Avaliações numéricas | `Avaliation` | `AvaliationRecoveryDiaryRecord`, `DailyNote`, `DailyNoteStudent`, `AvaliationExemption`, `AvaliationsGrade` |
 | 2 | Avaliações conceituais | `ConceptualExam` | `ConceptualExamValue` (filtra por discipline_id, só órfãos são removidos) |
 | 3 | Recuperações | `RecoveryDiaryRecord` | `RecoveryDiaryRecordStudent`, `SchoolTermRecoveryDiaryRecord`, `FinalRecoveryDiaryRecord`, `AvaliationRecoveryDiaryRecord`, `AvaliationRecoveryLowestNote` |
-| 4 | Frequências diárias | `DailyFrequency` | `DailyFrequencyStudent` (destruído explicitamente antes do pai) |
-| 5 | Registros de conteúdo | `DisciplineContentRecord` | `ContentRecord`, `ContentRecordsContent` (via `dependent: :destroy`) |
-| 6 | Planos de aula | `DisciplineLessonPlan` | `LessonPlan`, `ContentsLessonPlan`, `ObjectivesLessonPlan`, `LessonPlanAttachment` (via `dependent: :destroy`) |
-| 7 | Planos de ensino | `DisciplineTeachingPlan` | `TeachingPlan`, `ContentsTeachingPlan`, `ObjectivesTeachingPlan`, `TeachingPlanAttachment` (via `dependent: :destroy`) |
+| 4 | Frequências diárias | `DailyFrequency` | `DailyFrequencyStudent` |
+| 5 | Registros de conteúdo | `DisciplineContentRecord` | `ContentRecord`, `ContentRecordsContent` |
+| 6 | Planos de aula | `DisciplineLessonPlan` | `LessonPlan`, `ContentsLessonPlan`, `ObjectivesLessonPlan`, `LessonPlanAttachment` |
+| 7 | Planos de ensino | `DisciplineTeachingPlan` | `TeachingPlan`, `ContentsTeachingPlan`, `ObjectivesTeachingPlan`, `TeachingPlanAttachment` |
 | 8 | Diário de observações | `ObservationDiaryRecord` | `ObservationDiaryRecordNote`, `ObservationDiaryRecordNoteStudent`, `ObservationDiaryRecordAttachment` |
 | 9 | Exames complementares | `ComplementaryExam` | `ComplementaryExamStudent` |
 | 10 | Avaliações descritivas | `DescriptiveExam` | `DescriptiveExamStudent` |
-| 11 | Notas de transferência | `TransferNote` | `DailyNoteStudent` (snapshot antes do `before_destroy` que nullifica `transfer_note_id` e `note`) |
+| 11 | Notas de transferência | `TransferNote` | `DailyNoteStudent` (snapshot antes do `update_all` que nullifica `transfer_note_id` e `note`, seguido de `delete_all`) |
 
 ---
 
@@ -439,9 +442,10 @@ Quando o worker finaliza, envia um POST para a `callback_url` com header `token`
 | `app/controllers/api/v2/discipline_records_controller.rb` | Controller com endpoints `count` e `destroy_batch` |
 | `app/services/api/discipline_records_query.rb` | Resolve api_codes em IDs internos e monta scopes |
 | `app/services/api/discipline_records_counter.rb` | Conta registros por tipo usando os scopes da query |
-| `app/services/api/discipline_records_destroyer.rb` | Exclui registros em ordem de FK com snapshot JSON |
+| `app/services/api/discipline_records_destroyer.rb` | Exclui via `delete_all` com snapshot em batches via `find_in_batches` |
+| `app/services/ieducar_api/post_component_batch_callback.rb` | Callback para i-Educar seguindo padrão `IeducarApi::Base` |
 | `app/models/discipline_record_deletion.rb` | Model de rastreabilidade (1 por execução) |
-| `app/models/discipline_record_deletion_posting.rb` | Snapshot JSON por record type |
+| `app/models/discipline_record_deletion_posting.rb` | Snapshot JSON por record type (chunks de 5.000) |
 | `app/enumerations/discipline_record_deletion_status.rb` | Enumeração de status (processing, completed, error) |
 | `app/workers/discipline_records_destroyer_worker.rb` | Worker Sidekiq que processa a exclusão e envia callback |
 | `db/migrate/20260306171550_create_discipline_record_deletions.rb` | Migration das tabelas de rastreabilidade |
@@ -452,16 +456,17 @@ Quando o worker finaliza, envia um POST para a `callback_url` com header `token`
 
 ## Considerações Técnicas
 
-- **Processamento assíncrono:** O `destroy_batch` enfileira um worker Sidekiq e retorna `{ queued: true }` imediatamente. O resultado é enviado via callback HTTP.
-- **Callback:** Ao finalizar, o worker faz POST na `callback_url` com header `token` (api_security_token) e payload JSON com `success`, `deleted` ou `error`.
-- **Transação:** Toda a exclusão ocorre dentro de uma transação. Se qualquer `destroy!` falhar, nenhum registro é excluído.
+- **Processamento assíncrono:** O `destroy_batch` enfileira um worker Sidekiq e retorna `{ queued: true }` imediatamente. O resultado é enviado via `IeducarApi::PostComponentBatchCallback`.
+- **Callback:** Segue o padrão `IeducarApi::Base` do projeto (autenticação via query params do `IeducarApiConfiguration`). Endpoint no i-Educar: `module/Api/Diario`, resource `component-batch-callback`, oper `post`. Só é enviado se `operation_id` estiver presente.
+- **Performance (`delete_all`):** Usa `delete_all` (1 SQL DELETE por tabela) ao invés de `destroy!` (N queries com callbacks). O audit trail é garantido pelo snapshot JSON, não pela gem Audited.
+- **Batch por unidade:** Cada unidade é processada em sua própria transação, evitando locks longos e permitindo progresso parcial em caso de erro.
+- **Memória constante:** Snapshot via `find_in_batches(batch_size: 5_000)` — nunca carrega mais que 5.000 registros na memória, independente do volume total. IDs extraídos via `pluck(:id)` (apenas inteiros).
+- **Transação:** Toda a exclusão de uma unidade ocorre dentro de uma transação. Se qualquer `delete_all` falhar, todos os registros daquela unidade são preservados.
 - **Idempotência:** Chamar `destroy_batch` duas vezes com os mesmos filtros é seguro — o segundo callback retorna `deleted: 0` (mas cria um novo `discipline_record_deletion` com `total_deleted: 0`).
 - **Status:** Cada `DisciplineRecordDeletion` tem status `processing` → `completed` ou `error`, controlado pela enumeração `DisciplineRecordDeletionStatus`.
-- **Audit trail:** Cada registro excluído gera um audit com `username: "discipline_record_deletion_id:N:ieducar_user:M"`.
-- **Snapshot JSON:** Os atributos completos são salvos em `records_data` (jsonb) na tabela `discipline_record_deletion_postings`, independente da tabela `audits`. Isso resolve o problema de models com `audited except:` que excluem FKs críticas.
-- **HABTM:** A join table `avaliations_grades` não tem model ActiveRecord. O snapshot é capturado via `SELECT *` direto e restaurado via INSERT SQL.
-- **TransferNote:** O callback `before_destroy` nullifica `transfer_note_id` e `note` nos `DailyNoteStudent` vinculados (não os exclui). O snapshot é capturado **antes** do `destroy!` com record type `TransferNoteDailyNoteStudent`.
+- **Snapshot JSON:** Os atributos completos são salvos em `records_data` (jsonb) na tabela `discipline_record_deletion_postings`, em chunks de 5.000 registros. Isso captura dados que a gem Audited exclui via `audited except:` e join tables HABTM sem model.
+- **HABTM:** A join table `avaliations_grades` não tem model ActiveRecord. O snapshot é capturado via `SELECT *` direto (em batches de IDs) e restaurado via INSERT SQL.
+- **TransferNote:** Replica manualmente o `before_destroy` com `update_all(transfer_note_id: nil, note: nil)` seguido de `delete_all`. O snapshot é capturado **antes** do `update_all` com record type `TransferNoteDailyNoteStudent`.
 - **Calendário escolar:** As queries usam a data real de início do calendário da turma (`SchoolCalendarClassroom` ou `SchoolCalendar`), não 1º de janeiro.
 - **Discardable:** Models com soft-delete são consultados com `with_discarded` tanto na exclusão quanto no snapshot para evitar registros órfãos.
-- **DailyFrequencyStudent:** Destruído explicitamente **antes** do `DailyFrequency` para evitar dupla contagem no callback `before_destroy`.
 - **Limpeza:** Dados de rastreabilidade são removidos automaticamente via rake task mensal (ano anterior + mínimo 1 mês de criação).
