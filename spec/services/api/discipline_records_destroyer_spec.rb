@@ -24,7 +24,8 @@ RSpec.describe Api::DisciplineRecordsDestroyer do
         courses: [],
         grades: [],
         disciplines: [discipline.api_code],
-        year: year
+        year: year,
+        user: 'test-user'
       )
     end
 

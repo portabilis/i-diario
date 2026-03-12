@@ -45,12 +45,16 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns 422 without year parameter' do
+    it 'returns 422 without required parameters' do
       post :count, params: { format: 'json', locale: 'en' }, xhr: true
 
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
-      expect(json['errors']).to be_present
+      expect(json['errors']).to include('year')
+      expect(json['errors']).to include('unities')
+      expect(json['errors']).to include('courses')
+      expect(json['errors']).to include('grades')
+      expect(json['errors']).to include('disciplines')
     end
 
     it 'returns counts with all filters' do
@@ -89,6 +93,8 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       params = {
         year: year,
         unities: [unity.api_code],
+        courses: [course.api_code],
+        grades: [grade.api_code],
         disciplines: [discipline.api_code],
         format: 'json',
         locale: 'en'
@@ -115,15 +121,49 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns 422 without year parameter' do
+    it 'returns 422 without required parameters' do
       post :destroy_batch, params: { format: 'json', locale: 'en' }, xhr: true
 
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
       expect(json['success']).to be false
+      expect(json['errors']).to include('year')
+      expect(json['errors']).to include('unities')
+      expect(json['errors']).to include('courses')
+      expect(json['errors']).to include('grades')
+      expect(json['errors']).to include('disciplines')
+      expect(json['errors']).to include('user')
     end
 
-    it 'destroys matching records and returns total' do
+    it 'returns queued true and creates deletion with processing status' do
+      params = {
+        year: year,
+        unities: [unity.api_code],
+        courses: [course.api_code],
+        grades: [grade.api_code],
+        disciplines: [discipline.api_code],
+        user: '1',
+        operation_id: 42,
+        format: 'json',
+        locale: 'en'
+      }
+
+      expect {
+        post :destroy_batch, params: params, xhr: true
+      }.to change(DisciplineRecordDeletion, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['queued']).to be true
+
+      deletion = DisciplineRecordDeletion.last
+      expect(deletion.status).to eq(DisciplineRecordDeletionStatus::PROCESSING)
+      expect(deletion.operation_id).to eq(42)
+      expect(deletion.filters['user_api_code']).to eq('1')
+      expect(deletion.filters['year']).to eq(year)
+    end
+
+    it 'does not execute destruction synchronously' do
       create(
         :daily_frequency,
         classroom: classroom,
@@ -136,37 +176,11 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       params = {
         year: year,
         unities: [unity.api_code],
+        courses: [course.api_code],
+        grades: [grade.api_code],
         disciplines: [discipline.api_code],
-        format: 'json',
-        locale: 'en'
-      }
-
-      expect {
-        post :destroy_batch, params: params, xhr: true
-      }.to change(DailyFrequency, :count).by(-1)
-
-      expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
-      expect(json['success']).to be true
-      expect(json['deleted']).to eq(1)
-    end
-
-    it 'does not destroy records from other disciplines' do
-      other_discipline = create(:discipline)
-
-      create(
-        :daily_frequency,
-        classroom: classroom,
-        discipline: other_discipline,
-        unity: unity,
-        frequency_date: Date.current,
-        school_calendar: classroom.calendar.school_calendar
-      )
-
-      params = {
-        year: year,
-        unities: [unity.api_code],
-        disciplines: [discipline.api_code],
+        user: '1',
+        operation_id: 42,
         format: 'json',
         locale: 'en'
       }
@@ -174,10 +188,47 @@ RSpec.describe Api::V2::DisciplineRecordsController, type: :controller do
       expect {
         post :destroy_batch, params: params, xhr: true
       }.not_to change(DailyFrequency, :count)
+    end
 
-      json = JSON.parse(response.body)
-      expect(json['success']).to be true
-      expect(json['deleted']).to eq(0)
+    it 'stores operation_id in deletion record' do
+      params = {
+        year: year,
+        unities: [unity.api_code],
+        courses: [course.api_code],
+        grades: [grade.api_code],
+        disciplines: [discipline.api_code],
+        user: '1',
+        operation_id: 99,
+        format: 'json',
+        locale: 'en'
+      }
+
+      post :destroy_batch, params: params, xhr: true
+
+      deletion = DisciplineRecordDeletion.last
+      expect(deletion.operation_id).to eq(99)
+    end
+
+    it 'stores filters correctly in deletion record' do
+      params = {
+        year: year,
+        unities: [unity.api_code],
+        courses: [course.api_code],
+        grades: [grade.api_code],
+        disciplines: [discipline.api_code],
+        user: '123',
+        operation_id: 42,
+        format: 'json',
+        locale: 'en'
+      }
+
+      post :destroy_batch, params: params, xhr: true
+
+      deletion = DisciplineRecordDeletion.last
+      expect(deletion.filters['user_api_code']).to eq('123')
+      expect(deletion.filters['year']).to eq(year)
+      expect(deletion.filters['unities_api_code']).to eq([unity.api_code.to_s])
+      expect(deletion.filters['disciplines_api_code']).to eq([discipline.api_code.to_s])
     end
   end
 end

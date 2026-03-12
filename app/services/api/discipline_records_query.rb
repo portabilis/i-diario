@@ -16,18 +16,24 @@ module Api
     end
 
     def daily_frequencies
+      return DailyFrequency.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(DailyFrequency, :classroom_id, :frequency_date)
       )
     end
 
     def avaliations
+      return Avaliation.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(Avaliation, :classroom_id, :test_date)
       )
     end
 
     def conceptual_exams
+      return ConceptualExam.none if @no_results
+
       scope = filter_by_start_date(ConceptualExam, :classroom_id, :recorded_at)
 
       if discipline_ids.present?
@@ -39,12 +45,16 @@ module Api
     end
 
     def recovery_diary_records
+      return RecoveryDiaryRecord.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(RecoveryDiaryRecord, :classroom_id, :recorded_at)
       )
     end
 
     def discipline_content_records
+      return DisciplineContentRecord.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date_joined(
           DisciplineContentRecord.joins(:content_record),
@@ -54,6 +64,8 @@ module Api
     end
 
     def discipline_lesson_plans
+      return DisciplineLessonPlan.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date_joined(
           DisciplineLessonPlan.joins(:lesson_plan),
@@ -63,6 +75,8 @@ module Api
     end
 
     def discipline_teaching_plans
+      return DisciplineTeachingPlan.none if @no_results
+
       scope = DisciplineTeachingPlan.joins(:teaching_plan)
                                     .where(teaching_plans: { year: @year })
 
@@ -72,30 +86,40 @@ module Api
     end
 
     def observation_diary_records
+      return ObservationDiaryRecord.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(ObservationDiaryRecord, :classroom_id, :date)
       )
     end
 
     def transfer_notes
+      return TransferNote.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(TransferNote, :classroom_id, :transfer_date)
       )
     end
 
     def complementary_exams
+      return ComplementaryExam.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(ComplementaryExam, :classroom_id, :recorded_at)
       )
     end
 
     def descriptive_exams
+      return DescriptiveExam.none if @no_results
+
       filter_by_discipline(
         filter_by_start_date(DescriptiveExam, :classroom_id, :recorded_at)
       )
     end
 
     def avaliation_exemptions
+      return AvaliationExemption.none if @no_results
+
       scope = filter_by_start_date_joined(
         AvaliationExemption.joins(:avaliation),
         Avaliation, :classroom_id, :test_date
@@ -175,6 +199,15 @@ module Api
       resolve_grade_ids
       resolve_discipline_ids
       resolve_classroom_ids
+
+      @no_results = any_filter_unresolved?
+    end
+
+    def any_filter_unresolved?
+      (@unities.present? && @unity_ids.blank?) ||
+        (@courses.present? && @course_ids.blank?) ||
+        (@grades.present? && @grade_ids.blank?) ||
+        (@disciplines.present? && @discipline_ids.blank?)
     end
 
     def resolve_grade_ids
@@ -192,6 +225,11 @@ module Api
     end
 
     def resolve_classroom_ids
+      if (@grades.present? || @courses.present?) && @grade_ids.blank?
+        @classroom_ids = []
+        return
+      end
+
       scope = ClassroomsGrade.joins(:classroom)
                              .where(classrooms: { year: @year })
 

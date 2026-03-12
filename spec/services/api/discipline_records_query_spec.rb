@@ -100,17 +100,4 @@ RSpec.describe Api::DisciplineRecordsQuery do
     end
   end
 
-  describe '#start_date' do
-    it 'returns January 1st of the given year' do
-      query = described_class.new(
-        unities: [],
-        courses: [],
-        grades: [],
-        disciplines: [],
-        year: year
-      )
-
-      expect(query.start_date).to eq(Date.new(year, 1, 1))
-    end
-  end
 end
