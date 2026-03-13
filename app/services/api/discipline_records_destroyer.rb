@@ -127,6 +127,7 @@ module Api
       snapshot_records('ConceptualExam', ConceptualExam.with_discarded.where(id: orphan_ids))
       ConceptualExam.with_discarded.where(id: orphan_ids).delete_all
 
+      # Retorna total de exames afetados (não apenas órfãos deletados) para alinhar com o counter
       conceptual_exam_ids.size
     end
 
@@ -292,7 +293,7 @@ module Api
       snapshot_records('TransferNote', TransferNote.where(id: transfer_note_ids))
 
       # Replica o before_destroy do TransferNote: desvincula DailyNoteStudents
-      DailyNoteStudent.where(transfer_note_id: transfer_note_ids).update_all(transfer_note_id: nil, note: nil)
+      DailyNoteStudent.with_discarded.where(transfer_note_id: transfer_note_ids).update_all(transfer_note_id: nil, note: nil)
       TransferNote.where(id: transfer_note_ids).delete_all
 
       transfer_note_ids.size

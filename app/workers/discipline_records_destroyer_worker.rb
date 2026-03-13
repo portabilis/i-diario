@@ -23,7 +23,7 @@ class DisciplineRecordsDestroyerWorker
       send_callback(deletion, success: true, deleted: total)
     rescue StandardError => e
       deletion&.mark_with_error!(e.message)
-      send_callback(deletion, success: false, error: e.message) if deletion
+      send_callback(deletion, success: false, error: e.message, deleted: deletion.total_deleted) if deletion
       Honeybadger.notify(e)
     end
   end
