@@ -95,7 +95,7 @@ $(function() {
       $schoolTermDiv.hide();
       $schoolTermInput.select2('val', '');
       $divisionWeightCheckContainer.hide();
-      $defaultDivisionWeight.val("");
+      $defaultDivisionWeight.val("1");
       $divisionWeightCheck.prop('checked', false);
       $divisionWeightInput.hide();
     }
