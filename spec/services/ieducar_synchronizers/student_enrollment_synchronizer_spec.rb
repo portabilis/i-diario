@@ -105,8 +105,8 @@ RSpec.describe StudentEnrollmentSynchronizer, type: :service do
 
           cached_student = synchronizer.instance_variable_get(:@students)
           expect(cached_student).to be_present
-          expect(cached_student[54326]).to be_present
-          expect(cached_student[54326].name).to eq('CAMILLY GONÇALVES TEIXEIRA')
+          expect(cached_student['54326']).to be_present
+          expect(cached_student['54326'].name).to eq('CAMILLY GONÇALVES TEIXEIRA')
         end
       end
 
