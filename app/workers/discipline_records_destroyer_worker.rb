@@ -7,6 +7,7 @@ class DisciplineRecordsDestroyerWorker
   def perform(entity_id, deletion_id)
     Entity.find(entity_id).using_connection do
       deletion = DisciplineRecordDeletion.find(deletion_id)
+      return if deletion.completed?
 
       destroyer = Api::DisciplineRecordsDestroyer.new(
         unities: deletion.filters['unities_api_code'],

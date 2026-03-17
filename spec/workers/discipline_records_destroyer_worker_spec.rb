@@ -159,6 +159,29 @@ RSpec.describe DisciplineRecordsDestroyerWorker, type: :worker do
       expect(deletion.status).to eq(DisciplineRecordDeletionStatus::COMPLETED)
     end
 
+    it 'skips processing when deletion is already completed (idempotency)' do
+      deletion = DisciplineRecordDeletion.create!(
+        filters: {
+          year: year,
+          unities_api_code: [unity.api_code.to_s],
+          courses_api_code: [course.api_code.to_s],
+          grades_api_code: [grade.api_code.to_s],
+          disciplines_api_code: [discipline.api_code.to_s],
+          user_api_code: '1'
+        },
+        status: DisciplineRecordDeletionStatus::COMPLETED,
+        total_deleted: 5
+      )
+
+      expect(Api::DisciplineRecordsDestroyer).not_to receive(:new)
+
+      subject.perform(entity.id, deletion.id)
+
+      deletion.reload
+      expect(deletion.status).to eq(DisciplineRecordDeletionStatus::COMPLETED)
+      expect(deletion.total_deleted).to eq(5)
+    end
+
     it 'does not fail when callback request fails' do
       deletion = DisciplineRecordDeletion.create!(
         filters: {
