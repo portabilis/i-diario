@@ -4,11 +4,11 @@ namespace :discipline_records do
   desc 'Remove registros de exclusao em lote do ano anterior para todas as entidades'
   task cleanup_old_deletions: :environment do
     # Limpa registros de discipline_record_deletions e seus postings do ano anterior
-    # com pelo menos 1 mes de criacao.
-    # Ex: rake executada em 11/03/2026, remove registros com year <= 2025 e created_at < 11/02/2026.
+    # com pelo menos 4 meses de criacao.
+    # Ex: rake executada em 17/03/2026, remove registros com year <= 2025 e created_at < 17/11/2025.
 
     previous_year = Date.current.year - 1
-    cutoff_date = 1.month.ago
+    cutoff_date = 4.months.ago
     total_deleted = 0
 
     puts "Iniciando limpeza de registros de exclusao do ano #{previous_year} criados antes de #{cutoff_date.strftime('%d/%m/%Y')}"
