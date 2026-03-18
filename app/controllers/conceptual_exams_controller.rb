@@ -554,38 +554,20 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_conceptual_exams_by_user
-    @conceptual_exams = if current_user.current_role_is_admin_or_employee?
-                          conceptual_exams_for_admin
-                        else
-                          conceptual_exams_for_teacher
-                        end
+    @conceptual_exams = apply_scopes(
+      ConceptualExamsFetcher.fetch!(
+        user: current_user,
+        teacher_id: current_teacher_id,
+        unity: current_unity,
+        classrooms: @classrooms,
+        disciplines: @disciplines
+      )
+    )
 
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
       current_school_calendar,
       classrooms_for_steps_filter
     )
-  end
-
-  def conceptual_exams_for_admin
-    apply_scopes(ConceptualExam).includes(:student, :classroom)
-      .by_unity(current_unity)
-      .where(
-        classroom_id: TeacherDisciplineClassroom
-          .by_teacher_id(current_teacher_id)
-          .by_classroom(@classrooms.map(&:id))
-          .by_discipline_id(@disciplines.map(&:id))
-          .where(score_type: [ScoreTypes::CONCEPT, nil])
-          .select(:classroom_id)
-      )
-      .ordered_by_date_and_student
-  end
-
-  def conceptual_exams_for_teacher
-    apply_scopes(ConceptualExam).includes(:student, :classroom)
-      .by_unity(current_unity)
-      .by_classroom(@classrooms.map(&:id))
-      .by_teacher(current_teacher_id)
-      .ordered_by_date_and_student
   end
 
   def fetch_linked_by_teacher
