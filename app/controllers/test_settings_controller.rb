@@ -117,6 +117,7 @@ class TestSettingsController < ApplicationController
 
     parameters[:unities] = parameters[:unities].split(',')
     parameters[:grades] = parameters[:grades].split(',')
+    parameters.delete(:default_division_weight) unless parameters[:average_calculation_type] == AverageCalculationTypes::SUM
 
     parameters
   end
