@@ -3,13 +3,14 @@ require 'rails_helper'
 RSpec.describe MaintenanceAdjustmentsController, type: :controller do
   let(:entity) { Entity.find_by(domain: 'test.host') }
   let(:unity) { create(:unity) }
+  let(:current_school_year) { Date.current.year }
   let(:user) do
     create(
       :user,
       :with_user_role_administrator,
       admin: true,
       current_unity_id: unity.id,
-      current_school_year: 2026
+      current_school_year: current_school_year
     )
   end
 
