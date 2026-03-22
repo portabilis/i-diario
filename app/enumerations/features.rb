@@ -35,6 +35,7 @@ class Features < EnumerateIt::Base
                    :knowledge_area_lesson_plans,
                    :knowledge_area_teaching_plans,
                    :learning_objectives_and_skills,
+                   :maintenance_adjustments,
                    :observation_diary_records,
                    :observation_record_report,
                    :partial_score_record_report,

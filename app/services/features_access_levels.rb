@@ -74,6 +74,7 @@ class FeaturesAccessLevels
       :data_exportations,
       :entity_configurations,
       :general_configurations,
+      :maintenance_adjustments,
       :roles,
       :unities,
       :terms_dictionaries,

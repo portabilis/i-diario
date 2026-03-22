@@ -23,4 +23,33 @@ class MaintenanceAdjustment < ApplicationRecord
   def to_s
     MaintenanceAdjustmentKinds.t(kind)
   end
+
+  def mark_as_in_progress!
+    persist_workflow_state!(
+      status: MaintenanceAdjustmentStatus::IN_PROGRESS,
+      error_message: nil
+    )
+  end
+
+  def mark_as_completed!
+    persist_workflow_state!(
+      status: MaintenanceAdjustmentStatus::COMPLETED,
+      error_message: nil
+    )
+  end
+
+  def mark_as_error!(message)
+    persist_workflow_state!(
+      status: MaintenanceAdjustmentStatus::ERROR,
+      error_message: message
+    )
+  end
+
+  private
+
+  # As mudancas de estado acontecem fora do ciclo da request, entao nao devem
+  # depender das validacoes do formulario original.
+  def persist_workflow_state!(attributes)
+    update_columns(attributes.merge(updated_at: Time.current))
+  end
 end

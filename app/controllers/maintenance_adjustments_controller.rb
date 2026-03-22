@@ -17,7 +17,7 @@ class MaintenanceAdjustmentsController < ApplicationController
   end
 
   def create
-    @maintenance_adjustment = MaintenanceAdjustment.new(maintenance_adjustment_params)
+    @maintenance_adjustment = MaintenanceAdjustment.new(maintenance_adjustment_params.merge(workflow_attributes))
     authorize @maintenance_adjustment
 
     if @maintenance_adjustment.save
@@ -29,7 +29,7 @@ class MaintenanceAdjustmentsController < ApplicationController
   end
 
   def update
-    if @maintenance_adjustment.update(maintenance_adjustment_params)
+    if @maintenance_adjustment.update(maintenance_adjustment_params.merge(workflow_attributes))
       start_maintenance_adjustment
       respond_with @maintenance_adjustment, location: maintenance_adjustments_path, notice: t('.notice')
     else
@@ -58,8 +58,10 @@ class MaintenanceAdjustmentsController < ApplicationController
   end
 
   def maintenance_adjustment_params
-    _params = params.require(:maintenance_adjustment).permit(:year, :kind, :observations, :status, :unity_ids)
-    _params[:unity_ids] = _params[:unity_ids].split(",")
+    _params = params.require(:maintenance_adjustment).permit(:year, :kind, :observations, :unity_ids)
+    # O select2 customizado envia os ids como string separada por virgulas, mas
+    # a associacao HABTM espera receber um array.
+    _params[:unity_ids] = normalize_unity_ids(_params[:unity_ids])
     _params
   end
 
@@ -69,5 +71,16 @@ class MaintenanceAdjustmentsController < ApplicationController
 
   def start_maintenance_adjustment
     MaintenanceAdjustmentWorker.perform_async(current_entity.id, maintenance_adjustment_params[:unity_ids], current_user.id, @maintenance_adjustment.id)
+  end
+
+  def normalize_unity_ids(unity_ids)
+    Array(unity_ids).flat_map { |value| value.to_s.split(',') }.reject(&:blank?)
+  end
+
+  def workflow_attributes
+    {
+      status: MaintenanceAdjustmentStatus::PENDING,
+      error_message: nil
+    }
   end
 end

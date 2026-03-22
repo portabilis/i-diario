@@ -1,4 +1,8 @@
 pt-BR:
   maintenance_adjustment_worker:
-    title: 'Ajustes realizados com sucesso'
-    description: 'Os ajustes solicitados foram realizados com sucesso.'
+    success:
+      title: 'Ajustes realizados com sucesso'
+      description: 'Os ajustes solicitados foram realizados com sucesso.'
+    error:
+      title: 'Ocorreu um erro ao realizar os ajustes'
+      description: 'Os ajustes solicitados não puderam ser concluídos. Motivo: %{error_message}.'

@@ -6,36 +6,33 @@ class MaintenanceAdjustmentWorker
       maintenance_adjustment = MaintenanceAdjustment.find(maintenance_adjustment_id)
 
       begin
-        maintenance_adjustment.update(status: MaintenanceAdjustmentStatus::IN_PROGRESS)
+        maintenance_adjustment.mark_as_in_progress!
 
         if maintenance_adjustment.absence_adjustments?
           AbsenceAdjustmentsService.adjust(unities, maintenance_adjustment.year)
         end
 
-        maintenance_adjustment.update(
-          status: MaintenanceAdjustmentStatus::COMPLETED,
-          error_message: ''
-        )
+        maintenance_adjustment.mark_as_completed!
 
-        notify_on_message(maintenance_adjustment, user_id)
+        notify_on_message(maintenance_adjustment, user_id, success: true)
       rescue StandardError => error
         Honeybadger.notify(error)
 
-        maintenance_adjustment.update(
-          status: MaintenanceAdjustmentStatus::ERROR,
-          error_message: error.message
-        )
+        maintenance_adjustment.mark_as_error!(error.message)
+        notify_on_message(maintenance_adjustment, user_id, success: false, error_message: error.message)
       end
     end
   end
 
   private
 
-  def notify_on_message(maintenance_adjustment, user_id)
+  def notify_on_message(maintenance_adjustment, user_id, success:, error_message: nil)
+    scope = success ? 'maintenance_adjustment_worker.success' : 'maintenance_adjustment_worker.error'
+
     SystemNotificationCreator.create!(
       source: maintenance_adjustment,
-      title: I18n.t('maintenance_adjustment_worker.title'),
-      description: I18n.t('maintenance_adjustment_worker.description'),
+      title: I18n.t("#{scope}.title"),
+      description: I18n.t("#{scope}.description", error_message: error_message),
       users: [User.find(user_id)]
     )
   end

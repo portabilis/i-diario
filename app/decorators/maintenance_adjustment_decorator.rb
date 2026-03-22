@@ -27,13 +27,18 @@ class MaintenanceAdjustmentDecorator
       when MaintenanceAdjustmentStatus::ERROR then 'danger'
     end
 
-    content_tag(
-      :p,
-      spin << MaintenanceAdjustmentStatus.t(component.status),
+    html_options = {
       class: 'label label-list label-' << status_class,
       :'data-column' => 'situation',
       :'data-value' => component.status,
       :'data-id' => component.id
+    }
+    html_options[:title] = component.error_message if component.error? && component.error_message.present?
+
+    content_tag(
+      :p,
+      spin << MaintenanceAdjustmentStatus.t(component.status),
+      html_options
     ).html_safe
   end
 end
