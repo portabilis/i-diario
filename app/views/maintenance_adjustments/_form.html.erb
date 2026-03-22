@@ -7,10 +7,10 @@
 
   <fieldset>
     <div>
-      <% if f.object.error_message.present? %>
+      <% if f.object.try(:error_message).present? %>
         <p class='alert alert-danger'>
           <i class='fa-fw fa fa-times'></i>
-          <span><%= f.object.error_message %></span>
+          <span><%= f.object.try(:error_message) %></span>
         </p>
       <% end %>
       <p id='maintenance_adjustment_info' class='alert alert-info hidden'>
