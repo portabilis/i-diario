@@ -352,7 +352,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan
       .includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
       .by_classroom_id(@classrooms.map(&:id))
-      .by_knowledge_area_id(@knowledge_areas.map(&:id))
       .order_by_classrooms
       .ordered
     ).select(
