@@ -44,9 +44,9 @@ class LearningObjectivesAndSkillsCsvImporter
       remaining_grades = record.grades - [grade]
 
       if remaining_grades.empty?
-        record.delete
+        record.destroy
       else
-        record.update_columns(grades: remaining_grades)
+        record.update!(grades: remaining_grades)
       end
 
       @removed_count += 1

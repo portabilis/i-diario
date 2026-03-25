@@ -166,7 +166,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
       return redirect_to import_learning_objectives_and_skills_path
     end
 
-    import_mode = params[:import_mode] || cached[:import_mode]
+    import_mode = cached[:import_mode]
     grades = cached[:records].flat_map { |r| r[:grades] }.uniq
     modes_by_grade = grades.each_with_object({}) { |grade, h| h[grade] = import_mode }
 
