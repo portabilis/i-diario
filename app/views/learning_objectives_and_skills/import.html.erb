@@ -90,6 +90,8 @@
       <footer>
         <%= link_to t('helpers.links.back'),
                     learning_objectives_and_skills_path, class: 'btn btn-default' %>
+        <%= link_to t('learning_objectives_and_skills.import_history.title'),
+                    import_history_learning_objectives_and_skills_path, class: 'btn btn-info' %>
         <button type="submit" class="btn btn-primary">
           <i class="fa fa-check"></i> <%= t('learning_objectives_and_skills.import.validate_button') %>
         </button>

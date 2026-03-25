@@ -115,6 +115,12 @@ class LearningObjectivesAndSkillsController < ApplicationController
     authorize LearningObjectivesAndSkill, :import?
   end
 
+  def import_history
+    authorize LearningObjectivesAndSkill, :import?
+
+    @resource = LearningObjectivesAndSkillImport
+  end
+
   def validate_csv
     authorize LearningObjectivesAndSkill, :import?
 
@@ -178,6 +184,15 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     if importer.import
       Rails.cache.delete(params[:cache_key])
+
+      LearningObjectivesAndSkillImport.create!(
+        user: current_user,
+        step: cached[:step],
+        import_mode: import_mode,
+        imported_count: importer.imported_count,
+        removed_count: importer.removed_count
+      )
+
       flash[:success] = t(
         'learning_objectives_and_skills.confirm_import.success',
         imported: importer.imported_count,

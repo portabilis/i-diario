@@ -6,6 +6,12 @@ pt-BR:
         other: "Objetivos de aprendizagem e habilidades"
 
     attributes:
+      learning_objectives_and_skill_import:
+        user: "Usuário"
+        step: "Etapa"
+        import_mode: "Modo de importação"
+        imported_count: "Registros importados"
+        removed_count: "Registros removidos"
       learning_objectives_and_skill:
         code: "Código"
         description: "Objetivo/habilidade"
@@ -71,3 +77,6 @@ pt-BR:
       success: "%{imported} registro(s) importado(s), %{removed} removido(s)."
       error_with_details: "%{count} erro(s) encontrado(s) durante a importação. Nenhum registro foi salvo."
       session_expired: "Sessão expirada. Faça upload do CSV novamente."
+    import_history:
+      title: "Histórico"
+      no_records: "Nenhuma importação realizada."
