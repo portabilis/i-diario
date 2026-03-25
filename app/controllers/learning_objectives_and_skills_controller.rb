@@ -151,13 +151,15 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     @grades_summary = build_grades_summary(@records, @selected_step) if @records.any?
 
-    cache_key = "csv_import_#{current_user.id}_#{SecureRandom.hex(8)}"
-    Rails.cache.write(cache_key, {
-      records: @records,
-      step: @selected_step,
-      import_mode: @import_mode
-    }, expires_in: 30.minutes)
-    @cache_key = cache_key
+    if @parse_errors.empty? && @records.any?
+      cache_key = "csv_import_#{current_user.id}_#{SecureRandom.hex(8)}"
+      Rails.cache.write(cache_key, {
+        records: @records,
+        step: @selected_step,
+        import_mode: @import_mode
+      }, expires_in: 30.minutes)
+      @cache_key = cache_key
+    end
 
     render :import
   end
