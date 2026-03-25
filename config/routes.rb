@@ -204,6 +204,9 @@ Rails.application.routes.draw do
       collection do
         get :contents
         get :fetch_grades
+        get :import
+        post :validate_csv
+        post :confirm_import
       end
     end
 
