@@ -14,9 +14,60 @@ pt-BR:
         discipline: "Componente curricular"
         thematic_unit: "Unidade temática"
         grades: "Séries"
-        child_educations: "Séries"
-        elementary_educations: "Séries"
 
   learning_objectives_and_skills:
     index:
       new_html: <i class="fa fa-plus"></i> Novo objetivo..
+      import_html: <i class="fa fa-upload"></i> Importar CSV
+    import:
+      step_label: "Etapa"
+      import_mode_label: "Modo de importação"
+      mode_add_new: "Adicionar novos (manter existentes)"
+      mode_replace: "Remover existentes e adicionar novos"
+      file_label: "Arquivo CSV"
+      file_help: "Selecione um arquivo CSV no formato correspondente à etapa escolhida. Baixe um modelo abaixo como referência."
+      download_template: "Modelos de CSV para download"
+      template_child_school: "Educação Infantil"
+      template_elementary_school: "Ensino Fundamental"
+      template_eja: "Educação Jovens e Adultos (EJA)"
+      validate_button: "Validar CSV"
+      confirm_button: "Confirmar Importação"
+      selected_step: "Etapa selecionada"
+      child_school: "Educação Infantil"
+      elementary_school: "Ensino Fundamental"
+      adult_and_youth_education: "Educação para Jovens e Adultos (EJA)"
+      total_records: "Total de registros no CSV"
+      grades_found: "Séries encontradas"
+      grades_summary_title: "Resumo por série"
+      records_with_errors: "Registros com erro"
+      parsing_errors_title: "Erros encontrados no CSV"
+      import_errors_title: "Erros durante a importação"
+      row: "Linha"
+      field: "Campo"
+      original_value: "Valor original"
+      problem: "Problema"
+      grade: "Série"
+      csv_records: "Registros no CSV"
+      existing_records: "Registros existentes no banco"
+      observations: "Observações"
+      conflicting_codes:
+        one: "%{count} código já existe no banco:"
+        other: "%{count} códigos já existem no banco:"
+      conflict_block_help: "Corrija o CSV removendo os códigos duplicados e faça upload novamente. Se deseja substituir todos os registros, volte e selecione o modo \"Remover existentes e adicionar novos\"."
+      conflict_block_button_title: "Resolva os códigos duplicados antes de importar"
+      show_all: "ver todos"
+      replace_warning_count:
+        one: "%{count} registro será removido"
+        other: "%{count} registros serão removidos"
+      replace_add_count:
+        one: "%{count} novo registro será adicionado"
+        other: "%{count} novos registros serão adicionados"
+      fix_errors_warning: "Corrija os erros no CSV e faça upload novamente."
+    validate_csv:
+      file_required: "Selecione um arquivo CSV para importar."
+      step_required: "Selecione a etapa antes de enviar o CSV."
+      mode_required: "Selecione o modo de importação."
+    confirm_import:
+      success: "%{imported} registro(s) importado(s), %{removed} removido(s)."
+      error_with_details: "%{count} erro(s) encontrado(s) durante a importação. Nenhum registro foi salvo."
+      session_expired: "Sessão expirada. Faça upload do CSV novamente."
