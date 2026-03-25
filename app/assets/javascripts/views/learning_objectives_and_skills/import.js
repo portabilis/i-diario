@@ -41,6 +41,43 @@ $(document).ready(function() {
     });
   }
 
+  $('#confirm-import-btn').on('click', function(e) {
+    e.preventDefault();
+
+    var importMode = $('input[name="import_mode"]').val();
+    var title, message;
+
+    if (importMode === 'replace') {
+      title = 'Confirmar importação (modo substituição)';
+      message = 'ATENÇÃO: Todos os registros existentes das séries identificadas no CSV serão <strong>REMOVIDOS</strong> e substituídos pelos novos.<br><br>' +
+        'Esta ação <strong>não pode ser desfeita</strong>. Deseja continuar?';
+    } else {
+      title = 'Confirmar importação';
+      message = 'Os novos registros serão adicionados ao banco de dados. Deseja continuar?';
+    }
+
+    var $form = $(this).closest('form');
+
+    bootbox.dialog({
+      title: title,
+      message: message,
+      backdrop: true,
+      buttons: {
+        cancel: {
+          label: 'Cancelar',
+          className: 'btn-danger'
+        },
+        confirm: {
+          label: 'Confirmar Importação',
+          className: 'btn-success',
+          callback: function() {
+            $form.submit();
+          }
+        }
+      }
+    });
+  });
+
   $('.toggle-codes').on('click', function(e) {
     e.preventDefault();
     var grade = $(this).data('grade');
@@ -80,23 +117,10 @@ $(document).ready(function() {
       $helpText.html('<i class="fa fa-info-circle"></i> Mantém todos os registros existentes e adiciona apenas os novos do CSV. Se houver códigos duplicados, a importação será bloqueada.');
       $helpText.attr('class', 'alert alert-info').show();
     } else if (value === 'replace') {
-      $helpText.html('<i class="fa fa-exclamation-triangle"></i> ATENÇÃO: Remove TODOS os registros existentes da etapa e séries encontradas no CSV, e adiciona os novos. Esta ação não pode ser desfeita.');
-      $helpText.attr('class', 'alert alert-danger').show();
+      $helpText.html('<i class="fa fa-exclamation-triangle"></i> ATENÇÃO: Esse modo de importação remove TODOS os registros existentes da etapa e séries encontradas no CSV, e adiciona os novos. Esta ação não pode ser desfeita.');
+      $helpText.attr('class', 'alert alert-warning').show();
     } else {
       $helpText.html('').hide();
     }
   }
 });
-
-function confirmImport() {
-  var importMode = $('input[name="import_mode"]');
-
-  if (importMode.length && importMode.val() === 'replace') {
-    return confirm(
-      'ATENÇÃO: Todos os registros existentes das séries identificadas no CSV serão REMOVIDOS e substituídos pelos novos.\n\n' +
-      'Esta ação não pode ser desfeita. Deseja continuar?'
-    );
-  }
-
-  return confirm('Confirma a importação dos novos registros?');
-}
