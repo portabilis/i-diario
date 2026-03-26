@@ -423,7 +423,7 @@ class AvaliationsController < ApplicationController
   end
 
   def test_setting?
-    return true if test_settings
+    return true if test_settings.present?
 
     flash[:error] = t('errors.avaliations.require_setting')
 
