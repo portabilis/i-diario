@@ -13,7 +13,7 @@
     <fieldset>
         <div class="row">
           <div class="col col-sm-4">
-            <%= f.input :test_setting_id, as: :select2, elements: @test_settings, hide_empty_element: true, input_html: { value: @test_settings.first.id } %>
+            <%= f.input :test_setting_id, as: :select2, elements: @test_settings, hide_empty_element: true, input_html: { value: @test_settings.first&.id } %>
           </div>
         </div>
 
