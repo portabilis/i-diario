@@ -2,6 +2,7 @@ pt-BR:
   services:
     learning_objectives_and_skills_csv_parser:
       malformed_csv: "CSV malformado: %{details}"
+      file_too_large: "Arquivo muito grande. O tamanho máximo permitido é 3MB."
       header_not_found: "Cabeçalho não encontrado. A primeira coluna deve conter \"Código\"."
       format_mismatch: "O arquivo CSV não corresponde à etapa selecionada '%{selected_step}'. O CSV possui %{col_count} colunas, mas a etapa selecionada espera %{expected_cols} colunas."
       step_not_recognized: "Etapa: '%{value}' não reconhecido para etapa '%{selected_step}'"

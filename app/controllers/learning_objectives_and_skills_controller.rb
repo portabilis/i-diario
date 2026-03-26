@@ -142,6 +142,11 @@ class LearningObjectivesAndSkillsController < ApplicationController
       return render :import
     end
 
+    unless params[:file].original_filename&.end_with?('.csv')
+      flash[:error] = t('learning_objectives_and_skills.validate_csv.file_invalid_format')
+      return render :import
+    end
+
     parser = LearningObjectivesAndSkillsCsvParser.new(params[:file].tempfile, step: @selected_step)
     result = parser.parse
 

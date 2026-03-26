@@ -7,6 +7,7 @@ class LearningObjectivesAndSkillsCsvParser
 
   HEADER_MARKERS = ['código', 'codigo'].freeze
   VALID_STEPS = %w[child_school elementary_school adult_and_youth_education].freeze
+  MAX_FILE_SIZE = 3.megabytes
 
   def initialize(file, step:)
     @file = file
@@ -41,6 +42,13 @@ class LearningObjectivesAndSkillsCsvParser
 
   def read_csv
     file_path = @file.respond_to?(:path) ? @file.path : @file.to_s
+
+    if File.size(file_path) > MAX_FILE_SIZE
+      @errors << { row: 0, field: 'arquivo', original_value: '',
+                   message: t('file_too_large') }
+      return []
+    end
+
     raw = File.binread(file_path)
     content = encode_to_utf8(raw)
     CSV.parse(content, col_sep: ',', skip_blanks: true)

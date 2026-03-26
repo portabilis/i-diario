@@ -71,6 +71,7 @@ pt-BR:
       fix_errors_warning: "Corrija os erros no CSV e faça upload novamente."
     validate_csv:
       file_required: "Selecione um arquivo CSV para importar."
+      file_invalid_format: "O arquivo deve ser um CSV (.csv)."
       step_required: "Selecione a etapa antes de enviar o CSV."
       mode_required: "Selecione o modo de importação."
     confirm_import:
