@@ -453,4 +453,62 @@ RSpec.describe StudentEnrollmentSynchronizer, type: :service do
       end
     end
   end
+
+  describe 'race condition handling in create_student_from_api_data' do
+    let(:student_api_data) do
+      {
+        'id' => 88888,
+        'nome' => 'ALUNO RACE CONDITION',
+        'nome_social' => nil,
+        'url_foto_aluno' => nil,
+        'data_nascimento' => '2011-03-20',
+        'destroyed_at' => nil
+      }
+    end
+
+    # Cenário real: durante sync parcial, o StudentEnrollmentSynchronizer
+    # busca um aluno da API para criar localmente. Se dois workers executam
+    # em paralelo para o mesmo aluno, o segundo falha com UniqueViolation.
+    it 'handles race condition when another process inserts the same student between SELECT and INSERT' do
+      call_count = 0
+
+      allow(Student).to receive(:with_discarded).and_return(Student)
+
+      allow(Student).to receive(:find_or_initialize_by)
+        .with(api_code: 88888)
+        .and_wrap_original do |method, *args|
+          call_count += 1
+          result = method.call(*args)
+
+          # Na primeira chamada, simula outro worker criando o registro
+          if call_count == 1 && result.new_record?
+            Student.create!(
+              api_code: 88888,
+              name: 'ALUNO RACE CONDITION',
+              api: true,
+              birth_date: '2011-03-20'
+            )
+          end
+
+          result
+        end
+
+      expect { synchronizer.send(:create_student_from_api_data, student_api_data) }.not_to raise_error
+
+      expect(Student.where(api_code: 88888).count).to eq(1)
+
+      # O retry deve ter sido executado (2 chamadas ao find_or_initialize_by)
+      expect(call_count).to eq(2)
+    end
+
+    it 'creates student normally from api data when no race condition occurs' do
+      allow(Student).to receive(:with_discarded).and_return(Student)
+
+      student = synchronizer.send(:create_student_from_api_data, student_api_data)
+
+      expect(student).to be_present
+      expect(student.name).to eq('ALUNO RACE CONDITION')
+      expect(student.api_code).to eq('88888')
+    end
+  end
 end
