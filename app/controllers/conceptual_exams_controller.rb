@@ -228,6 +228,9 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam.step_id = find_step_id
 
     authorize @conceptual_exam
+
+    return if redirect_to_index_if_classroom_year_mismatch
+
     set_options_by_user
     fetch_collections
     add_missing_disciplines
@@ -535,6 +538,16 @@ class ConceptualExamsController < ApplicationController
       classroom.id,
       current_user.current_discipline_id
     ).teacher_period
+  end
+
+  def redirect_to_index_if_classroom_year_mismatch
+    return if @classroom.year.to_i == current_school_calendar.year.to_i
+
+    redirect_to conceptual_exams_path, alert: t(
+      'conceptual_exams.edit.classroom_year_mismatch',
+      record_year: @classroom.year,
+      current_year: current_school_calendar.year
+    )
   end
 
   def set_options_by_user
