@@ -14,18 +14,8 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = [current_user_classroom]
-      @disciplines = [current_user_discipline]
-    else
-      fetch_linked_by_teacher
-    end
-
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      params[:filter][school_calendar_step] = step_id
-    end
-
+    set_options_by_user
+    set_filters
     fetch_avaliations_by_user
 
     authorize @avaliations
@@ -162,7 +152,7 @@ class AvaliationsController < ApplicationController
     message = if resource.destroy
                 { notice: t('flash.female.destroy.notice', resource_name: resource_name) }
               else
-                { alert: t('flash.female.destroy.alert', resource_name: resource_name) }
+                { alert: t('flash.avaliations.destroy.alert', resource_name: resource_name, reason: destroy_reason) }
               end
 
     redirect_to avaliations_path, message
@@ -180,6 +170,25 @@ class AvaliationsController < ApplicationController
     @avaliations = apply_scopes(Avaliation).ordered
 
     render json: @avaliations
+  end
+
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
   end
 
   def show
@@ -266,38 +275,50 @@ class AvaliationsController < ApplicationController
 
   private
 
-  def school_calendar_step
-    return :by_school_calendar_classroom_step if school_calendar_by_classroom?
+  def destroy_reason
+    return t('flash.avaliations.destroy_reasons.has_recovery') if resource.avaliation_recovery_diary_record.present?
+    return t('flash.avaliations.destroy_reasons.out_of_posting_period') if resource.errors[:test_date].present?
 
-    :by_school_calendar_step
+    t('flash.avaliations.destroy_reasons.has_daily_notes')
   end
 
-  def school_calendar_by_classroom?
-    classroom_ids = @classrooms.map(&:id)
-
-    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
   end
 
   def fetch_avaliations_by_user
     current_unity_id = current_unity.id if current_unity
     @avaliations = apply_scopes(Avaliation
-      .includes(:classroom, :discipline, :test_setting_test)
+      .includes(:classroom, :discipline, :test_setting_test, :school_calendar)
       .by_unity_id(current_unity_id)
       .teacher_avaliations(
         current_teacher.id,
         @classrooms.map(&:id),
         @disciplines.map(&:id)
       )
-        .order_by_classroom
-        .ordered
-                               )
+      .order_by_classroom
+      .ordered
+      .distinct
+    )
 
-    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([
+                                                                          ScoreTypes::NUMERIC,
+                                                                          ScoreTypes::NUMERIC_AND_CONCEPT
+                                                                        ])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
     @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
     @grades = @classroom_grades.map(&:grade).uniq
@@ -402,7 +423,7 @@ class AvaliationsController < ApplicationController
   end
 
   def test_setting?
-    return true if test_settings
+    return true if test_settings.present?
 
     flash[:error] = t('errors.avaliations.require_setting')
 
@@ -410,11 +431,13 @@ class AvaliationsController < ApplicationController
   end
 
   def test_settings
-    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
+    classroom = @avaliation&.classroom || current_user_classroom
+    return unless (year_test_setting = TestSetting.where(year: classroom.year))
 
-    @test_settings ||= general_by_school_test_setting(year_test_setting) ||
+    @test_settings ||= general_by_school_test_setting(year_test_setting, classroom) ||
       general_test_setting(year_test_setting) ||
-      by_school_term_test_setting(year_test_setting)
+      by_school_term_test_setting(year_test_setting) ||
+      []
   end
 
   def general_by_school_test_setting(year_test_setting, classroom = nil)
@@ -484,5 +507,59 @@ class AvaliationsController < ApplicationController
                 .classrooms_grades
                 .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
                 .map(&:grade)
+  end
+
+  def set_options_by_user
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms = [current_user_classroom]
+    @disciplines = [current_user_discipline]
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    set_default_filter_params
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def set_default_filter_params
+    return set_default_filter_for_admin_or_employee if current_user.current_role_is_admin_or_employee?
+
+    classroom_id = current_user_classroom&.id
+    discipline_id = current_user_discipline&.id
+    classroom_in_list = @classrooms.any? { |c| c.id == classroom_id }
+    discipline_in_list = @disciplines.any? { |d| d.id == discipline_id }
+
+    if classroom_in_list && discipline_in_list
+      params[:filter][:by_classroom_id] ||= classroom_id
+      params[:filter][:by_discipline_id] ||= discipline_id
+    else
+      flash.now[:alert] = t('avaliation.grades_not_allow_numeric_exam') unless classroom_in_list
+    end
+  end
+
+  def set_default_filter_for_admin_or_employee
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 end

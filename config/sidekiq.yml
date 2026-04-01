@@ -9,3 +9,4 @@ production:
   - [low, 1]
   - [exam_posting, 2]
   - [synchronizer, 1]
+  - [send_emails, 1]

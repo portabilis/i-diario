@@ -39,7 +39,50 @@ class ObservationRecordReportController < ApplicationController
   end
   helper_method :unities
 
+  def disciplines
+
+    disciplines = if params[:classroom_id] == 'all'
+                    return render json: { disciplines: [] } if params[:unity_id].blank?
+
+                    fetch_disciplines_for_all_classrooms
+                  else
+                    return render json: { disciplines: [] } if params[:classroom_id].blank?
+
+                    fetch_disciplines_for_classroom
+                  end
+
+    render json: {
+      disciplines: disciplines.map do |discipline|
+        {
+          id: discipline.id,
+          name: discipline.description.to_s,
+          text: discipline.description.to_s
+        }
+      end
+    }
+  end
+
   private
+
+  def fetch_disciplines_for_all_classrooms
+    if current_user.teacher?
+      Discipline.by_unity_id(params[:unity_id], current_school_year)
+                .by_teacher_id(current_teacher.id, current_school_year)
+                .not_descriptor
+    else
+      Discipline.by_unity_id(params[:unity_id], current_school_year).not_descriptor
+    end
+  end
+
+  def fetch_disciplines_for_classroom
+    if current_user.teacher?
+      Discipline.by_classroom_id(params[:classroom_id])
+                .by_teacher_id(current_teacher.id, current_school_year)
+                .not_descriptor
+    else
+      Discipline.by_classroom_id(params[:classroom_id]).not_descriptor
+    end
+  end
 
   def resource_params
     params.require(:observation_record_report_form).permit(

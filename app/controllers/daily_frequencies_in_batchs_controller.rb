@@ -26,20 +26,26 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    params[:start_date] = params[:frequency_in_batch_form][:start_date].to_date
-    params[:end_date] = params[:frequency_in_batch_form][:end_date].to_date
-    params[:classroom_id] = params[:frequency_in_batch_form][:classroom_id]
-    grade_id = ClassroomsGrade.find_by(classroom_id: params[:classroom_id]).grade_id
+    start_date = params[:frequency_in_batch_form][:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date
+    classroom_id = params[:frequency_in_batch_form][:classroom_id]
+    grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
 
-    if invalid_dates?(params[:start_date], params[:end_date], params[:classroom_id], grade_id)
+    if invalid_dates?(start_date, end_date, classroom_id, grade_id)
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
 
+    redirect_params = {
+      start_date: start_date,
+      end_date: end_date,
+      classroom_id: classroom_id
+    }
+
     if params[:frequency_in_batch_form][:discipline_id].present?
-      params[:discipline_id] = params[:frequency_in_batch_form][:discipline_id]
+      redirect_params[:discipline_id] = params[:frequency_in_batch_form][:discipline_id]
     end
 
-    setup_for_create_or_update_multiple
+    redirect_to create_or_update_multiple_daily_frequencies_in_batchs_path(redirect_params)
   end
 
   def create_or_update_multiple
@@ -60,6 +66,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       json_data = JSON.parse(body)
       daily_frequency_attributes = parse_json_frequency_attributes(json_data)
       daily_frequencies_attributes = parse_json_frequencies_attributes(json_data)
+      params[:start_date] = json_data['start_date']
+      params[:end_date] = json_data['end_date']
     else
       daily_frequency_attributes = daily_frequency_in_batchs_params
       daily_frequencies_attributes = daily_frequencies_in_batch_params
@@ -212,7 +220,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           discipline_id: daily_frequency_attributes[:discipline_id],
           period: daily_frequency_attributes[:period]
         )}",
-        dates,
+        dates.uniq,
         classroom,
         unity
       )

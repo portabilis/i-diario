@@ -69,16 +69,18 @@ class SchoolCalendarEventDays
     @school_calendars.each do |school_calendar|
       school_days.each do |school_day|
 
-        if action == :destroy && event_type_includes_no_school?
+        if event_type_includes_no_school?
           days_to_process << school_day
           unities_ids << school_calendar.unity_id
-          next
+          next if action == :destroy
         end
 
         next unless valid_school_day?(school_calendar, school_day, action == :create)
 
-        days_to_process << school_day
-        unities_ids << school_calendar.unity_id
+        unless event_type_includes_no_school?
+          days_to_process << school_day
+          unities_ids << school_calendar.unity_id
+        end
 
         unless @events.pluck(:event_type).include?(EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY)
           SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).send(action, @events)
@@ -100,29 +102,47 @@ class SchoolCalendarEventDays
   def update_daily_frequencies(unities_ids, days_to_process)
     coverage = @events.map(&:coverage).uniq
     classroom_ids = search_classrooms(coverage, unities_ids)
+    event_periods = @events.flat_map(&:periods).compact.uniq
 
-    DailyFrequency.where(
+    daily_frequencies = DailyFrequency.where(
       unity_id: unities_ids,
       classroom_id: classroom_ids,
       frequency_date: days_to_process
-    ).destroy_all
+    )
+
+    # Filtra por período se o evento tem períodos específicos definidos
+    daily_frequencies = daily_frequencies.where(period: event_periods) if event_periods.present?
+
+    daily_frequencies.destroy_all
   end
 
   def search_classrooms(coverage, unities_ids)
     classroom_ids = []
+    event_periods = @events.flat_map(&:periods).compact.uniq
 
     if coverage.include?('by_grade')
       grade_ids = @events.map(&:grade_id).uniq
-      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).map(&:classroom_id).uniq
+      classrooms = ClassroomsGrade.joins(:classroom)
+                                  .where(grade_id: grade_ids)
+      classrooms = classrooms.where(classrooms: { period: event_periods }) if event_periods.present?
+      classroom_ids += classrooms.pluck(:classroom_id).uniq
     end
 
     classroom_ids += @events.map(&:classroom_id).uniq if coverage.include?('by_classroom')
-    classroom_ids += Classroom.where(unity_id: unities_ids).map(&:id).uniq if coverage.include?('by_unity')
+
+    if coverage.include?('by_unity')
+      classrooms = Classroom.where(unity_id: unities_ids)
+      classrooms = classrooms.where(period: event_periods) if event_periods.present?
+      classroom_ids += classrooms.pluck(:id).uniq
+    end
 
     if coverage.include?('by_course')
       course_ids = @events.map(&:course_id).uniq
-      grade_ids = Grade.where(course_id: course_ids).map(&:id).uniq
-      classroom_ids += ClassroomsGrade.where(grade_id: grade_ids).map(&:classroom_id).uniq
+      grade_ids = Grade.where(course_id: course_ids).pluck(:id).uniq
+      classrooms = ClassroomsGrade.joins(:classroom)
+                                  .where(grade_id: grade_ids)
+      classrooms = classrooms.where(classrooms: { period: event_periods }) if event_periods.present?
+      classroom_ids += classrooms.pluck(:classroom_id).uniq
     end
 
     classroom_ids

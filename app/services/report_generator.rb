@@ -6,7 +6,7 @@ class ReportGenerator
       html: html,
       driver: driver
     }, {
-      Authorization: "Bearer #{Rails.application.secrets.resport_html_secret_key}"
+      Authorization: "Bearer #{Rails.application.secrets.report_html_secret_key}"
     })
   end
 end

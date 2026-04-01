@@ -67,10 +67,15 @@ $(function () {
 
   function getDisciplines() {
     const classroom_id = $classroom.select2('val');
+    const unity_id = $unity.select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
-        url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        url: Routes.observation_record_report_disciplines_pt_br_path({
+          classroom_id: classroom_id,
+          unity_id: unity_id,
+          format: 'json'
+        }),
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError
       });
@@ -79,7 +84,7 @@ $(function () {
 
   function handleFetchDisciplinesSuccess(data) {
     let selectedDisciplines = _.map(data.disciplines, function(discipline) {
-      return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
+      return { id: discipline.id, name: discipline.name, text: discipline.text };
     });
 
     if (selectedDisciplines.length > 1) {

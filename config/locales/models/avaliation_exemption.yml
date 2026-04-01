@@ -10,6 +10,7 @@ pt-BR:
         unity: "Escola"
         grade: "Série"
         classroom: "Turma"
+        discipline: "Disciplina"
         student: "Aluno"
         avaliation: "Avaliação"
         created_at: "Data/hora de cadastro"
@@ -29,7 +30,7 @@ pt-BR:
       models:
         avaliation_exemption:
           attributes:
-              avaliation_id:
-                has_score_on_avaliation: 'Esta avaliação já possui nota lançada para este aluno'
-              student_id:
-                taken:  'Já existe uma dispensa lançada para este aluno nesta avaliação'
+            avaliation_id:
+              has_score_on_avaliation: "Esta avaliação já possui nota lançada para este aluno"
+            student_id:
+              taken: "Já existe uma dispensa lançada para este aluno nesta avaliação"

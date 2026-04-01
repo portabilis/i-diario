@@ -20,7 +20,6 @@ x-ruby: &ruby
       condition: service_completed_successfully
   environment:
     DATABASE_HOST: postgres
-    REDIS_URL: redis://idiario-redis
 
 services:
   ruby:
@@ -69,7 +68,7 @@ services:
 
   postgres:
     container_name: idiario-postgres
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     volumes:
       - postgres:/var/lib/postgresql/data
     environment:
@@ -81,7 +80,7 @@ services:
 
   redis:
     container_name: idiario-redis
-    image: redis:7-alpine
+    image: redis:8-alpine
     ports:
       - ${DOCKER_REDIS_PORT:-6379}:6379
 

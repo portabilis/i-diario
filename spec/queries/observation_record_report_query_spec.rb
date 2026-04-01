@@ -26,6 +26,14 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       teacher: teacher
     )
   }
+  let(:current_user) {
+    create(
+      :user_with_user_role,
+      admin: false,
+      teacher_id: teacher.id,
+      current_school_year: classroom_one.year
+    )
+  }
   let(:start_at) { Date.current }
   let(:end_at) { Date.current + 15.days }
 
@@ -37,7 +45,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       discipline.id,
       start_at,
       end_at,
-      1
+      current_user.id
     )
   end
 

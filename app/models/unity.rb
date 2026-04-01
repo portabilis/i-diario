@@ -27,7 +27,7 @@ class Unity < ActiveRecord::Base
   accepts_nested_attributes_for :unity_equipments, allow_destroy: true
 
   validates :author, :name, :unit_type, presence: true
-  validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
+  validates :name, uniqueness: { case_sensitive: false, conditions: -> { where(discarded_at: nil) } }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validate :uniqueness_of_equipments

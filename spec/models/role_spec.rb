@@ -18,7 +18,7 @@ RSpec.describe Role, :type => :model do
 
       subject.valid?
 
-      expect(subject.errors[:permissions]).to eq ["Funcionalidade Usuários não pertence ao nível de acesso Professor."]
+      expect(subject.errors[:base]).to eq ["Funcionalidade Usuários não pertence ao nível de acesso Professor."]
     end
   end
 

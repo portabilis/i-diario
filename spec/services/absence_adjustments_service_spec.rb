@@ -102,6 +102,91 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         subject.adjust
         expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
       end
+
+      context 'when teacher has multiple disciplines' do
+        let!(:discipline_1) { create(:discipline) }
+        let!(:discipline_2) { create(:discipline) }
+        let!(:discipline_3) { create(:discipline) }
+        let!(:grade) { classroom.classrooms_grades.first.grade }
+        let!(:teacher_discipline_classroom_1) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: discipline_1,
+            grade: grade
+          )
+        }
+        let!(:teacher_discipline_classroom_2) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: discipline_2,
+            grade: grade
+          )
+        }
+        let!(:teacher_discipline_classroom_3) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: discipline_3,
+            grade: grade
+          )
+        }
+        let!(:student) { create(:student) }
+        let!(:daily_frequency_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: false
+          )
+        }
+
+        before do
+          daily_frequency_1.update(owner_teacher_id: teacher.id)
+        end
+
+        it 'creates one frequency for each teacher discipline' do
+          # 1 disciplina da factory + 3 disciplinas criadas no teste = 4 total
+          teacher_disciplines_count = classroom.teacher_discipline_classrooms.by_teacher_id(teacher.id).count
+
+          subject.adjust
+
+          created_frequencies = DailyFrequency.where(
+            classroom_id: classroom.id,
+            frequency_date: daily_frequency_1.frequency_date
+          )
+          expect(created_frequencies.count).to eq(teacher_disciplines_count)
+          expect(created_frequencies.pluck(:discipline_id)).to include(discipline_1.id, discipline_2.id, discipline_3.id)
+        end
+
+        it 'preserves DailyFrequencyStudent for each new frequency' do
+          subject.adjust
+
+          # Verifica todas as frequências criadas de todas disciplinas vinculadas ao professor
+          new_frequencies = DailyFrequency.where(
+            classroom_id: classroom.id,
+            frequency_date: daily_frequency_1.frequency_date
+          )
+
+          new_frequencies.each do |frequency|
+            expect(frequency.students.count).to eq(1)
+            expect(frequency.students.first.student_id).to eq(student.id)
+            expect(frequency.students.first.present).to eq(false)
+          end
+        end
+
+        it 'destroys the original general frequency' do
+          original_id = daily_frequency_1.id
+
+          subject.adjust
+
+          expect(DailyFrequency.find_by(id: original_id)).to be_nil
+        end
+      end
     end
 
     context 'when exists general absence should be absence by discipline because teacher is for a specific area' do
@@ -145,6 +230,50 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be true
         subject.adjust
         expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
+      end
+
+      context 'when frequency by discipline already exists with same students' do
+        let!(:student) { create(:student) }
+        let!(:discipline) { classroom.teacher_discipline_classrooms.first.discipline }
+        let!(:daily_frequency_student_1) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: true
+          )
+        }
+        let!(:existing_daily_frequency_by_discipline) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            frequency_date: daily_frequency_1.frequency_date,
+            period: daily_frequency_1.period,
+            class_number: 1
+          )
+        }
+        let!(:existing_daily_frequency_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: existing_daily_frequency_by_discipline,
+            student: student,
+            present: false
+          )
+        }
+
+        it 'does not raise duplicate key error when student already exists' do
+          expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be true
+          expect { subject.adjust }.not_to raise_error
+          expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
+        end
+
+        it 'destroys the general frequency' do
+          subject.adjust
+          expect(DailyFrequency.find_by(id: daily_frequency_1.id)).to be_nil
+        end
       end
     end
   end

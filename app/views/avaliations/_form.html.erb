@@ -18,7 +18,7 @@
         <div class="col col-sm-4">
           <%= f.association :test_setting, as: :select2, elements: @test_settings, hide_empty_element: true,
               input_html: {
-                data: { hide_empty_element: true }, value: @test_settings.first.id
+                data: { hide_empty_element: true }, value: @test_settings.first&.id
               }
           %>
         </div>
