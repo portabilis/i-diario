@@ -3,6 +3,7 @@
     <%= javascript_include_tag 'views/avaliations/multiple_classrooms' %>
     <script type="text/javascript">
       window.number_of_classes = <%= @number_of_classes %>;
+      window.allow_automatic_recovery = <%= GeneralConfiguration.current.allow_automatic_avaliation_recovery %>;
     </script>
   <% end %>
 
@@ -71,15 +72,28 @@
                 </div>
               </div>
             </th>
-            <th><%= Avaliation.human_attribute_name(:classroom) %></th>
-            <th width="500px"><%= Avaliation.human_attribute_name(:grade) %></th>
-            <th width="500px"><%= Avaliation.human_attribute_name(:test_date) %></th>
+            <th style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:classroom) %></th>
+            <th width="500px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:grade) %></th>
+            <th width="500px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:test_date) %></th>
+            <% if GeneralConfiguration.current.allow_automatic_avaliation_recovery %>
+              <th width="400px">
+                <div class="control-group boolean optional">
+                  <div class="controls input">
+                    <label class="checkbox">
+                      <input class="boolean optional" type="checkbox" value="1" id="select-all-recovery">
+                      <i></i>
+                      <strong><%= Avaliation.human_attribute_name(:should_create_recovery) %></strong>
+                    </label>
+                  </div>
+                </div>
+              </th>
+            <% end %>
           </tr>
         </thead>
 
         <tbody id="avaliations">
           <tr>
-            <td class="no_item_found" colspan="4" style="<%= @avaliation_multiple_creator_form.avaliations.empty? ? 'display: table-cell;' : 'display: none;' %>" >
+            <td class="no_item_found" colspan="5" style="<%= @avaliation_multiple_creator_form.avaliations.empty? ? 'display: table-cell;' : 'display: none;' %>" >
               <%= t('.no_classroom_found') %>
             </td>
           </tr>

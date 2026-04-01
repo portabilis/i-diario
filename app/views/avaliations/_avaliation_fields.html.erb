@@ -21,4 +21,10 @@
                 label: false%>
   </td>
 
+  <% if GeneralConfiguration.current.allow_automatic_avaliation_recovery %>
+    <td style="text-align: center;">
+      <%= f.input :should_create_recovery, as: :boolean, label: false %>
+    </td>
+  <% end %>
+
 </tr>
