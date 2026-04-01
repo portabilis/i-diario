@@ -71,7 +71,10 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def recovery_date_should_be_greater_or_equal_avaliation_date
-    if !(recovery_diary_record.recorded_at >= avaliation.test_date)
+    recovery_date = parse_date(recovery_diary_record.recorded_at)
+    avaliation_date = parse_date(avaliation.test_date)
+
+    if !(recovery_date >= avaliation_date)
       errors.add(:recovery_diary_record, :recovery_date_should_be_greater_or_equal_avaliation_date)
       recovery_diary_record.errors.add(:recorded_at, :recovery_date_should_be_greater_or_equal_avaliation_date)
     end
@@ -96,5 +99,11 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
         true
       end
     end
+  end
+
+  def parse_date(date)
+    return date if date.is_a?(Date)
+    return Date.parse(date) if date.is_a?(String)
+    date
   end
 end
