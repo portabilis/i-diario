@@ -74,16 +74,19 @@
             </th>
             <th style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:classroom) %></th>
             <th width="500px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:grade) %></th>
-            <th width="500px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:test_date) %></th>
+            <th width="450px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:test_date) %></th>
             <% if GeneralConfiguration.current.allow_automatic_avaliation_recovery %>
-              <th width="400px">
+              <th width="450px">
                 <div class="control-group boolean optional">
                   <div class="controls input">
-                    <label class="checkbox">
+                    <label class="checkbox" style="display: inline;">
                       <input class="boolean optional" type="checkbox" value="1" id="select-all-recovery">
                       <i></i>
                       <strong><%= Avaliation.human_attribute_name(:should_create_recovery) %></strong>
                     </label>
+                    <i class="fa fa-question-circle recovery-hint-tooltip"
+                    data-original-title="<%= t('avaliations.form.should_create_recovery_hint') %>"
+                    style="cursor: pointer; margin-left: 5px;"></i>
                   </div>
                 </div>
               </th>

@@ -179,5 +179,6 @@ $(function () {
 
   $(document).ready(function(){
     initFields();
+    $('.recovery-hint-tooltip').tooltip({ placement: 'top', container: 'body' });
   });
 });
