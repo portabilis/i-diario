@@ -72,6 +72,12 @@ class AvaliationsController < ApplicationController
     )
 
     if @avaliation_multiple_creator_form.save
+      has_recovery_flag = @avaliation_multiple_creator_form.avaliations.any? { |a|
+        a.include && a.persisted? && a.should_create_recovery
+      }
+
+      flash[:warning] = t('avaliation.recovery_pending_notice') if has_recovery_flag
+
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
@@ -330,11 +336,13 @@ class AvaliationsController < ApplicationController
       @daily_note.save if @daily_note.new_record?
 
       if @daily_note.persisted?
+        flash[:warning] = t('avaliation.recovery_pending_notice') if resource.should_create_recovery
         redirect_to edit_daily_note_path(@daily_note)
       else
         render 'daily_notes/new'
       end
     else
+      flash[:warning] = t('avaliation.recovery_pending_notice') if resource.should_create_recovery
       respond_with resource, location: avaliations_path
     end
   end
@@ -385,7 +393,8 @@ class AvaliationsController < ApplicationController
       :test_setting_test_id,
       :weight,
       :observations,
-      :grade_ids
+      :grade_ids,
+      :should_create_recovery
     )
 
     parameters[:grade_ids] = parameters[:grade_ids].split(',')

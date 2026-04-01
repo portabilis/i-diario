@@ -4,3 +4,4 @@ pt-BR:
       recovery_avoid_destroy: "existe uma recuperação desta avaliação"
       numeric_exam_absence: 'A disciplina selecionada selecionada no perfil não possui nota numérica'
       grades_not_allow_numeric_exam: 'As séries da turma selecionada no perfil não possuem nota numérica'
+      recovery_pending_notice: 'A recuperação desta avaliação será criada automaticamente quando as notas forem lançadas e salvas.'
