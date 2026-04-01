@@ -160,7 +160,11 @@ $(function () {
   });
 
   $("#select-all").on('change', function(){
-    $(this).closest("table").find("tbody input[type=checkbox]").prop("checked", $(this).prop("checked")).trigger("change");
+    $(this).closest("table").find("tbody input[type=checkbox][id*='include']").prop("checked", $(this).prop("checked")).trigger("change");
+  });
+
+  $("#select-all-recovery").on('change', function(){
+    $(this).closest("table").find("tbody input[type=checkbox][id*='should_create_recovery']").prop("checked", $(this).prop("checked")).trigger("change");
   });
 
   function initFields() {

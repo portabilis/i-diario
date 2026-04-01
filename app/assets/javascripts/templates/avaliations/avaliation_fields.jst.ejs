@@ -58,4 +58,20 @@
       </div>
     </div>
   </td>
+  <% if (window.allow_automatic_recovery) { %>
+  <td style="text-align: center;">
+    <div class='control-group boolean optional avaliation_multiple_creator_form_avaliations_should_create_recovery'>
+      <div class='controls input'>
+        <input value='0' type='hidden'
+               name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][should_create_recovery]"/>
+        <label class='checkbox'>
+          <input class='boolean optional' type='checkbox'
+                 value='1' name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][should_create_recovery]"
+                 id="avaliation_multiple_creator_form_avaliations_attributes_<%= element_id %>_should_create_recovery"/>
+          <i></i>
+        </label>
+      </div>
+    </div>
+  </td>
+  <% } %>
 </tr>
