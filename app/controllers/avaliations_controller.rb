@@ -9,6 +9,9 @@ class AvaliationsController < ApplicationController
   before_action :set_number_of_classes, only: [
     :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
   ]
+  before_action :set_allow_automatic_avaliation_recovery, only: [
+    :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
+  ]
   before_action :require_allow_to_modify_prev_years, only: [
     :create, :update, :destroy, :create_multiple_classrooms
   ]
@@ -141,6 +144,7 @@ class AvaliationsController < ApplicationController
     end
 
     if resource.save
+      create_recovery_if_needed
       respond_to_save
     else
       fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
@@ -336,15 +340,40 @@ class AvaliationsController < ApplicationController
       @daily_note.save if @daily_note.new_record?
 
       if @daily_note.persisted?
-        flash[:warning] = t('avaliation.recovery_pending_notice') if resource.should_create_recovery
+        set_recovery_flash
         redirect_to edit_daily_note_path(@daily_note)
       else
         render 'daily_notes/new'
       end
     else
-      flash[:warning] = t('avaliation.recovery_pending_notice') if resource.should_create_recovery
+      set_recovery_flash
       respond_with resource, location: avaliations_path
     end
+  end
+
+  def set_recovery_flash
+    return unless resource.should_create_recovery
+
+    if @recovery_created
+      flash[:notice] = t('daily_notes.recovery_created_notice')
+    elsif resource.avaliation_recovery_diary_record.present?
+      flash[:warning] = t('avaliation.recovery_already_exists_notice')
+    else
+      flash[:warning] = t('avaliation.recovery_pending_notice')
+    end
+  end
+
+  def create_recovery_if_needed
+    return unless @allow_automatic_avaliation_recovery
+    return unless resource.should_create_recovery
+    return unless resource.avaliation_recovery_diary_record.blank?
+
+    daily_note = resource.daily_notes.joins(:students).first
+    return unless daily_note
+
+    @recovery_created = CreateAvaliationRecoveryService.new(
+      resource, teacher_id: current_teacher_id, daily_note: daily_note
+    ).call
   end
 
   def disciplines_for_multiple_classrooms
@@ -372,6 +401,10 @@ class AvaliationsController < ApplicationController
 
   def set_number_of_classes
     @number_of_classes = current_school_calendar.number_of_classes
+  end
+
+  def set_allow_automatic_avaliation_recovery
+    @allow_automatic_avaliation_recovery = GeneralConfiguration.current.allow_automatic_avaliation_recovery
   end
 
   def resource

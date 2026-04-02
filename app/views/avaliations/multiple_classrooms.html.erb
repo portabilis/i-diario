@@ -3,7 +3,7 @@
     <%= javascript_include_tag 'views/avaliations/multiple_classrooms' %>
     <script type="text/javascript">
       window.number_of_classes = <%= @number_of_classes %>;
-      window.allow_automatic_recovery = <%= GeneralConfiguration.current.allow_automatic_avaliation_recovery %>;
+      window.allow_automatic_recovery = <%= @allow_automatic_avaliation_recovery %>;
     </script>
   <% end %>
 
@@ -75,7 +75,7 @@
             <th style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:classroom) %></th>
             <th width="500px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:grade) %></th>
             <th width="450px" style="vertical-align: middle;"><%= Avaliation.human_attribute_name(:test_date) %></th>
-            <% if GeneralConfiguration.current.allow_automatic_avaliation_recovery %>
+            <% if @allow_automatic_avaliation_recovery %>
               <th width="450px">
                 <div class="control-group boolean optional">
                   <div class="controls input">

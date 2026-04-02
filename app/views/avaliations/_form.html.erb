@@ -96,7 +96,7 @@
     <%= f.submit(t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'}) %>
     <%= f.submit(t('.save_and_edit_daily_notes'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'}) %>
 
-    <% if GeneralConfiguration.current.allow_automatic_avaliation_recovery %>
+    <% if @allow_automatic_avaliation_recovery %>
       <div style="float: right; height: 31px; margin: 10px 10px 0 5px; line-height: 31px;">
         <label class="checkbox" style="display: inline-block; margin: 0;">
           <%= f.check_box :should_create_recovery %>
