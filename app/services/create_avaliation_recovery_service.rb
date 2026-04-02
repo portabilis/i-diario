@@ -2,8 +2,10 @@
 
 # Service para criar recuperação de avaliação automaticamente
 class CreateAvaliationRecoveryService
-  def initialize(avaliation)
+  def initialize(avaliation, teacher_id:, daily_note:)
     @avaliation = avaliation
+    @teacher_id = teacher_id
+    @daily_note = daily_note
   end
 
   def call
@@ -12,7 +14,7 @@ class CreateAvaliationRecoveryService
     recovery_diary_record = build_recovery_diary_record
     avaliation_recovery = build_avaliation_recovery(recovery_diary_record)
 
-    avaliation_recovery.save
+    avaliation_recovery.save!
   end
 
   private
@@ -20,12 +22,8 @@ class CreateAvaliationRecoveryService
   def should_create?
     @avaliation.should_create_recovery &&
       @avaliation.avaliation_recovery_diary_record.blank? &&
-      daily_note.present? &&
-      daily_note.students.any?
-  end
-
-  def daily_note
-    @daily_note ||= DailyNote.find_by(avaliation_id: @avaliation.id)
+      @daily_note.present? &&
+      @daily_note.students.any?
   end
 
   def build_recovery_diary_record
@@ -41,7 +39,7 @@ class CreateAvaliationRecoveryService
       discipline: @avaliation.discipline,
       recorded_at: parse_date(@avaliation.test_date)
     )
-    recovery_record.teacher_id = find_teacher_id
+    recovery_record.teacher_id = @teacher_id
     recovery_record
   end
 
@@ -72,19 +70,9 @@ class CreateAvaliationRecoveryService
       search_type: :by_date
     ).student_enrollments
   rescue StandardError => e
+    Honeybadger.notify(e)
     Rails.logger.error("Erro ao buscar alunos para recuperação: #{e.message}")
     []
-  end
-
-  def find_teacher_id
-    # Busca o teacher_id através do relacionamento TeacherDisciplineClassroom
-    teacher_discipline_classroom = TeacherDisciplineClassroom.find_by(
-      classroom_id: @avaliation.classroom_id,
-      discipline_id: @avaliation.discipline_id,
-      active: true
-    )
-
-    teacher_discipline_classroom&.teacher_id
   end
 
   def parse_date(date)

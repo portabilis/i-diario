@@ -6,7 +6,7 @@ RSpec.describe CreateAvaliationRecoveryService do
   let(:daily_note) { create(:daily_note, avaliation: avaliation) }
   let(:student) { create(:student) }
   let(:enrollment) { double(student_id: student.id) }
-  let(:service) { described_class.new(avaliation) }
+  let(:service) { described_class.new(avaliation, teacher_id: teacher.id, daily_note: daily_note) }
 
   before do
     allow_any_instance_of(described_class).to receive(:fetch_student_enrollments).and_return([enrollment])
@@ -77,6 +77,8 @@ RSpec.describe CreateAvaliationRecoveryService do
     end
 
     context 'when daily_note does not exist' do
+      let(:service) { described_class.new(avaliation, teacher_id: teacher.id, daily_note: nil) }
+
       it 'does not create recovery' do
         expect { service.call }.not_to change(AvaliationRecoveryDiaryRecord, :count)
       end
