@@ -10,6 +10,9 @@ RSpec.describe CreateAvaliationRecoveryService do
 
   before do
     allow_any_instance_of(described_class).to receive(:student_enrollments).and_return([enrollment])
+
+    general_config = double(allow_automatic_avaliation_recovery: true)
+    allow(GeneralConfiguration).to receive(:current).and_return(general_config)
   end
 
   describe '#call' do
@@ -78,6 +81,19 @@ RSpec.describe CreateAvaliationRecoveryService do
 
     context 'when daily_note does not exist' do
       let(:service) { described_class.new(avaliation, teacher_id: teacher.id, daily_note: nil) }
+
+      it 'does not create recovery' do
+        expect { service.call }.not_to change(AvaliationRecoveryDiaryRecord, :count)
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is disabled' do
+      before do
+        create(:daily_note_student, daily_note: daily_note, student: student)
+
+        general_config = double(allow_automatic_avaliation_recovery: false)
+        allow(GeneralConfiguration).to receive(:current).and_return(general_config)
+      end
 
       it 'does not create recovery' do
         expect { service.call }.not_to change(AvaliationRecoveryDiaryRecord, :count)

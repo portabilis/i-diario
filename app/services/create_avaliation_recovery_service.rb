@@ -9,12 +9,17 @@ class CreateAvaliationRecoveryService
   end
 
   def call
+    return false unless GeneralConfiguration.current.allow_automatic_avaliation_recovery
     return false unless should_create?
 
     recovery_diary_record = build_recovery_diary_record
     avaliation_recovery = build_avaliation_recovery(recovery_diary_record)
 
     avaliation_recovery.save!
+  rescue StandardError => e
+    Honeybadger.notify(e)
+    Rails.logger.error("Erro ao criar recuperação automática: #{e.message}")
+    false
   end
 
   private
@@ -38,7 +43,7 @@ class CreateAvaliationRecoveryService
       unity: @avaliation.unity,
       classroom: @avaliation.classroom,
       discipline: @avaliation.discipline,
-      recorded_at: parse_date(@avaliation.test_date)
+      recorded_at: @avaliation.test_date
     )
     recovery_record.teacher_id = @teacher_id
     recovery_record
@@ -78,11 +83,5 @@ class CreateAvaliationRecoveryService
     Honeybadger.notify(e)
     Rails.logger.error("Erro ao buscar alunos para recuperação: #{e.message}")
     []
-  end
-
-  def parse_date(date)
-    return date if date.is_a?(Date)
-    return Date.parse(date) if date.is_a?(String)
-    date
   end
 end

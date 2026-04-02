@@ -412,13 +412,9 @@ disciplines: @discipline)
 
   def create_recovery_if_needed
     return unless @daily_note.avaliation.present?
-    return unless GeneralConfiguration.current.allow_automatic_avaliation_recovery
 
     if CreateAvaliationRecoveryService.new(@daily_note.avaliation, teacher_id: current_teacher_id, daily_note: @daily_note).call
       flash[:warning] = t('daily_notes.recovery_created_notice')
     end
-  rescue StandardError => e
-    Honeybadger.notify(e)
-    Rails.logger.error("Erro ao criar recuperação automática: #{e.message}")
   end
 end
