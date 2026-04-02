@@ -23,7 +23,8 @@ class CreateAvaliationRecoveryService
     @avaliation.should_create_recovery &&
       @avaliation.avaliation_recovery_diary_record.blank? &&
       @daily_note.present? &&
-      @daily_note.students.any?
+      @daily_note.students.any? &&
+      student_enrollments.any?
   end
 
   def build_recovery_diary_record
@@ -44,11 +45,15 @@ class CreateAvaliationRecoveryService
   end
 
   def populate_students(recovery_diary_record)
-    fetch_student_enrollments.each do |student_enrollment|
+    student_enrollments.each do |student_enrollment|
       recovery_diary_record.students.build(
         student_id: student_enrollment.student_id
       )
     end
+  end
+
+  def student_enrollments
+    @student_enrollments ||= fetch_student_enrollments
   end
 
   def build_avaliation_recovery(recovery_diary_record)
