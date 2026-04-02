@@ -374,6 +374,9 @@ class AvaliationsController < ApplicationController
     @recovery_created = CreateAvaliationRecoveryService.new(
       resource, teacher_id: current_teacher_id, daily_note: daily_note
     ).call
+  rescue StandardError => e
+    Honeybadger.notify(e)
+    Rails.logger.error("Erro ao criar recuperação automática: #{e.message}")
   end
 
   def disciplines_for_multiple_classrooms
