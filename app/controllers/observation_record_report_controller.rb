@@ -17,6 +17,8 @@ class ObservationRecordReportController < ApplicationController
     )
     .localized
 
+    @observation_record_report_form.current_teacher_id = current_teacher.id
+
     if @observation_record_report_form.valid?
       observation_record_report = ObservationRecordReport.new(
           current_entity_configuration,

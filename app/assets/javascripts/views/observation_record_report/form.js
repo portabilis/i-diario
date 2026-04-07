@@ -129,7 +129,8 @@ $(function () {
       return { id: teacher.id, name: teacher.name, text: teacher.text };
     });
 
-    $teacher.select2({ data: teachers, allowClear: true, placeholder: '' });
+    teachers.unshift({ id: '', name: '', text: '' });
+    $teacher.select2({ data: teachers });
   }
 
   function handleFetchTeachersError() {
@@ -156,7 +157,8 @@ $(function () {
       return { id: student.id, name: student.name, text: student.text };
     });
 
-    $student.select2({ data: students, allowClear: true, placeholder: '' });
+    students.unshift({ id: '', name: '', text: '' });
+    $student.select2({ data: students });
   }
 
   function handleFetchStudentsError() {

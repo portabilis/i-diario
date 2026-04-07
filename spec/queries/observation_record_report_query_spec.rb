@@ -50,13 +50,73 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
   end
 
   describe '#observation_diary_records' do
-    it 'should filter by teacher_id' do
-      skip "Teacher id is not used anymore, it uses current user teacher id"
+    it 'should filter by teacher_id when provided' do
       observation_diary_record_one = create_observation_diary_record
       observation_diary_record_two = create_observation_diary_record_with_different(:teacher)
 
-      expect(subject.observation_diary_records).to include(observation_diary_record_one)
-      expect(subject.observation_diary_records).not_to include(observation_diary_record_two)
+      query = ObservationRecordReportQuery.new(
+        classroom_one.unity.id,
+        teacher.id,
+        classroom_one.id,
+        discipline.id,
+        start_at,
+        end_at,
+        current_user.id
+      )
+
+      expect(query.observation_diary_records).to include(observation_diary_record_one)
+      expect(query.observation_diary_records).not_to include(observation_diary_record_two)
+    end
+
+    it 'should not filter by teacher_id when not provided' do
+      observation_diary_record_one = create_observation_diary_record
+      observation_diary_record_two = create_observation_diary_record_with_different(:teacher)
+
+      query = ObservationRecordReportQuery.new(
+        classroom_one.unity.id,
+        nil,
+        classroom_one.id,
+        discipline.id,
+        start_at,
+        end_at,
+        current_user.id
+      )
+
+      expect(query.observation_diary_records).to include(observation_diary_record_one)
+    end
+
+    it 'should filter by student_id when provided' do
+      student = create(:student)
+      other_student = create(:student)
+
+      observation_diary_record = create_observation_diary_record
+      note = observation_diary_record.notes.first
+      create(:observation_diary_record_note_student, observation_diary_record_note: note, student: student)
+
+      observation_diary_record_other = create_observation_diary_record_with_different(:date,
+                                                                                     date: Date.current - 1.day)
+      other_note = observation_diary_record_other.notes.first
+      create(:observation_diary_record_note_student, observation_diary_record_note: other_note, student: other_student)
+
+      query = ObservationRecordReportQuery.new(
+        classroom_one.unity.id,
+        teacher.id,
+        classroom_one.id,
+        discipline.id,
+        start_at,
+        end_at,
+        current_user.id,
+        student.id
+      )
+
+      expect(query.observation_diary_records).to include(observation_diary_record)
+      expect(query.observation_diary_records).not_to include(observation_diary_record_other)
+    end
+
+    it 'should not filter by student_id when not provided' do
+      observation_diary_record = create_observation_diary_record
+
+      expect(subject.observation_diary_records).to include(observation_diary_record)
     end
 
     it 'should filter by classroom_id' do
@@ -88,7 +148,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
     create_observation_diary_record_with_different(:nothing)
   end
 
-  def create_observation_diary_record_with_different(attribute)
+  def create_observation_diary_record_with_different(attribute, overrides = {})
     attributes = {
       teacher: teacher,
       classroom: classroom_one,
@@ -98,6 +158,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
     attributes.delete(attribute) unless attribute == :nothing
     attributes[:classroom] = classroom_two if attribute == :classroom
     attributes[:date] = Date.current - 20.days if attribute == :date
+    attributes.merge!(overrides)
 
     create(
       :observation_diary_record,
