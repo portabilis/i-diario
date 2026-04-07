@@ -463,6 +463,8 @@ Rails.application.routes.draw do
     get '/reports/observation_record', to: 'observation_record_report#form', as: 'observation_record_report'
     post '/reports/observation_record', to: 'observation_record_report#report', as: 'observation_record_report'
     get '/reports/observation_record/disciplines', to: 'observation_record_report#disciplines', as: 'observation_record_report_disciplines'
+    get '/reports/observation_record/teachers', to: 'observation_record_report#teachers', as: 'observation_record_report_teachers'
+    get '/reports/observation_record/students', to: 'observation_record_report#students', as: 'observation_record_report_students'
 
     get '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#form', as: 'discipline_lesson_plan_report'
     post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#lesson_plan_report', as: 'discipline_lesson_plan_report'

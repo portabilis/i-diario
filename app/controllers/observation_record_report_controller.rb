@@ -3,11 +3,11 @@ class ObservationRecordReportController < ApplicationController
 
   def form
     @observation_record_report_form = ObservationRecordReportForm.new(
-      teacher_id: current_teacher.id,
       unity_id: current_unity.id,
       start_at: Time.zone.today,
       end_at: Time.zone.today,
-      current_user_id: current_user.id
+      current_user_id: current_user.id,
+      current_teacher_id: current_teacher.id
     ).localized
   end
 
@@ -40,7 +40,6 @@ class ObservationRecordReportController < ApplicationController
   helper_method :unities
 
   def disciplines
-
     disciplines = if params[:classroom_id] == 'all'
                     return render json: { disciplines: [] } if params[:unity_id].blank?
 
@@ -59,6 +58,31 @@ class ObservationRecordReportController < ApplicationController
           text: discipline.description.to_s
         }
       end
+    }
+  end
+
+  def teachers
+    return render json: { teachers: [] } if params[:classroom_id].blank? || params[:classroom_id] == 'all'
+
+    teachers = Teacher.by_classroom(params[:classroom_id]).active.order_by_name.distinct
+
+    render json: {
+      teachers: teachers.map { |teacher| { id: teacher.id, name: teacher.name, text: teacher.name } }
+    }
+  end
+
+  def students
+    return render json: { students: [] } if params[:classroom_id].blank? || params[:classroom_id] == 'all'
+
+    student_ids = StudentEnrollment.by_classroom(params[:classroom_id])
+                                   .active
+                                   .pluck(:student_id)
+                                   .uniq
+
+    students = Student.where(id: student_ids).ordered
+
+    render json: {
+      students: students.map { |student| { id: student.id, name: student.name, text: student.name } }
     }
   end
 
@@ -90,9 +114,11 @@ class ObservationRecordReportController < ApplicationController
       :unity_id,
       :classroom_id,
       :discipline_id,
+      :student_id,
       :start_at,
       :end_at,
-      :current_user_id
+      :current_user_id,
+      :current_teacher_id
     )
   end
 
