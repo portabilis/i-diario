@@ -68,6 +68,10 @@ class ObservationRecordReportController < ApplicationController
 
     teachers = Teacher.by_classroom(params[:classroom_id]).active.order_by_name.distinct
 
+    if params[:discipline_id].present? && params[:discipline_id] != 'all'
+      teachers = teachers.where(teacher_discipline_classrooms: { discipline_id: params[:discipline_id] })
+    end
+
     render json: {
       teachers: teachers.map { |teacher| { id: teacher.id, name: teacher.name, text: teacher.name } }
     }

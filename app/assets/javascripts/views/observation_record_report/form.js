@@ -13,15 +13,11 @@ $(function () {
   $(document).ready(function() {
     updateSubmitButton();
     getClassrooms();
-    getDisciplines();
-    getTeachers();
-    getStudents();
   });
 
   $unity.on('change', function () {
     clearFields();
     getClassrooms();
-    getDisciplines();
   });
 
   $classroom.on('change', function() {
@@ -30,12 +26,13 @@ $(function () {
     resetStudent();
     updateSubmitButton();
     getDisciplines();
-    getTeachers();
     getStudents();
   });
 
   $discipline.on('change', function() {
     updateSubmitButton();
+    resetTeacher();
+    getTeachers();
   });
 
   function updateSubmitButton() {
@@ -66,7 +63,13 @@ $(function () {
 
     classrooms.unshift({ id: 'all', name: '<option>Todas</option>', text: 'Todas' });
 
-    $classroom.select2({ data: classrooms })
+    $classroom.select2({ data: classrooms });
+
+    var currentClassroom = $classroom.select2('val');
+    if (!_.isEmpty(currentClassroom)) {
+      getDisciplines();
+      getStudents();
+    }
   }
 
   function handleFetchClassroomsError() {
@@ -101,6 +104,11 @@ $(function () {
 
     $discipline.select2({ data: selectedDisciplines });
     updateSubmitButton();
+
+    var currentDiscipline = $discipline.select2('val');
+    if (!_.isEmpty(currentDiscipline)) {
+      getTeachers();
+    }
   }
 
   function handleFetchDisciplinesError() {
@@ -110,12 +118,14 @@ $(function () {
   function getTeachers() {
     const classroom_id = $classroom.select2('val');
     const unity_id = $unity.select2('val');
+    const discipline_id = $discipline.select2('val');
 
     if (!_.isEmpty(classroom_id) && classroom_id !== 'all') {
       $.ajax({
         url: Routes.observation_record_report_teachers_pt_br_path({
           classroom_id: classroom_id,
           unity_id: unity_id,
+          discipline_id: discipline_id,
           format: 'json'
         }),
         success: handleFetchTeachersSuccess,
