@@ -81,7 +81,7 @@ module Api
       end
 
       def classroom
-        @classroom ||= Classroom.find_by(id: params[:classroom_id])
+        @classroom ||= Classroom.find(params[:classroom_id])
       end
 
       def unity
