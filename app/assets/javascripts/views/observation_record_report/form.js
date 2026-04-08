@@ -7,7 +7,7 @@ $(function () {
   let $discipline = $('#observation_record_report_form_discipline_id');
   let $teacher = $('#observation_record_report_form_teacher_id');
   let $student = $('#observation_record_report_form_student_id');
-  var TEACHER_PLACEHOLDER = 'Selecione uma turma para filtrar por professor';
+  var TEACHER_PLACEHOLDER = 'Selecione uma disciplina para filtrar por professor';
   var STUDENT_PLACEHOLDER = 'Selecione uma turma para filtrar por aluno';
 
   $(document).ready(function() {
