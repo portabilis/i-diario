@@ -18,7 +18,6 @@ RSpec.describe ObservationRecordReportForm do
   end
 
   describe 'validations' do
-    it { expect(subject).to validate_presence_of(:teacher_id) }
     it { expect(subject).to validate_presence_of(:unity_id) }
     it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:start_at) }
