@@ -172,7 +172,15 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def confirm_import
     authorize LearningObjectivesAndSkill, :import?
 
-    cached = Rails.cache.read(params[:cache_key])
+    cache_key = params[:cache_key]
+    expected_prefix = "csv_import_#{current_user.id}_"
+
+    unless cache_key&.start_with?(expected_prefix)
+      flash[:error] = t('learning_objectives_and_skills.confirm_import.session_expired')
+      return redirect_to import_learning_objectives_and_skills_path
+    end
+
+    cached = Rails.cache.read(cache_key)
 
     unless cached
       flash[:error] = t('learning_objectives_and_skills.confirm_import.session_expired')
@@ -190,7 +198,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     )
 
     if importer.import
-      Rails.cache.delete(params[:cache_key])
+      Rails.cache.delete(cache_key)
 
       LearningObjectivesAndSkillImport.create!(
         user: current_user,
@@ -216,7 +224,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
       @import_mode = import_mode
       @records = cached[:records]
       @grades_summary = build_grades_summary(@records, @selected_step)
-      @cache_key = params[:cache_key]
+      @cache_key = cache_key
       render :import
     end
   end
@@ -236,23 +244,29 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     grade_order = LearningObjectivesAndSkillsCsvMappings::GRADES_BY_STEP[step] || []
 
-    csv_counts.map do |grade, csv_count|
-      existing_scope = LearningObjectivesAndSkill
+    existing_records = LearningObjectivesAndSkill
                        .where(step: step)
-                       .where('? = ANY(grades)', grade)
+                       .pluck(:code, :grades)
 
-      existing_count = existing_scope.count
+    existing_count_by_grade = Hash.new(0)
+    conflicting_codes_by_grade = Hash.new { |h, k| h[k] = [] }
 
-      conflicting_codes = existing_scope
-                          .where(code: csv_codes_by_grade[grade])
-                          .pluck(:code)
+    existing_records.each do |code, grades|
+      grades.each do |grade|
+        next unless csv_counts.key?(grade)
 
+        existing_count_by_grade[grade] += 1
+        conflicting_codes_by_grade[grade] << code if csv_codes_by_grade[grade].include?(code)
+      end
+    end
+
+    csv_counts.map do |grade, csv_count|
       {
         grade: grade,
         grade_label: grade_label_for(grade, step),
         csv_count: csv_count,
-        existing_count: existing_count,
-        conflicting_codes: conflicting_codes
+        existing_count: existing_count_by_grade[grade],
+        conflicting_codes: conflicting_codes_by_grade[grade]
       }
     end.sort_by { |g| grade_order.index(g[:grade]) || Float::INFINITY }
   end
