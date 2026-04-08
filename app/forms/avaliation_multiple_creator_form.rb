@@ -84,7 +84,8 @@ class AvaliationMultipleCreatorForm
         observations: self.observations,
         school_calendar_id: self.school_calendar_id,
         teacher_id: teacher_id,
-        grade_ids: avaliation_attributes.last['grade_ids']&.split(',')
+        grade_ids: avaliation_attributes.last['grade_ids']&.split(','),
+        should_create_recovery: avaliation_attributes.last['should_create_recovery'] == '1'
       )
 
       @avaliations << avaliation

@@ -59,6 +59,7 @@ class DailyNotesController < ApplicationController
 
     begin
       if @daily_note.save
+        create_recovery_if_needed
         respond_with @daily_note, location: daily_notes_path
       else
         reload_students_list
@@ -407,5 +408,13 @@ disciplines: @discipline)
     filtered_classroom_id = params.dig(:filter, :by_classroom_id)
     classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
     classroom ? [classroom] : @classrooms
+  end
+
+  def create_recovery_if_needed
+    return unless @daily_note.avaliation.present?
+
+    if CreateAvaliationRecoveryService.new(@daily_note.avaliation, teacher_id: current_teacher_id, daily_note: @daily_note).call
+      flash[:warning] = t('daily_notes.recovery_created_notice')
+    end
   end
 end

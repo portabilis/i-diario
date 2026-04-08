@@ -27,6 +27,7 @@ pt-BR:
         observations: "Observações"
         grades: "Séries"
         grade: "Série"
+        should_create_recovery: "Criar recuperação desta avaliação?"
 
     errors:
       models:
