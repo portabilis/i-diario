@@ -108,3 +108,4 @@ pt-BR:
     import: 'importar'
     import_history: 'historico-de-importacoes'
     validate_csv: 'validar-csv'
+    csv_template: 'modelo-csv'

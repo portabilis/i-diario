@@ -217,6 +217,10 @@ Rails.application.routes.draw do
       end
     end
 
+    get '/learning_objectives_and_skills/csv_template/:template',
+        as: :csv_template_learning_objectives_and_skills,
+        to: 'learning_objectives_and_skills#csv_template'
+
     resources :pedagogical_trackings, only: [:index], concerns: :history do
       collection do
         get :teachers

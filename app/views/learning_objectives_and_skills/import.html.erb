@@ -70,15 +70,15 @@
                 <tr>
                   <td>
                     <span style="margin-right: 10px;"><%= t('learning_objectives_and_skills.import.download_template') %>:</span>
-                    <a href="/csv_templates/modelo_educacao_infantil.csv" download class="btn btn-success btn-sm">
+                    <%= link_to csv_template_learning_objectives_and_skills_path(template: 'child_school'), class: 'btn btn-success btn-sm' do %>
                       <i class="fa fa-download"></i> <%= t('learning_objectives_and_skills.import.template_child_school') %>
-                    </a>
-                    <a href="/csv_templates/modelo_ensino_fundamental.csv" download class="btn btn-success btn-sm">
+                    <% end %>
+                    <%= link_to csv_template_learning_objectives_and_skills_path(template: 'elementary_school'), class: 'btn btn-success btn-sm' do %>
                       <i class="fa fa-download"></i> <%= t('learning_objectives_and_skills.import.template_elementary_school') %>
-                    </a>
-                    <a href="/csv_templates/modelo_eja.csv" download class="btn btn-success btn-sm">
+                    <% end %>
+                    <%= link_to csv_template_learning_objectives_and_skills_path(template: 'eja'), class: 'btn btn-success btn-sm' do %>
                       <i class="fa fa-download"></i> <%= t('learning_objectives_and_skills.import.template_eja') %>
-                    </a>
+                    <% end %>
                   </td>
                 </tr>
               </tfoot>

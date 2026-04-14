@@ -1,4 +1,10 @@
 class LearningObjectivesAndSkillsController < ApplicationController
+  CSV_TEMPLATES = {
+    'child_school' => 'modelo_educacao_infantil.csv',
+    'elementary_school' => 'modelo_ensino_fundamental.csv',
+    'eja' => 'modelo_eja.csv'
+  }.freeze
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -113,6 +119,18 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
   def import
     authorize LearningObjectivesAndSkill, :import?
+  end
+
+  def csv_template
+    authorize LearningObjectivesAndSkill, :import?
+
+    filename = CSV_TEMPLATES[params[:template]]
+    return head :not_found unless filename
+
+    send_file Rails.root.join('public/csv_templates', filename),
+              type: 'text/csv',
+              disposition: 'attachment',
+              filename: filename
   end
 
   def import_history
