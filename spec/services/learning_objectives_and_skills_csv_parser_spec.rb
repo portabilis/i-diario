@@ -391,6 +391,32 @@ RSpec.describe LearningObjectivesAndSkillsCsvParser do
       end
     end
 
+    context 'when CSV has a trailing comma on the header (empty column at the end)' do
+      let(:file) { File.open(fixtures_path.join('bncc_educacao_infantil_trailing_comma.csv')) }
+      let(:parser) { described_class.new(file, step: 'child_school').parse }
+
+      it 'ignores the trailing empty column and does not report format mismatch' do
+        format_error = parser.errors.find { |e| e[:field] == 'arquivo' }
+
+        expect(format_error).to be_nil
+      end
+
+      it 'parses all valid data rows' do
+        expect(parser.records.size).to eq(2)
+      end
+    end
+
+    context 'when format_mismatch error is reported' do
+      let(:file) { File.open(fixtures_path.join('bncc_educacao_infantil.csv')) }
+      let(:parser) { described_class.new(file, step: 'elementary_school').parse }
+
+      it 'includes the detected header in the error message' do
+        expect(parser.errors.first[:message]).to include('Cabeçalho detectado:')
+        expect(parser.errors.first[:message]).to include('Código*')
+        expect(parser.errors.first[:message]).to include('Objetivo/habilidade*')
+      end
+    end
+
     context 'when child_school step is selected but CSV has 6 columns (elementary format)' do
       let(:file) { File.open(fixtures_path.join('bncc_ensino_fundamental.csv')) }
       let(:parser) { described_class.new(file, step: 'child_school').parse }

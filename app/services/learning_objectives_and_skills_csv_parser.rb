@@ -84,17 +84,29 @@ class LearningObjectivesAndSkillsCsvParser
 
   # Valida se o número de colunas do CSV é compatível com a etapa selecionada.
   # Educação Infantil usa 5 colunas, Ensino Fundamental/EJA usam 6 colunas.
+  # Colunas vazias à direita são ignoradas para tolerar vírgulas extras no final da linha.
   def validate_csv_format(header_row)
-    col_count = header_row.size
+    trimmed_header = trim_trailing_blanks(header_row)
+    col_count = trimmed_header.size
     expected_cols = child_school? ? 5 : 6
 
     return true if col_count == expected_cols
 
     @errors << {
       row: 0, field: 'arquivo', original_value: '',
-      message: t('format_mismatch', selected_step: step_label, col_count: col_count, expected_cols: expected_cols)
+      message: t('format_mismatch',
+                 selected_step: step_label,
+                 col_count: col_count,
+                 expected_cols: expected_cols,
+                 header: trimmed_header.join(', '))
     }
     false
+  end
+
+  def trim_trailing_blanks(row)
+    trimmed = row.dup
+    trimmed.pop while trimmed.any? && trimmed.last.to_s.strip.empty?
+    trimmed
   end
 
   # Valida a coluna de etapa de TODAS as linhas de dados antes de validar as demais colunas.
