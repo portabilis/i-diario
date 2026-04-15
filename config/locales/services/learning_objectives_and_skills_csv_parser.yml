@@ -4,6 +4,7 @@ pt-BR:
       malformed_csv: "CSV malformado: %{details}"
       file_too_large: "Arquivo muito grande. O tamanho máximo permitido é 3MB."
       header_not_found: "Cabeçalho não encontrado. A primeira coluna deve conter \"Código\"."
+      empty_file: "O arquivo CSV não contém linhas de dados. Adicione registros após o cabeçalho."
       format_mismatch: "O arquivo CSV não corresponde à etapa selecionada '%{selected_step}'. O CSV possui %{col_count} colunas, mas a etapa selecionada espera %{expected_cols} colunas. Cabeçalho detectado: %{header}"
       step_not_recognized: "Etapa: '%{value}' não reconhecido para etapa '%{selected_step}'"
       step_diverges: "Etapa do CSV '%{value}' diverge da etapa selecionada '%{selected_step}'"

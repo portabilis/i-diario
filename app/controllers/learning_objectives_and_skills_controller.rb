@@ -168,6 +168,12 @@ class LearningObjectivesAndSkillsController < ApplicationController
     parser = LearningObjectivesAndSkillsCsvParser.new(params[:file].tempfile, step: @selected_step)
     result = parser.parse
 
+    file_level_error = result.errors.find { |error| error[:row] == 0 }
+    if file_level_error
+      flash[:error] = file_level_error[:message]
+      return render :import
+    end
+
     @records = result.records
     @parse_errors = result.errors
     @import_mode = @selected_import_mode

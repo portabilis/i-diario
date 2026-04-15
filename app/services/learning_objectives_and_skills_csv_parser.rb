@@ -18,7 +18,7 @@ class LearningObjectivesAndSkillsCsvParser
 
   def parse
     rows = read_csv
-    return self if rows.empty?
+    return self if @errors.any?
 
     header_index = find_header_index(rows)
 
@@ -32,6 +32,7 @@ class LearningObjectivesAndSkillsCsvParser
     return self unless validate_csv_format(header_row)
 
     data_rows = rows[(header_index + 1)..]
+    return self unless validate_data_rows_present(data_rows)
     return self unless validate_csv_step(data_rows, header_index + 1)
 
     parse_data_rows(data_rows, header_index + 1)
@@ -107,6 +108,16 @@ class LearningObjectivesAndSkillsCsvParser
     trimmed = row.dup
     trimmed.pop while trimmed.any? && trimmed.last.to_s.strip.empty?
     trimmed
+  end
+
+  # Garante que o CSV tenha pelo menos uma linha de dados além do cabeçalho.
+  # Linhas totalmente vazias são desconsideradas.
+  def validate_data_rows_present(data_rows)
+    return true if data_rows.any? { |row| row.any? { |cell| cell.to_s.strip.present? } }
+
+    @errors << { row: 0, field: 'arquivo', original_value: '',
+                 message: t('empty_file') }
+    false
   end
 
   # Valida a coluna de etapa de TODAS as linhas de dados antes de validar as demais colunas.

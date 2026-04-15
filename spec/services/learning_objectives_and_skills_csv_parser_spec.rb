@@ -391,6 +391,38 @@ RSpec.describe LearningObjectivesAndSkillsCsvParser do
       end
     end
 
+    context 'when file is completely empty' do
+      let(:file) { File.open(fixtures_path.join('bncc_empty.csv')) }
+      let(:parser) { described_class.new(file, step: 'child_school').parse }
+
+      it 'reports a single file-level header_not_found error' do
+        expect(parser.errors.size).to eq(1)
+        expect(parser.errors.first[:row]).to eq(0)
+        expect(parser.errors.first[:field]).to eq('arquivo')
+        expect(parser.errors.first[:message]).to include('Cabeçalho não encontrado')
+      end
+
+      it 'does not parse any records' do
+        expect(parser.records).to be_empty
+      end
+    end
+
+    context 'when file contains only the header row (no data)' do
+      let(:file) { File.open(fixtures_path.join('bncc_header_only.csv')) }
+      let(:parser) { described_class.new(file, step: 'child_school').parse }
+
+      it 'reports a single file-level empty_file error' do
+        expect(parser.errors.size).to eq(1)
+        expect(parser.errors.first[:row]).to eq(0)
+        expect(parser.errors.first[:field]).to eq('arquivo')
+        expect(parser.errors.first[:message]).to include('não contém linhas de dados')
+      end
+
+      it 'does not parse any records' do
+        expect(parser.records).to be_empty
+      end
+    end
+
     context 'when CSV has a trailing comma on the header (empty column at the end)' do
       let(:file) { File.open(fixtures_path.join('bncc_educacao_infantil_trailing_comma.csv')) }
       let(:parser) { described_class.new(file, step: 'child_school').parse }
