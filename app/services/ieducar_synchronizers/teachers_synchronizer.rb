@@ -17,7 +17,11 @@ class TeachersSynchronizer < BaseSynchronizer
     teachers.each do |teacher_record|
       next if teacher_record.nome.blank?
 
-      update_teacher_record(teacher_record)
+      begin
+        update_teacher_record(teacher_record)
+      rescue ActiveRecord::RecordNotUnique
+        retry
+      end
     end
 
     UserTeacherLinkerService.call(teachers)
