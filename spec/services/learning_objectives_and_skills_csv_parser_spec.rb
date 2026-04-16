@@ -391,6 +391,61 @@ RSpec.describe LearningObjectivesAndSkillsCsvParser do
       end
     end
 
+    context 'when header columns are in the wrong order' do
+      let(:file) { File.open(fixtures_path.join('bncc_swapped_headers.csv')) }
+      let(:parser) { described_class.new(file, step: 'elementary_school').parse }
+
+      it 'reports a file-level header_mismatch error' do
+        expect(parser.errors.size).to eq(1)
+        expect(parser.errors.first[:row]).to eq(0)
+        expect(parser.errors.first[:field]).to eq('arquivo')
+        expect(parser.errors.first[:message]).to include('cabeçalho do CSV não corresponde')
+      end
+
+      it 'mentions the swapped positions in the details' do
+        expect(parser.errors.first[:message]).to include("coluna 5 esperada 'Unidade Temática'")
+        expect(parser.errors.first[:message]).to include("coluna 6 esperada 'Objetivo/habilidade'")
+      end
+
+      it 'does not parse any records' do
+        expect(parser.records).to be_empty
+      end
+    end
+
+    context 'when a header column is renamed (e.g. Disciplina instead of Componente Curricular)' do
+      let(:file) { File.open(fixtures_path.join('bncc_renamed_header.csv')) }
+      let(:parser) { described_class.new(file, step: 'elementary_school').parse }
+
+      it 'reports a file-level header_mismatch error for the renamed column' do
+        expect(parser.errors.size).to eq(1)
+        expect(parser.errors.first[:row]).to eq(0)
+        expect(parser.errors.first[:message]).to include("coluna 2 esperada 'Componente Curricular'")
+        expect(parser.errors.first[:message]).to include("encontrada 'Disciplina'")
+      end
+    end
+
+    context 'when header uses accepted variations (case, accent, asterisk)' do
+      let(:csv_content) do
+        <<~CSV
+          CODIGO,COMPONENTE CURRICULAR,ETAPA,SERIE,UNIDADE TEMATICA,OBJETIVO HABILIDADE
+          EF01LP01,Língua Portuguesa,Ensino Fundamental,1º ano,Leitura,Reconhecer textos.
+        CSV
+      end
+      let(:file) { Tempfile.new(['test', '.csv']).tap { |f| f.write(csv_content); f.rewind } }
+      let(:parser) { described_class.new(file, step: 'elementary_school').parse }
+
+      it 'accepts case and accent variations without reporting header_mismatch' do
+        header_error = parser.errors.find { |e| e[:field] == 'arquivo' }
+
+        expect(header_error).to be_nil
+      end
+
+      it 'parses the data rows correctly' do
+        expect(parser.records.size).to eq(1)
+        expect(parser.records.first[:code]).to eq('EF01LP01')
+      end
+    end
+
     context 'when file is completely empty' do
       let(:file) { File.open(fixtures_path.join('bncc_empty.csv')) }
       let(:parser) { described_class.new(file, step: 'child_school').parse }

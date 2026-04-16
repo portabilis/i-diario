@@ -9,6 +9,32 @@ class LearningObjectivesAndSkillsCsvParser
   VALID_STEPS = %w[child_school elementary_school adult_and_youth_education].freeze
   MAX_FILE_SIZE = 3.megabytes
 
+  EXPECTED_HEADER_LABELS = {
+    'child_school' => [
+      'Código',
+      'Campo de Experiência',
+      'Etapa',
+      'Série',
+      'Objetivo/habilidade'
+    ].freeze,
+    'elementary_school' => [
+      'Código',
+      'Componente Curricular',
+      'Etapa',
+      'Série',
+      'Unidade Temática',
+      'Objetivo/habilidade'
+    ].freeze,
+    'adult_and_youth_education' => [
+      'Código',
+      'Componente Curricular',
+      'Etapa',
+      'Série',
+      'Unidade Temática',
+      'Objetivo/habilidade'
+    ].freeze
+  }.freeze
+
   def initialize(file, step:)
     @file = file
     @step = step
@@ -30,6 +56,7 @@ class LearningObjectivesAndSkillsCsvParser
 
     header_row = rows[header_index]
     return self unless validate_csv_format(header_row)
+    return self unless validate_header_names(header_row)
 
     data_rows = rows[(header_index + 1)..]
     return self unless validate_data_rows_present(data_rows)
@@ -108,6 +135,32 @@ class LearningObjectivesAndSkillsCsvParser
     trimmed = row.dup
     trimmed.pop while trimmed.any? && trimmed.last.to_s.strip.empty?
     trimmed
+  end
+
+  # Garante que cada coluna do cabeçalho bate com o nome esperado para a etapa,
+  # evitando importar registros com campos trocados silenciosamente quando o
+  # usuário inverte, renomeia ou omite colunas. Comparação é case-insensitive
+  # e ignora asteriscos, acentos, barras e pontuação.
+  def validate_header_names(header_row)
+    expected_labels = EXPECTED_HEADER_LABELS[@step]
+    mismatches = expected_labels.each_with_index.map do |expected_label, index|
+      found = header_row[index].to_s.strip
+      next if normalize_header(found) == normalize_header(expected_label)
+
+      "coluna #{index + 1} esperada '#{expected_label}', encontrada '#{found}'"
+    end.compact
+
+    return true if mismatches.empty?
+
+    @errors << {
+      row: 0, field: 'arquivo', original_value: '',
+      message: t('header_mismatch', details: mismatches.join('; '))
+    }
+    false
+  end
+
+  def normalize_header(value)
+    normalize(value.to_s.gsub('*', '').gsub('/', ' '))
   end
 
   # Garante que o CSV tenha pelo menos uma linha de dados além do cabeçalho.
