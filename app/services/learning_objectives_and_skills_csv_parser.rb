@@ -234,12 +234,12 @@ class LearningObjectivesAndSkillsCsvParser
 
       next if row.all?(&:blank?)
 
-      if row[0].blank?
+      code = sanitize_text(row[0])
+
+      if code.blank?
         add_error(row_number, 'Código', '')
         next
       end
-
-      code = row[0].strip
 
       if seen_codes[code]
         @errors << {
@@ -281,21 +281,28 @@ class LearningObjectivesAndSkillsCsvParser
 
   def extract_child_school_fields(row)
     {
-      code: row[0].strip,
+      code: sanitize_text(row[0]),
       raw_experience_field: row[1]&.strip,
       raw_grades: row[3]&.strip,
-      raw_description: row[4]&.strip
+      raw_description: sanitize_text(row[4])
     }
   end
 
   def extract_elementary_school_fields(row)
     {
-      code: row[0].strip,
+      code: sanitize_text(row[0]),
       raw_discipline: row[1]&.strip,
       raw_grades: row[3]&.strip,
-      raw_thematic_unit: row[4]&.strip,
-      raw_description: row[5]&.strip
+      raw_thematic_unit: sanitize_text(row[4]),
+      raw_description: sanitize_text(row[5])
     }
+  end
+
+  # Remove tags HTML dos campos de texto livre (código, descrição, unidade temática)
+  def sanitize_text(value)
+    return if value.blank?
+
+    ActionController::Base.helpers.strip_tags(value).squish.presence
   end
 
   def validate_child_school_fields(fields, row_number)

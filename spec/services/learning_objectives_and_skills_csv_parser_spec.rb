@@ -391,6 +391,58 @@ RSpec.describe LearningObjectivesAndSkillsCsvParser do
       end
     end
 
+    context 'when free-text fields contain HTML tags' do
+      let(:csv_content) do
+        <<~CSV
+          Código*,Componente Curricular*,Etapa*,Série*,Unidade Temática,Objetivo/habilidade*
+          EF01LP01,Língua Portuguesa,Ensino Fundamental,1º ano,<b>Leitura</b>,<script>alert('xss')</script>Reconhecer textos.
+          EF02MA01<b>bold</b>,Matemática,Ensino Fundamental,2º ano,Números,Resolver problemas.
+        CSV
+      end
+      let(:file) { Tempfile.new(['test', '.csv']).tap { |f| f.write(csv_content); f.rewind } }
+      let(:parser) { described_class.new(file, step: 'elementary_school').parse }
+
+      it 'strips safe HTML tags from thematic_unit keeping text content' do
+        record = parser.records.find { |r| r[:code] == 'EF01LP01' }
+
+        expect(record[:thematic_unit]).to eq('Leitura')
+      end
+
+      it 'strips script tags and their content entirely from description' do
+        record = parser.records.find { |r| r[:code] == 'EF01LP01' }
+
+        expect(record[:description]).to eq('Reconhecer textos.')
+      end
+
+      it 'strips HTML tags from code keeping text content' do
+        record = parser.records.find { |r| r[:code] == 'EF02MA01bold' }
+
+        expect(record).to be_present
+      end
+    end
+
+    context 'when free-text field contains only HTML tags (no actual text)' do
+      let(:csv_content) do
+        <<~CSV
+          Código*,Componente Curricular*,Etapa*,Série*,Unidade Temática,Objetivo/habilidade*
+          EF01LP01,Língua Portuguesa,Ensino Fundamental,1º ano,Leitura,<script></script>
+        CSV
+      end
+      let(:file) { Tempfile.new(['test', '.csv']).tap { |f| f.write(csv_content); f.rewind } }
+      let(:parser) { described_class.new(file, step: 'elementary_school').parse }
+
+      it 'rejects the row with a blank description error' do
+        description_error = parser.errors.find { |e| e[:field] == 'Objetivo/habilidade' }
+
+        expect(description_error).to be_present
+        expect(description_error[:message]).to include('não pode ficar em branco')
+      end
+
+      it 'does not include the record' do
+        expect(parser.records).to be_empty
+      end
+    end
+
     context 'when header columns are in the wrong order' do
       let(:file) { File.open(fixtures_path.join('bncc_swapped_headers.csv')) }
       let(:parser) { described_class.new(file, step: 'elementary_school').parse }
