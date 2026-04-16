@@ -179,6 +179,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
     @import_mode = @selected_import_mode
 
     @grades_summary = build_grades_summary(@records, @selected_step) if @records.any?
+    @cross_grade_conflicts = build_cross_grade_conflicts(@records, @selected_step, @import_mode)
 
     if @parse_errors.empty? && @records.any?
       cache_key = "csv_import_#{current_user.id}_#{SecureRandom.hex(8)}"
@@ -215,6 +216,19 @@ class LearningObjectivesAndSkillsController < ApplicationController
     grades = cached[:records].flat_map { |r| r[:grades] }.uniq
     modes_by_grade = grades.each_with_object({}) { |grade, h| h[grade] = import_mode }
 
+    @cross_grade_conflicts = build_cross_grade_conflicts(cached[:records], cached[:step], import_mode)
+
+    if @cross_grade_conflicts.any?
+      flash.now[:error] = t('learning_objectives_and_skills.confirm_import.error_with_details',
+                            count: @cross_grade_conflicts.size)
+      @selected_step = cached[:step]
+      @import_mode = import_mode
+      @records = cached[:records]
+      @grades_summary = build_grades_summary(@records, @selected_step)
+      @cache_key = cache_key
+      return render :import
+    end
+
     importer = LearningObjectivesAndSkillsCsvImporter.new(
       records: cached[:records],
       step: cached[:step],
@@ -248,6 +262,7 @@ class LearningObjectivesAndSkillsController < ApplicationController
       @import_mode = import_mode
       @records = cached[:records]
       @grades_summary = build_grades_summary(@records, @selected_step)
+      @cross_grade_conflicts = build_cross_grade_conflicts(@records, @selected_step, @import_mode)
       @cache_key = cache_key
       render :import
     end
@@ -293,6 +308,35 @@ class LearningObjectivesAndSkillsController < ApplicationController
         conflicting_codes: conflicting_codes_by_grade[grade]
       }
     end.sort_by { |g| grade_order.index(g[:grade]) || Float::INFINITY }
+  end
+
+  # Detecta códigos do CSV que já existem no banco em séries fora do CSV.
+  # Esses registros quebram a validação de uniqueness ao salvar — tanto no
+  # modo replace (o código sobra após o replace parcial das séries do CSV)
+  # quanto no modo add_new (o código já existe em outra série). O modo
+  # add_new com conflito na MESMA série já é detectado por conflicting_codes
+  # no resumo por série; aqui cobrimos o gap das outras séries.
+  def build_cross_grade_conflicts(records, step, _import_mode)
+    return [] if records.blank?
+
+    codes = records.map { |r| r[:code] }
+    existing_by_code = LearningObjectivesAndSkill
+                       .where(step: step, code: codes)
+                       .pluck(:code, :grades)
+                       .to_h
+
+    records.map do |record|
+      existing_grades = existing_by_code[record[:code]]
+      next unless existing_grades
+
+      other_grades = existing_grades - record[:grades]
+      next if other_grades.empty?
+
+      {
+        code: record[:code],
+        other_grades: other_grades.map { |g| grade_label_for(g, step) }
+      }
+    end.compact
   end
 
   def grade_label_for(grade, step)

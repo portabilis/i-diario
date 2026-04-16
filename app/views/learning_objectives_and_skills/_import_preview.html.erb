@@ -51,6 +51,8 @@
 
 <% if @records.any? && !@parse_errors&.any? && @grades_summary.present? %>
   <% total_conflicts = @grades_summary.sum { |s| s[:conflicting_codes].size } %>
+  <% cross_grade_conflicts = @cross_grade_conflicts.to_a %>
+  <% has_cross_grade_conflicts = cross_grade_conflicts.any? %>
 
   <%= form_tag confirm_import_learning_objectives_and_skills_path, method: :post do %>
     <%= hidden_field_tag :cache_key, @cache_key %>
@@ -132,6 +134,33 @@
       </div>
     <% end %>
 
+    <% if has_cross_grade_conflicts %>
+      <div class="alert alert-danger" style="margin-top: 15px;">
+        <h4>
+          <i class="fa fa-exclamation-triangle"></i>
+          <%= t('learning_objectives_and_skills.import.cross_grade_conflict_title') %>
+        </h4>
+        <%= t('learning_objectives_and_skills.import.cross_grade_conflict_help_html',
+              mode: t("learning_objectives_and_skills.import.mode_#{@import_mode}")) %>
+      </div>
+      <table class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th><%= LearningObjectivesAndSkill.human_attribute_name(:code) %></th>
+            <th><%= t('learning_objectives_and_skills.import.cross_grade_affected_header') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cross_grade_conflicts.each do |conflict| %>
+            <tr>
+              <td><code><%= conflict[:code] %></code></td>
+              <td><%= conflict[:other_grades].join(', ') %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
     <div class="smart-form" style="margin: 0 -13px -13px;">
       <footer class="text-right">
         <%= link_to t('helpers.links.cancel'),
@@ -142,6 +171,15 @@
             <i class="fa fa-upload"></i>
             <%= t('learning_objectives_and_skills.import.confirm_button') %>
           </button>
+        <% elsif has_cross_grade_conflicts %>
+          <span style="display: inline-block; cursor: not-allowed;"
+                title="<%= t('learning_objectives_and_skills.import.cross_grade_conflict_button_title') %>">
+            <button type="submit" class="btn btn-success" disabled
+                    style="pointer-events: none;">
+              <i class="fa fa-upload"></i>
+              <%= t('learning_objectives_and_skills.import.confirm_button') %>
+            </button>
+          </span>
         <% else %>
           <button type="button" class="btn btn-success" id="confirm-import-btn">
             <i class="fa fa-upload"></i>

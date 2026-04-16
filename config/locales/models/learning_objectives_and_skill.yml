@@ -69,6 +69,10 @@ pt-BR:
         one: "%{count} novo registro será adicionado"
         other: "%{count} novos registros serão adicionados"
       fix_errors_warning: "Corrija os erros no CSV e faça upload novamente."
+      cross_grade_conflict_title: "Conflito de séries impede a importação"
+      cross_grade_conflict_help_html: "O modo de importação <strong>\"%{mode}\"</strong> não permite inserir um mesmo código já cadastrado em outras séries que não foram informadas no CSV. <strong>Corrija o CSV</strong> alterando o código afetado ou removendo-o para continuar."
+      cross_grade_conflict_button_title: "Resolva os conflitos de séries antes de importar"
+      cross_grade_affected_header: "Séries afetadas no banco"
     validate_csv:
       file_required: "Selecione um arquivo CSV para importar."
       file_invalid_format: "O arquivo deve ser um CSV (.csv)."
