@@ -1,14 +1,11 @@
-class AddFunctionalIndexesToUsersCpfAndLogin < ActiveRecord::Migration[5.0]
-  disable_ddl_transaction!
+class AddTrgmIndexToAuditsAuditedChanges < ActiveRecord::Migration[5.0]
+ disable_ddl_transaction!
+ def change
+   enable_extension 'pg_trgm' unless extension_enabled?('pg_trgm')
 
-  def change
-    add_index :users, 'lower(cpf)',
-              unique: true,
-              algorithm: :concurrently,
-              name: 'index_users_on_lower_cpf'
-
-    add_index :users, 'lower(login)',
-              algorithm: :concurrently,
-              name: 'index_users_on_lower_login'
+   add_index :audits, 'audited_changes gin_trgm_ops',
+             using: :gin,
+             algorithm: :concurrently,
+             name: 'index_audits_on_audited_changes_trgm'
   end
 end
