@@ -38,8 +38,13 @@ module Api
       @period_end ||= Date.new(year, months.last, 1).end_of_month
     end
 
+    def frequencies_by_classroom_id
+      @frequencies_by_classroom_id ||= aggregated_frequencies.group_by { |frequency| frequency.aggregated_classroom_id.to_i }
+    end
+
     def build_classroom_payload(classroom)
-      frequencies_by_month = aggregated_frequencies(classroom).group_by { |frequency| frequency.month.to_i }
+      classroom_frequencies = frequencies_by_classroom_id[classroom.id] || []
+      frequencies_by_month = classroom_frequencies.group_by { |frequency| frequency.month.to_i }
 
       {
         classroom_id: classroom.api_code,
@@ -56,19 +61,23 @@ module Api
       }
     end
 
-    def aggregated_frequencies(classroom)
+    def aggregated_frequencies
+      return [] if classrooms.empty?
+
       scope = DailyFrequencyStudent
               .active
               .joins(:daily_frequency, :student)
-              .where(daily_frequencies: { classroom_id: classroom.id,
+              .where(daily_frequencies: { classroom_id: classrooms.map(&:id),
                                           frequency_date: period_start..period_end })
               .where('EXTRACT(MONTH FROM daily_frequencies.frequency_date) IN (?)', months)
               .group(
+                'daily_frequencies.classroom_id',
                 'students.api_code',
                 'students.name',
                 'EXTRACT(MONTH FROM daily_frequencies.frequency_date)'
               )
               .select(
+                'daily_frequencies.classroom_id AS aggregated_classroom_id',
                 'students.api_code AS student_api_code',
                 'students.name AS student_name',
                 'EXTRACT(MONTH FROM daily_frequencies.frequency_date) AS month',
