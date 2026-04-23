@@ -17359,14 +17359,14 @@ html {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: url('<%= asset_path "mybg.png" %>') #ffffff;
+  background: asset-url('mybg.png') #ffffff;
   position: relative;
 }
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: url('<%= asset_path "mybg.png" %>') #ffffff;
+  background: asset-url('mybg.png') #ffffff;
   direction: ltr;
 }
 /* when mobile menu is active */
