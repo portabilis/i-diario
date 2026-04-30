@@ -38,7 +38,7 @@ module Api
                               'classrooms.year AS year',
                               'courses.description AS course_name'
                             )
-                            .order('UPPER(courses.description), UPPER(students.name)')
+                            .order('UPPER(students.name)')
     end
 
     def enrollment_years
