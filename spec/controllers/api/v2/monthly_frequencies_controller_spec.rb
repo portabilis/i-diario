@@ -1,17 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Api::V2::MonthlyFrequenciesController, type: :controller do
-  let(:year) { 2026 }
+  let(:enrollment_api_codes) { %w[EN001 EN002] }
   let(:months) { [3, 4] }
-  let(:classroom_api_code) { '001' }
   let(:api_token) { SecureRandom.hex(15) }
   let(:service_payload) do
     [
       {
-        classroom_id: classroom_api_code,
-        classroom_name: 'Turma A',
-        year: year,
-        months: [{ month: 3, students: [] }, { month: 4, students: [] }]
+        course_name: 'Ensino Fundamental',
+        student_enrollment_id: 'EN001',
+        student_name: 'Ana',
+        months: { 3 => 90.0, 4 => 85.0 }
       }
     ]
   end
@@ -42,41 +41,49 @@ RSpec.describe Api::V2::MonthlyFrequenciesController, type: :controller do
     it 'returns 401 without valid token' do
       request.headers['token'] = 'invalid_token'
 
-      get :index, params: { classrooms: [classroom_api_code], year: year, months: months, format: 'json', locale: 'en' }
+      get :index, params: {
+        student_enrollment_ids: enrollment_api_codes,
+        months: months,
+        format: 'json',
+        locale: 'en'
+      }
 
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns 422 when classrooms is missing' do
-      get :index, params: { year: year, months: months, format: 'json', locale: 'en' }
+    it 'returns 422 when student_enrollment_ids is missing' do
+      get :index, params: { months: months, format: 'json', locale: 'en' }
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(JSON.parse(response.body)['error']).to include('classrooms')
-    end
-
-    it 'returns 422 when year is missing' do
-      get :index, params: { classrooms: [classroom_api_code], months: months, format: 'json', locale: 'en' }
-
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(JSON.parse(response.body)['error']).to include('year')
+      expect(JSON.parse(response.body)['error']).to include('student_enrollment_ids')
     end
 
     it 'returns 422 when months is missing' do
-      get :index, params: { classrooms: [classroom_api_code], year: year, format: 'json', locale: 'en' }
+      get :index, params: { student_enrollment_ids: enrollment_api_codes, format: 'json', locale: 'en' }
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)['error']).to include('months')
     end
 
     it 'returns 422 when any month is out of range' do
-      get :index, params: { classrooms: [classroom_api_code], year: year, months: [3, 13], format: 'json', locale: 'en' }
+      get :index, params: {
+        student_enrollment_ids: enrollment_api_codes,
+        months: [3, 13],
+        format: 'json',
+        locale: 'en'
+      }
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)['error']).to include('months')
     end
 
     it 'returns 422 when months contains zero' do
-      get :index, params: { classrooms: [classroom_api_code], year: year, months: [0], format: 'json', locale: 'en' }
+      get :index, params: {
+        student_enrollment_ids: enrollment_api_codes,
+        months: [0],
+        format: 'json',
+        locale: 'en'
+      }
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)['error']).to include('months')
@@ -85,7 +92,12 @@ RSpec.describe Api::V2::MonthlyFrequenciesController, type: :controller do
     it 'accepts a single month and returns 200' do
       allow(Api::MonthlyFrequenciesService).to receive(:call).and_return(service_payload)
 
-      get :index, params: { classrooms: [classroom_api_code], year: year, months: [3], format: 'json', locale: 'en' }
+      get :index, params: {
+        student_enrollment_ids: enrollment_api_codes,
+        months: [3],
+        format: 'json',
+        locale: 'en'
+      }
 
       expect(response).to have_http_status(:ok)
     end
@@ -93,25 +105,30 @@ RSpec.describe Api::V2::MonthlyFrequenciesController, type: :controller do
     it 'delegates to the service and renders its result as JSON' do
       allow(Api::MonthlyFrequenciesService).to receive(:call).and_return(service_payload)
 
-      get :index, params: { classrooms: [classroom_api_code], year: year, months: months, format: 'json', locale: 'en' }
+      get :index, params: {
+        student_enrollment_ids: enrollment_api_codes,
+        months: months,
+        format: 'json',
+        locale: 'en'
+      }
 
       expect(response).to have_http_status(:ok)
       body = JSON.parse(response.body)
       expect(body).to be_an(Array)
-      expect(body.first['classroom_id']).to eq(classroom_api_code)
-      expect(body.first['months'].map { |m| m['month'] }).to eq([3, 4])
+      expect(body.first['course_name']).to eq('Ensino Fundamental')
+      expect(body.first['student_enrollment_id']).to eq('EN001')
+      # months vira hash com chave string em JSON
+      expect(body.first['months']).to eq('3' => 90.0, '4' => 85.0)
     end
 
-    it 'passes student_ids to the service when provided' do
+    it 'passes student_enrollment_ids as student_enrollment_api_code to the service' do
       expect(Api::MonthlyFrequenciesService).to receive(:call).with(
-        hash_including(students_api_code: %w[999 888])
+        hash_including(student_enrollment_api_code: enrollment_api_codes)
       ).and_return(service_payload)
 
       get :index, params: {
-        classrooms: [classroom_api_code],
-        year: year,
+        student_enrollment_ids: enrollment_api_codes,
         months: months,
-        student_ids: %w[999 888],
         format: 'json',
         locale: 'en'
       }

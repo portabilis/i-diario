@@ -1,94 +1,87 @@
 module Api
   class MonthlyFrequenciesService
-    attr_reader :classrooms_api_code, :year, :months, :students_api_code
+    attr_reader :student_enrollment_api_code, :months
 
-    def self.call(classrooms_api_code:, year:, months:, students_api_code: nil)
+    def self.call(student_enrollment_api_code:, months:)
       new(
-        classrooms_api_code: classrooms_api_code,
-        year: year,
-        months: months,
-        students_api_code: students_api_code
-      ).call
+        student_enrollment_api_code: student_enrollment_api_code,
+        months: months
+        ).call
     end
 
-    def initialize(classrooms_api_code:, year:, months:, students_api_code: nil)
-      @classrooms_api_code = Array(classrooms_api_code).map(&:to_s).reject(&:blank?)
-      @year = year.to_i
+    def initialize(student_enrollment_api_code:, months:)
+      @student_enrollment_api_code = Array(student_enrollment_api_code).map(&:to_s).reject(&:blank?)
       @months = Array(months).map(&:to_i).uniq.sort
-      @students_api_code = students_api_code.present? ? Array(students_api_code).map(&:to_s) : nil
     end
 
     def call
-      classrooms.map { |classroom| build_classroom_payload(classroom) }
+      enrollments_info.map { |enrollment| build_enrollment_payload(enrollment) }
     end
 
     private
 
-    def classrooms
-      @classrooms ||= Classroom
-                      .where(api_code: classrooms_api_code, year: year)
-                      .order(:api_code)
+    def enrollments_info
+      @enrollments_info ||= StudentEnrollment
+                            .joins(:student)
+                            .joins(student_enrollment_classrooms: { classrooms_grade: [:classroom, { grade: :course }] })
+                            .where(student_enrollments: { api_code: student_enrollment_api_code })
+                            .where(student_enrollment_classrooms: { discarded_at: nil })
+                            .group(
+                              'student_enrollments.api_code',
+                              'students.name',
+                              'classrooms.year',
+                              'courses.description'
+                            )
+                            .select(
+                              'student_enrollments.api_code AS enrollment_api_code',
+                              'students.name AS student_name',
+                              'classrooms.year AS year',
+                              'courses.description AS course_name'
+                            )
+                            .order('UPPER(courses.description), UPPER(students.name)')
     end
 
-    def period_start
-      @period_start ||= Date.new(year, months.first, 1)
+    def enrollment_years
+      @enrollment_years ||= enrollments_info.map { |enrollment| enrollment.year.to_i }.uniq
     end
 
-    def period_end
-      @period_end ||= Date.new(year, months.last, 1).end_of_month
-    end
-
-    def frequencies_by_classroom_id
-      @frequencies_by_classroom_id ||= aggregated_frequencies.group_by { |frequency| frequency.aggregated_classroom_id.to_i }
-    end
-
-    def build_classroom_payload(classroom)
-      classroom_frequencies = frequencies_by_classroom_id[classroom.id] || []
-      frequencies_by_month = classroom_frequencies.group_by { |frequency| frequency.month.to_i }
-
-      {
-        classroom_id: classroom.api_code,
-        classroom_name: classroom.description,
-        year: year,
-        months: months.map { |month| build_month_payload(month, frequencies_by_month[month] || []) }
-      }
-    end
-
-    def build_month_payload(month, student_frequencies)
-      {
-        month: month,
-        students: student_frequencies.map { |frequency| build_student_row(frequency) }
-      }
+    def frequencies_by_enrollment_and_month
+      @frequencies_by_enrollment_and_month ||= aggregated_frequencies.each_with_object({}) do |frequency, hash|
+        hash[frequency.enrollment_api_code] ||= {}
+        hash[frequency.enrollment_api_code][frequency.month.to_i] = frequency
+      end
     end
 
     def aggregated_frequencies
-      return [] if classrooms.empty?
+      return [] if enrollments_info.empty?
 
-      scope = DailyFrequencyStudent
-              .active
-              .joins(:daily_frequency, :student)
-              .where(daily_frequencies: { classroom_id: classrooms.map(&:id),
-                                          frequency_date: period_start..period_end })
-              .where('EXTRACT(MONTH FROM daily_frequencies.frequency_date) IN (?)', months)
-              .group(
-                'daily_frequencies.classroom_id',
-                'students.api_code',
-                'students.name',
-                'EXTRACT(MONTH FROM daily_frequencies.frequency_date)'
-              )
-              .select(
-                'daily_frequencies.classroom_id AS aggregated_classroom_id',
-                'students.api_code AS student_api_code',
-                'students.name AS student_name',
-                'EXTRACT(MONTH FROM daily_frequencies.frequency_date) AS month',
-                "SUM(CASE WHEN #{counts_as_presence_sql} THEN 1 ELSE 0 END) AS presences",
-                "SUM(CASE WHEN #{counts_as_presence_sql} THEN 0 ELSE 1 END) AS absences"
-              )
-              .order('UPPER(students.name)')
-
-      return scope if students_api_code.blank?
-
-      scope.where(students: { api_code: students_api_code })
+      DailyFrequencyStudent
+        .active
+        .joins(:daily_frequency, :student)
+        .joins(<<~SQL.squish)
+          INNER JOIN student_enrollments
+            ON student_enrollments.student_id = students.id
+            AND student_enrollments.discarded_at IS NULL
+          INNER JOIN student_enrollment_classrooms sec
+            ON sec.student_enrollment_id = student_enrollments.id
+            AND sec.discarded_at IS NULL
+          INNER JOIN classrooms_grades cg
+            ON cg.id = sec.classrooms_grade_id
+        SQL
+        .where(student_enrollments: { api_code: student_enrollment_api_code })
+        .where('cg.classroom_id = daily_frequencies.classroom_id')
+        .where('EXTRACT(YEAR FROM daily_frequencies.frequency_date) IN (?)', enrollment_years)
+        .where('EXTRACT(MONTH FROM daily_frequencies.frequency_date) IN (?)', months)
+        .group(
+          'student_enrollments.api_code',
+          'EXTRACT(MONTH FROM daily_frequencies.frequency_date)'
+        )
+        .select(
+          'student_enrollments.api_code AS enrollment_api_code',
+          'EXTRACT(MONTH FROM daily_frequencies.frequency_date) AS month',
+          "SUM(CASE WHEN #{counts_as_presence_sql} THEN 1 ELSE 0 END) AS presences",
+          "SUM(CASE WHEN #{counts_as_presence_sql} THEN 0 ELSE 1 END) AS absences"
+        )
     end
 
     def counts_as_presence_sql
@@ -106,19 +99,25 @@ module Api
       @ignore_justified_absences = GeneralConfiguration.current.do_not_send_justified_absence
     end
 
-    def build_student_row(frequency)
-      presences = frequency.presences.to_i
-      absences = frequency.absences.to_i
+    def build_enrollment_payload(enrollment)
+      {
+        course_name: enrollment.course_name,
+        student_enrollment_id: enrollment.enrollment_api_code,
+        student_name: enrollment.student_name,
+        months: months.each_with_object({}) do |month, hash|
+          hash[month] = month_percentage(enrollment.enrollment_api_code, month)
+        end
+      }
+    end
+
+    def month_percentage(enrollment_api_code, month)
+      frequency = frequencies_by_enrollment_and_month.dig(enrollment_api_code, month)
+
+      presences = frequency&.presences.to_i
+      absences = frequency&.absences.to_i
       total = presences + absences
 
-      {
-        student_id: frequency.student_api_code,
-        student_name: frequency.student_name,
-        presences: presences,
-        absences: absences,
-        total_records: total,
-        frequency_percentage: calculate_percentage(presences, total)
-      }
+      calculate_percentage(presences, total)
     end
 
     def calculate_percentage(presences, total)

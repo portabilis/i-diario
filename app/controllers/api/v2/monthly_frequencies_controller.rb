@@ -9,17 +9,15 @@ module Api
         return if invalid_months?
 
         render json: Api::MonthlyFrequenciesService.call(
-          classrooms_api_code: params[:classrooms],
-          year: params[:year],
-          months: params[:months],
-          students_api_code: params[:student_ids]
+          student_enrollment_api_code: params[:student_enrollment_ids],
+          months: params[:months]
         ), root: false
       end
 
       private
 
       def missing_required_params?
-        required_params = %i[classrooms year months]
+        required_params = %i[student_enrollment_ids months]
         missing = required_params.select { |param| params[param].blank? }
 
         return false if missing.empty?

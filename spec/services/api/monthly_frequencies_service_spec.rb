@@ -25,7 +25,12 @@ RSpec.describe Api::MonthlyFrequenciesService do
   let(:student_enrollment_classroom) do
     create(:student_enrollment_classroom, classrooms_grade: classrooms_grade, joined_at: '2026-02-01')
   end
-  let(:student) { student_enrollment_classroom.student_enrollment.student }
+  let(:student_enrollment) { student_enrollment_classroom.student_enrollment }
+  let(:student) { student_enrollment.student }
+
+  before do
+    student_enrollment.update!(api_code: 'EN001') if student_enrollment.api_code.blank?
+  end
 
   # Feriados nacionais inseridos pelo SchoolCalendarEventsSeeder
   SEEDED_HOLIDAYS = %w[01-01 04-21 05-01 09-07 10-12 11-02 11-15 12-25].freeze
@@ -69,8 +74,6 @@ RSpec.describe Api::MonthlyFrequenciesService do
     )
     justification.save(validate: false)
 
-    # Skip do callback justify_old_absences para evitar efeito colateral no spec:
-    # queremos ligar só o registro específico, não varrer todo o período.
     AbsenceJustificationsStudent.skip_callback(:save, :after, :justify_old_absences)
     ajs = AbsenceJustificationsStudent.create!(
       student: daily_frequency_student.student,
@@ -100,28 +103,18 @@ RSpec.describe Api::MonthlyFrequenciesService do
         end
       end
 
-      it 'returns 90% frequency for a student with 2 absences out of 20 records' do
+      it 'returns 90% frequency for the enrollment with 2 absences out of 20 records' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [month]
         )
 
         expect(result.size).to eq(1)
-        expect(result.first[:classroom_id]).to eq(classroom.api_code)
-        expect(result.first[:year]).to eq(year)
-        expect(result.first[:months].size).to eq(1)
-
-        month_entry = result.first[:months].first
-        expect(month_entry[:month]).to eq(month)
-        expect(month_entry[:students].size).to eq(1)
-
-        student_row = month_entry[:students].first
-        expect(student_row[:student_id]).to eq(student.api_code)
-        expect(student_row[:presences]).to eq(18)
-        expect(student_row[:absences]).to eq(2)
-        expect(student_row[:total_records]).to eq(20)
-        expect(student_row[:frequency_percentage]).to eq(90.0)
+        entry = result.first
+        expect(entry[:course_name]).to eq(classrooms_grade.grade.course.description)
+        expect(entry[:student_enrollment_id]).to eq(student_enrollment.api_code)
+        expect(entry[:student_name]).to eq(student.name)
+        expect(entry[:months]).to eq(month => 90.0)
       end
     end
 
@@ -158,62 +151,16 @@ RSpec.describe Api::MonthlyFrequenciesService do
 
       it 'returns one entry per month with independent aggregation' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [3, 4, 5]
         )
 
-        months = result.first[:months]
-        expect(months.map { |m| m[:month] }).to eq([3, 4, 5])
-
-        march = months.find { |m| m[:month] == 3 }
-        april = months.find { |m| m[:month] == 4 }
-        may = months.find { |m| m[:month] == 5 }
-
-        expect(march[:students].first[:presences]).to eq(9)
-        expect(march[:students].first[:absences]).to eq(1)
-        expect(march[:students].first[:frequency_percentage]).to eq(90.0)
-
-        expect(april[:students].first[:presences]).to eq(8)
-        expect(april[:students].first[:absences]).to eq(2)
-        expect(april[:students].first[:frequency_percentage]).to eq(80.0)
-
-        expect(may[:students].first[:presences]).to eq(10)
-        expect(may[:students].first[:absences]).to eq(0)
-        expect(may[:students].first[:frequency_percentage]).to eq(100.0)
-      end
-    end
-
-    context 'when a requested month has no records' do
-      before do
-        # Só lança chamada em março
-        weekdays_in(year, 3, 5).each do |date|
-          daily_frequency = create_general_daily_frequency(date)
-          create(:daily_frequency_student, daily_frequency: daily_frequency, student: student, present: true)
-        end
-      end
-
-      it 'returns empty students list for months without records and populated list for months with records' do
-        result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
-          months: [3, 4]
-        )
-
-        months = result.first[:months]
-        march = months.find { |m| m[:month] == 3 }
-        april = months.find { |m| m[:month] == 4 }
-
-        expect(march[:students].size).to eq(1)
-        expect(march[:students].first[:total_records]).to eq(5)
-
-        expect(april[:students]).to be_empty
+        expect(result.first[:months]).to eq(3 => 90.0, 4 => 80.0, 5 => 100.0)
       end
     end
 
     context 'when some school days have no attendance registered' do
       before do
-        # 15 dias úteis lançados de 20 possíveis, 2 faltas
         dates = weekdays_in(year, month, 15)
         absence_dates = [dates[3], dates[9]]
 
@@ -230,16 +177,11 @@ RSpec.describe Api::MonthlyFrequenciesService do
 
       it 'calculates percentage only over days with registered attendance' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [month]
         )
 
-        student_row = result.first[:months].first[:students].first
-        expect(student_row[:presences]).to eq(13)
-        expect(student_row[:absences]).to eq(2)
-        expect(student_row[:total_records]).to eq(15)
-        expect(student_row[:frequency_percentage]).to eq(86.67)
+        expect(result.first[:months][month]).to eq(86.67)
       end
     end
 
@@ -247,7 +189,6 @@ RSpec.describe Api::MonthlyFrequenciesService do
       let(:discipline) { create(:discipline) }
 
       before do
-        # 4 dias úteis, 5 aulas por dia = 20 registros, 2 faltas
         dates = weekdays_in(year, month, 4)
 
         dates.each_with_index do |date, day_index|
@@ -273,79 +214,24 @@ RSpec.describe Api::MonthlyFrequenciesService do
 
       it 'counts each class record independently' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [month]
         )
 
-        student_row = result.first[:months].first[:students].first
-        expect(student_row[:presences]).to eq(18)
-        expect(student_row[:absences]).to eq(2)
-        expect(student_row[:total_records]).to eq(20)
-        expect(student_row[:frequency_percentage]).to eq(90.0)
+        expect(result.first[:months][month]).to eq(90.0)
       end
     end
 
-    context 'when a transferred student has fewer attendance records' do
-      let(:second_enrollment_classroom) do
-        create(:student_enrollment_classroom, classrooms_grade: classrooms_grade, joined_at: '2026-02-01')
-      end
-      let(:second_student) { second_enrollment_classroom.student_enrollment.student }
-
-      before do
-        dates = weekdays_in(year, month, 20)
-
-        dates.each_with_index do |date, index|
-          daily_frequency = create_general_daily_frequency(date)
-
-          # Aluno 1: participa todos os 20 dias, 2 faltas
-          create(
-            :daily_frequency_student,
-            daily_frequency: daily_frequency,
-            student: student,
-            present: ![4, 10].include?(index)
-          )
-
-          # Aluno 2: só participa dos 10 primeiros dias (transferido depois), 1 falta
-          next if index >= 10
-
-          create(
-            :daily_frequency_student,
-            daily_frequency: daily_frequency,
-            student: second_student,
-            present: index != 3
-          )
-        end
-      end
-
-      it 'returns frequency calculated only over the days each student has records' do
+    context 'when an enrollment has no records but is part of the requested ids' do
+      it 'returns the enrollment with frequency_percentage=null in each month' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [month]
         )
 
-        rows = result.first[:months].first[:students].index_by { |row| row[:student_id] }
-
-        expect(rows[student.api_code][:total_records]).to eq(20)
-        expect(rows[student.api_code][:frequency_percentage]).to eq(90.0)
-
-        expect(rows[second_student.api_code][:total_records]).to eq(10)
-        expect(rows[second_student.api_code][:presences]).to eq(9)
-        expect(rows[second_student.api_code][:absences]).to eq(1)
-        expect(rows[second_student.api_code][:frequency_percentage]).to eq(90.0)
-      end
-    end
-
-    context 'when the student has no attendance records in the month' do
-      it 'returns an empty students list for that month' do
-        result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
-          months: [month]
-        )
-
-        expect(result.first[:months].first[:students]).to be_empty
+        expect(result.size).to eq(1)
+        expect(result.first[:student_enrollment_id]).to eq(student_enrollment.api_code)
+        expect(result.first[:months][month]).to be_nil
       end
     end
 
@@ -364,79 +250,116 @@ RSpec.describe Api::MonthlyFrequenciesService do
 
       it 'ignores records with active = false' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [month]
         )
 
-        expect(result.first[:months].first[:students]).to be_empty
+        expect(result.first[:months][month]).to be_nil
       end
     end
 
-    context 'when student_ids filter is provided' do
+    context 'when multiple enrollments are requested' do
       let(:other_enrollment_classroom) do
         create(:student_enrollment_classroom, classrooms_grade: classrooms_grade, joined_at: '2026-02-01')
       end
-      let(:other_student) { other_enrollment_classroom.student_enrollment.student }
+      let(:other_enrollment) { other_enrollment_classroom.student_enrollment }
+      let(:other_student) { other_enrollment.student }
 
       before do
+        other_enrollment.update!(api_code: 'EN002')
+
         date = weekdays_in(year, month, 1).first
         daily_frequency = create_general_daily_frequency(date)
         create(:daily_frequency_student, daily_frequency: daily_frequency, student: student, present: true)
-        create(:daily_frequency_student, daily_frequency: daily_frequency, student: other_student, present: true)
+        create(:daily_frequency_student, daily_frequency: daily_frequency, student: other_student, present: false)
       end
 
-      it 'returns only the requested students' do
+      it 'returns one entry per enrollment with course info on each item' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
-          months: [month],
-          students_api_code: [student.api_code]
-        )
-
-        students = result.first[:months].first[:students]
-        expect(students.size).to eq(1)
-        expect(students.first[:student_id]).to eq(student.api_code)
-      end
-    end
-
-    context 'when multiple classrooms are requested' do
-      let(:other_classroom) { create(:classroom, year: year, api_code: '002', unity: classroom.unity) }
-      let!(:other_classrooms_grade) { create(:classrooms_grade, classroom: other_classroom) }
-      let(:other_enrollment_classroom) do
-        create(:student_enrollment_classroom, classrooms_grade: other_classrooms_grade, joined_at: '2026-02-01')
-      end
-      let(:other_student) { other_enrollment_classroom.student_enrollment.student }
-
-      before do
-        date = weekdays_in(year, month, 1).first
-
-        daily_frequency_a = create_general_daily_frequency(date)
-        create(:daily_frequency_student, daily_frequency: daily_frequency_a, student: student, present: true)
-
-        daily_frequency_b = create_general_daily_frequency(date, custom_classroom: other_classroom)
-        create(:daily_frequency_student, daily_frequency: daily_frequency_b, student: other_student, present: false)
-      end
-
-      it 'returns one entry per classroom' do
-        result = described_class.call(
-          classrooms_api_code: [classroom.api_code, other_classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code, other_enrollment.api_code],
           months: [month]
         )
 
         expect(result.size).to eq(2)
-        expect(result.map { |r| r[:classroom_id] }).to match_array([classroom.api_code, other_classroom.api_code])
+        expect(result.map { |r| r[:student_enrollment_id] }).to match_array(
+          [student_enrollment.api_code, other_enrollment.api_code]
+        )
+        # Course info repete em ambos (mesma classrooms_grade)
+        expect(result.map { |r| r[:course_name] }.uniq).to eq([classrooms_grade.grade.course.description])
 
-        first = result.find { |r| r[:classroom_id] == classroom.api_code }
-        second = result.find { |r| r[:classroom_id] == other_classroom.api_code }
+        entry_first = result.find { |r| r[:student_enrollment_id] == student_enrollment.api_code }
+        entry_other = result.find { |r| r[:student_enrollment_id] == other_enrollment.api_code }
 
-        expect(first[:months].first[:students].first[:frequency_percentage]).to eq(100.0)
-        expect(second[:months].first[:students].first[:frequency_percentage]).to eq(0.0)
+        expect(entry_first[:months][month]).to eq(100.0)
+        expect(entry_other[:months][month]).to eq(0.0)
       end
     end
 
-    context 'when students have records outside the requested months' do
+    context 'when an enrollment_id does not exist' do
+      it 'silently ignores the missing enrollment' do
+        result = described_class.call(
+          student_enrollment_api_code:[student_enrollment.api_code, 'INEXISTENT'],
+          months: [month]
+        )
+
+        expect(result.size).to eq(1)
+        expect(result.first[:student_enrollment_id]).to eq(student_enrollment.api_code)
+      end
+    end
+
+    context 'when no enrollment matches the requested ids' do
+      it 'returns an empty array' do
+        result = described_class.call(
+          student_enrollment_api_code:['INEXISTENT_1', 'INEXISTENT_2'],
+          months: [month]
+        )
+
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when enrollment has multiple classrooms (e.g., regular + contraturno)' do
+      let(:second_classroom) { create(:classroom, year: year, api_code: '002', unity: classroom.unity) }
+      let!(:second_classrooms_grade) { create(:classrooms_grade, classroom: second_classroom) }
+      let!(:second_enrollment_classroom) do
+        create(
+          :student_enrollment_classroom,
+          classrooms_grade: second_classrooms_grade,
+          student_enrollment: student_enrollment,
+          joined_at: '2026-02-01'
+        )
+      end
+
+      before do
+        # Turma 1 (regular): 5 dias, 1 falta
+        weekdays_in(year, month, 5).each_with_index do |date, index|
+          daily_frequency = create_general_daily_frequency(date)
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency,
+            student: student,
+            present: index != 0
+          )
+        end
+
+        # Turma 2 (contraturno): 5 dias, 0 faltas
+        weekdays_in(year, month, 5).each do |date|
+          daily_frequency = create_general_daily_frequency(date, custom_classroom: second_classroom)
+          create(:daily_frequency_student, daily_frequency: daily_frequency, student: student, present: true)
+        end
+      end
+
+      it 'sums frequency from all classrooms linked to the enrollment' do
+        result = described_class.call(
+          student_enrollment_api_code: [student_enrollment.api_code],
+          months: [month]
+        )
+
+        expect(result.first[:months][month]).to eq(90.0)
+      end
+    end
+
+    context 'when records exist outside the requested months' do
       before do
         march_date = weekdays_in(year, 3, 1).first
         february_date = weekdays_in(year, 2, 1).first
@@ -445,64 +368,20 @@ RSpec.describe Api::MonthlyFrequenciesService do
         march_frequency = create_general_daily_frequency(march_date)
         create(:daily_frequency_student, daily_frequency: march_frequency, student: student, present: true)
 
-        # Fevereiro (fora do range solicitado) - não pode entrar
         february_frequency = create_general_daily_frequency(february_date)
         create(:daily_frequency_student, daily_frequency: february_frequency, student: student, present: false)
 
-        # Maio (fora do range solicitado, meses não contíguos) - não pode entrar
         may_frequency = create_general_daily_frequency(may_date)
         create(:daily_frequency_student, daily_frequency: may_frequency, student: student, present: false)
       end
 
       it 'aggregates only records within the requested months' do
         result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
+          student_enrollment_api_code: [student_enrollment.api_code],
           months: [3, 4]
         )
 
-        march = result.first[:months].find { |m| m[:month] == 3 }
-        april = result.first[:months].find { |m| m[:month] == 4 }
-
-        expect(march[:students].first[:total_records]).to eq(1)
-        expect(march[:students].first[:presences]).to eq(1)
-        expect(march[:students].first[:frequency_percentage]).to eq(100.0)
-
-        expect(april[:students]).to be_empty
-      end
-    end
-
-    context 'when a student has only absences' do
-      before do
-        date = weekdays_in(year, month, 1).first
-        daily_frequency = create_general_daily_frequency(date)
-        create(:daily_frequency_student, daily_frequency: daily_frequency, student: student, present: false)
-      end
-
-      it 'returns 0% frequency' do
-        result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: year,
-          months: [month]
-        )
-
-        student_row = result.first[:months].first[:students].first
-        expect(student_row[:presences]).to eq(0)
-        expect(student_row[:absences]).to eq(1)
-        expect(student_row[:total_records]).to eq(1)
-        expect(student_row[:frequency_percentage]).to eq(0.0)
-      end
-    end
-
-    context 'when no classroom matches the requested year' do
-      it 'returns an empty array' do
-        result = described_class.call(
-          classrooms_api_code: [classroom.api_code],
-          year: 2099,
-          months: [month]
-        )
-
-        expect(result).to eq([])
+        expect(result.first[:months]).to eq(3 => 100.0, 4 => nil)
       end
     end
 
@@ -536,16 +415,11 @@ RSpec.describe Api::MonthlyFrequenciesService do
 
         it 'counts justified absences as absences' do
           result = described_class.call(
-            classrooms_api_code: [classroom.api_code],
-            year: year,
+            student_enrollment_api_code: [student_enrollment.api_code],
             months: [month]
           )
 
-          student_row = result.first[:months].first[:students].first
-          expect(student_row[:presences]).to eq(18)
-          expect(student_row[:absences]).to eq(2)
-          expect(student_row[:total_records]).to eq(20)
-          expect(student_row[:frequency_percentage]).to eq(90.0)
+          expect(result.first[:months][month]).to eq(90.0)
         end
       end
 
@@ -559,16 +433,11 @@ RSpec.describe Api::MonthlyFrequenciesService do
 
         it 'counts justified absences as presences' do
           result = described_class.call(
-            classrooms_api_code: [classroom.api_code],
-            year: year,
+            student_enrollment_api_code: [student_enrollment.api_code],
             months: [month]
           )
 
-          student_row = result.first[:months].first[:students].first
-          expect(student_row[:presences]).to eq(19)
-          expect(student_row[:absences]).to eq(1)
-          expect(student_row[:total_records]).to eq(20)
-          expect(student_row[:frequency_percentage]).to eq(95.0)
+          expect(result.first[:months][month]).to eq(95.0)
         end
       end
     end
