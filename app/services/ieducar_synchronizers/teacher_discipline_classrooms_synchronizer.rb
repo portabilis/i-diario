@@ -19,8 +19,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   end
 
   def update_teacher_discipline_classrooms(teacher_discipline_classrooms)
-    ActiveRecord::Base.transaction do
-      teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
+    all_disciplines = teacher_discipline_classrooms.flat_map(&:disciplinas)
+
+    preload_classrooms(teacher_discipline_classrooms.map(&:turma_id).compact)
+    preload_teachers(teacher_discipline_classrooms.map(&:servidor_id).compact)
+    preload_disciplines(all_disciplines.map(&:id).compact)
+    preload_grades(all_disciplines.map(&:serie_id).compact)
+
+    teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
+      ActiveRecord::Base.transaction do
         existing_discipline_api_codes = []
         created_linked_teachers = []
 

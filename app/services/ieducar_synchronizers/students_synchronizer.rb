@@ -17,13 +17,20 @@ class StudentsSynchronizer < BaseSynchronizer
 
   def update_students(students)
     allow_create_users_for_students = GeneralConfiguration.current.create_users_for_students_when_synchronize
-    @student_users ||= User.joins(:students).where(students: { api_code: students.map(&:aluno_id) }) if allow_create_users_for_students
+
+    if allow_create_users_for_students
+      @student_users ||= User.joins(:students).where(students: { api_code: students.map(&:aluno_id) })
+    end
+
+    preload_students(students.map(&:aluno_id))
 
     students.each do |student_record|
       next if student_record.nome_aluno.blank?
 
       begin
-        Student.with_discarded.find_or_initialize_by(api_code: student_record.aluno_id).tap do |student|
+        (
+          student(student_record.aluno_id) || Student.new(api_code: student_record.aluno_id)
+        ).tap do |student|
           student.name = student_record.nome_aluno
           student.social_name = student_record.nome_social
           student.avatar_url = student_record.foto_aluno

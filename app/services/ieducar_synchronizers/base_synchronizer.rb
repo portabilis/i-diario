@@ -158,6 +158,21 @@ class BaseSynchronizer
     preload_records(:@classrooms, Classroom, api_code, with_discarded: true)
   end
 
+  def classrooms_grade(classroom_id, grade_id)
+    @classrooms_grades ||= {}
+    key = "#{classroom_id}_#{grade_id}"
+    return @classrooms_grades[key] if @classrooms_grades.key?(key)
+
+    @classrooms_grades[key] = ClassroomsGrade.with_discarded.find_by(classroom_id: classroom_id, grade_id: grade_id)
+  end
+
+  def preload_classrooms_grades(classroom_id)
+    @classrooms_grades ||= {}
+    ClassroomsGrade.with_discarded
+                   .where(classroom_id: classroom_id)
+                   .each { |cg| @classrooms_grades["#{cg.classroom_id}_#{cg.grade_id}"] = cg }
+  end
+
   def discipline(api_code)
     get_record(:@disciplines, Discipline, api_code)
   end

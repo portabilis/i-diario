@@ -14,8 +14,14 @@ class DisciplinesSynchronizer < BaseSynchronizer
   end
 
   def update_records(disciplines)
+    preload_knowledge_areas(disciplines.map(&:area_conhecimento_id).compact)
+    preload_disciplines(disciplines.map(&:id))
+
     disciplines.each do |discipline_record|
-      Discipline.find_or_initialize_by(api_code: discipline_record.id).tap do |discipline|
+      (
+        discipline(discipline_record.id) ||
+        Discipline.new(api_code: discipline_record.id)
+      ).tap do |discipline|
         knowledge_area = knowledge_area(discipline_record.area_conhecimento_id)
         group_descriptors = knowledge_area.group_descriptors
 

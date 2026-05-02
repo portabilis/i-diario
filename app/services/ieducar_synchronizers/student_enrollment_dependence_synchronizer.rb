@@ -19,6 +19,9 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
   end
 
   def update_dependences(dependences)
+    preload_student_enrollments(dependences.map(&:matricula_id).compact)
+    preload_disciplines(dependences.map(&:disciplina_id).compact)
+
     dependences.each do |dependence_record|
       student_enrollment_id = student_enrollment(dependence_record.matricula_id).try(:id)
       discipline_id = discipline(dependence_record.disciplina_id).try(:id)

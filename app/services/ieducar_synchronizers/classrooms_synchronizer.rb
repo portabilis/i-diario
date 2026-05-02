@@ -19,6 +19,13 @@ class ClassroomsSynchronizer < BaseSynchronizer
   def update_classrooms(classrooms)
     @modified_at = api.send(:get_modified_date) unless synchronization.full_synchronization?
 
+    all_grades = classrooms.flat_map(&:series_regras)
+
+    preload_unities(classrooms.map(&:escola_id))
+    preload_classrooms(classrooms.map(&:id))
+    preload_grades(all_grades.map(&:serie_id).compact)
+    preload_exam_rules(all_grades.map(&:regra_avaliacao_id).compact)
+
     classrooms.each do |classroom_record|
       unity = unity(classroom_record.escola_id)
 
@@ -32,7 +39,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
       next if classroom_record.nome.nil?
 
-      Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
+      (
+        classroom(classroom_record.id) ||
+        Classroom.new(api_code: classroom_record.id)
+      ).tap do |classroom|
         old_name = classroom.description.try(:strip)
         new_name = classroom_record.nome.try(:strip)
         classroom.description = new_name
@@ -48,6 +58,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
         classroom.save!
 
+        preload_classrooms_grades(classroom.id)
+
         grades_ids = []
 
         classroom_record.series_regras.each do |grade_exam_rule|
@@ -58,9 +70,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          ClassroomsGrade.with_discarded.find_or_initialize_by(
-            classroom_id: classroom.id,
-            grade_id: grade.id
+          (
+            classrooms_grade(classroom.id, grade.id) ||
+            ClassroomsGrade.new(classroom_id: classroom.id, grade_id: grade.id)
           ).tap do |classroom_grade|
             classroom_grade.exam_rule_id = exam_rule.id
             classroom_grade.save!
