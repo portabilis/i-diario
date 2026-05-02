@@ -31,4 +31,17 @@ RSpec.describe GeneralConfiguration, :type => :model do
       subject.mark_with_error!(error)
     end
   end
+
+  describe "#always_send_email_on_daily_frequency_registration" do
+    it "defaults to false" do
+      general_configuration = GeneralConfiguration.new
+      expect(general_configuration.always_send_email_on_daily_frequency_registration).to eq(false)
+    end
+
+    it "can be set to true" do
+      general_configuration = GeneralConfiguration.new
+      general_configuration.always_send_email_on_daily_frequency_registration = true
+      expect(general_configuration.always_send_email_on_daily_frequency_registration).to eq(true)
+    end
+  end
 end

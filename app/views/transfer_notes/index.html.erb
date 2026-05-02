@@ -1,20 +1,28 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/transfer_notes/index' %>
+<% end %>
+
 <div class='widget-body no-padding'>
-  <%= simple_form_for :filter, { url: transfer_notes_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: transfer_notes_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class='table-responsive'>
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <th scope="col"><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></th>
-            <th scope="col"><%= f.input :by_discipline_description, label: false, placeholder: t('.by_discipline_description') %></th>
+            <th scope="col"></th>
+            <th scope="col">
+              <%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %>
+            </th>
+            <th scope="col">
+              <%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
             <th scope="col"><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></th>
             <th scope="col">
-              <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
-                label: false, placeholder: t('.by_step') %>
+              <%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %>
             </th>
             <th scope="col"><%= f.input :by_transfer_date, as: :date, label: false, placeholder: t('.by_transfer_date') %></th>
             <th scope="col"><%= link_to t('.new_html'), new_transfer_note_path, class: 'btn btn-primary pull-right' %></th>
           </tr>
           <tr>
+            <th scope="col"><%= TransferNote.human_attribute_name :unity_id %></th>
             <th scope="col"><%= TransferNote.human_attribute_name :classroom %></th>
             <th scope="col"><%= TransferNote.human_attribute_name :discipline %></th>
             <th scope="col"><%= TransferNote.human_attribute_name :student %></th>
@@ -26,15 +34,9 @@
 
         <%= render 'resources' %>
 
-        <tfoot id='paginator' class='remote'>
-          <td colspan='6'>
-            <div id='page_entries_info' class='pull-left hidden-xs'>
-              <%= page_entries_info @transfer_notes %>
-            </div>
-
-            <div class='pull-right'>
-              <%= paginate @transfer_notes %>
-            </div>
+        <tfoot id="paginator" class="remote">
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @transfer_notes %>
           </td>
         </tfoot>
       </table>

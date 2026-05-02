@@ -63,12 +63,20 @@ docker-compose.override.yml
 /public/packs
 /public/packs-test
 /node_modules
+package-lock.json
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
 
 # Carrierwave
 config/initializers/custom_carrierwave.rb
+
+# E2E test credentials and auth state
+.env.e2e
+spec/e2e/.auth/
+
+# E2E test results
+/test-results/
 
 # Claude local configuration
 CLAUDE.local.md

@@ -15,7 +15,7 @@
 }
 
 form.smart-form input.autocomplete {
-  background: url("<%= asset_path 'zoom.png' %>") 99% center no-repeat, #FFF;
+  background: asset-url('zoom.png') 99% center no-repeat, #FFF;
 }
 
 form.smart-form fieldset {

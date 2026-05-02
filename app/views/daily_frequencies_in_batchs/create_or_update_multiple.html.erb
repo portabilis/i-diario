@@ -184,7 +184,16 @@
         <%= f.submit t('.save'), class: 'btn new-save-style', id: 'save-frequencies-btn', data: { disable_with: 'Salvando...' } %>
       </div>
       <div class="pull-right" style="margin-right: 10px;">
-        <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+        <% if @general_configuration.always_send_email_on_daily_frequency_registration %>
+          <label class="checkbox state-disabled">
+            <%= f.check_box :receive_email_confirmation, checked: true, disabled: true %>
+            <i></i>
+            <%= t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+          </label>
+        <% else %>
+          <%= f.input :receive_email_confirmation, as: :boolean, label: false,
+              inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+        <% end %>
       </div>
     </footer>
   <% end %>

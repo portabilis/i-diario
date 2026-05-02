@@ -13,27 +13,39 @@
       </div>
     <% end %>
 
-    <%= f.hidden_field :teacher_id %>
     <%= f.hidden_field :current_user_id, value: current_user.id %>
+    <%= f.hidden_field :current_teacher_id, value: current_teacher.id %>
 
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
           <%= f.input :unity_id, as: :select2, elements: unities, readonly: !current_user.admin?,
-                      input_html: { value: @observation_record_report_form.unity_id }   %>
+                      input_html: { value: @observation_record_report_form.unity_id } %>
         </div>
+      </div>
 
+      <div class="row">
         <div class="col col-sm-4">
           <%= f.input :classroom_id, as: :select2, elements: [],
-                input_html: { value: @observation_record_report_form.classroom_id } %>
+                      input_html: { value: @observation_record_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">
           <%= f.input :discipline_id, as: :select2, elements: [],
                       input_html: { value: @observation_record_report_form.discipline_id } %>
         </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :teacher_id, as: :select2, elements: [],
+                      input_html: { value: @observation_record_report_form.teacher_id } %>
+        </div>
       </div>
 
       <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :student_id, as: :select2, elements: [],
+                      input_html: { value: @observation_record_report_form.student_id } %>
+        </div>
+
         <div class="col col-sm-4">
           <%= f.input :start_at, as: :date %>
         </div>

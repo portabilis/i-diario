@@ -95,75 +95,67 @@ class BaseSynchronizer
   end
 
   def unity(api_code)
-    @unities ||= {}
-    @unities[api_code.to_s] ||= Unity.find_by(api_code: api_code)
+    get_record(:@unities, Unity, api_code)
   end
 
-  def preload_unities(api_codes)
-    preload_records(:@unities, Unity, api_codes)
+  def preload_unities(api_code)
+    preload_records(:@unities, Unity, api_code)
   end
 
   def teacher(api_code)
-    @teachers ||= {}
-    @teachers[api_code.to_s] ||= Teacher.with_discarded.find_by(api_code: api_code)
+    get_record(:@teachers, Teacher, api_code, with_discarded: true)
   end
 
-  def preload_teachers(api_codes)
-    preload_records(:@teachers, Teacher, api_codes, with_discarded: true)
+  def preload_teachers(api_code)
+    preload_records(:@teachers, Teacher, api_code, with_discarded: true)
   end
 
   def student(api_code)
-    @students ||= {}
-    @students[api_code.to_s] ||= Student.with_discarded.find_by(api_code: api_code)
+    get_record(:@students, Student, api_code, with_discarded: true)
   end
 
-  def preload_students(api_codes)
-    preload_records(:@students, Student, api_codes, with_discarded: true)
+  def preload_students(api_code)
+    preload_records(:@students, Student, api_code, with_discarded: true)
   end
 
   def student_enrollment(api_code)
-    @student_enrollments ||= {}
-    @student_enrollments[api_code.to_s] ||= StudentEnrollment.with_discarded.find_by(api_code: api_code)
+    get_record(:@student_enrollments, StudentEnrollment, api_code, with_discarded: true)
   end
 
-  def preload_student_enrollments(api_codes)
-    preload_records(:@student_enrollments, StudentEnrollment, api_codes, with_discarded: true)
+  def preload_student_enrollments(api_code)
+    preload_records(:@student_enrollments, StudentEnrollment, api_code, with_discarded: true)
   end
 
   def exam_rule(api_code)
-    @exam_rules ||= {}
-    @exam_rules[api_code.to_s] ||= ExamRule.find_by(api_code: api_code)
+    get_record(:@exam_rules, ExamRule, api_code)
   end
 
-  def preload_exam_rules(api_codes)
-    preload_records(:@exam_rules, ExamRule, api_codes)
+  def preload_exam_rules(api_code)
+    preload_records(:@exam_rules, ExamRule, api_code)
   end
 
   def course(api_code)
-    @course ||= {}
-    @course[api_code.to_s] ||= Course.with_discarded.find_by(api_code: api_code)
+    get_record(:@course, Course, api_code, with_discarded: true)
   end
 
-  def preload_courses(api_codes)
-    preload_records(:@course, Course, api_codes, with_discarded: true)
+  def preload_courses(api_code)
+    preload_records(:@course, Course, api_code, with_discarded: true)
   end
 
   def grade(api_code)
-    @grade ||= {}
-    @grade[api_code.to_s] ||= Grade.with_discarded.find_by(api_code: api_code)
+    get_record(:@grade, Grade, api_code, with_discarded: true)
   end
 
-  def preload_grades(api_codes)
-    preload_records(:@grade, Grade, api_codes, with_discarded: true)
+  def preload_grades(api_code)
+    preload_records(:@grade, Grade, api_code, with_discarded: true)
   end
 
   def classroom(api_code)
-    @classrooms ||= {}
-    @classrooms[api_code.to_s] ||= Classroom.with_discarded.find_by(api_code: api_code)
+    get_record(:@classrooms, Classroom, api_code, with_discarded: true)
   end
 
-  def preload_classrooms(api_codes)
-    preload_records(:@classrooms, Classroom, api_codes, with_discarded: true)
+  def preload_classrooms(api_code)
+    preload_records(:@classrooms, Classroom, api_code, with_discarded: true)
   end
 
   def classrooms_grade(classroom_id, grade_id)
@@ -182,30 +174,38 @@ class BaseSynchronizer
   end
 
   def discipline(api_code)
-    @disciplines ||= {}
-    @disciplines[api_code.to_s] ||= Discipline.find_by(api_code: api_code)
+    get_record(:@disciplines, Discipline, api_code)
   end
 
-  def preload_disciplines(api_codes)
-    preload_records(:@disciplines, Discipline, api_codes)
+  def preload_disciplines(api_code)
+    preload_records(:@disciplines, Discipline, api_code)
   end
 
-  def knowledge_area(knowledge_area_id)
-    @knowledge_areas ||= {}
-    @knowledge_areas[knowledge_area_id] ||= KnowledgeArea.with_discarded.find_by(api_code: knowledge_area_id)
+  def knowledge_area(api_code)
+    get_record(:@knowledge_areas, KnowledgeArea, api_code, with_discarded: true)
   end
 
-  def preload_knowledge_areas(api_codes)
-    preload_records(:@knowledge_areas, KnowledgeArea, api_codes, with_discarded: true)
+  def preload_knowledge_areas(api_code)
+    preload_records(:@knowledge_areas, KnowledgeArea, api_code, with_discarded: true)
   end
 
   def rounding_table(api_code)
-    @rounding_tables ||= {}
-    @rounding_tables[api_code.to_s] ||= RoundingTable.find_by(api_code: api_code)
+    get_record(:@rounding_tables, RoundingTable, api_code)
   end
 
-  def preload_rounding_tables(api_codes)
-    preload_records(:@rounding_tables, RoundingTable, api_codes)
+  def preload_rounding_tables(api_code)
+    preload_records(:@rounding_tables, RoundingTable, api_code)
+  end
+
+  def get_record(cache_ivar, model, api_code, with_discarded: false)
+    cache = instance_variable_get(cache_ivar) || instance_variable_set(cache_ivar, {})
+
+    unless cache.key?(api_code.to_s)
+      scope = with_discarded ? model.with_discarded : model
+      cache[api_code.to_s] = scope.find_by(api_code: api_code)
+    end
+
+    cache[api_code.to_s]
   end
 
   def preload_records(cache_ivar, model, api_codes, with_discarded: false)

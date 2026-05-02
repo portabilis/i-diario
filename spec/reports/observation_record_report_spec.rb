@@ -35,11 +35,44 @@ RSpec.describe ObservationRecordReport, type: :report do
     expect(text_analysis.strings).to include(observation_diary_record_note.description)
   end
 
+  context 'when student filter is applied' do
+    let(:student) { build_stubbed(:student) }
+    let(:student_note) { double(:student_note) }
+    let(:other_note) { double(:other_note) }
+
+    before do
+      allow(form).to receive(:student).and_return(student)
+      allow(form).to receive(:student_id).and_return(student.id)
+      allow(observation_diary_record).to receive(:notes).and_return([student_note, other_note])
+      allow(student_note).to receive(:students).and_return([student])
+      allow(student_note).to receive(:description).and_return('Student note')
+      allow(other_note).to receive(:students).and_return([])
+      allow(other_note).to receive(:description).and_return('Other note')
+    end
+
+    it 'should include student name in header' do
+      rendered_pdf = subject.build.render
+      text_analysis = PDF::Inspector::Text.analyze(rendered_pdf)
+
+      expect(text_analysis.strings).to include(student.to_s)
+    end
+
+    it 'should only include notes related to the student' do
+      rendered_pdf = subject.build.render
+      text_analysis = PDF::Inspector::Text.analyze(rendered_pdf)
+
+      expect(text_analysis.strings).to include('Student note')
+      expect(text_analysis.strings).not_to include('Other note')
+    end
+  end
+
   def stub_form
     allow(form).to receive(:unity).and_return(unity)
     allow(form).to receive(:classroom).and_return(classroom)
     allow(form).to receive(:discipline).and_return(discipline)
     allow(form).to receive(:teacher).and_return(teacher)
+    allow(form).to receive(:student).and_return(nil)
+    allow(form).to receive(:student_id).and_return(nil)
     allow(form).to receive(:start_at).and_return('01/04/2016')
     allow(form).to receive(:end_at).and_return('30/04/2016')
     allow(form).to receive(:observation_diary_records).and_return([observation_diary_record])

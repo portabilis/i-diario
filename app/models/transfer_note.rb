@@ -54,6 +54,14 @@ class TransferNote < ApplicationRecord
   scope :by_transfer_date_between, lambda { |start_at, end_at|
     where(transfer_date: start_at.to_date..end_at.to_date)
   }
+  scope :by_school_calendar_step, lambda { |step_id|
+    step = SchoolCalendarStep.find(step_id)
+    by_transfer_date_between(step.start_at, step.end_at)
+  }
+  scope :by_school_calendar_classroom_step, lambda { |step_id|
+    step = SchoolCalendarClassroomStep.find(step_id)
+    by_transfer_date_between(step.start_at, step.end_at)
+  }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
