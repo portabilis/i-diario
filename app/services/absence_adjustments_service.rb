@@ -19,6 +19,7 @@ class AbsenceAdjustmentsService
                                       .where(exam_rules: { frequency_type: frequency_type })
                                       .where('extract(year from frequency_date) = ?', @year)
                                       .where(unity_id: @unity_ids)
+                                      .distinct
 
     daily_frequencies = daily_frequencies.where.not(discipline_id: nil) if frequency_type == FrequencyTypes::GENERAL
     daily_frequencies = daily_frequencies.where(discipline_id: nil) if frequency_type == FrequencyTypes::BY_DISCIPLINE
@@ -44,7 +45,10 @@ class AbsenceAdjustmentsService
   def adjust_by_discipline_to_general
     classroom_id = 0
     discipline_id = 0
-    daily_frequencies_by_type(FrequencyTypes::GENERAL).each do |daily_frequency|
+    frequency_date = nil
+    daily_frequencies_by_type(FrequencyTypes::GENERAL)
+      .order(:classroom_id, :frequency_date, :discipline_id, :class_number)
+      .each do |daily_frequency|
       teacher = Teacher.by_daily_frequency(daily_frequency).first
 
       next if teacher.blank?
@@ -54,9 +58,12 @@ class AbsenceAdjustmentsService
 
       next if absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
 
-      if classroom_id != daily_frequency.classroom_id || discipline_id != daily_frequency.discipline_id
+      if classroom_id != daily_frequency.classroom_id ||
+         discipline_id != daily_frequency.discipline_id ||
+         frequency_date != daily_frequency.frequency_date
         classroom_id = daily_frequency.classroom_id
         discipline_id = daily_frequency.discipline_id
+        frequency_date = daily_frequency.frequency_date
 
         next if daily_frequency_exists?(daily_frequency, nil, nil) && daily_frequency.destroy
 
@@ -94,7 +101,13 @@ class AbsenceAdjustmentsService
         )
 
         original_frequency_students.each do |student|
-          new_daily_frequency.students.create!(student.attributes.except('id', 'daily_frequency_id', 'created_at', 'updated_at'))
+          new_daily_frequency.students.find_or_create_by!(student_id: student.student_id) do |new_student|
+            new_student.present = student.present
+            new_student.dependence = student.dependence
+            new_student.active = student.active
+            new_student.type_of_teaching = student.type_of_teaching
+            new_student.absence_justification_student_id = student.absence_justification_student_id
+          end
         end
       end
 
