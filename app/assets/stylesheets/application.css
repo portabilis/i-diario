@@ -24,6 +24,7 @@
  *= require bootstrap-datetimepicker
  *= require summernote
  *= require_tree ./resources
+ *= require command_palette
  *= require_self
  */
 
