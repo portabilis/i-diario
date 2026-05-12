@@ -61,7 +61,9 @@ class GeneralConfigurationsController < ApplicationController
       :show_experience_fields,
       :allows_copy_experience_fields_in_lesson_plans,
       :group_children_education,
-      :allow_class_number_on_content_records
+      :allow_class_number_on_content_records,
+      :allow_automatic_avaliation_recovery,
+      :always_send_email_on_daily_frequency_registration
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')

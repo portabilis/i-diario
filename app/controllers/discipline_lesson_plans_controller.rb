@@ -1,4 +1,6 @@
 class DisciplineLessonPlansController < ApplicationController
+  include GroupedDisciplines
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -11,6 +13,7 @@ class DisciplineLessonPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
+    set_filters
 
     set_options_by_user
 
@@ -209,9 +212,10 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
+current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
+    @disciplines = exclude_non_grouper_disciplines(@fetch_linked_by_teacher[:disciplines])
   end
 
   def content_ids
@@ -367,5 +371,10 @@ class DisciplineLessonPlansController < ApplicationController
     fetch_linked_by_teacher
     classroom = @discipline_lesson_plan.lesson_plan.classroom
     @disciplines = @disciplines.by_classroom(classroom).not_descriptor
+  end
+
+  def set_filters
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 end

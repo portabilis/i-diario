@@ -14,8 +14,13 @@ class CoursesSynchronizer < BaseSynchronizer
   end
 
   def update_courses(courses)
+    preload_courses(courses.map(&:id))
+
     courses.each do |course_record|
-      Course.with_discarded.find_or_initialize_by(api_code: course_record.id).tap do |course|
+      (
+        course(course_record.id) ||
+        Course.new(api_code: course_record.id)
+      ).tap do |course|
         course.description = course_record.nome
         course.save! if course.changed?
 

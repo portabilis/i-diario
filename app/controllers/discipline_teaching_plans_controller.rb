@@ -1,4 +1,6 @@
 class DisciplineTeachingPlansController < ApplicationController
+  include GroupedDisciplines
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -18,7 +20,7 @@ class DisciplineTeachingPlansController < ApplicationController
     school_term_type
     school_term_type_step
 
-    @discipline_teaching_plans = fetch_discipline_teaching_plans
+    @discipline_teaching_plans = discipline_teaching_plans_with_filters
 
     unless current_user.current_role_is_admin_or_employee?
       @discipline_teaching_plans = filter_by_grade_discipline(@discipline_teaching_plans)
@@ -341,30 +343,31 @@ class DisciplineTeachingPlansController < ApplicationController
     if current_user.current_role_is_admin_or_employee?
       fetch_grades
       fetch_disciplines
-
-      discipline = current_user_discipline&.grouper? ? Discipline.where(knowledge_area_id: current_user_discipline.knowledge_area_id).all : [current_user_discipline]
     else
       fetch_linked_by_teacher
     end
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @disciplines ||= exclude_non_grouper_disciplines(@fetch_linked_by_teacher[:disciplines])
     @grades ||= @fetch_linked_by_teacher[:classroom_grades].map(&:grade).uniq
   end
 
-  def fetch_discipline_teaching_plans
-    apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline, teaching_plan:
-                             [:unity, :grade, :teaching_plan_attachments, :teacher,
-                              :school_term_type, :school_term_type_step])
-                            .by_discipline(@disciplines.map(&:id))
-                            .by_unity(current_unity)
-                            .by_year(current_school_year)
-                            .order_by_grades
-                            .order('teaching_plans.school_term_type_step_id')
-    )
+  def fetch_discipline_teaching_plans(discipline_ids)
+    disciplines = discipline_ids.presence ? discipline_ids : @disciplines.map(&:id)
+
+    apply_scopes(DisciplineTeachingPlan
+      .includes(:discipline, teaching_plan:
+        [:unity, :grade, :teaching_plan_attachments, :teacher, :school_term_type, :school_term_type_step]
+      )
+      .by_discipline(disciplines)
+      .by_unity(current_unity)
+      .by_year(current_school_year)
+      .order_by_grades
+      .order('teaching_plans.school_term_type_step_id'))
   end
 
   def school_term_type
@@ -385,5 +388,12 @@ class DisciplineTeachingPlansController < ApplicationController
     return if current_user.current_role_is_admin_or_employee?
 
     @disciplines = @disciplines.by_grade(current_grade.first.grade_id).not_descriptor
+  end
+
+  def discipline_teaching_plans_with_filters
+    params[:filter][:by_grade] ||= current_user_classroom.grades.first.id
+    params[:filter][:by_discipline] ||= current_user_discipline.id
+
+    @discipline_teaching_plans = fetch_discipline_teaching_plans(params[:filter][:by_discipline])
   end
 end

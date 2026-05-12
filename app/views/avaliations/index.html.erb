@@ -1,5 +1,9 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliations/index' %>
+<% end %>
+
 <div class="widget-body no-padding">
-  <%= simple_form_for :filter, { url: avaliations_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for @filter, as: :filter, url: avaliations_path, method: :get, html: { class: 'filterable_search_form' } do |f| %>
     <div class="table-responsive">
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
@@ -43,13 +47,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @avaliations %>
-            </div>
-            <div class="pull-right">
-              <%= paginate @avaliations %>
-            </div>
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @avaliations %>
           </td>
         </tfoot>
       </table>

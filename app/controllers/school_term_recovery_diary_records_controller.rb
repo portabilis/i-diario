@@ -7,19 +7,15 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    step_id = (params[:filter] || []).delete(:by_step_id)
-
     set_options_by_user
+    set_filters
 
     set_school_term_recovery_diary_records
 
-    if step_id.present?
-      @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(
-        current_user_classroom,
-        step_id
-      )
-      params[:filter][:by_step_id] = step_id
-    end
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
 
     authorize @school_term_recovery_diary_records
   end
@@ -146,6 +142,25 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
     render json: steps.to_json
+  end
+
+  def fetch_steps_for_filter
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
   end
 
   def fetch_number_of_decimal_places
@@ -324,5 +339,40 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     mark_exempted_disciplines(students_in_recovery)
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 end

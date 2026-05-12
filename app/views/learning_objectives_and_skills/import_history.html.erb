@@ -1,0 +1,32 @@
+<div class="widget-body">
+  <% if @resource.all_audits.exists? %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered" id="history">
+        <thead>
+          <tr>
+            <th>Ação</th>
+            <th>Alterações</th>
+            <th>Autor</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @resource.all_audits.each do |audit| %>
+            <%= render 'history/history', record: AuditDecorator.new(audit) %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="alert alert-warning alert-dismissable">
+      <%= t('learning_objectives_and_skills.import_history.no_records') %>
+    </div>
+  <% end %>
+
+  <div class="smart-form">
+    <footer>
+      <%= link_to t('helpers.links.back'),
+                  import_learning_objectives_and_skills_path, class: 'btn btn-default' %>
+    </footer>
+  </div>
+</div>

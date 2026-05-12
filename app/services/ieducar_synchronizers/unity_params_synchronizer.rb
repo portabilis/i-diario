@@ -16,6 +16,8 @@ class UnityParamsSynchronizer < BaseSynchronizer
   end
 
   def update_unity_params(unity_params)
+    preload_unities(unity_params.map(&:cod_escola))
+
     unity_params.each do |unity_param|
       unity_record = unity(unity_param.cod_escola)
 

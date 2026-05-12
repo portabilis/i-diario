@@ -22,6 +22,9 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
   end
 
   def update_school_calendar_classrooms(school_calendars)
+    preload_unities(school_calendars.map(&:escola_id).compact)
+    preload_classrooms(school_calendars.flat_map(&:etapas_de_turmas).map(&:turma_id).compact)
+
     school_calendars.each do |school_calendar_record|
       next unless school_calendar_record.ano_em_aberto
 

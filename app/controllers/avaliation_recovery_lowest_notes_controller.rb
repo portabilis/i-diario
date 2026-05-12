@@ -8,8 +8,8 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   before_action :arithmetic_test_setting
 
   def index
-    step_id = (params[:filter] || []).delete(:by_step_id)
     set_options_by_user
+    set_filters
 
     @lowest_note_recoverys = apply_scopes(AvaliationRecoveryLowestNote)
                                             .includes(
@@ -23,13 +23,10 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
                                             .by_discipline_id(@disciplines.map(&:id))
                                             .ordered
 
-    if step_id.present?
-      @lowest_note_recoverys = @lowest_note_recoverys.by_step_id(
-        current_user_classroom,
-        step_id
-      )
-      params[:filter][:by_step_id] = step_id
-    end
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
 
     authorize @lowest_note_recoverys
   end
@@ -133,6 +130,25 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     step_numbers = StepsFetcher.new(classroom)&.steps
 
     render json: step_numbers.to_json
+  end
+
+  def fetch_steps_for_filter
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
   end
 
   def fetch_exam_setting_arithmetic
@@ -338,5 +354,40 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     @disciplines = @disciplines.by_classroom(
       @lowest_note_recovery.recovery_diary_record.classroom
     ).not_descriptor
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 end

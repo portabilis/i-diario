@@ -7,14 +7,13 @@ class ObservationDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    current_discipline = fetch_current_discipline
-    teachers_by_discipline = fetch_teachers_by_discipline(current_discipline)
+    set_options_by_user
+    set_filters
 
     @observation_diary_records = apply_scopes(ObservationDiaryRecord)
-      .includes(:discipline, classroom: :unity)
-      .by_classroom(current_user_classroom)
-      .by_teacher(teachers_by_discipline)
-      .by_discipline([current_discipline.id, nil])
+      .includes(:discipline, :students, classroom: :unity)
+      .by_classroom(@classrooms.map(&:id))
+      .by_discipline(@disciplines.map(&:id).push(nil))
       .ordered
 
     @students = fetch_students_with_observation_diary_records
@@ -29,7 +28,8 @@ class ObservationDiaryRecordsController < ApplicationController
       unity_id: @observation_diary_record.unity_id,
       classroom_id: @observation_diary_record.classroom.id,
       start_at: @observation_diary_record.date,
-      end_at: @observation_diary_record.date
+      end_at: @observation_diary_record.date,
+      current_user_id: current_user.id
     ).localized
 
     if @observation_record_report_form.valid?
@@ -111,16 +111,21 @@ class ObservationDiaryRecordsController < ApplicationController
   end
   helper_method :unities
 
-  def classrooms
-    @classrooms ||= Classroom.where(id: current_user_classroom)
-    .ordered
-  end
-  helper_method :classrooms
+  def fetch_students_by_classroom
+    students = Student.joins(observation_diary_record_note_students: :observation_diary_record_note)
+                      .joins(
+                        'INNER JOIN observation_diary_records ' \
+                        'ON observation_diary_records.id = observation_diary_record_notes.observation_diary_record_id'
+                      )
+                      .where(observation_diary_records: { classroom_id: params[:classroom_id] })
+                      .distinct
+                      .ordered
+                      .pluck(:id, :name)
 
-  def disciplines
-    @disciplines ||= Discipline.where(id: fetch_current_discipline)
+    students_data = students.map { |id, name| { id: id, name: name } }
+
+    render json: students_data.to_json
   end
-  helper_method :disciplines
 
   private
 
@@ -155,23 +160,31 @@ class ObservationDiaryRecordsController < ApplicationController
     end
   end
 
-  def fetch_current_discipline
-    frequency_type_definer = FrequencyTypeDefiner.new(
-      current_user_classroom,
-      current_teacher,
-      year: current_user_classroom.year
-    )
-    frequency_type_definer.define!
-
-    current_user_discipline
+  def set_options_by_user
+    if current_user.current_role_is_admin_or_employee?
+      @classrooms ||= [current_user_classroom]
+      @disciplines ||= [current_user_discipline]
+    else
+      fetch_linked_by_teacher
+    end
   end
 
-  def fetch_teachers_by_discipline(discipline)
-    discipline_teachers_fetcher = DisciplineTeachersFetcher.new(
-      discipline,
-      current_user_classroom
+  def fetch_linked_by_teacher
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id,
+      current_unity,
+      current_school_year
     )
-    discipline_teachers_fetcher.teachers_by_classroom
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom] ||= current_user_classroom.id
+    params[:filter][:by_discipline] ||= current_user_discipline.id
+
+    @filter = OpenStruct.new(params[:filter])
   end
 
   def fetch_students_with_observation_diary_records

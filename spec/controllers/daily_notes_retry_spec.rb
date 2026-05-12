@@ -27,6 +27,7 @@ RSpec.describe DailyNotesController, 'unique constraint handling' do
     allow(daily_note).to receive(:localized).and_return(daily_note)
     allow(daily_note).to receive(:assign_attributes)
     allow(daily_note).to receive(:reload)
+    allow(daily_note).to receive(:avaliation).and_return(nil)
   end
 
   describe '#update unique constraint handling' do

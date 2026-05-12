@@ -58,6 +58,13 @@ class ObservationRecordReport < BaseReportOld
       [teacher_cell, period_cell]
     ]
 
+    if @form.student.present?
+      student_header = make_row_header_cell(t(:student), colspan: 2)
+      student_cell = make_content_cell(@form.student.to_s, colspan: 2)
+      table_data << [student_header]
+      table_data << [student_cell]
+    end
+
     table(table_data, width: bounds.width, header: true) do
       cells.border_width = 0.25
       row(0).border_top_width = 0.25
@@ -92,7 +99,9 @@ class ObservationRecordReport < BaseReportOld
     general_information_table_data = [general_information_headers]
 
     @form.observation_diary_records.each do |record|
-      record.notes.each do |note|
+      notes = filtered_notes(record)
+
+      notes.each do |note|
         students = note.students.map(&:to_s).join(', ')
 
         date_cell = make_row_cell(record.localized.date, width: 62)
@@ -121,6 +130,15 @@ class ObservationRecordReport < BaseReportOld
       row(-1).border_bottom_width = 0.25
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
+    end
+  end
+
+  def filtered_notes(record)
+    if @form.student_id.present?
+      student_id = @form.student_id.to_i
+      record.notes.select { |note| note.students.any? { |s| s.id == student_id } }
+    else
+      record.notes
     end
   end
 

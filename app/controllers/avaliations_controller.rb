@@ -9,23 +9,16 @@ class AvaliationsController < ApplicationController
   before_action :set_number_of_classes, only: [
     :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
   ]
+  before_action :set_allow_automatic_avaliation_recovery, only: [
+    :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
+  ]
   before_action :require_allow_to_modify_prev_years, only: [
     :create, :update, :destroy, :create_multiple_classrooms
   ]
 
   def index
-    if current_user.current_role_is_admin_or_employee?
-      @classrooms = [current_user_classroom]
-      @disciplines = [current_user_discipline]
-    else
-      fetch_linked_by_teacher
-    end
-
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      params[:filter][school_calendar_step] = step_id
-    end
-
+    set_options_by_user
+    set_filters
     fetch_avaliations_by_user
 
     authorize @avaliations
@@ -82,6 +75,12 @@ class AvaliationsController < ApplicationController
     )
 
     if @avaliation_multiple_creator_form.save
+      has_recovery_flag = @avaliation_multiple_creator_form.avaliations.any? { |a|
+        a.include && a.persisted? && a.should_create_recovery
+      }
+
+      flash[:warning] = t('avaliation.recovery_pending_notice') if has_recovery_flag
+
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
@@ -145,6 +144,7 @@ class AvaliationsController < ApplicationController
     end
 
     if resource.save
+      create_recovery_if_needed
       respond_to_save
     else
       fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
@@ -180,6 +180,25 @@ class AvaliationsController < ApplicationController
     @avaliations = apply_scopes(Avaliation).ordered
 
     render json: @avaliations
+  end
+
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
   end
 
   def show
@@ -273,38 +292,43 @@ class AvaliationsController < ApplicationController
     t('flash.avaliations.destroy_reasons.has_daily_notes')
   end
 
-  def school_calendar_step
-    return :by_school_calendar_classroom_step if school_calendar_by_classroom?
-
-    :by_school_calendar_step
-  end
-
-  def school_calendar_by_classroom?
-    classroom_ids = @classrooms.map(&:id)
-
-    current_school_calendar.classrooms.where(classroom_id: classroom_ids).present?
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
+    else
+      :by_school_calendar_step
+    end
   end
 
   def fetch_avaliations_by_user
     current_unity_id = current_unity.id if current_unity
     @avaliations = apply_scopes(Avaliation
-      .includes(:classroom, :discipline, :test_setting_test)
+      .includes(:classroom, :discipline, :test_setting_test, :school_calendar)
       .by_unity_id(current_unity_id)
       .teacher_avaliations(
         current_teacher.id,
         @classrooms.map(&:id),
         @disciplines.map(&:id)
       )
-        .order_by_classroom
-        .ordered
-                               )
+      .order_by_classroom
+      .ordered
+      .distinct
+    )
 
-    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(current_school_calendar, @classrooms)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([
+                                                                          ScoreTypes::NUMERIC,
+                                                                          ScoreTypes::NUMERIC_AND_CONCEPT
+                                                                        ])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC).not_descriptor
     @classroom_grades = @fetch_linked_by_teacher[:classroom_grades]
     @grades = @classroom_grades.map(&:grade).uniq
@@ -316,13 +340,39 @@ class AvaliationsController < ApplicationController
       @daily_note.save if @daily_note.new_record?
 
       if @daily_note.persisted?
+        set_recovery_flash
         redirect_to edit_daily_note_path(@daily_note)
       else
         render 'daily_notes/new'
       end
     else
+      set_recovery_flash
       respond_with resource, location: avaliations_path
     end
+  end
+
+  def set_recovery_flash
+    return unless resource.should_create_recovery
+
+    if @recovery_created
+      flash[:notice] = t('daily_notes.recovery_created_notice')
+    elsif resource.avaliation_recovery_diary_record.present?
+      flash[:warning] = t('avaliation.recovery_already_exists_notice')
+    else
+      flash[:warning] = t('avaliation.recovery_pending_notice')
+    end
+  end
+
+  def create_recovery_if_needed
+    return unless resource.should_create_recovery
+    return unless resource.avaliation_recovery_diary_record.blank?
+
+    daily_note = resource.daily_notes.joins(:students).first
+    return unless daily_note
+
+    @recovery_created = CreateAvaliationRecoveryService.new(
+      resource, teacher_id: current_teacher_id, daily_note: daily_note
+    ).call
   end
 
   def disciplines_for_multiple_classrooms
@@ -352,6 +402,10 @@ class AvaliationsController < ApplicationController
     @number_of_classes = current_school_calendar.number_of_classes
   end
 
+  def set_allow_automatic_avaliation_recovery
+    @allow_automatic_avaliation_recovery = GeneralConfiguration.current.allow_automatic_avaliation_recovery
+  end
+
   def resource
     @resource ||= case params[:action]
                   when 'new', 'create'
@@ -371,7 +425,8 @@ class AvaliationsController < ApplicationController
       :test_setting_test_id,
       :weight,
       :observations,
-      :grade_ids
+      :grade_ids,
+      :should_create_recovery
     )
 
     parameters[:grade_ids] = parameters[:grade_ids].split(',')
@@ -409,7 +464,7 @@ class AvaliationsController < ApplicationController
   end
 
   def test_setting?
-    return true if test_settings
+    return true if test_settings.present?
 
     flash[:error] = t('errors.avaliations.require_setting')
 
@@ -417,11 +472,13 @@ class AvaliationsController < ApplicationController
   end
 
   def test_settings
-    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
+    classroom = @avaliation&.classroom || current_user_classroom
+    return unless (year_test_setting = TestSetting.where(year: classroom.year))
 
-    @test_settings ||= general_by_school_test_setting(year_test_setting) ||
+    @test_settings ||= general_by_school_test_setting(year_test_setting, classroom) ||
       general_test_setting(year_test_setting) ||
-      by_school_term_test_setting(year_test_setting)
+      by_school_term_test_setting(year_test_setting) ||
+      []
   end
 
   def general_by_school_test_setting(year_test_setting, classroom = nil)
@@ -491,5 +548,59 @@ class AvaliationsController < ApplicationController
                 .classrooms_grades
                 .by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
                 .map(&:grade)
+  end
+
+  def set_options_by_user
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    @classrooms = [current_user_classroom]
+    @disciplines = [current_user_discipline]
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    set_default_filter_params
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def set_default_filter_params
+    return set_default_filter_for_admin_or_employee if current_user.current_role_is_admin_or_employee?
+
+    classroom_id = current_user_classroom&.id
+    discipline_id = current_user_discipline&.id
+    classroom_in_list = @classrooms.any? { |c| c.id == classroom_id }
+    discipline_in_list = @disciplines.any? { |d| d.id == discipline_id }
+
+    if classroom_in_list && discipline_in_list
+      params[:filter][:by_classroom_id] ||= classroom_id
+      params[:filter][:by_discipline_id] ||= discipline_id
+    else
+      flash.now[:alert] = t('avaliation.grades_not_allow_numeric_exam') unless classroom_in_list
+    end
+  end
+
+  def set_default_filter_for_admin_or_employee
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
   end
 end

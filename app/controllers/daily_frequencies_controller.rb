@@ -176,9 +176,16 @@ class DailyFrequenciesController < ApplicationController
       daily_frequency_record = nil
       daily_frequency_attributes = daily_frequency_params
       daily_frequencies_attributes = daily_frequencies_params
-      receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
-        params[:daily_frequency][:receive_email_confirmation]
-      )
+      general_configuration = GeneralConfiguration.current
+
+      # Se o parâmetro global estiver ativo, força o envio de e-mail
+      receive_email_confirmation = if general_configuration.always_send_email_on_daily_frequency_registration
+                                     true
+                                   else
+                                     ActiveRecord::Type::Boolean.new.cast(
+                                       params[:daily_frequency][:receive_email_confirmation]
+                                     )
+                                   end
 
       edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_attributes.slice(
@@ -256,7 +263,7 @@ class DailyFrequenciesController < ApplicationController
       current_teacher_id
     )
 
-    if receive_email_confirmation
+    if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = daily_frequency_record.classroom.description
       unity = daily_frequency_record.unity.name
 

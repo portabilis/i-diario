@@ -1,0 +1,189 @@
+/* Command Palette - Ctrl+K navigation */
+
+/* Overlay */
+#command-palette-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99999;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+}
+
+#command-palette-overlay.open {
+  display: flex;
+}
+
+/* Modal */
+#command-palette {
+  background: #fff;
+  border-radius: 8px;
+  width: 520px;
+  max-width: 90vw;
+  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+}
+
+/* Header / Input */
+#command-palette-header {
+  padding: 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+#command-palette-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 4px 0;
+  background: transparent;
+  color: #333;
+}
+
+#command-palette-input::placeholder {
+  color: #999;
+}
+
+/* Results list */
+#command-palette-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.cp-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.1s;
+}
+
+.cp-item:hover,
+.cp-item.selected {
+  background: #f0f4f8;
+  color: #333;
+  text-decoration: none;
+}
+
+.cp-item .cp-icon {
+  width: 28px;
+  text-align: center;
+  margin-right: 12px;
+  color: #555;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Reset global SmartAdmin .fa styles that break icon alignment inside the palette */
+.cp-item .cp-icon i {
+  width: auto;
+  height: auto;
+  padding-top: 0;
+  display: inline;
+}
+
+.cp-item .cp-label {
+  flex: 1;
+  font-size: 14px;
+}
+
+.cp-item .cp-category {
+  font-size: 12px;
+  color: #777;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* Empty state */
+#command-palette-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  display: none;
+}
+
+/* Footer */
+#command-palette-footer {
+  padding: 10px 16px;
+  border-top: 1px solid #e8e8e8;
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  gap: 16px;
+}
+
+#command-palette-footer kbd {
+  background: #e8e8e8;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #444;
+}
+
+/* Sidebar trigger */
+#cp-trigger {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  margin: 10px 0 14px 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+#cp-trigger:hover {
+  border-color: #aaa;
+}
+
+#cp-trigger .cp-trigger-icon {
+  color: #999;
+  margin-right: 8px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+#cp-trigger .cp-trigger-text {
+  flex: 1;
+  color: #999;
+  font-size: 12px;
+}
+
+#cp-trigger .cp-trigger-kbd {
+  background: #eee;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: #777;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+/* Minified/collapsed menu */
+.minified #cp-trigger .cp-trigger-text,
+.minified #cp-trigger .cp-trigger-kbd {
+  display: none;
+}
+
+.minified #cp-trigger {
+  justify-content: center;
+  padding: 8px;
+}
+
+.minified #cp-trigger .cp-trigger-icon {
+  margin-right: 0;
+}

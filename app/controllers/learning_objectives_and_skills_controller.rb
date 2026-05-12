@@ -1,4 +1,10 @@
 class LearningObjectivesAndSkillsController < ApplicationController
+  CSV_TEMPLATES = {
+    'child_school' => 'modelo_educacao_infantil.csv',
+    'elementary_school' => 'modelo_ensino_fundamental.csv',
+    'eja' => 'modelo_eja.csv'
+  }.freeze
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -7,12 +13,12 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     group_children_education = GeneralConfiguration.current.group_children_education
 
-    if group_children_education
-      @grades = GroupChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
-                AdultAndYouthEducations.to_select[1..-1]
+    @grades = if group_children_education
+      GroupChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
+        AdultAndYouthEducations.to_select[1..-1]
     else
-      @grades = ChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
-                AdultAndYouthEducations.to_select[1..-1]
+      ChildEducations.to_select + ElementaryEducations.to_select[1..-1] +
+        AdultAndYouthEducations.to_select[1..-1]
     end
 
     authorize @learning_objectives_and_skills
@@ -111,7 +117,243 @@ class LearningObjectivesAndSkillsController < ApplicationController
     render json: ListGradesByStepBuilder.call(params[:step], false)
   end
 
+  def import
+    authorize LearningObjectivesAndSkill, :import?
+  end
+
+  def csv_template
+    authorize LearningObjectivesAndSkill, :import?
+
+    filename = CSV_TEMPLATES[params[:template]]
+    return head :not_found unless filename
+
+    send_file Rails.root.join('public/csv_templates', filename),
+              type: 'text/csv',
+              disposition: 'attachment',
+              filename: filename
+  end
+
+  def import_history
+    authorize LearningObjectivesAndSkill, :import?
+
+    @resource = LearningObjectivesAndSkillImport
+  end
+
+  def validate_csv
+    authorize LearningObjectivesAndSkill, :import?
+
+    @selected_step = params[:step]
+    @selected_import_mode = params[:import_mode]
+
+    unless LearningObjectivesAndSkillsCsvParser::VALID_STEPS.include?(@selected_step)
+      flash[:error] = t('learning_objectives_and_skills.validate_csv.step_required')
+      return render :import
+    end
+
+    unless %w[add_new replace].include?(@selected_import_mode)
+      flash[:error] = t('learning_objectives_and_skills.validate_csv.mode_required')
+      return render :import
+    end
+
+    unless params[:file].present?
+      flash[:error] = t('learning_objectives_and_skills.validate_csv.file_required')
+      return render :import
+    end
+
+    unless params[:file].original_filename&.end_with?('.csv')
+      flash[:error] = t('learning_objectives_and_skills.validate_csv.file_invalid_format')
+      return render :import
+    end
+
+    parser = LearningObjectivesAndSkillsCsvParser.new(params[:file].tempfile, step: @selected_step)
+    result = parser.parse
+
+    file_level_error = result.errors.find { |error| error[:row] == 0 }
+    if file_level_error
+      flash[:error] = file_level_error[:message]
+      return render :import
+    end
+
+    @records = result.records
+    @parse_errors = result.errors
+    @import_mode = @selected_import_mode
+
+    @grades_summary = build_grades_summary(@records, @selected_step) if @records.any?
+    @cross_grade_conflicts = build_cross_grade_conflicts(@records, @selected_step, @import_mode)
+
+    if @parse_errors.empty? && @records.any?
+      cache_key = "csv_import_#{current_user.id}_#{SecureRandom.hex(8)}"
+      Rails.cache.write(cache_key, {
+        records: @records,
+        step: @selected_step,
+        import_mode: @import_mode
+      }, expires_in: 30.minutes)
+      @cache_key = cache_key
+    end
+
+    render :import
+  end
+
+  def confirm_import
+    authorize LearningObjectivesAndSkill, :import?
+
+    cache_key = params[:cache_key]
+    expected_prefix = "csv_import_#{current_user.id}_"
+
+    unless cache_key&.start_with?(expected_prefix)
+      flash[:error] = t('learning_objectives_and_skills.confirm_import.session_expired')
+      return redirect_to import_learning_objectives_and_skills_path
+    end
+
+    cached = Rails.cache.read(cache_key)
+
+    unless cached
+      flash[:error] = t('learning_objectives_and_skills.confirm_import.session_expired')
+      return redirect_to import_learning_objectives_and_skills_path
+    end
+
+    import_mode = cached[:import_mode]
+    grades = cached[:records].flat_map { |r| r[:grades] }.uniq
+    modes_by_grade = grades.each_with_object({}) { |grade, h| h[grade] = import_mode }
+
+    @cross_grade_conflicts = build_cross_grade_conflicts(cached[:records], cached[:step], import_mode)
+
+    if @cross_grade_conflicts.any?
+      flash.now[:error] = t('learning_objectives_and_skills.confirm_import.error_with_details',
+                            count: @cross_grade_conflicts.size)
+      @selected_step = cached[:step]
+      @import_mode = import_mode
+      @records = cached[:records]
+      @grades_summary = build_grades_summary(@records, @selected_step)
+      @cache_key = cache_key
+      return render :import
+    end
+
+    importer = LearningObjectivesAndSkillsCsvImporter.new(
+      records: cached[:records],
+      step: cached[:step],
+      modes_by_grade: modes_by_grade
+    )
+
+    if importer.import
+      Rails.cache.delete(cache_key)
+
+      LearningObjectivesAndSkillImport.create!(
+        user: current_user,
+        step: cached[:step],
+        import_mode: import_mode,
+        imported_count: importer.imported_count,
+        removed_count: importer.removed_count
+      )
+
+      flash[:success] = t(
+        'learning_objectives_and_skills.confirm_import.success',
+        imported: importer.imported_count,
+        removed: importer.removed_count
+      )
+      redirect_to learning_objectives_and_skills_path
+    else
+      flash.now[:error] = t(
+        'learning_objectives_and_skills.confirm_import.error_with_details',
+        count: importer.errors.size
+      )
+      @import_errors = importer.errors
+      @selected_step = cached[:step]
+      @import_mode = import_mode
+      @records = cached[:records]
+      @grades_summary = build_grades_summary(@records, @selected_step)
+      @cross_grade_conflicts = build_cross_grade_conflicts(@records, @selected_step, @import_mode)
+      @cache_key = cache_key
+      render :import
+    end
+  end
+
   private
+
+  def build_grades_summary(records, step)
+    csv_counts = Hash.new(0)
+    csv_codes_by_grade = Hash.new { |h, k| h[k] = [] }
+
+    records.each do |record|
+      record[:grades].each do |grade|
+        csv_counts[grade] += 1
+        csv_codes_by_grade[grade] << record[:code]
+      end
+    end
+
+    grade_order = LearningObjectivesAndSkillsCsvMappings::GRADES_BY_STEP[step] || []
+
+    existing_records = LearningObjectivesAndSkill
+                       .where(step: step)
+                       .pluck(:code, :grades)
+
+    existing_count_by_grade = Hash.new(0)
+    conflicting_codes_by_grade = Hash.new { |h, k| h[k] = [] }
+
+    existing_records.each do |code, grades|
+      grades.each do |grade|
+        next unless csv_counts.key?(grade)
+
+        existing_count_by_grade[grade] += 1
+        conflicting_codes_by_grade[grade] << code if csv_codes_by_grade[grade].include?(code)
+      end
+    end
+
+    csv_counts.map do |grade, csv_count|
+      {
+        grade: grade,
+        grade_label: grade_label_for(grade, step),
+        csv_count: csv_count,
+        existing_count: existing_count_by_grade[grade],
+        conflicting_codes: conflicting_codes_by_grade[grade]
+      }
+    end.sort_by { |g| grade_order.index(g[:grade]) || Float::INFINITY }
+  end
+
+  # Detecta códigos do CSV que já existem no banco em séries fora do CSV.
+  # Esses registros quebram a validação de uniqueness ao salvar — tanto no
+  # modo replace (o código sobra após o replace parcial das séries do CSV)
+  # quanto no modo add_new (o código já existe em outra série). O modo
+  # add_new com conflito na MESMA série já é detectado por conflicting_codes
+  # no resumo por série; aqui cobrimos o gap das outras séries.
+  def build_cross_grade_conflicts(records, step, _import_mode)
+    return [] if records.blank?
+
+    codes = records.map { |r| r[:code] }
+    existing_by_code = LearningObjectivesAndSkill
+                       .where(step: step, code: codes)
+                       .pluck(:code, :grades)
+                       .to_h
+
+    records.map do |record|
+      existing_grades = existing_by_code[record[:code]]
+      next unless existing_grades
+
+      other_grades = existing_grades - record[:grades]
+      next if other_grades.empty?
+
+      {
+        code: record[:code],
+        other_grades: other_grades.map { |g| grade_label_for(g, step) }
+      }
+    end.compact
+  end
+
+  def grade_label_for(grade, step)
+    klass = case step
+            when 'elementary_school' then ElementaryEducations
+            when 'child_school'
+              if GeneralConfiguration.current.group_children_education
+                GroupChildEducations
+              else
+                ChildEducations
+              end
+            when 'adult_and_youth_education' then AdultAndYouthEducations
+    end
+    klass&.t(grade) || grade.humanize
+  rescue StandardError
+    grade.humanize
+  end
 
   def learning_objectives_and_skills_params
     parameters = params.require(:learning_objectives_and_skill).permit(

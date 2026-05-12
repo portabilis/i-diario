@@ -14,12 +14,18 @@ class GradesSynchronizer < BaseSynchronizer
   end
 
   def update_grades(grades)
+    preload_courses(grades.map(&:curso_id).compact)
+    preload_grades(grades.map(&:id))
+
     grades.each do |grade_record|
       course = course(grade_record.curso_id)
 
       next if course.blank?
 
-      Grade.with_discarded.find_or_initialize_by(api_code: grade_record.id).tap do |grade|
+      (
+        grade(grade_record.id) ||
+        Grade.new(api_code: grade_record.id)
+      ).tap do |grade|
         grade.description = grade_record.nome
         grade.course = course
         grade.save! if grade.changed?

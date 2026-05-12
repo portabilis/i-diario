@@ -57,7 +57,7 @@ class Role < ActiveRecord::Base
     permissions.each do |permission|
       next if permission.permission == Permissions::DENIED
       unless permission.access_level_has_feature?(access_level)
-        errors.add(:permissions, I18n.t('roles.errors.permission_must_match_access_level', feature: permission.feature_humanize, access_level: access_level_humanize))
+        errors.add(:base, I18n.t('roles.errors.permission_must_match_access_level', feature: permission.feature_humanize, access_level: access_level_humanize))
       end
     end
   end

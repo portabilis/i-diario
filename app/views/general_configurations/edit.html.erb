@@ -99,6 +99,11 @@
           <%= f.input :do_not_send_justified_absence, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :always_send_email_on_daily_frequency_registration, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
       <div class="row <%= 'hidden' if Rails.application.secrets[:STUDENT_DOMAIN].blank? %>">
         <div class="col col-sm-6">
           <%= f.input :create_users_for_students_when_synchronize, label: false, inline_label: true %>
@@ -122,6 +127,11 @@
       <div class="row">
         <div class="col col-sm-6">
           <%= f.input :group_children_education, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :allow_automatic_avaliation_recovery, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row margin-top-10" id="types_of_teaching_container">

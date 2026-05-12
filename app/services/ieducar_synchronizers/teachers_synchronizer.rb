@@ -14,17 +14,26 @@ class TeachersSynchronizer < BaseSynchronizer
   end
 
   def update_teachers(teachers)
+    preload_teachers(teachers.map(&:servidor_id))
+
     teachers.each do |teacher_record|
       next if teacher_record.nome.blank?
 
-      update_teacher_record(teacher_record)
+      begin
+        update_teacher_record(teacher_record)
+      rescue ActiveRecord::RecordNotUnique
+        retry
+      end
     end
 
     UserTeacherLinkerService.call(teachers)
   end
 
   def update_teacher_record(teacher_record)
-    Teacher.with_discarded.find_or_initialize_by(api_code: teacher_record.servidor_id).tap do |teacher|
+    (
+      teacher(teacher_record.servidor_id) ||
+      Teacher.new(api_code: teacher_record.servidor_id)
+    ).tap do |teacher|
       teacher.name = teacher_record.nome
       teacher.active = teacher_record.ativo.to_s == IeducarBooleanState::ACTIVE
       teacher.save! if teacher.changed?

@@ -95,57 +95,131 @@ class BaseSynchronizer
   end
 
   def unity(api_code)
-    @unities ||= {}
-    @unities[api_code] ||= Unity.find_by(api_code: api_code)
+    get_record(:@unities, Unity, api_code)
+  end
+
+  def preload_unities(api_code)
+    preload_records(:@unities, Unity, api_code)
   end
 
   def teacher(api_code)
-    @teachers ||= {}
-    @teachers[api_code] ||= Teacher.with_discarded.find_by(api_code: api_code)
+    get_record(:@teachers, Teacher, api_code, with_discarded: true)
+  end
+
+  def preload_teachers(api_code)
+    preload_records(:@teachers, Teacher, api_code, with_discarded: true)
   end
 
   def student(api_code)
-    @students ||= {}
-    @students[api_code] ||= Student.with_discarded.find_by(api_code: api_code)
+    get_record(:@students, Student, api_code, with_discarded: true)
+  end
+
+  def preload_students(api_code)
+    preload_records(:@students, Student, api_code, with_discarded: true)
   end
 
   def student_enrollment(api_code)
-    @student_enrollments ||= {}
-    @student_enrollments[api_code] ||= StudentEnrollment.with_discarded.find_by(api_code: api_code)
+    get_record(:@student_enrollments, StudentEnrollment, api_code, with_discarded: true)
+  end
+
+  def preload_student_enrollments(api_code)
+    preload_records(:@student_enrollments, StudentEnrollment, api_code, with_discarded: true)
   end
 
   def exam_rule(api_code)
-    @exam_rules ||= {}
-    @exam_rules[api_code] ||= ExamRule.find_by(api_code: api_code)
+    get_record(:@exam_rules, ExamRule, api_code)
+  end
+
+  def preload_exam_rules(api_code)
+    preload_records(:@exam_rules, ExamRule, api_code)
   end
 
   def course(api_code)
-    @course ||= {}
-    @course[api_code] ||= Course.with_discarded.find_by(api_code: api_code)
+    get_record(:@course, Course, api_code, with_discarded: true)
+  end
+
+  def preload_courses(api_code)
+    preload_records(:@course, Course, api_code, with_discarded: true)
   end
 
   def grade(api_code)
-    @grade ||= {}
-    @grade[api_code] ||= Grade.with_discarded.find_by(api_code: api_code)
+    get_record(:@grade, Grade, api_code, with_discarded: true)
+  end
+
+  def preload_grades(api_code)
+    preload_records(:@grade, Grade, api_code, with_discarded: true)
   end
 
   def classroom(api_code)
-    @classrooms ||= {}
-    @classrooms[api_code] ||= Classroom.with_discarded.find_by(api_code: api_code)
+    get_record(:@classrooms, Classroom, api_code, with_discarded: true)
+  end
+
+  def preload_classrooms(api_code)
+    preload_records(:@classrooms, Classroom, api_code, with_discarded: true)
+  end
+
+  def classrooms_grade(classroom_id, grade_id)
+    @classrooms_grades ||= {}
+    key = "#{classroom_id}_#{grade_id}"
+    return @classrooms_grades[key] if @classrooms_grades.key?(key)
+
+    @classrooms_grades[key] = ClassroomsGrade.with_discarded.find_by(classroom_id: classroom_id, grade_id: grade_id)
+  end
+
+  def preload_classrooms_grades(classroom_id)
+    @classrooms_grades ||= {}
+    ClassroomsGrade.with_discarded
+                   .where(classroom_id: classroom_id)
+                   .each { |cg| @classrooms_grades["#{cg.classroom_id}_#{cg.grade_id}"] = cg }
   end
 
   def discipline(api_code)
-    @disciplines ||= {}
-    @disciplines[api_code] ||= Discipline.find_by(api_code: api_code)
+    get_record(:@disciplines, Discipline, api_code)
   end
 
-  def knowledge_area(knowledge_area_id)
-    @knowledge_areas ||= {}
-    @knowledge_areas[knowledge_area_id] ||= KnowledgeArea.with_discarded.find_by(api_code: knowledge_area_id)
+  def preload_disciplines(api_code)
+    preload_records(:@disciplines, Discipline, api_code)
+  end
+
+  def knowledge_area(api_code)
+    get_record(:@knowledge_areas, KnowledgeArea, api_code, with_discarded: true)
+  end
+
+  def preload_knowledge_areas(api_code)
+    preload_records(:@knowledge_areas, KnowledgeArea, api_code, with_discarded: true)
   end
 
   def rounding_table(api_code)
-    @rounding_tables ||= {}
-    @rounding_tables[api_code] ||= RoundingTable.find_by(api_code: api_code)
+    get_record(:@rounding_tables, RoundingTable, api_code)
+  end
+
+  def preload_rounding_tables(api_code)
+    preload_records(:@rounding_tables, RoundingTable, api_code)
+  end
+
+  def get_record(cache_ivar, model, api_code, with_discarded: false)
+    cache = instance_variable_get(cache_ivar) || instance_variable_set(cache_ivar, {})
+
+    unless cache.key?(api_code.to_s)
+      scope = with_discarded ? model.with_discarded : model
+      cache[api_code.to_s] = scope.find_by(api_code: api_code)
+    end
+
+    cache[api_code.to_s]
+  end
+
+  def preload_records(cache_ivar, model, api_codes, with_discarded: false)
+    cache   = instance_variable_get(cache_ivar) || {}
+    missing = api_codes.map(&:to_s).uniq.reject { |code| cache.key?(code) }
+
+    return if missing.empty?
+
+    scope = with_discarded ? model.with_discarded : model
+    scope.where(api_code: missing).each { |record| cache[record.api_code.to_s] = record }
+
+    # Marca como nil os códigos não encontrados para evitar consultas futuras
+    missing.each { |code| cache[code.to_s] = nil unless cache.key?(code) }
+
+    instance_variable_set(cache_ivar, cache)
   end
 end

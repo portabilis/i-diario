@@ -16,9 +16,14 @@ class RoundingTablesSynchronizer < BaseSynchronizer
   end
 
   def update_rounding_tables(rounding_tables)
+    preload_rounding_tables(rounding_tables.map(&:id))
+
     ActiveRecord::Base.transaction do
       rounding_tables.each do |rounding_table_record|
-        RoundingTable.find_or_initialize_by(api_code: rounding_table_record.id).tap do |rounding_table|
+        (
+          rounding_table(rounding_table_record.id) ||
+          RoundingTable.new(api_code: rounding_table_record.id)
+        ).tap do |rounding_table|
           rounding_table.name = rounding_table_record.nome
           rounding_table.save! if rounding_table.changed?
 

@@ -19,8 +19,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   end
 
   def update_teacher_discipline_classrooms(teacher_discipline_classrooms)
-    ActiveRecord::Base.transaction do
-      teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
+    all_disciplines = teacher_discipline_classrooms.flat_map(&:disciplinas)
+
+    preload_classrooms(teacher_discipline_classrooms.map(&:turma_id).compact)
+    preload_teachers(teacher_discipline_classrooms.map(&:servidor_id).compact)
+    preload_disciplines(all_disciplines.map(&:id).compact)
+    preload_grades(all_disciplines.map(&:serie_id).compact)
+
+    teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
+      ActiveRecord::Base.transaction do
         existing_discipline_api_codes = []
         created_linked_teachers = []
 
@@ -59,10 +66,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           end
         end
 
-        links_fake_disciplines = teacher_discipline_classroom_record if teacher_discipline_classroom_record.disciplinas.blank?
+        if teacher_discipline_classroom_record.disciplinas.blank?
+          links_fake_disciplines = teacher_discipline_classroom_record
+        end
 
         create_or_destroy_teacher_disciplines_classrooms(
-          created_linked_teachers, teacher_id, classroom_id,links_fake_disciplines)
+          created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines
+        )
 
         teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
           teacher_discipline_classroom_record,
@@ -100,14 +110,17 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       classroom_id: classroom_id
     )
 
-    if teacher_discipline_classrooms.blank?
-      # Busca os vinculos que nao pertencem mais a turma (cenario de edicao no iEducar)
-      link_modifiers = TeacherDisciplineClassroom.unscoped.where(
-        api_code: teacher_discipline_classroom_record.id
-      ).where.not(classroom_id: classroom_id).each(&:discard)
+    # Descarta vinculos ativos em turmas diferentes com o mesmo api_code (cenario de edicao de turma no iEducar)
+    link_modifiers = TeacherDisciplineClassroom.where(
+      api_code: teacher_discipline_classroom_record.id
+    ).where.not(classroom_id: classroom_id)
+
+    if link_modifiers.exists?
+      records = link_modifiers.to_a
+      records.each(&:discard)
 
       # Verifica se existe + vinculos de disciplinas agrupadoras e descarta os vinculos
-      classroom_old = link_modifiers.map(&:classroom_id).uniq
+      classroom_old = records.map(&:classroom_id).uniq
       destroy_grouped_links(classroom_old, teacher_id)
     end
 
