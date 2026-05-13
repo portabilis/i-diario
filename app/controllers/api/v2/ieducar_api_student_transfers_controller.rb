@@ -8,15 +8,20 @@ module Api
       def create
         validate_params!
 
-        IeducarStudentTransferPostingWorker.perform_async(
-          current_entity.id,
-          student.id,
-          classroom.id,
-          params[:callback_url]
-        )
+        assignments = active_classroom_assignments
+        raise ActiveRecord::RecordNotFound if assignments.empty?
+
+        assignments.each do |student_id, classroom_id|
+          IeducarStudentTransferPostingWorker.perform_async(
+            current_entity.id,
+            student_id,
+            classroom_id,
+            params[:callback_url]
+          )
+        end
 
         render json: { status: 'processing' }, status: :accepted
-      rescue ActiveRecord::RecordNotFound => e
+      rescue ActiveRecord::RecordNotFound
         render json: { error: 'Matrícula não encontrada' }, status: :not_found
       rescue ArgumentError => e
         render json: { error: e.message }, status: :bad_request
@@ -33,18 +38,12 @@ module Api
         raise ArgumentError, "Parâmetros obrigatórios: #{missing.join(', ')}"
       end
 
-      def student_enrollment_classroom
-        @student_enrollment_classroom ||= StudentEnrollmentClassroom
-          .joins(:student_enrollment)
-          .find_by!(student_enrollments: { api_code: params[:student_enrollment_api_code] })
-      end
-
-      def student
-        @student ||= student_enrollment_classroom.student_enrollment.student
-      end
-
-      def classroom
-        @classroom ||= student_enrollment_classroom.classrooms_grade.classroom
+      def active_classroom_assignments
+        StudentEnrollmentClassroom
+          .joins(:student_enrollment, classrooms_grade: :classroom)
+          .where(student_enrollments: { api_code: params[:student_enrollment_api_code] })
+          .where("COALESCE(student_enrollment_classrooms.left_at, '') = ''")
+          .pluck('student_enrollments.student_id', 'classrooms_grades.classroom_id')
       end
 
       def current_entity
