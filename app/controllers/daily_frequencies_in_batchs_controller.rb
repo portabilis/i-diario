@@ -327,6 +327,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     # Converte para inteiro pois @classroom.period pode vir como string do banco
     @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period.to_i : current_teacher_period
     @general_configuration = GeneralConfiguration.current
+    @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
     @frequency_form = FrequencyInBatchForm.new
@@ -418,10 +419,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
           active_searchs.each do |active_search|
             next if active_search[:date] != date || !active_search[:student_ids].include?(student_id)
 
-            additional_class = 'in-active-search'
-            tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
-            additional_data << { date: active_search[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+            if @allow_active_search_frequency
+              additional_data << { date: active_search[:date], student_id: student_id,
+                                   additional_class: nil, tooltip: nil,
+                                   in_active_search_active: true }
+            else
+              additional_class = 'in-active-search'
+              tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
+              additional_data << { date: active_search[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip: tooltip }
+            end
           end
         end
         if dependences.any?

@@ -123,6 +123,20 @@ RSpec.describe DailyFrequencyHelper, type: :helper do
         expect(response).to eq(result)
       end
     end
+
+    context 'when allow_active_search_frequency is enabled and student is in active search' do
+      it 'returns multiline without in-active-search class' do
+        response = helper.frequency_student_name_class(false, true, false, true, true)
+        expect(response).to eq('multiline')
+      end
+    end
+
+    context 'when allow_active_search_frequency is enabled but student is inactive' do
+      it 'returns inactive-student class' do
+        response = helper.frequency_student_name_class(false, false, false, true, true)
+        expect(response).to eq('multiline inactive-student')
+      end
+    end
   end
 
   describe '#frequency_student_name' do
@@ -172,6 +186,20 @@ RSpec.describe DailyFrequencyHelper, type: :helper do
         result = '*****' + student.name
         response = helper.frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search)
         expect(response).to eq(result)
+      end
+    end
+
+    context 'when allow_active_search_frequency is enabled and student is in active search' do
+      it 'returns student name without asterisks' do
+        response = helper.frequency_student_name(student, false, true, false, true, true)
+        expect(response).to eq(student.to_s)
+      end
+    end
+
+    context 'when allow_active_search_frequency is enabled but student is inactive' do
+      it 'returns student name with inactive asterisks' do
+        response = helper.frequency_student_name(student, false, false, false, true, true)
+        expect(response).to eq('***' + student.name)
       end
     end
   end

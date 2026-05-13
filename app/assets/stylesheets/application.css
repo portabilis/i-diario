@@ -173,6 +173,19 @@ https://github.com/select2/select2/issues/2412
 .exempted-student-from-discipline, .in-active-search{
   color: #869539;
 }
+.badge-active-search{
+  background-color: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 10px;
+  border: 1.5px solid #d97706;
+  border-radius: 12px;
+  margin-left: 5px;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1.4;
+}
 .select2-container.form-control {
      height: auto !important;
 }
