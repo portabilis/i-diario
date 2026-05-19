@@ -224,7 +224,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     end
 
     new_contents_ids = content_descriptions.each_with_index.map { |description, index|
-      content = Content.find_or_create_by!(description: description)
+      content = Content.find_or_create_by_description!(description)
       @knowledge_area_lesson_plan.lesson_plan.contents_created_at_position[content.id] =
         param_content_ids.size + index
 

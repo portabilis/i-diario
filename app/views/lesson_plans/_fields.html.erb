@@ -57,8 +57,13 @@
             label: "Adicionar #{translation}",
             input_html: {
               'data-content-type': 'conteúdo',
-              class: 'select2-tags',
-              value: ''
+              class: 'select2-content-tags-ajax',
+              value: '',
+              data: {
+                url: contents_path,
+                data: [],
+                :'filter-by-description' => 1
+              }
             }
         %>
       </div>

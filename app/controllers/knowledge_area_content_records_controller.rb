@@ -136,7 +136,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     param_content_ids = params[:knowledge_area_content_record][:content_record_attributes][:content_ids] || []
     content_descriptions = params[:knowledge_area_content_record][:content_record_attributes][:content_descriptions] || []
     new_contents_ids = content_descriptions.map { |content_description|
-      Content.find_or_create_by!(description: content_description).id
+      Content.find_or_create_by_description!(content_description).id
     }
     param_content_ids + new_contents_ids
   end
