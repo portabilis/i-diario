@@ -242,7 +242,7 @@ class AttendanceRecordReport < BaseReport
 
             if @show_legend_active_search && !@exists_active_search
               @exists_active_search = true
-              self.legend += ', B - Busca ativa'
+              self.legend += ', BA - Aluno em Busca Ativa'
             end
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
@@ -395,6 +395,7 @@ class AttendanceRecordReport < BaseReport
           table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] },
                       column_widths: column_widths, width: bounds.width) do |t|
             t.cells.border_width = 0.25
+            t.columns(3..42).padding = [2, 0, 2, 0]
 
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25

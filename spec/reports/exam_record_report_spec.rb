@@ -60,4 +60,31 @@ RSpec.describe ExamRecordReport, type: :report do
       expect(subject).to be_truthy
     end
   end
+
+  describe '#score_without_note?' do
+    subject(:report) { ExamRecordReport.new(:landscape) }
+
+    it 'returns true when the score is blank (empty string or nil)' do
+      expect(report.send(:score_without_note?, '')).to eq(true)
+      expect(report.send(:score_without_note?, nil)).to eq(true)
+    end
+
+    it 'returns true when the score equals NullDailyNoteStudent#note ("N")' do
+      expect(report.send(:score_without_note?, NullDailyNoteStudent.new.note)).to eq(true)
+      expect(report.send(:score_without_note?, 'N')).to eq(true)
+    end
+
+    it 'returns false for a numeric note (real score is preserved)' do
+      expect(report.send(:score_without_note?, 8.0)).to eq(false)
+      expect(report.send(:score_without_note?, '8,0')).to eq(false)
+    end
+
+    it 'returns false for "D" — the dispensa marker is preserved, not replaced by DP' do
+      expect(report.send(:score_without_note?, 'D')).to eq(false)
+    end
+
+    it 'returns false for "BA" — the busca ativa marker is preserved, not replaced by DP' do
+      expect(report.send(:score_without_note?, 'BA')).to eq(false)
+    end
+  end
 end

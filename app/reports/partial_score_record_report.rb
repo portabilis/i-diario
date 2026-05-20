@@ -16,6 +16,8 @@ class PartialScoreRecordReport < BaseReport
     @classroom = classroom
     @test_setting = test_setting
     @show_subtitles = false
+    @active_search = false
+    @any_dependence = false
     @display_header_on_all_reports_pages = true
 
     header
@@ -108,6 +110,10 @@ class PartialScoreRecordReport < BaseReport
         if exempted_avaliation?(student.id, avaliation.id)
           student_note = 'D'
           @show_subtitles = true
+        elsif in_active_search?(student.id, avaliation.test_date)
+          student_note = 'BA'
+          @show_subtitles = true
+          @active_search = true
         else
           daily_note = get_daily_note(avaliation, student.id)
           recovery_diary_record = get_recovery_diary_record(avaliation)
@@ -128,6 +134,13 @@ class PartialScoreRecordReport < BaseReport
 
       complementary_exams = fetch_complementary_exams(discipline.id)
       complementary_exams.each do |complementary_exam|
+        if in_active_search?(student.id, complementary_exam.recorded_at)
+          @show_subtitles = true
+          @active_search = true
+          discipline_scores << 'BA'
+          next
+        end
+
         student_score = complementary_exam.students.by_student_id(student.id).first.try(:score)
 
         student_score ||= enrolled_in_date?(complementary_exam.recorded_at, student.id) ? '-' : 'N'
@@ -152,12 +165,21 @@ class PartialScoreRecordReport < BaseReport
     disciplines.each do |discipline_id, scores|
       exempted_from_discipline = exempted_from_discipline?(student.id, discipline_id)
       @show_subtitles = true if exempted_from_discipline
+      in_dependence = student_in_dependence?(student.id, discipline_id)
       row = []
       discipline = Discipline.find(discipline_id)
       row << make_cell(content: discipline.to_s, align: :left, size: 10, width: 156, borders: [:left, :right, :bottom], padding: [4, 4, 4, 4])
 
       number_of_scores.times do |i|
         score = exempted_from_discipline ? 'D' : scores[i] || '-'
+
+        # Aluno em dependência: exibe "DP" nas avaliações sem nota lançada,
+        # preservando a nota real onde houver.
+        if in_dependence && score_without_note?(score)
+          score = 'DP'
+          @show_subtitles = true
+          @any_dependence = true
+        end
 
         row << make_cell(content: score, align: :left, size: 10, borders: [:right, :bottom], padding: [4, 4, 4, 4])
       end
@@ -205,7 +227,37 @@ class PartialScoreRecordReport < BaseReport
   def footer
     page_footer(draw_datetime: true) do
       repeat(:all) do
-        draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou disciplina', size: 8, at: [0, 15]) if @show_subtitles
+        draw_text(subtitles_legend, size: 8, at: [0, 15]) if @show_subtitles
+      end
+    end
+  end
+
+  def subtitles_legend
+    legend = 'Legendas: N - Não enturmado, D - Dispensado da avaliação ou disciplina'
+    legend += ', BA - Aluno em Busca Ativa' if @active_search
+    legend += ', DP - Aluno cursando dependência' if @any_dependence
+    legend
+  end
+
+  # Considera "sem nota" a célula vazia, marcada como não enturmado ('N')
+  # ou sem nota lançada ('-') — nesses casos exibe "DP" para o aluno em dependência.
+  def score_without_note?(score)
+    score.blank? || score == 'N' || score == '-'
+  end
+
+  def student_in_dependence?(student_id, discipline_id)
+    dependence_discipline_ids(student_id).include?(discipline_id)
+  end
+
+  def dependence_discipline_ids(student_id)
+    @dependence_discipline_ids ||= {}
+    @dependence_discipline_ids[student_id] ||= begin
+      enrollment = student_enrollment(student_id)
+
+      if enrollment
+        StudentEnrollmentDependence.by_student_enrollment(enrollment).pluck(:discipline_id)
+      else
+        []
       end
     end
   end
@@ -234,10 +286,21 @@ class PartialScoreRecordReport < BaseReport
   end
 
   def student_enrollment(student_id)
-    @student_enrollment ||= StudentEnrollment.by_student(student_id)
-                                             .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
-                                             .by_year(@classroom.year)
-                                             .first
+    # Filtra pela turma do relatório para evitar pegar matrícula errada quando o aluno
+    # tem mais de uma matrícula no ano (ex.: regular + dependência em turmas distintas).
+    @student_enrollments ||= {}
+    @student_enrollments[student_id] ||= StudentEnrollment.by_student(student_id)
+                                                          .by_classroom(@classroom.id)
+                                                          .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
+                                                          .by_year(@classroom.year)
+                                                          .first
+  end
+
+  def in_active_search?(student_id, date)
+    enrollment = student_enrollment(student_id)
+    return false unless enrollment
+
+    ActiveSearch.new.in_active_search?(enrollment.id, date)
   end
 
   def exempted_from_discipline?(student_id, discipline_id)
