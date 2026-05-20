@@ -80,7 +80,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     reload_students_list
 
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def update
@@ -190,12 +189,17 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def mark_not_existing_students_for_destruction
     current_students.each do |current_student|
-      is_student_in_recovery = daily_note_students.students.any? do |daily_note_student|
-        current_student.student.id == daily_note_student.student.id
-      end
-
-      current_student.mark_for_destruction unless is_student_in_recovery
+      current_student.mark_for_destruction unless student_belongs_to_recovery?(current_student.student.id)
     end
+  end
+
+  def student_belongs_to_recovery?(student_id)
+    has_daily_note = daily_note_students.students.any? do |daily_note_student|
+      daily_note_student.student.id == student_id
+    end
+    return true if has_daily_note
+
+    (fetch_student_enrollments || []).any? { |enrollment| enrollment.student_id == student_id }
   end
 
   def missing_students
@@ -239,13 +243,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return unless @avaliation_recovery_diary_record.avaliation
     return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
 
-    StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
-                               grade: @avaliation_recovery_diary_record.avaliation.grade_ids,
-                               discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               date: @avaliation_recovery_diary_record.recovery_diary_record.recorded_at,
-                               search_type: :by_date)
-                          .student_enrollments
+    @fetch_student_enrollments ||=
+      StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
+                                 grade: @avaliation_recovery_diary_record.avaliation.grade_ids,
+                                 discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
+                                 score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+                                 date: @avaliation_recovery_diary_record.recovery_diary_record.recorded_at,
+                                 search_type: :by_date)
+                            .student_enrollments
   end
 
   def reload_students_list
@@ -265,18 +270,27 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         note_student.exempted_from_discipline = student_exempted_from_discipline?(
           student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record
         )
+        note_student.in_active_search = student_in_active_search?(student_enrollment)
 
         @students << note_student
       end
     end
 
-    @normal_students = []
-    @dependence_students = []
-    @any_inactive_student = any_inactive_student?
+    assign_display_sequence
+  end
+
+  def assign_display_sequence
+    normal_students = 0
+    dependence_students = 0
 
     @students.each do |student|
-      @normal_students << student if !student.dependence
-      @dependence_students << student if student.dependence
+      if student.dependence
+        dependence_students += 1
+        student.display_sequence = dependence_students
+      else
+        normal_students += 1
+        student.display_sequence = normal_students
+      end
     end
   end
 
@@ -287,22 +301,19 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       .any?
   end
 
+  def student_in_active_search?(student_enrollment)
+    ActiveSearch.new.in_active_search?(
+      student_enrollment.id,
+      @avaliation_recovery_diary_record.recovery_diary_record.recorded_at.to_date
+    )
+  end
+
   def student_active_on_date?(student_enrollment)
     StudentEnrollment
       .where(id: student_enrollment)
       .by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom)
       .by_date(@avaliation_recovery_diary_record.recovery_diary_record.recorded_at)
       .any?
-  end
-
-  def any_inactive_student?
-    any_inactive_student = false
-    if @students
-      @students.each do |student|
-        any_inactive_student = true if !student.active
-      end
-    end
-    any_inactive_student
   end
 
   def student_exempted_from_discipline?(student_enrollment, recovery_diary_record, avaliation_recovery_diary_record)
@@ -327,10 +338,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return school_calendar_classroom.classroom_step(date) if school_calendar_classroom.present?
 
     school_calendar.step(date).to_number
-  end
-
-  def any_student_exempted_from_discipline?
-    (@students || []).any?(&:exempted_from_discipline)
   end
 
   def list_students_by_active(resource_params_hash)

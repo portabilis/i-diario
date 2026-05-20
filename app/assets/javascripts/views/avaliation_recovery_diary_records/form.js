@@ -152,6 +152,8 @@ $(function () {
             }
           });
         }
+
+        updateStatusLegend();
       } else {
         $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -165,34 +167,28 @@ $(function () {
   };
 
   function buildStudentField(element_id, daily_note_student, index = null) {
-    var student_situation = 'multiline ';
-    var student_name;
+    var status_badge = '';
 
-    if (daily_note_student.exempted_from_discipline) {
-      student_situation = student_situation + 'exempted-student-from-discipline';
-      student_name = '****' + daily_note_student.name
+    if (daily_note_student.in_active_search) {
+      status_badge = renderStudentStatusBadge('active-search');
     } else if (!daily_note_student.active) {
-      student_situation = student_situation + 'inactive-student';
-      student_name = '***' + daily_note_student.name
+      status_badge = renderStudentStatusBadge('inactive');
     } else if (daily_note_student.dependence) {
-      student_situation = student_situation + 'dependence-student';
-      student_name = '*' + daily_note_student.name
-    } else if (daily_note_student.in_active_search) {
-      student_situation = student_situation + 'in-active-search';
-      student_name = '*****' + daily_note_student.name
-    } else {
-      student_name = daily_note_student.name
+      status_badge = renderStudentStatusBadge('dependence');
+    } else if (daily_note_student.exempted_from_discipline) {
+      status_badge = renderStudentStatusBadge('exempted-from-discipline');
     }
 
     var html = JST['templates/avaliation_recovery_diary_records/student_fields']({
       sequence: daily_note_student.sequence,
       id: daily_note_student.id,
-      name: student_name,
+      name: daily_note_student.name,
       note: daily_note_student.note,
-      student_situation: student_situation,
+      status_badge: status_badge,
       active: daily_note_student.active,
       element_id: element_id,
-      exempted_from_discipline: daily_note_student.exempted_from_discipline
+      exempted_from_discipline: daily_note_student.exempted_from_discipline,
+      in_active_search: daily_note_student.in_active_search
     });
 
     var $tbody = $('#recovery-diary-record-students');
@@ -239,6 +235,19 @@ $(function () {
   function loadDecimalMasks() {
     var numberOfDecimalPlaces = parseInt($('#recovery-diary-record-students').data('scale')) || 0;
     $('.nested-fields input.decimal, .note').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
+  }
+
+  function updateStatusLegend() {
+    var statuses = ['inactive', 'dependence', 'exempted-from-discipline', 'active-search'];
+    var anyVisible = false;
+
+    statuses.forEach(function (status) {
+      var hasBadge = $('#recovery-diary-record-students .badge-status--' + status).length > 0;
+      $('.student-status-legend__item[data-status="' + status + '"]').toggle(hasBadge);
+      if (hasBadge) { anyVisible = true; }
+    });
+
+    $('.student-status-legend').toggle(anyVisible);
   }
 
   // On change
@@ -294,4 +303,5 @@ $(function () {
   // On load
   fetchAvaliations();
   loadDecimalMasks();
+  updateStatusLegend();
 });

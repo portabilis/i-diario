@@ -6,7 +6,7 @@ class RecoveryDiaryRecordStudent < ApplicationRecord
 
   acts_as_copy_target
 
-  attr_accessor :dependence, :active, :exempted_from_discipline, :in_active_search
+  attr_accessor :dependence, :active, :exempted_from_discipline, :in_active_search, :display_sequence
 
   belongs_to :recovery_diary_record
   belongs_to :student
