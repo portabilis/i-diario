@@ -1,0 +1,72 @@
+class RecoveryLowestNoteListBuilder
+  attr_reader :enrollments, :classroom, :discipline, :step,
+              :dependencies, :exemptions,
+              :active_search_enrollment_ids, :active_enrollment_ids,
+              :sequence_by_enrollment
+
+  def initialize(classroom:, discipline:, step:, date:, score_type:)
+    @classroom = classroom
+    @discipline = discipline
+    @step = step
+    @date = date
+    @score_type = score_type
+  end
+
+  def call
+    @enrollments = fetch_student_enrollments
+    enrollment_ids = @enrollments.map(&:id)
+
+    @dependencies = StudentsInDependency.call(
+      student_enrollments: enrollment_ids,
+      disciplines: @discipline
+    )
+    @exemptions = StudentsExemptFromDiscipline.call(
+      student_enrollments: enrollment_ids,
+      discipline: @discipline,
+      step: @step.to_number,
+      classroom_id: @classroom.id
+    )
+    @active_search_enrollment_ids =
+      ActiveSearch.new.enrollments_in_active_search?(enrollment_ids, @date)[@date] || []
+    @active_enrollment_ids = StudentEnrollment.where(id: enrollment_ids)
+                                              .by_classroom(@classroom)
+                                              .by_date(@date)
+                                              .pluck(:id)
+
+    assign_display_sequence
+
+    self
+  end
+
+  def notes_fetcher
+    @notes_fetcher ||= StudentNotesInStepFetcher.new
+  end
+
+  private
+
+  def fetch_student_enrollments
+    StudentEnrollmentsList.new(
+      classroom: @classroom.id,
+      discipline: @discipline.id,
+      search_type: :by_date,
+      date: @date,
+      score_type: @score_type
+    ).student_enrollments
+  end
+
+  def assign_display_sequence
+    normal_students = 0
+    dependence_students = 0
+    @sequence_by_enrollment = {}
+
+    @enrollments.each do |enrollment|
+      if @dependencies[enrollment.id].present?
+        dependence_students += 1
+        @sequence_by_enrollment[enrollment.id] = dependence_students
+      else
+        normal_students += 1
+        @sequence_by_enrollment[enrollment.id] = normal_students
+      end
+    end
+  end
+end

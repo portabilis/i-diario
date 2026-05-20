@@ -185,12 +185,26 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     reload_students_list
 
-    students = fetch_students
-    mark_exempted_disciplines(students)
-    add_missing_students(students)
+    add_missing_students(fetch_students)
 
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    assign_display_sequence
+
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
+  end
+
+  def assign_display_sequence
+    normal_sequence = 0
+    dependence_sequence = 0
+
+    @students.each do |student|
+      if student.dependence
+        dependence_sequence += 1
+        student.display_sequence = dependence_sequence
+      else
+        normal_sequence += 1
+        student.display_sequence = normal_sequence
+      end
+    end
   end
 
   def steps_fetcher
@@ -225,16 +239,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
   helper_method :decimal_places
 
-  def mark_exempted_disciplines(students_in_recovery)
-    @students.each do |student|
-      exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
-        student_in_recovery.id == student.student_id
-      end.try(:exempted_from_discipline)
-
-      student.exempted_from_discipline = exempted_from_discipline
-    end
-  end
-
   def add_missing_students(students_in_recovery)
     students_missing = students_in_recovery.select do |student_in_recovery|
       @students.none? do |student|
@@ -246,10 +250,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       student = @lowest_note_recovery.recovery_diary_record.students.build(student: student_missing)
       @students << student
     end
-  end
-
-  def any_student_exempted_from_discipline?
-    @students.any?(&:exempted_from_discipline)
   end
 
   def api_configuration
@@ -289,6 +289,21 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     return unless recovery_diary_record.recorded_at
 
+    recorded_at = recovery_diary_record.recorded_at.to_date
+    enrollment_ids = student_enrollments.map(&:id)
+    dependencies = StudentsInDependency.call(
+      student_enrollments: enrollment_ids,
+      disciplines: recovery_diary_record.discipline
+    )
+    exemptions = StudentsExemptFromDiscipline.call(
+      student_enrollments: enrollment_ids,
+      discipline: recovery_diary_record.discipline,
+      step: @lowest_note_recovery.step.to_number,
+      classroom_id: recovery_diary_record.classroom_id
+    )
+    enrollments_in_active_search =
+      ActiveSearch.new.enrollments_in_active_search?(enrollment_ids, recorded_at)[recorded_at] || []
+
     @students = []
 
     student_enrollments.each do |student_enrollment|
@@ -298,6 +313,9 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
         recovery_diary_record.students.build(student: student)
 
       note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
+      note_student.dependence = dependencies[student_enrollment.id].present?
+      note_student.exempted_from_discipline = exemptions[student_enrollment.id].present?
+      note_student.in_active_search = enrollments_in_active_search.include?(student_enrollment.id)
 
       @students << note_student
     end
