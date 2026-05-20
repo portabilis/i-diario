@@ -1,0 +1,14 @@
+pt-BR:
+  student_status_badges:
+    labels:
+      dependence: 'Dependência'
+      exempted: 'Dispensado'
+      inactive: 'Não enturmado'
+      exempted_from_discipline: 'Dispensado'
+      active_search: 'Busca Ativa'
+    titles:
+      dependence: 'Aluno cursando dependência'
+      exempted: 'Aluno dispensado da avaliação'
+      inactive: 'Aluno não enturmado'
+      exempted_from_discipline: 'Aluno dispensado da disciplina'
+      active_search: 'Aluno em busca ativa'
