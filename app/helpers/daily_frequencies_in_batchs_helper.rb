@@ -25,32 +25,16 @@ module DailyFrequenciesInBatchsHelper
     }
   end
 
-  def custom_student_name(student, dates)
-    student_name = student[:student][:name]
-    color = false
-    in_active_search_active = false
-    has_enrolled = dates.pluck(:date).any? { |date| date > student[:joined_at].to_date }
-
-    @additional_data.each do |additional_data|
-      if additional_data[:student_id] == student[:student][:id]
-        if additional_data[:in_active_search_active]
-          in_active_search_active = true
-        else
-          student_name = '*' + student[:student][:name]
-          color = '#a90329'
-        end
-      end
-    end
-
-    if color == '#a90329' && student[:left_at].blank? && has_enrolled
-      student_name = student[:student][:name]
-      color = false
-    end
+  def student_statuses_for(student)
+    statuses = @additional_data.select { |data| data[:student_id] == student[:student][:id] }
+                               .map { |data| data[:status] }
 
     {
-      name: student_name,
-      color: color,
-      in_active_search_active: in_active_search_active
+      name: student[:student][:name],
+      inactive: statuses.include?(:inactive),
+      dependence: statuses.include?(:dependence),
+      exempted_from_discipline: statuses.include?(:exempted_from_discipline),
+      in_active_search: statuses.include?(:active_search)
     }
   end
 end

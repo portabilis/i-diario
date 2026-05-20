@@ -414,6 +414,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
                       active_searchs)
     additional_data = []
     dates.each do |date|
+      date_step_number = current_school_calendar.step(date.to_date).try(:to_number)
       student_ids.each do |student_id|
         if active_searchs.any?
           active_searchs.each do |active_search|
@@ -422,12 +423,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
             if @allow_active_search_frequency
               additional_data << { date: active_search[:date], student_id: student_id,
                                    additional_class: nil, tooltip: nil,
-                                   in_active_search_active: true }
+                                   in_active_search_active: true, status: :active_search }
             else
               additional_class = 'in-active-search'
               tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
               additional_data << { date: active_search[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip: tooltip }
+                                   additional_class: additional_class, tooltip: tooltip,
+                                   status: :active_search }
             end
           end
         end
@@ -437,17 +439,20 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.dependence_students_tooltip')
             additional_data << { date: dependence[:date], student_id: student_id,
-                                 additional_class: '', tooltip:  tooltip }
+                                 additional_class: nil, tooltip:  tooltip,
+                                 status: :dependence }
           end
         end
         if exempteds_from_discipline.any?
           exempteds_from_discipline.each do |exempted_from_discipline|
-            next if exempted_from_discipline[:date] != date || !exempted_from_discipline[:student_ids].include?(student_id)
+            next if exempted_from_discipline[:step_number] != date_step_number ||
+                    !exempted_from_discipline[:student_ids].include?(student_id)
 
             additional_class = 'exempted'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.exempted_students_from_discipline_tooltip')
-            additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+            additional_data << { date: date, student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip,
+                                 status: :exempted_from_discipline }
           end
         end
         if inactives_on_date.any?
@@ -457,7 +462,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
             additional_class = 'inactive'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.inactive_students_tooltip')
             additional_data << { date: inactive_on_date[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+                                 additional_class: additional_class, tooltip:  tooltip,
+                                 status: :inactive }
           end
         end
       end

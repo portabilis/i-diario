@@ -18,9 +18,9 @@ $(document).ready( function() {
       }
     }).trigger('change');
 
-    var in_active_search = $(this).closest('tr').find('.in-active-search').size()
-    var exempted_from_discipline = $(this).closest('tr').find('.exempted-student-from-discipline').size()
-    var inactive_student = $(this).closest('tr').find('.inactive-student').size()
+    var in_active_search = $(this).closest('tr').find('.badge-status--active-search').size()
+    var exempted_from_discipline = $(this).closest('tr').find('.badge-status--exempted-from-discipline').size()
+    var inactive_student = $(this).closest('tr').find('.badge-status--inactive').size()
     var checkbox = $(this).closest('tr').find('[data-id="checkbox-id"]')
 
     if (in_active_search || exempted_from_discipline || inactive_student) {
