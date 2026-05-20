@@ -346,6 +346,7 @@ Rails.application.routes.draw do
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines
+        get :dependence_disciplines
         get :find_conceptual_exam_by_student
         get :find_step_number_by_classroom
         get :fetch_students_by_classroom
