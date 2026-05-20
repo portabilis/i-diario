@@ -8,14 +8,15 @@
   <% present(f.object) do |student| %>
     <td>
       <%= f.input :student_id, as: :hidden %>
-      <span class="<%= student.student_name_class %>"><%= student.student_name %></span>
+      <span class="multiline"><%= student.student_name %></span>
+      <%= student_status_badge(student.status_badge) if student.status_badge %>
     </td>
   <% end %>
   <td>
     <%= f.input :value,
                 label_html: { class: 'hidden' },
                 input_html: { maxlength: GeneralConfiguration.current.max_descriptive_exam_character_count },
-                readonly: f.object.inactive_student || f.object.exempted_from_discipline
+                readonly: f.object.inactive_student || f.object.exempted_from_discipline || f.object.in_active_search
                 %>
   </td>
 </tr>
