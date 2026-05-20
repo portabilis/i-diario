@@ -209,6 +209,8 @@ $(function () {
           }
         });
       }
+
+      updateStatusLegend();
     } else {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -216,13 +218,28 @@ $(function () {
     }
 
     function buildStudentField(element_id, student, index = null) {
+      let status_badge = '';
+
+      if (student.in_active_search) {
+        status_badge = renderStudentStatusBadge('active-search');
+      } else if (!student.active) {
+        status_badge = renderStudentStatusBadge('inactive');
+      } else if (student.dependence) {
+        status_badge = renderStudentStatusBadge('dependence');
+      } else if (student.exempted_from_discipline) {
+        status_badge = renderStudentStatusBadge('exempted-from-discipline');
+      }
+
       let html = JST['templates/school_term_recovery_diary_records/student_fields']({
         id: student.id,
         name: student.name,
         average: student.average,
         scale: 2,
         element_id: element_id,
-        exempted_from_discipline: student.exempted_from_discipline
+        status_badge: status_badge,
+        active: student.active,
+        exempted_from_discipline: student.exempted_from_discipline,
+        in_active_search: student.in_active_search
       });
 
       let $tbody = $('#recovery-diary-record-students');
@@ -266,6 +283,19 @@ $(function () {
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
+  function updateStatusLegend() {
+    var statuses = ['inactive', 'dependence', 'exempted-from-discipline', 'active-search'];
+    var anyVisible = false;
+
+    statuses.forEach(function (status) {
+      var hasBadge = $('#recovery-diary-record-students .badge-status--' + status).length > 0;
+      $('.student-status-legend__item[data-status="' + status + '"]').toggle(hasBadge);
+      if (hasBadge) { anyVisible = true; }
+    });
+
+    $('.student-status-legend').toggle(anyVisible);
+  }
+
   $step.on('change', function () {
     checkPersistedDailyNote();
   });
@@ -292,4 +322,5 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
+  updateStatusLegend();
 });

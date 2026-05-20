@@ -6,11 +6,8 @@
       </div>
     </div>
 
-    <% if(exempted_from_discipline) { %>
-      <span class="exempted-student-from-discipline">****<%= name %></span>
-    <% } else { %>
-      <span class="multiline"><%= name %></span>
-    <% } %>
+    <span class="multiline"><%= name %></span>
+    <%= status_badge %>
   </td>
 
   <td>
@@ -28,7 +25,7 @@
         <input class="string decimal form-control decimal form-control decimal optional" type="decimal"
           name="school_term_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]"
           id="school_term_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score"
-          <% if(exempted_from_discipline) { %> readonly <% } %>>
+          <% if(!active || exempted_from_discipline || in_active_search) { %> readonly <% } %>>
       </div>
     </div>
   </td>

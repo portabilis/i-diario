@@ -230,17 +230,21 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def mark_exempted_disciplines(students_in_recovery)
+    recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
     students_in_recovery_map = students_in_recovery.index_by { |s| s[:student].id }
 
-    @students.each do |student|
-      student.exempted_from_discipline = students_in_recovery_map.dig(
-        student.student_id, :exempted_from_discipline
-      ) || false
-    end
-  end
+    exemptions = StudentsExemptFromDiscipline.call(
+      student_enrollments: students_in_recovery.map { |s| s[:student_enrollment].id },
+      discipline: recovery_diary_record.discipline,
+      step: @school_term_recovery_diary_record.step.to_number,
+      classroom_id: recovery_diary_record.classroom_id
+    )
 
-  def any_student_exempted_from_discipline?
-    @students.any?(&:exempted_from_discipline)
+    @students.each do |student|
+      student_enrollment = students_in_recovery_map.dig(student.student_id, :student_enrollment)
+      student.exempted_from_discipline = student_enrollment.present? &&
+                                         exemptions[student_enrollment.id].present?
+    end
   end
 
   def api_configuration
@@ -269,11 +273,19 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     student_enrollment_ids = fetch_student_enrollment_classrooms.map { |sec| sec[:student_enrollment].id }
     @active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: test_date)
-    @students = []
+    dependencies = StudentsInDependency.call(
+      student_enrollments: student_enrollment_ids,
+      disciplines: recovery_diary_record.discipline
+    )
+    enrollments_in_active_search = ActiveSearch.new.enrollments_in_active_search?(
+      student_enrollment_ids, test_date.to_date
+    )[test_date.to_date] || []
 
     @students = fetch_student_enrollment_classrooms.map do |student|
       note_student = recovery_diary_record.students.find_or_initialize_by(student: student[:student])
       note_student.active = @active.include?(student[:student_enrollment_classroom].id)
+      note_student.dependence = dependencies[student[:student_enrollment].id].present?
+      note_student.in_active_search = enrollments_in_active_search.include?(student[:student_enrollment].id)
       note_student
     end
   end
@@ -337,8 +349,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     students_in_recovery = fetch_students_in_recovery
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
     mark_exempted_disciplines(students_in_recovery)
-
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def set_filters

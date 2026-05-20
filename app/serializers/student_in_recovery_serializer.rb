@@ -1,20 +1,42 @@
-class StudentInRecoverySerializer < StudentSerializer
-  attributes :average, :exempted_from_discipline
+class StudentInRecoverySerializer < ActiveModel::Serializer
+  attributes :id, :name, :average,
+             :active, :dependence, :exempted_from_discipline, :in_active_search
 
-  def average
-    return if student_recovery_average.blank?
-
-    "%.#{@serialization_options[:number_of_decimal_places]}f" % student_recovery_average
+  def id
+    object.student.id
   end
 
-  private
+  def name
+    object.student.to_s
+  end
 
-  def student_recovery_average
-    StudentRecoveryAverageCalculator.new(
-      object,
+  def average
+    avg = StudentRecoveryAverageCalculator.new(
+      object.student,
       @serialization_options[:classroom],
       @serialization_options[:discipline],
       @serialization_options[:step]
     ).recovery_average
+
+    return nil if avg.blank?
+
+    "%.#{@serialization_options[:number_of_decimal_places]}f" % avg
+  end
+
+  def active
+    classroom_enrollment_id = @serialization_options[:classroom_enrollment_by_enrollment][object.id]
+    @serialization_options[:active_classroom_enrollment_ids].include?(classroom_enrollment_id)
+  end
+
+  def dependence
+    @serialization_options[:dependencies][object.id].present?
+  end
+
+  def exempted_from_discipline
+    @serialization_options[:exemptions][object.id].present?
+  end
+
+  def in_active_search
+    @serialization_options[:active_search_enrollment_ids].include?(object.id)
   end
 end

@@ -47,47 +47,48 @@ class StudentsController < ApplicationController
   def recovery_lowest_note
     return render json: nil if params[:classroom_id].blank? || params[:date].blank?
 
-
-    @students = StudentEnrollmentsList.new(
-      classroom: params[:classroom_id],
-      discipline: params[:discipline_id],
-      search_type: :by_date,
-      date: params[:date],
-      score_type: params[:score_type]
-    ).student_enrollments.map(&:student)
-
-
-    render(
-      json: @students,
-      each_serializer: StudentLowestNoteSerializer,
-      discipline: discipline,
+    builder = RecoveryLowestNoteListBuilder.new(
       classroom: classroom,
+      discipline: discipline,
       step: step,
-      number_of_decimal_places: test_setting(classroom, step).number_of_decimal_places
-    )
+      date: params[:date].to_date,
+      score_type: params[:score_type]
+    ).call
+
+    render json: builder.enrollments,
+           each_serializer: StudentLowestNoteSerializer,
+           classroom: builder.classroom,
+           discipline: builder.discipline,
+           step: builder.step,
+           notes_fetcher: builder.notes_fetcher,
+           dependencies: builder.dependencies,
+           exemptions: builder.exemptions,
+           active_search_enrollment_ids: builder.active_search_enrollment_ids,
+           active_enrollment_ids: builder.active_enrollment_ids,
+           sequence_by_enrollment: builder.sequence_by_enrollment
   end
 
   def in_recovery
-    @students = StudentsInRecoveryFetcher.new(
-      configuration,
-      params[:classroom_id],
-      params[:discipline_id],
-      params[:step_id],
-      params[:date].to_date.to_s
-    ).fetch
-
-    @students = @students.select do |student|
-      student[:student_enrollment_classroom].left_at.blank? || student[:student_enrollment_classroom].left_at.to_date >= params[:date].to_date
-    end.pluck(:student)
-
-    render(
-      json: @students,
-      each_serializer: StudentInRecoverySerializer,
-      discipline: discipline,
+    builder = StudentsInRecoveryListBuilder.new(
+      configuration: configuration,
       classroom: classroom,
+      discipline: discipline,
       step: step,
+      date: params[:date].to_date,
       number_of_decimal_places: test_setting(classroom, step).number_of_decimal_places
-    )
+    ).call
+
+    render json: builder.enrollments,
+           each_serializer: StudentInRecoverySerializer,
+           classroom: builder.classroom,
+           discipline: builder.discipline,
+           step: builder.step,
+           number_of_decimal_places: builder.number_of_decimal_places,
+           active_classroom_enrollment_ids: builder.active_classroom_enrollment_ids,
+           classroom_enrollment_by_enrollment: builder.classroom_enrollment_by_enrollment,
+           dependencies: builder.dependencies,
+           exemptions: builder.exemptions,
+           active_search_enrollment_ids: builder.active_search_enrollment_ids
   end
 
   def in_final_recovery
