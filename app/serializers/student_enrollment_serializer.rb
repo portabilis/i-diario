@@ -1,5 +1,6 @@
 class StudentEnrollmentSerializer < ActiveModel::Serializer
-  attributes :id, :student_id, :status, :active, :sequence
+  attributes :id, :student_id, :status, :active, :sequence, :in_active_search, :in_dependence,
+             :inactive_on_date
 
   has_one :student
 

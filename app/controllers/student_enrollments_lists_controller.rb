@@ -17,6 +17,8 @@ class StudentEnrollmentsListsController < ApplicationController
       status_attending: params[:filter][:status_attending]
     ).student_enrollments
 
+    assign_student_situations(student_enrollments)
+
     render json: student_enrollments
   end
 
@@ -37,6 +39,31 @@ class StudentEnrollmentsListsController < ApplicationController
   end
 
   private
+
+  def assign_student_situations(student_enrollments)
+    return if student_enrollments.blank?
+
+    date = params[:filter][:date].to_date
+    enrollment_ids = student_enrollments.map(&:id)
+
+    enrollments_in_active_search =
+      ActiveSearch.new.enrollments_in_active_search?(enrollment_ids, date)[date] || []
+    dependencies = StudentsInDependency.call(
+      student_enrollments: enrollment_ids,
+      disciplines: params[:filter][:discipline]
+    )
+    active_on_date_ids = StudentEnrollment.where(id: enrollment_ids)
+                                          .by_classroom(params[:filter][:classroom])
+                                          .by_date(date)
+                                          .pluck(:id)
+                                          .to_set
+
+    student_enrollments.each do |student_enrollment|
+      student_enrollment.in_active_search = enrollments_in_active_search.include?(student_enrollment.id)
+      student_enrollment.in_dependence = dependencies[student_enrollment.id].present?
+      student_enrollment.inactive_on_date = !active_on_date_ids.include?(student_enrollment.id)
+    end
+  end
 
   def validate_date_param
     validator = DateParamValidator.new(params[:filter][:date])
