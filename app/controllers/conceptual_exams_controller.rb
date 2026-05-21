@@ -151,6 +151,22 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
+  def dependence_disciplines
+    classroom = Classroom.find(params[:classroom_id])
+    enrollment = StudentEnrollment.by_student(params[:student_id])
+                                  .by_classroom(classroom.id)
+                                  .by_year(classroom.year)
+                                  .first
+    discipline_ids = if enrollment
+                       StudentEnrollmentDependence.by_student_enrollment(enrollment.id)
+                                                  .pluck(:discipline_id)
+                     else
+                       []
+                     end
+
+    render json: { discipline_ids: discipline_ids }
+  end
+
   def find_conceptual_exam_by_student
     render json: find_conceptual_exam.try(:id)
   end
@@ -403,6 +419,18 @@ class ConceptualExamsController < ApplicationController
     @disciplines = @disciplines.not_grouper
       .where.not(id: exempted_discipline_ids)
       .where(id: disciplines_in_grade)
+
+    dependency_discipline_ids = student_dependency_discipline_ids
+    @disciplines = @disciplines.where(id: dependency_discipline_ids) if dependency_discipline_ids.present?
+  end
+
+  def student_dependency_discipline_ids
+    enrollment_ids = StudentEnrollment.by_student(@conceptual_exam.student_id)
+                                      .by_classroom(@conceptual_exam.classroom_id)
+                                      .pluck(:id)
+    return [] if enrollment_ids.blank?
+
+    StudentEnrollmentDependence.where(student_enrollment_id: enrollment_ids).pluck(:discipline_id)
   end
 
   def disciplines_in_grade

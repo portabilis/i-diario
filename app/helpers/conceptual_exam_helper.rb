@@ -14,6 +14,30 @@ module ConceptualExamHelper
     @conceptual_exam.conceptual_exam_values.any? { |value| value.exempted_discipline.to_s == 'true' }
   end
 
+  def any_student_in_dependence?
+    conceptual_exam_dependence_discipline_ids.any?
+  end
+
+  def conceptual_exam_dependence_discipline_ids
+    return @conceptual_exam_dependence_discipline_ids if defined?(@conceptual_exam_dependence_discipline_ids)
+
+    @conceptual_exam_dependence_discipline_ids =
+      if @conceptual_exam&.student_id && @conceptual_exam.classroom
+        enrollment = StudentEnrollment.by_student(@conceptual_exam.student_id)
+                                      .by_classroom(@conceptual_exam.classroom_id)
+                                      .by_year(@conceptual_exam.classroom.year)
+                                      .first
+
+        if enrollment
+          StudentEnrollmentDependence.by_student_enrollment(enrollment.id).pluck(:discipline_id).to_set
+        else
+          Set.new
+        end
+      else
+        Set.new
+      end
+  end
+
   def ordered_conceptual_exam_values
     @conceptual_exam.conceptual_exam_values
                     .sort_by { |conceptual_exam_value|
