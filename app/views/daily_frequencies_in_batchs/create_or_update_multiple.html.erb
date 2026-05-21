@@ -163,7 +163,14 @@
 
       <input type="hidden" value="<%= @new_record %>" id="new_record">
 
-      <% @students.each_with_index do |student, index| %>
+      <%# Alunos regulares e em dependência são renderizados em blocos
+          separados — a regra do i-Educar exige que matrículas de dependência
+          apareçam após a turma regular e com sequência reiniciada (1, 2...). %>
+      <% @normal_students.each_with_index do |student, index| %>
+        <%= render 'student_fields', student: student, index: index, form: f %>
+      <% end %>
+
+      <% @dependence_students.each_with_index do |student, index| %>
         <%= render 'student_fields', student: student, index: index, form: f %>
       <% end %>
 

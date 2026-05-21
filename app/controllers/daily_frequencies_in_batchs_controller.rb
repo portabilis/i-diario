@@ -335,6 +335,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @absence_justification.school_calendar = current_school_calendar
     @students = []
     @students_list = []
+    @normal_students = []
+    @dependence_students = []
 
     student_enrollments_ids = []
     student_ids = []
@@ -408,6 +410,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
+
+    dependence_student_ids = dependences.flat_map { |d| d[:student_ids] }.uniq
+    @students.each do |student_data|
+      if dependence_student_ids.include?(student_data[:student].id)
+        @dependence_students << student_data
+      else
+        @normal_students << student_data
+      end
+    end
   end
 
   def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline,

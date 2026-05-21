@@ -60,10 +60,11 @@
       </a>
     </div>
 
-    <% if @dependence_students || @any_inactive_student || @any_exempted_from_discipline || @any_in_active_search %>
+    <% has_dependence = @dependence_students.any? %>
+    <% if has_dependence || @any_inactive_student || @any_exempted_from_discipline || @any_in_active_search %>
       <div class="student-status-legend">
         <strong class="student-status-legend__label">Situação do aluno:</strong>
-        <% if @dependence_students %>
+        <% if has_dependence %>
           <div class="student-status-legend__item">
             <%= student_status_badge(:dependence) %><%= t('.dependence_students_legend') %>
           </div>
@@ -117,23 +118,38 @@
         <%= f.hidden_field :frequency_date %>
         <%= f.hidden_field :discipline_id %>
         <%= f.hidden_field :period %>
+        <%# Alunos regulares e em dependência são renderizados em blocos
+            separados fazendo com que matrículas de dependência apareçam após
+            as matrículas regulares e com sequência reiniciada (1, 2...). %>
         <% sequence = 0 %>
-          <% @students.each do |student| %>
-            <% if student[:sequence] %>
-              <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
-                student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
-                active: student[:active], in_active_search: student[:in_active_search],
-                absence_justification: student[:absence_justification]
-              %>
-            <% else %>
-              <% sequence += 1 %>
-              <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
-                student: student[:student], sequence: sequence, dependence: student[:dependence],
-                active: student[:active], in_active_search: student[:in_active_search],
-                absence_justification: student[:absence_justification]
-              %>
-            <% end %>
+        <% @normal_students.each do |student| %>
+          <% if student[:sequence] %>
+            <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+              student: student[:student], sequence: student[:sequence], dependence: student[:dependence],
+              active: student[:active], in_active_search: student[:in_active_search],
+              absence_justification: student[:absence_justification]
+            %>
+          <% else %>
+            <% sequence += 1 %>
+            <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+              student: student[:student], sequence: sequence, dependence: student[:dependence],
+              active: student[:active], in_active_search: student[:in_active_search],
+              absence_justification: student[:absence_justification]
+            %>
           <% end %>
+        <% end %>
+
+        <%# Para matrículas de dependência o sequencial sempre reinicia em 1
+            (regra do i-Educar), independente de show_inactive_enrollments. %>
+        <% sequence = 0 %>
+        <% @dependence_students.each do |student| %>
+          <% sequence += 1 %>
+          <%= render 'student_fields', exempted_from_discipline: student[:exempted_from_discipline],
+            student: student[:student], sequence: sequence, dependence: student[:dependence],
+            active: student[:active], in_active_search: student[:in_active_search],
+            absence_justification: student[:absence_justification]
+          %>
+        <% end %>
       </tbody>
     </table>
 
