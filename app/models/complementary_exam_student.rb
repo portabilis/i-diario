@@ -6,7 +6,7 @@ class ComplementaryExamStudent < ApplicationRecord
 
   acts_as_copy_target
 
-  attr_accessor :dependence, :active, :exempted_from_discipline
+  attr_accessor :dependence, :active, :exempted_from_discipline, :in_active_search, :display_sequence
 
   belongs_to :complementary_exam
   belongs_to :student

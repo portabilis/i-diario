@@ -47,6 +47,7 @@ class ComplementaryExamsController < ApplicationController
     else
       set_options_by_user
       fetch_disciplines_by_classroom
+      reload_students_list
 
       render :new
     end
@@ -127,6 +128,44 @@ class ComplementaryExamsController < ApplicationController
     render json: steps
   end
 
+  def fetch_students
+    classroom = Classroom.find(params[:classroom_id])
+    discipline = Discipline.find(params[:discipline_id])
+    date = params[:date].to_date
+    step = StepsFetcher.new(classroom).step_by_date(date)
+    with_recovery_note_in_step = ActiveRecord::Type::Boolean.new.cast(params[:with_recovery_note_in_step])
+
+    student_enrollments = StudentEnrollmentsList.new(
+      classroom: classroom,
+      discipline: discipline,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      with_recovery_note_in_step: with_recovery_note_in_step,
+      date: date,
+      search_type: :by_date
+    ).student_enrollments
+
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: classroom,
+      discipline: discipline,
+      step: step,
+      date: date
+    )
+
+    students = student_enrollments.map do |enrollment|
+      {
+        id: enrollment.id,
+        student: { id: enrollment.student_id, name: enrollment.student.name },
+        in_active_search: situations[:enrollments_in_active_search].include?(enrollment.id),
+        in_dependence: situations[:dependencies][enrollment.id].present?,
+        inactive_on_date: !situations[:active_on_date_ids].include?(enrollment.id),
+        exempted_from_discipline: situations[:exemptions][enrollment.id].present?
+      }
+    end
+
+    render json: { students: students }
+  end
+
   private
 
   def resource_params
@@ -194,31 +233,61 @@ class ComplementaryExamsController < ApplicationController
       classroom: @complementary_exam.classroom,
       discipline: @complementary_exam.discipline,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-      show_inactive: false,
       with_recovery_note_in_step: @complementary_exam.complementary_exam_setting.affected_score == AffectedScoreTypes::STEP_RECOVERY_SCORE,
       date: @complementary_exam.recorded_at,
-      status_attending: true,
       search_type: :by_date
     ).student_enrollments
   end
 
   def reload_students_list
+    return unless (student_enrollments = fetch_student_enrollments)
     return unless @complementary_exam.recorded_at
 
-    student_enrollments = fetch_student_enrollments
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: @complementary_exam.classroom,
+      discipline: @complementary_exam.discipline,
+      step: @complementary_exam.step,
+      date: @complementary_exam.recorded_at
+    )
 
-    return unless student_enrollments
+    existing_by_student_id = @complementary_exam.students.index_by(&:student_id)
 
     enrolled_student_ids = []
+    @students = []
 
     student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        @complementary_exam.students.where(student_id: student.id).first || @complementary_exam.students.build(student_id: student.id, student: student)
-        enrolled_student_ids << student.id
-      end
+      next unless (student = Student.find_by_id(student_enrollment.student_id))
+
+      exam_student = existing_by_student_id[student.id] ||
+                     @complementary_exam.students.build(student_id: student.id)
+      exam_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+      exam_student.dependence = situations[:dependencies][student_enrollment.id].present?
+      exam_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
+      exam_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
+
+      @students << exam_student
+      enrolled_student_ids << student.id
     end
 
-    @complementary_exam.students.select{ |student| !enrolled_student_ids.include?(student.student_id)}.each(&:mark_for_destruction)
+    @complementary_exam.students.select { |student| !enrolled_student_ids.include?(student.student_id) }.each(&:mark_for_destruction)
+
+    assign_display_sequence
+  end
+
+  def assign_display_sequence
+    normal_sequence = 0
+    dependence_sequence = 0
+
+    @students.each do |student|
+      if student.dependence
+        dependence_sequence += 1
+        student.display_sequence = dependence_sequence
+      else
+        normal_sequence += 1
+        student.display_sequence = normal_sequence
+      end
+    end
   end
 
   def mark_students_not_found_for_destruction

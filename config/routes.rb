@@ -298,6 +298,7 @@ Rails.application.routes.draw do
       collection do
         get :settings
         get :fetch_steps
+        get :fetch_students
       end
     end
     resources :teacher_avaliations, only: :index
