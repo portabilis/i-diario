@@ -148,7 +148,7 @@ class ComplementaryExamsController < ApplicationController
       enrollment_ids: student_enrollments.map(&:id),
       classroom: classroom,
       discipline: discipline,
-      step: step,
+      step_number: step&.to_number,
       date: date
     )
 
@@ -247,7 +247,7 @@ class ComplementaryExamsController < ApplicationController
       enrollment_ids: student_enrollments.map(&:id),
       classroom: @complementary_exam.classroom,
       discipline: @complementary_exam.discipline,
-      step: @complementary_exam.step,
+      step_number: @complementary_exam.step&.to_number,
       date: @complementary_exam.recorded_at
     )
 

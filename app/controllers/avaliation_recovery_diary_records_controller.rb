@@ -260,20 +260,32 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     return unless recovery_diary_record.recorded_at
 
+    step_number = fetch_step_number(
+      @avaliation_recovery_diary_record,
+      recovery_diary_record.classroom_id,
+      @avaliation_recovery_diary_record.avaliation.test_date
+    )
+
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: recovery_diary_record.classroom,
+      discipline: recovery_diary_record.discipline,
+      step_number: step_number,
+      date: recovery_diary_record.recorded_at
+    )
+
     @students = []
     student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
+      next unless (student = Student.find_by_id(student_enrollment.student_id))
+
         recovery_student = recovery_diary_record.students.find_by(student_id: student.id)
         note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
-        note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
-        note_student.active = student_active_on_date?(student_enrollment)
-        note_student.exempted_from_discipline = student_exempted_from_discipline?(
-          student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record
-        )
-        note_student.in_active_search = student_in_active_search?(student_enrollment)
+        note_student.dependence = situations[:dependencies][student_enrollment.id].present?
+        note_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+        note_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
+        note_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
 
         @students << note_student
-      end
     end
 
     assign_display_sequence
@@ -292,42 +304,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         student.display_sequence = normal_students
       end
     end
-  end
-
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
-  end
-
-  def student_in_active_search?(student_enrollment)
-    ActiveSearch.new.in_active_search?(
-      student_enrollment.id,
-      @avaliation_recovery_diary_record.recovery_diary_record.recorded_at.to_date
-    )
-  end
-
-  def student_active_on_date?(student_enrollment)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom)
-      .by_date(@avaliation_recovery_diary_record.recovery_diary_record.recorded_at)
-      .any?
-  end
-
-  def student_exempted_from_discipline?(student_enrollment, recovery_diary_record, avaliation_recovery_diary_record)
-    return if recovery_diary_record.discipline.blank?
-
-    discipline_id = recovery_diary_record.discipline.id
-    test_date = avaliation_recovery_diary_record.avaliation.test_date
-
-    step_number = fetch_step_number(avaliation_recovery_diary_record, recovery_diary_record.classroom_id, test_date)
-
-    student_enrollment.exempted_disciplines
-                      .by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
   end
 
   def fetch_step_number(avaliation_recovery_diary_record, classroom_id, date)

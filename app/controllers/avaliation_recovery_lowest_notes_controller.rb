@@ -289,20 +289,13 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     return unless recovery_diary_record.recorded_at
 
-    recorded_at = recovery_diary_record.recorded_at.to_date
-    enrollment_ids = student_enrollments.map(&:id)
-    dependencies = StudentsInDependency.call(
-      student_enrollments: enrollment_ids,
-      disciplines: recovery_diary_record.discipline
-    )
-    exemptions = StudentsExemptFromDiscipline.call(
-      student_enrollments: enrollment_ids,
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: recovery_diary_record.classroom,
       discipline: recovery_diary_record.discipline,
-      step: @lowest_note_recovery.step.to_number,
-      classroom_id: recovery_diary_record.classroom_id
+      step_number: @lowest_note_recovery.step&.to_number,
+      date: recovery_diary_record.recorded_at
     )
-    enrollments_in_active_search =
-      ActiveSearch.new.enrollments_in_active_search?(enrollment_ids, recorded_at)[recorded_at] || []
 
     @students = []
 
@@ -312,22 +305,15 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       note_student = recovery_diary_record.students.find_by(student_id: student.id) ||
         recovery_diary_record.students.build(student: student)
 
-      note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
-      note_student.dependence = dependencies[student_enrollment.id].present?
-      note_student.exempted_from_discipline = exemptions[student_enrollment.id].present?
-      note_student.in_active_search = enrollments_in_active_search.include?(student_enrollment.id)
+      note_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+      note_student.dependence = situations[:dependencies][student_enrollment.id].present?
+      note_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
+      note_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
 
       @students << note_student
     end
 
     @students
-  end
-
-  def student_active_on_date?(student_enrollment, recovery_diary_record)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(recovery_diary_record.classroom)
-                     .by_date(recovery_diary_record.recorded_at)
-                     .any?
   end
 
   def exists_recovery_on_step

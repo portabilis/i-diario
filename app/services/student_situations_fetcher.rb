@@ -7,7 +7,7 @@ class StudentSituationsFetcher
     @enrollment_ids = params.fetch(:enrollment_ids)
     @classroom = params.fetch(:classroom)
     @discipline = params.fetch(:discipline)
-    @step = params.fetch(:step, nil)
+    @step_number = params.fetch(:step_number, nil)
     @date = params.fetch(:date)
   end
 
@@ -31,12 +31,12 @@ class StudentSituationsFetcher
   private
 
   def fetch_exemptions
-    return {} unless @step && @discipline
+    return {} unless @step_number && @discipline
 
     StudentsExemptFromDiscipline.call(
       student_enrollments: @enrollment_ids,
       discipline: @discipline,
-      step: @step.to_number,
+      step: @step_number,
       classroom_id: @classroom.id
     )
   end
