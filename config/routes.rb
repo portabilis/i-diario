@@ -350,6 +350,7 @@ Rails.application.routes.draw do
         get :dependence_disciplines
         get :find_conceptual_exam_by_student
         get :find_step_number_by_classroom
+        get :fetch_students
         get :fetch_students_by_classroom
         get :fetch_score_type
         get :fetch_steps

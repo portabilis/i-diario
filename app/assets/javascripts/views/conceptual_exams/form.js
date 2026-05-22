@@ -149,18 +149,12 @@ $(function() {
             format: "json"
           })
         ).done(function() {
-          var filter = {
-            classroom: classroom_id,
-            discipline: discipline_id,
-            score_type: "concept",
-            show_inactive: false,
-            date: recorded_at
-          };
-
           if (!_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
             $.ajax({
-              url: Routes.by_date_student_enrollments_lists_pt_br_path({
-                filter: filter,
+              url: Routes.fetch_students_conceptual_exams_pt_br_path({
+                classroom_id: classroom_id,
+                discipline_id: discipline_id,
+                date: recorded_at,
                 format: "json"
               }),
               success: handleFetchStudentsSuccess,
@@ -175,7 +169,7 @@ $(function() {
   function handleFetchStudentsSuccess(data) {
     var studentPreviouslySelectedExists = false;
 
-    var students = _.map(data.student_enrollments_lists, function(
+    var students = _.map(data.students, function(
       student_enrollment
     ) {
       if (student_enrollment.student_id == window.studentPreviouslySelected) {

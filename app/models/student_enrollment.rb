@@ -10,7 +10,7 @@ class StudentEnrollment < ActiveRecord::Base
   has_many :dependences, class_name: 'StudentEnrollmentDependence'
   has_many :exempted_disciplines, class_name: 'StudentEnrollmentExemptedDiscipline'
 
-  attr_accessor :entity_id, :in_active_search, :in_dependence, :inactive_on_date
+  attr_accessor :entity_id
 
   after_discard { StudentDependenciesDiscarder.discard(entity_id, student_id) }
   after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_id) }
