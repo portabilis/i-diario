@@ -47,7 +47,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
-      redirect_to(avaliation_recovery_lowest_note_path)
+      redirect_to(avaliation_recovery_lowest_notes_path)
     end
 
     return if performed?
@@ -68,8 +68,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     else
       set_options_by_user
       fetch_disciplines_by_classroom
-
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
+      fetch_data
 
       render :new
     end
@@ -108,8 +107,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     else
       set_options_by_user
       fetch_disciplines_by_classroom
-
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
+      fetch_data
 
       render :edit
     end
@@ -189,7 +187,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     assign_display_sequence
 
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @number_of_decimal_places = current_test_setting&.number_of_decimal_places
   end
 
   def assign_display_sequence
@@ -297,12 +295,14 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       date: recovery_diary_record.recorded_at
     )
 
+    existing_by_student_id = recovery_diary_record.students.index_by(&:student_id)
+
     @students = []
 
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by(id: student_enrollment.student_id))
 
-      note_student = recovery_diary_record.students.find_by(student_id: student.id) ||
+      note_student = existing_by_student_id[student.id] ||
         recovery_diary_record.students.build(student: student)
 
       note_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
@@ -342,7 +342,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
-      redirect_to root_path
+      return redirect_to(root_path)
     end
 
     return if current_test_setting.arithmetic_calculation_type?

@@ -17,22 +17,22 @@ class StudentsInRecoveryListBuilder
     @enrollments = students_in_recovery.map { |student_in_recovery| student_in_recovery[:student_enrollment] }
     enrollment_ids = @enrollments.map(&:id)
 
+    student_situations = StudentSituationsFetcher.call(
+      enrollment_ids: enrollment_ids,
+      classroom: @classroom,
+      discipline: @discipline,
+      step_number: @step&.to_number,
+      date: @date
+    )
+
+    @dependencies = student_situations[:dependencies]
+    @exemptions = student_situations[:exemptions]
+    @active_search_enrollment_ids = student_situations[:enrollments_in_active_search]
+
     @active_classroom_enrollment_ids = ActiveStudentsOnDate.call(
       student_enrollments: enrollment_ids,
       date: @date
     )
-    @dependencies = StudentsInDependency.call(
-      student_enrollments: enrollment_ids,
-      disciplines: @discipline
-    )
-    @exemptions = StudentsExemptFromDiscipline.call(
-      student_enrollments: enrollment_ids,
-      discipline: @discipline,
-      step: @step.to_number,
-      classroom_id: @classroom.id
-    )
-    @active_search_enrollment_ids =
-      ActiveSearch.new.enrollments_in_active_search?(enrollment_ids, @date)[@date] || []
 
     @classroom_enrollment_by_enrollment = students_in_recovery.each_with_object({}) do |student_in_recovery, hash|
       hash[student_in_recovery[:student_enrollment].id] = student_in_recovery[:student_enrollment_classroom].id

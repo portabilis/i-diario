@@ -14,24 +14,19 @@ class RecoveryLowestNoteListBuilder
 
   def call
     @enrollments = fetch_student_enrollments
-    enrollment_ids = @enrollments.map(&:id)
 
-    @dependencies = StudentsInDependency.call(
-      student_enrollments: enrollment_ids,
-      disciplines: @discipline
-    )
-    @exemptions = StudentsExemptFromDiscipline.call(
-      student_enrollments: enrollment_ids,
+    student_situations = StudentSituationsFetcher.call(
+      enrollment_ids: @enrollments.map(&:id),
+      classroom: @classroom,
       discipline: @discipline,
-      step: @step.to_number,
-      classroom_id: @classroom.id
+      step_number: @step&.to_number,
+      date: @date
     )
-    @active_search_enrollment_ids =
-      ActiveSearch.new.enrollments_in_active_search?(enrollment_ids, @date)[@date] || []
-    @active_enrollment_ids = StudentEnrollment.where(id: enrollment_ids)
-                                              .by_classroom(@classroom)
-                                              .by_date(@date)
-                                              .pluck(:id)
+
+    @dependencies = student_situations[:dependencies]
+    @exemptions = student_situations[:exemptions]
+    @active_search_enrollment_ids = student_situations[:enrollments_in_active_search]
+    @active_enrollment_ids = student_situations[:active_on_date_ids]
 
     assign_display_sequence
 

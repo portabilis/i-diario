@@ -62,6 +62,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       end
       set_options_by_user
       fetch_disciplines_by_classroom
+      reload_students_list
 
       render :new
     end
@@ -104,14 +105,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     else
       set_options_by_user
 
-      @students = @school_term_recovery_diary_record.recovery_diary_record.students
-
       if @admin_or_teacher
         @number_of_decimal_places = current_test_setting.number_of_decimal_places
       else
         fetch_linked_by_teacher
       end
       fetch_disciplines_by_classroom
+      reload_students_list
       filter_students_in_recovery
 
       render :edit
@@ -281,8 +281,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       student_enrollment_ids, test_date.to_date
     )[test_date.to_date] || []
 
+    existing_by_student_id = recovery_diary_record.students.index_by(&:student_id)
+
     @students = fetch_student_enrollment_classrooms.map do |student|
-      note_student = recovery_diary_record.students.find_or_initialize_by(student: student[:student])
+      student_record = student[:student]
+      note_student = existing_by_student_id[student_record.id] ||
+                     recovery_diary_record.students.build(student: student_record)
       note_student.active = @active.include?(student[:student_enrollment_classroom].id)
       note_student.dependence = dependencies[student[:student_enrollment].id].present?
       note_student.in_active_search = enrollments_in_active_search.include?(student[:student_enrollment].id)
