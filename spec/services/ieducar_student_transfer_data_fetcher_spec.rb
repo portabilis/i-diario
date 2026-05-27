@@ -311,5 +311,88 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         expect(subject.send(:exam_rule)).to eq(classroom.first_exam_rule.differentiated_exam_rule)
       end
     end
+
+    describe '#all_postings_sent' do
+      it 'starts as true before any posting is sent' do
+        expect(described_class.new(student: student, classroom: classroom).all_postings_sent).to eq(true)
+      end
+
+      context 'when every i-Educar response is successful' do
+        let!(:avaliation) do
+          create(
+            :avaliation,
+            classroom: classroom,
+            discipline: discipline,
+            teacher_id: teacher.id,
+            test_date: first_step.start_at + 5.days
+          )
+        end
+        let!(:daily_note) { create(:daily_note, avaliation: avaliation) }
+        let!(:daily_note_student) do
+          create(
+            :daily_note_student,
+            student_id: student.id,
+            daily_note: daily_note,
+            note: 8.5
+          )
+        end
+
+        it 'keeps all_postings_sent as true' do
+          subject.post_to_ieducar!
+
+          expect(subject.all_postings_sent).to eq(true)
+        end
+      end
+
+      context 'when i-Educar returns a known error for at least one posting' do
+        let!(:avaliation) do
+          create(
+            :avaliation,
+            classroom: classroom,
+            discipline: discipline,
+            teacher_id: teacher.id,
+            test_date: first_step.start_at + 5.days
+          )
+        end
+        let!(:daily_note) { create(:daily_note, avaliation: avaliation) }
+        let!(:daily_note_student) do
+          create(
+            :daily_note_student,
+            student_id: student.id,
+            daily_note: daily_note,
+            note: 8.5
+          )
+        end
+        let(:known_error_response) do
+          {
+            error: {
+              code: IeducarErrorMessages::TEACHER_MUST_HAVE_SCORES_ON_PREVIOUS_STEPS,
+              message: 'Nota somente pode ser lançada após lançar notas nas etapas: 1 Trimestre'
+            },
+            msgs: [{ msg: 'Nota somente pode ser lançada após lançar notas nas etapas: 1 Trimestre', type: 'error' }],
+            any_error_msg: true
+          }.to_json
+        end
+
+        before do
+          stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=notas.*})
+            .to_return(
+              status: 200,
+              body: known_error_response,
+              headers: { 'Content-Type' => 'application/json' }
+            )
+        end
+
+        it 'flips all_postings_sent to false' do
+          subject.post_to_ieducar!
+
+          expect(subject.all_postings_sent).to eq(false)
+        end
+
+        it 'does not raise an exception (known error stays silent on IeducarApi::Base)' do
+          expect { subject.post_to_ieducar! }.not_to raise_error
+        end
+      end
+    end
   end
 end

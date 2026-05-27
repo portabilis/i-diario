@@ -3,9 +3,12 @@
 class IeducarStudentTransferDataFetcher
   class StudentNotEnrolledError < StandardError; end
 
+  attr_reader :all_postings_sent
+
   def initialize(student:, classroom:)
     @student = student
     @classroom = classroom
+    @all_postings_sent = true
   end
 
   def post_to_ieducar!
@@ -378,11 +381,13 @@ class IeducarStudentTransferDataFetcher
     end
 
     api = api_class.new(ieducar_api.to_api)
-    api.send_post(params)
+    response = IeducarResponseDecorator.new(api.send_post(params))
+    @all_postings_sent = false if response.any_error_message?
   end
 
   def send_final_recovery_to_ieducar(params)
     api = IeducarApi::FinalRecoveries.new(ieducar_api.to_api)
-    api.send_post(params)
+    response = IeducarResponseDecorator.new(api.send_post(params))
+    @all_postings_sent = false if response.any_error_message?
   end
 end

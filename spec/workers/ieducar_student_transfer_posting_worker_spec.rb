@@ -36,6 +36,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
     before do
       allow(IeducarStudentTransferDataFetcher).to receive(:new).and_return(fetcher_double)
       allow(fetcher_double).to receive(:post_to_ieducar!)
+      allow(fetcher_double).to receive(:all_postings_sent).and_return(true)
       allow(IeducarApiConfiguration).to receive(:current).and_return(ieducar_api_configuration)
     end
 
@@ -51,8 +52,8 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
       described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
     end
 
-    context 'when processing succeeds' do
-      it 'sends success webhook with correct payload and token header' do
+    context 'when processing succeeds and all postings were accepted' do
+      it 'sends webhook with status: success, success message and token header' do
         webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
 
         described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
@@ -61,6 +62,8 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
         expect(WebMock).to have_requested(:post, callback_url).with { |req|
           body = JSON.parse(req.body)
           body['status'] == 'success' &&
+            body['message'].include?('enviados ao i-Educar com sucesso') &&
+            body['message'].include?(student.name) &&
             body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
             !body.key?('error') &&
             req.headers['Token'] == ieducar_api_configuration.api_security_token
@@ -68,12 +71,35 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
       end
     end
 
-    context 'when processing fails' do
+    context 'when processing succeeds but some postings were rejected by i-Educar' do
+      before do
+        allow(fetcher_double).to receive(:all_postings_sent).and_return(false)
+      end
+
+      it 'sends webhook with status: error, partial failure message and no error key' do
+        webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
+
+        described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
+
+        expect(webhook_stub).to have_been_requested.once
+        expect(WebMock).to have_requested(:post, callback_url).with { |req|
+          body = JSON.parse(req.body)
+          body['status'] == 'error' &&
+            body['message'].include?('Nem todos os lançamentos') &&
+            body['message'].include?(student.name) &&
+            body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
+            !body.key?('error') &&
+            req.headers['Token'] == ieducar_api_configuration.api_security_token
+        }
+      end
+    end
+
+    context 'when processing fails with an exception' do
       before do
         allow(fetcher_double).to receive(:post_to_ieducar!).and_raise(StandardError, 'Test error')
       end
 
-      it 'sends error webhook with token header and re-raises exception' do
+      it 'sends webhook with status: error, exception message, error key and re-raises exception' do
         webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
 
         expect do
@@ -84,6 +110,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
         expect(WebMock).to have_requested(:post, callback_url).with { |req|
           body = JSON.parse(req.body)
           body['status'] == 'error' &&
+            body['message'].include?('Falha ao enviar os lançamentos') &&
             body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
             body['error'] == 'Test error' &&
             req.headers['Token'] == ieducar_api_configuration.api_security_token
