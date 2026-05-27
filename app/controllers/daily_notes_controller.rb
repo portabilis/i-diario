@@ -373,11 +373,16 @@ disciplines: @discipline)
   end
 
   def check_duplicate_enrolled_students
+    test_date = @daily_note.test_date
+
     enrolled_students = set_enrollment_classrooms
                           .select { |ec|
+                            left_at = ec[:student_enrollment_classroom].left_at
+                            left_at_date = left_at.present? ? left_at.to_date : nil
+
                             ec[:student_enrollment].status == 3 &&
                               ec[:student_enrollment].active == 1 &&
-                              ec[:student_enrollment_classroom].left_at.blank?
+                              (left_at_date.nil? || left_at_date >= test_date)
                           }
                           .map { |ec| ec[:student] }
 
