@@ -10,6 +10,41 @@ class IeducarStudentTransferPostingWorker
                   dead: false,
                   on_conflict: { client: :log, server: :reject }
 
+  # Disparado pelo Sidekiq após todas as retries terem falhado.
+  # Envia um único callback de erro com a mensagem técnica da última exceção,
+  # evitando que o consumidor receba uma notificação a cada tentativa.
+  sidekiq_retries_exhausted do |msg, exception|
+    entity_id, student_id, _classroom_id, callback_url = msg['args']
+
+    Entity.find(entity_id).using_connection do
+      student = Student.find_by(id: student_id)
+      api_code = StudentEnrollment.find_by(student: student)&.api_code
+      token = IeducarApiConfiguration.current&.api_security_token
+
+      payload = {
+        status: 'error',
+        student_enrollment_api_code: api_code,
+        message: I18n.t(
+          'ieducar_student_transfer_posting_worker.callback_messages.exception_failure',
+          name: student&.name.presence || 'aluno'
+        ),
+        error: exception.message
+      }
+
+      headers = { content_type: :json }
+      headers[:token] = token if token.present?
+
+      RestClient.post(callback_url, payload.to_json, headers) if callback_url.present?
+    rescue StandardError => e
+      # Falha do callback HTTP não deve impedir Honeybadger.notify da exceção original
+      Rails.logger.error(
+        "IeducarStudentTransferPostingWorker: Failed to notify exception failure - #{e.message}"
+      )
+    end
+
+    Honeybadger.notify(exception)
+  end
+
   def perform(entity_id, student_id, classroom_id, callback_url)
     @callback_url = callback_url
     @student_enrollment_api_code = nil
@@ -37,10 +72,6 @@ class IeducarStudentTransferPostingWorker
         send_confirmation_webhook(status: 'error', message_key: 'partial_failure')
       end
     end
-  rescue StandardError => e
-    send_confirmation_webhook(status: 'error', message_key: 'exception_failure', error_message: e.message)
-
-    raise e
   end
 
   private

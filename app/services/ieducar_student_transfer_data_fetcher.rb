@@ -12,6 +12,13 @@ class IeducarStudentTransferDataFetcher
   end
 
   def post_to_ieducar!
+    unless exam_rule
+      Rails.logger.warn(
+        "IeducarStudentTransferDataFetcher: classroom #{classroom.id} sem exam_rule - notas e pareceres serão ignorados"
+      )
+      @all_postings_sent = false
+    end
+
     steps.each do |step|
       post_numerical_scores_for_step(step)
       post_conceptual_scores_for_step(step)
@@ -50,13 +57,23 @@ class IeducarStudentTransferDataFetcher
 
   def exam_rule
     @exam_rule ||= begin
-      rule = classroom.first_exam_rule
+      rule = student_classrooms_grade&.exam_rule || classroom.first_exam_rule
       if student.uses_differentiated_exam_rule && rule&.differentiated_exam_rule.present?
         rule.differentiated_exam_rule
       else
         rule
       end
     end
+  end
+
+  def student_classrooms_grade
+    @student_classrooms_grade ||= StudentEnrollmentClassroom
+      .joins(:student_enrollment, :classrooms_grade)
+      .where(student_enrollments: { student_id: student.id })
+      .where(classrooms_grades: { classroom_id: classroom.id })
+      .where("COALESCE(student_enrollment_classrooms.left_at, '') = ''")
+      .first
+      &.classrooms_grade
   end
 
   def frequency_by_discipline?
@@ -97,13 +114,19 @@ class IeducarStudentTransferDataFetcher
 
     return unless recovery_student&.score.present?
 
-    score_rounder = ScoreRounder.new(
+    adjusted_score = ComplementaryExamCalculator.new(
+      [AffectedScoreTypes::STEP_RECOVERY_SCORE, AffectedScoreTypes::BOTH],
+      student,
+      discipline.id,
+      classroom.id,
+      step
+    ).calculate(recovery_student.score)
+
+    ScoreRounder.new(
       classroom,
       RoundedAvaliations::SCHOOL_TERM_RECOVERY,
       step
-    )
-
-    score_rounder.round(recovery_student.score)
+    ).round(adjusted_score)
   end
 
   def send_score_to_ieducar(step, discipline, score_data, post_type)

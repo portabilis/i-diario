@@ -94,27 +94,25 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
       end
     end
 
-    context 'when processing fails with an exception' do
+    context 'when processing raises an exception' do
       before do
         allow(fetcher_double).to receive(:post_to_ieducar!).and_raise(StandardError, 'Test error')
       end
 
-      it 'sends webhook with status: error, exception message, error key and re-raises exception' do
+      it 'lets the exception bubble up so Sidekiq handles the retry' do
+        expect do
+          described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
+        end.to raise_error(StandardError, 'Test error')
+      end
+
+      it 'does not send the callback inside perform (deferred to retries_exhausted)' do
         webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
 
         expect do
           described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
-        end.to raise_error(StandardError, 'Test error')
+        end.to raise_error(StandardError)
 
-        expect(webhook_stub).to have_been_requested.once
-        expect(WebMock).to have_requested(:post, callback_url).with { |req|
-          body = JSON.parse(req.body)
-          body['status'] == 'error' &&
-            body['message'].include?('Falha ao enviar os lançamentos') &&
-            body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
-            body['error'] == 'Test error' &&
-            req.headers['Token'] == ieducar_api_configuration.api_security_token
-        }
+        expect(webhook_stub).not_to have_been_requested
       end
     end
 
