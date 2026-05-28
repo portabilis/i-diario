@@ -57,6 +57,7 @@ class StudentsSynchronizer < BaseSynchronizer
           create_users(student.id) if allow_create_users_for_students && student_user_new?(student) && !student.discarded?
         end
       rescue ActiveRecord::RecordNotUnique
+        reset_record(:@students, student_record.aluno_id)
         retry
       end
     end

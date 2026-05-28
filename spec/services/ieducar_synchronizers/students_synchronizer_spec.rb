@@ -43,35 +43,35 @@ RSpec.describe StudentsSynchronizer do
     # recebem o mesmo aluno da API. O primeiro worker cria o registro,
     # e o segundo falha com UniqueViolation ao tentar inserir o mesmo api_code.
     it 'handles race condition when another process inserts the same student between SELECT and INSERT' do
-      call_count = 0
+      collisions = 0
 
       allow(Student).to receive(:with_discarded).and_return(Student)
 
-      allow(Student).to receive(:find_or_initialize_by)
-        .with(api_code: 99999)
-        .and_wrap_original do |method, *args|
-          call_count += 1
-          result = method.call(*args)
+      # Simula a corrida: o preload não encontrou o aluno, então tentamos criar
+      # via Student.new + save!. No primeiro INSERT, outro worker já inseriu o
+      # mesmo api_code, fazendo o banco levantar RecordNotUnique.
+      allow_any_instance_of(Student).to receive(:save!).and_wrap_original do |original|
+        # O primeiro save! é o INSERT do registro novo; nele simulamos o outro
+        # worker comitando antes e o banco levantando RecordNotUnique.
+        if collisions.zero?
+          collisions += 1
+          Student.create!(api_code: 99999, name: 'CRIADO POR OUTRO WORKER', api: true, birth_date: '2010-05-15')
 
-          # Na primeira chamada, simula outro worker criando o registro
-          if call_count == 1 && result.new_record?
-            Student.create!(
-              api_code: 99999,
-              name: 'ALUNO TESTE',
-              api: true,
-              birth_date: '2010-05-15'
-            )
-          end
-
-          result
+          raise ActiveRecord::RecordNotUnique,
+                'PG::UniqueViolation: duplicate key value violates unique constraint "index_students_on_api_code"'
         end
+
+        original.call
+      end
 
       expect { synchronizer.synchronize! }.not_to raise_error
 
+      # Houve exatamente uma colisão antes do retry bem-sucedido
+      expect(collisions).to eq(1)
       expect(Student.where(api_code: 99999).count).to eq(1)
 
-      # O retry deve ter sido executado (2 chamadas ao find_or_initialize_by)
-      expect(call_count).to eq(2)
+      # O retry encontrou o registro do outro worker e aplicou os dados da API
+      expect(Student.find_by(api_code: 99999).name).to eq('ALUNO TESTE')
     end
   end
 

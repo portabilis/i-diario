@@ -160,38 +160,36 @@ RSpec.describe TeachersSynchronizer, type: :service do
     end
 
     it 'handles race condition when another process inserts the same teacher between SELECT and INSERT' do
-      call_count = 0
+      collisions = 0
 
       allow(Teacher).to receive(:with_discarded).and_return(Teacher)
 
-      allow(Teacher).to receive(:find_or_initialize_by)
-        .with(api_code: '12345')
-        .and_wrap_original do |method, *args|
-          call_count += 1
-          result = method.call(*args)
+      # Simula a race: o preload não encontrou o professor, então tentamos criar
+      # via Teacher.new + save!. No primeiro INSERT, outro worker já comitou o
+      # mesmo api_code, fazendo o banco levantar RecordNotUnique.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |original|
+        # O primeiro save! é o INSERT do registro novo; nele simulamos o outro
+        # worker comitando antes e o banco levantando RecordNotUnique.
+        if collisions.zero?
+          collisions += 1
+          Teacher.create!(api_code: '12345', name: 'CRIADO POR OUTRO WORKER')
 
-          # Na primeira chamada, simula a race: o INSERT do nosso worker bate
-          # na constraint do banco (outro worker comitou antes), levantando
-          # RecordNotUnique. Em paralelo, cria o registro "concorrente" para
-          # que o retry encontre-o e apenas atualize.
-          if call_count == 1 && result.new_record?
-            allow(result).to receive(:save!).and_wrap_original do |_original|
-              Teacher.create!(api_code: '12345', name: 'Criado por outro worker')
-              raise ActiveRecord::RecordNotUnique,
-                    'PG::UniqueViolation: duplicate key value violates unique constraint ' \
-                    '"index_teachers_on_api_code_unique"'
-            end
-          end
-
-          result
+          raise ActiveRecord::RecordNotUnique,
+                'PG::UniqueViolation: duplicate key value violates unique constraint ' \
+                '"index_teachers_on_api_code_unique"'
         end
+
+        original.call
+      end
 
       expect { synchronizer.send(:update_teachers, teachers_data) }.not_to raise_error
 
+      # Houve exatamente uma colisão antes do retry bem-sucedido
+      expect(collisions).to eq(1)
       expect(Teacher.where(api_code: '12345').count).to eq(1)
 
-      # O retry deve ter sido executado (2 chamadas ao find_or_initialize_by)
-      expect(call_count).to eq(2)
+      # O retry encontrou o registro do outro worker e aplicou os dados da API
+      expect(Teacher.find_by(api_code: '12345').name).to eq('João Silva')
     end
   end
 end

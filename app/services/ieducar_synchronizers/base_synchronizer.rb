@@ -208,6 +208,13 @@ class BaseSynchronizer
     cache[api_code.to_s]
   end
 
+  # Remove um api_code do cache para forçar nova consulta ao banco.
+  # Necessário no retry de RecordNotUnique: o preload guardou nil porque o
+  # registro ainda não existia, mas outro worker o criou no meio do processo.
+  def reset_record(cache_ivar, api_code)
+    instance_variable_get(cache_ivar)&.delete(api_code.to_s)
+  end
+
   def preload_records(cache_ivar, model, api_codes, with_discarded: false)
     cache   = instance_variable_get(cache_ivar) || {}
     missing = api_codes.map(&:to_s).uniq.reject { |code| cache.key?(code) }

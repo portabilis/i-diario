@@ -22,6 +22,7 @@ class TeachersSynchronizer < BaseSynchronizer
       begin
         update_teacher_record(teacher_record)
       rescue ActiveRecord::RecordNotUnique
+        reset_record(:@teachers, teacher_record.servidor_id)
         retry
       end
     end
