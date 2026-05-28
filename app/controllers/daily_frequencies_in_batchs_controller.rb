@@ -373,7 +373,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       }
     end
 
-    if @students.blank?
+    if @students.blank? || all_students_inactive?(enrollment_classrooms, dates)
       flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
 
       redirect_to new_daily_frequencies_in_batch_path
@@ -649,12 +649,20 @@ nil, @period)
     )
   end
 
+  def all_students_inactive?(enrollment_classrooms, dates)
+    enrollment_classrooms.none? do |enrollment|
+      enrollment_classroom = enrollment[:student_enrollment_classroom]
+
+      dates.any? { |date| enrollment_classroom.active_on_date?(date) }
+    end
+  end
+
   def students_inactive_on_range(enrollment_classrooms, dates)
     inactives = []
 
     dates.each do |date|
       active_enrollments_classroom_ids = enrollment_classrooms.select do |enrollment|
-        enrollment.joined_at.to_date <= date && (enrollment.left_at.blank? || enrollment.left_at.to_date > date)
+        enrollment.active_on_date?(date)
       end.pluck(:id)
 
       next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
@@ -703,7 +711,10 @@ nil, @period)
   end
 
   def student_exempted_from_discipline_in_range(student_enrollments_ids, frequency_dates)
-    return if @discipline.blank?
+    return [] if student_enrollments_ids.blank?
+
+    discipline = @frequency_type == FrequencyTypes::GENERAL ? nil : @discipline
+    enrollment_to_student = StudentEnrollment.where(id: student_enrollments_ids).pluck(:id, :student_id).to_h
 
     exempteds = []
     steps = []
@@ -713,12 +724,14 @@ nil, @period)
     end
 
     steps.uniq.compact.each do |step_number|
-      students_exempteds = StudentEnrollmentExemptedDiscipline.where(student_enrollment_id: student_enrollments_ids)
-                                                              .by_discipline(@discipline.id)
-                                                              .by_step_number(step_number)
-                                                              .includes(student_enrollment: [:student])
-                                                              .pluck('students.id')
-      next if students_exempteds&.empty?
+      exempt_hash = StudentsExemptFromDiscipline.call(
+        student_enrollments: student_enrollments_ids,
+        discipline: discipline,
+        step: step_number,
+        classroom_id: @classroom.id
+      )
+      students_exempteds = exempt_hash.keys.map { |id| enrollment_to_student[id] }.compact
+      next if students_exempteds.empty?
 
       exempteds << { step_number: step_number, student_ids: students_exempteds }
     end

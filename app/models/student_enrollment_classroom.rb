@@ -148,4 +148,10 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
     scoped.where(students: { uses_differentiated_exam_rule: differentiated_exam_rule_included })
   end
+
+  def active_on_date?(date)
+    date = date.to_date
+
+    joined_at.to_date <= date && (left_at.blank? || left_at.to_date > date)
+  end
 end
