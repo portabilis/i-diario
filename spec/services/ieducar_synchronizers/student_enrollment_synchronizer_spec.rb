@@ -277,6 +277,9 @@ RSpec.describe StudentEnrollmentSynchronizer, type: :service do
 
         # Nenhuma matrícula nova é criada; apenas a existente, agora descartada
         expect(StudentEnrollment.with_discarded.where(api_code: '12345').count).to eq(1)
+
+        # E, descartada, não aparece mais no escopo padrão (kept)
+        expect(StudentEnrollment.where(api_code: '12345').count).to eq(0)
       end
     end
   end

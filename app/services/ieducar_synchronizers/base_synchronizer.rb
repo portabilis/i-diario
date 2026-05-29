@@ -209,8 +209,9 @@ class BaseSynchronizer
   end
 
   # Remove um api_code do cache para forçar nova consulta ao banco.
-  # Necessário no retry de RecordNotUnique: o preload guardou nil porque o
-  # registro ainda não existia, mas outro worker o criou no meio do processo.
+  # Necessário no retry de RecordNotUnique de api_code: o cache guardou nil
+  # porque o registro ainda não existia, mas outro worker o criou no meio do
+  # processo. Sem isso, o retry releria o nil obsoleto e tentaria recriar.
   def reset_record(cache_ivar, api_code)
     instance_variable_get(cache_ivar)&.delete(api_code.to_s)
   end

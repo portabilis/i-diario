@@ -27,7 +27,7 @@ class StudentsSynchronizer < BaseSynchronizer
     preload_students(students.map(&:aluno_id))
 
     students.each do |student_record|
-      next if student_record.nome_aluno.blank?
+      next if student_record.nome_aluno.blank? || student_record.aluno_id.blank?
 
       retries = 0
 
@@ -65,6 +65,11 @@ class StudentsSynchronizer < BaseSynchronizer
 
         retries += 1
         raise error if retries > MAX_RETRIES
+
+        Rails.logger.warn(
+          "StudentsSynchronizer: corrida em api_code=#{student_record.aluno_id} " \
+          "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RETRIES})"
+        )
 
         reset_record(:@students, student_record.aluno_id)
         retry

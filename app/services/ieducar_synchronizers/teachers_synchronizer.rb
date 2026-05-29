@@ -19,7 +19,7 @@ class TeachersSynchronizer < BaseSynchronizer
     preload_teachers(teachers.map(&:servidor_id))
 
     teachers.each do |teacher_record|
-      next if teacher_record.nome.blank?
+      next if teacher_record.nome.blank? || teacher_record.servidor_id.blank?
 
       retries = 0
 
@@ -30,6 +30,11 @@ class TeachersSynchronizer < BaseSynchronizer
 
         retries += 1
         raise error if retries > MAX_RETRIES
+
+        Rails.logger.warn(
+          "TeachersSynchronizer: corrida em api_code=#{teacher_record.servidor_id} " \
+          "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RETRIES})"
+        )
 
         reset_record(:@teachers, teacher_record.servidor_id)
         retry
