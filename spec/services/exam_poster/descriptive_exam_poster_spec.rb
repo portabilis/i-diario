@@ -1,32 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ExamPoster::DescriptiveExamPoster do
-  let!(:discipline) { create(:discipline) }
-
-  # Regra do 2º ano: não usa parecer descritivo (opinion_type DONT_USE)
   let(:rule_without_descriptive) { create(:exam_rule, opinion_type: OpinionTypes::DONT_USE) }
-  # Regra do 1º ano: usa parecer descritivo por etapa e componente
-  let(:rule_with_descriptive) do
-    create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
-  end
-
-  let!(:descriptive_exam) do
-    create(
-      :descriptive_exam,
-      :with_teacher_discipline_classroom,
-      discipline: discipline,
-      classroom: classroom,
-      opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE
-    )
-  end
-
-  let(:student) { create(:student) }
-
-  let!(:descriptive_exam_student) do
-    create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
-  end
-
-  let(:teacher) { Teacher.find(descriptive_exam.teacher_id) }
 
   let(:exam_posting) do
     create(
@@ -40,19 +15,44 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
   subject { described_class.new(exam_posting, Entity.first.id) }
 
   # Turma multisseriada: cada série tem seu próprio exam_rule. Aqui a série SEM
-  # parecer (2º ano) é cadastrada primeiro, ficando como classrooms_grades.first.
-  # Antes da correção, o poster usava `classroom.first_exam_rule` e barrava o envio.
+  # parecer é cadastrada primeiro e, por ter menor id, *tende* a ser retornada por
+  # `classrooms_grades.first` — mas a associação não tem `ORDER BY`, então essa ordem
+  # não é garantida. É justamente essa fragilidade do `first_exam_rule` que a correção
+  # elimina ao validar contra todas as séries da turma.
   context 'when classroom is multi-grade and the first grade does not use descriptive exam' do
+    let(:discipline) { create(:discipline) }
+    let(:rule_with_descriptive) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
+    end
+
     let!(:classroom) do
       create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
-        # 2º ano (sem parecer) cadastrado primeiro -> menor id -> classrooms_grades.first
+        # Série sem parecer cadastrada primeiro (menor id)
         create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_without_descriptive)
-        # 1º ano (com parecer descritivo) cadastrado depois
+        # Série com parecer descritivo cadastrada depois
         create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_with_descriptive)
       end
     end
 
-    it 'enqueues the request using the grade that allows descriptive exam' do
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: discipline, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'has the grade without descriptive exam as first_exam_rule (precondition for the regression)' do
+      expect(classroom.first_exam_rule).to eq(rule_without_descriptive)
+    end
+
+    it 'enqueues the request considering the grade that allows descriptive exam' do
       subject.post!
 
       request = {
@@ -77,29 +77,155 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
       }
 
       expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
-        Entity.first.id,
-        exam_posting.id,
-        request[:request],
-        request[:info],
-        'critical',
-        0
+        Entity.first.id, exam_posting.id, request[:request], request[:info], 'critical', 0
       )
     end
   end
 
-  # Garante que a correção não passou a enviar indevidamente: se NENHUMA série da
-  # turma usa parecer descritivo, o envio continua bloqueado.
+  # Caminho geral (sem disciplina): opinion_type by_step. Exercita post_by_step,
+  # que tem fonte de dados e shape de request distintos (sem discipline no info).
+  context 'when opinion type is by_step (general, without discipline)' do
+    let(:rule_with_descriptive) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_STEP)
+    end
+
+    let!(:classroom) do
+      create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
+        create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_with_descriptive)
+      end
+    end
+
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: nil, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_STEP)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'enqueues the general (per-step) request' do
+      subject.post!
+
+      request = {
+        info: {
+          classroom: classroom.api_code,
+          student: student.api_code
+        },
+        request: {
+          etapa: exam_posting.step.to_number,
+          resource: 'pareceres-por-etapa-geral',
+          pareceres: {
+            classroom.api_code => {
+              student.api_code => {
+                'valor' => descriptive_exam_student.value
+              }
+            }
+          }
+        }
+      }
+
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id, exam_posting.id, request[:request], request[:info], 'critical', 0
+      )
+    end
+  end
+
+  # Aluno que usa regra diferenciada: a regra base não usa parecer, mas a
+  # diferenciada sim. Cobre o ramo `if differentiated` do valid_opinion_type?.
+  context 'when the student uses a differentiated exam rule' do
+    let(:discipline) { create(:discipline) }
+    let(:differentiated_rule) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
+    end
+    let(:base_rule) do
+      create(:exam_rule, opinion_type: OpinionTypes::DONT_USE, differentiated_exam_rule: differentiated_rule)
+    end
+
+    let!(:classroom) do
+      create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
+        create(:classrooms_grade, classroom: new_classroom, exam_rule: base_rule)
+      end
+    end
+
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline, teacher: teacher)
+    end
+
+    let(:student) { create(:student, uses_differentiated_exam_rule: true) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: discipline, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'enqueues the request using the differentiated rule opinion type' do
+      subject.post!
+
+      request = {
+        info: {
+          classroom: classroom.api_code,
+          student: student.api_code,
+          discipline: discipline.api_code
+        },
+        request: {
+          etapa: exam_posting.step.to_number,
+          resource: 'pareceres-por-etapa-e-componente',
+          pareceres: {
+            classroom.api_code => {
+              student.api_code => {
+                discipline.api_code => {
+                  'valor' => descriptive_exam_student.value
+                }
+              }
+            }
+          }
+        }
+      }
+
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id, exam_posting.id, request[:request], request[:info], 'critical', 0
+      )
+    end
+  end
+
+  # Guarda contra envio indevido: se nenhuma série da turma usa parecer
+  # descritivo, nada é enfileirado.
   context 'when no grade in the classroom allows descriptive exam' do
+    let(:discipline) { create(:discipline) }
+
     let!(:classroom) do
       create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
         create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_without_descriptive)
       end
     end
 
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: discipline, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
     it 'does not enqueue any request' do
       subject.post!
 
-      expect(subject.instance_variable_get(:@requests)).to be_empty
+      expect(Ieducar::SendPostWorker.jobs).to be_empty
     end
   end
 end

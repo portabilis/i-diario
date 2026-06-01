@@ -218,9 +218,9 @@ module ExamPoster
 
     # Em turmas multisseriadas cada série tem seu próprio exam_rule (um por
     # classrooms_grade), e podem ter opinion_types diferentes (ex.: 1º ano usa
-    # parecer descritivo e 2º ano não). Por isso precisamos validar contra todas
-    # as regras da turma, e não apenas contra a primeira (classrooms_grades.first),
-    # cuja ordem depende apenas de qual série foi vinculada primeiro.
+    # parecer descritivo e 2º ano não). Validar usando apenas classrooms_grades.first
+    # (via first_exam_rule) era frágil: a ordem do .first depende de qual série foi
+    # vinculada primeiro, então o envio podia cair na regra da série errada.
     def valid_opinion_type?(differentiated, opinion_type, classroom)
       exam_rules_for(classroom).any? do |exam_rule|
         exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
@@ -230,7 +230,8 @@ module ExamPoster
 
     def exam_rules_for(classroom)
       @exam_rules_for ||= {}
-      @exam_rules_for[classroom.id] ||= classroom.classrooms_grades.map(&:exam_rule).compact
+      @exam_rules_for[classroom.id] ||=
+        classroom.classrooms_grades.includes(exam_rule: :differentiated_exam_rule).map(&:exam_rule).compact
     end
   end
 end
