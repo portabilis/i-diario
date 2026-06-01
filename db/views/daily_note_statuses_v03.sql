@@ -1,7 +1,8 @@
--- Essa view serve apenas para identificar e armazenar quais avaliações devem
--- conter o status `incomplete` e `complete`, considerando:
+-- Essa view serve apenas para identificar quais avaliações devem conter o
+-- status `incomplete` e `complete` (calculado em tempo de consulta, não é
+-- materializado), considerando:
 -- Nota de transferencia, Avaliação de isenção, Data de enturmação do aluno (entrada e saída),
--- Busca ativa (aluno em busca ativa na data da avaliação não deve ser considerado)
+-- Busca ativa (aluno em busca ativa na data da avaliação não deve ser considerado).
 SELECT outer_daily_notes.id AS daily_note_id,
   CASE
     WHEN (
@@ -46,22 +47,19 @@ SELECT outer_daily_notes.id AS daily_note_id,
                     )
                   )
                   AND student_enrollments.active = 1
-              )
-            )
-            AND NOT (
-              EXISTS (
-                SELECT 1
-                  FROM active_searches
-                  JOIN student_enrollments active_search_enrollments ON (
-                    active_searches.student_enrollment_id = active_search_enrollments.id
-                  )
-                  WHERE active_search_enrollments.student_id = daily_note_students.student_id
-                    AND active_searches.discarded_at IS NULL
-                    AND avaliations.test_date::date >= active_searches.start_date
-                    AND (
-                      active_searches.end_date IS NULL
-                      OR avaliations.test_date::date <= active_searches.end_date
+                  AND NOT (
+                    EXISTS (
+                      SELECT 1
+                        FROM active_searches
+                      WHERE active_searches.student_enrollment_id = student_enrollments.id
+                        AND active_searches.discarded_at IS NULL
+                        AND avaliations.test_date::date >= active_searches.start_date
+                        AND (
+                          active_searches.end_date IS NULL
+                          OR avaliations.test_date::date <= active_searches.end_date
+                        )
                     )
+                  )
               )
             )
           AND daily_notes.id = outer_daily_notes.id

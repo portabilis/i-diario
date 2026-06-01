@@ -77,6 +77,78 @@ RSpec.describe DailyNote, type: :model do
       end
     end
 
+    context 'when one student without note is in active search but another without note is not' do
+      it 'is incomplete' do
+        enroll_student(note: nil)
+        student_enrollment_in_active_search = enroll_student(note: nil)
+        create(
+          :active_search,
+          student_enrollment: student_enrollment_in_active_search,
+          start_date: test_date - 10.days,
+          end_date: nil
+        )
+
+        expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
+      end
+    end
+
+    context 'when the active search is on another enrollment of the student, outside the avaliation classroom' do
+      it 'is incomplete' do
+        student_enrollment = enroll_student(note: nil)
+        other_enrollment = create(:student_enrollment, student: student_enrollment.student)
+        create(
+          :active_search,
+          student_enrollment: other_enrollment,
+          start_date: test_date - 10.days,
+          end_date: nil
+        )
+
+        expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
+      end
+    end
+
+    context 'when the student without note has an active search starting after the test date' do
+      it 'is incomplete' do
+        student_enrollment = enroll_student(note: nil)
+        create(
+          :active_search,
+          student_enrollment: student_enrollment,
+          start_date: test_date + 1.day,
+          end_date: nil
+        )
+
+        expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
+      end
+    end
+
+    context 'when the active search starts exactly on the test date' do
+      it 'is complete' do
+        student_enrollment = enroll_student(note: nil)
+        create(
+          :active_search,
+          student_enrollment: student_enrollment,
+          start_date: test_date,
+          end_date: nil
+        )
+
+        expect(status).to eq(DailyNoteStatuses::COMPLETE)
+      end
+    end
+
+    context 'when the active search ends exactly on the test date' do
+      it 'is complete' do
+        student_enrollment = enroll_student(note: nil)
+        create(
+          :active_search,
+          student_enrollment: student_enrollment,
+          start_date: test_date - 5.days,
+          end_date: test_date
+        )
+
+        expect(status).to eq(DailyNoteStatuses::COMPLETE)
+      end
+    end
+
     context 'when the student without note has an active search that ended before the test date' do
       it 'is incomplete' do
         student_enrollment = enroll_student(note: nil)
