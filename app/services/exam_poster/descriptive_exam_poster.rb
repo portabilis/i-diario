@@ -112,7 +112,7 @@ module ExamPoster
           next unless not_posted?({ classroom: classroom, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
-            OpinionTypes::BY_STEP, classroom.first_exam_rule
+            OpinionTypes::BY_STEP, classroom
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code]['valor'] = exam.value
@@ -136,7 +136,7 @@ module ExamPoster
           next unless not_posted?({ classroom: classroom, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
-            OpinionTypes::BY_YEAR, classroom.first_exam_rule
+            OpinionTypes::BY_YEAR, classroom
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code]['valor'] = exam.value
@@ -167,7 +167,7 @@ module ExamPoster
           next unless valid_opinion_type?(
             exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_YEAR_AND_DISCIPLINE,
-            classroom.first_exam_rule
+            classroom
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]['valor'] = exam.value
@@ -206,7 +206,7 @@ module ExamPoster
           next unless valid_opinion_type?(
             exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_STEP_AND_DISCIPLINE,
-            classroom.first_exam_rule
+            classroom
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]['valor'] = exam.value
@@ -216,9 +216,21 @@ module ExamPoster
       descriptive_exams
     end
 
-    def valid_opinion_type?(differentiated, opinion_type, exam_rule)
-      exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
-      exam_rule.opinion_type == opinion_type
+    # Em turmas multisseriadas cada série tem seu próprio exam_rule (um por
+    # classrooms_grade), e podem ter opinion_types diferentes (ex.: 1º ano usa
+    # parecer descritivo e 2º ano não). Por isso precisamos validar contra todas
+    # as regras da turma, e não apenas contra a primeira (classrooms_grades.first),
+    # cuja ordem depende apenas de qual série foi vinculada primeiro.
+    def valid_opinion_type?(differentiated, opinion_type, classroom)
+      exam_rules_for(classroom).any? do |exam_rule|
+        exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
+        exam_rule.opinion_type == opinion_type
+      end
+    end
+
+    def exam_rules_for(classroom)
+      @exam_rules_for ||= {}
+      @exam_rules_for[classroom.id] ||= classroom.classrooms_grades.map(&:exam_rule).compact
     end
   end
 end
