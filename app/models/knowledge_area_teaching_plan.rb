@@ -46,7 +46,7 @@ class KnowledgeAreaTeachingPlan < ApplicationRecord
   }
 
   scope :order_by_grades, lambda {
-    joins(teaching_plan: :grade).order(Grade.arel_table[:description].desc)
+    joins(teaching_plan: :grade).order(Grade.arel_table[:description].asc)
   }
 
   validates :teaching_plan, presence: true

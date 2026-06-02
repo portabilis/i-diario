@@ -38,6 +38,9 @@ pt-BR:
         allows_copy_experience_fields_in_lesson_plans: "Permite copiar campos de experiência nos Planos de ensino e Planos de aula por disciplina"
         group_children_education: "Apresentar outras séries de Educação infantil na configuração de objetivos/habilidades da bncc"
         allow_class_number_on_content_records: "Permitir informar número de aula no Registro de conteúdos?"
+        allow_automatic_avaliation_recovery: "Habilitar checkbox (Criar recuperação desta avaliação?) no cadastro de avaliações numéricas"
+        always_send_email_on_daily_frequency_registration: "Enviar e-mail de confirmação do registro para todos os lançamentos de frequência"
+        allow_active_search_frequency: "Permitir lançamento de frequência para alunos em busca ativa"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."

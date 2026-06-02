@@ -8,8 +8,8 @@
         <thead>
           <tr>
             <th scope="col"></th>
-            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></th>
-            <th scope="col"><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></th>
+            <th scope="col"><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id'), input_html: { value: current_user_classroom.id } %></th>
+            <th scope="col"><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id'), input_html: { value: current_user_discipline.id } %></th>
             <th scope="colgroup" colspan="2">
               <%= f.input :by_date, as: :date, label: false,
                     placeholder: t('.by_date') %>

@@ -26,6 +26,8 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
   def update_school_calendars(school_calendars)
     create_yearly_school_term_type
 
+    preload_unities(school_calendars.map(&:escola_id))
+
     school_calendars.each do |school_calendar_record|
       unity_id = unity(school_calendar_record.escola_id).try(&:id)
 

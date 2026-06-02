@@ -23,3 +23,4 @@
 - ✅ Meu código segue o style guide. **[REQUIRED]**
 - ✅ Todos os testes novos e existentes estão passando. **[REQUIRED]**
 - ✅ Criei testes que cobrem minhas alterações.
+- ✅ Code review agêntico executado (`/cr-1` + `/cr-2` + `/cr-consolidate`) e findings endereçados/justificados (ver [docs/code-review-agentico.md](../docs/code-review-agentico.md)).

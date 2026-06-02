@@ -21,6 +21,9 @@ class SpecificStepsSynchronizer < BaseSynchronizer
   end
 
   def update_specific_steps(specific_steps)
+    preload_classrooms(specific_steps.map(&:turma_id).compact)
+    preload_disciplines(specific_steps.map(&:disciplina_id).compact)
+
     specific_steps.each do |specific_step_record|
       SpecificStep.with_discarded.find_or_initialize_by(
         classroom_id: classroom(specific_step_record.turma_id).try(:id),

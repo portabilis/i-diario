@@ -13,6 +13,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     set_options_by_user
+    set_filters
     set_knowledge_area_by_classroom(@classrooms.map(&:id))
 
     @knowledge_area_content_records = fetch_knowledge_area_content_records_by_user
@@ -135,7 +136,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     param_content_ids = params[:knowledge_area_content_record][:content_record_attributes][:content_ids] || []
     content_descriptions = params[:knowledge_area_content_record][:content_record_attributes][:content_descriptions] || []
     new_contents_ids = content_descriptions.map { |content_description|
-      Content.find_or_create_by!(description: content_description).id
+      Content.find_or_create_by_description!(content_description).id
     }
     param_content_ids + new_contents_ids
   end
@@ -211,8 +212,14 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
     @classrooms ||=  @fetch_linked_by_teacher[:classrooms]
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def set_filters
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_knowledge_area_id] ||= current_user_discipline.knowledge_area_id
   end
 end

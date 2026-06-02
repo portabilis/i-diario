@@ -1,0 +1,16 @@
+pt-BR:
+  services:
+    learning_objectives_and_skills_csv_parser:
+      malformed_csv: "CSV malformado: %{details}"
+      file_too_large: "Arquivo muito grande. O tamanho máximo permitido é 3MB."
+      header_not_found: "Cabeçalho não encontrado. A primeira coluna deve conter \"Código\"."
+      empty_file: "O arquivo CSV não contém linhas de dados. Adicione registros após o cabeçalho."
+      header_mismatch: "O cabeçalho do CSV não corresponde ao esperado para a etapa selecionada. Detalhes: %{details}."
+      format_mismatch: "O arquivo CSV não corresponde à etapa selecionada '%{selected_step}'. O CSV possui %{col_count} colunas, mas a etapa selecionada espera %{expected_cols} colunas. Cabeçalho detectado: %{header}"
+      step_not_recognized: "Etapa: '%{value}' não reconhecido para etapa '%{selected_step}'"
+      step_diverges: "Etapa do CSV '%{value}' diverge da etapa selecionada '%{selected_step}'"
+      step_wrong_file: "O arquivo CSV é da etapa '%{detected_step}', mas a etapa selecionada foi '%{selected_step}'. Selecione a etapa correta ou utilize o CSV correspondente."
+      field_not_recognized: "%{field}: '%{value}' não reconhecido para etapa '%{selected_step}'"
+      field_blank: "%{field} não pode ficar em branco"
+      grade_not_in_step: "Série '%{value}' não pertence à etapa selecionada '%{selected_step}'"
+      duplicate_code: "Código '%{code}' duplicado no CSV (primeira ocorrência na linha %{first_row})"

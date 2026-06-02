@@ -11,13 +11,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-    else
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-    end
-
-    @knowledge_area_lesson_plans = fetch_knowledge_area_by_user
+    set_options_by_user
+    set_filters
+    fetch_knowledge_area_lesson_plans
 
     if author_type.present?
       @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
@@ -30,7 +26,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def show
-    fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+    set_options_by_user
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
@@ -52,11 +48,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def new
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-    else
-      fetch_linked_by_teacher
-    end
+    set_options_by_user
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
@@ -108,14 +100,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def edit
-    fetch_linked_by_teacher
+    set_options_by_user
 
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
 
     authorize @knowledge_area_lesson_plan
 
     fetch_unities
-    fetch_classrooms if current_user.current_role_is_admin_or_employee?
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -147,10 +138,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+      set_options_by_user
 
       fetch_unities
-      fetch_classrooms if current_user.current_role_is_admin_or_employee?
       @knowledge_areas = fetch_knowledge_area
 
       render :edit
@@ -218,9 +208,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   private
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year)
     @classrooms = @fetch_linked_by_teacher[:classrooms]
-    @disciplines = @fetch_linked_by_teacher[:disciplines]
   end
 
   def content_ids
@@ -234,7 +224,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     end
 
     new_contents_ids = content_descriptions.each_with_index.map { |description, index|
-      content = Content.find_or_create_by!(description: description)
+      content = Content.find_or_create_by_description!(description)
       @knowledge_area_lesson_plan.lesson_plan.contents_created_at_position[content.id] =
         param_content_ids.size + index
 
@@ -354,15 +344,31 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     knowledge_areas
   end
 
-  def fetch_knowledge_area_by_user
-    apply_scopes(KnowledgeAreaLessonPlan
+  def fetch_knowledge_area_lesson_plans
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher)
+                                    .by_classroom_id(@classrooms.map(&:id))
+                                    .ordered
+
+    @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan
       .includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
       .by_classroom_id(@classrooms.map(&:id))
       .order_by_classrooms
-      .ordered).select(
-        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-        LessonPlan.arel_table[:start_at],
-        LessonPlan.arel_table[:end_at]
-      )
+      .ordered
+    ).select(
+      KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+      LessonPlan.arel_table[:start_at],
+      LessonPlan.arel_table[:end_at]
+    )
+  end
+
+  def set_filters
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_knowledge_area_id] ||= current_user_discipline.knowledge_area_id
+  end
+
+  def set_options_by_user
+    return fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
+
+    fetch_classrooms
   end
 end
