@@ -27,7 +27,7 @@ class StudentsSynchronizer < BaseSynchronizer
     preload_students(students.map(&:aluno_id))
 
     students.each do |student_record|
-      next if student_record.nome_aluno.blank? || student_record.aluno_id.blank?
+      next if student_record.nome_aluno.blank?
 
       retries = 0
 

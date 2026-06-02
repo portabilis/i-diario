@@ -19,7 +19,7 @@ class TeachersSynchronizer < BaseSynchronizer
     preload_teachers(teachers.map(&:servidor_id))
 
     teachers.each do |teacher_record|
-      next if teacher_record.nome.blank? || teacher_record.servidor_id.blank?
+      next if teacher_record.nome.blank?
 
       retries = 0
 
