@@ -26,15 +26,23 @@ module DailyFrequenciesInBatchsHelper
   end
 
   def student_statuses_for(student)
-    statuses = @additional_data.select { |data| data[:student_id] == student[:student][:id] }
-                               .map { |data| data[:status] }
+    student_additional_data = @additional_data.select { |data| data[:student_id] == student[:student][:id] }
+    statuses = student_additional_data.map { |data| data[:status] }
 
     {
       name: student[:student][:name],
-      inactive: statuses.include?(:inactive),
+      inactive: inactive_badge_for?(student, student_additional_data),
       dependence: statuses.include?(:dependence),
       exempted_from_discipline: statuses.include?(:exempted_from_discipline),
       in_active_search: statuses.include?(:active_search)
     }
+  end
+
+  def inactive_badge_for?(student, student_additional_data)
+    student_additional_data.any? do |data|
+      next false unless data[:status] == :inactive
+
+      !(student[:left_at].blank? && data[:date] >= student[:joined_at].to_date)
+    end
   end
 end
