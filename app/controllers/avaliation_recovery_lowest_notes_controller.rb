@@ -180,29 +180,15 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def fetch_data
     @students_lowest_note = StudentNotesInStepFetcher.new
+    @students = []
 
     reload_students_list
 
-    add_missing_students(fetch_students)
+    add_missing_students(fetch_students || [])
 
-    assign_display_sequence
+    StudentsDisplaySequencer.call(@students)
 
     @number_of_decimal_places = current_test_setting&.number_of_decimal_places
-  end
-
-  def assign_display_sequence
-    normal_sequence = 0
-    dependence_sequence = 0
-
-    @students.each do |student|
-      if student.dependence
-        dependence_sequence += 1
-        student.display_sequence = dependence_sequence
-      else
-        normal_sequence += 1
-        student.display_sequence = normal_sequence
-      end
-    end
   end
 
   def steps_fetcher
