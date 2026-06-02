@@ -288,22 +288,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         @students << note_student
     end
 
-    assign_display_sequence
-  end
-
-  def assign_display_sequence
-    normal_students = 0
-    dependence_students = 0
-
-    @students.each do |student|
-      if student.dependence
-        dependence_students += 1
-        student.display_sequence = dependence_students
-      else
-        normal_students += 1
-        student.display_sequence = normal_students
-      end
-    end
+    StudentsDisplaySequencer.call(@students)
   end
 
   def fetch_step_number(avaliation_recovery_diary_record, classroom_id, date)

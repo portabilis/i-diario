@@ -272,22 +272,7 @@ class ComplementaryExamsController < ApplicationController
 
     @complementary_exam.students.select { |student| !enrolled_student_ids.include?(student.student_id) }.each(&:mark_for_destruction)
 
-    assign_display_sequence
-  end
-
-  def assign_display_sequence
-    normal_sequence = 0
-    dependence_sequence = 0
-
-    @students.each do |student|
-      if student.dependence
-        dependence_sequence += 1
-        student.display_sequence = dependence_sequence
-      else
-        normal_sequence += 1
-        student.display_sequence = normal_sequence
-      end
-    end
+    StudentsDisplaySequencer.call(@students)
   end
 
   def mark_students_not_found_for_destruction
