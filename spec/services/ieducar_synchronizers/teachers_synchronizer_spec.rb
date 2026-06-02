@@ -142,4 +142,56 @@ RSpec.describe TeachersSynchronizer, type: :service do
       expect(Teacher.count).to eq(2)
     end
   end
+
+  describe 'race condition handling' do
+    let(:synchronizer) do
+      described_class.new(
+        synchronization: synchronization,
+        worker_batch: worker_batch,
+        worker_state: worker_state,
+        year: Date.current.year,
+        unity_api_code: Unity.first.api_code,
+        entity_id: Entity.first.id
+      )
+    end
+
+    let(:teachers_data) do
+      [double('teacher', nome: 'João Silva', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01')]
+    end
+
+    it 'handles race condition when another process inserts the same teacher between SELECT and INSERT' do
+      call_count = 0
+
+      allow(Teacher).to receive(:with_discarded).and_return(Teacher)
+
+      allow(Teacher).to receive(:find_or_initialize_by)
+        .with(api_code: '12345')
+        .and_wrap_original do |method, *args|
+          call_count += 1
+          result = method.call(*args)
+
+          # Na primeira chamada, simula a race: o INSERT do nosso worker bate
+          # na constraint do banco (outro worker comitou antes), levantando
+          # RecordNotUnique. Em paralelo, cria o registro "concorrente" para
+          # que o retry encontre-o e apenas atualize.
+          if call_count == 1 && result.new_record?
+            allow(result).to receive(:save!).and_wrap_original do |_original|
+              Teacher.create!(api_code: '12345', name: 'Criado por outro worker')
+              raise ActiveRecord::RecordNotUnique,
+                    'PG::UniqueViolation: duplicate key value violates unique constraint ' \
+                    '"index_teachers_on_api_code_unique"'
+            end
+          end
+
+          result
+        end
+
+      expect { synchronizer.send(:update_teachers, teachers_data) }.not_to raise_error
+
+      expect(Teacher.where(api_code: '12345').count).to eq(1)
+
+      # O retry deve ter sido executado (2 chamadas ao find_or_initialize_by)
+      expect(call_count).to eq(2)
+    end
+  end
 end

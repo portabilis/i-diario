@@ -19,6 +19,9 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   end
 
   def update_exempted_disciplines(exempted_disciplines)
+    preload_student_enrollments(exempted_disciplines.map(&:matricula_id).compact)
+    preload_disciplines(exempted_disciplines.map(&:disciplina_id).compact)
+
     changed_student_enrollment_exempted_disciplines = []
 
     exempted_disciplines.each do |exempted_discipline_record|

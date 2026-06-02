@@ -241,11 +241,15 @@ class AttendanceRecordReportForm
   def count_day?(daily_frequency, student_enrollment)
     frequency_date = daily_frequency.frequency_date
 
-    return false if in_active_search?(student_enrollment, frequency_date) ||
+    return false if (in_active_search?(student_enrollment, frequency_date) && !allow_active_search_frequency?) ||
                     inactive_on_date?(frequency_date, student_enrollment) ||
                     exempted_from_discipline?(daily_frequency, student_enrollment)
 
     true
+  end
+
+  def allow_active_search_frequency?
+    @allow_active_search_frequency ||= GeneralConfiguration.current.allow_active_search_frequency
   end
 
   def in_active_search?(student_enrollment, frequency_date)

@@ -41,6 +41,28 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
         expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).to exist
       end
     end
+
+    context 'when two orphaned groupers have different grade_ids' do
+      it 'destroys both groupers' do
+        second_grade = create(:grade)
+
+        grouper_link_a = create_link(
+          grouper_discipline,
+          api_code: "grouper:#{grouper_discipline.id}",
+          grade: grade
+        )
+        grouper_link_b = create_link(
+          grouper_discipline,
+          api_code: "grouper:#{grouper_discipline.id}",
+          grade: second_grade
+        )
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link_a.id)).not_to exist
+        expect(TeacherDisciplineClassroom.where(id: grouper_link_b.id)).not_to exist
+      end
+    end
   end
 
   describe '.destroy_duplicated_groupers' do

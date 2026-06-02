@@ -19,8 +19,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   end
 
   def update_teacher_discipline_classrooms(teacher_discipline_classrooms)
-    ActiveRecord::Base.transaction do
-      teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
+    all_disciplines = teacher_discipline_classrooms.flat_map(&:disciplinas)
+
+    preload_classrooms(teacher_discipline_classrooms.map(&:turma_id).compact)
+    preload_teachers(teacher_discipline_classrooms.map(&:servidor_id).compact)
+    preload_disciplines(all_disciplines.map(&:id).compact)
+    preload_grades(all_disciplines.map(&:serie_id).compact)
+
+    teacher_discipline_classrooms.each do |teacher_discipline_classroom_record|
+      ActiveRecord::Base.transaction do
         existing_discipline_api_codes = []
         created_linked_teachers = []
 
@@ -59,10 +66,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           end
         end
 
-        links_fake_disciplines = teacher_discipline_classroom_record if teacher_discipline_classroom_record.disciplinas.blank?
+        if teacher_discipline_classroom_record.disciplinas.blank?
+          links_fake_disciplines = teacher_discipline_classroom_record
+        end
 
         create_or_destroy_teacher_disciplines_classrooms(
-          created_linked_teachers, teacher_id, classroom_id,links_fake_disciplines)
+          created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines
+        )
 
         teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
           teacher_discipline_classroom_record,

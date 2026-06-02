@@ -21,6 +21,9 @@ class DeficienciesSynchronizer < BaseSynchronizer
 
   def update_deficiencies(deficiencies)
     unity_api_codes = unity_api_code.split(',')
+    preload_unities(unity_api_codes)
+    preload_students(deficiencies.flat_map(&:alunos))
+
     self.unity_id = unity_api_codes.map { |code| unity(code).try(:id) }
 
     deficiencies.each do |deficiency_record|

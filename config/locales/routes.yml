@@ -105,3 +105,7 @@ pt-BR:
     by_date_range: 'por-periodo'
     lessons_boards: 'quadro-de-aulas'
     generate_lesson_board_pdf: 'pdf-quadro-de-aulas'
+    import: 'importar'
+    import_history: 'historico-de-importacoes'
+    validate_csv: 'validar-csv'
+    csv_template: 'modelo-csv'

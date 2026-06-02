@@ -25,6 +25,14 @@ $(function(){
 
     clearTimeout(typingTimer);
 
+    // Se a turma mudou, limpa campos de aluno espefíficamente do conceptual_exams
+    if(e && e.target && e.target.id === 'filter_by_classroom_id') {
+      var $conceptualExamStudentField = $('.conceptual-exam-student-filter');
+      if($conceptualExamStudentField.length > 0) {
+        $conceptualExamStudentField.val('').trigger('change.select2');
+      }
+    }
+
     $.get(
       $('form.filterable_search_form').attr('action'),
       $('form.filterable_search_form').serialize(),
