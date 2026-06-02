@@ -1,4 +1,7 @@
 (function () {
+  // 'exempted' (dispensa da avaliação) e 'exempted-from-discipline' (dispensa da disciplina)
+  // compartilham o rótulo "Dispensado" de propósito — são situações distintas, diferenciadas
+  // pelo title e pela cor do badge (ver student_status_badge.scss). Não unificar.
   var STATUSES = {
     'active-search':            { label: 'Busca Ativa',   title: 'Aluno em busca ativa' },
     'dependence':               { label: 'Dependência',   title: 'Aluno cursando dependência' },
