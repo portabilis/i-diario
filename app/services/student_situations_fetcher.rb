@@ -45,6 +45,7 @@ class StudentSituationsFetcher
     StudentEnrollment.where(id: @enrollment_ids)
                      .by_classroom(@classroom)
                      .by_date(date)
+                     .status_attending
                      .pluck(:id)
                      .to_set
   end
