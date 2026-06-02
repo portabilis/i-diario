@@ -114,6 +114,65 @@ docker-compose exec puma bundle exec rake -T
 5. Multi-tenancy with Entity-based database connections
 6. Authorization with Pundit policies
 
+### Code Review Rules (used by agentic CR pipeline)
+
+Regras explícitas que os agentes de code review devem aplicar. Mudanças que violem essas regras devem ser sinalizadas como **Critical** ou **High**.
+
+#### Multi-tenant safety (Critical)
+- Cada Entity (rede educacional) tem o próprio banco — operações sempre devem rodar no contexto da Entity correta (`Entity.current` / `current_entity`)
+- Nunca usar `Model.find` ou `Model.where` em controllers/services sem garantir que estão no escopo da Entity ativa
+- Jobs em Sidekiq devem propagar a Entity corrente (`Entity.using(...)` ou padrão equivalente já estabelecido no projeto)
+- Operações cross-entity (rakes administrativos, jobs globais) devem ser explícitas e justificadas em comment
+
+#### Authorization (Pundit) (Critical)
+- Toda action de controller deve passar por uma policy Pundit (`authorize @record` ou `policy_scope(Model)`)
+- Não confiar em `params` sem strong parameters
+- `skip_before_action :authenticate_user!` (Devise) precisa de justificativa explícita
+- Nunca retornar dados de outra Entity através de associações ou IDs adivinháveis
+
+#### Service objects vs controllers (High)
+- Lógica de negócio complexa (>20 linhas ou múltiplas responsabilidades) deve estar em `/app/services/`, não em controllers
+- Controllers devem ser finos: parse de params, autorização, chamada de service, render de response
+- Models não devem conter lógica que orquestra múltiplos models — isso é responsabilidade de service
+- Queries complexas devem ir para `/app/queries/`, não inline no controller
+
+#### Background jobs (High)
+- Operações I/O-bound que demorem >2s (envio de email, processamento de arquivo, integração com i-Educar, geração de relatório) devem ir para Sidekiq workers em `/app/workers/`
+- Nunca bloquear request HTTP com operação demorada
+- Jobs devem ser idempotentes sempre que possível (Sidekiq pode fazer retry)
+
+#### Database migrations (Critical)
+- Usa `structure.sql` (não `schema.rb`) — confirmar que `db/structure.sql` foi commitado junto da migration
+- `add_column` com `NOT NULL` em tabela existente: usar default ou backfill em migration separada
+- `add_index` em tabela grande: usar `algorithm: :concurrently` e `disable_ddl_transaction!`
+- `remove_column` sempre em duas releases (ignorar no Rails primeiro com `ignored_columns`, depois remover)
+- Migrations devem ter rollback testável (`down` method ou `reversible`)
+- Migrações precisam ser compatíveis com o modelo multi-tenant (rodam por Entity)
+
+#### Performance (High)
+- Nada de N+1: usar `includes`, `preload`, `eager_load` em loops sobre AR collections
+- Queries CRUD em loops Ruby (`.each { |x| Model.update(...) }`) devem ser substituídas por bulk operations (`pluck`, `update_all`, `insert_all`)
+- **Exceção:** para apenas iterar coleções grandes (>1000 records) sem CRUD em loop, usar `find_each` em vez de `each` (batching otimizado)
+- Adicionar índice para colunas usadas em `WHERE`/`JOIN`/`ORDER BY` em tabelas grandes (matrículas, frequências, notas)
+
+#### Error handling (High)
+- Proibido `rescue => e` vazio ou apenas com log (silent failure)
+- `rescue` deve capturar exceções específicas, não `StandardError` genérico
+- Usar `Rails.logger.error` (ou equivalente) com contexto suficiente (IDs, parâmetros relevantes)
+- Não usar `rescue nil` ou `rescue` para silenciar erros esperados — tratar explicitamente
+- Honeybadger é o tracker oficial — exceções não silenciadas devem chegar lá com contexto
+
+#### Auditoria de dados sensíveis (Medium)
+- Mudanças em models com tracking de auditoria (Audited gem) devem manter `audited` ativo
+- Operações em massa (`update_columns`, `update_all`, `delete_all`) pulam validations/callbacks/audit — usar apenas quando justificado e documentado em comment
+
+#### Testing (High)
+- Toda lógica nova em service/model/query precisa de teste RSpec
+- Tests devem usar FactoryBot, não fixtures
+- Não usar `save(validate: false)` em testes para "fazer passar" — corrigir o setup
+- Testes JavaScript críticos com Jest (`spec/javascript/`)
+- E2E (Playwright em `spec/e2e/`) só para fluxos críticos de usuário, em pt-BR
+
 ### Database Notes
 - Uses `structure.sql` instead of `schema.rb`
 - Multi-tenant architecture with Entity-specific databases
@@ -129,6 +188,20 @@ docker-compose exec puma bundle exec rake -T
 - Acceptance tests in `/spec/acceptance/` (usually excluded)
 - **Jest** with jsdom for JavaScript unit tests (`spec/javascript/`)
 - **Playwright** for E2E browser tests (`spec/e2e/`) — see [docs/testes-e2e.md](docs/testes-e2e.md)
+
+## Code Review Workflow
+
+**⚠️ RECOMENDADO: Todo PR deve passar pelo fluxo de code review agêntico ANTES de pedir review humano.**
+
+Três comandos em sequência (instâncias Claude limpas, paralelizável entre 1 e 2):
+
+1. `/cr-1 <PR>` → `./tmp/cr_1_<PR>.md`
+2. `/cr-2 <PR>` → `./tmp/cr_2_<PR>.md`
+3. `/cr-consolidate <PR>` → comment consolidado no PR
+
+Dev aplica fixes manualmente (com awareness), justifica os que não vai aplicar, responde no PR com resumo. Review humano segue normal.
+
+**Detalhes, severidades, troubleshooting:** [docs/code-review-agentico.md](docs/code-review-agentico.md)
 
 ## Important Notes
 
