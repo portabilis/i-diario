@@ -129,6 +129,8 @@ class ComplementaryExamsController < ApplicationController
   end
 
   def fetch_students
+    return if params[:classroom_id].blank? || params[:discipline_id].blank? || params[:date].blank?
+
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
     date = params[:date].to_date
