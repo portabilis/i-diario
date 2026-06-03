@@ -11,6 +11,8 @@ class RecoveryDiaryRecordStudent < ApplicationRecord
   belongs_to :recovery_diary_record
   belongs_to :student
 
+  before_save :discard_score_change_for_inactive_student
+
   default_scope -> { kept }
 
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
@@ -42,6 +44,17 @@ class RecoveryDiaryRecordStudent < ApplicationRecord
   end
 
   private
+
+  def discard_score_change_for_inactive_student
+    self.score = score_was if score_changed? && !student_enrolled_on_recorded_at?
+  end
+
+  def student_enrolled_on_recorded_at?
+    recovery = recovery_diary_record
+    return true if student_id.blank? || recovery&.classroom_id.blank? || recovery&.recorded_at.blank?
+
+    recovery.enrolled_student_ids_on_recorded_at.include?(student_id)
+  end
 
   def maximum_score_for_school_term_recovery
     if recovery_diary_record.classroom.first_exam_rule.recovery_type == RecoveryTypes::SPECIFIC
