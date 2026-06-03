@@ -23,16 +23,9 @@ module ConceptualExamHelper
 
     @conceptual_exam_dependence_discipline_ids =
       if @conceptual_exam&.student_id && @conceptual_exam.classroom
-        enrollment = StudentEnrollment.by_student(@conceptual_exam.student_id)
-                                      .by_classroom(@conceptual_exam.classroom_id)
-                                      .by_year(@conceptual_exam.classroom.year)
-                                      .first
-
-        if enrollment
-          StudentEnrollmentDependence.by_student_enrollment(enrollment.id).pluck(:discipline_id).to_set
-        else
-          Set.new
-        end
+        StudentEnrollmentDependence.discipline_ids_for(
+          @conceptual_exam.student_id, @conceptual_exam.classroom_id
+        ).to_set
       else
         Set.new
       end

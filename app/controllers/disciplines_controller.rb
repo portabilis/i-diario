@@ -41,7 +41,7 @@ class DisciplinesController < ApplicationController
                                  .where(id: disciplines_in_grade_ids)
 
       # Aluno de dependência só pode lançar na(s) disciplina(s) que cursa a dependência.
-      dependency_discipline_ids = student_dependency_discipline_ids(params[:student_id], classroom.id)
+      dependency_discipline_ids = StudentEnrollmentDependence.discipline_ids_for(params[:student_id], classroom.id)
       @disciplines = @disciplines.where(id: dependency_discipline_ids) if dependency_discipline_ids.present?
     end
 
@@ -94,14 +94,5 @@ class DisciplinesController < ApplicationController
         text: discipline.description.to_s
       )
     end
-  end
-
-  private
-
-  def student_dependency_discipline_ids(student_id, classroom_id)
-    enrollment_ids = StudentEnrollment.by_student(student_id).by_classroom(classroom_id).pluck(:id)
-    return [] if enrollment_ids.blank?
-
-    StudentEnrollmentDependence.where(student_enrollment_id: enrollment_ids).pluck(:discipline_id)
   end
 end
