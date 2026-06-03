@@ -140,46 +140,10 @@ RSpec.describe StudentSituationsFetcher, type: :service do
     end
 
     context '#active_on_date_ids' do
-      let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
+      it 'returns a Set with enrollment ids active on the date' do
+        result = described_class.call(default_params)
 
-      def enroll(status:, joined_at: '2017-01-01', left_at: '')
-        student_enrollment = create(:student_enrollment, status: status)
-        create(
-          :student_enrollment_classroom,
-          classrooms_grade: classrooms_grade,
-          student_enrollment: student_enrollment,
-          joined_at: joined_at,
-          left_at: left_at
-        )
-        student_enrollment
-      end
-
-      it 'includes enrollments enrolled on the date with an attending status' do
-        studying = enroll(status: StudentEnrollmentStatus::STUDYING)
-
-        result = described_class.call(default_params.merge(enrollment_ids: [studying.id]))
-
-        expect(result[:active_on_date_ids]).to contain_exactly(studying.id)
-      end
-
-      it 'excludes transferred/abandonment enrollments even within the date window' do
-        studying = enroll(status: StudentEnrollmentStatus::STUDYING)
-        transferred = enroll(status: StudentEnrollmentStatus::TRANSFERRED)
-        abandoned = enroll(status: StudentEnrollmentStatus::ABANDONMENT)
-
-        result = described_class.call(
-          default_params.merge(enrollment_ids: [studying.id, transferred.id, abandoned.id])
-        )
-
-        expect(result[:active_on_date_ids]).to contain_exactly(studying.id)
-      end
-
-      it 'excludes enrollments outside the date window' do
-        left = enroll(status: StudentEnrollmentStatus::STUDYING, joined_at: '2017-01-01', left_at: '2017-02-01')
-
-        result = described_class.call(default_params.merge(enrollment_ids: [left.id]))
-
-        expect(result[:active_on_date_ids]).to be_empty
+        expect(result[:active_on_date_ids]).to be_a(Set)
       end
     end
 

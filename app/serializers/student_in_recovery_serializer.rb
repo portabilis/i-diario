@@ -24,8 +24,7 @@ class StudentInRecoverySerializer < ActiveModel::Serializer
   end
 
   def active
-    classroom_enrollment_id = @serialization_options[:classroom_enrollment_by_enrollment][object.id]
-    @serialization_options[:active_classroom_enrollment_ids].include?(classroom_enrollment_id)
+    @serialization_options[:active_enrollment_ids].include?(object.id)
   end
 
   def dependence

@@ -84,8 +84,7 @@ class StudentsController < ApplicationController
            discipline: builder.discipline,
            step: builder.step,
            number_of_decimal_places: builder.number_of_decimal_places,
-           active_classroom_enrollment_ids: builder.active_classroom_enrollment_ids,
-           classroom_enrollment_by_enrollment: builder.classroom_enrollment_by_enrollment,
+           active_enrollment_ids: builder.active_enrollment_ids,
            dependencies: builder.dependencies,
            exemptions: builder.exemptions,
            active_search_enrollment_ids: builder.active_search_enrollment_ids
