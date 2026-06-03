@@ -1,3 +1,6 @@
+# Calcula, em lote, as situações dos alunos (dependência, dispensa, ativo na data e busca ativa)
+# a partir de uma lista de enrollment_ids.
+
 class StudentSituationsFetcher
   def self.call(params)
     new(params).call

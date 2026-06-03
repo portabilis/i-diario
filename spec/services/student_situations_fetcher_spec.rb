@@ -94,6 +94,23 @@ RSpec.describe StudentSituationsFetcher, type: :service do
 
         expect(result[:exemptions][enrollment.id]).to eq(1)
       end
+
+      it 'includes only the exempt enrollment, not the others (presence-based)' do
+        not_exempt_enrollment = create(:student_enrollment)
+        create(
+          :student_enrollment_exempted_discipline,
+          student_enrollment: enrollment,
+          discipline: discipline,
+          steps: '1'
+        )
+
+        result = described_class.call(
+          default_params.merge(enrollment_ids: [enrollment.id, not_exempt_enrollment.id], step_number: 1)
+        )
+
+        expect(result[:exemptions]).to have_key(enrollment.id)
+        expect(result[:exemptions]).not_to have_key(not_exempt_enrollment.id)
+      end
     end
 
     context 'parameter validation' do
