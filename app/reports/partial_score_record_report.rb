@@ -2,6 +2,7 @@ require 'action_view'
 
 class PartialScoreRecordReport < BaseReport
   include ActionView::Helpers::NumberHelper
+  include StudentSituationMarkers
 
   def self.build(entity_configuration, year, school_calendar_step, students, unity, classroom, test_setting)
     new.build(entity_configuration, year, school_calendar_step, students, unity, classroom, test_setting)
@@ -108,10 +109,10 @@ class PartialScoreRecordReport < BaseReport
         student_note = nil
 
         if exempted_avaliation?(student.id, avaliation.id)
-          student_note = 'D'
+          student_note = EXEMPTED
           @show_subtitles = true
         elsif in_active_search?(student.id, avaliation.test_date)
-          student_note = 'BA'
+          student_note = ACTIVE_SEARCH
           @show_subtitles = true
           @active_search = true
         else
@@ -125,7 +126,7 @@ class PartialScoreRecordReport < BaseReport
           student_note = [daily_note, recovery_diary_record_note].compact.max ||
                          empty_note_mark(student, avaliation, recovery_diary_record)
 
-          @show_subtitles = true if student_note == 'N'
+          @show_subtitles = true if student_note == NOT_ENROLLED
 
           student_note = localize_score(student_note)
         end
@@ -137,14 +138,14 @@ class PartialScoreRecordReport < BaseReport
         if in_active_search?(student.id, complementary_exam.recorded_at)
           @show_subtitles = true
           @active_search = true
-          discipline_scores << 'BA'
+          discipline_scores << ACTIVE_SEARCH
           next
         end
 
         student_score = complementary_exam.students.by_student_id(student.id).first.try(:score)
 
-        student_score ||= enrolled_in_date?(complementary_exam.recorded_at, student.id) ? '-' : 'N'
-        @show_subtitles = true if student_score == 'N'
+        student_score ||= enrolled_in_date?(complementary_exam.recorded_at, student.id) ? WITHOUT_NOTE : NOT_ENROLLED
+        @show_subtitles = true if student_score == NOT_ENROLLED
 
         discipline_scores << localize_score(student_score)
       end
@@ -171,12 +172,12 @@ class PartialScoreRecordReport < BaseReport
       row << make_cell(content: discipline.to_s, align: :left, size: 10, width: 156, borders: [:left, :right, :bottom], padding: [4, 4, 4, 4])
 
       number_of_scores.times do |i|
-        score = exempted_from_discipline ? 'D' : scores[i] || '-'
+        score = exempted_from_discipline ? EXEMPTED : scores[i] || WITHOUT_NOTE
 
-        # Aluno em dependência: exibe "DP" nas avaliações sem nota lançada,
+        # Aluno em dependência: exibe DEPENDENCE ("DP") nas avaliações sem nota lançada,
         # preservando a nota real onde houver.
         if in_dependence && score_without_note?(score)
-          score = 'DP'
+          score = DEPENDENCE
           @show_subtitles = true
           @any_dependence = true
         end
@@ -233,16 +234,17 @@ class PartialScoreRecordReport < BaseReport
   end
 
   def subtitles_legend
-    legend = 'Legendas: N - Não enturmado, D - Dispensado da avaliação ou disciplina'
-    legend += ', BA - Aluno em Busca Ativa' if @active_search
-    legend += ', DP - Aluno cursando dependência' if @any_dependence
+    legend = "Legendas: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da avaliação ou disciplina"
+    legend += ", #{ACTIVE_SEARCH} - Aluno em Busca Ativa" if @active_search
+    legend += ", #{DEPENDENCE} - Aluno cursando dependência" if @any_dependence
     legend
   end
 
-  # Considera "sem nota" a célula vazia, marcada como não enturmado ('N')
-  # ou sem nota lançada ('-') — nesses casos exibe "DP" para o aluno em dependência.
+  # Considera "sem nota" a célula vazia, marcada como não enturmado (NOT_ENROLLED)
+  # ou sem nota lançada (WITHOUT_NOTE, '-') — nesses casos exibe DEPENDENCE ("DP")
+  # para o aluno em dependência.
   def score_without_note?(score)
-    score.blank? || score == 'N' || score == '-'
+    score.blank? || score == NOT_ENROLLED || score == WITHOUT_NOTE
   end
 
   def student_in_dependence?(student_id, discipline_id)
@@ -343,9 +345,9 @@ class PartialScoreRecordReport < BaseReport
   def empty_note_mark(student, avaliation, recovery_diary_record)
     if enrolled_in_date?(avaliation.test_date, student.id) ||
        enrolled_in_date?(recovery_diary_record&.test_date, student.id)
-      '-'
+      WITHOUT_NOTE
     else
-      'N'
+      NOT_ENROLLED
     end
   end
 end

@@ -2,6 +2,7 @@ require 'action_view'
 
 class ExamRecordReport < BaseReport
   include ActionView::Helpers::NumberHelper
+  include StudentSituationMarkers
 
   # This number represent how many students are printed on each page
   STUDENT_BY_PAGE_COUNT = 25
@@ -199,7 +200,7 @@ align: :center, width: 55)
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student.id,
 avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
-            @averages[student_enrollment.id] = "D" if exempted_from_discipline
+            @averages[student_enrollment.id] = EXEMPTED if exempted_from_discipline
           elsif in_active_search
             @active_search = true
             student_note = ActiveSearchDailyNoteStudent.new
@@ -248,7 +249,7 @@ recovery_diary_record_id: exam.recovery_diary_record_id)
           students[student_enrollment.id][:dependence] =
             students[student_enrollment.id][:dependence] || student_in_dependence
 
-          score = 'DP' if student_in_dependence && score_without_note?(score)
+          score = DEPENDENCE if student_in_dependence && score_without_note?(score)
 
           (students[student_enrollment.id][:scores] ||= []) << make_cell(content: localize_score(score),
 align: :center)
@@ -488,9 +489,9 @@ background_color: 'FFFFFF', align: :center, width: 30)
 
         draw_text('Data:', size: 8, style: :bold, at: [559, 0])
         draw_text('________________', size: 8, at: [581, 0])
-        legend = 'Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina'
-        legend += ', BA - Aluno em Busca Ativa' if @active_search
-        legend += ', DP - Aluno cursando dependência' if any_student_with_dependence
+        legend = "Legendas: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da avaliação ou da disciplina"
+        legend += ", #{ACTIVE_SEARCH} - Aluno em Busca Ativa" if @active_search
+        legend += ", #{DEPENDENCE} - Aluno cursando dependência" if any_student_with_dependence
         draw_text(legend, size: 8, style: :bold, at: [0, 17])
         draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if any_student_with_dependence
       end
@@ -542,7 +543,7 @@ background_color: 'FFFFFF', align: :center, width: 30)
   end
 
   def score_without_note?(score)
-    score.blank? || score == NullDailyNoteStudent.new.note
+    score.blank? || score == NOT_ENROLLED
   end
 
   def exam_description(record)

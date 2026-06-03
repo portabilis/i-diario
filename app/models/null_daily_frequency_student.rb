@@ -8,6 +8,6 @@ class NullDailyFrequencyStudent
   end
 
   def to_s
-    'N'
+    StudentSituationMarkers::NOT_ENROLLED
   end
 end

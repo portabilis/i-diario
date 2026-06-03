@@ -1,4 +1,6 @@
 class AttendanceRecordReport < BaseReport
+  include StudentSituationMarkers
+
   # Número de alunos impressos por página
   STUDENT_BY_PAGE_COUNT = 29
 
@@ -72,7 +74,7 @@ class AttendanceRecordReport < BaseReport
       @classrooms[df.classroom_id] = df.classroom if df.classroom
     end
 
-    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
+    self.legend = "Legenda: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da disciplina, FJ - Falta justificada"
 
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
@@ -242,7 +244,7 @@ class AttendanceRecordReport < BaseReport
 
             if @show_legend_active_search && !@exists_active_search
               @exists_active_search = true
-              self.legend += ', BA - Aluno em Busca Ativa'
+              self.legend += ", #{ACTIVE_SEARCH} - Aluno em Busca Ativa"
             end
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
@@ -413,7 +415,7 @@ class AttendanceRecordReport < BaseReport
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
+      self.legend = "Legenda: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da disciplina, FJ - Falta justificada"
 
       if index < sliced_frequencies_and_events.count - 1
         start_new_page
