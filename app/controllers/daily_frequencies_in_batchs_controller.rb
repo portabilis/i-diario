@@ -455,6 +455,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
           end
         end
         if exempteds_from_discipline.any?
+          # A dispensa da disciplina é por ETAPA (não por dia): por isso o casamento usa o
+          # step_number da data, marcando o aluno dispensado em todos os dias daquela etapa.
           exempteds_from_discipline.each do |exempted_from_discipline|
             next if exempted_from_discipline[:step_number] != date_step_number ||
                     !exempted_from_discipline[:student_ids].include?(student_id)

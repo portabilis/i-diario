@@ -92,7 +92,8 @@ $(function () {
     }
   };
 
-  // Matrículas de dependência ficam após as matrículas regulares, com sequencial próprio.
+  // Matrículas de dependência ficam após as matrículas regulares, com sequencial próprio: a
+  // numeração dos dependentes reinicia em 1 (independente da numeração dos regulares).
   function sortEnrollmentsForDependence(student_enrollments_lists) {
     var normals = [];
     var dependents = [];
