@@ -152,22 +152,16 @@ class ConceptualExamsController < ApplicationController
   end
 
   def dependence_disciplines
-    classroom = Classroom.find(params[:classroom_id])
-    enrollment = StudentEnrollment.by_student(params[:student_id])
-                                  .by_classroom(classroom.id)
-                                  .by_year(classroom.year)
-                                  .first
-    discipline_ids = if enrollment
-                       StudentEnrollmentDependence.by_student_enrollment(enrollment.id)
-                                                  .pluck(:discipline_id)
-                     else
-                       []
-                     end
+    return if params[:classroom_id].blank? || params[:student_id].blank?
+
+    discipline_ids = StudentEnrollmentDependence.discipline_ids_for(params[:student_id], params[:classroom_id])
 
     render json: { discipline_ids: discipline_ids }
   end
 
   def fetch_students
+    return if params[:classroom_id].blank? || params[:discipline_id].blank? || params[:date].blank?
+
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
     date = params[:date].to_date
@@ -454,17 +448,10 @@ class ConceptualExamsController < ApplicationController
       .where.not(id: exempted_discipline_ids)
       .where(id: disciplines_in_grade)
 
-    dependency_discipline_ids = student_dependency_discipline_ids
+    dependency_discipline_ids = StudentEnrollmentDependence.discipline_ids_for(
+      @conceptual_exam.student_id, @conceptual_exam.classroom_id
+    )
     @disciplines = @disciplines.where(id: dependency_discipline_ids) if dependency_discipline_ids.present?
-  end
-
-  def student_dependency_discipline_ids
-    enrollment_ids = StudentEnrollment.by_student(@conceptual_exam.student_id)
-                                      .by_classroom(@conceptual_exam.classroom_id)
-                                      .pluck(:id)
-    return [] if enrollment_ids.blank?
-
-    StudentEnrollmentDependence.where(student_enrollment_id: enrollment_ids).pluck(:discipline_id)
   end
 
   def disciplines_in_grade
@@ -521,6 +508,8 @@ class ConceptualExamsController < ApplicationController
 
       @students = Student.where(id: @student_ids).ordered
     end
+
+    @students
   end
 
   def respond_to_save
