@@ -76,7 +76,7 @@ class SynchronizationOrchestrator
       params.slice(
         :entity_id,
         :current_years,
-        :synchronization
+        :synchronization_id
       ).merge(
         klass: synchronizer[:klass],
         worker_batch_id: worker_batch.id,
