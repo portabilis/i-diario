@@ -37,6 +37,7 @@ class AvaliationsController < ApplicationController
     @avaliation.classroom = current_user_classroom
     @avaliation.discipline = current_user_discipline
     @avaliation.test_date = Time.zone.today
+    @avaliation.should_create_recovery = @allow_automatic_avaliation_recovery
 
     fetch_disciplines_by_classroom
 
@@ -64,6 +65,12 @@ class AvaliationsController < ApplicationController
     @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
     @avaliation_multiple_creator_form.unity_id = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
+
+    return unless @allow_automatic_avaliation_recovery
+
+    @avaliation_multiple_creator_form.avaliations.each do |avaliation|
+      avaliation.should_create_recovery = true
+    end
   end
 
   def create_multiple_classrooms

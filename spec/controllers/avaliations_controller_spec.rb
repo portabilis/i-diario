@@ -77,6 +77,40 @@ RSpec.describe AvaliationsController, type: :controller do
           expect(response).not_to redirect_to(avaliations_path)
         end
       end
+
+      # Quando a configuracao geral permite recuperacao automatica, o checkbox
+      # "Criar recuperacao desta avaliacao" deve vir marcado por padrao.
+      context 'when allow_automatic_avaliation_recovery is enabled' do
+        before do
+          entity.using_connection do
+            GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+          end
+        end
+
+        it 'marks should_create_recovery as true by default' do
+          entity.using_connection do
+            get :new, params: { locale: 'pt-BR' }
+
+            expect(assigns(:avaliation).should_create_recovery).to eq(true)
+          end
+        end
+      end
+
+      context 'when allow_automatic_avaliation_recovery is disabled' do
+        before do
+          entity.using_connection do
+            GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+          end
+        end
+
+        it 'leaves should_create_recovery as false' do
+          entity.using_connection do
+            get :new, params: { locale: 'pt-BR' }
+
+            expect(assigns(:avaliation).should_create_recovery).to eq(false)
+          end
+        end
+      end
     end
   end
 end
