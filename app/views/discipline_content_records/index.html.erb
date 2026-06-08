@@ -7,13 +7,16 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-           <th scope="col">
+            <th scope="col"></th>
+            <th scope="col">
               <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
-                    label: false, placeholder: t('.by_classroom_description') %>
+                           label: false, placeholder: t('.by_classroom_description'),
+                           input_html: { value: current_user_classroom.id } %>
             </th>
             <th scope="col">
               <%= f.input :by_discipline_id, as: :select2, elements: @disciplines,
-                    label: false, placeholder: t('.by_discipline_description') %>
+                           label: false, placeholder: t('.by_discipline_description'),
+                           input_html: { value: current_user_discipline.id } %>
             </th>
             <th scope="col"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></th>
             <th scope="col">
@@ -31,6 +34,7 @@
           </tr>
 
           <tr>
+            <th scope="col"><%= ContentRecord.human_attribute_name :unity %></th>
             <th scope="col"><%= ContentRecord.human_attribute_name :classroom %></th>
             <th scope="col"><%= DisciplineContentRecord.human_attribute_name :discipline %>
             <th scope="col"><%= ContentRecord.human_attribute_name :record_date %></th>

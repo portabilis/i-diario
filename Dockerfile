@@ -18,9 +18,12 @@ RUN apt-get install -y \
     build-essential \
     git \
     libpq-dev \
-    nodejs \
-    npm \
-    shared-mime-info
+    shared-mime-info \
+    curl
+
+# Install Node.js 22 LTS via NodeSource (replaces Debian's outdated Node 10.x)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
 
 RUN apt-get clean
 RUN npm i -g yarn

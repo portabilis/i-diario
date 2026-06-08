@@ -1,0 +1,202 @@
+<div class="alert alert-info">
+  <strong><%= t('learning_objectives_and_skills.import.selected_step') %>:</strong>
+  <%= t("learning_objectives_and_skills.import.#{@selected_step}") %>
+  <strong>|</strong>
+  <strong><%= t('learning_objectives_and_skills.import.import_mode_label') %>:</strong>
+  <%= @import_mode == 'replace' ?
+    t('learning_objectives_and_skills.import.mode_replace') :
+    t('learning_objectives_and_skills.import.mode_add_new') %>
+  <br>
+  <strong><%= t('learning_objectives_and_skills.import.total_records') %>:</strong>
+  <%= @records.size %>
+  <strong>| <%= t('learning_objectives_and_skills.import.grades_found') %>:</strong>
+  <%= @grades_summary&.size || 0 %>
+  <% if @parse_errors&.any? %>
+    <br>
+    <span class="text-danger">
+      <strong><%= t('learning_objectives_and_skills.import.records_with_errors') %>:</strong>
+      <%= @parse_errors.size %>
+    </span>
+  <% end %>
+</div>
+
+<% if @parse_errors&.any? %>
+  <div class="alert alert-danger">
+    <i class="fa fa-exclamation-triangle"></i>
+    <strong><%= t('learning_objectives_and_skills.import.parsing_errors_title') %></strong>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th><%= t('learning_objectives_and_skills.import.row') %></th>
+          <th><%= t('learning_objectives_and_skills.import.field') %></th>
+          <th><%= t('learning_objectives_and_skills.import.original_value') %></th>
+          <th><%= t('learning_objectives_and_skills.import.problem') %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @parse_errors.each do |error| %>
+          <tr class="danger">
+            <td><%= error[:row] %></td>
+            <td><%= error[:field] %></td>
+            <td><%= content_tag(:code, error[:original_value]) if error[:original_value].present? %></td>
+            <td><%= error[:message] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<% if @records.any? && !@parse_errors&.any? && @grades_summary.present? %>
+  <% total_conflicts = @grades_summary.sum { |s| s[:conflicting_codes].size } %>
+  <% cross_grade_conflicts = @cross_grade_conflicts.to_a %>
+  <% has_cross_grade_conflicts = cross_grade_conflicts.any? %>
+
+  <%= form_tag confirm_import_learning_objectives_and_skills_path, method: :post do %>
+    <%= hidden_field_tag :cache_key, @cache_key %>
+    <%= hidden_field_tag :import_mode, @import_mode %>
+
+    <legend style="padding-top: 15px;"><%= t('learning_objectives_and_skills.import.grades_summary_title') %></legend>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th><%= t('learning_objectives_and_skills.import.grade') %></th>
+          <th><%= t('learning_objectives_and_skills.import.csv_records') %></th>
+          <th><%= t('learning_objectives_and_skills.import.existing_records') %></th>
+          <th><%= t('learning_objectives_and_skills.import.observations') %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @grades_summary.each do |summary| %>
+          <tr>
+            <td><%= summary[:grade_label] %></td>
+            <td>
+              <span class="label label-info"><%= summary[:csv_count] %></span>
+            </td>
+            <td>
+              <% if summary[:existing_count] > 0 %>
+                <span class="label label-warning"><%= summary[:existing_count] %></span>
+              <% else %>
+                <span class="label label-default">0</span>
+              <% end %>
+            </td>
+            <td>
+              <% if @import_mode == 'add_new' && summary[:conflicting_codes].any? %>
+                <span class="text-danger">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  <strong>
+                    <%= t('learning_objectives_and_skills.import.conflicting_codes',
+                          count: summary[:conflicting_codes].size) %>
+                  </strong>
+                  <code><%= summary[:conflicting_codes].first(5).join(', ') %></code>
+                  <% if summary[:conflicting_codes].size > 5 %>
+                    <a href="#" class="toggle-codes" data-grade="<%= summary[:grade] %>"
+                       style="margin-left: 5px;">
+                      <%= t('learning_objectives_and_skills.import.show_all') %>
+                    </a>
+                    <span class="all-codes" data-grade="<%= summary[:grade] %>" style="display: none;">
+                      <br>
+                      <code><%= summary[:conflicting_codes].join(', ') %></code>
+                    </span>
+                  <% end %>
+                </span>
+              <% elsif @import_mode == 'replace' %>
+                <% if summary[:existing_count] > 0 %>
+                  <span class="text-warning">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <%= t('learning_objectives_and_skills.import.replace_warning_count',
+                          count: summary[:existing_count]) %>
+                  </span>
+                  <br>
+                <% end %>
+                <span class="text-success">
+                  <i class="fa fa-plus"></i>
+                  <%= t('learning_objectives_and_skills.import.replace_add_count',
+                        count: summary[:csv_count]) %>
+                </span>
+              <% else %>
+                <span class="text-success">
+                  <i class="fa fa-check"></i> OK
+                </span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @import_mode == 'add_new' && total_conflicts > 0 %>
+      <div class="alert alert-danger">
+        <strong><%= t('learning_objectives_and_skills.import.conflict_block_help') %></strong>
+      </div>
+    <% end %>
+
+    <% if has_cross_grade_conflicts %>
+      <div class="alert alert-danger" style="margin-top: 15px;">
+        <h4>
+          <i class="fa fa-exclamation-triangle"></i>
+          <%= t('learning_objectives_and_skills.import.cross_grade_conflict_title') %>
+        </h4>
+        <%= t('learning_objectives_and_skills.import.cross_grade_conflict_help_html',
+              mode: t("learning_objectives_and_skills.import.mode_#{@import_mode}")) %>
+      </div>
+      <table class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th><%= LearningObjectivesAndSkill.human_attribute_name(:code) %></th>
+            <th><%= t('learning_objectives_and_skills.import.cross_grade_affected_header') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cross_grade_conflicts.each do |conflict| %>
+            <tr>
+              <td><code><%= conflict[:code] %></code></td>
+              <td><%= conflict[:other_grades].join(', ') %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <div class="smart-form" style="margin: 0 -13px -13px;">
+      <footer class="text-right">
+        <%= link_to t('helpers.links.cancel'),
+                    learning_objectives_and_skills_path, class: 'btn btn-default' %>
+        <% if @import_mode == 'add_new' && total_conflicts > 0 %>
+          <button type="submit" class="btn btn-success" disabled
+                  title="<%= t('learning_objectives_and_skills.import.conflict_block_button_title') %>">
+            <i class="fa fa-upload"></i>
+            <%= t('learning_objectives_and_skills.import.confirm_button') %>
+          </button>
+        <% elsif has_cross_grade_conflicts %>
+          <span style="display: inline-block; cursor: not-allowed;"
+                title="<%= t('learning_objectives_and_skills.import.cross_grade_conflict_button_title') %>">
+            <button type="submit" class="btn btn-success" disabled
+                    style="pointer-events: none;">
+              <i class="fa fa-upload"></i>
+              <%= t('learning_objectives_and_skills.import.confirm_button') %>
+            </button>
+          </span>
+        <% else %>
+          <button type="button" class="btn btn-success" id="confirm-import-btn">
+            <i class="fa fa-upload"></i>
+            <%= t('learning_objectives_and_skills.import.confirm_button') %>
+          </button>
+        <% end %>
+      </footer>
+    </div>
+  <% end %>
+<% elsif @parse_errors&.any? %>
+  <div class="alert alert-warning">
+    <%= t('learning_objectives_and_skills.import.fix_errors_warning') %>
+  </div>
+  <div class="smart-form" style="margin: 0 -13px -13px;">
+    <footer>
+      <%= link_to t('helpers.links.back'),
+                  import_learning_objectives_and_skills_path, class: 'btn btn-default' %>
+    </footer>
+  </div>
+<% end %>

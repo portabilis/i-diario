@@ -142,6 +142,15 @@
             </td>
           </tr>
         <% end %>
+        <% if @allow_active_search_frequency && @additional_data.any? { |d| d[:in_active_search_active] } %>
+          <tr>
+            <td colspan="30">
+              <span class="daily-note-student-legend">
+                <span class="badge-active-search">Busca Ativa</span> <%= t('daily_frequencies.edit_multiple.in_active_search_active') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
       <% end %>
 
       <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
@@ -184,7 +193,16 @@
         <%= f.submit t('.save'), class: 'btn new-save-style', id: 'save-frequencies-btn', data: { disable_with: 'Salvando...' } %>
       </div>
       <div class="pull-right" style="margin-right: 10px;">
-        <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+        <% if @general_configuration.always_send_email_on_daily_frequency_registration %>
+          <label class="checkbox state-disabled">
+            <%= f.check_box :receive_email_confirmation, checked: true, disabled: true %>
+            <i></i>
+            <%= t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+          </label>
+        <% else %>
+          <%= f.input :receive_email_confirmation, as: :boolean, label: false,
+              inline_label: t('activerecord.attributes.daily_frequency.receive_email_confirmation') %>
+        <% end %>
       </div>
     </footer>
   <% end %>

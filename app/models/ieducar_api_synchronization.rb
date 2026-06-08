@@ -106,10 +106,15 @@ class IeducarApiSynchronization < ApplicationRecord
     end
   end
 
-  # Considerado travado quando a sincronização está rodando a mais de 3x o tempo médio
+  # Considerado travado quando a sincronização está rodando a mais de 3x o tempo médio (Se for a primeira vez, avg time usa 15min)
   # e a última atualização do batch foi há mais de 30 minutos
   def locked?
-    time_running > average_time * 3 && worker_batch.updated_at < 30.minutes.ago
+    return false if worker_batch.blank?
+
+    avg_time = average_time
+    avg_time = 15 if avg_time.blank? || avg_time.zero?
+
+    time_running > avg_time * 3 && worker_batch.updated_at < 30.minutes.ago
   end
 
   def cancel!(restart = false, current_entity_id = nil, error = I18n.t('ieducar_api_synchronization.timedout'))

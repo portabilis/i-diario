@@ -130,6 +130,110 @@ RSpec.describe ObservationRecordReportController, type: :controller do
     end
   end
 
+  describe 'GET #teachers' do
+    before(:each) do
+      sign_in(teacher_user)
+      allow(controller).to receive(:authorize).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(classroom.year)
+    end
+
+    context 'when classroom_id is blank' do
+      it 'returns an empty teachers array' do
+        get :teachers, params: { locale: 'pt-BR', format: 'json', classroom_id: '' }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['teachers']).to eq([])
+      end
+    end
+
+    context 'when classroom_id is "all"' do
+      it 'returns an empty teachers array' do
+        get :teachers, params: { locale: 'pt-BR', format: 'json', classroom_id: 'all' }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['teachers']).to eq([])
+      end
+    end
+
+    context 'when classroom_id is a specific classroom' do
+      it 'returns teachers for the classroom' do
+        classroom
+
+        get :teachers, params: {
+          locale: 'pt-BR',
+          format: 'json',
+          classroom_id: classroom.id
+        }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['teachers']).to be_an(Array)
+        expect(json_response['teachers'].map { |t| t['id'] }).to include(current_teacher.id)
+      end
+
+      it 'returns teachers with id, name and text attributes' do
+        classroom
+
+        get :teachers, params: {
+          locale: 'pt-BR',
+          format: 'json',
+          classroom_id: classroom.id
+        }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['teachers'].first).to have_key('id')
+        expect(json_response['teachers'].first).to have_key('name')
+        expect(json_response['teachers'].first).to have_key('text')
+      end
+    end
+  end
+
+  describe 'GET #students' do
+    before(:each) do
+      sign_in(teacher_user)
+      allow(controller).to receive(:authorize).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(classroom.year)
+    end
+
+    context 'when classroom_id is blank' do
+      it 'returns an empty students array' do
+        get :students, params: { locale: 'pt-BR', format: 'json', classroom_id: '' }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['students']).to eq([])
+      end
+    end
+
+    context 'when classroom_id is "all"' do
+      it 'returns an empty students array' do
+        get :students, params: { locale: 'pt-BR', format: 'json', classroom_id: 'all' }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['students']).to eq([])
+      end
+    end
+
+    context 'when classroom_id is a specific classroom' do
+      it 'returns students for the classroom' do
+        student = create(:student)
+        student_enrollment = create(:student_enrollment, student: student)
+        classrooms_grade = create(:classrooms_grade, classroom: classroom)
+        create(:student_enrollment_classroom,
+               classrooms_grade: classrooms_grade,
+               student_enrollment: student_enrollment)
+
+        get :students, params: {
+          locale: 'pt-BR',
+          format: 'json',
+          classroom_id: classroom.id
+        }
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['students']).to be_an(Array)
+        expect(json_response['students'].map { |s| s['id'] }).to include(student.id)
+      end
+    end
+  end
+
   describe 'GET #disciplines as admin user' do
     let(:admin_user) do
       create(:user, :with_user_role_administrator, current_unity_id: unity.id)

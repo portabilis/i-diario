@@ -10,12 +10,13 @@ class ObservationRecordReportForm
     :unity_id,
     :classroom_id,
     :discipline_id,
+    :student_id,
     :start_at,
     :end_at,
-    :current_user_id
+    :current_user_id,
+    :current_teacher_id
   )
 
-  validates :teacher_id, presence: true
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
   validates :discipline_id, presence: true
@@ -24,8 +25,7 @@ class ObservationRecordReportForm
   validates :observation_diary_records, presence: true, if: :require_observation_diary_records?
 
   def teacher
-    return unless teacher_id.present?
-    @teacher ||= Teacher.find(teacher_id)
+    @teacher ||= Teacher.find(teacher_id.presence || current_teacher_id)
   end
 
   def unity
@@ -41,6 +41,11 @@ class ObservationRecordReportForm
   def discipline
     return unless discipline_id.present?
     @discipline ||= Discipline.find(discipline_id)
+  end
+
+  def student
+    return unless student_id.present?
+    @student ||= Student.find(student_id)
   end
 
   def observation_diary_records
@@ -65,7 +70,8 @@ class ObservationRecordReportForm
       discipline_id,
       start_at,
       end_at,
-      current_user_id
+      current_user_id,
+      student_id
     )
   end
 

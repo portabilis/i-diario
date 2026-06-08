@@ -14,3 +14,4 @@ pt-BR:
       no_classroom_found: "Nenhuma turma encontrada"
     form:
       save_and_edit_daily_notes: 'Salvar e lançar notas'
+      should_create_recovery_hint: 'A recuperação desta avaliação será criada automaticamente ao lançar as notas e salvar.'

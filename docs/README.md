@@ -20,6 +20,13 @@ Detalha o processo de sincronização com o i-Educar:
 - Configuração e monitoramento
 - Tratamento de erros
 
+### [Testes E2E com Playwright](./testes-e2e.md)
+Guia completo para os testes end-to-end:
+- Configuração de credenciais e ambiente
+- Como executar os testes
+- Como criar novos testes
+- Boas práticas e troubleshooting
+
 ## Como Contribuir
 
 Para adicionar nova documentação:

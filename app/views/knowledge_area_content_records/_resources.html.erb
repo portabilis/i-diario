@@ -1,11 +1,12 @@
 <tbody id="resources-tbody">
   <% if @knowledge_area_content_records.empty? %>
     <tr>
-      <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @knowledge_area_content_records.each do |knowledge_area_content_record| %>
       <tr>
+        <td class="unity"><%= knowledge_area_content_record.content_record.classroom.unity %></td>
         <td class="classroom"><%= knowledge_area_content_record.content_record.classroom %></td>
         <td class="knowledge_area">
           <% knowledge_area_content_record.knowledge_areas.each do |knowledge_area| %>

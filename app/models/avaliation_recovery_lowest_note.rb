@@ -25,6 +25,14 @@ class AvaliationRecoveryLowestNote < ApplicationRecord
   }
   scope :by_created_at, lambda { |created_at| where(created_at: created_at) }
   scope :ordered, -> { order(arel_table[:recorded_at].desc) }
+  scope :by_school_calendar_step, lambda { |step_id|
+    step = SchoolCalendarStep.find(step_id)
+    where(recorded_at: step.start_at..step.end_at)
+  }
+  scope :by_school_calendar_classroom_step, lambda { |step_id|
+    step = SchoolCalendarClassroomStep.find(step_id)
+    where(recorded_at: step.start_at..step.end_at)
+  }
 
   before_validation :set_recorded_at, on: [:create, :update]
 

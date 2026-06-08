@@ -44,7 +44,7 @@
         <tr>
           <td class="no_item_found" colspan="7" style="<%= f.object.lessons_board_lessons.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
-        <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
+        <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons.sort_by { |l| l.lesson_number.to_i } do |lessons_board_lesson| %>
           <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
         <% end %>
       </tbody>

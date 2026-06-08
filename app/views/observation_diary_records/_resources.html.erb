@@ -7,12 +7,12 @@
     <% @observation_diary_records.each do |observation_diary_record| %>
       <tr>
         <td><%= observation_diary_record.unity %></td>
-        <td><%= observation_diary_record.classroom %></td>
-        <td class="<%= params[:filter]&.fetch(:by_student_id).present? ? 'student-name-cell' : '' %>">
+        <td class="<%= params.dig(:filter, :by_student_id).present? ? 'student-name-cell' : '' %>">
           <span>
-            <%= observation_diary_record.decorator.students_labels(params[:filter]&.fetch(:by_student_id)&.to_i) %>
+            <%= observation_diary_record.decorator.students_labels(params.dig(:filter, :by_student_id)&.to_i) %>
           </span>
         </td>
+        <td><%= observation_diary_record.classroom %></td>
         <td><%= observation_diary_record.discipline %></td>
         <td><%= l(observation_diary_record.date) %></td>
         <td class="actions" style="white-space: nowrap;">

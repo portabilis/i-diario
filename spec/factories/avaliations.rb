@@ -34,5 +34,9 @@ FactoryGirl.define do
         )
       end
     end
+
+    trait :with_recovery_flag do
+      should_create_recovery true
+    end
   end
 end

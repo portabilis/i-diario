@@ -1,11 +1,12 @@
 <tbody id='resources-tbody'>
   <% if @transfer_notes.empty? %>
     <tr>
-      <td class='no_record_found' colspan='6'><%= t('views.index.no_record_found') %></td>
+      <td class='no_record_found' colspan='7'><%= t('views.index.no_record_found') %></td>
     </tr>
   <% else %>
     <% @transfer_notes.each do |transfer_note| %>
       <tr>
+        <td><%= transfer_note.classroom.unity %></td>
         <td><%= transfer_note.classroom %></td>
         <td><%= transfer_note.discipline %></td>
         <td><span class="multiline"><%= transfer_note.student %></span></td>

@@ -7,17 +7,17 @@ class TransferNotesController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    step_id = (params[:filter] || []).delete(:by_step)
-
     set_options_by_user
-    @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
+    set_filters
+
+    @transfer_notes = apply_scopes(TransferNote).includes({ classroom: :unity }, :discipline, :student)
                                                 .by_classroom_id(@classrooms.map(&:id))
                                                 .by_discipline_id(@disciplines.map(&:id))
 
-    if step_id.present?
-      @transfer_notes = @transfer_notes.by_step_id(current_user_classroom, step_id)
-      params[:filter][:by_step] = step_id
-    end
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
 
     authorize @transfer_notes
   end
@@ -137,6 +137,25 @@ class TransferNotesController < ApplicationController
     render json: steps.to_json
   end
 
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
+  end
+
   private
 
   def resource_params
@@ -161,24 +180,6 @@ class TransferNotesController < ApplicationController
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
-  def unities
-    @unities = [@transfer_note.classroom.present? ? @transfer_note.classroom.unity : current_unity]
-  end
-  helper_method :unities
-
-  def classrooms
-    @classrooms ||= Classroom.by_unity_and_teacher(
-      current_unity.id,
-      current_teacher.id
-    ).ordered
-  end
-  helper_method :classrooms
-
-  def disciplines
-    @disciplines = []
-  end
-  helper_method :disciplines
-
   def students
     @students = (@transfer_note.student_id.present? ? [@transfer_note.student] : [])
   end
@@ -187,19 +188,57 @@ class TransferNotesController < ApplicationController
   def set_options_by_user
     @admin_or_teacher = current_user.current_role_is_admin_or_employee?
 
-    if @admin_or_teacher
-      @classrooms ||= [current_user_classroom]
-      @disciplines ||= [current_user_discipline]
-      @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
+    return fetch_linked_by_teacher unless @admin_or_teacher
+
+    @classrooms ||= [current_user_classroom]
+    @disciplines ||= [current_user_discipline]
+  end
+
+  def set_filters
+    params[:filter] ||= {}
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step
     else
-      fetch_linked_by_teacher
+      :by_school_calendar_step
     end
   end
 
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
+  end
+
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(
+      current_teacher.id, current_unity, current_school_year
+    )
+    @classrooms ||= @fetch_linked_by_teacher[:classrooms].by_score_type([
+                                                                          ScoreTypes::NUMERIC,
+                                                                          ScoreTypes::NUMERIC_AND_CONCEPT
+                                                                        ])
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+    @unities ||= @classrooms.map(&:unity).uniq
   end
 
   def update_daily_note_student(daily_note_students_attributes)

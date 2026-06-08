@@ -22,7 +22,6 @@ class TeacherDisciplineClassroom < ApplicationRecord
   default_scope { where(active: true).kept }
 
   scope :by_classroom, ->(classroom) { where(classroom: classroom) }
-  scope :by_score_type, ->(score_type) { where(score_type: score_type) }
   scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
   scope :by_grade_id, ->(grade_id) { where(grade_id: grade_id) }

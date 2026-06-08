@@ -21,6 +21,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def update_student_enrollments(student_enrollments)
     return if student_enrollments.blank?
 
+    preload_students(student_enrollments.map(&:aluno_id))
+    preload_student_enrollments(student_enrollments.map(&:matricula_id))
+
     student_enrollments.each do |student_enrollment_record|
       student = student(student_enrollment_record.aluno_id)
 
@@ -29,14 +32,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       end
 
       if student.nil? || student.id.blank? || student.discarded?
-        StudentEnrollment.find_by(api_code: student_enrollment_record.matricula_id)&.discard
+        student_enrollment(student_enrollment_record.matricula_id)&.discard
 
         next
       end
 
-
-      StudentEnrollment.with_discarded.find_or_initialize_by(
-        api_code: student_enrollment_record.matricula_id
+      (
+        student_enrollment(student_enrollment_record.matricula_id) ||
+        StudentEnrollment.with_discarded.find_or_initialize_by(api_code: student_enrollment_record.matricula_id)
       ).tap do |student_enrollment|
         student_enrollment.status = student_enrollment_record.situacao
         student_enrollment.student_id = student.id
@@ -69,22 +72,26 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def create_student_from_api_data(student_data)
     return nil if student_data['nome'].blank?
 
-    Student.with_discarded.find_or_initialize_by(api_code: student_data['id']).tap do |student|
-      student.name = student_data['nome']
-      student.social_name = student_data['nome_social']
-      student.avatar_url = student_data['url_foto_aluno']
-      student.birth_date = student_data['data_nascimento'] if student_data['data_nascimento'].present?
-      student.api = true
-      student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
+    begin
+      Student.with_discarded.find_or_initialize_by(api_code: student_data['id']).tap do |student|
+        student.name = student_data['nome']
+        student.social_name = student_data['nome_social']
+        student.avatar_url = student_data['url_foto_aluno']
+        student.birth_date = student_data['data_nascimento'] if student_data['data_nascimento'].present?
+        student.api = true
+        student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
 
-      if student.changed?
-        student.save!
-        @students ||= {}
-        @students[student_data['id']] = student
+        if student.changed?
+          student.save!
+          @students ||= {}
+          @students[student_data['id'].to_s] = student
+        end
+
+        discarded = student_data['destroyed_at'].present?
+        student.discard_or_undiscard(discarded)
       end
-
-      discarded = student_data['destroyed_at'].present?
-      student.discard_or_undiscard(discarded)
+    rescue ActiveRecord::RecordNotUnique
+      retry
     end
   end
 end

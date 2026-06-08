@@ -1,3 +1,6 @@
 {
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "enabledPlugins": {
+    "pr-review-toolkit@claude-plugins-official": true
+  }
 }

@@ -53,11 +53,55 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         expect(subject.daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be false
       end
 
-      it 'removes others daily_frequencies' do
+      it 'keeps one daily_frequency converted to general per date and destroys the duplicates' do
         FrequencyTypeDefiner.any_instance.stub(:define_frequency_type).and_return(FrequencyTypes::GENERAL)
-        expect(DailyFrequency.count).to be(2)
+        expect(DailyFrequency.count).to eq(2)
         subject.adjust
-        expect(DailyFrequency.count).to be(0)
+        # A primeira (classroom, disc) de cada data vira geral (discipline_id=NULL);
+        # demais class_numbers no mesmo par (classroom, disc, date) são destruídas.
+        remaining = DailyFrequency.all
+        expect(remaining.count).to eq(1)
+        expect(remaining.first.discipline_id).to be_nil
+        expect(remaining.first.class_number).to be_nil
+      end
+
+      context 'when classroom has multiple classrooms_grades and frequencies on multiple dates' do
+        let!(:daily_frequency_date2_cn1) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            class_number: 1,
+            frequency_date: daily_frequency_1.frequency_date.prev_day
+          )
+        }
+        let!(:daily_frequency_date2_cn2) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            class_number: 2,
+            frequency_date: daily_frequency_1.frequency_date.prev_day
+          )
+        }
+
+        it 'preserves one general frequency per date' do
+          FrequencyTypeDefiner.any_instance.stub(:define_frequency_type).and_return(FrequencyTypes::GENERAL)
+          expect(DailyFrequency.count).to eq(4)
+          subject.adjust
+          remaining = DailyFrequency.all
+          expect(remaining.count).to eq(2)
+          expect(remaining.pluck(:discipline_id).uniq).to eq([nil])
+          expect(remaining.pluck(:class_number).uniq).to eq([nil])
+          expect(remaining.pluck(:frequency_date).uniq).to match_array([
+            daily_frequency_1.frequency_date,
+            daily_frequency_1.frequency_date.prev_day
+          ])
+        end
       end
     end
 
@@ -177,6 +221,75 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
             expect(frequency.students.first.student_id).to eq(student.id)
             expect(frequency.students.first.present).to eq(false)
           end
+        end
+
+        it 'destroys the original general frequency' do
+          original_id = daily_frequency_1.id
+
+          subject.adjust
+
+          expect(DailyFrequency.find_by(id: original_id)).to be_nil
+        end
+      end
+
+      context 'when a frequency by discipline already exists with class_number different from default' do
+        let!(:existing_discipline) { create(:discipline) }
+        let!(:grade) { classroom.classrooms_grades.first.grade }
+        let!(:teacher_discipline_classroom_existing) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: existing_discipline,
+            grade: grade
+          )
+        }
+        let!(:student) { create(:student) }
+        let!(:original_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: false
+          )
+        }
+        let!(:existing_by_discipline_frequency) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: existing_discipline,
+            frequency_date: daily_frequency_1.frequency_date,
+            period: daily_frequency_1.period,
+            class_number: 3
+          )
+        }
+        let!(:existing_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: existing_by_discipline_frequency,
+            student: student,
+            present: true
+          )
+        }
+
+        before do
+          daily_frequency_1.update(owner_teacher_id: teacher.id)
+        end
+
+        it 'does not raise PG::UniqueViolation when reusing the existing frequency' do
+          expect { subject.adjust }.not_to raise_error
+        end
+
+        it 'preserves the existing student record without duplicating' do
+          subject.adjust
+
+          existing_by_discipline_frequency.reload
+          expect(existing_by_discipline_frequency.students.count).to eq(1)
+          expect(existing_by_discipline_frequency.students.first.student_id).to eq(student.id)
+          # Atributos do lançamento manual são preservados (present=true).
+          expect(existing_by_discipline_frequency.students.first.present).to eq(true)
         end
 
         it 'destroys the original general frequency' do

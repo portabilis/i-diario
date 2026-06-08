@@ -4,10 +4,8 @@ module Discardable
   include Discard::Model
 
   def discard_or_undiscard(discardable)
-    with_lock do
-      discard if kept? && discardable
-      undiscard if discarded? && !discardable
-    end
+    discard if kept? && discardable
+    undiscard if discarded? && !discardable
   end
 
   def kept?

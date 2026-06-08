@@ -7,11 +7,13 @@
             <th scope="col"></th>
             <th scope="col">
               <%= f.input :by_grade, as: :select2, elements: @grades,
-                    label: false, placeholder: t('.by_grade') %>
+                    label: false, placeholder: t('.by_grade'),
+                    input_html: { value: current_user_classroom.grades.first.id } %>
             </th>
             <th scope="colgroup" colspan="2">
               <%= f.input :by_knowledge_area, as: :select2, elements: @knowledge_areas,
-                    label: false, placeholder: t('.by_knowledge_area') %>
+                           label: false, placeholder: t('.by_knowledge_area'),
+                           input_html: { value: current_user_discipline.knowledge_area_id } %>
             </th>
             <th scope="col">
               <%= f.input :by_school_term_type_id, as: :select2,
