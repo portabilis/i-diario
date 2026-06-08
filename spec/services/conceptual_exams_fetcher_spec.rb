@@ -132,6 +132,24 @@ RSpec.describe ConceptualExamsFetcher, type: :service do
 
         expect(result).to contain_exactly(conceptual_exam)
       end
+
+      it 'does not return exams whose only matching teacher discipline classroom is discarded' do
+        fetch = lambda do
+          described_class.fetch!(
+            user: user,
+            teacher_id: teacher.id,
+            unity: unity,
+            classrooms: [classroom],
+            disciplines: [discipline]
+          )
+        end
+
+        expect(fetch.call).to contain_exactly(conceptual_exam)
+
+        teacher_discipline_classroom.discard
+
+        expect(fetch.call).to be_empty
+      end
     end
   end
 end

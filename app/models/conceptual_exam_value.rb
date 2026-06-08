@@ -54,7 +54,9 @@ class ConceptualExamValue < ActiveRecord::Base
     joins(
       arel_table.join(TeacherDisciplineClassroom.arel_table).
         on(TeacherDisciplineClassroom.arel_table[:classroom_id].eq(ConceptualExam.arel_table[:classroom_id]).
-          and(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(arel_table[:discipline_id]))).join_sources,
+          and(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(arel_table[:discipline_id])).
+          and(TeacherDisciplineClassroom.arel_table[:active].eq(true)).
+          and(TeacherDisciplineClassroom.arel_table[:discarded_at].eq(nil))).join_sources,
       arel_table.join(Classroom.arel_table).
         on(Classroom.arel_table[:id].eq(ConceptualExam.arel_table[:classroom_id])).join_sources,
       arel_table.join(ClassroomsGrade.arel_table).
