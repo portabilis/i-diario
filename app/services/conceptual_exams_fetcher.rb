@@ -46,7 +46,7 @@ class ConceptualExamsFetcher
       .by_classroom(classroom_ids)
       .by_discipline_id(discipline_ids)
       .where(score_type: [ScoreTypes::CONCEPT, nil])
-      .pluck(:classroom_id)
+      .select(:classroom_id)
   end
 
   def classroom_ids
