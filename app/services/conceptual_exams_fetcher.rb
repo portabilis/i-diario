@@ -23,6 +23,8 @@ class ConceptualExamsFetcher
 
   private
 
+  # Admin/funcionário enxerga TODAS as avaliações conceituais das turmas com
+  # vínculo conceitual, sem restringir por professor — enxerga a turma inteira.
   def for_admin
     ConceptualExam.includes(:student, :classroom)
                   .by_unity(@unity)

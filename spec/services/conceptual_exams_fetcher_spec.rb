@@ -47,6 +47,31 @@ RSpec.describe ConceptualExamsFetcher, type: :service do
         expect(result).to contain_exactly(conceptual_exam)
       end
 
+      it 'includes conceptual exams from other teachers in the same classroom' do
+        other_teacher = create(:teacher)
+        other_student = create(:student)
+
+        create(
+          :teacher_discipline_classroom,
+          teacher: other_teacher,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: ScoreTypes::CONCEPT
+        )
+
+        other_exam = create(
+          :conceptual_exam,
+          :with_student_enrollment_classroom,
+          :with_one_value,
+          classroom: classroom,
+          teacher_id: other_teacher.id,
+          student: other_student,
+          discipline: discipline
+        )
+
+        expect(result).to contain_exactly(conceptual_exam, other_exam)
+      end
+
       it 'excludes exams when discipline has numeric score type' do
         numeric_discipline = create(:discipline)
         create(
@@ -66,6 +91,24 @@ RSpec.describe ConceptualExamsFetcher, type: :service do
         )
 
         expect(result).to be_empty
+      end
+
+      it 'excludes exams when the conceptual teacher discipline classroom is discarded' do
+        fetch = lambda do
+          described_class.fetch!(
+            user: user,
+            teacher_id: teacher.id,
+            unity: unity,
+            classrooms: [classroom],
+            disciplines: [discipline]
+          )
+        end
+
+        expect(fetch.call).to contain_exactly(conceptual_exam)
+
+        teacher_discipline_classroom.discard
+
+        expect(fetch.call).to be_empty
       end
 
       it 'includes exams when teacher discipline classroom has nil score type' do
