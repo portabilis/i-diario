@@ -7,6 +7,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
   before_action :yearly_term_type_id, only: [:show, :edit, :new]
   before_action :require_current_classroom, only: [:index, :new, :create, :edit, :update]
+  before_action :require_allows_copy_experience_fields_in_lesson_plans, only: [:new, :edit]
 
   def index
     params[:filter] ||= {}
@@ -208,6 +209,10 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   private
+
+  def require_allows_copy_experience_fields_in_lesson_plans
+    @allows_copy_experience_fields_in_lesson_plans ||= GeneralConfiguration.current.allows_copy_experience_fields_in_lesson_plans
+  end
 
   def content_ids
     param_content_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_ids] || []

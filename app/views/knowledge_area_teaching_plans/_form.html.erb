@@ -21,8 +21,11 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
-      <% school_type = GeneralConfiguration.current.group_children_education ? 'group_child_schools' : 'experience_fields' %>
-      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: school_type, modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-btn'  %>
+      <%= render 'teaching_plans/diciplines_modal', f: teaching_plan_form %>
+      <% if @allows_copy_experience_fields_in_lesson_plans %>
+        <% school_type = GeneralConfiguration.current.group_children_education ? 'group_child_schools' : 'experience_fields' %>
+        <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: school_type, modal_id: 'confirm-copy-objectives-modal', confirm_btn: 'confirm-copy-objectives-btn' %>
+      <% end %>
 
       <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
         <i class='fa-fw fa fa-info'></i>
@@ -157,9 +160,14 @@
           <% end %>
 
           <% if !action_name.eql?('show') %>
-            <a href="#" data-toggle="modal" data-target="#confirm-copy-objectives-modal">
+            <a href="#" data-toggle="modal" data-target="#disciplines-modal">
               Copiar objetivos/habilidades por área
             </a>
+            <% if @allows_copy_experience_fields_in_lesson_plans %>
+              |<a href="#" data-toggle="modal" data-target="#confirm-copy-objectives-modal">
+                Copiar objetivos por campos de experiência
+              </a>
+            <% end %>
           <% end %>
 
             <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
