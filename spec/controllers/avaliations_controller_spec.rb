@@ -77,6 +77,111 @@ RSpec.describe AvaliationsController, type: :controller do
           expect(response).not_to redirect_to(avaliations_path)
         end
       end
+
+      # Quando a configuracao geral permite recuperacao automatica, o checkbox
+      # "Criar recuperacao desta avaliacao" deve vir marcado por padrao.
+      context 'when allow_automatic_avaliation_recovery is enabled' do
+        before do
+          entity.using_connection do
+            GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+          end
+        end
+
+        it 'marks should_create_recovery as true by default' do
+          entity.using_connection do
+            get :new, params: { locale: 'pt-BR' }
+
+            expect(assigns(:avaliation).should_create_recovery).to eq(true)
+          end
+        end
+      end
+
+      context 'when allow_automatic_avaliation_recovery is disabled' do
+        before do
+          entity.using_connection do
+            GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+          end
+        end
+
+        it 'leaves should_create_recovery as false' do
+          entity.using_connection do
+            get :new, params: { locale: 'pt-BR' }
+
+            expect(assigns(:avaliation).should_create_recovery).to eq(false)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#multiple_classrooms' do
+    # Os dados precisam ser criados dentro da mesma conexao (entity) usada pela
+    # action, caso contrario load_avaliations! nao enxerga os registros.
+    before do
+      entity.using_connection do
+        mc_unity = create(:unity)
+        mc_teacher = create(:teacher)
+        mc_discipline = create(:discipline)
+        mc_school_calendar = create(:school_calendar, :with_one_step, unity: mc_unity)
+        @mc_classroom = create(:classroom, unity: mc_unity)
+        create(:teacher_discipline_classroom,
+               teacher: mc_teacher,
+               discipline: mc_discipline,
+               classroom: @mc_classroom)
+
+        TestSetting.find_or_create_by!(year: @mc_classroom.year) do |ts|
+          ts.exam_setting_type = ExamSettingTypes::GENERAL
+          ts.maximum_score = 10
+          ts.number_of_decimal_places = 2
+          ts.average_calculation_type = AverageCalculationTypes::ARITHMETIC
+        end
+
+        allow(controller).to receive(:current_teacher).and_return(mc_teacher)
+        allow(controller).to receive(:current_teacher_id).and_return(mc_teacher.id)
+        allow(controller).to receive(:current_unity).and_return(mc_unity)
+        allow(controller).to receive(:current_school_year).and_return(mc_school_calendar.year)
+        allow(controller).to receive(:current_school_calendar).and_return(mc_school_calendar)
+        allow(controller).to receive(:current_user_classroom).and_return(@mc_classroom)
+        allow(controller).to receive(:current_user_discipline).and_return(mc_discipline)
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is enabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+        end
+      end
+
+      it 'marks should_create_recovery as true for every loaded avaliation' do
+        entity.using_connection do
+          get :multiple_classrooms, params: { locale: 'pt-BR' }
+
+          avaliations = assigns(:avaliation_multiple_creator_form).avaliations
+
+          expect(avaliations).not_to be_empty
+          expect(avaliations.map(&:should_create_recovery)).to all(eq(true))
+        end
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is disabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+        end
+      end
+
+      it 'leaves should_create_recovery as false for every loaded avaliation' do
+        entity.using_connection do
+          get :multiple_classrooms, params: { locale: 'pt-BR' }
+
+          avaliations = assigns(:avaliation_multiple_creator_form).avaliations
+
+          expect(avaliations).not_to be_empty
+          expect(avaliations.map(&:should_create_recovery)).to all(eq(false))
+        end
+      end
     end
   end
 end
