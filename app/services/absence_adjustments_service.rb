@@ -71,6 +71,8 @@ class AbsenceAdjustmentsService
           discipline_id: nil,
           class_number: nil
         )
+
+        DailyFrequencyJustificationReconciler.call(daily_frequency)
       else
         daily_frequency.destroy
       end
@@ -109,6 +111,8 @@ class AbsenceAdjustmentsService
             new_student.absence_justification_student_id = student.absence_justification_student_id
           end
         end
+
+        DailyFrequencyJustificationReconciler.call(new_daily_frequency)
       end
 
       daily_frequency.destroy!
@@ -146,6 +150,8 @@ class AbsenceAdjustmentsService
               new_student.absence_justification_student_id = student.absence_justification_student_id
             end
           end
+
+          DailyFrequencyJustificationReconciler.call(new_daily_frequency)
         end
 
         daily_frequency.destroy!
