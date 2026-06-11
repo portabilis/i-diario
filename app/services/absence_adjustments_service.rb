@@ -9,9 +9,13 @@ class AbsenceAdjustmentsService
   end
 
   def adjust
-    adjust_by_discipline_to_general
-    adjust_general_to_by_discipline
-    adjust_general_to_by_discipline_specific_area
+    @justifications_cache = {}
+
+    Audited.audit_class.as_user('frequency_adjustments') do
+      adjust_by_discipline_to_general
+      adjust_general_to_by_discipline
+      adjust_general_to_by_discipline_specific_area
+    end
   end
 
   def daily_frequencies_by_type(frequency_type)
@@ -72,7 +76,7 @@ class AbsenceAdjustmentsService
           class_number: nil
         )
 
-        DailyFrequencyJustificationReconciler.call(daily_frequency)
+        DailyFrequencyJustificationReconciler.call(daily_frequency, @justifications_cache)
       else
         daily_frequency.destroy
       end
@@ -81,64 +85,26 @@ class AbsenceAdjustmentsService
 
   def adjust_general_to_by_discipline
     daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).each do |daily_frequency|
-      original_frequency_students = daily_frequency.students.to_a
-      teacher_id = daily_frequency.owner_teacher_id || user(daily_frequency).try(:teacher_id)
+      ActiveRecord::Base.transaction do
+        original_frequency_students = daily_frequency.students.to_a
+        teacher_id = daily_frequency.owner_teacher_id || user(daily_frequency).try(:teacher_id)
 
-      disciplines = daily_frequency.classroom.teacher_discipline_classrooms.by_teacher_id(teacher_id)
-      disciplines = daily_frequency.classroom.teacher_discipline_classrooms if disciplines.empty?
+        disciplines = daily_frequency.classroom.teacher_discipline_classrooms.by_teacher_id(teacher_id)
+        disciplines = daily_frequency.classroom.teacher_discipline_classrooms if disciplines.empty?
 
-      disciplines.each do |tdc|
-        next if daily_frequency_exists?(daily_frequency, tdc.discipline_id)
+        disciplines.each do |tdc|
+          next if daily_frequency_exists?(daily_frequency, tdc.discipline_id)
 
-        new_daily_frequency = DailyFrequency.create_with(
-          class_number: DEFAULT_CLASS_NUMBER,
-          owner_teacher_id: teacher_id
-        ).find_or_create_by(
-          unity_id: daily_frequency.unity_id,
-          classroom_id: daily_frequency.classroom_id,
-          frequency_date: daily_frequency.frequency_date,
-          school_calendar_id: daily_frequency.school_calendar_id,
-          discipline_id: tdc.discipline_id,
-          period: daily_frequency.period
-        )
-
-        original_frequency_students.each do |student|
-          new_daily_frequency.students.find_or_create_by!(student_id: student.student_id) do |new_student|
-            new_student.present = student.present
-            new_student.dependence = student.dependence
-            new_student.active = student.active
-            new_student.type_of_teaching = student.type_of_teaching
-            new_student.absence_justification_student_id = student.absence_justification_student_id
-          end
-        end
-
-        DailyFrequencyJustificationReconciler.call(new_daily_frequency)
-      end
-
-      daily_frequency.destroy!
-    end
-  end
-
-  def adjust_general_to_by_discipline_specific_area
-    daily_frequencies_general_when_teacher_has_specific_area.each do |daily_frequency|
-      original_frequency_students = daily_frequency.students.to_a
-
-      Audited.audit_class.as_user("frequency_adjustments") do
-        daily_frequency
-          .classroom.teacher_discipline_classrooms
-          .by_teacher_id(daily_frequency.owner_teacher_id)
-          .where(allow_absence_by_discipline: 1)
-          .each do |teacher_discipline_classroom|
           new_daily_frequency = DailyFrequency.create_with(
             class_number: DEFAULT_CLASS_NUMBER,
-            owner_teacher_id: daily_frequency.owner_teacher_id,
+            owner_teacher_id: teacher_id
           ).find_or_create_by(
             unity_id: daily_frequency.unity_id,
+            classroom_id: daily_frequency.classroom_id,
             frequency_date: daily_frequency.frequency_date,
             school_calendar_id: daily_frequency.school_calendar_id,
-            discipline_id: teacher_discipline_classroom.discipline_id,
-            classroom_id: teacher_discipline_classroom.classroom_id,
-            period: daily_frequency.period,
+            discipline_id: tdc.discipline_id,
+            period: daily_frequency.period
           )
 
           original_frequency_students.each do |student|
@@ -147,11 +113,49 @@ class AbsenceAdjustmentsService
               new_student.dependence = student.dependence
               new_student.active = student.active
               new_student.type_of_teaching = student.type_of_teaching
-              new_student.absence_justification_student_id = student.absence_justification_student_id
             end
           end
 
-          DailyFrequencyJustificationReconciler.call(new_daily_frequency)
+          DailyFrequencyJustificationReconciler.call(new_daily_frequency, @justifications_cache)
+        end
+
+        daily_frequency.destroy!
+      end
+    end
+  end
+
+  def adjust_general_to_by_discipline_specific_area
+    daily_frequencies_general_when_teacher_has_specific_area.each do |daily_frequency|
+      ActiveRecord::Base.transaction do
+        original_frequency_students = daily_frequency.students.to_a
+
+        daily_frequency
+          .classroom.teacher_discipline_classrooms
+          .by_teacher_id(daily_frequency.owner_teacher_id)
+          .where(allow_absence_by_discipline: 1)
+          .each do |teacher_discipline_classroom|
+          new_daily_frequency = DailyFrequency.create_with(
+            class_number: DEFAULT_CLASS_NUMBER,
+            owner_teacher_id: daily_frequency.owner_teacher_id
+          ).find_or_create_by(
+            unity_id: daily_frequency.unity_id,
+            frequency_date: daily_frequency.frequency_date,
+            school_calendar_id: daily_frequency.school_calendar_id,
+            discipline_id: teacher_discipline_classroom.discipline_id,
+            classroom_id: teacher_discipline_classroom.classroom_id,
+            period: daily_frequency.period
+          )
+
+          original_frequency_students.each do |student|
+            new_daily_frequency.students.find_or_create_by!(student_id: student.student_id) do |new_student|
+              new_student.present = student.present
+              new_student.dependence = student.dependence
+              new_student.active = student.active
+              new_student.type_of_teaching = student.type_of_teaching
+            end
+          end
+
+          DailyFrequencyJustificationReconciler.call(new_daily_frequency, @justifications_cache)
         end
 
         daily_frequency.destroy!

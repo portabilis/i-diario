@@ -345,6 +345,70 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
       end
 
+      # Integração real (sem stub do Preserver/AbsenceJustifiedOnDate): garante que após o
+      # ajuste o vinculo de justificativa fica coerente com a aula da nova frequência.
+      context 'when the general frequency has a justified absence' do
+        let!(:student) { create(:student) }
+        let!(:teacher_discipline_classroom) { classroom.teacher_discipline_classrooms.first }
+        let!(:discipline) { teacher_discipline_classroom.discipline }
+        let!(:daily_frequency_student_1) {
+          create(:daily_frequency_student, daily_frequency: daily_frequency_1, student: student, present: false)
+        }
+
+        def by_discipline_student
+          DailyFrequency.find_by(
+            classroom_id: classroom.id,
+            discipline_id: discipline.id,
+            frequency_date: daily_frequency_1.frequency_date
+          )&.students&.find_by(student_id: student.id)
+        end
+
+        context 'when the justification matches the new class_number (general)' do
+          let!(:absence_justification) {
+            create(
+              :absence_justification,
+              teacher_discipline_classroom: teacher_discipline_classroom,
+              user: user,
+              students: [student],
+              period: daily_frequency_1.period,
+              class_number: nil,
+              absence_date: daily_frequency_1.frequency_date,
+              absence_date_end: daily_frequency_1.frequency_date
+            )
+          }
+          let(:absence_justifications_student) {
+            absence_justification.absence_justifications_students.find_by(student_id: student.id)
+          }
+
+          it 'links the justification tag on the recreated by-discipline frequency' do
+            subject.adjust
+
+            expect(by_discipline_student.absence_justification_student_id).to eq(absence_justifications_student.id)
+          end
+        end
+
+        context 'when the justification is on a class_number that no longer matches' do
+          let!(:absence_justification) {
+            create(
+              :absence_justification,
+              teacher_discipline_classroom: teacher_discipline_classroom,
+              user: user,
+              students: [student],
+              period: daily_frequency_1.period,
+              class_number: 3,
+              absence_date: daily_frequency_1.frequency_date,
+              absence_date_end: daily_frequency_1.frequency_date
+            )
+          }
+
+          it 'leaves the recreated by-discipline frequency without the stale tag' do
+            subject.adjust
+
+            expect(by_discipline_student.absence_justification_student_id).to be_nil
+          end
+        end
+      end
+
       context 'when frequency by discipline already exists with same students' do
         let!(:student) { create(:student) }
         let!(:discipline) { classroom.teacher_discipline_classrooms.first.discipline }
