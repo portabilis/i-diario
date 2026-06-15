@@ -453,6 +453,98 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         end
       end
     end
+
+    # Regressão: cenário real em que o professor lançou a frequência num dia letivo e, depois,
+    # a secretaria encurtou o calendário — esse dia passou a ficar FORA do calendário letivo.
+    # O ajuste não pode quebrar nem apagar a frequência geral: o bang + rescue pula essa
+    # frequência (o rollback preserva a geral) e segue para as demais.
+    context 'when a general frequency is on a date outside the school calendar' do
+      let!(:classroom) {
+        create(
+          :classroom,
+          :with_classroom_semester_steps,
+          :with_teacher_discipline_classroom_specific,
+          :score_type_numeric,
+          teacher: teacher,
+          unity: unities.first
+        )
+      }
+      let(:school_calendar) { classroom.calendar.school_calendar }
+      let!(:user) { create(:user, teacher: teacher) }
+      let!(:student) { create(:student) }
+      let!(:general_frequency) {
+        create(
+          :daily_frequency,
+          :without_discipline,
+          :with_teacher,
+          unity: classroom.unity,
+          classroom: classroom,
+          school_calendar: school_calendar,
+          teacher: teacher
+        )
+      }
+      let!(:general_frequency_student) {
+        create(:daily_frequency_student, daily_frequency: general_frequency, student: student, present: false)
+      }
+
+      before do
+        cutoff = Date.new(year, 6, 15)
+        # A secretaria encurtou a 1ª etapa para terminar em 15/06...
+        classroom.calendar.classroom_steps.where(step_number: 1).update_all(
+          end_at: cutoff,
+          end_date_for_posting: cutoff
+        )
+        # ...então o dia 16/06 que o professor já havia lançado ficou fora do calendário letivo
+        # (entre o fim da 1ª etapa e o início da 2ª). update_column grava sem revalidar a data.
+        general_frequency.update_column(:frequency_date, cutoff + 1.day)
+      end
+
+      it 'does not raise' do
+        expect { subject.adjust }.not_to raise_error
+      end
+
+      it 'preserves the general frequency' do
+        subject.adjust
+
+        expect(DailyFrequency.exists?(general_frequency.id)).to eq(true)
+      end
+
+      it 'does not create a by-discipline frequency' do
+        subject.adjust
+
+        expect(DailyFrequency.where(classroom: classroom).where.not(discipline_id: nil).count).to eq(0)
+      end
+    end
+  end
+
+  describe '#raise_unless_out_of_calendar (private)' do
+    let(:daily_frequency) { create(:daily_frequency) }
+
+    def record_invalid_with(*error_keys)
+      record = DailyFrequency.new
+      error_keys.each { |key| record.errors.add(key, :invalid) }
+      ActiveRecord::RecordInvalid.new(record)
+    end
+
+    it 'logs and does not reraise when the only error is the date' do
+      expect(Rails.logger).to receive(:info).with(/ignorada — data fora do calendário/)
+
+      expect {
+        subject.send(:raise_unless_out_of_calendar, daily_frequency, record_invalid_with(:frequency_date))
+      }.not_to raise_error
+    end
+
+    it 'reraises when there is a non-date error' do
+      expect {
+        subject.send(:raise_unless_out_of_calendar, daily_frequency, record_invalid_with(:base))
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'reraises when the date error comes together with another error' do
+      expect {
+        subject.send(:raise_unless_out_of_calendar, daily_frequency, record_invalid_with(:frequency_date, :base))
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
   end
 
   def add_user_to_audit(daily_frequency)
