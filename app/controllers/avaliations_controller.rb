@@ -81,6 +81,12 @@ class AvaliationsController < ApplicationController
       params_avaliation_multiple.merge(teacher_id: current_teacher_id)
     )
 
+    if @force_recovery_creation
+      @avaliation_multiple_creator_form.avaliations.each do |avaliation|
+        avaliation.should_create_recovery = true
+      end
+    end
+
     if @avaliation_multiple_creator_form.save
       has_recovery_flag = @avaliation_multiple_creator_form.avaliations.any? { |a|
         a.include && a.persisted? && a.should_create_recovery
@@ -100,6 +106,7 @@ class AvaliationsController < ApplicationController
 
   def create
     resource.localized.assign_attributes(resource_params)
+    resource.should_create_recovery = true if @force_recovery_creation
     resource.school_calendar = current_school_calendar
     resource.teacher_id = current_teacher_id
 
@@ -136,6 +143,7 @@ class AvaliationsController < ApplicationController
   def update
     @avaliation = resource
     @avaliation.localized.assign_attributes(resource_params)
+    @avaliation.should_create_recovery = true if @force_recovery_creation
     @avaliation.teacher_id = current_teacher_id
     @avaliation.current_user = current_user
 
@@ -411,6 +419,8 @@ class AvaliationsController < ApplicationController
 
   def set_allow_automatic_avaliation_recovery
     @allow_automatic_avaliation_recovery = GeneralConfiguration.current.allow_automatic_avaliation_recovery
+    # Professores não podem desabilitar a criação automática de recuperação
+    @force_recovery_creation = @allow_automatic_avaliation_recovery && current_user.teacher?
   end
 
   def resource

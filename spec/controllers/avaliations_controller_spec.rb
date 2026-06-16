@@ -114,6 +114,81 @@ RSpec.describe AvaliationsController, type: :controller do
     end
   end
 
+  # Professores nao podem desabilitar a criacao automatica de recuperacao quando a
+  # configuracao geral esta habilitada: o checkbox fica travado e o valor e forcado
+  # no servidor. Usuarios administradores/funcionarios continuam podendo desmarcar.
+  describe 'should_create_recovery lock for teachers' do
+    before do
+      allow(controller).to receive(:current_user).and_return(user)
+    end
+
+    context 'when allow_automatic_avaliation_recovery is enabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+        end
+      end
+
+      it 'locks the checkbox when the current user is a teacher' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          get :new, params: { locale: 'pt-BR' }
+
+          expect(assigns(:force_recovery_creation)).to eq(true)
+        end
+      end
+
+      it 'does not lock the checkbox for non-teacher users' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(false)
+
+          get :new, params: { locale: 'pt-BR' }
+
+          expect(assigns(:force_recovery_creation)).to eq(false)
+        end
+      end
+
+      it 'forces should_create_recovery to true on create even when submitted as false' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          post :create, params: {
+            locale: 'pt-BR',
+            avaliation: {
+              classroom_id: classroom.id,
+              discipline_id: discipline.id,
+              test_date: Time.zone.today,
+              description: 'Avaliacao trava recuperacao',
+              grade_ids: classroom.grade_ids.join(','),
+              should_create_recovery: '0'
+            }
+          }
+
+          expect(assigns(:resource).should_create_recovery).to eq(true)
+        end
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is disabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+        end
+      end
+
+      it 'does not lock the checkbox even for teachers' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          get :new, params: { locale: 'pt-BR' }
+
+          expect(assigns(:force_recovery_creation)).to eq(false)
+        end
+      end
+    end
+  end
+
   describe '#multiple_classrooms' do
     # Os dados precisam ser criados dentro da mesma conexao (entity) usada pela
     # action, caso contrario load_avaliations! nao enxerga os registros.
