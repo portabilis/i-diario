@@ -43,35 +43,75 @@ RSpec.describe StudentsSynchronizer do
     # recebem o mesmo aluno da API. O primeiro worker cria o registro,
     # e o segundo falha com UniqueViolation ao tentar inserir o mesmo api_code.
     it 'handles race condition when another process inserts the same student between SELECT and INSERT' do
+      collisions = 0
+
+      allow(Student).to receive(:with_discarded).and_return(Student)
+
+      # Simula a corrida: o preload não encontrou o aluno, então tentamos criar
+      # via Student.new + save!. No primeiro INSERT, outro worker já inseriu o
+      # mesmo api_code, fazendo o banco levantar RecordNotUnique.
+      allow_any_instance_of(Student).to receive(:save!).and_wrap_original do |original|
+        # O primeiro save! é o INSERT do registro novo; nele simulamos o outro
+        # worker comitando antes e o banco levantando RecordNotUnique.
+        if collisions.zero?
+          collisions += 1
+          Student.create!(api_code: 99999, name: 'CRIADO POR OUTRO WORKER', api: true, birth_date: '2010-05-15')
+
+          raise ActiveRecord::RecordNotUnique,
+                'PG::UniqueViolation: duplicate key value violates unique constraint "index_students_on_api_code"'
+        end
+
+        original.call
+      end
+
+      expect { synchronizer.synchronize! }.not_to raise_error
+
+      # Houve exatamente uma colisão antes do retry bem-sucedido
+      expect(collisions).to eq(1)
+      expect(Student.where(api_code: 99999).count).to eq(1)
+
+      # O retry encontrou o registro do outro worker e aplicou os dados da API
+      expect(Student.find_by(api_code: 99999).name).to eq('ALUNO TESTE')
+    end
+
+    it 'reraises RecordNotUnique from a different constraint without retrying' do
       call_count = 0
 
       allow(Student).to receive(:with_discarded).and_return(Student)
 
-      allow(Student).to receive(:find_or_initialize_by)
-        .with(api_code: 99999)
-        .and_wrap_original do |method, *args|
-          call_count += 1
-          result = method.call(*args)
+      # Violação em outra constraint (não api_code): deve propagar de imediato,
+      # sem retry — o reset_record não resolveria e mascararia um bug real.
+      allow_any_instance_of(Student).to receive(:save!).and_wrap_original do |_original|
+        call_count += 1
 
-          # Na primeira chamada, simula outro worker criando o registro
-          if call_count == 1 && result.new_record?
-            Student.create!(
-              api_code: 99999,
-              name: 'ALUNO TESTE',
-              api: true,
-              birth_date: '2010-05-15'
-            )
-          end
+        raise ActiveRecord::RecordNotUnique,
+              'PG::UniqueViolation: duplicate key value violates unique constraint "index_students_on_some_other_column"'
+      end
 
-          result
-        end
+      expect { synchronizer.synchronize! }.to raise_error(ActiveRecord::RecordNotUnique, /some_other_column/)
 
-      expect { synchronizer.synchronize! }.not_to raise_error
+      # Sem retry: apenas a tentativa inicial
+      expect(call_count).to eq(1)
+    end
 
-      expect(Student.where(api_code: 99999).count).to eq(1)
+    it 'gives up after MAX_RECORD_RETRIES when the api_code collision persists' do
+      call_count = 0
 
-      # O retry deve ter sido executado (2 chamadas ao find_or_initialize_by)
-      expect(call_count).to eq(2)
+      allow(Student).to receive(:with_discarded).and_return(Student)
+
+      # Colisão de api_code que nunca se resolve: o retry deve esgotar o cap e
+      # então propagar o erro, em vez de entrar em laço infinito.
+      allow_any_instance_of(Student).to receive(:save!).and_wrap_original do |_original|
+        call_count += 1
+
+        raise ActiveRecord::RecordNotUnique,
+              'PG::UniqueViolation: duplicate key value violates unique constraint "index_students_on_api_code"'
+      end
+
+      expect { synchronizer.synchronize! }.to raise_error(ActiveRecord::RecordNotUnique, /api_code/)
+
+      # Tentativa inicial + MAX_RECORD_RETRIES retries, e para
+      expect(call_count).to eq(StudentsSynchronizer::MAX_RECORD_RETRIES + 1)
     end
   end
 
