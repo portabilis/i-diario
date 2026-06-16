@@ -1,6 +1,4 @@
 class TeachersSynchronizer < BaseSynchronizer
-  MAX_RETRIES = 3
-
   def synchronize!
     update_teachers(
       HashDecorator.new(
@@ -21,23 +19,8 @@ class TeachersSynchronizer < BaseSynchronizer
     teachers.each do |teacher_record|
       next if teacher_record.nome.blank?
 
-      retries = 0
-
-      begin
+      retrying_on_race_condition(:@teachers, teacher_record.servidor_id) do
         update_teacher_record(teacher_record)
-      rescue ActiveRecord::RecordNotUnique => error
-        raise error unless error.message.include?('api_code')
-
-        retries += 1
-        raise error if retries > MAX_RETRIES
-
-        Rails.logger.warn(
-          "TeachersSynchronizer: corrida em api_code=#{teacher_record.servidor_id} " \
-          "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RETRIES})"
-        )
-
-        reset_record(:@teachers, teacher_record.servidor_id)
-        retry
       end
     end
 

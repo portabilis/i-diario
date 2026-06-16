@@ -94,7 +94,7 @@ RSpec.describe StudentsSynchronizer do
       expect(call_count).to eq(1)
     end
 
-    it 'gives up after MAX_RETRIES when the api_code collision persists' do
+    it 'gives up after MAX_RECORD_RETRIES when the api_code collision persists' do
       call_count = 0
 
       allow(Student).to receive(:with_discarded).and_return(Student)
@@ -110,8 +110,8 @@ RSpec.describe StudentsSynchronizer do
 
       expect { synchronizer.synchronize! }.to raise_error(ActiveRecord::RecordNotUnique, /api_code/)
 
-      # Tentativa inicial + MAX_RETRIES retries, e para
-      expect(call_count).to eq(StudentsSynchronizer::MAX_RETRIES + 1)
+      # Tentativa inicial + MAX_RECORD_RETRIES retries, e para
+      expect(call_count).to eq(StudentsSynchronizer::MAX_RECORD_RETRIES + 1)
     end
   end
 

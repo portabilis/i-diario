@@ -1,6 +1,4 @@
 class StudentsSynchronizer < BaseSynchronizer
-  MAX_RETRIES = 3
-
   def synchronize!
     update_students(
       HashDecorator.new(
@@ -29,9 +27,7 @@ class StudentsSynchronizer < BaseSynchronizer
     students.each do |student_record|
       next if student_record.nome_aluno.blank?
 
-      retries = 0
-
-      begin
+      retrying_on_race_condition(:@students, student_record.aluno_id) do
         (
           student(student_record.aluno_id) || Student.new(api_code: student_record.aluno_id)
         ).tap do |student|
@@ -60,19 +56,6 @@ class StudentsSynchronizer < BaseSynchronizer
 
           create_users(student.id) if allow_create_users_for_students && student_user_new?(student) && !student.discarded?
         end
-      rescue ActiveRecord::RecordNotUnique => error
-        raise error unless error.message.include?('api_code')
-
-        retries += 1
-        raise error if retries > MAX_RETRIES
-
-        Rails.logger.warn(
-          "StudentsSynchronizer: corrida em api_code=#{student_record.aluno_id} " \
-          "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RETRIES})"
-        )
-
-        reset_record(:@students, student_record.aluno_id)
-        retry
       end
     end
   end

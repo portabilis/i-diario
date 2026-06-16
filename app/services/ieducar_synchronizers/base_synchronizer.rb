@@ -1,4 +1,6 @@
 class BaseSynchronizer
+  MAX_RECORD_RETRIES = 3
+
   class << self
     def synchronize!(params)
       worker_batch = params[:worker_batch]
@@ -214,6 +216,29 @@ class BaseSynchronizer
   # processo. Sem isso, o retry releria o nil obsoleto e tentaria recriar.
   def reset_record(cache_ivar, api_code)
     instance_variable_get(cache_ivar)&.delete(api_code.to_s)
+  end
+
+  # Executa o bloco tratando a race condition de criação concorrente do mesmo
+  # api_code. Concentra em um único lugar o retry limitado (MAX_RECORD_RETRIES).
+  def retrying_on_race_condition(cache_ivar, api_code)
+    retries = 0
+
+    begin
+      yield
+    rescue ActiveRecord::RecordNotUnique => error
+      raise error unless error.message.include?('api_code')
+
+      retries += 1
+      raise error if retries > MAX_RECORD_RETRIES
+
+      Rails.logger.warn(
+        "#{self.class.name}: corrida em api_code=#{api_code} " \
+        "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RECORD_RETRIES})"
+      )
+
+      reset_record(cache_ivar, api_code)
+      retry
+    end
   end
 
   def preload_records(cache_ivar, model, api_codes, with_discarded: false)
