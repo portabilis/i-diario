@@ -4,6 +4,7 @@
     <script type="text/javascript">
       window.number_of_classes = <%= @number_of_classes %>;
       window.allow_automatic_recovery = <%= @allow_automatic_avaliation_recovery %>;
+      window.force_recovery_creation = <%= @force_recovery_creation %>;
     </script>
   <% end %>
 
@@ -79,8 +80,8 @@
               <th width="450px">
                 <div class="control-group boolean optional">
                   <div class="controls input">
-                    <label class="checkbox" style="display: inline;">
-                      <input class="boolean optional" type="checkbox" value="1" id="select-all-recovery" checked="checked">
+                    <label class="checkbox <%= 'state-disabled' if @force_recovery_creation %>" style="display: inline;">
+                      <input class="boolean optional" type="checkbox" value="1" id="select-all-recovery" checked="checked" <%= 'disabled' if @force_recovery_creation %>>
                       <i></i>
                       <strong><%= Avaliation.human_attribute_name(:should_create_recovery) %></strong>
                     </label>
