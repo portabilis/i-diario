@@ -35,13 +35,16 @@ class StudentUnification
     end
 
     def unified?(record, secondary_student_id)
-      audits = record.audits
-                     .where(action: 'update')
-                     .where("audited_changes ILIKE '%student_id:%'")
+      target_change = [secondary_student_id, @main_student.id]
 
-      return if audits.empty?
+      record.audits
+            .where(action: 'update')
+            .select(:id, :audited_changes)
+            .find_each(batch_size: 100) do |audit|
+        return true if audit.audited_changes['student_id'] == target_change
+      end
 
-      audits.any? { |audit| audit.audited_changes['student_id'] == [secondary_student_id, @main_student.id] }
+      false
     end
 
     def discardable?(klass)

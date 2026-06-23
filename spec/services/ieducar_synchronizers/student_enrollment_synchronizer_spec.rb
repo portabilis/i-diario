@@ -268,15 +268,18 @@ RSpec.describe StudentEnrollmentSynchronizer, type: :service do
       end
 
       it 'discards student enrollment and does not process it' do
-        expect {
-          synchronizer.send(:update_student_enrollments, [student_enrollment_data])
-        }.not_to change(StudentEnrollment, :count)
-
         existing_enrollment = create(:student_enrollment, api_code: '12345')
+
         synchronizer.send(:update_student_enrollments, [student_enrollment_data])
 
-        existing_enrollment.reload
-        expect(existing_enrollment.discarded?).to be true
+        # A matrícula existente é descartada (default_scope :kept exclui descartadas do count)
+        expect(existing_enrollment.reload.discarded?).to be true
+
+        # Nenhuma matrícula nova é criada; apenas a existente, agora descartada
+        expect(StudentEnrollment.with_discarded.where(api_code: '12345').count).to eq(1)
+
+        # E, descartada, não aparece mais no escopo padrão (kept)
+        expect(StudentEnrollment.where(api_code: '12345').count).to eq(0)
       end
     end
   end

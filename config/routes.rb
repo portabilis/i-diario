@@ -48,6 +48,7 @@ Rails.application.routes.draw do
         end
         resources :teaching_plans, only: [:index]
         resources :daily_physical_frequencies, only: [:create, :index]
+        resources :ieducar_api_student_transfers, only: [:create]
         resources :discipline_records, only: [] do
           collection do
             post :count
