@@ -55,7 +55,30 @@ class InfrequencyTrackingNotifier
   end
 
   def students_with_absences(classroom_id, start_at)
-    students_with_absences_query(start_at).by_classroom_id(classroom_id).pluck(:student_id).uniq
+    student_ids = students_with_absences_query(start_at).by_classroom_id(classroom_id).pluck(:student_id).uniq
+
+    student_ids.select { |student_id| notify_classroom_for_student?(classroom_id, student_id) }
+  end
+
+  # Notifica a turma somente se o aluno ainda está matriculado nela em end_at, OU se ele
+  # não está ativo em nenhuma turma (transferido sem nova matrícula — "limbo"). No limbo a
+  # notificação vai para a origem para não se perder.
+  def notify_classroom_for_student?(classroom_id, student_id)
+    actively_enrolled_on_classroom?(classroom_id, student_id) ||
+      not_enrolled_in_any_classroom?(student_id)
+  end
+
+  def actively_enrolled_on_classroom?(classroom_id, student_id)
+    StudentEnrollmentClassroom.by_classroom(classroom_id)
+                              .by_date(end_at)
+                              .by_student(student_id)
+                              .exists?
+  end
+
+  def not_enrolled_in_any_classroom?(student_id)
+    StudentEnrollmentClassroom.by_date(end_at)
+                              .by_student(student_id)
+                              .none?
   end
 
   def last_notification_date(classroom_id, student_id, type)
