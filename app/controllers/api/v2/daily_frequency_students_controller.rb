@@ -7,7 +7,7 @@ module Api
         daily_frequency_student = DailyFrequencyStudent.find(params[:id])
         daily_frequency_student.update(
           present: params[:present],
-          active: daily_frequency_student.student_enrollment_classroom.present?
+          active: daily_frequency_student.enrolled_in_classroom?
         )
 
         respond_with daily_frequency_student
@@ -56,7 +56,7 @@ module Api
 
             # Antes de salvar busca o real status do aluno na turma, caso ele tenha saído
             # da turma, o registro de frequência deve ser inativo
-            daily_frequency_student.active = daily_frequency_student.student_enrollment_classroom.present?
+            daily_frequency_student.active = daily_frequency_student.enrolled_in_classroom?
             daily_frequency_student.save
           rescue ActiveRecord::RecordNotUnique
             retry
