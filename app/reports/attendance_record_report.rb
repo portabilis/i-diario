@@ -343,15 +343,13 @@ class AttendanceRecordReport < BaseReport
       students_cells = []
       students = students.sort_by { |(_key, value)| value[:dependence] ? 1 : 0 }
       sequence = 1 unless @show_inactive_enrollments
-      sequence_reseted = false
+      dependence_sequence = 0
 
       students.each do |_key, value|
-        if !sequence_reseted && value[:dependence]
-          sequence = 1
-          sequence_reseted = true
-        end
-
-        if @show_inactive_enrollments
+        if value[:dependence]
+          dependence_sequence += 1
+          sequence_cell = make_cell(content: dependence_sequence.to_s, align: :center)
+        elsif @show_inactive_enrollments
           sequence_cell = make_cell(content: value[:sequence].to_s, align: :center)
         else
           sequence_cell = make_cell(content: sequence.to_s, align: :center)
