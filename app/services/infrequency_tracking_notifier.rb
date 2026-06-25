@@ -56,29 +56,50 @@ class InfrequencyTrackingNotifier
 
   def students_with_absences(classroom_id, start_at)
     student_ids = students_with_absences_query(start_at).by_classroom_id(classroom_id).pluck(:student_id).uniq
+    return student_ids if student_ids.empty?
 
-    student_ids.select { |student_id| notify_classroom_for_student?(classroom_id, student_id) }
+    active_enrollments = active_enrollment_pairs(student_ids)
+    absences = absence_pairs(student_ids, start_at)
+
+    enrolled_here = students_enrolled_in(active_enrollments, classroom_id)
+    with_absence_in_active_classroom = students_with_absence_in_active_classroom(active_enrollments, absences)
+    most_recent_absence_classroom = most_recent_absence_classroom_by_student(absences)
+
+    student_ids.select do |student_id|
+      enrolled_here.include?(student_id) ||
+        # Sem turma atual que dispare (transferido sem falta na turma nova, ou limbo): notifica
+        # apenas a turma da falta mais recente, para não notificar várias origens passadas.
+        (with_absence_in_active_classroom.exclude?(student_id) &&
+          most_recent_absence_classroom[student_id] == classroom_id)
+    end
   end
 
-  # Notifica a turma somente se o aluno ainda está matriculado nela em end_at, OU se ele
-  # não está ativo em nenhuma turma (transferido sem nova matrícula — "limbo"). No limbo a
-  # notificação vai para a origem para não se perder.
-  def notify_classroom_for_student?(classroom_id, student_id)
-    actively_enrolled_on_classroom?(classroom_id, student_id) ||
-      not_enrolled_in_any_classroom?(student_id)
+  def students_enrolled_in(active_enrollments, classroom_id)
+    active_enrollments.select { |_student_id, id| id == classroom_id }.map(&:first).to_set
   end
 
-  def actively_enrolled_on_classroom?(classroom_id, student_id)
-    StudentEnrollmentClassroom.by_classroom(classroom_id)
-                              .by_date(end_at)
-                              .by_student(student_id)
-                              .exists?
+  def students_with_absence_in_active_classroom(active_enrollments, absences)
+    (active_enrollments & absences).map(&:first).to_set
   end
 
-  def not_enrolled_in_any_classroom?(student_id)
+  def most_recent_absence_classroom_by_student(absences)
+    absences.each_with_object({}) { |(student_id, id), hash| hash[student_id] = id }
+  end
+
+  def active_enrollment_pairs(student_ids)
     StudentEnrollmentClassroom.by_date(end_at)
-                              .by_student(student_id)
-                              .none?
+                              .joins(classrooms_grade: :classroom)
+                              .joins(student_enrollment: :student)
+                              .where(students: { id: student_ids })
+                              .where(student_enrollments: { active: IeducarBooleanState::ACTIVE })
+                              .pluck('students.id', 'classrooms_grades.classroom_id')
+  end
+
+  def absence_pairs(student_ids, start_at)
+    students_with_absences_query(start_at)
+      .where(student_id: student_ids)
+      .order(:frequency_date)
+      .pluck(:student_id, :classroom_id)
   end
 
   def last_notification_date(classroom_id, student_id, type)
