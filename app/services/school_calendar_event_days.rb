@@ -5,7 +5,8 @@ class SchoolCalendarEventDays
     action_name,
     old_start_date = nil,
     old_end_date = nil,
-    event_type_changed = false
+    event_type_changed = false,
+    scope_changed = false
   )
     @school_calendars = school_calendars
     @events = events
@@ -13,6 +14,7 @@ class SchoolCalendarEventDays
     @old_start_date = old_start_date
     @old_end_date = old_end_date
     @event_type_changed = event_type_changed
+    @scope_changed = scope_changed
   end
 
   def self.update_school_days(
@@ -21,7 +23,8 @@ class SchoolCalendarEventDays
     action_name,
     old_start_date = nil,
     old_end_date = nil,
-    event_type_changed = false
+    event_type_changed = false,
+    scope_changed = false
   )
     new(
       school_calendars,
@@ -29,7 +32,8 @@ class SchoolCalendarEventDays
       action_name,
       old_start_date,
       old_end_date,
-      event_type_changed
+      event_type_changed,
+      scope_changed
     ).update_school_days
   end
 
@@ -49,6 +53,8 @@ class SchoolCalendarEventDays
         else
           update_school_days_for_event_type(event_type, days)
         end
+
+        process_school_days(event_type, days, :create) if @scope_changed && event_type_includes_no_school?
       end
     end
   end

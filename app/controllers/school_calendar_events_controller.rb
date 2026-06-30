@@ -64,16 +64,22 @@ class SchoolCalendarEventsController < ApplicationController
 
     event_type_changed = resource.event_type_changed?
 
+    scope_changed = resource.periods_changed? ||
+                    resource.grade_id_changed? ||
+                    resource.classroom_id_changed? ||
+                    resource.course_id_changed?
+
     ActiveRecord::Base.transaction do
       if resource.save
-        if dates_changed || event_type_changed
+        if dates_changed || event_type_changed || scope_changed
           SchoolCalendarEventDays.update_school_days(
             [school_calendar],
             [resource],
             action_name,
             old_start_date || resource.start_date,
             old_end_date || resource.end_date,
-            event_type_changed
+            event_type_changed,
+            scope_changed
           )
         end
       else

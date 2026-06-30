@@ -51,4 +51,53 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
       it { expect(user.current_user_role).to_not be_present }
     end
   end
+
+  describe 'PATCH #update' do
+    let(:school_calendar) { create(:school_calendar, :with_trimester_steps, unity: unity) }
+    let(:step) { school_calendar.steps.first }
+    let!(:event) do
+      create(
+        :school_calendar_event,
+        school_calendar: school_calendar,
+        coverage: 'by_unity',
+        event_type: EventTypes::NO_SCHOOL,
+        periods: Periods::VESPERTINE,
+        legend: 'A',
+        start_date: step.start_at,
+        end_date: step.start_at
+      )
+    end
+
+    before do
+      allow_any_instance_of(SchoolCalendarEvent).to receive(:save).and_return(true)
+      allow(SchoolCalendarEventDays).to receive(:update_school_days)
+    end
+
+    def patch_update(attributes)
+      patch :update, params: {
+        school_calendar_id: school_calendar.id,
+        id: event.id,
+        locale: 'pt-BR',
+        school_calendar_event: attributes
+      }
+    end
+
+    context 'when the event scope changes (periods)' do
+      it 'triggers the frequency cleanup with scope_changed true' do
+        patch_update(periods: "#{Periods::VESPERTINE},#{Periods::MATUTINAL}")
+
+        expect(SchoolCalendarEventDays).to have_received(:update_school_days).with(
+          [school_calendar], [event], 'update', anything, anything, false, true
+        )
+      end
+    end
+
+    context 'when only a non-scope field changes (description)' do
+      it 'does not trigger the frequency cleanup' do
+        patch_update(description: 'Nova descrição do evento')
+
+        expect(SchoolCalendarEventDays).not_to have_received(:update_school_days)
+      end
+    end
+  end
 end

@@ -663,4 +663,83 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
     end
   end
+
+  # Evento criado cobrindo só um turno e depois editado ampliando/alterando o turno.
+  # Como a edição não muda as datas, o reprocessamento precisa do parâmetro scope_changed
+  # para excluir as frequências do novo escopo.
+  describe 'when the event scope changes on update' do
+    let!(:matutinal_classroom) {
+      create(:classroom, unity: school_calendars.last.unity, period: Periods::MATUTINAL)
+    }
+    let!(:vespertine_classroom) {
+      create(:classroom, unity: school_calendars.last.unity, period: Periods::VESPERTINE)
+    }
+    let!(:matutinal_classroom_grade) {
+      create(:classrooms_grade, classroom: matutinal_classroom)
+    }
+    let!(:vespertine_classroom_grade) {
+      create(:classrooms_grade, classroom: vespertine_classroom)
+    }
+    let!(:matutinal_frequency) {
+      create(
+        :daily_frequency,
+        classroom: matutinal_classroom,
+        frequency_date: '2017-02-15',
+        unity: school_calendars.last.unity,
+        school_calendar: school_calendars.last,
+        period: Periods::MATUTINAL
+      )
+    }
+    let(:event) {
+      build(
+        :school_calendar_event,
+        school_calendar: school_calendars.last,
+        coverage: 'by_unity',
+        periods: Periods::MATUTINAL,
+        event_type: EventTypes::NO_SCHOOL,
+        grade_id: '',
+        course_id: '',
+        classroom_id: '',
+        show_in_frequency_record: false,
+        start_date: '2017-02-15',
+        end_date: '2017-02-15'
+      )
+    }
+
+    context 'when scope_changed is true' do
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15),
+          Date.new(2017, 2, 15),
+          false,
+          true
+        )
+      end
+
+      it 'deletes the daily_frequency of the period added to the coverage' do
+        expect { subject }.to change { DailyFrequency.where(id: matutinal_frequency.id).count }.by(-1)
+      end
+    end
+
+    context 'when scope_changed is false' do
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15),
+          Date.new(2017, 2, 15),
+          false,
+          false
+        )
+      end
+
+      it 'does not delete the daily_frequency' do
+        expect { subject }.not_to change { DailyFrequency.where(id: matutinal_frequency.id).count }
+      end
+    end
+  end
 end
