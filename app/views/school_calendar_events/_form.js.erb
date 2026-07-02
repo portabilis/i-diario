@@ -1,6 +1,17 @@
 $(document).ready(function () {
-  // Mensagem adapta o verbo conforme o usuário esteja criando ou editando o evento.
+  // Mensagem adapta o termo conforme o usuário esteja criando ou editando o evento.
   var actionWord = <%= @school_calendar_event.persisted? ? "'A alteração'".html_safe : "'A criação'".html_safe %>;
+
+  var submitButton = $('#submit-school-calendar-event-button');
+  var eventForm = submitButton.closest('form');
+  var confirmationField = $('#frequency-deletion-confirmed');
+  // Libera o envio depois que a exclusão de frequências for confirmada no modal.
+  var frequencyDeletionConfirmed = false;
+
+  function removesFrequencies() {
+    var eventType = $('#school_calendar_event_event_type').val();
+    return ['extra_school_without_frequency', 'no_school'].includes(eventType);
+  }
 
   function setUpModalOptions() {
     var message =
@@ -12,7 +23,7 @@ $(document).ready(function () {
       "<abbr title='obrigatório'> *</abbr>" +
       "</label></div>";
 
-    var modalOptions = {
+    return {
       title: 'Deseja prosseguir com a criação/edição do evento?',
       message: message,
       backdrop: true,
@@ -25,32 +36,42 @@ $(document).ready(function () {
           label: 'Continuar',
           className: 'new-school-calendar-event-button',
           callback: function () {
-            $('#submit-school-calendar-event-button').click();
+            frequencyDeletionConfirmed = true;
+            confirmationField.val('true');
+            eventForm[0].submit();
           }
         }
       }
     };
-    return modalOptions
   }
 
+  function openConfirmationModal() {
+    var dialog = bootbox.dialog(setUpModalOptions());
+
+    // O botão "Continuar" só é habilitado após o usuário marcar o checkbox de ciência.
+    var confirmButton = dialog.find('.new-school-calendar-event-button');
+    confirmButton.prop('disabled', true);
+
+    dialog.on('change', '#confirm-delete-frequencies-checkbox', function () {
+      confirmButton.prop('disabled', !this.checked);
+    });
+  }
+
+  // Intercepta QUALQUER envio do form (clique em "Salvar", tecla Enter em um campo).
+  // Amarrar a confirmação ao submit e não ao clique do botão, impede que o
+  // Enter dispare a submissão nativa pulando o modal e excluindo frequências sem aviso.
+  // stopPropagation evita que o Rails UJS desabilite o botão neste submit cancelado.
+  eventForm.on('submit', function (e) {
+    if (removesFrequencies() && !frequencyDeletionConfirmed) {
+      e.preventDefault();
+      e.stopPropagation();
+      openConfirmationModal();
+    }
+  });
+
+  // O "Salvar" visível é um link; encaminha para o submit do form (que aciona o fluxo acima).
   $('#new-school-calendar-event-button').on('click', function (e) {
     e.preventDefault();
-
-    var event_type = $('#school_calendar_event_event_type').val()
-
-    if (['extra_school_without_frequency', 'no_school'].includes(event_type)) {
-      var dialog = bootbox.dialog(setUpModalOptions());
-
-      // O botão "Continuar" só é habilitado após o usuário marcar o checkbox de ciência.
-      var confirmButton = dialog.find('.new-school-calendar-event-button');
-      confirmButton.prop('disabled', true);
-
-      dialog.on('change', '#confirm-delete-frequencies-checkbox', function () {
-        confirmButton.prop('disabled', !this.checked);
-      });
-    } else {
-      $('#submit-school-calendar-event-button').click();
-    }
-
+    submitButton.click();
   });
 });

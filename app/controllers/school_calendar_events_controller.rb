@@ -24,6 +24,8 @@ class SchoolCalendarEventsController < ApplicationController
 
     authorize resource
 
+    return render :new if unconfirmed_frequency_deletion?(resource.removes_frequency_records?)
+
     ActiveRecord::Base.transaction do
       if resource.valid?
         SchoolCalendarEventDays.update_school_days(
@@ -68,6 +70,11 @@ class SchoolCalendarEventsController < ApplicationController
                     resource.grade_id_changed? ||
                     resource.classroom_id_changed? ||
                     resource.course_id_changed?
+
+    deletion_will_run = resource.removes_frequency_records? &&
+                        (dates_changed || event_type_changed || scope_changed)
+
+    return render :edit if unconfirmed_frequency_deletion?(deletion_will_run)
 
     ActiveRecord::Base.transaction do
       if resource.save
@@ -174,6 +181,20 @@ class SchoolCalendarEventsController < ApplicationController
 
   def school_calendar
     @school_calendar = SchoolCalendar.find(params[:school_calendar_id])
+  end
+
+  def unconfirmed_frequency_deletion?(deletion_will_run)
+    return false unless deletion_will_run
+    return false if frequency_deletion_confirmed?
+
+    resource.errors.add(:base, I18n.t('school_calendar_events.frequency_deletion_not_confirmed'))
+    clear_invalid_dates
+
+    true
+  end
+
+  def frequency_deletion_confirmed?
+    params[:frequency_deletion_confirmed] == 'true'
   end
 
   def clear_invalid_dates

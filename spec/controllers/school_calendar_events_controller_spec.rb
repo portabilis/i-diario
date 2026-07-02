@@ -73,28 +73,38 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
       allow(SchoolCalendarEventDays).to receive(:update_school_days)
     end
 
-    def patch_update(attributes)
+    def patch_update(attributes, confirmed: true)
       patch :update, params: {
         school_calendar_id: school_calendar.id,
         id: event.id,
         locale: 'pt-BR',
+        frequency_deletion_confirmed: confirmed,
         school_calendar_event: attributes
       }
     end
 
-    context 'when the event scope changes (periods)' do
+    context 'when the event scope changes (periods) and deletion is confirmed' do
       it 'triggers the frequency cleanup with scope_changed true' do
         patch_update(periods: "#{Periods::VESPERTINE},#{Periods::MATUTINAL}")
 
         expect(SchoolCalendarEventDays).to have_received(:update_school_days).with(
-          [school_calendar], [event], 'update', anything, anything, false, true
+          [school_calendar], [event], 'update', step.start_at, step.start_at, false, true
         )
+      end
+    end
+
+    context 'when the event scope changes but deletion is NOT confirmed' do
+      it 'blocks the deletion (fail-closed) and does not call the cleanup' do
+        patch_update({ periods: "#{Periods::VESPERTINE},#{Periods::MATUTINAL}" }, confirmed: false)
+
+        expect(SchoolCalendarEventDays).not_to have_received(:update_school_days)
+        expect(response).to render_template(:edit)
       end
     end
 
     context 'when only a non-scope field changes (description)' do
       it 'does not trigger the frequency cleanup' do
-        patch_update(description: 'Nova descrição do evento')
+        patch_update({ description: 'Nova descrição do evento' }, confirmed: false)
 
         expect(SchoolCalendarEventDays).not_to have_received(:update_school_days)
       end
