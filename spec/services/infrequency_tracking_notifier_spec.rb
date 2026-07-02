@@ -129,4 +129,55 @@ RSpec.describe InfrequencyTrackingNotifier, type: :service do
       end
     end
   end
+
+  describe '#alternating_absences?' do
+    subject(:notifier) { described_class.new }
+
+    before do
+      allow(notifier).to receive(:general_configuration)
+        .and_return(double('general_configuration', max_alternate_absence_days: 7))
+    end
+
+    # Aluno em mais de uma turma pode ter a mesma data de falta repetida (um registro por turma).
+    # O mesmo dia deve contar uma vez só — senão dispara alternadas com menos dias que o limite.
+    it 'counts each day once when the same absence date comes from more than one classroom' do
+      dates = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12].map { |day| Date.new(2026, 6, day) }
+
+      expect(notifier.send(:alternating_absences?, dates)).to eq(false)
+    end
+
+    it 'notifies when the number of distinct days reaches the limit' do
+      dates = (1..7).map { |day| Date.new(2026, 6, day) }
+
+      expect(notifier.send(:alternating_absences?, dates)).to eq(true)
+    end
+  end
+
+  describe '#consecutive_absences?' do
+    subject(:notifier) { described_class.new }
+
+    before do
+      allow(notifier).to receive(:general_configuration)
+        .and_return(double('general_configuration', max_consecutive_absence_days: 5))
+    end
+
+    # os 5 últimos dias letivos até ontem (a sequência esperada)
+    let(:school_dates) do
+      [Date.new(2026, 6, 25), Date.new(2026, 6, 26), Date.new(2026, 6, 29), Date.new(2026, 6, 30), Date.new(2026, 7, 1)]
+    end
+
+    # Sem o dedupe, as datas repetidas (uma por turma) quebrariam a comparação e a sequência
+    # deixaria de ser reconhecida — este teste falha sem o .uniq.
+    it 'recognizes the streak even when the same date comes from more than one classroom' do
+      absence_dates = [
+        Date.new(2026, 6, 25), Date.new(2026, 6, 25),
+        Date.new(2026, 6, 26), Date.new(2026, 6, 26),
+        Date.new(2026, 6, 29), Date.new(2026, 6, 29),
+        Date.new(2026, 6, 30), Date.new(2026, 6, 30),
+        Date.new(2026, 7, 1),  Date.new(2026, 7, 1)
+      ]
+
+      expect(notifier.send(:consecutive_absences?, school_dates, absence_dates)).to eq(true)
+    end
+  end
 end

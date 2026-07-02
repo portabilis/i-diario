@@ -131,7 +131,7 @@ class InfrequencyTrackingNotifier
 
   def consecutive_absences?(school_dates, absence_dates)
     max_days = general_configuration.max_consecutive_absence_days
-    consecutive_absences = absence_dates.reverse.slice(0, max_days)
+    consecutive_absences = absence_dates.uniq.reverse.slice(0, max_days)
 
     consecutive_school_dates(school_dates) == consecutive_absences
   end
@@ -139,7 +139,7 @@ class InfrequencyTrackingNotifier
   def alternating_absences?(absence_dates)
     max_days = general_configuration.max_alternate_absence_days
 
-    absence_dates.count >= max_days
+    absence_dates.uniq.count >= max_days
   end
 
   def create_infrequency_tracking(student_id, classroom_id, notification_data, infrequency_tracking_type)
