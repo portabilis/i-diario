@@ -8,16 +8,7 @@ class DailyNotesController < ApplicationController
 
   def index
     set_options_by_user
-
-    if params[:filter].present? && params[:filter][:by_step_id].present?
-      step_id = params[:filter].delete(:by_step_id)
-      if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
-        params[:filter][:by_school_calendar_classroom_step_id] = step_id
-      else
-        params[:filter][:by_school_calendar_step_id] = step_id
-      end
-    end
-
+    set_filters
     fetch_daily_notes_and_avaliations
 
     authorize @daily_notes
@@ -68,6 +59,7 @@ class DailyNotesController < ApplicationController
 
     begin
       if @daily_note.save
+        create_recovery_if_needed
         respond_with @daily_note, location: daily_notes_path
       else
         reload_students_list
@@ -118,11 +110,30 @@ class DailyNotesController < ApplicationController
     render json: @daily_notes
   end
 
+  def fetch_steps
+    set_options_by_user
+    classroom_id = params[:classroom_id]
+
+    classrooms = if classroom_id.present? && classroom_id != 'empty'
+                   classroom = @classrooms.find { |c| c.id == classroom_id.to_i }
+                   classroom ? [classroom] : @classrooms
+                 else
+                   @classrooms
+                 end
+
+    steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms
+    )
+
+    render json: steps
+  end
+
   def exempt_students
     @students_ids = params[:exemption_students_ids].split(',')
 
     @students_ids.each do |student_id|
-      begin
+
         avaliation_exemption = AvaliationExemption.find_or_initialize_by(
           student_id: student_id,
           avaliation_id: params[:exemption_avaliation_id]
@@ -134,11 +145,11 @@ class DailyNotesController < ApplicationController
         delete_note(params[:id], student_id)
 
         avaliation_exemption.save!
-      rescue Exception => expection
+    rescue Exception => expection
         Honeybadger.notify(expection)
 
         @students_ids.delete(student_id)
-      end
+
     end
 
     @students_ids = @students_ids.to_json.html_safe
@@ -201,10 +212,6 @@ class DailyNotesController < ApplicationController
     @any_in_active_search = @students.select(&:in_active_search).any?
   end
 
-  def configuration
-    @configuration ||= IeducarApiConfiguration.current
-  end
-
   def resource_params
     params.require(:daily_note).permit(
       :avaliation_id,
@@ -230,12 +237,11 @@ class DailyNotesController < ApplicationController
 
     @classrooms ||= [current_user_classroom]
     @disciplines ||= [current_user_discipline]
-    @steps ||= SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
   end
 
   def fetch_daily_notes_and_avaliations
     @daily_notes = apply_scopes(DailyNote
-      .includes(:avaliation)
+      .eager_load(avaliation: :classroom)
       .by_unity_id(current_unity)
       .teacher_avaliations(
         current_teacher.id,
@@ -244,14 +250,21 @@ class DailyNotesController < ApplicationController
       )
       .order_by_classroom
       .order_by_avaliation_test_date_desc
+      .distinct
     )
 
     @avaliations = Avaliation.by_classroom_id(@classrooms.map(&:id)).by_discipline_id(@disciplines.map(&:id))
+    @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
+      current_school_calendar,
+      classrooms_for_steps_filter
+    )
   end
 
   def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT])
+    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
+current_school_year)
+    @classrooms = @fetch_linked_by_teacher[:classrooms].by_score_type([ScoreTypes::NUMERIC,
+                                                                       ScoreTypes::NUMERIC_AND_CONCEPT])
     @disciplines = @fetch_linked_by_teacher[:disciplines].by_score_type(ScoreTypes::NUMERIC)
   end
 
@@ -291,7 +304,8 @@ class DailyNotesController < ApplicationController
     @student_ids = set_enrollment_classrooms.map { |student_enrollment|
       student_enrollment[:student].id
     }
-    @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids, disciplines: @discipline)
+    @dependencies = StudentsInDependency.call(student_enrollments: @student_enrollment_ids,
+disciplines: @discipline)
     @exempted_from_discipline = StudentsExemptFromDiscipline.call(
       student_enrollments: @student_enrollment_ids, discipline: @discipline, step: @step.step_number
     )
@@ -317,12 +331,58 @@ class DailyNotesController < ApplicationController
     end
   end
 
+  def set_filters
+    params[:filter] ||= {}
+    set_default_filter_params
+
+    @step_id = nil
+    step_from_classroom_id = nil
+
+    if params[:filter][:by_step_id].present?
+      step_value = params[:filter].delete(:by_step_id)
+      @step_id, step_from_classroom_id = step_value.split(':')
+      params[:filter][:by_classroom_id] = step_from_classroom_id
+
+      step_scope_key = school_calendar_step_for_classroom(step_from_classroom_id.to_i)
+      params[:filter][step_scope_key] = @step_id
+    end
+
+    @filter = OpenStruct.new(params[:filter])
+    @filter.by_step_id = @step_id.present? ? "#{@step_id}:#{step_from_classroom_id}" : nil
+  end
+
+  def set_default_filter_params
+    return set_default_filter_for_admin_or_employee if current_user.current_role_is_admin_or_employee?
+
+    classroom_id = current_user_classroom&.id
+    discipline_id = current_user_discipline&.id
+    classroom_in_list = @classrooms.any? { |c| c.id == classroom_id }
+    discipline_in_list = @disciplines.any? { |d| d.id == discipline_id }
+
+    if classroom_in_list && discipline_in_list
+      params[:filter][:by_classroom_id] ||= classroom_id
+      params[:filter][:by_discipline_id] ||= discipline_id
+    else
+      flash.now[:alert] = t('avaliation.grades_not_allow_numeric_exam') unless classroom_in_list
+    end
+  end
+
+  def set_default_filter_for_admin_or_employee
+    params[:filter][:by_classroom_id] ||= current_user_classroom.id
+    params[:filter][:by_discipline_id] ||= current_user_discipline.id
+  end
+
   def check_duplicate_enrolled_students
+    test_date = @daily_note.test_date
+
     enrolled_students = set_enrollment_classrooms
                           .select { |ec|
+                            left_at = ec[:student_enrollment_classroom].left_at
+                            left_at_date = left_at.present? ? left_at.to_date : nil
+
                             ec[:student_enrollment].status == 3 &&
-                            ec[:student_enrollment].active == 1 &&
-                            ec[:student_enrollment_classroom].left_at.blank?
+                              ec[:student_enrollment].active == 1 &&
+                              (left_at_date.nil? || left_at_date >= test_date)
                           }
                           .map { |ec| ec[:student] }
 
@@ -341,4 +401,25 @@ class DailyNotesController < ApplicationController
     end
   end
 
+  def school_calendar_step_for_classroom(classroom_id)
+    if current_school_calendar.classrooms.exists?(classroom_id: classroom_id)
+      :by_school_calendar_classroom_step_id
+    else
+      :by_school_calendar_step_id
+    end
+  end
+
+  def classrooms_for_steps_filter
+    filtered_classroom_id = params.dig(:filter, :by_classroom_id)
+    classroom = @classrooms.find { |c| c.id == filtered_classroom_id.to_i }
+    classroom ? [classroom] : @classrooms
+  end
+
+  def create_recovery_if_needed
+    return unless @daily_note.avaliation.present?
+
+    if CreateAvaliationRecoveryService.new(@daily_note.avaliation, teacher_id: current_teacher_id, daily_note: @daily_note).call
+      flash[:warning] = t('daily_notes.recovery_created_notice')
+    end
+  end
 end

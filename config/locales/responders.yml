@@ -122,6 +122,10 @@ pt-BR:
         notice: '%{resource_name} foi criada com sucesso para a(s) turma(s) %{classrooms}.'
       destroy:
         alert: '%{resource_name} não pode ser apagada pois %{reason}.'
+      destroy_reasons:
+        has_recovery: 'possui recuperação de avaliação vinculada'
+        out_of_posting_period: 'a data está fora do período de lançamento da etapa'
+        has_daily_notes: 'possui notas lançadas'
 
     daily_notes:
       has_avaliation_recovery: 'Avaliação numérica não pode ser apagada pois possui vínculos.'

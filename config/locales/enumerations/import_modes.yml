@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    import_modes:
+      add_new: "Adicionar novos (manter existentes)"
+      replace: "Remover existentes e adicionar novos"

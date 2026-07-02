@@ -5,6 +5,8 @@ pt-BR:
         unity_id: 'Escola'
         classroom_id: 'Turma'
         discipline_id: 'Disciplina'
+        teacher_id: 'Professor'
+        student_id: 'Aluno'
         start_at: 'Data inicial'
         end_at: 'Data final'
 

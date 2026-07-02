@@ -17,6 +17,15 @@ class ClassroomsSynchronizer < BaseSynchronizer
   end
 
   def update_classrooms(classrooms)
+    @modified_at = api.send(:get_modified_date) unless synchronization.full_synchronization?
+
+    all_grades = classrooms.flat_map(&:series_regras)
+
+    preload_unities(classrooms.map(&:escola_id))
+    preload_classrooms(classrooms.map(&:id))
+    preload_grades(all_grades.map(&:serie_id).compact)
+    preload_exam_rules(all_grades.map(&:regra_avaliacao_id).compact)
+
     classrooms.each do |classroom_record|
       unity = unity(classroom_record.escola_id)
 
@@ -30,7 +39,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
       next if classroom_record.nome.nil?
 
-      Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
+      (
+        classroom(classroom_record.id) ||
+        Classroom.new(api_code: classroom_record.id)
+      ).tap do |classroom|
         old_name = classroom.description.try(:strip)
         new_name = classroom_record.nome.try(:strip)
         classroom.description = new_name
@@ -46,6 +58,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
         classroom.save!
 
+        preload_classrooms_grades(classroom.id)
+
         grades_ids = []
 
         classroom_record.series_regras.each do |grade_exam_rule|
@@ -56,16 +70,16 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          ClassroomsGrade.with_discarded.find_or_initialize_by(
-            classroom_id: classroom.id,
-            grade_id: grade.id
+          (
+            classrooms_grade(classroom.id, grade.id) ||
+            ClassroomsGrade.new(classroom_id: classroom.id, grade_id: grade.id)
           ).tap do |classroom_grade|
             classroom_grade.exam_rule_id = exam_rule.id
             classroom_grade.save!
           end
         end
 
-        destroy_old_grades(grades_ids, classroom.classrooms_grades)
+        destroy_old_grades(grades_ids, classroom.classrooms_grades, classroom_record.updated_at)
 
         update_label(classroom.id, new_name) if old_name != new_name
 
@@ -76,8 +90,21 @@ class ClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def destroy_old_grades(grades_ids, classroom_grades)
+  def destroy_old_grades(grades_ids, classroom_grades, classroom_updated_at)
+    return unless should_destroy_old_grades?(classroom_updated_at)
+
     classroom_grades.where.not(grade_id: grades_ids).destroy_all
+  end
+
+  # So deve destruir grades antigas se:
+  # 1. For uma sincronizacao completa (full_synchronization), OU
+  # 2. A turma foi modificada (updated_at >= modified_at), garantindo que todas as series foram retornadas na API
+  def should_destroy_old_grades?(classroom_updated_at)
+    return true if synchronization.full_synchronization?
+    return true if @modified_at.blank?
+
+    parsed_updated_at = Time.zone.parse(classroom_updated_at.to_s)
+    parsed_updated_at >= @modified_at
   end
 
   def remove_current_classroom_id_in_user_selectors(classroom_id)

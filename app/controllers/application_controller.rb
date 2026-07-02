@@ -463,6 +463,16 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def valid_email_for_notification?(email)
+    return false if email.blank?
+    return false if email.ends_with?('@ambiente.portabilis')
+
+    skip_domains = BaseMailer::SKIP_DOMAINS || []
+    return false if skip_domains.any? { |skip_domain| email.ends_with?(skip_domain) }
+
+    true
+  end
+
   def error_generic(expection)
     set_honeybadger_error(expection)
 

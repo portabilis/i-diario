@@ -6,15 +6,18 @@
   <% else %>
     <% @avaliation_exemptions.map { |avaliation_exemption| avaliation_exemption.localized }.each do |avaliation_exemption| %>
       <tr>
-        <td><%= avaliation_exemption.avaliation.unity.name %></td>
-        <td><%= avaliation_exemption.avaliation.grades.map(&:description).join(', ') %></td>
-        <td><%= avaliation_exemption.avaliation.classroom.description %></td>
-        <td><span class="multiline"><%= avaliation_exemption.student.to_s %></span/></td>
-        <td><%= "#{avaliation_exemption.avaliation.description} (#{avaliation_exemption.avaliation.discipline.description})" %></td>
+        <td><%= avaliation_exemption.avaliation.unity %></td>
+        <td><%= avaliation_exemption.avaliation.classroom %></td>
+        <td><span class="multiline"><%= avaliation_exemption.student %></span/></td>
+        <td><%= avaliation_exemption.avaliation.discipline %></td>
+        <td><%= avaliation_exemption.avaliation %></td>
         <td><%= avaliation_exemption.created_at %></td>
-        <td>
-          <%= link_to t('views.index.edit'), edit_avaliation_exemption_path(avaliation_exemption), class: "btn btn-success pull-left" %>
-          <%= link_to 'Excluir', avaliation_exemption_path(avaliation_exemption), class: "btn btn-danger pull-right", method: "delete", data: { confirm: t('views.index.confirm_deletion') } %>
+        <td class="actions">
+          <%= link_to t('views.index.edit'), edit_avaliation_exemption_path(avaliation_exemption),
+                      class: "btn btn-success pull-left" %>
+          <%= link_to t('views.index.delete'), avaliation_exemption_path(avaliation_exemption),
+                      class: "btn btn-danger pull-right", method: "delete",
+                      data: { confirm: t('views.index.confirm_deletion') } %>
         </td>
       </tr>
     <% end %>

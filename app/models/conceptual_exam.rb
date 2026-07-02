@@ -34,6 +34,9 @@ class ConceptualExam < ActiveRecord::Base
   scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
   scope :by_step_number, ->(step_number) { where(step_number: step_number) }
+  scope :by_recorded_at_between, ->(start_at, end_at) { where(recorded_at: start_at.to_date..end_at.to_date) }
+  scope :by_school_calendar_step, ->(step_id) { by_school_calendar_step_query(step_id) }
+  scope :by_school_calendar_classroom_step, ->(step_id) { by_school_calendar_classroom_step_query(step_id) }
   scope :by_discipline, lambda { |discipline|
     join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline })
   }
@@ -78,6 +81,7 @@ class ConceptualExam < ActiveRecord::Base
   def self.by_status(classroom_id, teacher_id, status)
     discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
                                                .by_teacher_id(teacher_id)
+                                               .where('score_type IS NULL OR score_type = ?', ScoreTypes::CONCEPT)
                                                .pluck(:discipline_id)
 
     exempted_discipline_ids = SpecificStep.where(classroom_id: classroom_id)
@@ -102,6 +106,7 @@ class ConceptualExam < ActiveRecord::Base
 
   def status
     discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)
+                                               .where('score_type IS NULL OR score_type = ?', ScoreTypes::CONCEPT)
                                                .pluck(:discipline_id)
 
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
@@ -191,6 +196,16 @@ class ConceptualExam < ActiveRecord::Base
           eq(arel_table[:id])
       ).join_sources
     )
+  end
+
+  def self.by_school_calendar_step_query(school_calendar_step_id)
+    school_calendar_step = SchoolCalendarStep.find(school_calendar_step_id)
+    by_recorded_at_between(school_calendar_step.start_at, school_calendar_step.end_at)
+  end
+
+  def self.by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)
+    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    by_recorded_at_between(school_calendar_classroom_step.start_at, school_calendar_classroom_step.end_at)
   end
 
   def uniqueness_of_student

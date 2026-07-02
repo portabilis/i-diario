@@ -49,13 +49,11 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam.teacher_id = current_teacher_id
     adjusted_period
 
-    regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
     @descriptive_exam.students.each do |exam_student|
       value_by_student = resource_params[:students_attributes].values.detect do |student|
         student[:student_id] == exam_student.student_id.to_s && student[:inactive_student] == 'false'
       end
       exam_student.value = value_by_student['value'] if value_by_student.present?
-      exam_student.value.gsub!(regular_expression, '') if exam_student.value.present?
     end
 
     authorize @descriptive_exam
@@ -107,7 +105,7 @@ class DescriptiveExamsController < ApplicationController
     select_options_by_user(params[:classroom_id])
     validate_opinion_type
 
-    render json: @opinion_types.to_json
+    render json: @opinion_types.to_json unless performed?
   end
 
   def find_step_number_by_classroom
@@ -219,16 +217,19 @@ class DescriptiveExamsController < ApplicationController
   def fetch_students
     @students = []
 
+    load_discipline_and_step
+    student_enrollment_ids = enrollment_classrooms_list.map { |info| info[:student_enrollment].id }
+    student_exempted = fetch_student_exemptions(student_enrollment_ids)
+    dependencies = fetch_student_dependencies(student_enrollment_ids)
+
     enrollment_classrooms_list.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment = enrollment_classroom[:student_enrollment]
       left_at = enrollment_classroom[:student_enrollment_classroom].left_at.to_date
       exam_student = @descriptive_exam.students.find_or_initialize_by(student_id: student.id)
       (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
-      exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
-      exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment)
-      regular_expression = /contenteditable(([ ]*)?\=?([ ]*)?("(.*)"|'(.*)'))/
-      exam_student.value = exam_student.value.gsub(regular_expression, '') if exam_student.value.present?
+      exam_student.dependence = dependencies[:student_enrollment] ? true : false
+      exam_student.exempted_from_discipline = student_exempted[student_enrollment.id] ? true : false
       exam_student.inactive_student = left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
 
       @students << exam_student
@@ -244,6 +245,27 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
+  def load_discipline_and_step
+    @discipline = @descriptive_exam.discipline
+    @step_number = @descriptive_exam.step.to_number
+  end
+
+  def fetch_student_exemptions(student_enrollment_ids)
+    StudentsExemptFromDiscipline.call(
+      student_enrollments: student_enrollment_ids,
+      discipline: @discipline,
+      step: @step_number,
+      classroom_id: @descriptive_exam.classroom_id
+    )
+  end
+
+  def fetch_student_dependencies(student_enrollment_ids)
+    StudentsInDependency.call(
+      student_enrollments: student_enrollment_ids,
+      disciplines: @discipline
+    )
+  end
+
   def require_teacher
     return if current_teacher
 
@@ -254,7 +276,7 @@ class DescriptiveExamsController < ApplicationController
   def select_options_by_user(classroom_id = nil)
     if current_user.current_role_is_admin_or_employee?
       @classrooms = [current_user_classroom]
-      @discipline = [current_user_discipline]
+      @disciplines = [current_user_discipline]
     else
       fetch_linked_by_teacher
 
@@ -313,24 +335,6 @@ class DescriptiveExamsController < ApplicationController
     @opinion_type = params.dig('descriptive_exam', 'opinion_type')
   end
 
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
-  end
-
-  def student_exempted_from_discipline?(student_enrollment)
-    if discipline_id = @descriptive_exam.discipline.try(:id)
-      step_number = @descriptive_exam.step.to_number
-
-      return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-        .by_step_number(step_number)
-        .any?
-    end
-
-    false
-  end
-
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
   end
@@ -346,7 +350,7 @@ class DescriptiveExamsController < ApplicationController
   def adjusted_period
     teacher_period = current_teacher_period(
       @descriptive_exam.classroom_id,
-      @descriptive_exam.discipline_id,
+      @descriptive_exam.discipline_id
     )
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
@@ -366,6 +370,13 @@ class DescriptiveExamsController < ApplicationController
       current_school_year
     )
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+                     .includes(classrooms_grades: { exam_rule: :differentiated_exam_rule })
+                     .select do |classroom|
+                       classroom.classrooms_grades.any? do |cg|
+                         cg.exam_rule.allow_descriptive_exam? ||
+                           cg.exam_rule.differentiated_exam_rule&.allow_descriptive_exam?
+                       end
+                     end
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
     @classroom_grades ||= @fetch_linked_by_teacher[:classroom_grades]
   end

@@ -26,20 +26,26 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    params[:start_date] = params[:frequency_in_batch_form][:start_date].to_date
-    params[:end_date] = params[:frequency_in_batch_form][:end_date].to_date
-    params[:classroom_id] = params[:frequency_in_batch_form][:classroom_id]
-    grade_id = ClassroomsGrade.find_by(classroom_id: params[:classroom_id]).grade_id
+    start_date = params[:frequency_in_batch_form][:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date
+    classroom_id = params[:frequency_in_batch_form][:classroom_id]
+    grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
 
-    if invalid_dates?(params[:start_date], params[:end_date], params[:classroom_id], grade_id)
+    if invalid_dates?(start_date, end_date, classroom_id, grade_id)
       redirect_to(new_daily_frequencies_in_batch_path) and return
     end
 
+    redirect_params = {
+      start_date: start_date,
+      end_date: end_date,
+      classroom_id: classroom_id
+    }
+
     if params[:frequency_in_batch_form][:discipline_id].present?
-      params[:discipline_id] = params[:frequency_in_batch_form][:discipline_id]
+      redirect_params[:discipline_id] = params[:frequency_in_batch_form][:discipline_id]
     end
 
-    setup_for_create_or_update_multiple
+    redirect_to create_or_update_multiple_daily_frequencies_in_batchs_path(redirect_params)
   end
 
   def create_or_update_multiple
@@ -60,15 +66,24 @@ class DailyFrequenciesInBatchsController < ApplicationController
       json_data = JSON.parse(body)
       daily_frequency_attributes = parse_json_frequency_attributes(json_data)
       daily_frequencies_attributes = parse_json_frequencies_attributes(json_data)
+      params[:start_date] = json_data['start_date']
+      params[:end_date] = json_data['end_date']
     else
       daily_frequency_attributes = daily_frequency_in_batchs_params
       daily_frequencies_attributes = daily_frequencies_in_batch_params
     end
 
-    receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
-      daily_frequency_attributes.dig(:frequency_in_batch_form, :receive_email_confirmation) ||
-      daily_frequency_attributes[:receive_email_confirmation]
-    )
+    general_configuration = GeneralConfiguration.current
+
+    # Se o parâmetro global estiver ativo, força o envio de e-mail
+    receive_email_confirmation = if general_configuration.always_send_email_on_daily_frequency_registration
+                                   true
+                                 else
+                                   ActiveRecord::Type::Boolean.new.cast(
+                                     daily_frequency_attributes.dig(:frequency_in_batch_form, :receive_email_confirmation) ||
+                                     daily_frequency_attributes[:receive_email_confirmation]
+                                   )
+                                 end
     dates = []
 
     ActiveRecord::Base.transaction do
@@ -176,6 +191,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
       end
 
+      # Verifica se existem justificativas lançadas durante o registro de frequência
+      check_and_preserve_existing_justifications_batch(daily_frequency_students_to_save)
+
       daily_frequency_students_to_save.each do |dfs|
         if dfs.absence_justification_student_id == -1
           Rails.logger.warn("DailyFrequencyStudent não salvo por absence_justification_student_id inválido: #{dfs.inspect}")
@@ -195,7 +213,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       end
     end
 
-    if receive_email_confirmation
+    if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = Classroom.find(daily_frequency_attributes[:classroom_id])
       unity = Unity.find(daily_frequency_attributes[:unity_id].to_i).name
 
@@ -209,7 +227,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           discipline_id: daily_frequency_attributes[:discipline_id],
           period: daily_frequency_attributes[:period]
         )}",
-        dates,
+        dates.uniq,
         classroom,
         unity
       )
@@ -309,6 +327,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     # Converte para inteiro pois @classroom.period pode vir como string do banco
     @period = current_teacher_period == Periods::FULL.to_i ? @classroom.period.to_i : current_teacher_period
     @general_configuration = GeneralConfiguration.current
+    @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
     @frequency_type = current_frequency_type(@classroom)
     params['dates'] = allocation_dates(@dates)
     @frequency_form = FrequencyInBatchForm.new
@@ -400,10 +419,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
           active_searchs.each do |active_search|
             next if active_search[:date] != date || !active_search[:student_ids].include?(student_id)
 
-            additional_class = 'in-active-search'
-            tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
-            additional_data << { date: active_search[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+            if @allow_active_search_frequency
+              additional_data << { date: active_search[:date], student_id: student_id,
+                                   additional_class: nil, tooltip: nil,
+                                   in_active_search_active: true }
+            else
+              additional_class = 'in-active-search'
+              tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
+              additional_data << { date: active_search[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip: tooltip }
+            end
           end
         end
         if dependences.any?
@@ -843,5 +868,39 @@ current_school_year)
     end
 
     students_attributes
+  end
+
+  def check_and_preserve_existing_justifications_batch(daily_frequency_students_to_save)
+    students_by_frequency = daily_frequency_students_to_save.group_by(&:daily_frequency)
+
+    students_by_frequency.each do |daily_frequency, students|
+      next unless daily_frequency.present?
+
+      frequency_date = daily_frequency.frequency_date.to_date
+      classroom_id = daily_frequency.classroom_id
+      period = daily_frequency.period
+      class_number = (daily_frequency.class_number || 0).to_i
+      student_ids = students.map(&:student_id)
+
+      existing_justifications = AbsenceJustificationPreserver.call(
+        frequency_date: frequency_date,
+        classroom_id: classroom_id,
+        period: period,
+        class_number: class_number,
+        student_ids: student_ids
+      )
+
+      # Para cada aluno, verifica se existe justificativa e preserva ela
+      students.each do |daily_frequency_student|
+        student_id = daily_frequency_student.student_id
+
+        # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+        # (mesmo que o professor tenha marcado presença)
+        if existing_justifications[student_id].present?
+          daily_frequency_student.present = false
+          daily_frequency_student.absence_justification_student_id = existing_justifications[student_id]
+        end
+      end
+    end
   end
 end

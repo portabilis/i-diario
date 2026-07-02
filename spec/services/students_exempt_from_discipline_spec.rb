@@ -67,13 +67,25 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
       end
 
       it 'should return invalid discipline error' do
-        expect {
+        expect do
           StudentsExemptFromDiscipline.call(
             student_enrollments: student_enrollments,
             discipline: 'string',
             step: 1
           )
-        }.to raise_error(NoMethodError)
+        end.to raise_error(NoMethodError)
+      end
+
+      it 'should return empty hash when discipline is nil (unified frequency)' do
+        create_enrollments_exempted(student_enrollments, discipline)
+
+        expect(
+          StudentsExemptFromDiscipline.call(
+            student_enrollments: student_enrollments,
+            discipline: nil,
+            step: 1
+          )
+        ).to be_empty
       end
 
       it 'should return empty hash to params step invalid' do
@@ -84,6 +96,101 @@ RSpec.describe StudentsExemptFromDiscipline, type: :service do
             step: discipline
           )
         ).to be_empty
+      end
+    end
+
+    # Novos testes para frequência unificada
+    context 'when checking unified frequency (discipline is nil and classroom_id is provided)' do
+      let(:classroom) { create(:classroom) }
+      let(:discipline1) { create(:discipline) }
+      let(:discipline2) { create(:discipline) }
+      let(:discipline3) { create(:discipline) }
+
+      before do
+        # Setup classroom disciplines
+        create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline1)
+        create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline2)
+        create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline3)
+      end
+
+      it 'should return only students exempt from ALL classroom disciplines' do
+        # Student 1: exempt from ALL disciplines
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments[0],
+               discipline: discipline1,
+               steps: '1')
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments[0],
+               discipline: discipline2,
+               steps: '1')
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments[0],
+               discipline: discipline3,
+               steps: '1')
+
+        # Student 2: exempt from only SOME disciplines
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments[1],
+               discipline: discipline1,
+               steps: '1')
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments[1],
+               discipline: discipline2,
+               steps: '1')
+        # NOT exempt from discipline3
+
+        # Student 3: no exemptions
+
+        student_enrollment_ids = student_enrollments.map(&:id)
+
+        result = StudentsExemptFromDiscipline.call(
+          student_enrollments: student_enrollment_ids,
+          discipline: nil,
+          step: 1,
+          classroom_id: classroom.id
+        )
+
+        # Only student 1 should be returned (exempt from ALL)
+        expect(result.keys).to eq([student_enrollments[0].id])
+        expect(result[student_enrollments[0].id]).to eq(1)
+      end
+
+      it 'should not return students exempt from only some disciplines' do
+        # Student exempt from only 2 out of 3 disciplines
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments.first,
+               discipline: discipline1,
+               steps: '1')
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: student_enrollments.first,
+               discipline: discipline2,
+               steps: '1')
+        # NOT exempt from discipline3
+
+        student_enrollment_ids = student_enrollments.map(&:id)
+
+        result = StudentsExemptFromDiscipline.call(
+          student_enrollments: student_enrollment_ids,
+          discipline: nil,
+          step: 1,
+          classroom_id: classroom.id
+        )
+
+        expect(result).to be_empty
+      end
+
+      it 'should return empty hash when classroom has no disciplines' do
+        empty_classroom = create(:classroom)
+        student_enrollment_ids = student_enrollments.map(&:id)
+
+        result = StudentsExemptFromDiscipline.call(
+          student_enrollments: student_enrollment_ids,
+          discipline: nil,
+          step: 1,
+          classroom_id: empty_classroom.id
+        )
+
+        expect(result).to be_empty
       end
     end
   end

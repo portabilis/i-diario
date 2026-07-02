@@ -18,6 +18,8 @@ class RegistrationsController < ApplicationController
       flash.now[:error] = t('errors.general.weak_password')
       render :new
     elsif @user = @signup.save
+      RegistrationTeacherLinkerService.call(@user)
+
       if @user.active?
         flash[:notice] = I18n.t('devise.registrations.signed_up')
         sign_in_and_redirect @user

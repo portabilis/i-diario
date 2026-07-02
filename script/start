@@ -8,6 +8,7 @@ if ! test -f ".setup"; then
   echo -e "
   development:
     secret_key_base: `bundle exec rails secret`
+    REDIS_URL: redis://idiario-redis
   " > config/secrets.yml
 
   cp config/database.sample.yml config/database.yml

@@ -8,6 +8,7 @@ pt-BR:
       classroom: 'Turma'
       empty_discipline: 'Geral'
       teacher: 'Professor'
+      student: 'Aluno'
       period: 'Período'
       period_content: '%{start_at} a %{end_at}'
       general_information: 'Informações gerais'

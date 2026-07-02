@@ -9,6 +9,18 @@ module IeducarApi
       super
     end
 
+    def fetch_by_cpf(cpf)
+      raise ApiError, 'É necessário informar o CPF' if cpf.blank?
+
+      params = {
+        path: 'module/Api/Servidor',
+        resource: 'dados-servidor',
+        cpf: cpf.gsub(/[^\d]/, '')
+      }
+
+      fetch(params)
+    end
+
     def fetch_teacher_report_card(params = {})
       params[:path] = 'module/Api/Report'
       params[:resource] = 'boletim-professor'

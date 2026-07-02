@@ -29,13 +29,17 @@ class TeacherUnification
     end
 
     def unified?(record, foreign_key, secondary_teacher_id)
-      audits = record.audits
-                     .where(action: 'update')
-                     .where('audited_changes ILIKE :foreign_key', foreign_key: "%#{foreign_key}%")
+      target_change = [secondary_teacher_id, @main_teacher.id]
+      fk_str = foreign_key.to_s
 
-      return if audits.empty?
+      record.audits
+            .where(action: 'update')
+            .select(:id, :audited_changes)
+            .find_each(batch_size: 100) do |audit|
+        return true if audit.audited_changes[fk_str] == target_change
+      end
 
-      audits.any? { |audit| audit.audited_changes[foreign_key.to_s] == [secondary_teacher_id, @main_teacher.id] }
+      false
     end
 
     def discardable?(klass)

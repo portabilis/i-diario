@@ -16,6 +16,8 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
   end
 
   def update_teacher_unifications(unifications)
+    preload_teachers(unifications.map(&:main_id).compact)
+
     unifications.each do |unification|
       next if unification.main_id.blank?
 

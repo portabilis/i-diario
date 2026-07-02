@@ -28,7 +28,7 @@ class TeacherClassroomAndDisciplineFetcher
   def classrooms_fetch
     return [] if unity.nil?
 
-    Classroom.by_unity_and_teacher(unity.id, teacher_id).by_year(current_school_year).ordered.distinct
+    Classroom.includes(:unity).by_unity_and_teacher(unity.id, teacher_id).by_year(current_school_year).ordered.distinct
   end
 
   def disciplines_fetch

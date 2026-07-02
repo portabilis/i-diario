@@ -1,6 +1,7 @@
 pt-BR:
   knowledge_area_content_records:
     index:
+      by_unity_id: "Filtrar Escola"
       by_classroom_description: "Filtrar turma"
       by_knowledge_area_description: "Filtrar área de conhecimento"
       by_date: "Filtrar data"

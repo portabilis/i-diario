@@ -7,7 +7,7 @@ module LessonPlanHelper
     case action_name
     when 'new', 'create'
       discipline_lesson_plans_path(locale: I18n.locale)
-    when 'edit'
+    when 'edit', 'update'
       discipline_lesson_plan_path(discipline_lesson_plan)
     when 'show'
       lesson_plan_opinion_path(discipline_lesson_plan.lesson_plan.id, locale: I18n.locale)
@@ -18,7 +18,7 @@ module LessonPlanHelper
     case action_name
     when 'new', 'create'
       :post
-    when 'show', 'edit'
+    when 'show', 'edit', 'update'
       :patch
     end
   end
@@ -27,7 +27,7 @@ module LessonPlanHelper
     case action_name
     when 'new', 'create'
       knowledge_area_lesson_plans_path(locale: I18n.locale)
-    when 'edit'
+    when 'edit', 'update'
       knowledge_area_lesson_plan_path(knowledge_area_lesson_plan)
     when 'show'
       lesson_plan_opinion_path(knowledge_area_lesson_plan.lesson_plan.id, locale: I18n.locale)

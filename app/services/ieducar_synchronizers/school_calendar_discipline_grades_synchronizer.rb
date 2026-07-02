@@ -18,6 +18,13 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
   end
 
   def update_school_calendar_discipline_grade(unity_grade_discipline_years)
+    grades = unity_grade_discipline_years.flat_map(&:series_disciplinas_anos_letivos).map do |d|
+      d[:serie_id]
+    end.compact
+
+    preload_unities(unity_grade_discipline_years.map(&:escola_id).compact)
+    preload_grades(grades)
+
     existing_school_calendar_discipline_grade = []
 
     unity_grade_discipline_years.each do |unity_grade_discipline_year_record|

@@ -72,7 +72,7 @@ module Api
 
         (contents || []).each do |content|
           content_id = content[:id]
-          content_id ||= Content.find_or_create_by(description: content[:description]).id
+          content_id ||= Content.find_or_create_by_description(content[:description]).id
 
           content_ids << content_id if content_id.present?
         end

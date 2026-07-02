@@ -2,3 +2,5 @@ pt-BR:
   conceptual_exams:
     new:
       current_discipline_does_not_have_conceptual_exam: 'A disciplina selecionada não possui nota conceitual'
+    edit:
+      classroom_year_mismatch: 'Este registro pertence ao ano %{record_year}, mas o ano selecionado no perfil é %{current_year}. Para acessá-lo, altere o ano no perfil.'

@@ -60,7 +60,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   }
   scope :by_class_number, lambda { |class_number| where(class_number: class_number) }
   scope :order_by_classroom, lambda {
-    joins(content_record: :classroom).order(Classroom.arel_table[:description].desc)
+    joins(content_record: :classroom).order(Classroom.arel_table[:description].asc)
   }
 
   validates :class_number, presence: true, if: -> { allow_class_number? }

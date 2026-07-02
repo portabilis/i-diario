@@ -7,12 +7,17 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
+            <th scope="col"></th>
             <th scope="col">
               <%= f.input :by_classroom_id, as: :select2, elements: @classrooms,
-              label: false, placeholder: t('.by_classroom_description') %></th>
+                           label: false, placeholder: t('.by_classroom_description'),
+                           input_html: { value: current_user_classroom.id } %>
+            </th>
             <th scope="col">
               <%= f.input :by_knowledge_area_id, as: :select2, elements: @knowledge_areas,
-               label: false, placeholder: t('.by_knowledge_area_description') %></th>
+                           label: false, placeholder: t('.by_knowledge_area_description'),
+                           input_html: { value: current_user_discipline.knowledge_area.id } %>
+            </th>
             <th scope="col"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></th>
             <th scope="col">
               <%= f.input :by_author, as: :select2_plans, label: false %>
@@ -24,6 +29,7 @@
           </tr>
 
           <tr>
+            <th scope="col"><%= ContentRecord.human_attribute_name :unity %></th>
             <th scope="col"><%= ContentRecord.human_attribute_name :classroom %></th>
             <th scope="col"><%= KnowledgeAreaContentRecord.human_attribute_name :knowledge_areas %>
             <th scope="col"><%= ContentRecord.human_attribute_name :record_date %></th>
@@ -35,7 +41,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td id="pagination-tfoot" colspan="5">
+          <td id="pagination-tfoot" colspan="6">
             <%= render 'shared/pagination', records: @knowledge_area_content_records %>
           </td>
         </tfoot>

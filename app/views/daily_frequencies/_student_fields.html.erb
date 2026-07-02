@@ -3,9 +3,13 @@
     <%= sequence %>
   </td>
   <td>
-    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline, in_active_search) %>
-    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search) %>
+    <% allow_active_search_freq = @allow_active_search_frequency %>
+    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline, in_active_search, allow_active_search_freq) %>
+    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search, allow_active_search_freq) %>
     <span class="<%= name_class %>"><%= student_name %></span>
+    <% if in_active_search && allow_active_search_freq %>
+      <span class="badge-active-search" title="Aluno em busca ativa">Busca Ativa</span>
+    <% end %>
   </td>
 
   <% @daily_frequencies.each_with_index do |daily_frequency, index| %>
@@ -31,12 +35,12 @@
         <div>
           <% absence_justifications = absence_justification[@daily_frequency.frequency_date] || {} %>
           <% absence_justification_student_id = absence_justifications[0] || absence_justifications[class_number] %>
-          <% ignore_student = !active || exempted_from_discipline || in_active_search.present? %>
+          <% ignore_student = !active || exempted_from_discipline || (in_active_search.present? && !allow_active_search_freq) %>
           <%= f.hidden_field :id, value: daily_frequency_student.id, disabled: ignore_student %>
           <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id, disabled: ignore_student %>
           <%= f.hidden_field :student_id, value: student.id, disabled: ignore_student %>
           <%= f.hidden_field :dependence, value: dependence, disabled: ignore_student %>
-          <%= f.hidden_field :active, value: active, disabled: ignore_student %>
+          <%= f.hidden_field :active, value: (allow_active_search_freq && in_active_search) ? true : active, disabled: ignore_student %>
           <%= f.hidden_field :absence_justification_student_id, class: 'hidden-justified', value: absence_justification_student_id, disabled: ignore_student %>
 
           <% if absence_justification_student_id %>
@@ -53,7 +57,7 @@
           </label>
           <% end %>
 
-          <% if @general_configuration.type_of_teaching == true && index != 0 && active && in_active_search.blank? %>
+          <% if @general_configuration.type_of_teaching == true && index != 0 && active && (in_active_search.blank? || allow_active_search_freq) %>
             <span class='hidden'>
               <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
                           label: false, required: false,

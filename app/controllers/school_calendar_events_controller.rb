@@ -24,17 +24,21 @@ class SchoolCalendarEventsController < ApplicationController
 
     authorize resource
 
-    if resource.valid?
-      SchoolCalendarEventDays.update_school_days(
-        [school_calendar],
-        [resource],
-        action_name,
-        resource.start_date,
-        resource.end_date
-      )
+    ActiveRecord::Base.transaction do
+      if resource.valid?
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendar],
+          [resource],
+          action_name,
+          resource.start_date,
+          resource.end_date
+        )
+      end
+
+      raise ActiveRecord::Rollback unless resource.save
     end
 
-    if resource.save
+    if resource.persisted?
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates
@@ -60,32 +64,41 @@ class SchoolCalendarEventsController < ApplicationController
 
     event_type_changed = resource.event_type_changed?
 
-    if resource.save
-      if dates_changed || event_type_changed
-        SchoolCalendarEventDays.update_school_days(
-          [school_calendar],
-          [resource],
-          action_name,
-          old_start_date || resource.start_date,
-          old_end_date || resource.end_date,
-          event_type_changed
-        )
+    ActiveRecord::Base.transaction do
+      if resource.save
+        if dates_changed || event_type_changed
+          SchoolCalendarEventDays.update_school_days(
+            [school_calendar],
+            [resource],
+            action_name,
+            old_start_date || resource.start_date,
+            old_end_date || resource.end_date,
+            event_type_changed
+          )
+        end
+      else
+        raise ActiveRecord::Rollback
       end
-    else
+    end
+
+    if resource.errors.any?
       clear_invalid_dates
       render :edit
+    else
+      respond_with resource, location: school_calendar_school_calendar_events_path
     end
-    respond_with resource, location: school_calendar_school_calendar_events_path
   end
 
   def destroy
     authorize resource
 
-    SchoolCalendarEventDays.update_school_days(
-      [school_calendar], [resource], action_name
-    )
+    ActiveRecord::Base.transaction do
+      SchoolCalendarEventDays.update_school_days(
+        [school_calendar], [resource], action_name
+      )
 
-    resource.destroy
+      resource.destroy!
+    end
 
     respond_with resource, location: school_calendar_school_calendar_events_path
   end

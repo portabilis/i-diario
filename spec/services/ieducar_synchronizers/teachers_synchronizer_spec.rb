@@ -48,8 +48,8 @@ RSpec.describe TeachersSynchronizer, type: :service do
     context 'with valid data' do
       let(:teachers_data) do
         [
-          double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1'),
-          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1')
+          double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01'),
+          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1', cpf: '987.654.321-00')
         ]
       end
 
@@ -65,8 +65,8 @@ RSpec.describe TeachersSynchronizer, type: :service do
     context 'with invalid data' do
       let(:teachers_data) do
         [
-          double('teacher1', nome: '', servidor_id: '12345', ativo: '1'),
-          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1')
+          double('teacher1', nome: '', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01'),
+          double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1', cpf: '987.654.321-00')
         ]
       end
 
@@ -83,7 +83,7 @@ RSpec.describe TeachersSynchronizer, type: :service do
       let!(:existing_teacher) { create(:teacher, api_code: '12345', name: 'João Silva') }
       let(:duplicate_teacher_data) do
         [
-          double('teacher2', nome: 'João Silva Duplicado', servidor_id: '12345', ativo: '1')
+          double('teacher2', nome: 'João Silva Duplicado', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01')
         ]
       end
 
@@ -104,7 +104,7 @@ RSpec.describe TeachersSynchronizer, type: :service do
       existing_teacher = create(:teacher, api_code: '12345', name: 'João Silva')
 
       duplicate_data = [
-        double('teacher1', nome: 'João Silva Atualizado', servidor_id: '12345', ativo: '1')
+        double('teacher1', nome: 'João Silva Atualizado', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01')
       ]
 
       synchronizer = described_class.new(
@@ -125,8 +125,8 @@ RSpec.describe TeachersSynchronizer, type: :service do
 
     it 'allows synchronizing data with unique api_codes' do
       unique_data = [
-        double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1'),
-        double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1')
+        double('teacher1', nome: 'João Silva', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01'),
+        double('teacher2', nome: 'Maria Santos', servidor_id: '67890', ativo: '1', cpf: '987.654.321-00')
       ]
 
       synchronizer = described_class.new(
@@ -140,6 +140,100 @@ RSpec.describe TeachersSynchronizer, type: :service do
 
       expect { synchronizer.send(:update_teachers, unique_data) }.not_to raise_error
       expect(Teacher.count).to eq(2)
+    end
+  end
+
+  describe 'race condition handling' do
+    let(:synchronizer) do
+      described_class.new(
+        synchronization: synchronization,
+        worker_batch: worker_batch,
+        worker_state: worker_state,
+        year: Date.current.year,
+        unity_api_code: Unity.first.api_code,
+        entity_id: Entity.first.id
+      )
+    end
+
+    let(:teachers_data) do
+      [double('teacher', nome: 'João Silva', servidor_id: '12345', ativo: '1', cpf: '123.456.789-01')]
+    end
+
+    it 'handles race condition when another process inserts the same teacher between SELECT and INSERT' do
+      collisions = 0
+
+      allow(Teacher).to receive(:with_discarded).and_return(Teacher)
+
+      # Simula a race: o preload não encontrou o professor, então tentamos criar
+      # via Teacher.new + save!. No primeiro INSERT, outro worker já comitou o
+      # mesmo api_code, fazendo o banco levantar RecordNotUnique.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |original|
+        # O primeiro save! é o INSERT do registro novo; nele simulamos o outro
+        # worker comitando antes e o banco levantando RecordNotUnique.
+        if collisions.zero?
+          collisions += 1
+          Teacher.create!(api_code: '12345', name: 'CRIADO POR OUTRO WORKER')
+
+          raise ActiveRecord::RecordNotUnique,
+                'PG::UniqueViolation: duplicate key value violates unique constraint ' \
+                '"index_teachers_on_api_code_unique"'
+        end
+
+        original.call
+      end
+
+      expect { synchronizer.send(:update_teachers, teachers_data) }.not_to raise_error
+
+      # Houve exatamente uma colisão antes do retry bem-sucedido
+      expect(collisions).to eq(1)
+      expect(Teacher.where(api_code: '12345').count).to eq(1)
+
+      # O retry encontrou o registro do outro worker e aplicou os dados da API
+      expect(Teacher.find_by(api_code: '12345').name).to eq('João Silva')
+    end
+
+    it 'reraises RecordNotUnique from a different constraint without retrying' do
+      call_count = 0
+
+      allow(Teacher).to receive(:with_discarded).and_return(Teacher)
+
+      # Violação em outra constraint (não api_code): deve propagar de imediato,
+      # sem retry — o reset_record não resolveria e mascararia um bug real.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |_original|
+        call_count += 1
+
+        raise ActiveRecord::RecordNotUnique,
+              'PG::UniqueViolation: duplicate key value violates unique constraint "index_teachers_on_some_other_column"'
+      end
+
+      expect {
+        synchronizer.send(:update_teachers, teachers_data)
+      }.to raise_error(ActiveRecord::RecordNotUnique, /some_other_column/)
+
+      # Sem retry: apenas a tentativa inicial
+      expect(call_count).to eq(1)
+    end
+
+    it 'gives up after MAX_RECORD_RETRIES when the api_code collision persists' do
+      call_count = 0
+
+      allow(Teacher).to receive(:with_discarded).and_return(Teacher)
+
+      # Colisão de api_code que nunca se resolve: o retry deve esgotar o cap e
+      # então propagar o erro, em vez de entrar em laço infinito.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |_original|
+        call_count += 1
+
+        raise ActiveRecord::RecordNotUnique,
+              'PG::UniqueViolation: duplicate key value violates unique constraint "index_teachers_on_api_code_unique"'
+      end
+
+      expect {
+        synchronizer.send(:update_teachers, teachers_data)
+      }.to raise_error(ActiveRecord::RecordNotUnique, /api_code/)
+
+      # Tentativa inicial + MAX_RECORD_RETRIES retries, e para
+      expect(call_count).to eq(TeachersSynchronizer::MAX_RECORD_RETRIES + 1)
     end
   end
 end

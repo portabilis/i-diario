@@ -131,8 +131,13 @@
                 as: :string,
                 label: "Adicionar #{translation}",
                 input_html: {
-                  class: 'select2-tags',
-                  value: ''
+                  class: 'select2-content-tags-ajax',
+                  value: '',
+                  data: {
+                    url: contents_path,
+                    data: [],
+                    :'filter-by-description' => 1
+                  }
                 }
             %>
           </div>

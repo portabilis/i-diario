@@ -53,11 +53,55 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         expect(subject.daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be false
       end
 
-      it 'removes others daily_frequencies' do
+      it 'keeps one daily_frequency converted to general per date and destroys the duplicates' do
         FrequencyTypeDefiner.any_instance.stub(:define_frequency_type).and_return(FrequencyTypes::GENERAL)
-        expect(DailyFrequency.count).to be(2)
+        expect(DailyFrequency.count).to eq(2)
         subject.adjust
-        expect(DailyFrequency.count).to be(0)
+        # A primeira (classroom, disc) de cada data vira geral (discipline_id=NULL);
+        # demais class_numbers no mesmo par (classroom, disc, date) são destruídas.
+        remaining = DailyFrequency.all
+        expect(remaining.count).to eq(1)
+        expect(remaining.first.discipline_id).to be_nil
+        expect(remaining.first.class_number).to be_nil
+      end
+
+      context 'when classroom has multiple classrooms_grades and frequencies on multiple dates' do
+        let!(:daily_frequency_date2_cn1) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            class_number: 1,
+            frequency_date: daily_frequency_1.frequency_date.prev_day
+          )
+        }
+        let!(:daily_frequency_date2_cn2) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            class_number: 2,
+            frequency_date: daily_frequency_1.frequency_date.prev_day
+          )
+        }
+
+        it 'preserves one general frequency per date' do
+          FrequencyTypeDefiner.any_instance.stub(:define_frequency_type).and_return(FrequencyTypes::GENERAL)
+          expect(DailyFrequency.count).to eq(4)
+          subject.adjust
+          remaining = DailyFrequency.all
+          expect(remaining.count).to eq(2)
+          expect(remaining.pluck(:discipline_id).uniq).to eq([nil])
+          expect(remaining.pluck(:class_number).uniq).to eq([nil])
+          expect(remaining.pluck(:frequency_date).uniq).to match_array([
+            daily_frequency_1.frequency_date,
+            daily_frequency_1.frequency_date.prev_day
+          ])
+        end
       end
     end
 
@@ -101,6 +145,160 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be true
         subject.adjust
         expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
+      end
+
+      context 'when teacher has multiple disciplines' do
+        let!(:discipline_1) { create(:discipline) }
+        let!(:discipline_2) { create(:discipline) }
+        let!(:discipline_3) { create(:discipline) }
+        let!(:grade) { classroom.classrooms_grades.first.grade }
+        let!(:teacher_discipline_classroom_1) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: discipline_1,
+            grade: grade
+          )
+        }
+        let!(:teacher_discipline_classroom_2) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: discipline_2,
+            grade: grade
+          )
+        }
+        let!(:teacher_discipline_classroom_3) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: discipline_3,
+            grade: grade
+          )
+        }
+        let!(:student) { create(:student) }
+        let!(:daily_frequency_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: false
+          )
+        }
+
+        before do
+          daily_frequency_1.update(owner_teacher_id: teacher.id)
+        end
+
+        it 'creates one frequency for each teacher discipline' do
+          # 1 disciplina da factory + 3 disciplinas criadas no teste = 4 total
+          teacher_disciplines_count = classroom.teacher_discipline_classrooms.by_teacher_id(teacher.id).count
+
+          subject.adjust
+
+          created_frequencies = DailyFrequency.where(
+            classroom_id: classroom.id,
+            frequency_date: daily_frequency_1.frequency_date
+          )
+          expect(created_frequencies.count).to eq(teacher_disciplines_count)
+          expect(created_frequencies.pluck(:discipline_id)).to include(discipline_1.id, discipline_2.id, discipline_3.id)
+        end
+
+        it 'preserves DailyFrequencyStudent for each new frequency' do
+          subject.adjust
+
+          # Verifica todas as frequências criadas de todas disciplinas vinculadas ao professor
+          new_frequencies = DailyFrequency.where(
+            classroom_id: classroom.id,
+            frequency_date: daily_frequency_1.frequency_date
+          )
+
+          new_frequencies.each do |frequency|
+            expect(frequency.students.count).to eq(1)
+            expect(frequency.students.first.student_id).to eq(student.id)
+            expect(frequency.students.first.present).to eq(false)
+          end
+        end
+
+        it 'destroys the original general frequency' do
+          original_id = daily_frequency_1.id
+
+          subject.adjust
+
+          expect(DailyFrequency.find_by(id: original_id)).to be_nil
+        end
+      end
+
+      context 'when a frequency by discipline already exists with class_number different from default' do
+        let!(:existing_discipline) { create(:discipline) }
+        let!(:grade) { classroom.classrooms_grades.first.grade }
+        let!(:teacher_discipline_classroom_existing) {
+          create(
+            :teacher_discipline_classroom,
+            classroom: classroom,
+            teacher: teacher,
+            discipline: existing_discipline,
+            grade: grade
+          )
+        }
+        let!(:student) { create(:student) }
+        let!(:original_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: false
+          )
+        }
+        let!(:existing_by_discipline_frequency) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: existing_discipline,
+            frequency_date: daily_frequency_1.frequency_date,
+            period: daily_frequency_1.period,
+            class_number: 3
+          )
+        }
+        let!(:existing_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: existing_by_discipline_frequency,
+            student: student,
+            present: true
+          )
+        }
+
+        before do
+          daily_frequency_1.update(owner_teacher_id: teacher.id)
+        end
+
+        it 'does not raise PG::UniqueViolation when reusing the existing frequency' do
+          expect { subject.adjust }.not_to raise_error
+        end
+
+        it 'preserves the existing student record without duplicating' do
+          subject.adjust
+
+          existing_by_discipline_frequency.reload
+          expect(existing_by_discipline_frequency.students.count).to eq(1)
+          expect(existing_by_discipline_frequency.students.first.student_id).to eq(student.id)
+          # Atributos do lançamento manual são preservados (present=true).
+          expect(existing_by_discipline_frequency.students.first.present).to eq(true)
+        end
+
+        it 'destroys the original general frequency' do
+          original_id = daily_frequency_1.id
+
+          subject.adjust
+
+          expect(DailyFrequency.find_by(id: original_id)).to be_nil
+        end
       end
     end
 
@@ -146,6 +344,206 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         subject.adjust
         expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
       end
+
+      # Integração real (sem stub do Preserver/AbsenceJustifiedOnDate): garante que após o
+      # ajuste o vinculo de justificativa fica coerente com a aula da nova frequência.
+      context 'when the general frequency has a justified absence' do
+        let!(:student) { create(:student) }
+        let!(:teacher_discipline_classroom) { classroom.teacher_discipline_classrooms.first }
+        let!(:discipline) { teacher_discipline_classroom.discipline }
+        let!(:daily_frequency_student_1) {
+          create(:daily_frequency_student, daily_frequency: daily_frequency_1, student: student, present: false)
+        }
+
+        def by_discipline_student
+          DailyFrequency.find_by(
+            classroom_id: classroom.id,
+            discipline_id: discipline.id,
+            frequency_date: daily_frequency_1.frequency_date
+          )&.students&.find_by(student_id: student.id)
+        end
+
+        context 'when the justification matches the new class_number (general)' do
+          let!(:absence_justification) {
+            create(
+              :absence_justification,
+              teacher_discipline_classroom: teacher_discipline_classroom,
+              user: user,
+              students: [student],
+              period: daily_frequency_1.period,
+              class_number: nil,
+              absence_date: daily_frequency_1.frequency_date,
+              absence_date_end: daily_frequency_1.frequency_date
+            )
+          }
+          let(:absence_justifications_student) {
+            absence_justification.absence_justifications_students.find_by(student_id: student.id)
+          }
+
+          it 'links the justification tag on the recreated by-discipline frequency' do
+            subject.adjust
+
+            expect(by_discipline_student.absence_justification_student_id).to eq(absence_justifications_student.id)
+          end
+        end
+
+        context 'when the justification is on a class_number that no longer matches' do
+          let!(:absence_justification) {
+            create(
+              :absence_justification,
+              teacher_discipline_classroom: teacher_discipline_classroom,
+              user: user,
+              students: [student],
+              period: daily_frequency_1.period,
+              class_number: 3,
+              absence_date: daily_frequency_1.frequency_date,
+              absence_date_end: daily_frequency_1.frequency_date
+            )
+          }
+
+          it 'leaves the recreated by-discipline frequency without the stale tag' do
+            subject.adjust
+
+            expect(by_discipline_student.absence_justification_student_id).to be_nil
+          end
+        end
+      end
+
+      context 'when frequency by discipline already exists with same students' do
+        let!(:student) { create(:student) }
+        let!(:discipline) { classroom.teacher_discipline_classrooms.first.discipline }
+        let!(:daily_frequency_student_1) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: daily_frequency_1,
+            student: student,
+            present: true
+          )
+        }
+        let!(:existing_daily_frequency_by_discipline) {
+          create(
+            :daily_frequency,
+            unity: classroom.unity,
+            classroom: classroom,
+            school_calendar: school_calendar,
+            discipline: discipline,
+            frequency_date: daily_frequency_1.frequency_date,
+            period: daily_frequency_1.period,
+            class_number: 1
+          )
+        }
+        let!(:existing_daily_frequency_student) {
+          create(
+            :daily_frequency_student,
+            daily_frequency: existing_daily_frequency_by_discipline,
+            student: student,
+            present: false
+          )
+        }
+
+        it 'does not raise duplicate key error when student already exists' do
+          expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be true
+          expect { subject.adjust }.not_to raise_error
+          expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
+        end
+
+        it 'destroys the general frequency' do
+          subject.adjust
+          expect(DailyFrequency.find_by(id: daily_frequency_1.id)).to be_nil
+        end
+      end
+    end
+
+    # Regressão: cenário real em que o professor lançou a frequência num dia letivo e, depois,
+    # a secretaria encurtou o calendário — esse dia passou a ficar FORA do calendário letivo.
+    # O ajuste não pode quebrar nem apagar a frequência geral: o bang + rescue pula essa
+    # frequência (o rollback preserva a geral) e segue para as demais.
+    context 'when a general frequency is on a date outside the school calendar' do
+      let!(:classroom) {
+        create(
+          :classroom,
+          :with_classroom_semester_steps,
+          :with_teacher_discipline_classroom_specific,
+          :score_type_numeric,
+          teacher: teacher,
+          unity: unities.first
+        )
+      }
+      let(:school_calendar) { classroom.calendar.school_calendar }
+      let!(:user) { create(:user, teacher: teacher) }
+      let!(:student) { create(:student) }
+      let!(:general_frequency) {
+        create(
+          :daily_frequency,
+          :without_discipline,
+          :with_teacher,
+          unity: classroom.unity,
+          classroom: classroom,
+          school_calendar: school_calendar,
+          teacher: teacher
+        )
+      }
+      let!(:general_frequency_student) {
+        create(:daily_frequency_student, daily_frequency: general_frequency, student: student, present: false)
+      }
+
+      before do
+        cutoff = Date.new(year, 6, 15)
+        # A secretaria encurtou a 1ª etapa para terminar em 15/06...
+        classroom.calendar.classroom_steps.where(step_number: 1).update_all(
+          end_at: cutoff,
+          end_date_for_posting: cutoff
+        )
+        # ...então o dia 16/06 que o professor já havia lançado ficou fora do calendário letivo
+        # (entre o fim da 1ª etapa e o início da 2ª). update_column grava sem revalidar a data.
+        general_frequency.update_column(:frequency_date, cutoff + 1.day)
+      end
+
+      it 'does not raise' do
+        expect { subject.adjust }.not_to raise_error
+      end
+
+      it 'preserves the general frequency' do
+        subject.adjust
+
+        expect(DailyFrequency.exists?(general_frequency.id)).to eq(true)
+      end
+
+      it 'does not create a by-discipline frequency' do
+        subject.adjust
+
+        expect(DailyFrequency.where(classroom: classroom).where.not(discipline_id: nil).count).to eq(0)
+      end
+    end
+  end
+
+  describe '#raise_unless_out_of_calendar (private)' do
+    let(:daily_frequency) { create(:daily_frequency) }
+
+    def record_invalid_with(*error_keys)
+      record = DailyFrequency.new
+      error_keys.each { |key| record.errors.add(key, :invalid) }
+      ActiveRecord::RecordInvalid.new(record)
+    end
+
+    it 'logs and does not reraise when the only error is the date' do
+      expect(Rails.logger).to receive(:info).with(/ignorada — data fora do calendário/)
+
+      expect {
+        subject.send(:raise_unless_out_of_calendar, daily_frequency, record_invalid_with(:frequency_date))
+      }.not_to raise_error
+    end
+
+    it 'reraises when there is a non-date error' do
+      expect {
+        subject.send(:raise_unless_out_of_calendar, daily_frequency, record_invalid_with(:base))
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it 'reraises when the date error comes together with another error' do
+      expect {
+        subject.send(:raise_unless_out_of_calendar, daily_frequency, record_invalid_with(:frequency_date, :base))
+      }.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 

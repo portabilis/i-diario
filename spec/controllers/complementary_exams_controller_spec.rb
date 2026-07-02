@@ -21,7 +21,7 @@ RSpec.describe ComplementaryExamsController, type: :controller do
     before do
       entity.using_connection do
         sign_in(user)
-        
+
         # Mock all required methods
         allow(controller).to receive(:authorize).and_return(true)
         allow(controller).to receive(:require_current_teacher).and_return(true)
@@ -30,8 +30,8 @@ RSpec.describe ComplementaryExamsController, type: :controller do
         allow(controller).to receive(:current_teacher_id).and_return(teacher.id)
         allow(controller).to receive(:current_unity).and_return(unity)
         allow(controller).to receive(:current_school_year).and_return(Date.current.year)
-        allow(controller).to receive(:current_user_classroom).and_return(classroom.id)
-        allow(controller).to receive(:current_user_discipline).and_return(discipline.id)
+        allow(controller).to receive(:current_user_classroom).and_return(classroom)
+        allow(controller).to receive(:current_user_discipline).and_return(discipline)
       end
     end
 

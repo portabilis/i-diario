@@ -34,7 +34,6 @@ module ExamPoster
 
       teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
                                              .where.not(grade_id: nil)
-                                             .by_score_type([ScoreTypes::NUMERIC, nil])
                                              .by_year(@post_data.step.school_calendar.year)
                                              .includes(:classroom, :discipline)
                                              .distinct
@@ -86,7 +85,8 @@ module ExamPoster
         student_scores.each do |student_score|
           exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
           next if exempted_disciplines[student_score.id].present?
-          next unless correct_score_type(student_score.uses_differentiated_exam_rule, exam_rule)
+          differentiated = student_score.uses_differentiated_exam_rule
+          next unless correct_score_type(differentiated, exam_rule, tdc.score_type)
           next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score, step)
 
           next if exempted_discipline_ids.include?(discipline.id)
@@ -110,7 +110,15 @@ module ExamPoster
           end
 
           if (recovery_value = score_rounder.round(school_term_recovery))
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
+            if value.present?
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
+            else
+              student_name = Student.find_by(api_code: student_score.api_code)&.name || student_score.api_code
+              classroom_description = classroom.description
+              discipline_description = discipline.description
+
+              @warning_messages << "Aluno #{student_name} tem recuperação, mas falta a nota regular na disciplina #{discipline_description} da turma #{classroom_description}. A recuperação só será enviada após o lançamento da nota regular."
+            end
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
         end
@@ -158,12 +166,19 @@ module ExamPoster
       numerical_exam || school_term_recovery
     end
 
-    def correct_score_type(differentiated, exam_rule)
-      return if exam_rule.nil?
+    def correct_score_type(differentiated, exam_rule, tdc_score_type)
+      return false if exam_rule.nil?
 
       exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
-      score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
-      score_types.include? exam_rule&.score_type
+
+      case exam_rule&.score_type
+      when ScoreTypes::NUMERIC
+        true
+      when ScoreTypes::NUMERIC_AND_CONCEPT
+        [ScoreTypes::NUMERIC, nil].include?(tdc_score_type)
+      else
+        false
+      end
     end
 
     def fecth_recovery_diary_record_students(students, school_term_recovery_diary_record)

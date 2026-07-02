@@ -115,17 +115,34 @@ class AbsenceJustification < ApplicationRecord
                                                    .by_date_range(absence_date, absence_date_end)
                                                    .by_teacher(teacher_id)
 
-      if frequence_type_by_discipline?
+      # Validar disciplinas apenas para justificativas legadas (anteriores a 2023)
+      # Novas justificativas usam período e número_da_classe em vez disso
+      if legacy && frequence_type_by_discipline? && discipline_ids.present?
         absence_justifications = absence_justifications.by_disciplines(discipline_ids)
+      end
+
+      # Para novas justificativas, verifique também o período e o número da aula para evitar duplicatas.
+      unless legacy
+        absence_justifications = absence_justifications.where(legacy: false)
+
+        if period.present?
+          absence_justifications = absence_justifications.by_period(period)
+        end
+
+        if class_number.present?
+          absence_justifications = absence_justifications.where(class_number: class_number)
+        else
+          absence_justifications = absence_justifications.where(class_number: nil)
+        end
       end
 
       absence_justifications = absence_justifications.where.not(id: id) if persisted?
 
       next if absence_justifications.blank?
 
-      errors.add(:base, :discipline_period_absence) if frequence_type_by_discipline?
-
-      unless frequence_type_by_discipline?
+      if legacy && frequence_type_by_discipline?
+        errors.add(:base, :discipline_period_absence)
+      else
         errors.add(:base, :general_period_absence, teacher: absence_justifications.first.teacher.name)
       end
 

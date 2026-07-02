@@ -9,9 +9,13 @@ class AbsenceAdjustmentsService
   end
 
   def adjust
-    adjust_by_discipline_to_general
-    adjust_general_to_by_discipline
-    adjust_general_to_by_discipline_specific_area
+    @justifications_cache = {}
+
+    Audited.audit_class.as_user('frequency_adjustments') do
+      adjust_by_discipline_to_general
+      adjust_general_to_by_discipline
+      adjust_general_to_by_discipline_specific_area
+    end
   end
 
   def daily_frequencies_by_type(frequency_type)
@@ -19,6 +23,7 @@ class AbsenceAdjustmentsService
                                       .where(exam_rules: { frequency_type: frequency_type })
                                       .where('extract(year from frequency_date) = ?', @year)
                                       .where(unity_id: @unity_ids)
+                                      .distinct
 
     daily_frequencies = daily_frequencies.where.not(discipline_id: nil) if frequency_type == FrequencyTypes::GENERAL
     daily_frequencies = daily_frequencies.where(discipline_id: nil) if frequency_type == FrequencyTypes::BY_DISCIPLINE
@@ -44,7 +49,10 @@ class AbsenceAdjustmentsService
   def adjust_by_discipline_to_general
     classroom_id = 0
     discipline_id = 0
-    daily_frequencies_by_type(FrequencyTypes::GENERAL).each do |daily_frequency|
+    frequency_date = nil
+    daily_frequencies_by_type(FrequencyTypes::GENERAL)
+      .order(:classroom_id, :frequency_date, :discipline_id, :class_number)
+      .each do |daily_frequency|
       teacher = Teacher.by_daily_frequency(daily_frequency).first
 
       next if teacher.blank?
@@ -54,9 +62,12 @@ class AbsenceAdjustmentsService
 
       next if absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
 
-      if classroom_id != daily_frequency.classroom_id || discipline_id != daily_frequency.discipline_id
+      if classroom_id != daily_frequency.classroom_id ||
+         discipline_id != daily_frequency.discipline_id ||
+         frequency_date != daily_frequency.frequency_date
         classroom_id = daily_frequency.classroom_id
         discipline_id = daily_frequency.discipline_id
+        frequency_date = daily_frequency.frequency_date
 
         next if daily_frequency_exists?(daily_frequency, nil, nil) && daily_frequency.destroy
 
@@ -64,6 +75,8 @@ class AbsenceAdjustmentsService
           discipline_id: nil,
           class_number: nil
         )
+
+        DailyFrequencyJustificationReconciler.call(daily_frequency, @justifications_cache)
       else
         daily_frequency.destroy
       end
@@ -72,57 +85,83 @@ class AbsenceAdjustmentsService
 
   def adjust_general_to_by_discipline
     daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).each do |daily_frequency|
-      user = user(daily_frequency)
+      ActiveRecord::Base.transaction do
+        original_frequency_students = daily_frequency.students.to_a
+        teacher_id = daily_frequency.owner_teacher_id || user(daily_frequency).try(:teacher_id)
 
-      discipline_id = daily_frequency.classroom.teacher_discipline_classrooms.find_by_teacher_id(user.try(:teacher_id)).try(:discipline_id) ||
-                      daily_frequency.classroom.teacher_discipline_classrooms.first.try(:discipline_id)
+        disciplines = daily_frequency.classroom.teacher_discipline_classrooms.by_teacher_id(teacher_id)
+        disciplines = daily_frequency.classroom.teacher_discipline_classrooms if disciplines.empty?
 
-      next if daily_frequency_exists?(daily_frequency, discipline_id) && daily_frequency.destroy
+        disciplines.each do |tdc|
+          next if daily_frequency_exists?(daily_frequency, tdc.discipline_id)
 
-      daily_frequency.update_columns(
-        discipline_id: discipline_id,
-        class_number: DEFAULT_CLASS_NUMBER
-      )
+          convert_to_discipline_frequency(daily_frequency, tdc.discipline_id, teacher_id, original_frequency_students)
+        end
+
+        daily_frequency.destroy!
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      raise_unless_out_of_calendar(daily_frequency, e)
     end
   end
 
   def adjust_general_to_by_discipline_specific_area
     daily_frequencies_general_when_teacher_has_specific_area.each do |daily_frequency|
-      original_frequency_students = daily_frequency.students.to_a
+      ActiveRecord::Base.transaction do
+        original_frequency_students = daily_frequency.students.to_a
 
-      Audited.audit_class.as_user("frequency_adjustments") do
         daily_frequency
           .classroom.teacher_discipline_classrooms
           .by_teacher_id(daily_frequency.owner_teacher_id)
           .where(allow_absence_by_discipline: 1)
           .each do |teacher_discipline_classroom|
-          new_daily_frequency = DailyFrequency.create_with(
-            class_number: DEFAULT_CLASS_NUMBER,
-            owner_teacher_id: daily_frequency.owner_teacher_id,
-          ).find_or_create_by(
-            unity_id: daily_frequency.unity_id,
-            frequency_date: daily_frequency.frequency_date,
-            school_calendar_id: daily_frequency.school_calendar_id,
-            discipline_id: teacher_discipline_classroom.discipline_id,
-            classroom_id: teacher_discipline_classroom.classroom_id,
-            period: daily_frequency.period,
+          convert_to_discipline_frequency(
+            daily_frequency, teacher_discipline_classroom.discipline_id,
+            daily_frequency.owner_teacher_id, original_frequency_students
           )
-
-          original_frequency_students.each do |student|
-            new_daily_frequency.students.create!(
-              student_id: student.student_id,
-              present: student.present,
-              dependence: student.dependence,
-              active: student.active,
-              type_of_teaching: student.type_of_teaching,
-              absence_justification_student_id: student.absence_justification_student_id
-            )
-          end
         end
 
         daily_frequency.destroy!
       end
+    rescue ActiveRecord::RecordInvalid => e
+      raise_unless_out_of_calendar(daily_frequency, e)
     end
+  end
+
+  def convert_to_discipline_frequency(daily_frequency, discipline_id, teacher_id, original_frequency_students)
+    new_daily_frequency = DailyFrequency.create_with(
+      class_number: DEFAULT_CLASS_NUMBER,
+      owner_teacher_id: teacher_id
+    ).find_or_create_by!(
+      unity_id: daily_frequency.unity_id,
+      classroom_id: daily_frequency.classroom_id,
+      frequency_date: daily_frequency.frequency_date,
+      school_calendar_id: daily_frequency.school_calendar_id,
+      discipline_id: discipline_id,
+      period: daily_frequency.period
+    )
+
+    original_frequency_students.each do |student|
+      new_daily_frequency.students.find_or_create_by!(student_id: student.student_id) do |new_student|
+        new_student.present = student.present
+        new_student.dependence = student.dependence
+        new_student.active = student.active
+        new_student.type_of_teaching = student.type_of_teaching
+      end
+    end
+
+    DailyFrequencyJustificationReconciler.call(new_daily_frequency, @justifications_cache)
+  end
+
+  # Quando o único erro é a data fora do calendário, apenas registra a frequência ignorada
+  # no log e segue em frente. Qualquer outro erro de validação é re-levantado.
+  def raise_unless_out_of_calendar(daily_frequency, error)
+    raise error unless error.record.errors.keys == [:frequency_date]
+
+    Rails.logger.info(
+      "[AbsenceAdjustments] frequência #{daily_frequency.id} ignorada — " \
+      "data fora do calendário (#{daily_frequency.frequency_date})"
+    )
   end
 
   def daily_frequency_exists?(daily_frequency, discipline_id, class_number = DEFAULT_CLASS_NUMBER)

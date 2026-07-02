@@ -73,6 +73,7 @@ class DailyFrequenciesController < ApplicationController
     @period = @period != Periods::FULL.to_i ? @period : nil
 
     @general_configuration = GeneralConfiguration.current
+    @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
 
     authorize @daily_frequency
 
@@ -100,7 +101,12 @@ class DailyFrequenciesController < ApplicationController
     frequency_date = @daily_frequency.frequency_date
 
     dependencies = StudentsInDependency.call(student_enrollments: student_enrollment_ids, disciplines: discipline)
-    exempt = StudentsExemptFromDiscipline.call(student_enrollments: student_enrollment_ids, discipline: discipline, step: step)
+    exempt = StudentsExemptFromDiscipline.call(
+      student_enrollments: student_enrollment_ids,
+      discipline: discipline,
+      step: step,
+      classroom_id: @daily_frequency.classroom_id
+    )
     active = ActiveStudentsOnDate.call(student_enrollments: student_enrollment_ids, date: frequency_date)
     active_search = in_active_searches(student_enrollment_ids, @daily_frequency.frequency_date)
     absence_justifications = AbsenceJustifiedOnDate.call(
@@ -171,9 +177,16 @@ class DailyFrequenciesController < ApplicationController
       daily_frequency_record = nil
       daily_frequency_attributes = daily_frequency_params
       daily_frequencies_attributes = daily_frequencies_params
-      receive_email_confirmation = ActiveRecord::Type::Boolean.new.cast(
-        params[:daily_frequency][:receive_email_confirmation]
-      )
+      general_configuration = GeneralConfiguration.current
+
+      # Se o parâmetro global estiver ativo, força o envio de e-mail
+      receive_email_confirmation = if general_configuration.always_send_email_on_daily_frequency_registration
+                                     true
+                                   else
+                                     ActiveRecord::Type::Boolean.new.cast(
+                                       params[:daily_frequency][:receive_email_confirmation]
+                                     )
+                                   end
 
       edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_attributes.slice(
@@ -223,6 +236,13 @@ class DailyFrequenciesController < ApplicationController
 
             daily_frequency_student[:absence_justification_student_id] = absence_justification.absence_justifications_students.first.id
           end
+
+          # Verifica se existem justificativas lançadas durante o registro de frequência
+          check_and_preserve_existing_justifications(
+            daily_frequency_students_params,
+            daily_frequency_attributes
+          )
+
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
 
           daily_frequency_record.save!
@@ -244,7 +264,7 @@ class DailyFrequenciesController < ApplicationController
       current_teacher_id
     )
 
-    if receive_email_confirmation
+    if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = daily_frequency_record.classroom.description
       unity = daily_frequency_record.unity.name
 
@@ -545,5 +565,34 @@ class DailyFrequenciesController < ApplicationController
     @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
     @classrooms ||= @fetch_linked_by_teacher[:classrooms]
     @disciplines ||= @fetch_linked_by_teacher[:disciplines]
+  end
+
+  def check_and_preserve_existing_justifications(daily_frequency_students_params, daily_frequency_attributes)
+    frequency_date = daily_frequency_attributes[:frequency_date].to_date
+    classroom_id = daily_frequency_attributes[:classroom_id]
+    period = daily_frequency_attributes[:period]
+    class_number = (daily_frequency_students_params[:class_number] || 0).to_i
+
+    student_ids = daily_frequency_students_params[:students_attributes].values.map { |s| s[:student_id].to_i }
+
+    existing_justifications = AbsenceJustificationPreserver.call(
+      frequency_date: frequency_date,
+      classroom_id: classroom_id,
+      period: period,
+      class_number: class_number,
+      student_ids: student_ids
+    )
+
+    # Para cada aluno, verifica se existe justificativa e preserva ela
+    daily_frequency_students_params[:students_attributes].each_value do |daily_frequency_student|
+      student_id = daily_frequency_student[:student_id].to_i
+
+      # Se já existe justificativa lançada pela secretaria para ESTA aula, SEMPRE aplica
+      # (mesmo que o professor tenha marcado presença)
+      if existing_justifications[student_id].present?
+        daily_frequency_student[:present] = false
+        daily_frequency_student[:absence_justification_student_id] = existing_justifications[student_id]
+      end
+    end
   end
 end
