@@ -80,6 +80,10 @@ class DailyFrequencyStudent < ActiveRecord::Base
                               .first
   end
 
+  def enrolled_in_classroom?
+    student_enrollment_classroom.present?
+  end
+
   def update_student_enrollment_classroom
     student = student_enrollment_classroom
     return if student.nil?
