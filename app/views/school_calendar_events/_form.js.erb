@@ -1,6 +1,6 @@
 $(document).ready(function () {
-  // Mensagem adapta o termo conforme o usuário esteja criando ou editando o evento.
-  var actionWord = <%= @school_calendar_event.persisted? ? "'A alteração'".html_safe : "'A criação'".html_safe %>;
+  // Termo usado no título e no aviso, conforme criação ou edição do evento.
+  var actionNoun = '<%= @school_calendar_event.persisted? ? 'alteração' : 'criação' %>';
 
   var submitButton = $('#submit-school-calendar-event-button');
   var eventForm = submitButton.closest('form');
@@ -15,7 +15,7 @@ $(document).ready(function () {
 
   function setUpModalOptions() {
     var message =
-      "<p><strong>ATENÇÃO!</strong> " + actionWord + " do evento excluirá as frequências já " +
+      "<p><strong>ATENÇÃO!</strong> A " + actionNoun + " do evento excluirá as frequências já " +
       "registradas para esta data, não sendo possível restaurá-las. Tem certeza que deseja continuar?</p>" +
       "<div class='checkbox'><label>" +
       "<input type='checkbox' id='confirm-delete-frequencies-checkbox'> " +
@@ -24,7 +24,7 @@ $(document).ready(function () {
       "</label></div>";
 
     return {
-      title: 'Deseja prosseguir com a criação/edição do evento?',
+      title: 'Deseja prosseguir com a ' + actionNoun + ' do evento?',
       message: message,
       backdrop: true,
       buttons: {
@@ -48,6 +48,9 @@ $(document).ready(function () {
   }
 
   function openConfirmationModal() {
+    // Evita empilhar modais em duplo clique — o checkbox usa id único.
+    if ($('#confirm-delete-frequencies-checkbox').length) return;
+
     var dialog = bootbox.dialog(setUpModalOptions());
 
     // O botão "Continuar" só é habilitado após o usuário marcar o checkbox de ciência.
