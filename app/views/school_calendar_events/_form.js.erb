@@ -36,6 +36,8 @@ $(document).ready(function () {
           label: 'Continuar',
           className: 'new-school-calendar-event-button',
           callback: function () {
+            if (!$('#confirm-delete-frequencies-checkbox').is(':checked')) return false;
+
             frequencyDeletionConfirmed = true;
             confirmationField.val('true');
             eventForm[0].submit();

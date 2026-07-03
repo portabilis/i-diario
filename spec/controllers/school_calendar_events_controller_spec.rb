@@ -68,6 +68,10 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
       )
     end
 
+    let(:other_grade) { create(:grade) }
+    let(:other_classroom) { create(:classroom) }
+    let(:other_course) { create(:course) }
+
     before do
       allow_any_instance_of(SchoolCalendarEvent).to receive(:save).and_return(true)
       allow(SchoolCalendarEventDays).to receive(:update_school_days)
@@ -83,13 +87,22 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
       }
     end
 
-    context 'when the event scope changes (periods) and deletion is confirmed' do
-      it 'triggers the frequency cleanup with scope_changed true' do
-        patch_update(periods: "#{Periods::VESPERTINE},#{Periods::MATUTINAL}")
+    # Cada um dos campos de escopo deve, ao mudar, disparar a limpeza com scope_changed true.
+    {
+      periods: -> { "#{Periods::VESPERTINE},#{Periods::MATUTINAL}" },
+      grade_id: -> { other_grade.id },
+      classroom_id: -> { other_classroom.id },
+      course_id: -> { other_course.id }
+    }.each do |field, value|
+      context "when #{field} changes and deletion is confirmed" do
+        it 'triggers the frequency cleanup with scope_changed true' do
+          patch_update(field => instance_exec(&value))
 
-        expect(SchoolCalendarEventDays).to have_received(:update_school_days).with(
-          [school_calendar], [event], 'update', step.start_at, step.start_at, false, true
-        )
+          expect(SchoolCalendarEventDays).to have_received(:update_school_days).with(
+            [school_calendar], [event], 'update', step.start_at, step.start_at,
+            event_type_changed: false, scope_changed: true
+          )
+        end
       end
     end
 

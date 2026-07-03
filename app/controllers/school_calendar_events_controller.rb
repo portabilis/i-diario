@@ -85,8 +85,8 @@ class SchoolCalendarEventsController < ApplicationController
             action_name,
             old_start_date || resource.start_date,
             old_end_date || resource.end_date,
-            event_type_changed,
-            scope_changed
+            event_type_changed: event_type_changed,
+            scope_changed: scope_changed
           )
         end
       else
