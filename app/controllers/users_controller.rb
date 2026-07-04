@@ -169,7 +169,7 @@ class UsersController < ApplicationController
   end
 
   def valid_search_params?(params_search)
-    return true if params_search.blank? || params_search.empty?
+    return true if params_search.blank?
 
     params_search.values.any?(&:present?)
   end
@@ -185,31 +185,11 @@ class UsersController < ApplicationController
     @permissions = @user.permissions
   end
 
-  # Novo método para construir parâmetros de busca de forma mais robusta
+  # Monta os parâmetros de busca, incluindo apenas os filtros presentes
   def build_search_params
-    search_params = {}
-
-    # Apenas adicionar parâmetros que estão presentes
-    if params.dig(:search, :by_name).present?
-      search_params['search[by_name]'] = params.dig(:search, :by_name)
+    %i[by_name by_cpf email login status].each_with_object({}) do |field, search_params|
+      value = params.dig(:search, field)
+      search_params["search[#{field}]"] = value if value.present?
     end
-
-    if params.dig(:search, :by_cpf).present?
-      search_params['search[by_cpf]'] = params.dig(:search, :by_cpf)
-    end
-
-    if params.dig(:search, :email).present?
-      search_params['search[email]'] = params.dig(:search, :email)
-    end
-
-    if params.dig(:search, :login).present?
-      search_params['search[login]'] = params.dig(:search, :login)
-    end
-
-    if params.dig(:search, :status).present?
-      search_params['search[status]'] = params.dig(:search, :status)
-    end
-
-    search_params
   end
 end
