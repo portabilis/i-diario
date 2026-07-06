@@ -274,12 +274,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       date: recovery_diary_record.recorded_at
     )
 
+    existing_by_student_id = recovery_diary_record.students.index_by(&:student_id)
+
     @students = []
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by_id(student_enrollment.student_id))
 
-        recovery_student = recovery_diary_record.students.find_by(student_id: student.id)
-        note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
+        note_student = existing_by_student_id[student.id] ||
+                       recovery_diary_record.students.build(student_id: student.id, student: student)
         note_student.dependence = situations[:dependencies][student_enrollment.id].present?
         note_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
         note_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
