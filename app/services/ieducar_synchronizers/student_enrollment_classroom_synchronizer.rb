@@ -1,4 +1,6 @@
 class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
+  MAX_RETRIES = 3
+
   def synchronize!
     update_student_enrollment_classrooms(
       HashDecorator.new(
@@ -41,6 +43,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         next
       end
 
+      retries = 0
+
       begin
         StudentEnrollmentClassroom.with_discarded.find_or_initialize_by(
           api_code: student_enrollment_classroom_record.id
@@ -79,6 +83,15 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
           student_enrollment_classroom.discard_or_undiscard(student_enrollment_classroom_record.deleted_at.present?)
         end
       rescue ActiveRecord::RecordNotUnique
+        # A race condition esperada é dois workers processando o mesmo api_code:
+        # o retry reencontra o registro inserido pelo concorrente e vira UPDATE.
+        # Já uma colisão em index_student_enrollment_classrooms_on_multiple_columns
+        # (mesma tupla api_code/matrícula/turma-série/datas em api_codes distintos)
+        # não é resolvível por retry — o find_or_initialize_by(api_code:) reencontra
+        # sempre o mesmo registro. Sem limite, isso viraria loop infinito (board#7897).
+        retries += 1
+        raise if retries > MAX_RETRIES
+
         retry
       end
     end

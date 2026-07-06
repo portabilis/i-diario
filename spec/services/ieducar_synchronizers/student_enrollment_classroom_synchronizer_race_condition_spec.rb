@@ -99,6 +99,24 @@ RSpec.describe StudentEnrollmentClassroomSynchronizer do
       expect(record.joined_at.to_s).to eq('2026-02-01')
     end
 
+    it 'stops retrying and raises when the multiple_columns constraint keeps colliding' do
+      # Cenário do incidente board#7897: outra enturmação (api_code diferente) já
+      # ocupa a tupla (api_code, matrícula, turma-série, datas) da constraint de 5
+      # colunas. O find_or_initialize_by(api_code:) nunca reencontra esse registro,
+      # então o retry repetiria o mesmo save! para sempre. Deve estourar após MAX_RETRIES.
+      allow(StudentEnrollmentClassroom).to receive(:with_discarded).and_return(StudentEnrollmentClassroom)
+
+      call_count = 0
+      allow_any_instance_of(StudentEnrollmentClassroom).to receive(:save!) do
+        call_count += 1
+        raise ActiveRecord::RecordNotUnique, 'index_student_enrollment_classrooms_on_multiple_columns'
+      end
+
+      expect { synchronizer.synchronize! }.to raise_error(ActiveRecord::RecordNotUnique)
+      # 1 tentativa inicial + MAX_RETRIES; não pode ser loop infinito
+      expect(call_count).to eq(described_class::MAX_RETRIES + 1)
+    end
+
     it 'updates existing record without error' do
       existing = create(
         :student_enrollment_classroom,
