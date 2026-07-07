@@ -16,7 +16,10 @@
               <%= f.input :by_grade, as: :select2, label: false, placeholder: "Filtrar série",
                 elements: @grades.to_json %>
             </th>
-          <th scope="col" class="actions">
+          <th scope="col" class="actions text-center">
+            <% if policy(LearningObjectivesAndSkill).import? %>
+              <%= link_to t('.import_html'), import_learning_objectives_and_skills_path, class: "btn btn-info" %>
+            <% end %>
           </th>
         </tr>
         <tr>

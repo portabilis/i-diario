@@ -87,7 +87,7 @@ $(function () {
   $grade.on('change', function () {
     let grade_id = $grade.select2('val');
     let unity_id = $unity.select2('val');
-    $knowledgeAreas.select2({ data: [] });
+    $knowledgeAreas.select2({ data: [], multiple: true });
 
     if ($grade.val()) {
       return $.ajax({
@@ -110,10 +110,8 @@ $(function () {
       return { id: knowledge_area['id'], text: knowledge_area['description'] };
     });
 
-    $knowledgeAreas.select2({ data: selectedKnowledgeAreas });
-
-    // Define a primeira opção como selecionada por padrão
-    $knowledgeAreas.val(selectedKnowledgeAreas[0].id).trigger('change');
+    $knowledgeAreas.select2({ data: selectedKnowledgeAreas, multiple: true });
+    $knowledgeAreas.select2('val', []).trigger('change');
   };
 
   function handleFetchKnowledgeAreasByGradeError() {

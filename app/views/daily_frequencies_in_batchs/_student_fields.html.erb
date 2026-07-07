@@ -4,6 +4,9 @@
     <% student_data = custom_student_name(student, params[:dates]) %>
 
     <span style="color: <%= student_data[:color] %>"><%= student_data[:name] %></span>
+    <% if student_data[:in_active_search_active] %>
+      <span class="badge-active-search" title="Aluno em busca ativa">Busca Ativa</span>
+    <% end %>
   </td>
   <% absences_on_the_period = 0 %>
   <% if @general_configuration.type_of_teaching == true %>

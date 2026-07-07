@@ -1,6 +1,6 @@
 class ContentTagConverter
   def self.tags_to_contents(tags)
-    tags.split(',').reject(&:empty?).map { |description| Content.find_or_create_by!(description: description) }
+    tags.split(',').reject(&:empty?).map { |description| Content.find_or_create_by_description!(description) }
   end
 
   def self.contents_to_json(contents)

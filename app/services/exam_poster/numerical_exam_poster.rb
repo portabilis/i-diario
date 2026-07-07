@@ -34,7 +34,6 @@ module ExamPoster
 
       teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
                                              .where.not(grade_id: nil)
-                                             .by_score_type([ScoreTypes::NUMERIC, nil])
                                              .by_year(@post_data.step.school_calendar.year)
                                              .includes(:classroom, :discipline)
                                              .distinct
@@ -86,7 +85,8 @@ module ExamPoster
         student_scores.each do |student_score|
           exam_rule = exam_rules[student_score.id] ? exam_rules[student_score.id][:exam_rule] : nil
           next if exempted_disciplines[student_score.id].present?
-          next unless correct_score_type(student_score.uses_differentiated_exam_rule, exam_rule)
+          differentiated = student_score.uses_differentiated_exam_rule
+          next unless correct_score_type(differentiated, exam_rule, tdc.score_type)
           next unless numerical_or_school_term_recovery?(classroom, discipline, student_score) || exist_complementary_exam?(classroom, discipline, student_score, step)
 
           next if exempted_discipline_ids.include?(discipline.id)
@@ -166,12 +166,19 @@ module ExamPoster
       numerical_exam || school_term_recovery
     end
 
-    def correct_score_type(differentiated, exam_rule)
-      return if exam_rule.nil?
+    def correct_score_type(differentiated, exam_rule, tdc_score_type)
+      return false if exam_rule.nil?
 
       exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
-      score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
-      score_types.include? exam_rule&.score_type
+
+      case exam_rule&.score_type
+      when ScoreTypes::NUMERIC
+        true
+      when ScoreTypes::NUMERIC_AND_CONCEPT
+        [ScoreTypes::NUMERIC, nil].include?(tdc_score_type)
+      else
+        false
+      end
     end
 
     def fecth_recovery_diary_record_students(students, school_term_recovery_diary_record)

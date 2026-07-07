@@ -98,8 +98,8 @@
 
     <% if @allow_automatic_avaliation_recovery %>
       <div style="float: right; height: 31px; margin: 10px 10px 0 5px; line-height: 31px;">
-        <label class="checkbox" style="display: inline-block; margin: 0;">
-          <%= f.check_box :should_create_recovery %>
+        <label class="checkbox <%= 'state-disabled' if @force_recovery_creation %>" style="display: inline-block; margin: 0;">
+          <%= f.check_box :should_create_recovery, (@force_recovery_creation ? { checked: true, disabled: true } : {}) %>
           <i></i>
           <%= t('activerecord.attributes.avaliation.should_create_recovery') %>
         </label>

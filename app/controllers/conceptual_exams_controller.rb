@@ -13,7 +13,7 @@ class ConceptualExamsController < ApplicationController
     set_filters
     status = (params[:filter] || []).delete(:by_status)
 
-    fetch_conceptual_exams
+    fetch_conceptual_exams_by_user
     check_status(status)
 
     authorize @conceptual_exams
@@ -566,12 +566,16 @@ class ConceptualExamsController < ApplicationController
     params[:filter][:by_status] = status
   end
 
-  def fetch_conceptual_exams
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-      .by_unity(current_unity)
-      .by_classroom(@classrooms.map(&:id))
-      .by_teacher(current_teacher_id)
-      .ordered_by_date_and_student
+  def fetch_conceptual_exams_by_user
+    @conceptual_exams = apply_scopes(
+      ConceptualExamsFetcher.fetch!(
+        user: current_user,
+        teacher_id: current_teacher_id,
+        unity: current_unity,
+        classrooms: @classrooms,
+        disciplines: @disciplines
+      )
+    )
 
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
       current_school_calendar,

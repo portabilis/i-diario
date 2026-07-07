@@ -77,6 +77,281 @@ RSpec.describe AvaliationsController, type: :controller do
           expect(response).not_to redirect_to(avaliations_path)
         end
       end
+
+      # Quando a configuracao geral permite recuperacao automatica, o checkbox
+      # "Criar recuperacao desta avaliacao" deve vir marcado por padrao.
+      context 'when allow_automatic_avaliation_recovery is enabled' do
+        before do
+          entity.using_connection do
+            GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+          end
+        end
+
+        it 'marks should_create_recovery as true by default' do
+          entity.using_connection do
+            get :new, params: { locale: 'pt-BR' }
+
+            expect(assigns(:avaliation).should_create_recovery).to eq(true)
+          end
+        end
+      end
+
+      context 'when allow_automatic_avaliation_recovery is disabled' do
+        before do
+          entity.using_connection do
+            GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+          end
+        end
+
+        it 'leaves should_create_recovery as false' do
+          entity.using_connection do
+            get :new, params: { locale: 'pt-BR' }
+
+            expect(assigns(:avaliation).should_create_recovery).to eq(false)
+          end
+        end
+      end
+    end
+  end
+
+  # Professores nao podem desabilitar a criacao automatica de recuperacao quando a
+  # configuracao geral esta habilitada: o checkbox fica travado e o valor e forcado
+  # no servidor. Usuarios administradores/funcionarios continuam podendo desmarcar.
+  describe 'should_create_recovery lock for teachers' do
+    before do
+      allow(controller).to receive(:current_user).and_return(user)
+    end
+
+    context 'when allow_automatic_avaliation_recovery is enabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+        end
+      end
+
+      it 'locks the checkbox when the current user is a teacher' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          get :new, params: { locale: 'pt-BR' }
+
+          expect(assigns(:force_recovery_creation)).to eq(true)
+        end
+      end
+
+      it 'does not lock the checkbox for non-teacher users' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(false)
+
+          get :new, params: { locale: 'pt-BR' }
+
+          expect(assigns(:force_recovery_creation)).to eq(false)
+        end
+      end
+
+      it 'forces should_create_recovery to true on create even when submitted as false' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          post :create, params: {
+            locale: 'pt-BR',
+            avaliation: {
+              classroom_id: classroom.id,
+              discipline_id: discipline.id,
+              test_date: Time.zone.today,
+              description: 'Avaliacao trava recuperacao',
+              grade_ids: classroom.grade_ids.join(','),
+              should_create_recovery: '0'
+            }
+          }
+
+          expect(assigns(:resource).should_create_recovery).to eq(true)
+        end
+      end
+
+      it 'forces should_create_recovery to true on update even when submitted as false' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          # Avaliacao em memoria: isola o forcing do controller das validacoes do
+          # model (dia letivo, data de postagem etc.), que nao sao o foco do teste.
+          avaliation = Avaliation.new
+          allow(controller).to receive(:resource).and_return(avaliation)
+
+          patch :update, params: {
+            locale: 'pt-BR',
+            id: 1,
+            avaliation: {
+              grade_ids: '',
+              should_create_recovery: '0'
+            }
+          }
+
+          expect(assigns(:avaliation).should_create_recovery).to eq(true)
+        end
+      end
+
+      it 'forces should_create_recovery to true on create_multiple_classrooms even when submitted as false' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          post :create_multiple_classrooms, params: {
+            locale: 'pt-BR',
+            avaliation_multiple_creator_form: {
+              unity_id: unity.id,
+              discipline_id: discipline.id,
+              school_calendar_id: school_calendar.id,
+              avaliations_attributes: {
+                '0' => {
+                  include: '1',
+                  classroom_id: classroom.id,
+                  test_date: Time.zone.today,
+                  grade_ids: classroom.grade_ids.join(','),
+                  should_create_recovery: '0'
+                }
+              }
+            }
+          }
+
+          avaliations = assigns(:avaliation_multiple_creator_form).avaliations
+
+          expect(avaliations).not_to be_empty
+          expect(avaliations.map(&:should_create_recovery)).to all(eq(true))
+        end
+      end
+
+      # Admins/funcionarios continuam podendo desmarcar: o valor enviado deve ser
+      # respeitado no servidor, sem forcar a criacao da recuperacao.
+      it 'keeps should_create_recovery as false on create for non-teacher users' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(false)
+
+          post :create, params: {
+            locale: 'pt-BR',
+            avaliation: {
+              classroom_id: classroom.id,
+              discipline_id: discipline.id,
+              test_date: Time.zone.today,
+              description: 'Avaliacao admin sem recuperacao',
+              grade_ids: classroom.grade_ids.join(','),
+              should_create_recovery: '0'
+            }
+          }
+
+          expect(assigns(:resource).should_create_recovery).to eq(false)
+        end
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is disabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+        end
+      end
+
+      it 'does not lock the checkbox even for teachers' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          get :new, params: { locale: 'pt-BR' }
+
+          expect(assigns(:force_recovery_creation)).to eq(false)
+        end
+      end
+
+      # Com a config desligada, nem mesmo o professor e forcado: o valor enviado
+      # deve ser respeitado.
+      it 'keeps should_create_recovery as false on create when teacher submits false' do
+        entity.using_connection do
+          allow(user).to receive(:teacher?).and_return(true)
+
+          post :create, params: {
+            locale: 'pt-BR',
+            avaliation: {
+              classroom_id: classroom.id,
+              discipline_id: discipline.id,
+              test_date: Time.zone.today,
+              description: 'Avaliacao professor config desligada',
+              grade_ids: classroom.grade_ids.join(','),
+              should_create_recovery: '0'
+            }
+          }
+
+          expect(assigns(:resource).should_create_recovery).to eq(false)
+        end
+      end
+    end
+  end
+
+  describe '#multiple_classrooms' do
+    # Os dados precisam ser criados dentro da mesma conexao (entity) usada pela
+    # action, caso contrario load_avaliations! nao enxerga os registros.
+    before do
+      entity.using_connection do
+        mc_unity = create(:unity)
+        mc_teacher = create(:teacher)
+        mc_discipline = create(:discipline)
+        mc_school_calendar = create(:school_calendar, :with_one_step, unity: mc_unity)
+        @mc_classroom = create(:classroom, unity: mc_unity)
+        create(:teacher_discipline_classroom,
+               teacher: mc_teacher,
+               discipline: mc_discipline,
+               classroom: @mc_classroom)
+
+        TestSetting.find_or_create_by!(year: @mc_classroom.year) do |ts|
+          ts.exam_setting_type = ExamSettingTypes::GENERAL
+          ts.maximum_score = 10
+          ts.number_of_decimal_places = 2
+          ts.average_calculation_type = AverageCalculationTypes::ARITHMETIC
+        end
+
+        allow(controller).to receive(:current_teacher).and_return(mc_teacher)
+        allow(controller).to receive(:current_teacher_id).and_return(mc_teacher.id)
+        allow(controller).to receive(:current_unity).and_return(mc_unity)
+        allow(controller).to receive(:current_school_year).and_return(mc_school_calendar.year)
+        allow(controller).to receive(:current_school_calendar).and_return(mc_school_calendar)
+        allow(controller).to receive(:current_user_classroom).and_return(@mc_classroom)
+        allow(controller).to receive(:current_user_discipline).and_return(mc_discipline)
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is enabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: true)
+        end
+      end
+
+      it 'marks should_create_recovery as true for every loaded avaliation' do
+        entity.using_connection do
+          get :multiple_classrooms, params: { locale: 'pt-BR' }
+
+          avaliations = assigns(:avaliation_multiple_creator_form).avaliations
+
+          expect(avaliations).not_to be_empty
+          expect(avaliations.map(&:should_create_recovery)).to all(eq(true))
+        end
+      end
+    end
+
+    context 'when allow_automatic_avaliation_recovery is disabled' do
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update!(allow_automatic_avaliation_recovery: false)
+        end
+      end
+
+      it 'leaves should_create_recovery as false for every loaded avaliation' do
+        entity.using_connection do
+          get :multiple_classrooms, params: { locale: 'pt-BR' }
+
+          avaliations = assigns(:avaliation_multiple_creator_form).avaliations
+
+          expect(avaliations).not_to be_empty
+          expect(avaliations.map(&:should_create_recovery)).to all(eq(false))
+        end
+      end
     end
   end
 end

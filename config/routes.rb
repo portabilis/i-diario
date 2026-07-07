@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         get 'list_attendances_by_classroom', to: 'list_attendances_by_classroom#index'
         get 'student_activity', to: 'student_activity#check'
         get 'student_classroom_attendances', to: 'student_classroom_attendances#index'
+        get 'monthly_frequencies', to: 'monthly_frequencies#index'
         get 'school_calendar_events', to: 'school_calendar_events#index'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
@@ -47,6 +48,7 @@ Rails.application.routes.draw do
         end
         resources :teaching_plans, only: [:index]
         resources :daily_physical_frequencies, only: [:create, :index]
+        resources :ieducar_api_student_transfers, only: [:create]
         resources :discipline_records, only: [] do
           collection do
             post :count
@@ -210,8 +212,16 @@ Rails.application.routes.draw do
       collection do
         get :contents
         get :fetch_grades
+        get :import
+        get :import_history
+        post :validate_csv
+        post :confirm_import
       end
     end
+
+    get '/learning_objectives_and_skills/csv_template/:template',
+        as: :csv_template_learning_objectives_and_skills,
+        to: 'learning_objectives_and_skills#csv_template'
 
     resources :pedagogical_trackings, only: [:index], concerns: :history do
       collection do

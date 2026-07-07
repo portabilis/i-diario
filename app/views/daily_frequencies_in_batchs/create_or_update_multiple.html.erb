@@ -142,6 +142,15 @@
             </td>
           </tr>
         <% end %>
+        <% if @allow_active_search_frequency && @additional_data.any? { |d| d[:in_active_search_active] } %>
+          <tr>
+            <td colspan="30">
+              <span class="daily-note-student-legend">
+                <span class="badge-active-search">Busca Ativa</span> <%= t('daily_frequencies.edit_multiple.in_active_search_active') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
       <% end %>
 
       <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>

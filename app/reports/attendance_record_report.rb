@@ -78,6 +78,7 @@ class AttendanceRecordReport < BaseReport
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
     @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
     @do_not_send_justified_absence = @general_configuration.do_not_send_justified_absence
+    @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
 
     header
     content
@@ -220,8 +221,13 @@ class AttendanceRecordReport < BaseReport
             if exempted_from_discipline?(exempts_hash, student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
             elsif in_active_search?(student_ids_by_enrollment[student_enrollment.id], active_searches_hash, daily_frequency)
-              @show_legend_active_search = true
-              student_frequency = ActiveSearchFrequencyStudent.new
+              if @allow_active_search_frequency
+                student_frequency = daily_frequency.students.detect { |sf| sf.student_id.eql?(student.id) && sf.active.eql?(true) }
+                student_frequency ||= NullDailyFrequencyStudent.new
+              else
+                @show_legend_active_search = true
+                student_frequency = ActiveSearchFrequencyStudent.new
+              end
             elsif @show_inactive_enrollments
               frequency_date = daily_frequency.frequency_date.to_date
               if frequency_date >= joined_at && frequency_date < left_at

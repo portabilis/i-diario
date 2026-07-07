@@ -1,0 +1,73 @@
+-- Essa view serve apenas para identificar quais avaliações devem conter o
+-- status `incomplete` e `complete` (calculado em tempo de consulta, não é
+-- materializado), considerando:
+-- Nota de transferencia, Avaliação de isenção, Data de enturmação do aluno (entrada e saída),
+-- Busca ativa (aluno em busca ativa na data da avaliação não deve ser considerado).
+SELECT outer_daily_notes.id AS daily_note_id,
+  CASE
+    WHEN (
+      EXISTS (
+        SELECT daily_notes.id
+          FROM daily_notes
+          JOIN daily_note_students ON (
+            daily_notes.id = daily_note_students.daily_note_id
+          )
+          JOIN avaliations ON (
+            daily_notes.avaliation_id = avaliations.id
+          )
+          WHERE daily_note_students.note IS NULL
+            AND daily_note_students.active = true
+            AND daily_note_students.transfer_note_id IS NULL
+            AND daily_note_students.discarded_at IS NULL
+            AND NOT (
+              EXISTS (
+                SELECT 1
+                  FROM avaliation_exemptions
+                WHERE avaliation_exemptions.avaliation_id = daily_notes.avaliation_id
+                  AND avaliation_exemptions.student_id = daily_note_students.student_id
+              )
+            )
+            AND (
+              EXISTS (
+                SELECT 1
+                  FROM student_enrollment_classrooms
+                  JOIN classrooms_grades ON (
+                  student_enrollment_classrooms.classrooms_grade_id = classrooms_grades.id
+                  )
+                  AND classrooms_grades.classroom_id = avaliations.classroom_id
+                  JOIN student_enrollments ON (
+                    student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
+                  )
+                  AND student_enrollments.student_id = daily_note_students.student_id
+                  AND (
+                    student_enrollment_classrooms.left_at = ''
+                    OR (
+                      avaliations.test_date::date < student_enrollment_classrooms.left_at::date
+                      AND avaliations.test_date::date >= student_enrollment_classrooms.joined_at::date
+                    )
+                  )
+                  AND student_enrollments.active = 1
+                  AND NOT (
+                    EXISTS (
+                      SELECT 1
+                        FROM active_searches
+                      WHERE active_searches.student_enrollment_id = student_enrollments.id
+                        AND active_searches.discarded_at IS NULL
+                        AND avaliations.test_date::date >= active_searches.start_date
+                        AND (
+                          active_searches.end_date IS NULL
+                          OR avaliations.test_date::date <= active_searches.end_date
+                        )
+                    )
+                  )
+              )
+            )
+          AND daily_notes.id = outer_daily_notes.id
+      )
+    )
+    THEN
+      'incomplete'::text
+    ELSE
+      'complete'::text
+  END AS status
+FROM daily_notes outer_daily_notes;

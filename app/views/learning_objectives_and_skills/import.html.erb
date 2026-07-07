@@ -1,0 +1,131 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/learning_objectives_and_skills/import' %>
+<% end %>
+
+<div class="widget-body<%= ' no-padding' unless @records %>">
+  <% unless @records %>
+    <%= form_tag validate_csv_learning_objectives_and_skills_path,
+                 method: :post, multipart: true, class: 'smart-form' do %>
+      <fieldset>
+        <div class="row">
+          <div class="col col-sm-6">
+            <div class="control-group" id="step-control-group">
+              <label><%= t('learning_objectives_and_skills.import.step_label') %> <abbr title="obrigatório">*</abbr></label>
+              <input type="hidden"
+                     name="step"
+                     id="import-step-select"
+                     class="select2"
+                     style="width: 100%;"
+                     value="<%= @selected_step %>"
+                     data-elements="<%= BnccSteps.to_select.to_json %>" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 15px;">
+          <div class="col col-sm-6">
+            <div class="control-group" id="mode-control-group">
+              <label><%= t('learning_objectives_and_skills.import.import_mode_label') %> <abbr title="obrigatório">*</abbr></label>
+              <% import_mode_elements = [
+                   { id: 'empty', name: '<option></option>', text: '' },
+                   { id: 'add_new', name: t('learning_objectives_and_skills.import.mode_add_new'), text: t('learning_objectives_and_skills.import.mode_add_new') },
+                   { id: 'replace', name: t('learning_objectives_and_skills.import.mode_replace'), text: t('learning_objectives_and_skills.import.mode_replace') }
+                 ] %>
+              <input type="hidden"
+                     name="import_mode"
+                     id="import-mode-select"
+                     class="select2"
+                     style="width: 100%;"
+                     value="<%= @selected_import_mode %>"
+                     data-elements="<%= import_mode_elements.to_json %>" />
+              <div id="mode-help-text" style="display: none; margin-top: 2px; margin-bottom: 0; padding: 6px 12px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 15px;">
+          <div class="col col-sm-12">
+            <legend><%= t('learning_objectives_and_skills.import.file_label') %></legend>
+            <div class="alert alert-info fade in">
+              <i class="fa-fw fa fa-info"></i>
+              <%= t('learning_objectives_and_skills.import.file_help') %>
+            </div>
+
+            <table class="table table-striped table-bordered table-condensed records">
+              <thead>
+                <tr>
+                  <th scope="col"><%= t('learning_objectives_and_skills.import.file_label') %> <abbr title="obrigatório">*</abbr></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="nested-fields">
+                  <td>
+                    <div class="control-group" id="file-control-group">
+                      <%= file_field_tag :file, accept: '.csv' %>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>
+                    <span style="margin-right: 10px;"><%= t('learning_objectives_and_skills.import.download_template') %>:</span>
+                    <%= link_to csv_template_learning_objectives_and_skills_path(template: 'child_school'), class: 'btn btn-success btn-sm' do %>
+                      <i class="fa fa-download"></i> <%= t('learning_objectives_and_skills.import.template_child_school') %>
+                    <% end %>
+                    <%= link_to csv_template_learning_objectives_and_skills_path(template: 'elementary_school'), class: 'btn btn-success btn-sm' do %>
+                      <i class="fa fa-download"></i> <%= t('learning_objectives_and_skills.import.template_elementary_school') %>
+                    <% end %>
+                    <%= link_to csv_template_learning_objectives_and_skills_path(template: 'eja'), class: 'btn btn-success btn-sm' do %>
+                      <i class="fa fa-download"></i> <%= t('learning_objectives_and_skills.import.template_eja') %>
+                    <% end %>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </fieldset>
+
+      <footer>
+        <%= link_to t('helpers.links.back'),
+                    learning_objectives_and_skills_path, class: 'btn btn-default' %>
+        <%= link_to t('learning_objectives_and_skills.import_history.title'),
+                    import_history_learning_objectives_and_skills_path, class: 'btn btn-info' %>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa fa-check"></i> <%= t('learning_objectives_and_skills.import.validate_button') %>
+        </button>
+      </footer>
+    <% end %>
+  <% end %>
+
+  <% if @records %>
+    <%= render 'import_preview' %>
+  <% end %>
+
+  <% if @import_errors.present? %>
+    <div class="alert alert-danger">
+      <h4><%= t('learning_objectives_and_skills.import.import_errors_title') %></h4>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th><%= t('learning_objectives_and_skills.import.row') %></th>
+            <th><%= LearningObjectivesAndSkill.human_attribute_name(:code) %></th>
+            <th><%= t('learning_objectives_and_skills.import.problem') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @import_errors.each do |error| %>
+            <tr class="danger">
+              <td><%= error[:row] %></td>
+              <td><code><%= error[:code] %></code></td>
+              <td><%= error[:messages].join(', ') %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

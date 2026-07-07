@@ -19,10 +19,8 @@ class TeachersSynchronizer < BaseSynchronizer
     teachers.each do |teacher_record|
       next if teacher_record.nome.blank?
 
-      begin
+      retrying_on_race_condition(:@teachers, teacher_record.servidor_id) do
         update_teacher_record(teacher_record)
-      rescue ActiveRecord::RecordNotUnique
-        retry
       end
     end
 

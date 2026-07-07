@@ -73,6 +73,7 @@ class DailyFrequenciesController < ApplicationController
     @period = @period != Periods::FULL.to_i ? @period : nil
 
     @general_configuration = GeneralConfiguration.current
+    @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
 
     authorize @daily_frequency
 

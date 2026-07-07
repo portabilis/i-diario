@@ -149,6 +149,12 @@ $(function () {
 
         $('#avaliations').append(html);
       });
+
+      var $selectAllRecovery = $('#select-all-recovery');
+      if ($selectAllRecovery.length && !$selectAllRecovery.prop('checked')) {
+        $("#avaliations input[type=checkbox][id*='should_create_recovery']").prop('checked', false);
+      }
+
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
 
       $('input[data-mask]').on('focus', function () {
@@ -167,6 +173,16 @@ $(function () {
     $(this).closest("table").find("tbody input[type=checkbox][id*='should_create_recovery']").prop("checked", $(this).prop("checked")).trigger("change");
   });
 
+  function syncSelectAllRecovery() {
+    var $selectAll = $('#select-all-recovery');
+    if (!$selectAll.length) return;
+
+    var $checkboxes = $("#avaliations input[type=checkbox][id*='should_create_recovery']");
+    if (!$checkboxes.length) return;
+
+    $selectAll.prop('checked', $checkboxes.length === $checkboxes.filter(':checked').length);
+  }
+
   function initFields() {
     if (!!document.getElementById('avaliation_multiple_creator_form_test_setting_id')) {
       updateFieldsBasedOnTestSetting();
@@ -179,6 +195,7 @@ $(function () {
 
   $(document).ready(function(){
     initFields();
+    syncSelectAllRecovery();
     $('.recovery-hint-tooltip').tooltip({ placement: 'top', container: 'body' });
   });
 });
