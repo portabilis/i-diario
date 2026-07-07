@@ -3,7 +3,7 @@ $(function () {
     $('input[data-mask]').on('focus', function () {
       var input = $(this);
 
-      input.inputmask(input.attr('data-mask'));
+      input.inputmask(input.attr('data-mask'), { casing: input.data('maskCasing') });
     });
   };
 

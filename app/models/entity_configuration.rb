@@ -11,7 +11,9 @@ class EntityConfiguration < ApplicationRecord
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
-  validates :cnpj, mask: { with: "99.999.999/9999-99", message: :incorrect_format }, allow_blank: true
+  before_validation :upcase_cnpj
+
+  validates :cnpj, alphanumeric_cnpj: true, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
 
   mount_uploader :logo, EntityLogoUploader
@@ -60,6 +62,12 @@ class EntityConfiguration < ApplicationRecord
   end
 
   private
+
+  # CNPJ alfanumerico usa letras maiusculas A-Z. Normaliza o valor digitado para
+  # maiusculas antes de validar/salvar (a validacao ja e case-insensitive).
+  def upcase_cnpj
+    self.cnpj = cnpj.upcase if cnpj.present?
+  end
 
   def logo_cache_key
     "entity_logo_data:#{id}:#{logo.identifier}"
