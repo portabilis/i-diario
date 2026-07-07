@@ -44,7 +44,7 @@ class SynchronizerExecuterEnqueueWorker
   private
 
   def enqueue_job(params, synchronization)
-    # Atomicidade para garantir que o mesmo worker não será executado 2 vezes fazendo com que a sincronização seja 
+    # Atomicidade para garantir que o mesmo worker não será executado 2 vezes fazendo com que a sincronização seja
     # finalizada precocemente
     lock_key = enqueue_lock_key(params)
     return unless $REDIS_DB.set(lock_key, '1', nx: true, ex: 30)
@@ -68,6 +68,7 @@ class SynchronizerExecuterEnqueueWorker
   def enqueue_lock_key(params)
     [
       'synchronizer_enqueue_lock',
+      params[:entity_id],
       params[:worker_batch_id],
       params[:klass],
       params[:year],
