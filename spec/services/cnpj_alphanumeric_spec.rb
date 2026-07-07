@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe CnpjAlphanumeric do
-  # Exemplo oficial da Receita Federal para o CNPJ alfanumerico.
+  # Exemplo oficial da Receita Federal para o CNPJ alfanumérico.
   let(:alphanumeric_cnpj) { '12ABC34501DE35' }
   let(:alphanumeric_masked) { '12.ABC.345/01DE-35' }
-  # CNPJ numerico valido (formato antigo, deve continuar aceito).
+  # CNPJ numérico válido (formato antigo, deve continuar aceito).
   let(:numeric_cnpj) { '11222333000181' }
   let(:numeric_masked) { '11.222.333/0001-81' }
 
