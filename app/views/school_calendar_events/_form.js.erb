@@ -1,37 +1,82 @@
 $(document).ready(function () {
+  // Termo usado no título e no aviso, conforme criação ou edição do evento.
+  var actionNoun = '<%= @school_calendar_event.persisted? ? 'alteração' : 'criação' %>';
+
+  var submitButton = $('#submit-school-calendar-event-button');
+  var eventForm = submitButton.closest('form');
+  var confirmationField = $('#frequency-deletion-confirmed');
+  // Libera o envio depois que a exclusão de frequências for confirmada no modal.
+  var frequencyDeletionConfirmed = false;
+
+  function removesFrequencies() {
+    var eventType = $('#school_calendar_event_event_type').val();
+    return ['extra_school_without_frequency', 'no_school'].includes(eventType);
+  }
+
   function setUpModalOptions() {
-    var modalOptions = {
-      title: 'Deseja prosseguir com a criação/edição do evento?',
-      message: "O tipo de evento 'não permite lançamentos' irá remover as frequências para o(s) dia(s) selecionados, " +
-        "caso existam lançamentos, não sendo possível restaurar esses dados. Deseja prosseguir?",
+    var message =
+      "<p><strong>ATENÇÃO!</strong> A " + actionNoun + " do evento excluirá as frequências já " +
+      "registradas para esta data, não sendo possível restaurá-las. Tem certeza que deseja continuar?</p>" +
+      "<div class='checkbox'><label>" +
+      "<input type='checkbox' id='confirm-delete-frequencies-checkbox'> " +
+      "Estou ciente que as frequências registradas para esta data serão excluídas" +
+      "<abbr title='obrigatório'> *</abbr>" +
+      "</label></div>";
+
+    return {
+      title: 'Deseja prosseguir com a ' + actionNoun + ' do evento?',
+      message: message,
       backdrop: true,
       buttons: {
         cancel: {
-          label: 'Continuar sem criar/editar evento',
+          label: 'Cancelar',
           className: 'new-school-calendar-event-cancel'
         },
         confirm: {
-          label: 'Prosseguir',
+          label: 'Continuar',
           className: 'new-school-calendar-event-button',
           callback: function () {
-            $('#submit-school-calendar-event-button').click();
+            if (!$('#confirm-delete-frequencies-checkbox').is(':checked')) return false;
+
+            frequencyDeletionConfirmed = true;
+            confirmationField.val('true');
+            eventForm[0].submit();
           }
         }
       }
     };
-    return modalOptions
   }
 
+  function openConfirmationModal() {
+    // Evita empilhar modais em duplo clique — o checkbox usa id único.
+    if ($('#confirm-delete-frequencies-checkbox').length) return;
+
+    var dialog = bootbox.dialog(setUpModalOptions());
+
+    // O botão "Continuar" só é habilitado após o usuário marcar o checkbox de ciência.
+    var confirmButton = dialog.find('.new-school-calendar-event-button');
+    confirmButton.prop('disabled', true);
+
+    dialog.on('change', '#confirm-delete-frequencies-checkbox', function () {
+      confirmButton.prop('disabled', !this.checked);
+    });
+  }
+
+  // Intercepta QUALQUER envio do form (clique em "Salvar", tecla Enter em um campo).
+  // Amarrar a confirmação ao submit e não ao clique do botão, impede que o
+  // Enter dispare a submissão nativa pulando o modal e excluindo frequências sem aviso.
+  // stopPropagation evita que o Rails UJS desabilite o botão neste submit cancelado.
+  eventForm.on('submit', function (e) {
+    if (removesFrequencies() && !frequencyDeletionConfirmed) {
+      e.preventDefault();
+      e.stopPropagation();
+      openConfirmationModal();
+    }
+  });
+
+  // O "Salvar" visível é um link; encaminha para o submit do form (que aciona o fluxo acima).
   $('#new-school-calendar-event-button').on('click', function (e) {
     e.preventDefault();
-
-    var event_type = $('#school_calendar_event_event_type').val()
-
-    if (['extra_school_without_frequency', 'no_school'].includes(event_type)) {
-      bootbox.dialog(setUpModalOptions())
-    } else {
-      $('#submit-school-calendar-event-button').click();
-    }
-
+    submitButton.click();
   });
 });

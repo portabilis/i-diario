@@ -248,7 +248,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
         'create',
         '2017-02-10',
         '2017-02-16',
-        true
+        event_type_changed: true
       )
     end
 
@@ -345,7 +345,7 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
           'update',
           '2017-02-10',
           '2017-02-16',
-          true
+          event_type_changed: true
         )
       end
 
@@ -659,6 +659,216 @@ RSpec.describe SchoolCalendarEventDays, type: :service do
       end
 
       it 'does not delete vespertine daily_frequency' do
+        expect { subject }.not_to change { DailyFrequency.where(id: vespertine_frequency.id).count }
+      end
+    end
+  end
+
+  # Evento criado cobrindo só um turno e depois editado ampliando/alterando o turno.
+  # Como a edição não muda as datas, o reprocessamento precisa do parâmetro scope_changed
+  # para excluir as frequências do novo escopo.
+  describe 'when the event scope changes on update' do
+    let!(:matutinal_classroom) {
+      create(:classroom, unity: school_calendars.last.unity, period: Periods::MATUTINAL)
+    }
+    let!(:vespertine_classroom) {
+      create(:classroom, unity: school_calendars.last.unity, period: Periods::VESPERTINE)
+    }
+    let!(:matutinal_classroom_grade) {
+      create(:classrooms_grade, classroom: matutinal_classroom)
+    }
+    let!(:vespertine_classroom_grade) {
+      create(:classrooms_grade, classroom: vespertine_classroom)
+    }
+    let!(:matutinal_frequency) {
+      create(
+        :daily_frequency,
+        classroom: matutinal_classroom,
+        frequency_date: '2017-02-15',
+        unity: school_calendars.last.unity,
+        school_calendar: school_calendars.last,
+        period: Periods::MATUTINAL
+      )
+    }
+    # Frequência de um turno NÃO coberto pelo evento — deve sobreviver ao reprocessamento.
+    let!(:vespertine_frequency) {
+      create(
+        :daily_frequency,
+        classroom: vespertine_classroom,
+        frequency_date: '2017-02-15',
+        unity: school_calendars.last.unity,
+        school_calendar: school_calendars.last,
+        period: Periods::VESPERTINE
+      )
+    }
+    let(:event) {
+      build(
+        :school_calendar_event,
+        school_calendar: school_calendars.last,
+        coverage: 'by_unity',
+        periods: Periods::MATUTINAL,
+        event_type: EventTypes::NO_SCHOOL,
+        grade_id: '',
+        course_id: '',
+        classroom_id: '',
+        show_in_frequency_record: false,
+        start_date: '2017-02-15',
+        end_date: '2017-02-15'
+      )
+    }
+
+    context 'when scope_changed is true' do
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15),
+          Date.new(2017, 2, 15),
+          scope_changed: true
+        )
+      end
+
+      it 'deletes the daily_frequency of the covered period' do
+        expect { subject }.to change { DailyFrequency.where(id: matutinal_frequency.id).count }.by(-1)
+      end
+
+      it 'preserves the daily_frequency of a period not covered by the event' do
+        expect { subject }.not_to change { DailyFrequency.where(id: vespertine_frequency.id).count }
+      end
+    end
+
+    context 'when scope_changed is false' do
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15),
+          Date.new(2017, 2, 15),
+          scope_changed: false
+        )
+      end
+
+      it 'does not delete the daily_frequency' do
+        expect { subject }.not_to change { DailyFrequency.where(id: matutinal_frequency.id).count }
+      end
+    end
+
+    # Muda o tipo (para outro "não permite") e o turno na mesma edição, sem mudar datas.
+    # Cai no ramo do event_type_changed, cuja limpeza full-range deve usar o turno NOVO
+    # (o do evento) e preservar o turno não coberto.
+    context 'when the event type and the period change together' do
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15),
+          Date.new(2017, 2, 15),
+          event_type_changed: true,
+          scope_changed: true
+        )
+      end
+
+      it 'deletes the frequency of the covered period' do
+        expect { subject }.to change { DailyFrequency.where(id: matutinal_frequency.id).count }.by(-1)
+      end
+
+      it 'preserves the frequency of a period not covered by the event' do
+        expect { subject }.not_to change { DailyFrequency.where(id: vespertine_frequency.id).count }
+      end
+    end
+
+    context 'when scope_changed is true but the event type allows frequency records' do
+      # Tipo que "permite lançamentos": o guard event_type_includes_no_school? deve
+      # impedir a exclusão mesmo com scope_changed true.
+      let(:event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::EXTRA_SCHOOL,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-15',
+          end_date: '2017-02-15'
+        )
+      }
+
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15),
+          Date.new(2017, 2, 15),
+          scope_changed: true
+        )
+      end
+
+      it 'does not delete the matutinal daily_frequency' do
+        expect { subject }.not_to change { DailyFrequency.where(id: matutinal_frequency.id).count }
+      end
+
+      it 'does not delete the vespertine daily_frequency' do
+        expect { subject }.not_to change { DailyFrequency.where(id: vespertine_frequency.id).count }
+      end
+    end
+
+    # Datas E escopo mudam na mesma edição. O diff de datas limpa o dia adicionado
+    # e a remoção por escopo limpa o dia que permaneceu — sem sobreposição.
+    context 'when dates and scope change together' do
+      let(:event) {
+        build(
+          :school_calendar_event,
+          school_calendar: school_calendars.last,
+          coverage: 'by_unity',
+          periods: Periods::MATUTINAL,
+          event_type: EventTypes::NO_SCHOOL,
+          grade_id: '',
+          course_id: '',
+          classroom_id: '',
+          show_in_frequency_record: false,
+          start_date: '2017-02-14',
+          end_date: '2017-02-15'
+        )
+      }
+      # Frequência matutina no dia recém-incluído pela extensão de datas (02-14).
+      let!(:matutinal_frequency_added_day) {
+        create(
+          :daily_frequency,
+          classroom: matutinal_classroom,
+          frequency_date: '2017-02-14',
+          unity: school_calendars.last.unity,
+          school_calendar: school_calendars.last,
+          period: Periods::MATUTINAL
+        )
+      }
+
+      subject do
+        SchoolCalendarEventDays.update_school_days(
+          [school_calendars.last],
+          [event],
+          'update',
+          Date.new(2017, 2, 15), # range antigo cobria só 02-15; 02-14 foi adicionado
+          Date.new(2017, 2, 15),
+          scope_changed: true
+        )
+      end
+
+      it 'deletes the matutinal frequency on the added day' do
+        expect { subject }.to change { DailyFrequency.where(id: matutinal_frequency_added_day.id).count }.by(-1)
+      end
+
+      it 'deletes the matutinal frequency on the day that remained' do
+        expect { subject }.to change { DailyFrequency.where(id: matutinal_frequency.id).count }.by(-1)
+      end
+
+      it 'preserves the vespertine frequency of a period not covered' do
         expect { subject }.not_to change { DailyFrequency.where(id: vespertine_frequency.id).count }
       end
     end
