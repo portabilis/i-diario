@@ -63,8 +63,8 @@ class EntityConfiguration < ApplicationRecord
 
   private
 
-  # CNPJ alfanumerico usa letras maiusculas A-Z. Normaliza o valor digitado para
-  # maiusculas antes de validar/salvar (a validacao ja e case-insensitive).
+  # Grava o CNPJ sempre em maiusculas para consistencia no banco/exibicao
+  # (o formato alfanumerico usa letras A-Z). A validacao ja e case-insensitive.
   def upcase_cnpj
     self.cnpj = cnpj.upcase if cnpj.present?
   end

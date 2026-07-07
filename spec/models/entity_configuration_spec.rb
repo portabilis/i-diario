@@ -10,7 +10,7 @@ RSpec.describe EntityConfiguration, :type => :model do
       expect(entity_configuration.errors[:cnpj]).to be_empty
     end
 
-    it "accepts a valid numeric CNPJ (compatibilidade)" do
+    it "accepts a valid numeric CNPJ for backward compatibility" do
       entity_configuration = EntityConfiguration.new(cnpj: '11.222.333/0001-81')
 
       entity_configuration.valid?
@@ -26,15 +26,15 @@ RSpec.describe EntityConfiguration, :type => :model do
       expect(entity_configuration.errors[:cnpj]).to be_empty
     end
 
-    it "rejects a CNPJ com digito verificador incorreto" do
+    it "rejects a CNPJ with an incorrect verifier digit" do
       entity_configuration = EntityConfiguration.new(cnpj: '12.ABC.345/01DE-34')
 
       entity_configuration.valid?
 
-      expect(entity_configuration.errors[:cnpj]).to include('formato incorreto')
+      expect(entity_configuration.errors.details[:cnpj]).to contain_exactly(error: :incorrect_format)
     end
 
-    it "normaliza o CNPJ alfanumerico para maiusculas antes de validar" do
+    it "upcases the alphanumeric CNPJ before validating" do
       entity_configuration = EntityConfiguration.new(cnpj: '12abc34501de35')
 
       entity_configuration.valid?
