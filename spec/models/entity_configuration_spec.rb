@@ -1,6 +1,49 @@
 require 'rails_helper'
 
 RSpec.describe EntityConfiguration, :type => :model do
+  describe "cnpj validation" do
+    it "accepts a valid alphanumeric CNPJ" do
+      entity_configuration = EntityConfiguration.new(cnpj: '12.ABC.345/01DE-35')
+
+      entity_configuration.valid?
+
+      expect(entity_configuration.errors[:cnpj]).to be_empty
+    end
+
+    it "accepts a valid numeric CNPJ for backward compatibility" do
+      entity_configuration = EntityConfiguration.new(cnpj: '11.222.333/0001-81')
+
+      entity_configuration.valid?
+
+      expect(entity_configuration.errors[:cnpj]).to be_empty
+    end
+
+    it "accepts a blank CNPJ" do
+      entity_configuration = EntityConfiguration.new(cnpj: '')
+
+      entity_configuration.valid?
+
+      expect(entity_configuration.errors[:cnpj]).to be_empty
+    end
+
+    it "rejects a CNPJ with an incorrect verifier digit" do
+      entity_configuration = EntityConfiguration.new(cnpj: '12.ABC.345/01DE-34')
+
+      entity_configuration.valid?
+
+      expect(entity_configuration.errors.details[:cnpj]).to contain_exactly(error: :incorrect_format)
+    end
+
+    it "upcases the alphanumeric CNPJ before validating" do
+      entity_configuration = EntityConfiguration.new(cnpj: '12abc34501de35')
+
+      entity_configuration.valid?
+
+      expect(entity_configuration.cnpj).to eq('12ABC34501DE35')
+      expect(entity_configuration.errors[:cnpj]).to be_empty
+    end
+  end
+
   describe ".current" do
     context "when it doesn't have a existent configuration" do
       it "returns a new configuration" do
