@@ -131,17 +131,21 @@ RSpec.describe InfrequencyTrackingNotifier, type: :service do
   end
 
   describe '#classrooms_with_absences' do
+    include ActiveSupport::Testing::TimeHelpers
+
     subject(:notifier) { described_class.new }
 
-    # A busca considera o intervalo beginning_of_year..ontem, então a falta precisa ser <= ontem.
-    let(:frequency_date) { Date.yesterday }
+    # Congela o relógio no meio do ano para que Date.yesterday caia dentro da janela padrão
+    # (beginning_of_year..ontem) e o teste não falhe em 1º de janeiro (range invertido/vazio).
+    before { travel_to Time.zone.local(2026, 6, 15, 12, 0, 0) }
+    after { travel_back }
 
-    def absence_in(classroom)
+    def absence_in(classroom, on: Date.yesterday)
       create(
         :unique_daily_frequency_student,
         classroom: classroom,
         student: create(:student),
-        frequency_date: frequency_date,
+        frequency_date: on,
         present: false
       )
     end
@@ -157,6 +161,15 @@ RSpec.describe InfrequencyTrackingNotifier, type: :service do
       expect(classrooms_with_absences.map(&:id)).to contain_exactly(classroom.id)
     end
 
+    it 'returns all distinct classrooms that have absences' do
+      classroom_a = create(:classroom)
+      classroom_b = create(:classroom)
+      absence_in(classroom_a)
+      absence_in(classroom_b)
+
+      expect(classrooms_with_absences.map(&:id)).to contain_exactly(classroom_a.id, classroom_b.id)
+    end
+
     it 'ignores classrooms that only have present records (no absences)' do
       classroom_with_absence = create(:classroom)
       classroom_present_only = create(:classroom)
@@ -165,11 +178,25 @@ RSpec.describe InfrequencyTrackingNotifier, type: :service do
         :unique_daily_frequency_student,
         classroom: classroom_present_only,
         student: create(:student),
-        frequency_date: frequency_date,
+        frequency_date: Date.yesterday,
         present: true
       )
 
       expect(classrooms_with_absences.map(&:id)).to contain_exactly(classroom_with_absence.id)
+    end
+
+    it 'returns a classroom that has both present and absent records' do
+      classroom = create(:classroom)
+      create(
+        :unique_daily_frequency_student,
+        classroom: classroom,
+        student: create(:student),
+        frequency_date: Date.yesterday,
+        present: true
+      )
+      absence_in(classroom)
+
+      expect(classrooms_with_absences.map(&:id)).to contain_exactly(classroom.id)
     end
 
     it 'excludes discarded (soft-deleted) classrooms' do
@@ -180,6 +207,20 @@ RSpec.describe InfrequencyTrackingNotifier, type: :service do
       discarded_classroom.discard
 
       expect(classrooms_with_absences.map(&:id)).to contain_exactly(kept_classroom.id)
+    end
+
+    it 'excludes absences after end_at (today, an incomplete day)' do
+      classroom = create(:classroom)
+      absence_in(classroom, on: Date.current)
+
+      expect(classrooms_with_absences).to be_empty
+    end
+
+    it 'excludes absences before the beginning of the year' do
+      classroom = create(:classroom)
+      absence_in(classroom, on: Date.current.beginning_of_year - 1.day)
+
+      expect(classrooms_with_absences).to be_empty
     end
   end
 

@@ -2,7 +2,7 @@ class AddPartialIndexForAbsencesToUniqueDailyFrequencyStudents < ActiveRecord::M
   disable_ddl_transaction!
 
   # Índice parcial para a busca de ausências (present = false) por intervalo de datas,
-  # usada pelo InfrequencyTrackingNotifier durante a madrugada. Sem ele o Postgres
+  # usada de forma recorrente pelo InfrequencyTrackingNotifier. Sem ele o Postgres
   # recorre a Parallel Seq Scan na tabela inteira.
   def up
     add_index :unique_daily_frequency_students, :frequency_date,
