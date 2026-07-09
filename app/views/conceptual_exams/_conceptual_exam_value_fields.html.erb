@@ -7,9 +7,13 @@
     <%= f.hidden_field :discipline_id %>
     <%= f.hidden_field :exempted_discipline %>
     <%= f.hidden_field :_destroy %>
-    <span class='<%= conceptual_exam_value_student_name_class(f.object) %>'>
-      <%= conceptual_exam_value_student_name(f.object) %>
-    </span>
+    <span class="discipline_description"><%= f.object.discipline.description %></span>
+    <% if conceptual_exam_value_exempted?(f.object) %>
+      <%= student_status_badge(:exempted_from_discipline) %>
+    <% end %>
+    <% if conceptual_exam_value_in_dependence?(f.object) %>
+      <%= student_status_badge(:dependence) %>
+    <% end %>
   </td>
   <% old_values.each do |step| %>
     <td class="old_step_column"><%= step[:values]["#{f.object.discipline_id}"] || '-' %></td>

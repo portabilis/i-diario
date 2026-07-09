@@ -1,11 +1,17 @@
 <tr>
   <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
   <td style="vertical-align: middle;">
-    <% student_data = custom_student_name(student, params[:dates]) %>
+    <% student_data = student_statuses_for(student) %>
 
-    <span style="color: <%= student_data[:color] %>"><%= student_data[:name] %></span>
-    <% if student_data[:in_active_search_active] %>
-      <span class="badge-active-search" title="Aluno em busca ativa">Busca Ativa</span>
+    <span><%= student_data[:name] %></span>
+    <% if student_data[:inactive] %>
+      <%= student_status_badge(:inactive) %>
+    <% elsif student_data[:dependence] %>
+      <%= student_status_badge(:dependence) %>
+    <% elsif student_data[:exempted_from_discipline] %>
+      <%= student_status_badge(:exempted_from_discipline) %>
+    <% elsif student_data[:in_active_search] %>
+      <%= student_status_badge(:active_search) %>
     <% end %>
   </td>
   <% absences_on_the_period = 0 %>

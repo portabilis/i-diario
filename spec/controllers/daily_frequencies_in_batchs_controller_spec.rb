@@ -447,6 +447,186 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
   end
 
+  describe '#student_exempted_from_discipline_in_range' do
+    let(:discipline_extra1) { create(:discipline) }
+    let(:discipline_extra2) { create(:discipline) }
+    let(:student_exempt_from_all) { create(:student) }
+    let(:student_exempt_from_some) { create(:student) }
+    let(:student_not_exempt) { create(:student) }
+    let(:enrollment_all) { create(:student_enrollment, student: student_exempt_from_all) }
+    let(:enrollment_some) { create(:student_enrollment, student: student_exempt_from_some) }
+    let(:enrollment_none) { create(:student_enrollment, student: student_not_exempt) }
+    let(:enrollment_ids) { [enrollment_all.id, enrollment_some.id, enrollment_none.id] }
+    let(:frequency_dates) { [school_calendar.steps.first.start_at.to_s] }
+
+    before do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra1)
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra2)
+
+      # student_exempt_from_all: dispensado de todas as disciplinas da turma
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_all, discipline: discipline)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_all, discipline: discipline_extra1)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_all, discipline: discipline_extra2)
+
+      # student_exempt_from_some: dispensado apenas de duas (não todas)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_some, discipline: discipline)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_some, discipline: discipline_extra1)
+
+      controller.instance_variable_set(:@classroom, classroom)
+    end
+
+    context 'when using general frequency' do
+      before do
+        controller.instance_variable_set(:@discipline, nil)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::GENERAL)
+      end
+
+      it 'returns only students exempt from all disciplines of the classroom' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        student_ids = result.flat_map { |r| r[:student_ids] }
+        expect(student_ids).to contain_exactly(student_exempt_from_all.id)
+      end
+
+      it 'returns hash entries keyed by step_number' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        expect(result).to match_array(
+          [{ step_number: 1, student_ids: [student_exempt_from_all.id] }]
+        )
+      end
+    end
+
+    context 'when using by-discipline frequency for a discipline with exemptions' do
+      before do
+        controller.instance_variable_set(:@discipline, discipline)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::BY_DISCIPLINE)
+      end
+
+      it 'returns students exempt from the specific discipline' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        student_ids = result.flat_map { |r| r[:student_ids] }
+        expect(student_ids).to contain_exactly(student_exempt_from_all.id, student_exempt_from_some.id)
+      end
+    end
+
+    context 'when using by-discipline frequency for a discipline without exemptions' do
+      let(:discipline_without_exemptions) { create(:discipline) }
+
+      before do
+        create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_without_exemptions)
+        controller.instance_variable_set(:@discipline, discipline_without_exemptions)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::BY_DISCIPLINE)
+      end
+
+      it 'returns an empty list' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when no enrollments are passed' do
+      before do
+        controller.instance_variable_set(:@discipline, nil)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::GENERAL)
+      end
+
+      it 'returns an empty list' do
+        result = controller.send(:student_exempted_from_discipline_in_range, [], frequency_dates)
+
+        expect(result).to eq([])
+      end
+    end
+  end
+
+  describe '#additional_data' do
+    let(:discipline_extra1) { create(:discipline) }
+    let(:discipline_extra2) { create(:discipline) }
+    let(:student_exempt_from_all) { create(:student) }
+    let(:enrollment_all) { create(:student_enrollment, student: student_exempt_from_all) }
+    let(:frequency_date) { school_calendar.steps.first.start_at.to_date }
+
+    before do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra1)
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra2)
+
+      [discipline, discipline_extra1, discipline_extra2].each do |disc|
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: enrollment_all, discipline: disc)
+      end
+
+      controller.instance_variable_set(:@classroom, classroom)
+      controller.instance_variable_set(:@discipline, nil)
+      controller.instance_variable_set(:@frequency_type, FrequencyTypes::GENERAL)
+      controller.instance_variable_set(:@allow_active_search_frequency, false)
+    end
+
+    it 'marks students exempt from all disciplines with status :exempted_from_discipline in general frequency' do
+      exempteds = controller.send(
+        :student_exempted_from_discipline_in_range,
+        [enrollment_all.id],
+        [frequency_date]
+      )
+
+      result = controller.send(
+        :additional_data,
+        [frequency_date],
+        [student_exempt_from_all.id],
+        [],
+        [],
+        exempteds,
+        []
+      )
+
+      expect(result).to include(
+        hash_including(
+          date: frequency_date,
+          student_id: student_exempt_from_all.id,
+          status: :exempted_from_discipline
+        )
+      )
+    end
+  end
+
+  describe '#all_students_inactive?' do
+    let(:dates) { [Date.new(2026, 1, 12), Date.new(2026, 1, 13)] }
+
+    context 'when no enrollment is active on any of the dates' do
+      it 'returns true' do
+        enrollment_classrooms = [
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-02-01', left_at: '') },
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-03-01', left_at: '') }
+        ]
+
+        expect(controller.send(:all_students_inactive?, enrollment_classrooms, dates)).to eq(true)
+      end
+    end
+
+    context 'when at least one enrollment is active on a date' do
+      it 'returns false' do
+        enrollment_classrooms = [
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-02-01', left_at: '') },
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-01-01', left_at: '') }
+        ]
+
+        expect(controller.send(:all_students_inactive?, enrollment_classrooms, dates)).to eq(false)
+      end
+    end
+
+    context 'when there are no enrollments' do
+      it 'returns true' do
+        expect(controller.send(:all_students_inactive?, [], dates)).to eq(true)
+      end
+    end
+  end
+
   describe '#check_and_preserve_existing_justifications_batch' do
     # Esse teste verifica que o controller chama o AbsenceJustificationPreserver corretamente
     let(:frequency_date) { school_calendar.steps.first.start_at }

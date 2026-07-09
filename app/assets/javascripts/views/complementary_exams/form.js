@@ -79,16 +79,11 @@ $(function () {
 
     if (!_.isEmpty(discipline_id) && !_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
       $.ajax({
-        url: Routes.by_date_student_enrollments_lists_pt_br_path({
-          filter: {
-            classroom: classroom_id,
-            date: recorded_at,
-            discipline: discipline_id,
-            show_inactive: false,
-            with_recovery_note_in_step: with_recovery_note_in_step,
-            score_type: 'numeric',
-            status_attending: true
-          },
+        url: Routes.fetch_students_complementary_exams_pt_br_path({
+          classroom_id: classroom_id,
+          discipline_id: discipline_id,
+          date: recorded_at,
+          with_recovery_note_in_step: with_recovery_note_in_step,
           format: 'json'
         }),
         success: handleFetchStudentsSuccess,
@@ -97,8 +92,28 @@ $(function () {
     }
   };
 
+  // Matrículas de dependência ficam após as matrículas regulares, com sequencial próprio: a
+  // numeração dos dependentes reinicia em 1 (independente da numeração dos regulares).
+  function sortEnrollmentsForDependence(student_enrollments_lists) {
+    var normals = [];
+    var dependents = [];
+
+    _.each(student_enrollments_lists, function (student_enrollment) {
+      if (student_enrollment.in_dependence) {
+        dependents.push(student_enrollment);
+      } else {
+        normals.push(student_enrollment);
+      }
+    });
+
+    normals.forEach(function (enrollment, index) { enrollment.sequence = index + 1; });
+    dependents.forEach(function (enrollment, index) { enrollment.sequence = index + 1; });
+
+    return normals.concat(dependents);
+  }
+
   function handleFetchStudentsSuccess(data) {
-    var student_enrollments_lists = data.student_enrollments_lists
+    var student_enrollments_lists = sortEnrollmentsForDependence(data.students);
 
     if (!_.isEmpty(student_enrollments_lists)) {
       hideNoItemMessage();
@@ -118,7 +133,7 @@ $(function () {
         _.each(student_enrollments_lists, function (student_enrollment) {
           var element_id = new Date().getTime() + element_counter++;
 
-          buildStudentField(element_id, student_enrollment.student);
+          buildStudentField(element_id, student_enrollment);
         });
 
         loadDecimalMasks();
@@ -134,7 +149,7 @@ $(function () {
             } else {
               var element_id = new Date().getTime() + element_counter++;
 
-              buildStudentField(element_id, student_enrollment.student, index);
+              buildStudentField(element_id, student_enrollment, index);
             }
             existing_ids.push(fetched_id);
           }
@@ -148,6 +163,8 @@ $(function () {
           }
         });
       }
+
+      updateStatusLegend();
     } else {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -173,6 +190,20 @@ $(function () {
     $('#' + id).show();
     $('#' + id).removeClass('destroy');
     $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
+  }
+
+  // Revela na legenda apenas as situações com badge presente na tabela.
+  function updateStatusLegend() {
+    var statuses = ['inactive', 'dependence', 'exempted-from-discipline', 'active-search'];
+    var anyVisible = false;
+
+    statuses.forEach(function (status) {
+      var hasBadge = $('#complementary-exam-students tr.nested-fields:not(.destroy) .badge-status--' + status).length > 0;
+      $('.student-status-legend__item[data-status="' + status + '"]').toggle(hasBadge);
+      if (hasBadge) { anyVisible = true; }
+    });
+
+    $('.student-status-legend').toggle(anyVisible);
   }
 
   function hideNoItemMessage() {
@@ -202,11 +233,33 @@ $(function () {
     }
   });
 
-  function buildStudentField(element_id, student, index = null) {
+  function buildStudentField(element_id, student_enrollment, index = null) {
+    var student = student_enrollment.student;
+    var active = !student_enrollment.inactive_on_date;
+    var in_active_search = !!student_enrollment.in_active_search;
+    var exempted_from_discipline = !!student_enrollment.exempted_from_discipline;
+    var dependence = !!student_enrollment.in_dependence;
+    var status_badge = '';
+
+    if (in_active_search) {
+      status_badge = renderStudentStatusBadge('active-search');
+    } else if (!active) {
+      status_badge = renderStudentStatusBadge('inactive');
+    } else if (dependence) {
+      status_badge = renderStudentStatusBadge('dependence');
+    } else if (exempted_from_discipline) {
+      status_badge = renderStudentStatusBadge('exempted-from-discipline');
+    }
+
     var html = JST['templates/complementary_exams/student_fields']({
       id: student.id,
       name: student.name,
-      element_id: element_id
+      element_id: element_id,
+      sequence: student_enrollment.sequence,
+      status_badge: status_badge,
+      active: active,
+      exempted_from_discipline: exempted_from_discipline,
+      in_active_search: in_active_search
     });
 
     var $tbody = $('#complementary-exam-students');
@@ -302,6 +355,7 @@ $(function () {
 
   // On load
   loadDecimalMasks();
+  updateStatusLegend();
 
   if (_.isEmpty($setting.val())) {
     save_button.disabled = true;

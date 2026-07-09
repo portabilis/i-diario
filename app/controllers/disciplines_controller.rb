@@ -40,6 +40,9 @@ class DisciplinesController < ApplicationController
                                  .by_score_type(ScoreTypes::CONCEPT, params[:student_id], params[:classroom_id])
                                  .where(id: disciplines_in_grade_ids)
 
+      # Aluno de dependência só pode lançar na(s) disciplina(s) que cursa a dependência.
+      dependency_discipline_ids = StudentEnrollmentDependence.discipline_ids_for(params[:student_id], classroom.id)
+      @disciplines = @disciplines.where(id: dependency_discipline_ids) if dependency_discipline_ids.present?
     end
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?

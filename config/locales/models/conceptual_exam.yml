@@ -30,3 +30,4 @@ pt-BR:
               at_least_one_conceptual_exam_value: 'É necessário pelo menos 1 disciplina'
             base:
                 student_is_not_in_classroom: 'Não é possível modificar o Diário de avaliações conceituais pois o aluno não está enturmado na data do lançamento.'
+                student_in_active_search: 'Não é possível modificar o Diário de avaliações conceituais pois o aluno está em situação de Busca Ativa na data do lançamento.'

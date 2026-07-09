@@ -335,6 +335,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @absence_justification.school_calendar = current_school_calendar
     @students = []
     @students_list = []
+    @normal_students = []
+    @dependence_students = []
 
     student_enrollments_ids = []
     student_ids = []
@@ -371,7 +373,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       }
     end
 
-    if @students.blank?
+    if @students.blank? || all_students_inactive?(enrollment_classrooms, dates)
       flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
 
       redirect_to new_daily_frequencies_in_batch_path
@@ -408,12 +410,22 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
+
+    dependence_student_ids = dependences.flat_map { |d| d[:student_ids] }.uniq
+    @students.each do |student_data|
+      if dependence_student_ids.include?(student_data[:student].id)
+        @dependence_students << student_data
+      else
+        @normal_students << student_data
+      end
+    end
   end
 
   def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline,
                       active_searchs)
     additional_data = []
     dates.each do |date|
+      date_step_number = current_school_calendar.step(date.to_date).try(:to_number)
       student_ids.each do |student_id|
         if active_searchs.any?
           active_searchs.each do |active_search|
@@ -422,12 +434,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
             if @allow_active_search_frequency
               additional_data << { date: active_search[:date], student_id: student_id,
                                    additional_class: nil, tooltip: nil,
-                                   in_active_search_active: true }
+                                   in_active_search_active: true, status: :active_search }
             else
               additional_class = 'in-active-search'
               tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
               additional_data << { date: active_search[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip: tooltip }
+                                   additional_class: additional_class, tooltip: tooltip,
+                                   status: :active_search }
             end
           end
         end
@@ -437,17 +450,22 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.dependence_students_tooltip')
             additional_data << { date: dependence[:date], student_id: student_id,
-                                 additional_class: '', tooltip:  tooltip }
+                                 additional_class: nil, tooltip:  tooltip,
+                                 status: :dependence }
           end
         end
         if exempteds_from_discipline.any?
+          # A dispensa da disciplina é por ETAPA (não por dia): por isso o casamento usa o
+          # step_number da data, marcando o aluno dispensado em todos os dias daquela etapa.
           exempteds_from_discipline.each do |exempted_from_discipline|
-            next if exempted_from_discipline[:date] != date || !exempted_from_discipline[:student_ids].include?(student_id)
+            next if exempted_from_discipline[:step_number] != date_step_number ||
+                    !exempted_from_discipline[:student_ids].include?(student_id)
 
             additional_class = 'exempted'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.exempted_students_from_discipline_tooltip')
-            additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+            additional_data << { date: date, student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip,
+                                 status: :exempted_from_discipline }
           end
         end
         if inactives_on_date.any?
@@ -457,7 +475,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
             additional_class = 'inactive'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.inactive_students_tooltip')
             additional_data << { date: inactive_on_date[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+                                 additional_class: additional_class, tooltip:  tooltip,
+                                 status: :inactive }
           end
         end
       end
@@ -632,12 +651,20 @@ nil, @period)
     )
   end
 
+  def all_students_inactive?(enrollment_classrooms, dates)
+    enrollment_classrooms.none? do |enrollment|
+      enrollment_classroom = enrollment[:student_enrollment_classroom]
+
+      dates.any? { |date| enrollment_classroom.active_on_date?(date) }
+    end
+  end
+
   def students_inactive_on_range(enrollment_classrooms, dates)
     inactives = []
 
     dates.each do |date|
       active_enrollments_classroom_ids = enrollment_classrooms.select do |enrollment|
-        enrollment.joined_at.to_date <= date && (enrollment.left_at.blank? || enrollment.left_at.to_date > date)
+        enrollment.active_on_date?(date)
       end.pluck(:id)
 
       next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
@@ -686,7 +713,10 @@ nil, @period)
   end
 
   def student_exempted_from_discipline_in_range(student_enrollments_ids, frequency_dates)
-    return if @discipline.blank?
+    return [] if student_enrollments_ids.blank?
+
+    discipline = @frequency_type == FrequencyTypes::GENERAL ? nil : @discipline
+    enrollment_to_student = StudentEnrollment.where(id: student_enrollments_ids).pluck(:id, :student_id).to_h
 
     exempteds = []
     steps = []
@@ -696,12 +726,14 @@ nil, @period)
     end
 
     steps.uniq.compact.each do |step_number|
-      students_exempteds = StudentEnrollmentExemptedDiscipline.where(student_enrollment_id: student_enrollments_ids)
-                                                              .by_discipline(@discipline.id)
-                                                              .by_step_number(step_number)
-                                                              .includes(student_enrollment: [:student])
-                                                              .pluck('students.id')
-      next if students_exempteds&.empty?
+      exempt_hash = StudentsExemptFromDiscipline.call(
+        student_enrollments: student_enrollments_ids,
+        discipline: discipline,
+        step: step_number,
+        classroom_id: @classroom.id
+      )
+      students_exempteds = exempt_hash.keys.map { |id| enrollment_to_student[id] }.compact
+      next if students_exempteds.empty?
 
       exempteds << { step_number: step_number, student_ids: students_exempteds }
     end

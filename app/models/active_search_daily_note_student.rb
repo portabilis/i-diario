@@ -6,11 +6,11 @@ class ActiveSearchDailyNoteStudent
   end
 
   def note
-    'B'
+    StudentSituationMarkers::ACTIVE_SEARCH
   end
 
   def recovery_note
-    @recovery_note || 'B'
+    @recovery_note || StudentSituationMarkers::ACTIVE_SEARCH
   end
 
   def has_recovery?

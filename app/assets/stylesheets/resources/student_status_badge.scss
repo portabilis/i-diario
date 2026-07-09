@@ -1,0 +1,68 @@
+.badge-status {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.4;
+  padding: 2px 10px;
+  margin: 0 5px;
+  border-radius: 12px;
+  border: 1.7px solid;
+  vertical-align: middle;
+
+  &--active-search {
+    background-color: #FEF3C6;
+    color: #973C00;
+    border-color: #FFBA00
+  }
+
+  &--dependence {
+    background-color: #FFE4E6;
+    color: #C70036;
+    border-color: #FFA1AD;
+  }
+
+  &--exempted {
+    background-color: #DFF2FE;
+    color: #00598A;
+    border-color: #00A6F4;
+  }
+
+  &--inactive {
+    background-color: #F5F5F5;
+    color: #737373;
+    border-color: #E5E5E5;
+  }
+
+  &--exempted-from-discipline {
+    background-color: #e0e7ff;
+    color: #372aac;
+    border-color: #615FFF;
+  }
+}
+
+// Badges exibidas dentro do select2 (dropdown de seleção de aluno).
+// Reduz levemente o tamanho para não aumentar a altura das opções.
+.select2-results .badge-status,
+.select2-choice .badge-status {
+  font-size: 10px;
+  padding: 1px 7px;
+  margin: 0 3px;
+}
+
+.student-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #DDD;
+
+  &__label {
+    font-weight: bold;
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+  }
+}

@@ -1,4 +1,6 @@
 class AttendanceRecordReport < BaseReport
+  include StudentSituationMarkers
+
   # Número de alunos impressos por página
   STUDENT_BY_PAGE_COUNT = 29
 
@@ -72,7 +74,7 @@ class AttendanceRecordReport < BaseReport
       @classrooms[df.classroom_id] = df.classroom if df.classroom
     end
 
-    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
+    self.legend = "Legenda: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da disciplina, FJ - Falta justificada"
 
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
@@ -242,7 +244,7 @@ class AttendanceRecordReport < BaseReport
 
             if @show_legend_active_search && !@exists_active_search
               @exists_active_search = true
-              self.legend += ', B - Busca ativa'
+              self.legend += ", #{ACTIVE_SEARCH} - Aluno em Busca Ativa"
             end
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
@@ -341,15 +343,13 @@ class AttendanceRecordReport < BaseReport
       students_cells = []
       students = students.sort_by { |(_key, value)| value[:dependence] ? 1 : 0 }
       sequence = 1 unless @show_inactive_enrollments
-      sequence_reseted = false
+      dependence_sequence = 0
 
       students.each do |_key, value|
-        if !sequence_reseted && value[:dependence]
-          sequence = 1
-          sequence_reseted = true
-        end
-
-        if @show_inactive_enrollments
+        if value[:dependence]
+          dependence_sequence += 1
+          sequence_cell = make_cell(content: dependence_sequence.to_s, align: :center)
+        elsif @show_inactive_enrollments
           sequence_cell = make_cell(content: value[:sequence].to_s, align: :center)
         else
           sequence_cell = make_cell(content: sequence.to_s, align: :center)
@@ -395,6 +395,7 @@ class AttendanceRecordReport < BaseReport
           table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] },
                       column_widths: column_widths, width: bounds.width) do |t|
             t.cells.border_width = 0.25
+            t.columns(3..42).padding = [2, 0, 2, 0]
 
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
@@ -412,7 +413,7 @@ class AttendanceRecordReport < BaseReport
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
+      self.legend = "Legenda: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da disciplina, FJ - Falta justificada"
 
       if index < sliced_frequencies_and_events.count - 1
         start_new_page

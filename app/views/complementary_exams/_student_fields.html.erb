@@ -1,17 +1,23 @@
 <tr class="nested-fields"
     style="<%= 'display: none;' if f.object.marked_for_destruction? %>"
     id="<%= f.object.student_id %>">
-  <td>
-    <% if f.object.persisted? %>
-      <%= f.hidden_field :id %>
-      <%= f.hidden_field :_destroy %>
-    <% end %>
+  <td><%= sequence %></td>
+  <% present(f.object) do |student| %>
+    <td>
+      <% if f.object.persisted? %>
+        <%= f.hidden_field :id %>
+        <%= f.hidden_field :_destroy %>
+      <% end %>
 
-    <%= f.input :student_id, as: :hidden %>
-    <span class="multiline"><%= f.object %></span>
-  </td>
+      <%= f.input :student_id, as: :hidden %>
+      <span class="multiline"><%= student %></span>
+      <%= student_status_badge(student.status_badge) if student.status_badge %>
+    </td>
 
-  <td>
-    <%= f.input :score, label: false %>
-  </td>
+    <td>
+      <%= f.input :score,
+                  label: false,
+                  input_html: { readonly: f.object.in_active_search || f.object.active == false || f.object.exempted_from_discipline } %>
+    </td>
+  <% end %>
 </tr>

@@ -1,4 +1,5 @@
 <tr class="nested-fields" id="<%= id %>">
+  <td><%= sequence %></td>
   <td>
     <div class="control-group hidden complementary_exam_students_student_id">
       <div class="controls input">
@@ -7,12 +8,13 @@
     </div>
 
     <span class="multiline"><%= name %></span>
+    <%= status_badge %>
   </td>
 
   <td>
     <div class="control-group decimal optional complementary_exam_students_score">
       <div class="controls input">
-        <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="complementary_exam[students_attributes][<%= element_id %>][score]" id="complementary_exam_complementary_exam_attributes_students_attributes_<%= element_id %>_score">
+        <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="complementary_exam[students_attributes][<%= element_id %>][score]" id="complementary_exam_complementary_exam_attributes_students_attributes_<%= element_id %>_score" <% if (!active || exempted_from_discipline || in_active_search) { %> readonly <% } %>>
       </div>
     </div>
   </td>

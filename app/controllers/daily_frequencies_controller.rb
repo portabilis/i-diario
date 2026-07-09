@@ -79,10 +79,11 @@ class DailyFrequenciesController < ApplicationController
 
     @students = []
     @students_list = []
+    @normal_students = []
+    @dependence_students = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
     @any_in_active_search = false
-    @dependence_students = false
     @absence_justification = AbsenceJustification.new
     @absence_justification.school_calendar = current_school_calendar
     @is_new_record = @daily_frequencies.first.new_record?
@@ -138,13 +139,12 @@ class DailyFrequenciesController < ApplicationController
 
       @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
-      @dependence_students ||= has_dependence
       @any_inactive_student ||= !activated_student
 
       next unless activated_student || show_inactive_enrollments
 
       @students_list << student
-      @students << {
+      student_data = {
         student: student,
         student_enrollment_id: student_enrollment_id,
         dependence: has_dependence,
@@ -154,6 +154,13 @@ class DailyFrequenciesController < ApplicationController
         absence_justification: absence_justification,
         sequence: sequence
       }
+      @students << student_data
+
+      if has_dependence
+        @dependence_students << student_data
+      else
+        @normal_students << student_data
+      end
     end
 
     all_inactive = @students.all? { |element| element[:active] == false }
@@ -169,7 +176,11 @@ class DailyFrequenciesController < ApplicationController
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
-    @students = @students.sort_by { |student| student[:sequence] } if show_inactive_enrollments
+    if show_inactive_enrollments
+      @normal_students = @normal_students.sort_by { |student| student[:sequence] }
+      @dependence_students = @dependence_students.sort_by { |student| student[:sequence] }
+      @students = @normal_students + @dependence_students
+    end
   end
 
   def create_or_update_multiple

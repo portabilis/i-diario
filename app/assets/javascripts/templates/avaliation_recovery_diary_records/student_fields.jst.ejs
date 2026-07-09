@@ -9,7 +9,8 @@
       </div>
     </div>
 
-    <span class="<%= student_situation %>"><%= name %></span>
+    <span class="multiline"><%= name %></span>
+    <%= status_badge %>
   </td>
 
   <td>
@@ -22,7 +23,7 @@
         Nota
       </label>
       <div class="controls input">
-        <% if(active && !exempted_from_discipline){ %>
+        <% if(active && !exempted_from_discipline && !in_active_search){ %>
           <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="avaliation_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]" id="avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">
         <% } else { %>
           <input readonly="readonly" class="string decimal form-control decimal form-control decimal optional" type="decimal" name="avaliation_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]" id="avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">

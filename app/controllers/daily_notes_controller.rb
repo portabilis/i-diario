@@ -191,10 +191,13 @@ class DailyNotesController < ApplicationController
     set_students_and_info
     set_student_enrollments_data
 
+    existing_by_student_id = @daily_note.students.index_by(&:student_id)
+
     set_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment].id
-      note_student = @daily_note.students.find_or_initialize_by(student_id: student.id)
+      note_student = existing_by_student_id[student.id] ||
+                     @daily_note.students.build(student_id: student.id)
       note_student.active = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
       note_student.dependence = @dependencies[student_enrollment_id] ? true : false
       note_student.exempted = @exempted_from_avaliation.map(&:student_id).include?(student.id) ? true : false
