@@ -29,4 +29,20 @@ RSpec.describe IepOption, type: :model do
       expect(described_class.enabled).to contain_exactly(active)
     end
   end
+
+  describe 'IepOptionKinds.value_of' do
+    it 'resolves a known kind symbol to its integer value' do
+      expect(IepOptionKinds.value_of(:communication_profile))
+        .to eq(IepOptionKinds::COMMUNICATION_PROFILE)
+    end
+
+    it 'passes an integer through unchanged' do
+      expect(IepOptionKinds.value_of(IepOptionKinds::SUPPORT_TYPE))
+        .to eq(IepOptionKinds::SUPPORT_TYPE)
+    end
+
+    it 'returns nil for an unknown kind (does not raise)' do
+      expect(IepOptionKinds.value_of(:bogus)).to be_nil
+    end
+  end
 end

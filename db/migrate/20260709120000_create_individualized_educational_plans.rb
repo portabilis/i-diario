@@ -34,10 +34,12 @@ class CreateIndividualizedEducationalPlans < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    add_index :individualized_educational_plans, :student_id, name: :idx_iep_on_student_id
     add_index :individualized_educational_plans, :classroom_id, name: :idx_iep_on_classroom_id
     add_index :individualized_educational_plans, :unity_id, name: :idx_iep_on_unity_id
-    add_index :individualized_educational_plans, [:student_id, :year], name: :idx_iep_on_student_id_and_year
+    # Índice único: 1 PEI por aluno/ano (a transferência move o registro, não cria outro).
+    # O índice composto também cobre buscas só por student_id (prefixo à esquerda).
+    add_index :individualized_educational_plans, [:student_id, :year],
+              unique: true, name: :idx_iep_on_student_id_and_year
 
     add_foreign_key :individualized_educational_plans, :students
     add_foreign_key :individualized_educational_plans, :unities

@@ -12,7 +12,6 @@ class IepAttachment < ApplicationRecord
   validate :attachment_extension_whitelist
 
   before_save :set_attachment_attributes
-  before_destroy :prevent_destroy_if_versioned   # imutabilidade do laudo em versão publicada
 
   private
 
@@ -28,15 +27,5 @@ class IepAttachment < ApplicationRecord
     self.attachment_file_name = attachment.file.filename
     self.attachment_content_type = attachment.file.content_type
     self.attachment_file_size = "#{attachment.file.size} kB"
-  end
-
-  # Bloqueia remover/trocar um laudo já congelado no snapshot de alguma versão
-  # publicada. Em rascunho (sem versões) o anexo é livre.
-  def prevent_destroy_if_versioned
-    return if iep.blank? || attachment_file_name.blank?
-    return unless iep.iep_versions.where('content::text LIKE ?', "%#{attachment_file_name}%").exists?
-
-    errors.add(:base, I18n.t('activerecord.errors.models.iep_attachment.attributes.base.referenced_by_version'))
-    throw(:abort)
   end
 end

@@ -3,38 +3,32 @@ require 'rails_helper'
 RSpec.describe IepAttachment, type: :model do
   let(:plan) { create(:individualized_educational_plan) }
 
-  describe 'medical report immutability in a published version' do
-    it 'prevents removing a report referenced in a version snapshot' do
-      attachment = create(:iep_attachment, iep: plan)
-      attachment.update_column(:attachment_file_name, 'laudo.pdf')
-      create(
-        :iep_version, :current,
-        iep: plan,
-        content: { 'attachments' => [{ 'file_name' => 'laudo.pdf' }] }
-      )
+  def upload(name)
+    File.open(Rails.root.join('spec', 'fixtures', 'files', name))
+  end
 
-      expect(attachment.destroy).to eq(false)
-      expect(described_class.exists?(attachment.id)).to eq(true)
+  describe 'attachment extension whitelist' do
+    it 'is valid with an allowed extension' do
+      attachment = build(:iep_attachment, iep: plan, attachment: upload('laudo.pdf'))
+
+      expect(attachment).to be_valid
     end
 
-    it 'allows removing a report in a draft (no versions)' do
-      attachment = create(:iep_attachment, iep: plan)
-      attachment.update_column(:attachment_file_name, 'laudo.pdf')
+    it 'is invalid with a disallowed extension' do
+      attachment = build(:iep_attachment, iep: plan, attachment: upload('malware.exe'))
 
-      expect(attachment.destroy).to be_truthy
-      expect(described_class.exists?(attachment.id)).to eq(false)
+      expect(attachment).not_to be_valid
+      expect(attachment.errors[:attachment]).to be_present
     end
+  end
 
-    it 'does not block when the report is not cited in any version' do
-      attachment = create(:iep_attachment, iep: plan)
-      attachment.update_column(:attachment_file_name, 'outro.pdf')
-      create(
-        :iep_version, :current,
-        iep: plan,
-        content: { 'attachments' => [{ 'file_name' => 'laudo.pdf' }] }
-      )
+  describe 'set_attachment_attributes' do
+    it 'stores file name, content type and size on save' do
+      attachment = create(:iep_attachment, iep: plan, attachment: upload('laudo.pdf'))
 
-      expect(attachment.destroy).to be_truthy
+      expect(attachment.attachment_file_name).to eq('laudo.pdf')
+      expect(attachment.attachment_content_type).to be_present
+      expect(attachment.attachment_file_size).to match(/ kB\z/)
     end
   end
 end

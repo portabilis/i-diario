@@ -13,8 +13,9 @@ class CreateIepVersions < ActiveRecord::Migration[5.0]
 
     add_index :iep_versions, :individualized_educational_plan_id,
               name: :idx_iep_versions_on_iep
-    add_index :iep_versions, [:individualized_educational_plan_id, :active],
-              name: :idx_iep_versions_on_iep_and_active
+    # Único parcial: garante no máximo uma versão ativa por PEI (além do publisher).
+    add_index :iep_versions, :individualized_educational_plan_id,
+              unique: true, where: 'active', name: :idx_iep_versions_one_active
 
     add_foreign_key :iep_versions, :individualized_educational_plans,
                     column: :individualized_educational_plan_id

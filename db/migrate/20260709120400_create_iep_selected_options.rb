@@ -8,7 +8,7 @@ class CreateIepSelectedOptions < ActiveRecord::Migration[5.0]
     end
 
     add_index :iep_selected_options, [:individualized_educational_plan_id, :iep_option_id],
-              name: :idx_iep_selected_options_on_iep_and_option
+              unique: true, name: :idx_iep_selected_options_on_iep_and_option
     add_index :iep_selected_options, :iep_option_id,
               name: :idx_iep_selected_options_on_option
 

@@ -32,4 +32,31 @@ RSpec.describe IepCurricularPlanning, type: :model do
       )
     end
   end
+
+  describe 'accommodation multi-select by kind' do
+    let(:planning) { create(:iep_curricular_planning) }
+    let!(:instructional_a) { create(:iep_option, :instructional_accommodation) }
+    let!(:instructional_b) { create(:iep_option, :instructional_accommodation) }
+    let!(:environmental) { create(:iep_option, kind: IepOptionKinds::ENVIRONMENTAL_ACCOMMODATION) }
+
+    it 'persists only ids of the given kind and ignores ids from other kinds' do
+      planning.instructional_accommodation_option_ids =
+        [instructional_a.id, instructional_b.id, environmental.id]
+      planning.save!
+
+      expect(planning.reload.instructional_accommodation_option_ids)
+        .to match_array([instructional_a.id, instructional_b.id])
+    end
+
+    it 'does not affect options of another kind when updating a kind' do
+      planning.environmental_accommodation_option_ids = [environmental.id]
+      planning.instructional_accommodation_option_ids = [instructional_a.id]
+      planning.save!
+
+      planning.instructional_accommodation_option_ids = []
+      planning.save!
+
+      expect(planning.reload.environmental_accommodation_option_ids).to match_array([environmental.id])
+    end
+  end
 end

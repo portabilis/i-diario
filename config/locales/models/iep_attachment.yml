@@ -13,7 +13,5 @@ pt-BR:
       models:
         iep_attachment:
           attributes:
-            base:
-              referenced_by_version: "Não é possível remover um laudo referenciado por uma versão publicada do PEI"
             attachment:
               invalid_extension: "Somente arquivos nos formatos JPEG, JPG, PNG, GIF, PDF, ODT, DOC, DOCX, ODS, XLS, XLSX, ODP, PPT, PPTX, ODG, XML ou CSV"

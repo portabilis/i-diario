@@ -15,9 +15,11 @@ class IepOptionKinds < EnumerateIt::Base
 
   # Resolve o valor inteiro a partir do símbolo/string do kind
   # (o value_for do EnumerateIt 1.3.1 não cobre este caso).
+  # Retorna nil para kind desconhecido (evita NameError quando vem de params).
   def self.value_of(kind)
     return kind if kind.is_a?(Integer)
 
-    const_get(kind.to_s.upcase)
+    const_name = kind.to_s.upcase
+    const_defined?(const_name) ? const_get(const_name) : nil
   end
 end

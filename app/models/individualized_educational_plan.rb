@@ -30,7 +30,7 @@ class IndividualizedEducationalPlan < ApplicationRecord
   validates :student_id, :unity_id, :classroom_id, :teacher_id, :year, :elaborated_at,
             presence: true
 
-  # Validada Unicidade
+  # Unicidade 1 PEI por aluno/ano: índice único no banco + esta validação para a mensagem amigável.
   validates :student_id, uniqueness: { scope: :year }
 
   # Existe alguma versão ativa para este PEI? Usado pelos scopes finalized/draft.

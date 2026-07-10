@@ -6,11 +6,13 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
     it { expect(subject).to belong_to(:teacher) }
-    it { expect(subject).to have_many(:iep_review_dates) }
-    it { expect(subject).to have_many(:iep_selected_options) }
-    it { expect(subject).to have_many(:iep_curricular_plannings) }
-    it { expect(subject).to have_many(:iep_periodic_evaluations) }
-    it { expect(subject).to have_many(:iep_versions) }
+    it { expect(subject).to belong_to(:aee_teacher).class_name('Teacher') }
+    it { expect(subject).to have_many(:iep_review_dates).dependent(:destroy) }
+    it { expect(subject).to have_many(:iep_attachments).dependent(:destroy) }
+    it { expect(subject).to have_many(:iep_selected_options).dependent(:destroy) }
+    it { expect(subject).to have_many(:iep_curricular_plannings).dependent(:destroy) }
+    it { expect(subject).to have_many(:iep_periodic_evaluations).dependent(:destroy) }
+    it { expect(subject).to have_many(:iep_versions).dependent(:destroy) }
   end
 
   describe 'validations' do
@@ -119,6 +121,23 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       plan.save!
 
       expect(plan.reload.support_type_option_ids).to match_array([support.id])
+    end
+
+    it 'ignores blank ids in the assignment (as they arrive from params)' do
+      plan.communication_profile_option_ids = ['', comm_a.id.to_s, nil]
+      plan.save!
+
+      expect(plan.reload.communication_profile_option_ids).to match_array([comm_a.id])
+    end
+
+    it 'clears the selection when assigned nil' do
+      plan.communication_profile_option_ids = [comm_a.id]
+      plan.save!
+
+      plan.communication_profile_option_ids = nil
+      plan.save!
+
+      expect(plan.reload.communication_profile_option_ids).to eq([])
     end
   end
 end

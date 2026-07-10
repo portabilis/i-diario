@@ -1,9 +1,11 @@
 class IepReviewDate < ApplicationRecord
+  audited associated_with: :iep
+
   belongs_to :iep, class_name: 'IndividualizedEducationalPlan',
              foreign_key: :individualized_educational_plan_id
 
   validates :review_date, presence: true
 
-  # O bloqueio de remoção quando o período já tem dados preenchidos nas seções 4/5
-  # é aplicado no serviço de publicação do PEI, não aqui.
+  # TODO(PEI): bloquear a remoção quando o período já tem dados nas seções 4/5
+  # (regra a ser implementada no serviço de publicação, que ainda não existe).
 end

@@ -23,5 +23,19 @@ class CreateIepCurricularPlannings < ActiveRecord::Migration[5.0]
     add_foreign_key :iep_curricular_plannings, :disciplines
     add_foreign_key :iep_curricular_plannings, :knowledge_areas
     add_foreign_key :iep_curricular_plannings, :school_term_type_steps
+
+    # Exatamente um: disciplina OU área de conhecimento (torna o estado ilegal irrepresentável)
+    reversible do |dir|
+      dir.up do
+        execute <<~SQL
+          ALTER TABLE iep_curricular_plannings
+          ADD CONSTRAINT chk_iep_cp_component
+          CHECK ((discipline_id IS NULL) <> (knowledge_area_id IS NULL))
+        SQL
+      end
+      dir.down do
+        execute 'ALTER TABLE iep_curricular_plannings DROP CONSTRAINT chk_iep_cp_component'
+      end
+    end
   end
 end

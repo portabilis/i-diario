@@ -7,8 +7,9 @@ class CreateIepCurricularPlanningOptions < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    add_index :iep_curricular_planning_options, :iep_curricular_planning_id,
-              name: :idx_iep_cpo_on_planning_id
+    add_index :iep_curricular_planning_options,
+              [:iep_curricular_planning_id, :iep_option_id],
+              unique: true, name: :idx_iep_cpo_on_planning_and_option
     add_index :iep_curricular_planning_options, :iep_option_id,
               name: :idx_iep_cpo_on_option_id
 
