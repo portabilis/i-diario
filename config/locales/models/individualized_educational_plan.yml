@@ -1,0 +1,28 @@
+pt-BR:
+  activerecord:
+    models:
+      individualized_educational_plan:
+        one: "Plano Educacional Individualizado"
+        other: "Planos Educacionais Individualizados"
+
+    attributes:
+      individualized_educational_plan:
+        student: "Aluno"
+        student_id: "Aluno"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        teacher: "Professor regente"
+        teacher_id: "Professor regente"
+        aee_teacher: "Professor de AEE"
+        aee_teacher_id: "Professor de AEE"
+        year: "Ano"
+        support_professional: "Profissional de apoio / Cuidador"
+        elaborated_at: "Data de elaboração"
+    errors:
+      models:
+        individualized_educational_plan:
+          attributes:
+            student_id:
+              taken: "já possui um PEI para este ano letivo"

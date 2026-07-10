@@ -1,0 +1,28 @@
+class CreateIepPeriodicEvaluations < ActiveRecord::Migration[5.0]
+  def change
+    create_table :iep_periodic_evaluations do |t|
+      t.integer :individualized_educational_plan_id, null: false
+      t.integer :discipline_id                        # "Por Disciplina" (nullable)
+      t.integer :knowledge_area_id                    # "Por Campo de Experiência" (nullable)
+      t.integer :school_term_type_step_id             # etapa (null = anual)
+      t.text :acquired_skills
+      t.text :in_progress_skills
+      t.text :not_acquired_skills
+      t.text :period_report
+      t.text :next_stage_adjustments
+
+      t.timestamps
+    end
+
+    add_index :iep_periodic_evaluations, :individualized_educational_plan_id,
+              name: :idx_iep_pe_on_iep
+    add_index :iep_periodic_evaluations, :discipline_id
+    add_index :iep_periodic_evaluations, :knowledge_area_id
+
+    add_foreign_key :iep_periodic_evaluations, :individualized_educational_plans,
+                    column: :individualized_educational_plan_id
+    add_foreign_key :iep_periodic_evaluations, :disciplines
+    add_foreign_key :iep_periodic_evaluations, :knowledge_areas
+    add_foreign_key :iep_periodic_evaluations, :school_term_type_steps
+  end
+end

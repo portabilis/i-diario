@@ -1,0 +1,124 @@
+require 'rails_helper'
+
+RSpec.describe IndividualizedEducationalPlan, type: :model do
+  describe 'associations' do
+    it { expect(subject).to belong_to(:student) }
+    it { expect(subject).to belong_to(:unity) }
+    it { expect(subject).to belong_to(:classroom) }
+    it { expect(subject).to belong_to(:teacher) }
+    it { expect(subject).to have_many(:iep_review_dates) }
+    it { expect(subject).to have_many(:iep_selected_options) }
+    it { expect(subject).to have_many(:iep_curricular_plannings) }
+    it { expect(subject).to have_many(:iep_periodic_evaluations) }
+    it { expect(subject).to have_many(:iep_versions) }
+  end
+
+  describe 'validations' do
+    subject { build(:individualized_educational_plan) }
+
+    it { expect(subject).to validate_presence_of(:student_id) }
+    it { expect(subject).to validate_presence_of(:unity_id) }
+    it { expect(subject).to validate_presence_of(:classroom_id) }
+    it { expect(subject).to validate_presence_of(:teacher_id) }
+    it { expect(subject).to validate_presence_of(:year) }
+    it { expect(subject).to validate_presence_of(:elaborated_at) }
+
+    it 'validates uniqueness of student_id scoped to year (application-level)' do
+      existing = create(:individualized_educational_plan)
+      duplicate = build(
+        :individualized_educational_plan,
+        student: existing.student,
+        year: existing.year
+      )
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:student_id]).to include(
+        I18n.t('activerecord.errors.models.individualized_educational_plan.attributes.student_id.taken')
+      )
+    end
+
+    it 'allows the same student in different years' do
+      existing = create(:individualized_educational_plan, year: 2025)
+      other_year = build(
+        :individualized_educational_plan,
+        student: existing.student,
+        year: 2026
+      )
+
+      expect(other_year).to be_valid
+    end
+  end
+
+  describe 'finalization' do
+    let(:plan) { create(:individualized_educational_plan) }
+
+    it 'is not finalized without an active version' do
+      expect(plan.finalized?).to eq(false)
+    end
+
+    it 'is finalized when there is an active version' do
+      create(:iep_version, :current, iep: plan)
+
+      expect(plan.reload.finalized?).to eq(true)
+    end
+
+    it 'active_version returns the current version' do
+      active = create(:iep_version, :current, iep: plan)
+      create(:iep_version, iep: plan)
+
+      expect(plan.reload.active_version).to eq(active)
+    end
+
+    describe 'finalized/draft scopes' do
+      it 'partitions plans by the existence of an active version' do
+        finalized_plan = create(:individualized_educational_plan, :finalized)
+        draft_plan = create(:individualized_educational_plan)
+
+        expect(described_class.finalized).to contain_exactly(finalized_plan)
+        expect(described_class.draft).to contain_exactly(draft_plan)
+      end
+    end
+  end
+
+  describe 'multi-select by kind' do
+    let(:plan) { create(:individualized_educational_plan) }
+    let!(:comm_a) { create(:iep_option, :communication_profile) }
+    let!(:comm_b) { create(:iep_option, :communication_profile) }
+    let!(:support) { create(:iep_option, :support_type) }
+
+    it 'persists only ids of the given kind and ignores ids from other kinds' do
+      plan.communication_profile_option_ids = [comm_a.id, comm_b.id, support.id]
+      plan.save!
+
+      expect(plan.reload.communication_profile_option_ids).to match_array([comm_a.id, comm_b.id])
+    end
+
+    it 'does not persist an option of another kind in the join' do
+      plan.communication_profile_option_ids = [comm_a.id, support.id]
+      plan.save!
+
+      expect(plan.iep_selected_options.map(&:iep_option_id)).to match_array([comm_a.id])
+    end
+
+    it 'removes only the kind options absent from the update' do
+      plan.communication_profile_option_ids = [comm_a.id, comm_b.id]
+      plan.save!
+
+      plan.communication_profile_option_ids = [comm_a.id]
+      plan.save!
+
+      expect(plan.reload.communication_profile_option_ids).to match_array([comm_a.id])
+    end
+
+    it 'does not affect options of another kind when updating a kind' do
+      plan.support_type_option_ids = [support.id]
+      plan.communication_profile_option_ids = [comm_a.id]
+      plan.save!
+
+      plan.communication_profile_option_ids = []
+      plan.save!
+
+      expect(plan.reload.support_type_option_ids).to match_array([support.id])
+    end
+  end
+end
