@@ -42,6 +42,8 @@ class IndividualizedEducationalPlan < ApplicationRecord
 
   scope :finalized, -> { where(ACTIVE_VERSION_EXISTS_SQL) }
   scope :draft, -> { where("NOT #{ACTIVE_VERSION_EXISTS_SQL}") }
+  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
+  scope :by_student_id, ->(student_id) { where(student_id: student_id) }
 
   def finalized?
     active_version.present?

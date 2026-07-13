@@ -1,0 +1,8 @@
+pt-BR:
+  individualized_educational_plans:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo"
+      filter_by_classroom: "Filtrar turma"
+      filter_by_student: "Filtrar aluno"
+      last_edit: "Última edição"
+      history: "Histórico de versões"

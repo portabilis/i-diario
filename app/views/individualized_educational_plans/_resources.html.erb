@@ -1,0 +1,41 @@
+<tbody id="resources-tbody">
+  <% if @individualized_educational_plans.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found') %></td>
+    </tr>
+  <% else %>
+    <% @individualized_educational_plans.each do |plan| %>
+      <tr>
+        <td><%= plan.year %></td>
+        <td><%= plan.unity %></td>
+        <td><%= plan.classroom %></td>
+        <td><%= plan.student %></td>
+        <td><%= l(plan.updated_at, format: :short) %></td>
+        <td class="actions">
+          <%= link_to(
+                t('helpers.links.show_html'),
+                individualized_educational_plan_path(plan),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
+          <%= link_to(
+                t('helpers.links.edit_html'),
+                edit_individualized_educational_plan_path(plan),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.edit') }) %>
+          <%= link_to(
+                t('helpers.links.print_html'),
+                individualized_educational_plan_path(plan, format: :pdf),
+                class: 'btn btn-info apply_tooltip',
+                target: '_blank',
+                data: { original_title: t('views.index.tooltips.print') }) %>
+          <%= link_to(
+                individualized_educational_plan_versions_path(plan),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('individualized_educational_plans.index.history') }) do %>
+            <i class="fa fa-history"></i>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

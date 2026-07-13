@@ -197,6 +197,14 @@ Rails.application.routes.draw do
     resources :school_calendar_steps, only: [:show, :index]
     resources :school_calendar_classroom_steps, only: [:show, :index]
 
+    resources :individualized_educational_plans do
+      collection do
+        get :fetch_students_by_classroom
+      end
+
+      resources :versions, only: [:index, :show], controller: 'individualized_educational_plans/versions'
+    end
+
     resources :discipline_teaching_plans, concerns: :history
 
     get '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#copy'
