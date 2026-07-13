@@ -1,8 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe IndividualizedEducationalPlansController, type: :controller do
-  render_views
-
   let(:entity) { Entity.find_by(domain: 'test.host') }
   let(:user) { create(:user, :with_user_role_administrator) }
 
@@ -36,7 +34,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
         get :index, params: { locale: 'pt-BR', filter: { by_student_id: target.student_id } }
 
-        expect(controller.view_assigns['individualized_educational_plans']).to contain_exactly(target)
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
       end
     end
 
@@ -64,7 +62,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         get :index, params: { locale: 'pt-BR' }
 
         expect(response).to have_http_status(:ok)
-        expect(controller.view_assigns['individualized_educational_plans']).to contain_exactly(target)
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
       end
 
       it 'lists all teacher classrooms when the classroom filter is cleared' do
@@ -75,7 +73,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
         get :index, params: { locale: 'pt-BR', filter: { by_classroom_id: '' } }
 
-        expect(controller.view_assigns['individualized_educational_plans']).to contain_exactly(plan_in_profile, plan_in_other)
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(plan_in_profile, plan_in_other)
       end
     end
   end
