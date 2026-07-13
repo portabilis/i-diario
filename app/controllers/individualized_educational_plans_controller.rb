@@ -2,6 +2,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_teacher, only: [:index]
   before_action :require_current_classroom, only: [:index]
 
   def index
@@ -13,7 +14,10 @@ class IndividualizedEducationalPlansController < ApplicationController
     authorize @individualized_educational_plans
   end
 
+  # Alimenta o filtro de aluno em cascata: só alunos que têm PEI na turma selecionada.
   def fetch_students_by_classroom
+    authorize IndividualizedEducationalPlan, :index?
+
     student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
 

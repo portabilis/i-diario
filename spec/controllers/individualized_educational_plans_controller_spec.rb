@@ -11,6 +11,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   before do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
+    allow(controller).to receive(:require_current_teacher).and_return(true)
   end
 
   describe 'GET #index' do
@@ -19,13 +20,14 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       before { allow(controller).to receive(:current_user_classroom).and_return(classroom) }
 
-      it 'renders the selected classroom plans' do
-        create(:individualized_educational_plan, classroom: classroom)
+      it 'lists only plans of the selected classroom' do
+        target = create(:individualized_educational_plan, classroom: classroom)
+        create(:individualized_educational_plan) # plano em outra turma, deve ser excluído
 
         get :index, params: { locale: 'pt-BR' }
 
         expect(response).to have_http_status(:ok)
-        expect(response).to render_template(:index)
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
       end
 
       it 'filters by student' do
@@ -35,6 +37,24 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         get :index, params: { locale: 'pt-BR', filter: { by_student_id: target.student_id } }
 
         expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
+      end
+
+      it 'paginates the plans (default 10 per page)' do
+        create_list(:individualized_educational_plan, 11, classroom: classroom)
+
+        get :index, params: { locale: 'pt-BR', page: 2 }
+
+        expect(assigns(:individualized_educational_plans).to_a.size).to eq(1)
+      end
+    end
+
+    context 'without a classroom selected in the profile' do
+      before { allow(controller).to receive(:current_user_classroom).and_return(nil) }
+
+      it 'redirects to the root path' do
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response).to redirect_to(root_path)
       end
     end
 
@@ -74,6 +94,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         get :index, params: { locale: 'pt-BR', filter: { by_classroom_id: '' } }
 
         expect(assigns(:individualized_educational_plans)).to contain_exactly(plan_in_profile, plan_in_other)
+      end
+
+      it 'renders empty when the teacher has no linked classrooms' do
+        allow(TeacherClassroomAndDisciplineFetcher).to receive(:fetch!).and_return(nil)
+        create(:individualized_educational_plan, classroom: classroom)
+
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response).to have_http_status(:ok)
+        expect(assigns(:individualized_educational_plans)).to be_empty
       end
     end
   end
