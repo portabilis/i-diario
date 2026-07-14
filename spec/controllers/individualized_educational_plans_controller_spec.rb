@@ -109,6 +109,8 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #fetch_students_by_classroom' do
+    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
     let(:classroom) { create(:classroom) }
 
     it 'returns only students that have a plan in the classroom' do
@@ -119,6 +121,112 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to contain_exactly('id' => plan.student_id, 'name' => plan.student.name)
+    end
+  end
+
+  describe 'GET #student_data' do
+    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
+    it 'returns the student identification data as json' do
+      student = create(:student)
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data)
+        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva')
+
+      get :student_data, params: { locale: 'pt-BR', student_id: student.id, format: :json }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq(
+        'birth_date' => '10/03/2015', 'diagnosis' => 'TEA', 'guardians' => 'Maria Silva'
+      )
+    end
+  end
+
+  describe 'POST #create' do
+    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
+    let(:valid_params) do
+      {
+        student_id: create(:student).id,
+        unity_id: create(:unity).id,
+        classroom_id: create(:classroom).id,
+        teacher_id: create(:teacher).id,
+        year: Date.current.year,
+        elaborated_at: Date.current,
+        characterization: 'Perfil do estudante',
+        iep_review_dates_attributes: { '0' => { review_date: Date.current + 30 } }
+      }
+    end
+
+    it 'creates a draft plan and redirects to the index' do
+      expect do
+        post :create, params: { locale: 'pt-BR', individualized_educational_plan: valid_params }
+      end.to change(IndividualizedEducationalPlan, :count).by(1)
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+    end
+
+    it 'persists the review dates' do
+      post :create, params: { locale: 'pt-BR', individualized_educational_plan: valid_params }
+
+      expect(IndividualizedEducationalPlan.last.iep_review_dates.map(&:review_date)).to eq([Date.current + 30])
+    end
+
+    it 'assigns the multi-select options' do
+      option = create(:iep_option)
+
+      post :create, params: {
+        locale: 'pt-BR',
+        individualized_educational_plan: valid_params.merge(communication_profile_option_ids: [option.id])
+      }
+
+      expect(IndividualizedEducationalPlan.last.communication_profile_option_ids).to eq([option.id])
+    end
+
+    it 'does not create an invalid plan (missing required fields)' do
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', individualized_educational_plan: valid_params.merge(student_id: nil)
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+    end
+
+    it 'persists section 4 (curricular planning) and section 5 (periodic evaluation)' do
+      discipline = create(:discipline)
+      accommodation = create(:iep_option, :instructional_accommodation)
+
+      post :create, params: {
+        locale: 'pt-BR',
+        individualized_educational_plan: valid_params.merge(
+          iep_curricular_plannings_attributes: { '0' => {
+            discipline_id: discipline.id, long_term_goal: 'Meta anual',
+            instructional_accommodation_option_ids: [accommodation.id]
+          } },
+          iep_periodic_evaluations_attributes: { '0' => {
+            discipline_id: discipline.id, acquired_skills: 'Habilidades adquiridas'
+          } }
+        )
+      }
+
+      plan = IndividualizedEducationalPlan.last
+      planning = plan.iep_curricular_plannings.first
+      expect(planning.long_term_goal).to eq('Meta anual')
+      expect(planning.instructional_accommodation_option_ids).to eq([accommodation.id])
+      expect(plan.iep_periodic_evaluations.first.acquired_skills).to eq('Habilidades adquiridas')
+    end
+  end
+
+  describe 'PATCH #update' do
+    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
+    it 'updates the plan and redirects to the index' do
+      plan = create(:individualized_educational_plan)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, individualized_educational_plan: { characterization: 'Atualizado' }
+      }
+
+      expect(plan.reload.characterization).to eq('Atualizado')
+      expect(response).to redirect_to(individualized_educational_plans_path)
     end
   end
 end

@@ -2,6 +2,9 @@ class IndividualizedEducationalPlan < ApplicationRecord
   include Audit
   include IepMultiSelectable
 
+  # Campos apenas de exibição no formulário (prefill do i-Educar), não persistidos.
+  attr_accessor :birth_date, :guardians, :diagnosis, :shift, :unity_name, :teacher_name
+
   audited
   has_associated_audits
 

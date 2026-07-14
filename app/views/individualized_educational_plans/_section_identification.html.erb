@@ -1,0 +1,127 @@
+<fieldset>
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :student_id, as: :select2, elements: @students, label: t('.student'),
+                  placeholder: t('.select_student'), input_html: { class: 'iep-student-select' } %>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :birth_date, label: t('.birth_date'), input_html: { readonly: true, class: 'iep-birth-date' } %>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :year, label: t('.year'), input_html: { readonly: true } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :guardians, label: t('.guardians'), input_html: { readonly: true, class: 'iep-guardians' } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :diagnosis, label: t('.diagnosis'), input_html: { readonly: true, class: 'iep-diagnosis' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :unity_name, label: t('.unity'), input_html: { readonly: true } %>
+      <%= f.input_field :unity_id, as: :hidden %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :classroom_id, as: :select2, label: t('.classroom'),
+                  elements: (@individualized_educational_plan.classroom ? [@individualized_educational_plan.classroom] : []),
+                  placeholder: t('.select_classroom'), input_html: { class: 'iep-classroom-select' } %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :shift, label: t('.shift'), input_html: { readonly: true, class: 'iep-shift' } %>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :teacher_name, label: t('.teacher'), input_html: { readonly: true } %>
+      <%= f.input_field :teacher_id, as: :hidden %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :aee_teacher_id, as: :select2, elements: @aee_teachers, label: t('.aee_teacher'),
+                  placeholder: t('.select_aee_teacher') %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :support_professional, label: t('.support_professional') %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :elaborated_at, as: :date, label: t('.elaborated_at'),
+                  input_html: { value: @individualized_educational_plan.elaborated_at.try(:strftime, '%d/%m/%Y') } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <legend><%= t('.review_dates') %></legend>
+    </div>
+  </div>
+
+  <div class="row" id="iep-review-dates">
+    <%= f.simple_fields_for :iep_review_dates do |review_date| %>
+      <%= render 'iep_review_date_fields', f: review_date %>
+    <% end %>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= link_to_add_association t('.add_review_date'), f, :iep_review_dates,
+            class: 'btn btn-success btn-sm',
+            data: { association_insertion_node: '#iep-review-dates', association_insertion_method: 'append' } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <legend><%= t('.attachments') %></legend>
+
+      <div class="alert alert-info fade in">
+        <i class="fa-fw fa fa-info"></i>
+        <%= t('.format_message') + ' ' + t('.size_message') %>
+      </div>
+      <br>
+
+      <% if @individualized_educational_plan.errors[:iep_attachments].present? %>
+        <div class="alert alert-danger alert-block">
+          <i class="fa-fw fa fa-times"></i>
+          <span class="help-inline"><%= @individualized_educational_plan.errors[:iep_attachments].join('<br />').html_safe %></span>
+        </div>
+      <% end %>
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th scope="col"><%= t('.attachments') %></th>
+            <th scope="col" style="width: 73px"></th>
+          </tr>
+        </thead>
+        <tbody id="iep-attachments">
+          <%= f.simple_fields_for :iep_attachments do |attachment| %>
+            <% if attachment.object.persisted? %>
+              <%= render 'iep_attachment_show', f: attachment %>
+            <% else %>
+              <%= render 'iep_attachment_fields', f: attachment %>
+            <% end %>
+          <% end %>
+        </tbody>
+        <tfoot class="links">
+          <tr>
+            <td colspan="2">
+              <%= link_to_add_association t('.add_attachment'), f, :iep_attachments,
+                    class: 'btn btn-success btn-sm',
+                    data: { association_insertion_node: '#iep-attachments', association_insertion_method: 'append' } %>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</fieldset>

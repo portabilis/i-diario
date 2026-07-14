@@ -1,0 +1,9 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input :attachment, as: :file, label: false %>
+    <%= f.input_field :attachment_cache, as: :hidden %>
+  </td>
+  <td class="text-center" style="width: 60px;">
+    <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>

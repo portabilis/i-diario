@@ -1,0 +1,58 @@
+<%= simple_form_for @individualized_educational_plan,
+      url: (@individualized_educational_plan.persisted? ?
+            individualized_educational_plan_path(@individualized_educational_plan) :
+            individualized_educational_plans_path),
+      html: { class: 'smart-form iep-form', multipart: true } do |f| %>
+
+  <%= f.error_notification %>
+
+  <div id="pei-wizard">
+    <ul class="nav nav-tabs bordered">
+      <li class="active"><a href="#pei-step-1" data-toggle="tab">1. <%= t('.sections.identification') %></a></li>
+      <li><a href="#pei-step-2" data-toggle="tab">2. <%= t('.sections.characterization') %></a></li>
+      <li><a href="#pei-step-3" data-toggle="tab">3. <%= t('.sections.support_team') %></a></li>
+      <li><a href="#pei-step-4" data-toggle="tab">4. <%= t('.sections.curricular_planning') %></a></li>
+      <li><a href="#pei-step-5" data-toggle="tab">5. <%= t('.sections.periodic_evaluation') %></a></li>
+      <li><a href="#pei-step-6" data-toggle="tab">6. <%= t('.sections.final_evaluation') %></a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="pei-step-1">
+        <%= render 'section_identification', f: f %>
+      </div>
+
+      <div class="tab-pane" id="pei-step-2">
+        <h4>2. <%= t('.sections.characterization') %></h4>
+        <p class="text-muted"><%= t('.pending_section') %></p>
+      </div>
+
+      <div class="tab-pane" id="pei-step-3">
+        <h4>3. <%= t('.sections.support_team') %></h4>
+        <p class="text-muted"><%= t('.pending_section') %></p>
+      </div>
+
+      <div class="tab-pane" id="pei-step-4">
+        <h4>4. <%= t('.sections.curricular_planning') %></h4>
+        <p class="text-muted"><%= t('.pending_section') %></p>
+      </div>
+
+      <div class="tab-pane" id="pei-step-5">
+        <h4>5. <%= t('.sections.periodic_evaluation') %></h4>
+        <p class="text-muted"><%= t('.pending_section') %></p>
+      </div>
+
+      <div class="tab-pane" id="pei-step-6">
+        <h4>6. <%= t('.sections.final_evaluation') %></h4>
+        <p class="text-muted"><%= t('.pending_section') %></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default pull-left' %>
+
+    <%= f.submit t('.save'), class: 'btn btn-primary pei-wizard-finish' %>
+    <button type="button" class="btn btn-info pei-wizard-next"><%= t('.next') %></button>
+    <button type="button" class="btn btn-info pei-wizard-prev"><%= t('.previous') %></button>
+  </footer>
+<% end %>

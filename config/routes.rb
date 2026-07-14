@@ -200,6 +200,7 @@ Rails.application.routes.draw do
     resources :individualized_educational_plans do
       collection do
         get :fetch_students_by_classroom
+        get :student_data
       end
 
       resources :versions, only: [:index, :show], controller: 'individualized_educational_plans/versions'
