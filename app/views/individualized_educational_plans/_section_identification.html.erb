@@ -27,9 +27,8 @@
       <%= f.input_field :unity_id, as: :hidden %>
     </div>
     <div class="col col-sm-4">
-      <%= f.input :classroom_id, as: :select2, label: t('.classroom'),
-                  elements: (@individualized_educational_plan.classroom ? [@individualized_educational_plan.classroom] : []),
-                  placeholder: t('.select_classroom'), input_html: { class: 'iep-classroom-select' } %>
+      <%= f.input :classroom_name, label: t('.classroom'), input_html: { readonly: true } %>
+      <%= f.input_field :classroom_id, as: :hidden %>
     </div>
     <div class="col col-sm-4">
       <%= f.input :shift, label: t('.shift'), input_html: { readonly: true, class: 'iep-shift' } %>

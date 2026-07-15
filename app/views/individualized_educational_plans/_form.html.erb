@@ -2,19 +2,31 @@
       url: (@individualized_educational_plan.persisted? ?
             individualized_educational_plan_path(@individualized_educational_plan) :
             individualized_educational_plans_path),
-      html: { class: 'smart-form iep-form', multipart: true } do |f| %>
+      html: { class: 'smart-form', multipart: true } do |f| %>
 
   <%= f.error_notification %>
 
+  <% if @individualized_educational_plan.errors[:base].present? %>
+    <div class="alert alert-danger fade in">
+      <i class="fa-fw fa fa-times"></i>
+      <%= @individualized_educational_plan.errors[:base].join('<br>').html_safe %>
+    </div>
+  <% end %>
+
   <div id="pei-wizard">
-    <ul class="nav nav-tabs bordered">
-      <li class="active"><a href="#pei-step-1" data-toggle="tab">1. <%= t('.sections.identification') %></a></li>
-      <li><a href="#pei-step-2" data-toggle="tab">2. <%= t('.sections.characterization') %></a></li>
-      <li><a href="#pei-step-3" data-toggle="tab">3. <%= t('.sections.support_team') %></a></li>
-      <li><a href="#pei-step-4" data-toggle="tab">4. <%= t('.sections.curricular_planning') %></a></li>
-      <li><a href="#pei-step-5" data-toggle="tab">5. <%= t('.sections.periodic_evaluation') %></a></li>
-      <li><a href="#pei-step-6" data-toggle="tab">6. <%= t('.sections.final_evaluation') %></a></li>
-    </ul>
+    <div class="fuelux">
+      <div class="wizard">
+        <ul class="steps">
+          <% [t('.sections.identification'), t('.sections.characterization'), t('.sections.support_team'),
+              t('.sections.curricular_planning'), t('.sections.periodic_evaluation'),
+              t('.sections.final_evaluation')].each_with_index do |section, index| %>
+            <li data-step="<%= index %>" class="<%= 'active' if index.zero? %>">
+              <span class="badge <%= 'badge-info' if index.zero? %>"><%= index + 1 %></span><%= section %><span class="chevron"></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
 
     <div class="tab-content">
       <div class="tab-pane active" id="pei-step-1">
@@ -22,28 +34,33 @@
       </div>
 
       <div class="tab-pane" id="pei-step-2">
-        <h4>2. <%= t('.sections.characterization') %></h4>
-        <p class="text-muted"><%= t('.pending_section') %></p>
+        <%= render 'section_characterization', f: f %>
       </div>
 
       <div class="tab-pane" id="pei-step-3">
-        <h4>3. <%= t('.sections.support_team') %></h4>
-        <p class="text-muted"><%= t('.pending_section') %></p>
+        <%= render 'section_support_team', f: f %>
       </div>
 
+      <% review_dates = @individualized_educational_plan.iep_review_dates.select(&:persisted?).sort_by(&:review_date) %>
+
       <div class="tab-pane" id="pei-step-4">
-        <h4>4. <%= t('.sections.curricular_planning') %></h4>
-        <p class="text-muted"><%= t('.pending_section') %></p>
+        <fieldset>
+          <%= render 'review_component_section', f: f, review_dates: review_dates,
+                association: :iep_curricular_plannings,
+                fields_partial: 'iep_curricular_planning_fields', dom_prefix: 's4' %>
+        </fieldset>
       </div>
 
       <div class="tab-pane" id="pei-step-5">
-        <h4>5. <%= t('.sections.periodic_evaluation') %></h4>
-        <p class="text-muted"><%= t('.pending_section') %></p>
+        <fieldset>
+          <%= render 'review_component_section', f: f, review_dates: review_dates,
+                association: :iep_periodic_evaluations,
+                fields_partial: 'iep_periodic_evaluation_fields', dom_prefix: 's5' %>
+        </fieldset>
       </div>
 
       <div class="tab-pane" id="pei-step-6">
-        <h4>6. <%= t('.sections.final_evaluation') %></h4>
-        <p class="text-muted"><%= t('.pending_section') %></p>
+        <%= render 'section_final_evaluation', f: f %>
       </div>
     </div>
   </div>
@@ -55,4 +72,25 @@
     <button type="button" class="btn btn-info pei-wizard-next"><%= t('.next') %></button>
     <button type="button" class="btn btn-info pei-wizard-prev"><%= t('.previous') %></button>
   </footer>
+
+  <div class="modal fade" id="iep-component-modal" tabindex="-1" role="dialog"
+       data-disciplines="<%= @disciplines.map { |discipline| { id: discipline.id, name: discipline.description, text: discipline.description } }.to_json %>"
+       data-knowledge-areas="<%= @knowledge_areas.map { |area| { id: area.id, name: area.description, text: area.description } }.to_json %>">
+    <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title" data-title-discipline="<%= t('.add_discipline') %>"
+              data-title-knowledge-area="<%= t('.add_knowledge_area') %>"></h4>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="iep-component-modal-select" style="width: 100%;">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.modal_cancel') %></button>
+          <button type="button" class="btn btn-primary" id="iep-component-modal-confirm"><%= t('.modal_confirm') %></button>
+        </div>
+      </div>
+    </div>
+  </div>
 <% end %>

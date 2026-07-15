@@ -41,10 +41,7 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
       expect(described_class.student_data(student)[:guardians]).to be_nil
     end
 
-    context 'classrooms' do
-      let(:unity) { create(:unity) }
-      let(:year) { Date.current.year }
-
+    context 'shift (turma do perfil)' do
       before { allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {})) }
 
       def enroll(target_student, classroom, period: nil)
@@ -54,28 +51,22 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
                                               classrooms_grade: classrooms_grade, period: period)
       end
 
-      it 'is empty when no unity is given' do
-        expect(described_class.student_data(student)[:classrooms]).to eq([])
+      it 'is nil when no classroom is given' do
+        expect(described_class.student_data(student)[:shift]).to be_nil
       end
 
-      it 'returns the classrooms of the student in the unity/year with the classroom shift' do
-        classroom = create(:classroom, unity: unity, year: year, period: Periods::MATUTINAL)
+      it 'returns the classroom shift' do
+        classroom = create(:classroom, period: Periods::MATUTINAL)
         enroll(student, classroom)
 
-        result = described_class.student_data(student, unity: unity, year: year)[:classrooms]
-
-        expect(result).to contain_exactly(
-          hash_including(id: classroom.id, name: classroom.description, shift: 'Matutino', teacher: nil)
-        )
+        expect(described_class.student_data(student, classroom: classroom)[:shift]).to eq('Matutino')
       end
 
       it 'uses the student period within a full-time classroom as the shift' do
-        classroom = create(:classroom, unity: unity, year: year, period: Periods::FULL)
+        classroom = create(:classroom, period: Periods::FULL)
         enroll(student, classroom, period: Periods::VESPERTINE)
 
-        result = described_class.student_data(student, unity: unity, year: year)[:classrooms]
-
-        expect(result.first[:shift]).to eq('Vespertino')
+        expect(described_class.student_data(student, classroom: classroom)[:shift]).to eq('Vespertino')
       end
     end
   end

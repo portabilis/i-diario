@@ -182,6 +182,19 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(IndividualizedEducationalPlan.last.communication_profile_option_ids).to eq([option.id])
     end
 
+    it 'assigns the multi-select options submitted as a comma-separated string (select2 format)' do
+      options = create_list(:iep_option, 2)
+
+      post :create, params: {
+        locale: 'pt-BR',
+        individualized_educational_plan: valid_params.merge(
+          communication_profile_option_ids: options.map(&:id).join(',')
+        )
+      }
+
+      expect(IndividualizedEducationalPlan.last.communication_profile_option_ids).to match_array(options.map(&:id))
+    end
+
     it 'does not create an invalid plan (missing required fields)' do
       expect do
         post :create, params: {
@@ -190,33 +203,131 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       end.not_to change(IndividualizedEducationalPlan, :count)
     end
 
-    it 'persists section 4 (curricular planning) and section 5 (periodic evaluation)' do
+    # As linhas das seções 4/5 pertencem a uma revisão prevista já salva,
+    # por isso são persistidas via update (fluxo real: salvar a seção 1 antes).
+    it 'persists section 4 (curricular planning) and section 5 (periodic evaluation) linked to a review' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
       discipline = create(:discipline)
       accommodation = create(:iep_option, :instructional_accommodation)
 
-      post :create, params: {
-        locale: 'pt-BR',
-        individualized_educational_plan: valid_params.merge(
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
           iep_curricular_plannings_attributes: { '0' => {
-            discipline_id: discipline.id, long_term_goal: 'Meta anual',
+            iep_review_date_id: review_date.id, discipline_id: discipline.id,
+            long_term_goal: 'Meta anual',
             instructional_accommodation_option_ids: [accommodation.id]
           } },
           iep_periodic_evaluations_attributes: { '0' => {
-            discipline_id: discipline.id, acquired_skills: 'Habilidades adquiridas'
+            iep_review_date_id: review_date.id, discipline_id: discipline.id,
+            acquired_skills: 'Habilidades adquiridas'
           } }
-        )
+        }
       }
 
-      plan = IndividualizedEducationalPlan.last
-      planning = plan.iep_curricular_plannings.first
+      planning = plan.reload.iep_curricular_plannings.first
       expect(planning.long_term_goal).to eq('Meta anual')
+      expect(planning.iep_review_date_id).to eq(review_date.id)
       expect(planning.instructional_accommodation_option_ids).to eq([accommodation.id])
       expect(plan.iep_periodic_evaluations.first.acquired_skills).to eq('Habilidades adquiridas')
+    end
+
+    it 'does not persist pre-rendered section 4/5 forms without content' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      discipline = create(:discipline)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => {
+            iep_review_date_id: review_date.id, discipline_id: discipline.id,
+            long_term_goal: '', stage_objectives: '', skills_to_develop: '', methodologies: '',
+            instructional_accommodation_option_ids: '', environmental_accommodation_option_ids: '',
+            assessment_accommodation_option_ids: ''
+          } },
+          iep_periodic_evaluations_attributes: { '0' => {
+            iep_review_date_id: review_date.id, discipline_id: discipline.id,
+            acquired_skills: '', in_progress_skills: '', not_acquired_skills: '',
+            period_report: '', next_stage_adjustments: ''
+          } }
+        }
+      }
+
+      expect(plan.reload.iep_curricular_plannings).to be_empty
+      expect(plan.iep_periodic_evaluations).to be_empty
     end
   end
 
   describe 'PATCH #update' do
     before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
+    it 'renders edit with a friendly error when removing a review that has section data' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_review_dates_attributes: { '0' => { id: review_date.id, _destroy: '1' } }
+        }
+      }
+
+      expect(response).to render_template(:edit)
+      expect(assigns(:individualized_educational_plan).errors[:base])
+        .to include(I18n.t('activerecord.errors.models.iep_review_date.in_use'))
+      expect(IepReviewDate.exists?(review_date.id)).to eq(true)
+
+      blocked = assigns(:individualized_educational_plan).iep_review_dates.detect { |review| review.id == review_date.id }
+      expect(blocked.errors[:review_date]).to include(
+        I18n.t('activerecord.errors.models.iep_review_date.attributes.review_date.cannot_remove')
+      )
+    end
+
+    it 'highlights every removed review that has section data (not only the first)' do
+      plan = create(:individualized_educational_plan)
+      first_review = create(:iep_review_date, iep: plan)
+      second_review = create(:iep_review_date, iep: plan)
+      create(:iep_curricular_planning, iep: plan, iep_review_date: first_review, long_term_goal: 'Meta')
+      create(:iep_periodic_evaluation, iep: plan, iep_review_date: second_review, acquired_skills: 'Habilidades')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_review_dates_attributes: {
+            '0' => { id: first_review.id, _destroy: '1' },
+            '1' => { id: second_review.id, _destroy: '1' }
+          }
+        }
+      }
+
+      reviews = assigns(:individualized_educational_plan).iep_review_dates
+      blocked_message = I18n.t('activerecord.errors.models.iep_review_date.attributes.review_date.cannot_remove')
+      expect(reviews.detect { |review| review.id == first_review.id }.errors[:review_date]).to include(blocked_message)
+      expect(reviews.detect { |review| review.id == second_review.id }.errors[:review_date]).to include(blocked_message)
+    end
+
+    it 'destroys a persisted section line when its form is cleared, releasing the review' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => {
+            id: planning.id, long_term_goal: '', stage_objectives: '', skills_to_develop: '', methodologies: '',
+            instructional_accommodation_option_ids: '', environmental_accommodation_option_ids: '',
+            assessment_accommodation_option_ids: ''
+          } }
+        }
+      }
+
+      expect(IepCurricularPlanning.exists?(planning.id)).to eq(false)
+      expect(review_date.reload.destroy).to be_truthy
+    end
 
     it 'updates the plan and redirects to the index' do
       plan = create(:individualized_educational_plan)

@@ -1,0 +1,39 @@
+<%# Painel de um tipo (Por Disciplina/Por Campo) dentro de uma revisão: pills dos
+    componentes já adicionados + botão que abre o modal de adição.
+    Locals: f, association, fields_partial, review_date, component_type (:discipline/:knowledge_area), dom_id %>
+<% lines = @individualized_educational_plan.send(association).select { |row|
+     row.iep_review_date_id == review_date.id && !row.marked_for_destruction? &&
+       (component_type == :discipline ? row.discipline_id.present? : row.knowledge_area_id.present?)
+   } %>
+
+<div style="margin: 15px 0;">
+  <button type="button" class="btn btn-success btn-sm iep-add-component" data-panels="#<%= dom_id %>-panels">
+    <%= component_type == :discipline ? t('individualized_educational_plans.form.add_discipline') : t('individualized_educational_plans.form.add_knowledge_area') %>
+  </button>
+</div>
+
+<ul class="nav nav-pills iep-component-pills" style="margin: 0 0 15px;">
+  <% lines.each_with_index do |line, index| %>
+    <li class="<%= 'active' if index.zero? %>">
+      <a href="javascript:void(0)" data-target-key="<%= line.id %>">
+        <%= component_type == :discipline ? line.discipline&.description : line.knowledge_area&.description %>
+      </a>
+    </li>
+  <% end %>
+</ul>
+
+<div class="iep-component-panels" id="<%= dom_id %>-panels" data-review-id="<%= review_date.id %>"
+     data-component-type="<%= component_type %>">
+  <% lines.each_with_index do |line, index| %>
+    <%= f.simple_fields_for association, line, child_index: line.id do |line_form| %>
+      <%= render fields_partial, f: line_form, hidden: !index.zero? %>
+    <% end %>
+  <% end %>
+</div>
+
+<span class="hidden">
+  <%= link_to_add_association 'add', f, association,
+        partial: fields_partial,
+        class: 'iep-add-line',
+        data: { association_insertion_node: "##{dom_id}-panels", association_insertion_method: 'append' } %>
+</span>

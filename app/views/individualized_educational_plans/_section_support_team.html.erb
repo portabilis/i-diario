@@ -1,0 +1,31 @@
+<fieldset>
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :accompaniment_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::ACCOMPANIMENT],
+                  label: t('.accompaniment') %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :support_type_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::SUPPORT_TYPE],
+                  label: t('.support_type') %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :family_guidelines, label: t('.family_guidelines'),
+                  input_html: { rows: 4, class: 'form-control' } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :external_professionals_guidelines, label: t('.external_professionals_guidelines'),
+                  input_html: { rows: 4, class: 'form-control' } %>
+    </div>
+  </div>
+</fieldset>

@@ -1,0 +1,55 @@
+<div class="iep-component-panel nested-fields" data-key="<%= f.index %>"
+     <%= 'style=display:none;'.html_safe if local_assigns[:hidden] %>>
+  <%= f.input_field :iep_review_date_id, as: :hidden %>
+  <%= f.input_field :discipline_id, as: :hidden %>
+  <%= f.input_field :knowledge_area_id, as: :hidden %>
+
+  <legend>
+    <span class="iep-component-title"><%= f.object.discipline&.description || f.object.knowledge_area&.description %></span>
+    <span class="pull-right">
+      <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
+    </span>
+  </legend>
+
+  <div class="row textarea">
+    <div class="col col-sm-6">
+      <%= f.input :long_term_goal, label: t('.long_term_goal'), input_html: { rows: 3, class: 'form-control' } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :stage_objectives, label: t('.stage_objectives'), input_html: { rows: 3, class: 'form-control' } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-6">
+      <%= f.input :skills_to_develop, label: t('.skills_to_develop'), input_html: { rows: 3, class: 'form-control' } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :methodologies, label: t('.methodologies'), input_html: { rows: 3, class: 'form-control' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :instructional_accommodation_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::INSTRUCTIONAL_ACCOMMODATION],
+                  label: t('.instructional_accommodations') %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :environmental_accommodation_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::ENVIRONMENTAL_ACCOMMODATION],
+                  label: t('.environmental_accommodations') %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :assessment_accommodation_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::ASSESSMENT_ACCOMMODATION],
+                  label: t('.assessment_accommodations') %>
+    </div>
+  </div>
+</div>

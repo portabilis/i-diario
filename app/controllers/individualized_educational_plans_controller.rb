@@ -24,22 +24,22 @@ class IndividualizedEducationalPlansController < ApplicationController
     render json: students.map { |id, name| { id: id, name: name } }.to_json
   end
 
-  # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis).
+  # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno).
   def student_data
     student = Student.find(params[:student_id])
 
-    render json: IndividualizedEducationalPlanPrefill.student_data(
-      student, unity: current_unity, year: current_school_year
-    )
+    render json: IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
   end
 
   def new
     @individualized_educational_plan = IndividualizedEducationalPlan.new(
       unity_id: current_unity&.id,
+      classroom_id: current_user_classroom&.id,
       teacher_id: current_teacher&.id, # stopgap: regente virá do i-Educar (D20)
       year: current_school_year,
       elaborated_at: Date.current,
       unity_name: current_unity&.name,
+      classroom_name: current_user_classroom&.description,
       teacher_name: current_teacher&.name
     )
     build_default_review_dates
@@ -62,9 +62,14 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def edit
-    @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
+    @individualized_educational_plan = IndividualizedEducationalPlan.includes(
+      iep_curricular_plannings: [:discipline, :knowledge_area],
+      iep_periodic_evaluations: [:discipline, :knowledge_area]
+    ).find(params[:id])
     @individualized_educational_plan.unity_name = @individualized_educational_plan.unity&.name
+    @individualized_educational_plan.classroom_name = @individualized_educational_plan.classroom&.description
     @individualized_educational_plan.teacher_name = @individualized_educational_plan.teacher&.name
+    prefill_student_fields
     set_form_options
 
     authorize @individualized_educational_plan
@@ -82,9 +87,42 @@ class IndividualizedEducationalPlansController < ApplicationController
       set_form_options
       render :edit
     end
+  rescue ActiveRecord::RecordNotDestroyed => e
+    # Remoção de data de revisão bloqueada (revisão com dados nas seções 4/5):
+    @individualized_educational_plan.errors.add(:base, e.record.errors[:base].to_sentence)
+
+    # O autosave interrompe na primeira falha; identifica TODAS as datas removidas que
+    # possuem dados, para destacar cada input bloqueado (não só o primeiro).
+    blocked_ids = @individualized_educational_plan.iep_review_dates
+                                                  .select(&:marked_for_destruction?)
+                                                  .select { |review|
+                                                    review.iep_curricular_plannings.exists? ||
+                                                      review.iep_periodic_evaluations.exists?
+                                                  }.map(&:id)
+
+    @individualized_educational_plan.iep_review_dates.reload
+    @individualized_educational_plan.iep_review_dates.each do |review|
+      review.errors.add(:review_date, :cannot_remove) if blocked_ids.include?(review.id)
+    end
+
+    set_form_options
+    render :edit
   end
 
   private
+
+  def prefill_student_fields
+    return if @individualized_educational_plan.student.blank?
+
+    data = IndividualizedEducationalPlanPrefill.student_data(
+      @individualized_educational_plan.student,
+      classroom: @individualized_educational_plan.classroom
+    )
+    @individualized_educational_plan.birth_date = data[:birth_date]
+    @individualized_educational_plan.diagnosis = data[:diagnosis]
+    @individualized_educational_plan.guardians = data[:guardians]
+    @individualized_educational_plan.shift = data[:shift]
+  end
 
   # Criar por padrão 3 campos de data de revisão.
   def build_default_review_dates
@@ -98,7 +136,9 @@ class IndividualizedEducationalPlansController < ApplicationController
     student_ids = StudentEnrollment.by_classroom(@classrooms.map(&:id)).active.select(:student_id)
     @students = Student.where(id: student_ids).order(:name)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
-    @iep_options = IepOption.enabled.ordered
+    @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
+    @disciplines = Discipline.by_classroom_id(@classrooms.map(&:id)).ordered
+    @knowledge_areas = KnowledgeArea.by_classroom_id(@classrooms.map(&:id)).ordered
   end
 
   def resource_params
@@ -109,18 +149,22 @@ class IndividualizedEducationalPlansController < ApplicationController
       :potentialities, :difficulties, :preferences_interests, :effective_strategies,
       :family_guidelines, :external_professionals_guidelines,
       :annual_report, :overall_evolution, :next_year_recommendations, :referrals_made,
+      :communication_profile_option_ids, :social_interaction_profile_option_ids,
+      :autonomy_option_ids, :accompaniment_option_ids, :support_type_option_ids,
       communication_profile_option_ids: [], social_interaction_profile_option_ids: [],
       autonomy_option_ids: [], accompaniment_option_ids: [], support_type_option_ids: [],
       iep_review_dates_attributes: [:id, :review_date, :_destroy],
       iep_attachments_attributes: [:id, :attachment, :attachment_cache, :_destroy],
       iep_curricular_plannings_attributes: [
-        :id, :discipline_id, :knowledge_area_id, :school_term_type_step_id,
+        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
         :long_term_goal, :stage_objectives, :skills_to_develop, :methodologies, :_destroy,
+        :instructional_accommodation_option_ids, :environmental_accommodation_option_ids,
+        :assessment_accommodation_option_ids,
         { instructional_accommodation_option_ids: [], environmental_accommodation_option_ids: [],
           assessment_accommodation_option_ids: [] }
       ],
       iep_periodic_evaluations_attributes: [
-        :id, :discipline_id, :knowledge_area_id, :school_term_type_step_id,
+        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
         :acquired_skills, :in_progress_skills, :not_acquired_skills, :period_report,
         :next_stage_adjustments, :_destroy
       ]

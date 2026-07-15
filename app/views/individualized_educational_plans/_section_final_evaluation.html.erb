@@ -1,0 +1,29 @@
+<fieldset>
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :annual_report, label: t('.annual_report'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.annual_report_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :overall_evolution, label: t('.overall_evolution'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.overall_evolution_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :next_year_recommendations, label: t('.next_year_recommendations'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.next_year_recommendations_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :referrals_made, label: t('.referrals_made'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.referrals_made_placeholder') } %>
+    </div>
+  </div>
+</fieldset>

@@ -4,24 +4,32 @@ $(function() {
   var $wizard = $('#pei-wizard');
   if ($wizard.length === 0) { return; }
 
-  var $tabs = $wizard.find('.nav-tabs li');
-  var $tabLinks = $wizard.find('.nav-tabs li a');
+  // Etapas do topo do wizard (fuelux steps); os painéis top-level ficam em .tab-content direto do wizard
+  var $steps = $wizard.find('.fuelux .steps li');
+  var $panes = $wizard.children('.tab-content').children('.tab-pane');
   var $studentSelect = $('.iep-student-select');
-  var $classroomSelect = $('.iep-classroom-select');
 
-  // ---- Navegação em passos (abas Bootstrap + Próxima/Anterior) ----
+  // ---- Navegação em passos (fuelux wizard: badge numerada + chevron) ----
   function currentIndex() {
-    return $tabs.index($wizard.find('.nav-tabs li.active'));
+    return $steps.index($steps.filter('.active'));
   }
 
   function showStep(index) {
-    if (index < 0 || index >= $tabLinks.length) { return; }
-    $tabLinks.eq(index).tab('show');
+    if (index < 0 || index >= $steps.length) { return; }
+
+    // Destaca somente a etapa atual (o preenchimento não é sequencial — sem estado "concluída")
+    $steps.each(function(stepIndex) {
+      $(this).toggleClass('active', stepIndex === index);
+      $(this).find('.badge').toggleClass('badge-info', stepIndex === index);
+    });
+
+    $panes.removeClass('active').eq(index).addClass('active');
+    refreshButtons();
   }
 
   function refreshButtons() {
     var index = currentIndex();
-    var last = $tabs.length - 1;
+    var last = $steps.length - 1;
 
     $('.pei-wizard-prev').toggle(index > 0);
     $('.pei-wizard-next').toggle(index < last);
@@ -30,10 +38,10 @@ $(function() {
 
   $('.pei-wizard-next').on('click', function() { showStep(currentIndex() + 1); });
   $('.pei-wizard-prev').on('click', function() { showStep(currentIndex() - 1); });
-  $tabLinks.on('shown.bs.tab', refreshButtons);
+  $steps.on('click', function() { showStep($steps.index(this)); });
   refreshButtons();
 
-  // ---- Prefill dos dados do aluno (seção 1) ----
+  // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
   $studentSelect.on('change', function() {
     var studentId = $(this).val();
     if (!studentId || studentId === 'empty') { return; }
@@ -44,31 +52,115 @@ $(function() {
         $('.iep-birth-date').val(data.birth_date || '');
         $('.iep-guardians').val(data.guardians || '');
         $('.iep-diagnosis').val(data.diagnosis || '');
-        loadClassrooms(data.classrooms || []);
+        $('.iep-shift').val(data.shift || '');
       }
     );
   });
 
-  function loadClassrooms(classrooms) {
-    var options = classrooms.map(function(classroom) {
-      return { id: classroom.id, text: classroom.name, shift: classroom.shift };
-    });
-    options.unshift({ id: 'empty', text: '' });
+  // ---- Seções 4/5: botões de revisão mostram o painel da revisão ----
+  $('.iep-review-buttons button').on('click', function() {
+    var reviewId = $(this).data('review-id');
+    var $fieldset = $(this).closest('fieldset');
 
-    $classroomSelect.select2('destroy');
-    $classroomSelect.empty().val(null);
-    $classroomSelect.select2({ data: options, allowClear: true, theme: 'classic' });
+    $(this).siblings().removeClass('active btn-primary').addClass('btn-default');
+    $(this).addClass('active btn-primary').removeClass('btn-default');
 
-    if (classrooms.length === 1) {
-      $classroomSelect.select2('val', classrooms[0].id);
-      $('.iep-shift').val(classrooms[0].shift || '');
-    } else {
-      $('.iep-shift').val('');
-    }
+    $fieldset.find('.iep-review-panel').hide()
+      .filter('[data-review-id="' + reviewId + '"]').show();
+  });
+
+  // ---- Seções 4/5: pills de componente mostram o form do componente (pills são dinâmicas) ----
+  $(document).on('click', '.iep-component-pills a', function() {
+    var targetKey = String($(this).data('target-key'));
+    var $tabPane = $(this).closest('.tab-pane');
+
+    $(this).closest('ul').find('li').removeClass('active');
+    $(this).closest('li').addClass('active');
+
+    $tabPane.find('.iep-component-panel').hide()
+      .filter(function() { return String($(this).data('key')) === targetKey; }).show();
+  });
+
+  // ---- Seções 4/5: adição de componente sob demanda (modal) ----
+  var $componentModal = $('#iep-component-modal');
+  var $componentModalSelect = $('#iep-component-modal-select');
+  var pendingAdd = null;
+
+  function usedComponentIds($panels) {
+    var field = $panels.data('component-type') === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
+
+    return $panels.find('.iep-component-panel')
+      .filter(function() {
+        var destroy = $(this).find('input[name$="[_destroy]"]').val();
+        return destroy !== '1' && destroy !== 'true'; // ignora os removidos (cocoon só os esconde)
+      })
+      .map(function() { return $(this).find('input[name$="[' + field + ']"]').val(); })
+      .get().filter(Boolean).map(String);
   }
 
-  $classroomSelect.on('change', function() {
-    var selected = $(this).select2('data');
-    $('.iep-shift').val(selected && selected.shift ? selected.shift : '');
+  $(document).on('click', '.iep-add-component', function() {
+    var $panels = $($(this).data('panels'));
+    var componentType = $panels.data('component-type');
+    var elements = componentType === 'discipline' ? $componentModal.data('disciplines') : $componentModal.data('knowledge-areas');
+    var used = usedComponentIds($panels);
+    var available = elements.filter(function(element) { return used.indexOf(String(element.id)) === -1; });
+
+    pendingAdd = { $panels: $panels, componentType: componentType };
+
+    $componentModal.find('.modal-title').text(
+      componentType === 'discipline' ? $componentModal.find('.modal-title').data('title-discipline')
+                                     : $componentModal.find('.modal-title').data('title-knowledge-area')
+    );
+
+    if ($componentModalSelect.data('select2')) { $componentModalSelect.select2('destroy'); }
+    $componentModalSelect.val('');
+    $componentModalSelect.select2({ data: available, allowClear: false, theme: 'classic' });
+
+    $componentModal.modal('show');
+  });
+
+  $('#iep-component-modal-confirm').on('click', function() {
+    var selected = $componentModalSelect.select2('data');
+    if (!selected || !pendingAdd) { return; }
+
+    pendingAdd.component = selected;
+    pendingAdd.$panels.closest('.tab-pane').find('.iep-add-line').trigger('click'); // cocoon insere o form
+    $componentModal.modal('hide');
+  });
+
+  // Form inserido pelo cocoon: vincula à revisão/componente escolhidos e ganha a pill
+  $(document).on('cocoon:after-insert', '.iep-component-panels', function(event, insertedItem) {
+    if (!pendingAdd || !pendingAdd.component) { return; }
+
+    var $panels = pendingAdd.$panels;
+    var field = pendingAdd.componentType === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
+
+    insertedItem.find('input[name$="[iep_review_date_id]"]').val($panels.data('review-id'));
+    insertedItem.find('input[name$="[' + field + ']"]').val(pendingAdd.component.id);
+    insertedItem.find('.iep-component-title').text(pendingAdd.component.text);
+
+    var $pills = $panels.closest('.tab-pane').find('.iep-component-pills');
+    $pills.find('li').removeClass('active');
+    $pills.append(
+      $('<li class="active"><a href="javascript:void(0)"></a></li>')
+        .find('a').text(pendingAdd.component.text).attr('data-target-key', insertedItem.data('key')).end()
+    );
+
+    $panels.find('.iep-component-panel').hide();
+    insertedItem.show();
+
+    pendingAdd = null;
+  });
+
+  // Form removido (lixeira): remove a pill correspondente e ativa a primeira restante
+  $(document).on('cocoon:after-remove', '.iep-component-panels', function(event, removedItem) {
+    var $tabPane = $(this).closest('.tab-pane');
+    var key = String(removedItem.data('key'));
+    var $pills = $tabPane.find('.iep-component-pills');
+
+    $pills.find('a').filter(function() { return String($(this).data('target-key')) === key; }).closest('li').remove();
+
+    var $firstPill = $pills.find('a').first();
+    if ($firstPill.length) { $firstPill.trigger('click'); }
   });
 });

@@ -13,3 +13,6 @@ pt-BR:
       models:
         iep_review_date:
           in_use: "Não é possível remover a revisão prevista pois já existem informações preenchidas para o período"
+          attributes:
+            review_date:
+              cannot_remove: "não pode ser removida pois já existem informações preenchidas para o período"

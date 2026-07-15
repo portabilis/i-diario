@@ -44,6 +44,8 @@ module IepMultiSelectable
   end
 
   def assign_iep_options_for(association, kind, ids)
+    ids = ids.split(',') if ids.is_a?(String)
+
     kind_value = IepOptionKinds.value_of(kind)
     allowed_ids = IepOption.by_kind(kind).where(id: Array(ids).reject(&:blank?)).pluck(:id)
 

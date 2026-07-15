@@ -1,0 +1,74 @@
+<fieldset>
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :characterization, label: t('.characterization'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.characterization_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :clinical_diagnosis_justification, label: t('.clinical_diagnosis_justification'),
+                  input_html: { rows: 4, class: 'form-control' } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :school_history, label: t('.school_history'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.school_history_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :potentialities, label: t('.potentialities'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.potentialities_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :difficulties, label: t('.difficulties'),
+                  input_html: { rows: 4, class: 'form-control', placeholder: t('.difficulties_placeholder') } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :preferences_interests, label: t('.preferences_interests'),
+                  input_html: { rows: 4, class: 'form-control' } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :effective_strategies, label: t('.effective_strategies'),
+                  input_html: { rows: 4, class: 'form-control' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :communication_profile_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::COMMUNICATION_PROFILE],
+                  label: t('.communication_profile') %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :social_interaction_profile_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::SOCIAL_INTERACTION_PROFILE],
+                  label: t('.social_interaction_profile') %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :autonomy_option_ids, as: :select2, multiple: true,
+                  elements: @iep_options_by_kind[IepOptionKinds::AUTONOMY],
+                  label: t('.autonomy') %>
+    </div>
+  </div>
+</fieldset>
