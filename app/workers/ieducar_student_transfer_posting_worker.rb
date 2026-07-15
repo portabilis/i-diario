@@ -68,7 +68,8 @@ class IeducarStudentTransferPostingWorker
       fetcher.post_to_ieducar!
 
       if fetcher.all_postings_sent
-        send_confirmation_webhook(status: 'success', message_key: 'success')
+        message_key = fetcher.last_step_skipped ? 'success_last_step_open' : 'success'
+        send_confirmation_webhook(status: 'success', message_key: message_key)
       else
         send_confirmation_webhook(status: 'error', message_key: 'partial_failure')
       end

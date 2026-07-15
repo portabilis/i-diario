@@ -82,6 +82,12 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
       end
+
+      it 'marca last_step_skipped como true' do
+        subject.post_to_ieducar!
+
+        expect(subject.last_step_skipped).to eq(true)
+      end
     end
 
     context 'quando o aluno foi transferido após o encerramento da última etapa' do
@@ -98,6 +104,12 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+      end
+
+      it 'mantém last_step_skipped como false' do
+        subject.post_to_ieducar!
+
+        expect(subject.last_step_skipped).to eq(false)
       end
     end
 
@@ -194,6 +206,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+        expect(subject.last_step_skipped).to eq(false)
       end
     end
   end

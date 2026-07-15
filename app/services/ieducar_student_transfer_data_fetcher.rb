@@ -3,13 +3,14 @@
 class IeducarStudentTransferDataFetcher
   class StudentNotEnrolledError < StandardError; end
 
-  attr_reader :all_postings_sent
+  attr_reader :all_postings_sent, :last_step_skipped
 
   def initialize(student:, classroom:, transfer_date: nil)
     @student = student
     @classroom = classroom
     @transfer_date = parse_transfer_date(transfer_date)
     @all_postings_sent = true
+    @last_step_skipped = false
   end
 
   def post_to_ieducar!
@@ -21,7 +22,10 @@ class IeducarStudentTransferDataFetcher
     end
 
     steps.each do |step|
-      next if skip_open_last_step?(step)
+      if skip_open_last_step?(step)
+        @last_step_skipped = true
+        next
+      end
 
       post_numerical_scores_for_step(step)
       post_conceptual_scores_for_step(step)
