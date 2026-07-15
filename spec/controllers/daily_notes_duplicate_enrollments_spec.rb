@@ -20,10 +20,12 @@ RSpec.describe DailyNotesController, 'duplicate enrollments check' do
   end
 
   # Helper para montar o hash retornado pelo StudentEnrollmentClassroomsRetriever
-  def build_enrollment(student_id:, student_name: "Aluno #{student_id}", status: 3, active: 1, left_at: nil)
+  def build_enrollment(student_id:, student_name: "Aluno #{student_id}", status: 3, active: 1, joined_at: nil, left_at: nil)
     student = build_student(student_id, student_name)
     student_enrollment = instance_double(StudentEnrollment, status: status, active: active)
-    student_enrollment_classroom = instance_double(StudentEnrollmentClassroom, left_at: left_at)
+    student_enrollment_classroom = instance_double(
+      StudentEnrollmentClassroom, joined_at: joined_at, left_at: left_at
+    )
 
     {
       student: student,
@@ -104,6 +106,57 @@ RSpec.describe DailyNotesController, 'duplicate enrollments check' do
       [
         build_enrollment(student_id: 31151, student_name: 'MANUELLA BARBOSA', left_at: Date.new(2026, 4, 29)),
         build_enrollment(student_id: 31151, student_name: 'MANUELLA BARBOSA', left_at: nil)
+      ]
+    end
+
+    it 'sets flash error with the duplicated student name' do
+      controller.send(:check_duplicate_enrolled_students)
+
+      expect(flash[:error]).to eq(
+        I18n.t('daily_notes.duplicate_students', students: 'MANUELLA BARBOSA')
+      )
+    end
+  end
+
+  context 'when the student left and re-enrolled in the classroom after the test date' do
+    # Cenário real (issue 7959): o aluno esteve na turma no período da avaliação (enturmação ativa
+    # em 29/04), saiu, e retornou à MESMA turma em 06/06 — uma nova enturmação que começa DEPOIS da
+    # data da avaliação. Como a enturmação de retorno ainda não tem data de saída (left_at em branco),
+    # a validação a contava como matrícula duplicada, disparando um falso erro que bloqueava o
+    # lançamento. Na data da avaliação o aluno estava enturmado apenas uma vez.
+    let(:enrollments) do
+      [
+        build_enrollment(
+          student_id: 31151, student_name: 'DAVI FERNANDES',
+          joined_at: Date.new(2026, 2, 18), left_at: Date.new(2026, 5, 28)
+        ),
+        build_enrollment(
+          student_id: 31151, student_name: 'DAVI FERNANDES',
+          joined_at: Date.new(2026, 6, 6), left_at: nil
+        )
+      ]
+    end
+
+    it 'does not set flash error' do
+      controller.send(:check_duplicate_enrolled_students)
+
+      expect(flash[:error]).to be_nil
+    end
+  end
+
+  context 'when both enrollments started before the test date and one has a future left_at' do
+    # Guarda de regressão: as duas enturmações começaram antes da data da avaliação e estão ativas
+    # nela (uma com saída futura, outra aberta). É uma duplicidade real e deve continuar sendo barrada.
+    let(:enrollments) do
+      [
+        build_enrollment(
+          student_id: 31151, student_name: 'MANUELLA BARBOSA',
+          joined_at: Date.new(2026, 2, 1), left_at: Date.new(2026, 5, 28)
+        ),
+        build_enrollment(
+          student_id: 31151, student_name: 'MANUELLA BARBOSA',
+          joined_at: Date.new(2026, 3, 1), left_at: nil
+        )
       ]
     end
 
