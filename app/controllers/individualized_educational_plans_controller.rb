@@ -32,15 +32,17 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def new
+    teacher = regent_teacher
+
     @individualized_educational_plan = IndividualizedEducationalPlan.new(
       unity_id: current_unity&.id,
       classroom_id: current_user_classroom&.id,
-      teacher_id: current_teacher&.id, # stopgap: regente virá do i-Educar (D20)
+      teacher_id: teacher&.id,
       year: current_school_year,
       elaborated_at: Date.current,
       unity_name: current_unity&.name,
       classroom_name: current_user_classroom&.description,
-      teacher_name: current_teacher&.name
+      teacher_name: teacher&.name
     )
     build_default_review_dates
     set_form_options
@@ -110,6 +112,12 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   private
+
+  # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
+  # em classrooms.regent_api_code). Sem regente cadastrado, cai no professor do perfil.
+  def regent_teacher
+    Teacher.find_by(api_code: current_user_classroom&.regent_api_code) || current_teacher
+  end
 
   def prefill_student_fields
     return if @individualized_educational_plan.student.blank?

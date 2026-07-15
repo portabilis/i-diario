@@ -162,4 +162,43 @@ RSpec.describe ClassroomsSynchronizer do
       end
     end
   end
+
+  describe '#update_classrooms' do
+    let(:synchronization) { create(:ieducar_api_synchronization, full_synchronization: true) }
+    let(:worker_batch) { create(:worker_batch) }
+    let(:worker_state) { create(:worker_state, worker_batch: worker_batch) }
+    let(:unity) { create(:unity, api_code: '111') }
+    let(:entity_id) { Entity.first.id }
+
+    let(:synchronizer) do
+      described_class.new(
+        synchronization: synchronization,
+        worker_batch: worker_batch,
+        worker_state: worker_state,
+        entity_id: entity_id,
+        year: Date.current.year,
+        unity_api_code: unity.api_code
+      )
+    end
+
+    it 'stores the classroom regent api code (ref_cod_regente)' do
+      unity
+      create(:grade, api_code: '22')
+      create(:exam_rule, api_code: '33')
+
+      payload = HashDecorator.new(
+        [{
+          'id' => '999', 'nome' => 'Turma Sincronizada', 'ano' => Date.current.year,
+          'escola_id' => '111', 'turno_id' => 1, 'max_aluno' => 30,
+          'ref_cod_regente' => '777',
+          'series_regras' => [{ 'serie_id' => '22', 'regra_avaliacao_id' => '33' }],
+          'updated_at' => Date.current.to_s, 'deleted_at' => nil
+        }]
+      )
+
+      synchronizer.send(:update_classrooms, payload)
+
+      expect(Classroom.find_by(api_code: '999').regent_api_code).to eq('777')
+    end
+  end
 end

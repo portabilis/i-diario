@@ -141,6 +141,29 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  describe 'GET #new' do
+    it 'assigns the classroom regent (i-Educar) as the teacher' do
+      regent = create(:teacher, api_code: '777')
+      classroom = create(:classroom, regent_api_code: '777')
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+
+      get :new, params: { locale: 'pt-BR' }
+
+      expect(assigns(:individualized_educational_plan).teacher_id).to eq(regent.id)
+    end
+
+    it 'falls back to the profile teacher when the classroom has no regent' do
+      teacher = create(:teacher)
+      classroom = create(:classroom, regent_api_code: nil)
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:current_teacher).and_return(teacher)
+
+      get :new, params: { locale: 'pt-BR' }
+
+      expect(assigns(:individualized_educational_plan).teacher_id).to eq(teacher.id)
+    end
+  end
+
   describe 'POST #create' do
     before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
 
