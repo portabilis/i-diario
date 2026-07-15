@@ -45,11 +45,26 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
 
       expect(IeducarStudentTransferDataFetcher).to receive(:new).with(
         student: student,
-        classroom: classroom
+        classroom: classroom,
+        transfer_date: nil
       ).and_return(fetcher_double)
       expect(fetcher_double).to receive(:post_to_ieducar!)
 
       described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
+    end
+
+    it 'forwards the transfer_date to the data fetcher' do
+      stub_request(:post, callback_url).to_return(status: 200)
+      transfer_date = '2026-07-14'
+
+      expect(IeducarStudentTransferDataFetcher).to receive(:new).with(
+        student: student,
+        classroom: classroom,
+        transfer_date: transfer_date
+      ).and_return(fetcher_double)
+      expect(fetcher_double).to receive(:post_to_ieducar!)
+
+      described_class.new.perform(entity.id, student.id, classroom.id, callback_url, transfer_date)
     end
 
     context 'when processing succeeds and all postings were accepted' do

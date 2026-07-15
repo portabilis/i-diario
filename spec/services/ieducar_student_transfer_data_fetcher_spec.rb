@@ -41,6 +41,114 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
   subject { described_class.new(student: student, classroom: classroom) }
 
+  # Regressão issue 7960: turmas sem nota (apuração apenas por frequência) só
+  # devem ter a última etapa enviada quando ela já está encerrada na data da
+  # transferência, evitando aprovar o aluno com uma etapa parcial.
+  describe '#post_to_ieducar! - envio da última etapa em turma sem nota' do
+    let(:last_step) { classroom.calendar.classroom_steps.last }
+    let(:faltas_geral_request) do
+      a_request(
+        :post,
+        %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*}
+      )
+    end
+
+    before do
+      classroom.first_exam_rule.update(
+        score_type: ScoreTypes::DONT_USE,
+        frequency_type: FrequencyTypes::GENERAL
+      )
+
+      stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
+        .to_return(
+          status: 200,
+          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
+          headers: { 'Content-Type' => 'application/json' }
+        )
+    end
+
+    context 'quando o aluno foi transferido antes do encerramento da última etapa' do
+      subject do
+        described_class.new(
+          student: student,
+          classroom: classroom,
+          transfer_date: last_step.end_at.to_date - 1.day
+        )
+      end
+
+      it 'envia as etapas anteriores, mas não a última etapa (ainda aberta)' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+      end
+    end
+
+    context 'quando o aluno foi transferido após o encerramento da última etapa' do
+      subject do
+        described_class.new(
+          student: student,
+          classroom: classroom,
+          transfer_date: last_step.end_at.to_date
+        )
+      end
+
+      it 'envia todas as etapas, incluindo a última (já encerrada)' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+      end
+    end
+
+    context 'quando a data de transferência não é informada' do
+      subject { described_class.new(student: student, classroom: classroom) }
+
+      it 'mantém o comportamento atual e envia todas as etapas' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+      end
+    end
+  end
+
+  describe '#post_to_ieducar! - turma avaliada com nota não é afetada pelo filtro' do
+    let(:last_step) { classroom.calendar.classroom_steps.last }
+    let(:faltas_geral_request) do
+      a_request(
+        :post,
+        %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*}
+      )
+    end
+
+    before do
+      stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
+        .to_return(
+          status: 200,
+          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
+          headers: { 'Content-Type' => 'application/json' }
+        )
+    end
+
+    context 'quando o aluno foi transferido antes do encerramento da última etapa' do
+      subject do
+        described_class.new(
+          student: student,
+          classroom: classroom,
+          transfer_date: last_step.end_at.to_date - 1.day
+        )
+      end
+
+      it 'ignora o filtro e envia todas as etapas' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+      end
+    end
+  end
+
   describe '#post_to_ieducar!' do
     let(:first_step) { classroom.calendar.classroom_steps.first }
 

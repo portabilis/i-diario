@@ -16,7 +16,8 @@ module Api
             current_entity.id,
             student_id,
             classroom_id,
-            params[:callback_url]
+            params[:callback_url],
+            params[:transfer_date]
           )
         end
 

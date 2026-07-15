@@ -45,7 +45,7 @@ class IeducarStudentTransferPostingWorker
     Honeybadger.notify(exception)
   end
 
-  def perform(entity_id, student_id, classroom_id, callback_url)
+  def perform(entity_id, student_id, classroom_id, callback_url, transfer_date = nil)
     @callback_url = callback_url
     @student_enrollment_api_code = nil
     @student_name = nil
@@ -61,7 +61,8 @@ class IeducarStudentTransferPostingWorker
 
       fetcher = IeducarStudentTransferDataFetcher.new(
         student: student,
-        classroom: classroom
+        classroom: classroom,
+        transfer_date: transfer_date
       )
 
       fetcher.post_to_ieducar!

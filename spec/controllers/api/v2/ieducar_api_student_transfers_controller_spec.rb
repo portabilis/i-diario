@@ -40,7 +40,8 @@ RSpec.describe Api::V2::IeducarApiStudentTransfersController, type: :controller 
           entity.id,
           student.id,
           classroom.id,
-          callback_url
+          callback_url,
+          nil
         )
 
         post :create, params: params, xhr: true
@@ -49,6 +50,29 @@ RSpec.describe Api::V2::IeducarApiStudentTransfersController, type: :controller 
 
         json = ActiveSupport::JSON.decode(response.body)
         expect(json['status']).to eq('processing')
+      end
+
+      it 'forwards the transfer_date to the worker when provided' do
+        transfer_date = '2026-07-14'
+        params = {
+          student_enrollment_api_code: student_enrollment.api_code,
+          callback_url: callback_url,
+          transfer_date: transfer_date,
+          format: 'json',
+          locale: 'en'
+        }
+
+        expect(IeducarStudentTransferPostingWorker).to receive(:perform_async).with(
+          entity.id,
+          student.id,
+          classroom.id,
+          callback_url,
+          transfer_date
+        )
+
+        post :create, params: params, xhr: true
+
+        expect(response).to have_http_status(:accepted)
       end
     end
 

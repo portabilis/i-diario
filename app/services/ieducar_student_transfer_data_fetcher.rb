@@ -5,9 +5,10 @@ class IeducarStudentTransferDataFetcher
 
   attr_reader :all_postings_sent
 
-  def initialize(student:, classroom:)
+  def initialize(student:, classroom:, transfer_date: nil)
     @student = student
     @classroom = classroom
+    @transfer_date = parse_transfer_date(transfer_date)
     @all_postings_sent = true
   end
 
@@ -20,6 +21,8 @@ class IeducarStudentTransferDataFetcher
     end
 
     steps.each do |step|
+      next if skip_open_last_step?(step)
+
       post_numerical_scores_for_step(step)
       post_conceptual_scores_for_step(step)
       post_absences_for_step(step)
@@ -31,7 +34,42 @@ class IeducarStudentTransferDataFetcher
 
   private
 
-  attr_reader :student, :classroom
+  attr_reader :student, :classroom, :transfer_date
+
+  # Turmas sem nota (ex.: progressão continuada, com apuração apenas por
+  # frequência) são aprovadas no i-Educar assim que ele recebe a frequência da
+  # última etapa. Numa transferência ocorrida antes do encerramento dessa etapa,
+  # enviar a frequência parcial aprovaria o aluno indevidamente. Por isso, para
+  # essas turmas, a última etapa só é enviada quando já está encerrada na data da
+  # transferência. As demais etapas continuam sendo enviadas normalmente.
+  def skip_open_last_step?(step)
+    return false unless without_score_exam_rule?
+    return false unless step == steps.last
+
+    last_step_open_on_transfer_date?(step)
+  end
+
+  def without_score_exam_rule?
+    exam_rule&.score_type == ScoreTypes::DONT_USE
+  end
+
+  def last_step_open_on_transfer_date?(step)
+    return false if transfer_date.blank? || step.end_at.blank?
+
+    transfer_date < step.end_at.to_date
+  end
+
+  def parse_transfer_date(value)
+    return value if value.is_a?(Date)
+    return if value.blank?
+
+    Date.parse(value.to_s)
+  rescue ArgumentError
+    Rails.logger.warn(
+      "IeducarStudentTransferDataFetcher: transfer_date inválida (#{value.inspect}) - última etapa não será filtrada"
+    )
+    nil
+  end
 
   def steps
     @steps ||= StepsFetcher.new(classroom).steps
