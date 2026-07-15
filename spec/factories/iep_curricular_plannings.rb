@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :iep_curricular_planning do
     association :iep, factory: :individualized_educational_plan
     discipline
+    iep_review_date { create(:iep_review_date, iep: iep) }
 
     trait :by_knowledge_area do
       discipline nil
