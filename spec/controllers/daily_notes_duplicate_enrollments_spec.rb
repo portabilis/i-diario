@@ -119,11 +119,10 @@ RSpec.describe DailyNotesController, 'duplicate enrollments check' do
   end
 
   context 'when the student left and re-enrolled in the classroom after the test date' do
-    # Cenário real (issue 7959): o aluno esteve na turma no período da avaliação (enturmação ativa
-    # em 29/04), saiu, e retornou à MESMA turma em 06/06 — uma nova enturmação que começa DEPOIS da
-    # data da avaliação. Como a enturmação de retorno ainda não tem data de saída (left_at em branco),
-    # a validação a contava como matrícula duplicada, disparando um falso erro que bloqueava o
-    # lançamento. Na data da avaliação o aluno estava enturmado apenas uma vez.
+    # Aluno que saiu e retornou à MESMA turma em uma enturmação que começa DEPOIS da data da
+    # avaliação. Como essa enturmação de retorno ainda não tem data de saída (left_at em branco),
+    # ela não pode ser contada como matrícula duplicada na data da avaliação — nessa data o aluno
+    # estava enturmado uma única vez. Verifica que nenhum erro de duplicidade é sinalizado.
     let(:enrollments) do
       [
         build_enrollment(
@@ -156,6 +155,56 @@ RSpec.describe DailyNotesController, 'duplicate enrollments check' do
         build_enrollment(
           student_id: 31151, student_name: 'MANUELLA BARBOSA',
           joined_at: Date.new(2026, 3, 1), left_at: nil
+        )
+      ]
+    end
+
+    it 'sets flash error with the duplicated student name' do
+      controller.send(:check_duplicate_enrolled_students)
+
+      expect(flash[:error]).to eq(
+        I18n.t('daily_notes.duplicate_students', students: 'MANUELLA BARBOSA')
+      )
+    end
+  end
+
+  context 'when the re-enrollment dates come as Strings (as returned by sync data)' do
+    # Retorno à turma com as datas no formato de String que o sync do i-Educar entrega — exercita o
+    # parse de joined_at.to_date para uma enturmação futura. Verifica que a enturmação de retorno não
+    # é contada como duplicidade e que nenhum erro é sinalizado.
+    let(:enrollments) do
+      [
+        build_enrollment(
+          student_id: 31151, student_name: 'DAVI FERNANDES',
+          joined_at: '2026-02-18', left_at: '2026-05-28'
+        ),
+        build_enrollment(
+          student_id: 31151, student_name: 'DAVI FERNANDES',
+          joined_at: '2026-06-06', left_at: ''
+        )
+      ]
+    end
+
+    it 'does not set flash error' do
+      controller.send(:check_duplicate_enrolled_students)
+
+      expect(flash[:error]).to be_nil
+    end
+  end
+
+  context 'when one enrollment has joined_at exactly equal to test_date' do
+    # Borda inferior inclusiva: uma enturmação que começa EXATAMENTE na data da avaliação deve ser
+    # considerada ativa (joined_at <= test_date) e, portanto, contar para a duplicidade. Trava o
+    # operador <= contra uma mutação para < que excluiria silenciosamente esse aluno.
+    let(:enrollments) do
+      [
+        build_enrollment(
+          student_id: 31151, student_name: 'MANUELLA BARBOSA',
+          joined_at: Date.new(2026, 4, 29), left_at: nil
+        ),
+        build_enrollment(
+          student_id: 31151, student_name: 'MANUELLA BARBOSA',
+          joined_at: Date.new(2026, 2, 1), left_at: nil
         )
       ]
     end
