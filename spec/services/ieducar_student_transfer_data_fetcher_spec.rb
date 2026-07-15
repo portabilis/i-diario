@@ -111,6 +111,55 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
       end
     end
+
+    context 'quando a data de transferência chega como string ISO (fluxo real do worker)' do
+      subject do
+        described_class.new(
+          student: student,
+          classroom: classroom,
+          transfer_date: (last_step.end_at.to_date - 1.day).iso8601
+        )
+      end
+
+      it 'faz o parse da string e não envia a última etapa (ainda aberta)' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+      end
+    end
+
+    context 'quando a data de transferência é inválida' do
+      subject do
+        described_class.new(
+          student: student,
+          classroom: classroom,
+          transfer_date: 'data-invalida'
+        )
+      end
+
+      it 'notifica o Honeybadger e mantém o envio de todas as etapas (fallback)' do
+        allow(Honeybadger).to receive(:notify)
+
+        expect { subject.post_to_ieducar! }.not_to raise_error
+
+        expect(Honeybadger).to have_received(:notify).once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+      end
+    end
+
+    context 'quando a data de transferência é uma string vazia' do
+      subject do
+        described_class.new(student: student, classroom: classroom, transfer_date: '')
+      end
+
+      it 'trata como ausente e envia todas as etapas' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+      end
+    end
   end
 
   describe '#post_to_ieducar! - turma avaliada com nota não é afetada pelo filtro' do

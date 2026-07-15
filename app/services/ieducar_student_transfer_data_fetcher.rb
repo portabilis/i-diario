@@ -39,9 +39,14 @@ class IeducarStudentTransferDataFetcher
   # Turmas sem nota (ex.: progressão continuada, com apuração apenas por
   # frequência) são aprovadas no i-Educar assim que ele recebe a frequência da
   # última etapa. Numa transferência ocorrida antes do encerramento dessa etapa,
-  # enviar a frequência parcial aprovaria o aluno indevidamente. Por isso, para
-  # essas turmas, a última etapa só é enviada quando já está encerrada na data da
-  # transferência. As demais etapas continuam sendo enviadas normalmente.
+  # enviar a etapa parcial aprovaria o aluno indevidamente. Por isso, para essas
+  # turmas, quando a última etapa ainda está aberta na data da transferência ela
+  # é pulada por completo (não só a frequência: também eventuais pareceres da
+  # etapa e o parecer anual, que só é postado na última etapa). As demais etapas
+  # continuam sendo enviadas normalmente.
+  #
+  # Fronteira: a etapa é considerada encerrada quando a data de transferência é
+  # igual ou posterior ao seu `end_at` (`transfer_date < end_at` => ainda aberta).
   def skip_open_last_step?(step)
     return false unless without_score_exam_rule?
     return false unless step == steps.last
@@ -63,10 +68,20 @@ class IeducarStudentTransferDataFetcher
     return value if value.is_a?(Date)
     return if value.blank?
 
-    Date.parse(value.to_s)
-  rescue ArgumentError
-    Rails.logger.warn(
-      "IeducarStudentTransferDataFetcher: transfer_date inválida (#{value.inspect}) - última etapa não será filtrada"
+    # Parse estrito ISO-8601: o controller já valida o formato antes de
+    # enfileirar, então uma string inesperada aqui é estado anômalo.
+    Date.iso8601(value.to_s)
+  rescue ArgumentError, TypeError => e
+    # Não silenciar: cair aqui desabilita o filtro da última etapa (envia tudo),
+    # que é justamente a proteção deste fluxo. Notificamos o Honeybadger com
+    # contexto e seguimos sem filtrar para não derrubar o restante do envio.
+    Rails.logger.error(
+      "IeducarStudentTransferDataFetcher: transfer_date inválida (#{value.inspect}) " \
+      "student=#{student&.id} classroom=#{classroom&.id} - última etapa não será filtrada"
+    )
+    Honeybadger.notify(
+      e,
+      context: { student_id: student&.id, classroom_id: classroom&.id, transfer_date: value }
     )
     nil
   end

@@ -76,6 +76,27 @@ RSpec.describe Api::V2::IeducarApiStudentTransfersController, type: :controller 
       end
     end
 
+    context 'with invalid transfer_date' do
+      it 'returns 400 bad request and does not enqueue the worker' do
+        params = {
+          student_enrollment_api_code: student_enrollment.api_code,
+          callback_url: callback_url,
+          transfer_date: 'not-a-date',
+          format: 'json',
+          locale: 'en'
+        }
+
+        expect(IeducarStudentTransferPostingWorker).not_to receive(:perform_async)
+
+        post :create, params: params, xhr: true
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = ActiveSupport::JSON.decode(response.body)
+        expect(json['error']).to include('transfer_date')
+      end
+    end
+
     context 'with missing params' do
       it 'returns 400 bad request when student_enrollment_api_code is missing' do
         params = {
