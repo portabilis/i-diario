@@ -4,7 +4,7 @@ class CreateIepPeriodicEvaluations < ActiveRecord::Migration[5.0]
       t.integer :individualized_educational_plan_id, null: false
       t.integer :discipline_id                        # "Por Disciplina" (nullable)
       t.integer :knowledge_area_id                    # "Por Campo de Experiência" (nullable)
-      t.integer :school_term_type_step_id             # etapa (null = anual)
+      t.integer :iep_review_date_id, null: false      # revisão (1ª, 2ª...) a que a avaliação pertence
       t.text :acquired_skills
       t.text :in_progress_skills
       t.text :not_acquired_skills
@@ -18,12 +18,13 @@ class CreateIepPeriodicEvaluations < ActiveRecord::Migration[5.0]
               name: :idx_iep_pe_on_iep
     add_index :iep_periodic_evaluations, :discipline_id
     add_index :iep_periodic_evaluations, :knowledge_area_id
+    add_index :iep_periodic_evaluations, :iep_review_date_id
 
     add_foreign_key :iep_periodic_evaluations, :individualized_educational_plans,
                     column: :individualized_educational_plan_id
     add_foreign_key :iep_periodic_evaluations, :disciplines
     add_foreign_key :iep_periodic_evaluations, :knowledge_areas
-    add_foreign_key :iep_periodic_evaluations, :school_term_type_steps
+    add_foreign_key :iep_periodic_evaluations, :iep_review_dates
 
     # Exatamente um: disciplina OU área de conhecimento (torna o estado ilegal irrepresentável)
     reversible do |dir|

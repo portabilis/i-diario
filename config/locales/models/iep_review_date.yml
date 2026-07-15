@@ -1,0 +1,15 @@
+pt-BR:
+  activerecord:
+    models:
+      iep_review_date:
+        one: "Data prevista de revisão"
+        other: "Datas previstas de revisão"
+
+    attributes:
+      iep_review_date:
+        review_date: "Data prevista de revisão"
+        iep: "Plano Educacional Individualizado"
+    errors:
+      models:
+        iep_review_date:
+          in_use: "Não é possível remover a revisão prevista pois já existem informações preenchidas para o período"

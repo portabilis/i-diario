@@ -4,8 +4,21 @@ class IepReviewDate < ApplicationRecord
   belongs_to :iep, class_name: 'IndividualizedEducationalPlan',
              foreign_key: :individualized_educational_plan_id
 
+  has_many :iep_curricular_plannings
+  has_many :iep_periodic_evaluations
+
   validates :review_date, presence: true
 
-  # TODO(PEI): bloquear a remoção quando o período já tem dados nas seções 4/5
-  # (regra a ser implementada no serviço de publicação, que ainda não existe).
+  before_destroy :prevent_destroy_if_filled, prepend: true
+
+  private
+
+  # Regra de negócio: a revisão não pode ser removida quando o período já tem
+  # informações preenchidas nas seções 4 (planejamento) e/ou 5 (avaliação).
+  def prevent_destroy_if_filled
+    return unless iep_curricular_plannings.exists? || iep_periodic_evaluations.exists?
+
+    errors.add(:base, I18n.t('activerecord.errors.models.iep_review_date.in_use'))
+    throw(:abort)
+  end
 end
