@@ -363,4 +363,64 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
   end
+
+  describe 'finalization (save + publish in the same submit)' do
+    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
+    it 'publishes an active version when updating with a version name' do
+      plan = create(:individualized_educational_plan)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { characterization: 'Atualizado' }
+      }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(plan.reload.characterization).to eq('Atualizado')
+      version = plan.active_version
+      expect(version.name).to eq('Versão 1')
+      expect(version.published_by).to eq(user)
+      expect(version.content['characterization']['characterization']).to eq('Atualizado')
+      expect(plan.finalized?).to eq(true)
+    end
+
+    it 'publishes the first version right on creation' do
+      student = create(:student)
+
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Primeira versão',
+        individualized_educational_plan: {
+          student_id: student.id, unity_id: create(:unity).id, classroom_id: create(:classroom).id,
+          teacher_id: create(:teacher).id, year: Date.current.year, elaborated_at: Date.current
+        }
+      }
+
+      plan = IndividualizedEducationalPlan.last
+      expect(plan.finalized?).to eq(true)
+      expect(plan.active_version.name).to eq('Primeira versão')
+    end
+
+    it 'saves a draft without publishing when no version name is sent' do
+      plan = create(:individualized_educational_plan)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, individualized_educational_plan: { characterization: 'Rascunho' }
+      }
+
+      expect(plan.reload.iep_versions.count).to eq(0)
+      expect(plan.finalized?).to eq(false)
+    end
+
+    it 'publishes nothing when the plan itself is invalid' do
+      plan = create(:individualized_educational_plan)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { student_id: nil }
+      }
+
+      expect(response).to render_template(:edit)
+      expect(plan.reload.iep_versions.count).to eq(0)
+    end
+  end
 end

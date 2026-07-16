@@ -14,7 +14,7 @@ pt-BR:
         curricular_planning: "Planejamento Curricular"
         periodic_evaluation: "Avaliação Periódica"
         final_evaluation: "Avaliação Final Anual"
-      no_reviews_hint: "Cadastre as datas previstas de revisão na seção 1 e salve o plano para preencher esta seção por revisão."
+      no_reviews_hint: "Cadastre as datas previstas de revisão na seção 1 e finalize o plano para preencher esta seção por revisão."
       review_label: "%{number}ª Revisão"
       by_discipline: "Por Disciplina"
       by_knowledge_area: "Por Campo de Experiência"
@@ -25,7 +25,23 @@ pt-BR:
       back: "Voltar"
       previous: "Anterior"
       next: "Próxima"
-      save: "Salvar"
+      finalize: "Finalizar"
+      finalize_modal_title: "Salvar versão"
+      finalize_modal_subtitle: "Esta versão será salva e substituirá a versão anterior"
+      finalize_modal_text: "Você está salvando e publicando uma versão do PEI para este aluno."
+      version_name: "Nome da versão"
+      finalize_modal_confirm: "Salvar"
+    finalize:
+      success: "Versão do Plano Educacional Individualizado publicada com sucesso."
+    versions:
+      index:
+        student: "Aluno"
+        back: "Voltar"
+        name: "Versão"
+        published_at: "Publicada em"
+        published_by: "Publicada por"
+        status: "Situação"
+        active: "Ativo"
     section_identification:
       student: "Aluno"
       select_student: "Selecione o aluno"

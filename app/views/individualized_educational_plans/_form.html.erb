@@ -68,10 +68,38 @@
   <footer>
     <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default pull-left' %>
 
-    <%= f.submit t('.save'), class: 'btn btn-primary pei-wizard-finish' %>
+    <button type="button" class="btn btn-success pei-wizard-finish" data-toggle="modal" data-target="#iep-finalize-modal">
+      <%= t('.finalize') %>
+    </button>
     <button type="button" class="btn btn-info pei-wizard-next"><%= t('.next') %></button>
     <button type="button" class="btn btn-info pei-wizard-prev"><%= t('.previous') %></button>
   </footer>
+
+  <%# Modal do Finalizar (issue): salva e publica no mesmo submit do formulário. %>
+  <div class="modal fade" id="iep-finalize-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title"><%= t('.finalize_modal_title') %></h4>
+        </div>
+        <div class="modal-body">
+          <p><strong><%= t('.finalize_modal_subtitle') %></strong></p>
+          <p><%= t('.finalize_modal_text') %></p>
+          <section>
+            <label class="label" for="version_name"><%= t('.version_name') %></label>
+            <label class="input">
+              <%= text_field_tag :version_name, nil, maxlength: 100 %>
+            </label>
+          </section>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.modal_cancel') %></button>
+          <button type="button" class="btn btn-success" id="iep-finalize-confirm"><%= t('.finalize_modal_confirm') %></button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="modal fade" id="iep-component-modal" tabindex="-1" role="dialog"
        data-disciplines="<%= @disciplines.map { |discipline| { id: discipline.id, name: discipline.description, text: discipline.description } }.to_json %>"

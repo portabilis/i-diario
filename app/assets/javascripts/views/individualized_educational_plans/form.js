@@ -57,6 +57,30 @@ $(function() {
     );
   });
 
+  // ---- Finalizar: o modal "Salvar versão" preenche version_name e submete o próprio form ----
+  var finalizeConfirmed = false;
+
+  $('#iep-finalize-confirm').on('click', function() {
+    var $name = $('#version_name');
+
+    if (!$name.val() || !$name.val().trim()) {
+      $name.closest('.input').addClass('state-error');
+      $name.focus();
+      return;
+    }
+
+    finalizeConfirmed = true;
+    $(this).prop('disabled', true);
+    $('.smart-form').submit();
+  });
+
+  // Fechou o modal sem confirmar: limpa o nome e o estado de erro
+  $('#iep-finalize-modal').on('hidden.bs.modal', function() {
+    if (!finalizeConfirmed) {
+      $('#version_name').val('').closest('.input').removeClass('state-error');
+    }
+  });
+
   // ---- Seções 4/5: botões de revisão mostram o painel da revisão ----
   $('.iep-review-buttons button').on('click', function() {
     var reviewId = $(this).data('review-id');

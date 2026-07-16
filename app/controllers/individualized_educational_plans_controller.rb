@@ -55,8 +55,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
-    if @individualized_educational_plan.save
-      respond_with @individualized_educational_plan, location: individualized_educational_plans_path
+    if save_and_publish
+      respond_after_save
     else
       set_form_options
       render :new
@@ -83,8 +83,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
-    if @individualized_educational_plan.save
-      respond_with @individualized_educational_plan, location: individualized_educational_plans_path
+    if save_and_publish
+      respond_after_save
     else
       set_form_options
       render :edit
@@ -112,6 +112,39 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   private
+
+  # "Finalizar" (modal Salvar versão) salva e publica no mesmo submit: o formulário
+  # envia version_name e a versão é criada na mesma transação do save (issue: "Você
+  # está salvando e publicando uma versão do PEI"). Sem version_name, salva rascunho.
+  def save_and_publish
+    ActiveRecord::Base.transaction do
+      saved = @individualized_educational_plan.save
+      raise ActiveRecord::Rollback unless saved
+
+      if version_name.present?
+        authorize @individualized_educational_plan, :finalize?
+        IndividualizedEducationalPlanPublisher.publish!(
+          @individualized_educational_plan, name: version_name, published_by: current_user
+        )
+        @published = true
+      end
+
+      saved
+    end
+  end
+
+  def respond_after_save
+    if @published
+      redirect_to individualized_educational_plans_path,
+                  notice: t('individualized_educational_plans.finalize.success')
+    else
+      respond_with @individualized_educational_plan, location: individualized_educational_plans_path
+    end
+  end
+
+  def version_name
+    params[:version_name].to_s.strip
+  end
 
   # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
   # em classrooms.regent_api_code). Sem regente cadastrado, cai no professor do perfil.
