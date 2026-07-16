@@ -1,0 +1,217 @@
+<%# Conteúdo do PEI para visualização (plano vivo ou versão publicada).
+    Locals: presenter (IndividualizedEducationalPlanReportPresenter).
+    Só exibe campos preenchidos; múltipla escolha vira badges. %>
+<%
+  format_value = lambda do |value|
+    case value
+    when Date then l(value)
+    when String then (l(Date.parse(value)) rescue value)
+    else value
+    end
+  end
+
+  identification = presenter.identification
+  characterization = presenter.characterization
+  support_team = presenter.support_team
+  final_evaluation = presenter.final_evaluation
+
+  identification_fields = [
+    ['individualized_educational_plans.section_identification.student', identification['student_name']],
+    ['individualized_educational_plans.section_identification.birth_date', identification['birth_date']],
+    ['individualized_educational_plans.section_identification.year', identification['year']],
+    ['individualized_educational_plans.section_identification.guardians', identification['guardians']],
+    ['individualized_educational_plans.section_identification.diagnosis', identification['diagnosis']],
+    ['individualized_educational_plans.section_identification.unity', identification['unity_name']],
+    ['individualized_educational_plans.section_identification.classroom', identification['classroom_name']],
+    ['individualized_educational_plans.section_identification.shift', identification['shift']],
+    ['individualized_educational_plans.section_identification.teacher', identification['teacher_name']],
+    ['individualized_educational_plans.section_identification.aee_teacher', identification['aee_teacher_name']],
+    ['individualized_educational_plans.section_identification.support_professional', identification['support_professional']],
+    ['individualized_educational_plans.section_identification.elaborated_at', identification['elaborated_at']]
+  ]
+
+  characterization_texts = %w[characterization clinical_diagnosis_justification school_history
+                              potentialities difficulties preferences_interests effective_strategies]
+  characterization_badges = %w[communication_profile social_interaction_profile autonomy]
+  support_badges = %w[accompaniment support_type]
+  support_texts = %w[family_guidelines external_professionals_guidelines]
+  final_texts = %w[annual_report overall_evolution next_year_recommendations referrals_made]
+
+  section4_texts = %w[long_term_goal stage_objectives skills_to_develop methodologies]
+  section4_badges = %w[instructional_accommodations environmental_accommodations assessment_accommodations]
+  section5_texts = %w[acquired_skills in_progress_skills not_acquired_skills period_report next_stage_adjustments]
+%>
+
+<fieldset>
+  <legend>1. <%= t('individualized_educational_plans.form.sections.identification') %></legend>
+
+  <div class="row">
+    <% identification_fields.each do |key, value| %>
+      <% next unless presenter.filled?(value) %>
+      <div class="col col-sm-4" style="margin-bottom: 10px;">
+        <strong><%= t(key) %></strong><br>
+        <%= format_value.call(value) %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if presenter.filled?(identification['review_dates']) %>
+    <div class="row">
+      <div class="col col-sm-12" style="margin-bottom: 10px;">
+        <strong><%= t('individualized_educational_plans.section_identification.review_dates') %></strong><br>
+        <% identification['review_dates'].each do |review_date| %>
+          <span class="label label-info"><%= format_value.call(review_date) %></span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if presenter.filled?(identification['attachments']) %>
+    <div class="row">
+      <div class="col col-sm-12" style="margin-bottom: 10px;">
+        <strong><%= t('individualized_educational_plans.section_identification.attachments') %></strong><br>
+        <% identification['attachments'].each do |attachment| %>
+          <%= link_to attachment['filename'], attachment['url'], target: '_blank' %><br>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</fieldset>
+
+<% if presenter.any_filled?(characterization, characterization_texts + characterization_badges) %>
+  <fieldset>
+    <legend>2. <%= t('individualized_educational_plans.form.sections.characterization') %></legend>
+
+    <% characterization_texts.each do |field| %>
+      <% next unless presenter.filled?(characterization[field]) %>
+      <div class="row">
+        <div class="col col-sm-12" style="margin-bottom: 10px;">
+          <strong><%= t("individualized_educational_plans.section_characterization.#{field}") %></strong><br>
+          <%= simple_format(characterization[field]) %>
+        </div>
+      </div>
+    <% end %>
+
+    <% characterization_badges.each do |field| %>
+      <% next unless presenter.filled?(characterization[field]) %>
+      <div class="row">
+        <div class="col col-sm-12" style="margin-bottom: 10px;">
+          <strong><%= t("individualized_educational_plans.section_characterization.#{field}") %></strong><br>
+          <% characterization[field].each do |description| %>
+            <span class="label label-info"><%= description %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </fieldset>
+<% end %>
+
+<% if presenter.any_filled?(support_team, support_badges + support_texts) %>
+  <fieldset>
+    <legend>3. <%= t('individualized_educational_plans.form.sections.support_team') %></legend>
+
+    <% support_badges.each do |field| %>
+      <% next unless presenter.filled?(support_team[field]) %>
+      <div class="row">
+        <div class="col col-sm-12" style="margin-bottom: 10px;">
+          <strong><%= t("individualized_educational_plans.section_support_team.#{field}") %></strong><br>
+          <% support_team[field].each do |description| %>
+            <span class="label label-info"><%= description %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% support_texts.each do |field| %>
+      <% next unless presenter.filled?(support_team[field]) %>
+      <div class="row">
+        <div class="col col-sm-12" style="margin-bottom: 10px;">
+          <strong><%= t("individualized_educational_plans.section_support_team.#{field}") %></strong><br>
+          <%= simple_format(support_team[field]) %>
+        </div>
+      </div>
+    <% end %>
+  </fieldset>
+<% end %>
+
+<% if presenter.curricular_plannings_by_review.any? %>
+  <fieldset>
+    <legend>4. <%= t('individualized_educational_plans.form.sections.curricular_planning') %></legend>
+
+    <% presenter.curricular_plannings_by_review.each do |(review_number, review_date), lines| %>
+      <h4>
+        <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
+        (<%= format_value.call(review_date) %>)
+      </h4>
+
+      <% lines.each do |line| %>
+        <h5><strong><%= line['component_name'] %></strong></h5>
+
+        <% section4_texts.each do |field| %>
+          <% next unless presenter.filled?(line[field]) %>
+          <div class="row">
+            <div class="col col-sm-12" style="margin-bottom: 10px;">
+              <strong><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></strong><br>
+              <%= simple_format(line[field]) %>
+            </div>
+          </div>
+        <% end %>
+
+        <% section4_badges.each do |field| %>
+          <% next unless presenter.filled?(line[field]) %>
+          <div class="row">
+            <div class="col col-sm-12" style="margin-bottom: 10px;">
+              <strong><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></strong><br>
+              <% line[field].each do |description| %>
+                <span class="label label-info"><%= description %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </fieldset>
+<% end %>
+
+<% if presenter.periodic_evaluations_by_review.any? %>
+  <fieldset>
+    <legend>5. <%= t('individualized_educational_plans.form.sections.periodic_evaluation') %></legend>
+
+    <% presenter.periodic_evaluations_by_review.each do |(review_number, review_date), lines| %>
+      <h4>
+        <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
+        (<%= format_value.call(review_date) %>)
+      </h4>
+
+      <% lines.each do |line| %>
+        <h5><strong><%= line['component_name'] %></strong></h5>
+
+        <% section5_texts.each do |field| %>
+          <% next unless presenter.filled?(line[field]) %>
+          <div class="row">
+            <div class="col col-sm-12" style="margin-bottom: 10px;">
+              <strong><%= t("individualized_educational_plans.iep_periodic_evaluation_fields.#{field}") %></strong><br>
+              <%= simple_format(line[field]) %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </fieldset>
+<% end %>
+
+<% if presenter.any_filled?(final_evaluation, final_texts) %>
+  <fieldset>
+    <legend>6. <%= t('individualized_educational_plans.form.sections.final_evaluation') %></legend>
+
+    <% final_texts.each do |field| %>
+      <% next unless presenter.filled?(final_evaluation[field]) %>
+      <div class="row">
+        <div class="col col-sm-12" style="margin-bottom: 10px;">
+          <strong><%= t("individualized_educational_plans.section_final_evaluation.#{field}") %></strong><br>
+          <%= simple_format(final_evaluation[field]) %>
+        </div>
+      </div>
+    <% end %>
+  </fieldset>
+<% end %>

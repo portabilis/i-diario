@@ -31,6 +31,13 @@ class IndividualizedEducationalPlansController < ApplicationController
     render json: IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
   end
 
+  def show
+    @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
+    @presenter = IndividualizedEducationalPlanReportPresenter.from_record(@individualized_educational_plan)
+
+    authorize @individualized_educational_plan
+  end
+
   def new
     teacher = regent_teacher
 

@@ -28,4 +28,18 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
       expect(assigns(:versions)).to eq([newer, older])
     end
   end
+
+  describe 'GET #show' do
+    it 'presents the version from its snapshot' do
+      plan = create(:individualized_educational_plan)
+      version = create(:iep_version, iep: plan, active: true,
+                                     content: { 'identification' => { 'student_name' => 'Aluno Congelado' } })
+
+      get :show, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id, id: version.id }
+
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:version)).to eq(version)
+      expect(assigns(:presenter).identification['student_name']).to eq('Aluno Congelado')
+    end
+  end
 end

@@ -33,6 +33,11 @@ pt-BR:
       finalize_modal_confirm: "Salvar"
     finalize:
       success: "Versão do Plano Educacional Individualizado publicada com sucesso."
+    show:
+      back: "Voltar"
+      history: "Histórico de versões"
+      download_pdf: "Baixar PDF"
+      edit: "Editar"
     versions:
       index:
         student: "Aluno"
@@ -44,6 +49,11 @@ pt-BR:
         active: "Ativo"
         show_tooltip: "Visualizar a versão"
         print_tooltip: "Baixar PDF da versão"
+      show:
+        back: "Voltar"
+        active: "Ativo"
+        download_pdf: "Baixar PDF"
+        published_info: "publicada em %{date} por %{author}"
     section_identification:
       student: "Aluno"
       select_student: "Selecione o aluno"

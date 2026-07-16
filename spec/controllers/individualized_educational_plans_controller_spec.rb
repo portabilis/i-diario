@@ -141,6 +141,23 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  describe 'GET #show' do
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+    end
+
+    it 'presents the living plan' do
+      plan = create(:individualized_educational_plan, characterization: 'Perfil')
+
+      get :show, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:presenter).characterization['characterization']).to eq('Perfil')
+    end
+  end
+
   describe 'GET #new' do
     it 'assigns the classroom regent (i-Educar) as the teacher' do
       regent = create(:teacher, api_code: '777')

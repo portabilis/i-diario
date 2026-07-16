@@ -13,5 +13,16 @@ module IndividualizedEducationalPlans
 
       authorize @individualized_educational_plan, :show?
     end
+
+    # Visualização de uma versão publicada: renderiza a partir do snapshot (imutável).
+    def show
+      @individualized_educational_plan = IndividualizedEducationalPlan.find(
+        params[:individualized_educational_plan_id]
+      )
+      @version = @individualized_educational_plan.iep_versions.find(params[:id])
+      @presenter = IndividualizedEducationalPlanReportPresenter.from_snapshot(@version.content)
+
+      authorize @individualized_educational_plan, :show?
+    end
   end
 end

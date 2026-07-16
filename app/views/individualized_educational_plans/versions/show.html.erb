@@ -1,0 +1,26 @@
+<div class="widget-body no-padding">
+  <div class="smart-form">
+    <fieldset>
+      <div class="pull-left">
+        <h4 style="margin: 5px 0;">
+          <%= @version.name %>
+          <% if @version.active? %>
+            <span class="label label-success"><%= t('.active') %></span>
+          <% end %>
+          <small>
+            <%= t('.published_info', date: l(@version.published_at, format: :short), author: @version.published_by.name) %>
+          </small>
+        </h4>
+      </div>
+      <div class="text-right">
+        <%= link_to t('.back'), individualized_educational_plan_versions_path(@individualized_educational_plan),
+              class: 'btn btn-default' %>
+        <%= link_to t('.download_pdf'),
+              individualized_educational_plan_version_path(@individualized_educational_plan, @version, format: :pdf),
+              class: 'btn btn-info', target: '_blank' %>
+      </div>
+    </fieldset>
+
+    <%= render 'individualized_educational_plans/plan_content', presenter: @presenter %>
+  </div>
+</div>
