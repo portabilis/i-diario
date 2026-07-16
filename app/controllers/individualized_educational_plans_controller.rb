@@ -24,6 +24,16 @@ class IndividualizedEducationalPlansController < ApplicationController
     render json: students.map { |id, name| { id: id, name: name } }.to_json
   end
 
+  def destroy
+    @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
+
+    authorize @individualized_educational_plan
+
+    @individualized_educational_plan.destroy
+
+    respond_with @individualized_educational_plan, location: individualized_educational_plans_path
+  end
+
   private
 
   def set_filters
