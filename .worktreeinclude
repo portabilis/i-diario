@@ -1,0 +1,11 @@
+# Arquivos gitignored copiados automaticamente para cada worktree criado pelo Claude Code.
+# Sintaxe .gitignore. Só copia arquivos que casam com o padrão E são gitignored.
+# Doc: https://code.claude.com/docs/en/worktrees#copy-gitignored-files-into-worktrees
+.env
+.env.e2e
+config/database.yml
+config/secrets.yml
+config/puma.rb
+docker-compose.override.yml
+Gemfile.plugins
+.bundle/config
