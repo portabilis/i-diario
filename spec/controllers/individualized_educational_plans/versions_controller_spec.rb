@@ -42,4 +42,23 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
       expect(assigns(:presenter).identification['student_name']).to eq('Aluno Congelado')
     end
   end
+
+  describe 'GET #show as pdf' do
+    render_views
+
+    it 'sends the version pdf rendered from the snapshot' do
+      plan = create(:individualized_educational_plan)
+      version = create(:iep_version, iep: plan, active: true,
+                                     content: { 'identification' => { 'student_name' => 'Aluno Congelado' } })
+      allow(ReportGenerator).to receive(:call).and_return(double(body: '%PDF-fake'))
+
+      get :show, params: {
+        locale: 'pt-BR', individualized_educational_plan_id: plan.id, id: version.id, format: :pdf
+      }
+
+      expect(response.body).to eq('%PDF-fake')
+      expect(response.headers['Content-Type']).to include('application/pdf')
+      expect(ReportGenerator).to have_received(:call).with(a_string_including('Aluno Congelado'))
+    end
+  end
 end

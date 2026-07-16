@@ -23,6 +23,29 @@ module IndividualizedEducationalPlans
       @presenter = IndividualizedEducationalPlanReportPresenter.from_snapshot(@version.content)
 
       authorize @individualized_educational_plan, :show?
+
+      respond_to do |format|
+        format.html
+        format.pdf do
+          send_version_pdf(
+            "plano_educacional_individualizado_#{@individualized_educational_plan.id}_versao_#{@version.id}.pdf"
+          )
+        end
+      end
+    end
+
+    private
+
+    # Mesma renderização da visualização, a partir do snapshot da versão.
+    def send_version_pdf(filename)
+      html = render_to_string(
+        template: 'individualized_educational_plans/pdf',
+        layout: 'pdf_individualized_educational_plan',
+        formats: [:html]
+      )
+
+      send_data ReportGenerator.call(html).body,
+                filename: filename, type: 'application/pdf', disposition: 'inline'
     end
   end
 end

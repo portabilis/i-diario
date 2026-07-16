@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xml:lang="pt-BR">
+  <head>
+    <title>Plano Educacional Individualizado</title>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        width: 210mm;
+        margin: auto;
+        padding: 20px;
+        color: #333;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .pdf-subtitle {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      fieldset {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 18px 0 0;
+        padding: 10px 0 0;
+        page-break-inside: avoid;
+      }
+
+      legend {
+        font-size: 14px;
+        font-weight: bold;
+        padding-right: 8px;
+      }
+
+      h4 {
+        font-size: 13px;
+        margin: 12px 0 4px;
+        border-bottom: 1px dashed #ddd;
+        padding-bottom: 3px;
+      }
+
+      h5 {
+        font-size: 12px;
+        margin: 10px 0 4px;
+      }
+
+      .row { display: block; }
+
+      .col {
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .col-sm-4 { width: 32%; }
+      .col-sm-12 { width: 100%; }
+
+      .label {
+        display: inline-block;
+        background: #eef3f7;
+        border: 1px solid #b9cbd8;
+        border-radius: 3px;
+        padding: 2px 6px;
+        margin: 1px 3px 1px 0;
+        font-size: 11px;
+      }
+
+      a { color: #333; text-decoration: none; }
+
+      p { margin: 0 0 6px; }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

@@ -38,6 +38,9 @@ pt-BR:
       history: "Histórico de versões"
       download_pdf: "Baixar PDF"
       edit: "Editar"
+    pdf:
+      title: "Plano Educacional Individualizado"
+      version_info: "Versão: %{name} — publicada em %{date} por %{author}"
     versions:
       index:
         student: "Aluno"

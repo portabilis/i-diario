@@ -1,0 +1,13 @@
+<h1><%= t('.title') %></h1>
+
+<div class="pdf-subtitle">
+  <%= @individualized_educational_plan.unity.name %>
+  <% if @version.present? %>
+    <br>
+    <%= t('.version_info', name: @version.name,
+                           date: l(@version.published_at, format: :short),
+                           author: @version.published_by.name) %>
+  <% end %>
+</div>
+
+<%= render 'individualized_educational_plans/plan_content', presenter: @presenter %>

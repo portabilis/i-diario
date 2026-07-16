@@ -158,6 +158,27 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  describe 'GET #show as pdf' do
+    render_views
+
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+    end
+
+    it 'renders the plan content and sends the generated pdf' do
+      plan = create(:individualized_educational_plan, characterization: 'Perfil impresso')
+      allow(ReportGenerator).to receive(:call).and_return(double(body: '%PDF-fake'))
+
+      get :show, params: { locale: 'pt-BR', id: plan.id, format: :pdf }
+
+      expect(response.body).to eq('%PDF-fake')
+      expect(response.headers['Content-Type']).to include('application/pdf')
+      expect(ReportGenerator).to have_received(:call).with(a_string_including('Perfil impresso'))
+    end
+  end
+
   describe 'GET #new' do
     it 'assigns the classroom regent (i-Educar) as the teacher' do
       regent = create(:teacher, api_code: '777')
