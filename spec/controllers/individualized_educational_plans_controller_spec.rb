@@ -108,6 +108,20 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  describe 'DELETE #destroy' do
+    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+
+    it 'destroys the plan and redirects to the index' do
+      plan = create(:individualized_educational_plan)
+
+      expect {
+        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+      }.to change(IndividualizedEducationalPlan, :count).by(-1)
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+    end
+  end
+
   describe 'GET #fetch_students_by_classroom' do
     before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
 
