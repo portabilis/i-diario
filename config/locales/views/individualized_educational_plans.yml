@@ -42,6 +42,8 @@ pt-BR:
         published_by: "Publicada por"
         status: "Situação"
         active: "Ativo"
+        show_tooltip: "Visualizar a versão"
+        print_tooltip: "Baixar PDF da versão"
     section_identification:
       student: "Aluno"
       select_student: "Selecione o aluno"

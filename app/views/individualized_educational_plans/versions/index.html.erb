@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <th scope="col"><%= t('.student') %>: <strong><%= @individualized_educational_plan.student %></strong></th>
-          <th scope="col" colspan="3">
+          <th scope="col" colspan="4">
             <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default pull-right' %>
           </th>
         </tr>
@@ -13,13 +13,14 @@
           <th scope="col"><%= t('.published_at') %></th>
           <th scope="col"><%= t('.published_by') %></th>
           <th scope="col" style="width: 120px"><%= t('.status') %></th>
+          <th scope="col" style="width: 160px"></th>
         </tr>
       </thead>
 
       <tbody id="resources-tbody">
         <% if @versions.empty? %>
           <tr>
-            <td class="no_record_found" colspan="4"><%= t('views.index.no_record_found') %></td>
+            <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found') %></td>
           </tr>
         <% else %>
           <% @versions.each do |version| %>
@@ -31,6 +32,16 @@
                 <% if version.active? %>
                   <span class="label label-success"><%= t('.active') %></span>
                 <% end %>
+              </td>
+              <td class="actions">
+                <%= link_to t('helpers.links.show_html'),
+                      individualized_educational_plan_version_path(@individualized_educational_plan, version),
+                      class: 'btn btn-info apply_tooltip',
+                      data: { original_title: t('.show_tooltip') } %>
+                <%= link_to t('helpers.links.print_html'),
+                      individualized_educational_plan_version_path(@individualized_educational_plan, version, format: :pdf),
+                      class: 'btn btn-info apply_tooltip', target: '_blank',
+                      data: { original_title: t('.print_tooltip') } %>
               </td>
             </tr>
           <% end %>
