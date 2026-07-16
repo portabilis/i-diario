@@ -22,8 +22,8 @@ class IeducarStudentTransferDataFetcher
     end
 
     steps.each do |step|
-      if skip_open_last_step?(step)
-        @last_step_skipped = true
+      if skip_step?(step)
+        @last_step_skipped = true if step == steps.last
         next
       end
 
@@ -40,48 +40,56 @@ class IeducarStudentTransferDataFetcher
 
   attr_reader :student, :classroom, :transfer_date
 
-  # Turmas sem nota (ex.: progressão continuada, com apuração apenas por
-  # frequência) são aprovadas no i-Educar assim que ele recebe a frequência da
-  # última etapa. Numa transferência ocorrida antes do encerramento dessa etapa,
-  # enviar a etapa parcial aprovaria o aluno indevidamente. Por isso, para essas
-  # turmas, quando a última etapa ainda está aberta na data da transferência ela
-  # é pulada por completo (não só a frequência: também eventuais pareceres da
-  # etapa e o parecer anual, que só é postado na última etapa). As demais etapas
-  # continuam sendo enviadas normalmente.
-  #
-  # Fronteira: a etapa é considerada encerrada quando a data de transferência é
-  # igual ou posterior ao seu `end_at` (`transfer_date < end_at` => ainda aberta).
+  # Pula a etapa inteira: quando etapa ainda não começou (sem lançamentos), ou é a última
+  # etapa aberta de turma sem nota (enviá-la aprovaria o aluno).
+  def skip_step?(step)
+    future_step?(step) || skip_open_last_step?(step)
+  end
+
+  # Etapa não iniciada não tem lançamentos; sem esta guarda o i-Educar receberia
+  # faltas=0 (a contagem devolve 0) como se a frequência tivesse sido zerada.
+  def future_step?(step)
+    return false if step.start_at.blank?
+
+    step.start_at.to_date > reference_date
+  end
+
+  # transfer_date quando o i-Educar informa; senão hoje (webhook dispara na transferência).
+  def reference_date
+    @reference_date ||= transfer_date || Date.current
+  end
+
+  # Turma sem nota é aprovada no i-Educar ao receber a frequência da última etapa;
+  # se ela ainda está aberta na data de referência (reference_date < end_at),
+  # enviá-la aprovaria o aluno — por isso é retida por completo.
   def skip_open_last_step?(step)
     return false unless without_score_exam_rule?
     return false unless step == steps.last
 
-    last_step_open_on_transfer_date?(step)
+    last_step_open_on_reference_date?(step)
   end
 
   def without_score_exam_rule?
     exam_rule&.score_type == ScoreTypes::DONT_USE
   end
 
-  def last_step_open_on_transfer_date?(step)
-    return false if transfer_date.blank? || step.end_at.blank?
+  def last_step_open_on_reference_date?(step)
+    return false if step.end_at.blank?
 
-    transfer_date < step.end_at.to_date
+    reference_date < step.end_at.to_date
   end
 
   def parse_transfer_date(value)
     return value if value.is_a?(Date)
     return if value.blank?
 
-    # Parse estrito ISO-8601: o controller já valida o formato antes de
-    # enfileirar, então uma string inesperada aqui é estado anômalo.
+    # Parse estrito ISO-8601 (o controller já valida o formato antes de enfileirar).
     Date.iso8601(value.to_s)
   rescue ArgumentError, TypeError => e
-    # Não silenciar: cair aqui desabilita o filtro da última etapa (envia tudo),
-    # que é justamente a proteção deste fluxo. Notificamos o Honeybadger com
-    # contexto e seguimos sem filtrar para não derrubar o restante do envio.
+    # Data inválida: notifica o Honeybadger e segue com nil (filtros passam a usar hoje).
     Rails.logger.error(
       "IeducarStudentTransferDataFetcher: transfer_date inválida (#{value.inspect}) " \
-      "student=#{student&.id} classroom=#{classroom&.id} - última etapa não será filtrada"
+      "student=#{student&.id} classroom=#{classroom&.id} - usando a data corrente como referência"
     )
     Honeybadger.notify(
       e,

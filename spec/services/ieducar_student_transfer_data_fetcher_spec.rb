@@ -44,7 +44,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
   # Regressão issue 7960: turmas sem nota (apuração apenas por frequência) só
   # devem ter a última etapa enviada quando ela já está encerrada na data da
   # transferência, evitando aprovar o aluno com uma etapa parcial.
-  describe '#post_to_ieducar! - envio da última etapa em turma sem nota' do
+  describe '#post_to_ieducar! - last step for classrooms without a score' do
     let(:last_step) { classroom.calendar.classroom_steps.last }
     let(:faltas_geral_request) do
       a_request(
@@ -67,7 +67,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
     end
 
-    context 'quando o aluno foi transferido antes do encerramento da última etapa' do
+    context 'when the student was transferred before the last step closed' do
       subject do
         described_class.new(
           student: student,
@@ -76,21 +76,21 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
       end
 
-      it 'envia as etapas anteriores, mas não a última etapa (ainda aberta)' do
+      it 'sends the previous steps but not the last one (still open)' do
         subject.post_to_ieducar!
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
       end
 
-      it 'marca last_step_skipped como true' do
+      it 'sets last_step_skipped to true' do
         subject.post_to_ieducar!
 
         expect(subject.last_step_skipped).to eq(true)
       end
     end
 
-    context 'quando o aluno foi transferido após o encerramento da última etapa' do
+    context 'when the student was transferred after the last step closed' do
       subject do
         described_class.new(
           student: student,
@@ -99,32 +99,44 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
       end
 
-      it 'envia todas as etapas, incluindo a última (já encerrada)' do
+      it 'sends all steps, including the last one (already closed)' do
         subject.post_to_ieducar!
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
       end
 
-      it 'mantém last_step_skipped como false' do
+      it 'keeps last_step_skipped as false' do
         subject.post_to_ieducar!
 
         expect(subject.last_step_skipped).to eq(false)
       end
     end
 
-    context 'quando a data de transferência não é informada' do
+    context 'when the transfer date is not provided' do
       subject { described_class.new(student: student, classroom: classroom) }
 
-      it 'mantém o comportamento atual e envia todas as etapas' do
-        subject.post_to_ieducar!
+      it 'uses the current date and sends all steps when today is past the last step end' do
+        Timecop.freeze(last_step.end_at.to_date + 1.day) do
+          subject.post_to_ieducar!
+        end
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
       end
+
+      it 'uses the current date and skips the last step when today is still within it' do
+        Timecop.freeze(last_step.start_at + 1.day) do
+          subject.post_to_ieducar!
+        end
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+        expect(subject.last_step_skipped).to eq(true)
+      end
     end
 
-    context 'quando a data de transferência chega como string ISO (fluxo real do worker)' do
+    context 'when the transfer date arrives as an ISO string (real worker flow)' do
       subject do
         described_class.new(
           student: student,
@@ -133,7 +145,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
       end
 
-      it 'faz o parse da string e não envia a última etapa (ainda aberta)' do
+      it 'parses the string and does not send the last step (still open)' do
         subject.post_to_ieducar!
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
@@ -141,7 +153,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       end
     end
 
-    context 'quando a data de transferência é inválida' do
+    context 'when the transfer date is invalid' do
       subject do
         described_class.new(
           student: student,
@@ -150,10 +162,13 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
       end
 
-      it 'notifica o Honeybadger e mantém o envio de todas as etapas (fallback)' do
+      it 'notifies Honeybadger and falls back to the current date' do
         allow(Honeybadger).to receive(:notify)
 
-        expect { subject.post_to_ieducar! }.not_to raise_error
+        # Hoje após o fim da última etapa: fallback (data corrente) envia todas.
+        Timecop.freeze(last_step.end_at.to_date + 1.day) do
+          expect { subject.post_to_ieducar! }.not_to raise_error
+        end
 
         expect(Honeybadger).to have_received(:notify).once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
@@ -161,20 +176,22 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       end
     end
 
-    context 'quando a data de transferência é uma string vazia' do
+    context 'when the transfer date is an empty string' do
       subject do
         described_class.new(student: student, classroom: classroom, transfer_date: '')
       end
 
-      it 'trata como ausente e envia todas as etapas' do
-        subject.post_to_ieducar!
+      it 'treats it as absent and uses the current date' do
+        Timecop.freeze(last_step.end_at.to_date + 1.day) do
+          subject.post_to_ieducar!
+        end
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
       end
     end
   end
 
-  describe '#post_to_ieducar! - turma avaliada com nota não é afetada pelo filtro' do
+  describe '#post_to_ieducar! - classrooms with a score are not affected by the filter' do
     let(:last_step) { classroom.calendar.classroom_steps.last }
     let(:faltas_geral_request) do
       a_request(
@@ -192,7 +209,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
     end
 
-    context 'quando o aluno foi transferido antes do encerramento da última etapa' do
+    context 'when the student was transferred before the last step closed' do
       subject do
         described_class.new(
           student: student,
@@ -201,12 +218,88 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         )
       end
 
-      it 'ignora o filtro e envia todas as etapas' do
+      it 'ignores the filter and sends all steps' do
         subject.post_to_ieducar!
 
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
         expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
         expect(subject.last_step_skipped).to eq(false)
+      end
+    end
+  end
+
+  # Regressão: etapa que ainda não começou não tem lançamento algum,
+  # mas a contagem de faltas sobre um período vazio devolve 0 — sem guarda, esse
+  # 0 chegava ao i-Educar como frequência zerada. Vale para qualquer regra de
+  # avaliação, inclusive turmas avaliadas com nota.
+  describe '#post_to_ieducar! - future steps are not sent' do
+    let(:first_step) { classroom.calendar.classroom_steps.first }
+    let(:last_step) { classroom.calendar.classroom_steps.last }
+    let(:date_within_first_step) { first_step.start_at.to_date + 5.days }
+    let(:diario_request) do
+      a_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
+    end
+    let(:faltas_geral_request) do
+      a_request(
+        :post,
+        %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*}
+      )
+    end
+
+    before do
+      stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
+        .to_return(
+          status: 200,
+          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
+          headers: { 'Content-Type' => 'application/json' }
+        )
+    end
+
+    context 'when the classroom uses a score and the transfer happens before the last step starts' do
+      subject do
+        described_class.new(
+          student: student,
+          classroom: classroom,
+          transfer_date: date_within_first_step
+        )
+      end
+
+      it 'sends the ongoing step, even if partial' do
+        subject.post_to_ieducar!
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+      end
+
+      it 'does not send any data from the future step, not even zeroed absences' do
+        subject.post_to_ieducar!
+
+        expect(diario_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+      end
+
+      it 'sets last_step_skipped to true' do
+        subject.post_to_ieducar!
+
+        expect(subject.last_step_skipped).to eq(true)
+      end
+    end
+
+    context 'when the classroom has no score and i-Educar does not provide the transfer date' do
+      subject { described_class.new(student: student, classroom: classroom) }
+
+      before do
+        classroom.first_exam_rule.update(
+          score_type: ScoreTypes::DONT_USE,
+          frequency_type: FrequencyTypes::GENERAL
+        )
+      end
+
+      it 'uses the current date and does not send the future step' do
+        Timecop.freeze(date_within_first_step) do
+          subject.post_to_ieducar!
+        end
+
+        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(diario_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
       end
     end
   end
