@@ -80,6 +80,12 @@ docker-compose exec puma bash
 docker-compose exec puma bundle exec rake -T
 ```
 
+### Worktrees (sessões paralelas)
+- `claude --worktree <nome>` isola sessões em git worktrees (cada uma na própria branch/diretório, em `.claude/worktrees/<nome>/`)
+- Arquivos de config gitignored (`.env`, `config/secrets.yml`, `config/database.yml`, etc.) são copiados automaticamente para cada worktree via `.worktreeinclude` — não copiar manual
+- Para subir a aplicação de um worktree com Docker, rode `docker compose -p <nome-do-projeto> up` **de dentro do diretório do worktree**, forçando o mesmo nome de projeto Compose do checkout principal — senão o Compose sobe um ambiente separado (banco/volumes vazios)
+- Ver [docs/worktrees.md](docs/worktrees.md)
+
 ## Architecture
 
 ### Directory Structure
