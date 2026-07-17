@@ -95,8 +95,7 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    $('#recovery-diary-record-students').empty();
-
+    // Sem empty(): o merge abaixo preserva as linhas já renderizadas (com o id) ao trocar a data.
     if (_.isEmpty(data)) {
       $recorded_at.val($recorded_at.data('oldDate'));
 
