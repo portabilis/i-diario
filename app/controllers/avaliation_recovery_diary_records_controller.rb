@@ -87,6 +87,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     # Reorganiza resource_params quando temos alunos com enturmacoes ativas e inativas
     reload_resource_params = list_students_by_active(resource_params.to_h)
+    reload_resource_params = reuse_existing_student_ids(reload_resource_params)
 
     @avaliation_recovery_diary_record.assign_attributes(reload_resource_params)
     @avaliation_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
@@ -317,6 +318,40 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     note_students_uniq.push(note_students_active)
 
     resource_params_hash['recovery_diary_record_attributes']['students_attributes'] = note_students_uniq.flatten
+
+    resource_params_hash
+  end
+
+  # Trava server-side contra duplicação: se um aluno já persistido é reenviado sem
+  # o id do recovery_diary_record_student (form manipulado, request forjada,
+  # double-submit), reaproveita o id pelo student_id para o save atualizar em vez
+  # de inserir. Ignora linhas marcadas para exclusão e usa cada id no máximo uma vez.
+  def reuse_existing_student_ids(resource_params_hash)
+    students_attributes = resource_params_hash.dig('recovery_diary_record_attributes', 'students_attributes')
+
+    return resource_params_hash if students_attributes.blank?
+
+    existing_id_by_student = @avaliation_recovery_diary_record
+                             .recovery_diary_record
+                             .students
+                             .group_by(&:student_id)
+                             .transform_values { |records| records.max_by(&:id).id }
+
+    reused_ids = []
+
+    students_attributes.each do |student_attributes|
+      next if student_attributes['id'].present?
+      next if ActiveModel::Type::Boolean.new.cast(student_attributes['_destroy'])
+
+      student_id = student_attributes['student_id'].presence
+      next if student_id.blank?
+
+      existing_id = existing_id_by_student[student_id.to_i]
+      next if existing_id.blank? || reused_ids.include?(existing_id)
+
+      student_attributes['id'] = existing_id
+      reused_ids << existing_id
+    end
 
     resource_params_hash
   end
