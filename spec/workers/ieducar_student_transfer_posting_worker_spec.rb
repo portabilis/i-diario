@@ -37,6 +37,7 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
       allow(IeducarStudentTransferDataFetcher).to receive(:new).and_return(fetcher_double)
       allow(fetcher_double).to receive(:post_to_ieducar!)
       allow(fetcher_double).to receive(:all_postings_sent).and_return(true)
+      allow(fetcher_double).to receive(:last_step_skipped).and_return(false)
       allow(IeducarApiConfiguration).to receive(:current).and_return(ieducar_api_configuration)
     end
 
@@ -45,11 +46,26 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
 
       expect(IeducarStudentTransferDataFetcher).to receive(:new).with(
         student: student,
-        classroom: classroom
+        classroom: classroom,
+        transfer_date: nil
       ).and_return(fetcher_double)
       expect(fetcher_double).to receive(:post_to_ieducar!)
 
       described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
+    end
+
+    it 'forwards the transfer_date to the data fetcher' do
+      stub_request(:post, callback_url).to_return(status: 200)
+      transfer_date = '2026-07-14'
+
+      expect(IeducarStudentTransferDataFetcher).to receive(:new).with(
+        student: student,
+        classroom: classroom,
+        transfer_date: transfer_date
+      ).and_return(fetcher_double)
+      expect(fetcher_double).to receive(:post_to_ieducar!)
+
+      described_class.new.perform(entity.id, student.id, classroom.id, callback_url, transfer_date)
     end
 
     context 'when processing succeeds and all postings were accepted' do
@@ -67,6 +83,28 @@ RSpec.describe IeducarStudentTransferPostingWorker, type: :worker do
             body['student_enrollment_api_code'] == student_enrollment_classroom.student_enrollment.api_code &&
             !body.key?('error') &&
             req.headers['Token'] == ieducar_api_configuration.api_security_token
+        }
+      end
+    end
+
+    context 'when processing succeeds but the last step was skipped (still open)' do
+      before do
+        allow(fetcher_double).to receive(:last_step_skipped).and_return(true)
+      end
+
+      it 'sends webhook with status: success and the "última etapa não enviada" message' do
+        webhook_stub = stub_request(:post, callback_url).to_return(status: 200)
+
+        described_class.new.perform(entity.id, student.id, classroom.id, callback_url)
+
+        expect(webhook_stub).to have_been_requested.once
+        expect(WebMock).to have_requested(:post, callback_url).with { |req|
+          body = JSON.parse(req.body)
+          body['status'] == 'success' &&
+            body['message'].include?('A última etapa não foi enviada') &&
+            body['message'].include?('ainda não estava encerrada') &&
+            body['message'].include?(student.name) &&
+            !body.key?('error')
         }
       end
     end

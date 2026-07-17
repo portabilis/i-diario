@@ -3,12 +3,14 @@
 class IeducarStudentTransferDataFetcher
   class StudentNotEnrolledError < StandardError; end
 
-  attr_reader :all_postings_sent
+  attr_reader :all_postings_sent, :last_step_skipped
 
-  def initialize(student:, classroom:)
+  def initialize(student:, classroom:, transfer_date: nil)
     @student = student
     @classroom = classroom
+    @transfer_date = parse_transfer_date(transfer_date)
     @all_postings_sent = true
+    @last_step_skipped = false
   end
 
   def post_to_ieducar!
@@ -20,6 +22,11 @@ class IeducarStudentTransferDataFetcher
     end
 
     steps.each do |step|
+      if skip_step?(step)
+        @last_step_skipped = true if step == steps.last
+        next
+      end
+
       post_numerical_scores_for_step(step)
       post_conceptual_scores_for_step(step)
       post_absences_for_step(step)
@@ -31,7 +38,65 @@ class IeducarStudentTransferDataFetcher
 
   private
 
-  attr_reader :student, :classroom
+  attr_reader :student, :classroom, :transfer_date
+
+  # Pula a etapa inteira: quando etapa ainda não começou (sem lançamentos), ou é a última
+  # etapa aberta de turma sem nota (enviá-la aprovaria o aluno).
+  def skip_step?(step)
+    future_step?(step) || skip_open_last_step?(step)
+  end
+
+  # Etapa não iniciada não tem lançamentos; sem esta guarda o i-Educar receberia
+  # faltas=0 (a contagem devolve 0) como se a frequência tivesse sido zerada.
+  def future_step?(step)
+    return false if step.start_at.blank?
+
+    step.start_at.to_date > reference_date
+  end
+
+  # transfer_date quando o i-Educar informa; senão hoje (webhook dispara na transferência).
+  def reference_date
+    @reference_date ||= transfer_date || Date.current
+  end
+
+  # Turma sem nota é aprovada no i-Educar ao receber a frequência da última etapa;
+  # se ela ainda está aberta na data de referência (reference_date < end_at),
+  # enviá-la aprovaria o aluno — por isso é retida por completo.
+  def skip_open_last_step?(step)
+    return false unless without_score_exam_rule?
+    return false unless step == steps.last
+
+    last_step_open_on_reference_date?(step)
+  end
+
+  def without_score_exam_rule?
+    exam_rule&.score_type == ScoreTypes::DONT_USE
+  end
+
+  def last_step_open_on_reference_date?(step)
+    return false if step.end_at.blank?
+
+    reference_date < step.end_at.to_date
+  end
+
+  def parse_transfer_date(value)
+    return value if value.is_a?(Date)
+    return if value.blank?
+
+    # Parse estrito ISO-8601 (o controller já valida o formato antes de enfileirar).
+    Date.iso8601(value.to_s)
+  rescue ArgumentError, TypeError => e
+    # Data inválida: notifica o Honeybadger e segue com nil (filtros passam a usar hoje).
+    Rails.logger.error(
+      "IeducarStudentTransferDataFetcher: transfer_date inválida (#{value.inspect}) " \
+      "student=#{student&.id} classroom=#{classroom&.id} - usando a data corrente como referência"
+    )
+    Honeybadger.notify(
+      e,
+      context: { student_id: student&.id, classroom_id: classroom&.id, transfer_date: value }
+    )
+    nil
+  end
 
   def steps
     @steps ||= StepsFetcher.new(classroom).steps
