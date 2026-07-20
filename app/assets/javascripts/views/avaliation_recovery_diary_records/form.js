@@ -95,7 +95,8 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    // Sem empty(): o merge abaixo preserva as linhas já renderizadas (com o id) ao trocar a data.
+    // Sem empty(): a reconciliação por id (existing_ids x fetched_ids) preserva as
+    // linhas já renderizadas (com o id) ao trocar a data.
     if (_.isEmpty(data)) {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -110,12 +111,18 @@ $(function () {
 
         hideNoItemMessage();
 
+        // Coleta apenas ids numéricos das linhas de aluno já renderizadas. Ignora a
+        // linha placeholder (no_item_found), cujo id não é numérico, sem depender da
+        // sua posição — antes um shift() assumia cegamente que era o primeiro <tr>.
         $('#recovery-diary-record-students').children('tr').each(function () {
-          if (!$(this).hasClass('destroy')) {
-            existing_ids.push(parseInt(this.id));
+          if ($(this).hasClass('destroy')) { return; }
+
+          var row_id = parseInt(this.id, 10);
+
+          if (!isNaN(row_id)) {
+            existing_ids.push(row_id);
           }
         });
-        existing_ids.shift();
 
         if (_.isEmpty(existing_ids)) {
           _.each(daily_note_students, function (daily_note_student) {

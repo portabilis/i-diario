@@ -275,7 +275,11 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       date: recovery_diary_record.recorded_at
     )
 
-    existing_by_student_id = recovery_diary_record.students.index_by(&:student_id)
+    # Aluno com linhas duplicadas: exibe a de maior updated_at (última nota lançada) —
+    # a mesma que reuse_existing_student_ids atualiza no save.
+    existing_by_student_id = recovery_diary_record.students
+                                                  .group_by(&:student_id)
+                                                  .transform_values { |records| records.max_by(&:updated_at) }
 
     @students = []
     student_enrollments.each do |student_enrollment|
@@ -322,10 +326,10 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     resource_params_hash
   end
 
-  # Trava server-side contra duplicação: se um aluno já persistido é reenviado sem
-  # o id do recovery_diary_record_student (form manipulado, request forjada,
-  # double-submit), reaproveita o id pelo student_id para o save atualizar em vez
-  # de inserir. Ignora linhas marcadas para exclusão e usa cada id no máximo uma vez.
+  # Trava anti-duplicação no save. Um aluno já salvo reenviado sem id (double-submit,
+  # form adulterado) viraria INSERT em vez de UPDATE. Preenche o id pelo student_id
+  # para o save atualizar a linha existente. Cada id é usado uma vez; a linha
+  # excedente vai para neutralize_duplicate_student_row.
   def reuse_existing_student_ids(resource_params_hash)
     students_attributes = resource_params_hash.dig('recovery_diary_record_attributes', 'students_attributes')
 
@@ -335,9 +339,10 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
                              .recovery_diary_record
                              .students
                              .group_by(&:student_id)
-                             .transform_values { |records| records.max_by(&:id).id }
+                             .transform_values { |records| records.max_by(&:updated_at).id }
 
-    reused_ids = []
+    # Ids que já vieram preenchidos no form; nenhuma linha sem id pode reaproveitá-los.
+    reused_ids = students_attributes.map { |attrs| attrs['id'].presence&.to_i }.compact
 
     students_attributes.each do |student_attributes|
       next if student_attributes['id'].present?
@@ -347,13 +352,33 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       next if student_id.blank?
 
       existing_id = existing_id_by_student[student_id.to_i]
-      next if existing_id.blank? || reused_ids.include?(existing_id)
+      next if existing_id.blank?
+
+      if reused_ids.include?(existing_id)
+        neutralize_duplicate_student_row(student_attributes, student_id.to_i, existing_id)
+        next
+      end
 
       student_attributes['id'] = existing_id
       reused_ids << existing_id
     end
 
     resource_params_hash
+  end
+
+  # O id do aluno já foi usado por outra linha. Marca esta como _destroy — sem id, o
+  # nested attributes só a descarta (não apaga nada existente) — e avisa o Honeybadger.
+  def neutralize_duplicate_student_row(student_attributes, student_id, existing_id)
+    student_attributes['_destroy'] = '1'
+
+    Honeybadger.notify(
+      'Duplicata de recovery_diary_record_student neutralizada no update de recuperação de avaliação',
+      context: {
+        recovery_diary_record_id: @avaliation_recovery_diary_record.recovery_diary_record.id,
+        student_id: student_id,
+        reused_recovery_diary_record_student_id: existing_id
+      }
+    )
   end
 
   def set_options_by_user
