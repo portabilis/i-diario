@@ -6,6 +6,8 @@ $(function () {
   var $discipline = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $avaliation = $('#avaliation_recovery_diary_record_avaliation_id');
   var $recorded_at = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_recorded_at');
+  // Mapa student_id -> nota já salva, para pré-preencher ao trocar a data.
+  var existingScores = $('#recovery-diary-record-students').data('existingScores') || {};
 
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
@@ -203,6 +205,12 @@ $(function () {
       $(html).insertAfter($tbody.children('tr')[index]);
     } else {
       $tbody.append(html);
+    }
+
+    // Pré-preenche a nota já lançada desse aluno, se houver.
+    var existingScore = existingScores[daily_note_student.id];
+    if (existingScore !== undefined && existingScore !== null && existingScore !== '') {
+      $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_' + element_id + '_score').val(existingScore);
     }
   }
 

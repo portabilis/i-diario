@@ -78,6 +78,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @school_calendar_steps = steps_fetcher.steps
     @avaliations = fetch_avaliations
     reload_students_list
+    @existing_recovery_scores = existing_recovery_scores_map
 
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
@@ -296,6 +297,16 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     end
 
     StudentsDisplaySequencer.call(@students)
+  end
+
+  # Mapa student_id => nota de recuperação já salva, para pré-preencher ao trocar a data.
+  def existing_recovery_scores_map
+    @avaliation_recovery_diary_record.recovery_diary_record.students
+                                     .group_by(&:student_id)
+                                     .each_with_object({}) do |(student_id, records), map|
+      score = records.max_by(&:updated_at).score
+      map[student_id] = score.to_f if score.present?
+    end
   end
 
   def fetch_step_number(avaliation_recovery_diary_record, classroom_id, date)
