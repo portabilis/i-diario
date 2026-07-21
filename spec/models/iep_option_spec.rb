@@ -45,4 +45,12 @@ RSpec.describe IepOption, type: :model do
       expect(IepOptionKinds.value_of(:bogus)).to be_nil
     end
   end
+
+  describe '#to_s' do
+    it 'returns the description (label used by the selects)' do
+      option = build(:iep_option, description: 'Comunicação alternativa')
+
+      expect(option.to_s).to eq('Comunicação alternativa')
+    end
+  end
 end
