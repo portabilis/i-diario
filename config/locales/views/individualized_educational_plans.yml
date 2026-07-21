@@ -39,8 +39,9 @@ pt-BR:
       download_pdf: "Baixar PDF"
       edit: "Editar"
     pdf:
-      title: "Plano Educacional Individualizado"
+      title: "Plano Educacional Individualizado (PEI)"
       version_info: "Versão: %{name} — publicada em %{date} por %{author}"
+      empty_message: "Nenhuma informação registrada."
     versions:
       index:
         student: "Aluno"
