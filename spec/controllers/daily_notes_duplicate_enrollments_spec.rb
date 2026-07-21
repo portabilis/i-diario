@@ -120,9 +120,9 @@ RSpec.describe DailyNotesController, 'duplicate enrollments check' do
 
   context 'when the student left and re-enrolled in the classroom after the test date' do
     # Aluno que saiu e retornou à MESMA turma em uma enturmação que começa DEPOIS da data da
-    # avaliação. Como essa enturmação de retorno ainda não tem data de saída (left_at em branco),
-    # ela não pode ser contada como matrícula duplicada na data da avaliação — nessa data o aluno
-    # estava enturmado uma única vez. Verifica que nenhum erro de duplicidade é sinalizado.
+    # avaliação. Essa enturmação de retorno é desconsiderada porque joined_at > test_date (o novo
+    # check joined_at <= test_date é falso) — nessa data o aluno estava enturmado uma única vez. O
+    # left_at em branco é irrelevante aqui. Verifica que nenhum erro de duplicidade é sinalizado.
     let(:enrollments) do
       [
         build_enrollment(
@@ -195,7 +195,7 @@ RSpec.describe DailyNotesController, 'duplicate enrollments check' do
   context 'when one enrollment has joined_at exactly equal to test_date' do
     # Borda inferior inclusiva: uma enturmação que começa EXATAMENTE na data da avaliação deve ser
     # considerada ativa (joined_at <= test_date) e, portanto, contar para a duplicidade. Trava o
-    # operador <= contra uma mutação para < que excluiria silenciosamente esse aluno.
+    # operador <= contra uma mutação para < que deixaria de detectar a duplicidade desse aluno.
     let(:enrollments) do
       [
         build_enrollment(

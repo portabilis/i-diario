@@ -219,14 +219,23 @@ class DailyNotesController < ApplicationController
     @any_in_active_search = @students.select(&:in_active_search).any?
   end
 
-  # Retorna o DailyNoteStudent desta enturmação, reaproveitando um registro salvo do aluno (um por
-  # enturmação) ou construindo um novo. A enturmação inativa de um aluno com enturmação ativa recebe
-  # sempre um registro novo, para o registro salvo (com a nota) ficar na linha ativa.
+  # Retorna o DailyNoteStudent desta enturmação: reaproveita um registro salvo do aluno (consumindo no
+  # máximo um por enturmação, priorizando o de mesmo status) ou constrói um novo. A enturmação inativa
+  # de um aluno com enturmação ativa recebe sempre um registro novo, para o registro salvo (com a nota)
+  # ficar na linha ativa.
   def fetch_note_student(existing_students_by_id, student, active_on_test_date, student_has_active_enrollment)
     return @daily_note.students.build(student_id: student.id) if !active_on_test_date && student_has_active_enrollment
 
     existing_note_students = (existing_students_by_id[student.id] ||= [])
-    existing_note_students.shift || @daily_note.students.build(student_id: student.id)
+    note_student = existing_note_students.find { |existing| existing.active == active_on_test_date } ||
+                   existing_note_students.first
+
+    if note_student
+      existing_note_students.delete(note_student)
+      note_student
+    else
+      @daily_note.students.build(student_id: student.id)
+    end
   end
 
   def resource_params
@@ -389,16 +398,18 @@ disciplines: @discipline)
     params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 
+  def to_date_or_nil(value)
+    value.present? ? value.to_date : nil
+  end
+
   def check_duplicate_enrolled_students
     test_date = @daily_note.test_date
 
     enrolled_students = set_enrollment_classrooms
                           .select { |ec|
                             enrollment_classroom = ec[:student_enrollment_classroom]
-                            joined_at = enrollment_classroom.joined_at
-                            joined_at_date = joined_at.present? ? joined_at.to_date : nil
-                            left_at = enrollment_classroom.left_at
-                            left_at_date = left_at.present? ? left_at.to_date : nil
+                            joined_at_date = to_date_or_nil(enrollment_classroom.joined_at)
+                            left_at_date = to_date_or_nil(enrollment_classroom.left_at)
 
                             ec[:student_enrollment].status == 3 &&
                               ec[:student_enrollment].active == 1 &&

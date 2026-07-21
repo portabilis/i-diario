@@ -105,4 +105,54 @@ RSpec.describe DailyNotesController, 'reload_students_list — return to the sam
       expect(normal_students.reject(&:active).first).not_to equal(persisted)
     end
   end
+
+  context 'when no enrollment is active on the test date and there is a saved record' do
+    # Nenhuma enturmação do aluno está ativa na data: ele aparece só em linhas inativas. O registro
+    # salvo é reaproveitado (para exibir a nota) sem fabricar um segundo registro ativo.
+    let(:active_classroom_id) { 0 } # nenhuma das enturmações está ativa
+
+    let(:persisted) do
+      note_student = daily_note.students.build(student_id: student.id)
+      note_student.active = true
+      note_student
+    end
+
+    before { persisted }
+
+    it 'reuses the saved record on an inactive row and marks every row as not enrolled' do
+      controller.send(:reload_students_list)
+
+      expect(normal_students.size).to eq(2)
+      expect(normal_students.map(&:active)).to eq([false, false])
+      expect(normal_students).to include(persisted)
+    end
+  end
+
+  context 'when the student has more than one saved record and an active enrollment' do
+    # Aluno com dois registros salvos (um ativo, um inativo — ex.: dado legado anterior ao índice
+    # único parcial). A linha ativa reaproveita o registro ATIVO (que carrega a nota), sem casar por
+    # posição no array.
+    let(:active_saved_record) do
+      note_student = daily_note.students.build(student_id: student.id)
+      note_student.active = true
+      note_student
+    end
+
+    let(:inactive_saved_record) do
+      note_student = daily_note.students.build(student_id: student.id)
+      note_student.active = false
+      note_student
+    end
+
+    before do
+      inactive_saved_record # construído primeiro, para a linha ativa não poder casar por posição
+      active_saved_record
+    end
+
+    it 'reuses the active saved record on the active row, not the first by position' do
+      controller.send(:reload_students_list)
+
+      expect(normal_students.find(&:active)).to equal(active_saved_record)
+    end
+  end
 end
