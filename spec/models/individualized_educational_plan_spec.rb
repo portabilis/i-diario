@@ -51,6 +51,28 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     end
   end
 
+  describe 'iep_review_dates_attributes' do
+    it 'ignores blank review date rows (optional fill of the default fields)' do
+      plan = build(:individualized_educational_plan)
+      plan.iep_review_dates_attributes = [
+        { review_date: Date.current },
+        { review_date: '' },
+        { review_date: nil }
+      ]
+
+      expect { plan.save! }.to change(IepReviewDate, :count).by(1)
+      expect(plan.iep_review_dates.map(&:review_date)).to eq([Date.current])
+    end
+
+    it 'saves when all default review date fields are left blank' do
+      plan = build(:individualized_educational_plan)
+      plan.iep_review_dates_attributes = [{ review_date: '' }, { review_date: '' }, { review_date: '' }]
+
+      expect { plan.save! }.not_to change(IepReviewDate, :count)
+      expect(plan).to be_persisted
+    end
+  end
+
   describe 'finalization' do
     let(:plan) { create(:individualized_educational_plan) }
 
