@@ -21,8 +21,12 @@ class IndividualizedEducationalPlan < ApplicationRecord
   has_many :iep_periodic_evaluations, dependent: :destroy
   has_many :iep_versions, dependent: :destroy
 
-  accepts_nested_attributes_for :iep_review_dates, :iep_attachments, :iep_selected_options,
-                                allow_destroy: true
+  accepts_nested_attributes_for :iep_attachments, :iep_selected_options, allow_destroy: true
+
+  # As 3 datas de revisão são exibidas por padrão, mas o preenchimento é opcional:
+  # linhas novas em branco são descartadas (não viram registro nem disparam a validação de presença).
+  accepts_nested_attributes_for :iep_review_dates, allow_destroy: true,
+                                reject_if: ->(attrs) { attrs['id'].blank? && attrs['review_date'].blank? }
 
   # Campos que caracterizam "conteúdo preenchido" nas seções 4 e 5 — a régua para
   # não criar linha nova vazia (reject_if) e para remover linha salva que foi esvaziada (prune).
