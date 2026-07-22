@@ -44,15 +44,29 @@ $(function() {
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
   $studentSelect.on('change', function() {
     var studentId = $(this).val();
-    if (!studentId || studentId === 'empty') { return; }
+    var $warning = $('.iep-existing-plan-warning');
+
+    // Trocar o aluno limpa o erro de duplicidade renderizado no submit anterior:
+    // remove a classe .error do .control-group (tira a borda vermelha do select2) e a mensagem.
+    var $wrapper = $studentSelect.closest('.control-group');
+    $wrapper.removeClass('error');
+    $wrapper.find('span.help-inline, .help-inline.error, span.error').remove();
+
+    if (!studentId || studentId === 'empty') { $warning.hide(); return; }
+
+    var params = { student_id: studentId, format: 'json' };
+    var planId = $studentSelect.data('plan-id');
+    if (planId) { params.plan_id = planId; }
 
     $.getJSON(
-      Routes.student_data_individualized_educational_plans_pt_br_path({ student_id: studentId, format: 'json' }),
+      Routes.student_data_individualized_educational_plans_pt_br_path(params),
       function(data) {
         $('.iep-birth-date').val(data.birth_date || '');
         $('.iep-guardians').val(data.guardians || '');
         $('.iep-diagnosis').val(data.diagnosis || '');
         $('.iep-shift').val(data.shift || '');
+        // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
+        $warning.toggle(!!data.has_existing_plan);
       }
     );
   });

@@ -53,7 +53,7 @@ class IndividualizedEducationalPlan < ApplicationRecord
                    :communication_profile, :social_interaction_profile, :autonomy,
                    :accompaniment, :support_type
 
-  validates :student_id, :unity_id, :classroom_id, :teacher_id, :year, :elaborated_at,
+  validates :student_id, :unity_id, :classroom_id, :year, :elaborated_at,
             presence: true
 
   # Unicidade 1 PEI por aluno/ano: índice único no banco + esta validação para a mensagem amigável.

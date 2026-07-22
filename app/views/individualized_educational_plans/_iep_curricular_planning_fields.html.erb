@@ -33,7 +33,9 @@
     <div class="col col-sm-12">
       <%= f.input :instructional_accommodation_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::INSTRUCTIONAL_ACCOMMODATION],
-                  label: t('.instructional_accommodations') %>
+                  label: t('.instructional_accommodations'),
+                  input_html: { value: f.object.instructional_accommodation_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 
@@ -41,7 +43,9 @@
     <div class="col col-sm-12">
       <%= f.input :environmental_accommodation_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::ENVIRONMENTAL_ACCOMMODATION],
-                  label: t('.environmental_accommodations') %>
+                  label: t('.environmental_accommodations'),
+                  input_html: { value: f.object.environmental_accommodation_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 
@@ -49,7 +53,9 @@
     <div class="col col-sm-12">
       <%= f.input :assessment_accommodation_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::ASSESSMENT_ACCOMMODATION],
-                  label: t('.assessment_accommodations') %>
+                  label: t('.assessment_accommodations'),
+                  input_html: { value: f.object.assessment_accommodation_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 </div>
