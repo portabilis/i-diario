@@ -18,6 +18,8 @@ class IndividualizedEducationalPlansController < ApplicationController
   def fetch_students_by_classroom
     authorize IndividualizedEducationalPlan, :index?
 
+    return render(json: [].to_json) if params[:classroom_id].blank?
+
     student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
 
@@ -272,6 +274,8 @@ class IndividualizedEducationalPlansController < ApplicationController
     )
   end
 
+  # `||=` (não trocar por `=`): preserva o filtro limpo pelo professor (`by_classroom_id: ''`),
+  # que o `has_scope` ignora por ser blank, caindo para todas as turmas dele.
   def set_filters
     params[:filter] ||= {}
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
