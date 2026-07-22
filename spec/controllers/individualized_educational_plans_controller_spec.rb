@@ -316,6 +316,35 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response.headers['Content-Type']).to include('application/pdf')
       expect(ReportGenerator).to have_received(:call).with(a_string_including('Perfil impresso'))
     end
+
+    it 'redirects with an alert when the external pdf service fails' do
+      plan = create(:individualized_educational_plan)
+      allow(ReportGenerator).to receive(:call).and_raise(RestClient::Exceptions::ReadTimeout)
+
+      get :show, params: { locale: 'pt-BR', id: plan.id, format: :pdf }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(flash[:alert]).to be_present
+    end
+
+    it 'redirects with an alert when the service returns a non-pdf body' do
+      plan = create(:individualized_educational_plan)
+      allow(ReportGenerator).to receive(:call).and_return(double(body: '<html>erro</html>'))
+
+      get :show, params: { locale: 'pt-BR', id: plan.id, format: :pdf }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(flash[:alert]).to be_present
+    end
+
+    it 'redirects to the root path when not authorized' do
+      plan = create(:individualized_educational_plan)
+      allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError)
+
+      get :show, params: { locale: 'pt-BR', id: plan.id, format: :pdf }
+
+      expect(response).to redirect_to(root_path)
+    end
   end
 
   describe 'GET #new' do

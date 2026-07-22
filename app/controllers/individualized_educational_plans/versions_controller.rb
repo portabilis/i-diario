@@ -1,5 +1,7 @@
 module IndividualizedEducationalPlans
   class VersionsController < ApplicationController
+    include RendersIepPdf
+
     before_action :require_current_teacher
     before_action :require_current_classroom
     # Controller aninhado: título/breadcrumb/menu usam o item do PEI no navigation.yml.
@@ -27,25 +29,12 @@ module IndividualizedEducationalPlans
       respond_to do |format|
         format.html
         format.pdf do
-          send_version_pdf(
-            "plano_educacional_individualizado_#{@individualized_educational_plan.id}_versao_#{@version.id}.pdf"
+          send_iep_pdf(
+            filename: "plano_educacional_individualizado_#{@individualized_educational_plan.id}_versao_#{@version.id}.pdf",
+            log_context: "plan #{@individualized_educational_plan.id} version #{@version.id}"
           )
         end
       end
-    end
-
-    private
-
-    # Mesma renderização da visualização, a partir do snapshot da versão.
-    def send_version_pdf(filename)
-      html = render_to_string(
-        template: 'individualized_educational_plans/pdf',
-        layout: 'pdf_individualized_educational_plan',
-        formats: [:html]
-      )
-
-      send_data ReportGenerator.call(html).body,
-                filename: filename, type: 'application/pdf', disposition: 'inline'
     end
   end
 end

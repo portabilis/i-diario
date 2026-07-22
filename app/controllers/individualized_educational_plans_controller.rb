@@ -1,4 +1,6 @@
 class IndividualizedEducationalPlansController < ApplicationController
+  include RendersIepPdf
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -46,7 +48,10 @@ class IndividualizedEducationalPlansController < ApplicationController
     respond_to do |format|
       format.html
       format.pdf do
-        send_plan_pdf("plano_educacional_individualizado_#{@individualized_educational_plan.id}.pdf")
+        send_iep_pdf(
+          filename: "plano_educacional_individualizado_#{@individualized_educational_plan.id}.pdf",
+          log_context: "plan #{@individualized_educational_plan.id}"
+        )
       end
     end
   end
@@ -145,18 +150,6 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   private
-
-  # Gera o PDF a partir da mesma renderização da visualização (layout de impressão + ReportGenerator).
-  def send_plan_pdf(filename)
-    html = render_to_string(
-      template: 'individualized_educational_plans/pdf',
-      layout: 'pdf_individualized_educational_plan',
-      formats: [:html]
-    )
-
-    send_data ReportGenerator.call(html).body,
-              filename: filename, type: 'application/pdf', disposition: 'inline'
-  end
 
   # "Finalizar" (modal Salvar versão) salva e publica no mesmo submit: o formulário
   # envia version_name e a versão é criada na mesma transação do save (issue: "Você

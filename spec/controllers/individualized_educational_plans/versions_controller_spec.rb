@@ -58,7 +58,21 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
 
       expect(response.body).to eq('%PDF-fake')
       expect(response.headers['Content-Type']).to include('application/pdf')
+      expect(response.headers['Content-Disposition']).to include("_versao_#{version.id}.pdf")
       expect(ReportGenerator).to have_received(:call).with(a_string_including('Aluno Congelado'))
+    end
+
+    it 'redirects with an alert when the pdf service fails' do
+      plan = create(:individualized_educational_plan)
+      version = create(:iep_version, iep: plan, active: true, content: {})
+      allow(ReportGenerator).to receive(:call).and_raise(RestClient::Exceptions::ReadTimeout)
+
+      get :show, params: {
+        locale: 'pt-BR', individualized_educational_plan_id: plan.id, id: version.id, format: :pdf
+      }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(flash[:alert]).to be_present
     end
   end
 end

@@ -43,6 +43,7 @@ pt-BR:
       title: "Plano Educacional Individualizado (PEI)"
       version_info: "Versão: %{name} — publicada em %{date} por %{author}"
       empty_message: "Nenhuma informação registrada."
+      generation_failed: "Não foi possível gerar o PDF no momento. Tente novamente."
     versions:
       index:
         student: "Aluno"
