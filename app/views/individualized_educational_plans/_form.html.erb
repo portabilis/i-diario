@@ -89,8 +89,11 @@
           <section>
             <label class="label" for="version_name"><%= t('.version_name') %></label>
             <label class="input">
-              <%= text_field_tag :version_name, nil, maxlength: 100 %>
+              <%= text_field_tag :version_name, nil, minlength: 3, maxlength: 100 %>
             </label>
+            <em class="text-danger iep-version-name-error" style="display: none;">
+              <%= t('.version_name_min_length') %>
+            </em>
           </section>
         </div>
         <div class="modal-footer">

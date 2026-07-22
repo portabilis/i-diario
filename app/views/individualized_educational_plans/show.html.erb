@@ -5,8 +5,10 @@
         <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default' %>
         <%= link_to t('.history'), individualized_educational_plan_versions_path(@individualized_educational_plan),
               class: 'btn btn-info' %>
-        <%= link_to t('.download_pdf'), individualized_educational_plan_path(@individualized_educational_plan, format: :pdf),
-              class: 'btn btn-info', target: '_blank' %>
+        <%= link_to t('helpers.links.print_html'),
+              individualized_educational_plan_path(@individualized_educational_plan, format: :pdf),
+              class: 'btn btn-info apply_tooltip', target: '_blank',
+              data: { original_title: t('.download_pdf') } %>
         <%= link_to t('.edit'), edit_individualized_educational_plan_path(@individualized_educational_plan),
               class: 'btn btn-success' %>
       </div>
