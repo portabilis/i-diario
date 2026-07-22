@@ -1,14 +1,13 @@
 <%# Conteúdo do PDF no padrão dos relatórios (tabelas com bordas, cabeçalhos de seção,
     labels pequenos com o valor abaixo e "-" quando vazio). Local: presenter. %>
 <%
-  format_value = lambda do |value|
-    case value
-    when Date then l(value)
-    when String then (l(Date.parse(value)) rescue value)
-    else value
-    end
+  # Formata SÓ campos de data (Date no plano vivo, string ISO na versão publicada).
+  # Não parseia strings arbitrárias — escola/turma/responsáveis não são datas.
+  format_date = lambda do |value|
+    return value if value.blank?
+    value.is_a?(Date) ? l(value) : (l(Date.iso8601(value.to_s)) rescue value)
   end
-  display = ->(value) { presenter.filled?(value) ? format_value.call(value) : '-' }
+  display = ->(value) { presenter.filled?(value) ? value : '-' }
 
   identification = presenter.identification
   characterization = presenter.characterization
@@ -88,13 +87,13 @@
     <tr>
       <td>
         <span class="field-label"><%= id_label.call('elaborated_at') %></span>
-        <br><%= display.call(identification['elaborated_at']) %>
+        <br><%= display.call(format_date.call(identification['elaborated_at'])) %>
       </td>
       <td colspan="2">
         <span class="field-label"><%= id_label.call('review_dates') %></span>
         <br>
         <% if presenter.filled?(identification['review_dates']) %>
-          <%= identification['review_dates'].map { |date| format_value.call(date) }.join(', ') %>
+          <%= identification['review_dates'].map { |date| format_date.call(date) }.join(', ') %>
         <% else %>
           -
         <% end %>
@@ -193,7 +192,7 @@
         <tr>
           <th>
             <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
-            (<%= format_value.call(review_date) %>)
+            (<%= format_date.call(review_date) %>)
           </th>
         </tr>
         <% lines.each do |line| %>
@@ -234,7 +233,7 @@
         <tr>
           <th>
             <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
-            (<%= format_value.call(review_date) %>)
+            (<%= format_date.call(review_date) %>)
           </th>
         </tr>
         <% lines.each do |line| %>
