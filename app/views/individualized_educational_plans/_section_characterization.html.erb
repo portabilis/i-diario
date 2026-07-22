@@ -48,6 +48,9 @@
     </div>
   </div>
 
+  <%# Multi-selects: o valor precisa sair separado por vírgula (join) + without_json_parser.
+      Sem isso, o Rails serializa o Array com ESPAÇO (value="1 2"), o JSON.parse do select2
+      global estoura e trava o JS da tela na edição. (mesmo padrão em test_settings) %>
   <div class="row">
     <div class="col col-sm-12">
       <%= f.input :communication_profile_option_ids, as: :select2, multiple: true,
