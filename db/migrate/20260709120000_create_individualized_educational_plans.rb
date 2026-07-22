@@ -5,7 +5,7 @@ class CreateIndividualizedEducationalPlans < ActiveRecord::Migration[5.0]
       t.integer :student_id, null: false
       t.integer :unity_id, null: false
       t.integer :classroom_id, null: false
-      t.integer :teacher_id, null: false          # professor regente (único, da turma)
+      t.integer :teacher_id                         # professor regente (i-Educar); opcional, turma pode não ter regente cadastrado
       t.integer :aee_teacher_id                    # professor de AEE (opcional)
       t.integer :year, null: false
       t.string :support_professional               # profissional de apoio / cuidador
