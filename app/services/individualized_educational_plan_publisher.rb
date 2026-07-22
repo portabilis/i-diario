@@ -60,7 +60,7 @@ class IndividualizedEducationalPlanPublisher
       'student_name' => plan.student.name,
       'unity_name' => plan.unity.name,
       'classroom_name' => plan.classroom.description,
-      'teacher_name' => plan.teacher.name,
+      'teacher_name' => plan.teacher&.name,
       'aee_teacher_name' => plan.aee_teacher&.name,
       'support_professional' => plan.support_professional,
       'year' => plan.year,
