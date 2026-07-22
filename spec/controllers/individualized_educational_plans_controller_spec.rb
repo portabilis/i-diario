@@ -42,14 +42,48 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       it 'paginates the plans (default 10 per page)' do
         create_list(:individualized_educational_plan, 11, classroom: classroom)
 
-        get :index, params: { locale: 'pt-BR', page: 2 }
+        get :index, params: { locale: 'pt-BR', page: 1 }
+        first_page_ids = assigns(:individualized_educational_plans).map(&:id)
 
-        expect(assigns(:individualized_educational_plans).to_a.size).to eq(1)
+        get :index, params: { locale: 'pt-BR', page: 2 }
+        second_page = assigns(:individualized_educational_plans)
+
+        expect(second_page.to_a.size).to eq(1)
+        expect(first_page_ids).not_to include(second_page.first.id)
       end
     end
 
     context 'without a classroom selected in the profile' do
       before { allow(controller).to receive(:current_user_classroom).and_return(nil) }
+
+      it 'redirects to the root path' do
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    # O index exige contexto de professor para todos os perfis (before_action
+    # require_current_teacher). Fixa a decisão: sem current_teacher, redireciona.
+    context 'without a current teacher' do
+      before do
+        allow(controller).to receive(:require_current_teacher).and_call_original
+        allow(controller).to receive(:current_teacher).and_return(nil)
+        allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      end
+
+      it 'redirects to the root path' do
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when not authorized (Pundit)' do
+      before do
+        allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+        allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError)
+      end
 
       it 'redirects to the root path' do
         get :index, params: { locale: 'pt-BR' }
@@ -127,12 +161,49 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     it 'returns only students that have a plan in the classroom' do
       plan = create(:individualized_educational_plan, classroom: classroom)
-      create(:individualized_educational_plan)
+      create(:individualized_educational_plan) # plano em outra turma
 
       get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to contain_exactly('id' => plan.student_id, 'name' => plan.student.name)
+    end
+
+    it 'excludes a student without a plan in the classroom' do
+      plan = create(:individualized_educational_plan, classroom: classroom)
+      create(:student) # aluno sem PEI — não deve ser listado
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
+
+      expect(JSON.parse(response.body)).to contain_exactly('id' => plan.student_id, 'name' => plan.student.name)
+    end
+
+    it 'sorts the students by name' do
+      zilda = create(:student, name: 'Zilda')
+      ana = create(:student, name: 'Ana')
+      create(:individualized_educational_plan, classroom: classroom, student: zilda)
+      create(:individualized_educational_plan, classroom: classroom, student: ana)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
+
+      expect(JSON.parse(response.body).map { |s| s['name'] }).to eq(%w[Ana Zilda])
+    end
+
+    it 'returns an empty list when no classroom is given' do
+      create(:individualized_educational_plan)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: '', format: :json }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq([])
+    end
+
+    it 'redirects to the root path when not authorized (Pundit)' do
+      allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
+
+      expect(response).to redirect_to(root_path)
     end
   end
 end

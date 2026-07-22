@@ -45,17 +45,22 @@ $(function() {
         classroom_id: classroomId,
         format: 'json'
       }),
+      // dataType json: um erro de servidor (rescue_from → redirect 302 p/ HTML da raiz, 200)
+      // falha no parse como JSON e dispara o error handler, em vez de tratar o HTML como sucesso.
+      dataType: 'json',
       success: handleFetchStudentsSuccess,
       error: handleFetchStudentsError
     });
   }
 
   function handleFetchStudentsSuccess(students) {
+    if (!Array.isArray(students)) { return handleFetchStudentsError(); }
+
     var studentOptions = _.map(students, function(student) {
       return { id: student.id, name: student.name, text: student.name };
     });
 
-    studentOptions.unshift({ id: 'empty', name: '<option></option>', text: '' });
+    studentOptions.unshift({ id: 'empty', name: '', text: '' });
 
     setupSelect2($studentFilter, studentOptions);
   }
