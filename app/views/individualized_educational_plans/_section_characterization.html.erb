@@ -52,7 +52,9 @@
     <div class="col col-sm-12">
       <%= f.input :communication_profile_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::COMMUNICATION_PROFILE],
-                  label: t('.communication_profile') %>
+                  label: t('.communication_profile'),
+                  input_html: { value: f.object.communication_profile_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 
@@ -60,7 +62,9 @@
     <div class="col col-sm-12">
       <%= f.input :social_interaction_profile_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::SOCIAL_INTERACTION_PROFILE],
-                  label: t('.social_interaction_profile') %>
+                  label: t('.social_interaction_profile'),
+                  input_html: { value: f.object.social_interaction_profile_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 
@@ -68,7 +72,9 @@
     <div class="col col-sm-12">
       <%= f.input :autonomy_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::AUTONOMY],
-                  label: t('.autonomy') %>
+                  label: t('.autonomy'),
+                  input_html: { value: f.object.autonomy_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 </fieldset>

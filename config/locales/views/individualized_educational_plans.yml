@@ -69,6 +69,8 @@ pt-BR:
       classroom: "Turma"
       shift: "Turno"
       teacher: "Professor"
+      no_regent_warning: "Nenhum regente cadastrado na turma no i-Educar."
+      existing_plan_warning: "Este aluno já possui um PEI para este ano letivo."
       aee_teacher: "Professor de AEE"
       select_aee_teacher: "Selecione o professor de AEE"
       support_professional: "Profissional de apoio/Cuidador"

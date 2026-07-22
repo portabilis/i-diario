@@ -139,9 +139,12 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #student_data' do
-    before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+    end
 
-    it 'returns the student identification data as json' do
+    it 'returns the student identification data with the existing-plan flag' do
       student = create(:student)
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data)
         .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva')
@@ -150,8 +153,59 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to eq(
-        'birth_date' => '10/03/2015', 'diagnosis' => 'TEA', 'guardians' => 'Maria Silva'
+        'birth_date' => '10/03/2015', 'diagnosis' => 'TEA', 'guardians' => 'Maria Silva',
+        'has_existing_plan' => false
       )
+    end
+
+    it 'flags when the student already has a plan for the year' do
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
+      plan = create(:individualized_educational_plan, year: Date.current.year)
+
+      get :student_data, params: { locale: 'pt-BR', student_id: plan.student_id, format: :json }
+
+      expect(JSON.parse(response.body)['has_existing_plan']).to eq(true)
+    end
+
+    it 'ignores the plan being edited when flagging (plan_id)' do
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
+      plan = create(:individualized_educational_plan, year: Date.current.year)
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
+      }
+
+      expect(JSON.parse(response.body)['has_existing_plan']).to eq(false)
+    end
+  end
+
+  describe 're-rendering the form after a failure' do
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+    end
+
+    it 'repopulates the display fields on a create validation failure' do
+      unity = create(:unity)
+      classroom = create(:classroom, unity: unity)
+      teacher = create(:teacher)
+      student = create(:student)
+      create(:individualized_educational_plan, student: student, year: Date.current.year) # dispara duplicidade
+
+      post :create, params: {
+        locale: 'pt-BR',
+        individualized_educational_plan: {
+          student_id: student.id, unity_id: unity.id, classroom_id: classroom.id,
+          teacher_id: teacher.id, year: Date.current.year, elaborated_at: Date.current
+        }
+      }
+
+      expect(response).to render_template(:new)
+      plan = assigns(:individualized_educational_plan)
+      expect(plan.unity_name).to eq(unity.name)
+      expect(plan.classroom_name).to eq(classroom.description)
+      expect(plan.teacher_name).to eq(teacher.name)
     end
   end
 
@@ -204,15 +258,60 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(assigns(:individualized_educational_plan).teacher_id).to eq(regent.id)
     end
 
-    it 'falls back to the profile teacher when the classroom has no regent' do
-      teacher = create(:teacher)
+    it 'leaves the teacher blank when the classroom has no regent (no fallback)' do
       classroom = create(:classroom, regent_api_code: nil)
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
-      allow(controller).to receive(:current_teacher).and_return(teacher)
+      allow(controller).to receive(:current_teacher).and_return(create(:teacher))
 
       get :new, params: { locale: 'pt-BR' }
 
-      expect(assigns(:individualized_educational_plan).teacher_id).to eq(teacher.id)
+      expect(assigns(:individualized_educational_plan).teacher_id).to be_nil
+    end
+
+    it 'shows 3 review date fields by default' do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+
+      get :new, params: { locale: 'pt-BR' }
+
+      expect(assigns(:individualized_educational_plan).iep_review_dates.size).to eq(3)
+    end
+  end
+
+  describe 'GET #edit' do
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+    end
+
+    it 'keeps 3 review date fields, completing the persisted ones' do
+      plan = create(:individualized_educational_plan)
+      create(:iep_review_date, iep: plan, review_date: Date.current)
+
+      get :edit, params: { locale: 'pt-BR', id: plan.id }
+
+      review_dates = assigns(:individualized_educational_plan).iep_review_dates
+      expect(review_dates.size).to eq(3)
+      expect(review_dates.select(&:persisted?).map(&:review_date)).to eq([Date.current])
+    end
+
+    context 'rendering the multi-select values (regression: JSON.parse breaks the wizard JS)' do
+      render_views
+
+      before { allow(controller).to receive(:current_unity).and_return(create(:unity)) }
+
+      it 'renders the selected options as a comma-separated value (not space-joined)' do
+        first = create(:iep_option, :communication_profile)
+        second = create(:iep_option, :communication_profile)
+        plan = create(:individualized_educational_plan)
+        plan.communication_profile_option_ids = [first.id, second.id]
+        plan.save!
+
+        get :edit, params: { locale: 'pt-BR', id: plan.id }
+
+        expect(response.body).to include("value=\"#{first.id},#{second.id}\"")
+        expect(response.body).not_to include("value=\"#{first.id} #{second.id}\"")
+      end
     end
   end
 
