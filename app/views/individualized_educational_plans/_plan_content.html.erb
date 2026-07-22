@@ -2,13 +2,6 @@
     Locals: presenter (IndividualizedEducationalPlanReportPresenter).
     Só exibe campos preenchidos; múltipla escolha vira badges. %>
 <%
-  # Formata SÓ campos de data (Date no plano vivo, string ISO na versão publicada).
-  # Não parseia strings arbitrárias — escola/turma/responsáveis não são datas.
-  format_date = lambda do |value|
-    return value if value.blank?
-    value.is_a?(Date) ? l(value) : (l(Date.iso8601(value.to_s)) rescue value)
-  end
-
   identification = presenter.identification
   characterization = presenter.characterization
   support_team = presenter.support_team
@@ -26,7 +19,7 @@
     ['individualized_educational_plans.section_identification.teacher', identification['teacher_name']],
     ['individualized_educational_plans.section_identification.aee_teacher', identification['aee_teacher_name']],
     ['individualized_educational_plans.section_identification.support_professional', identification['support_professional']],
-    ['individualized_educational_plans.section_identification.elaborated_at', format_date.call(identification['elaborated_at'])]
+    ['individualized_educational_plans.section_identification.elaborated_at', presenter.localized_date(identification['elaborated_at'])]
   ]
 
   characterization_texts = %w[characterization clinical_diagnosis_justification school_history
@@ -59,7 +52,7 @@
       <div class="col col-sm-12" style="margin-bottom: 10px;">
         <strong><%= t('individualized_educational_plans.section_identification.review_dates') %></strong><br>
         <% identification['review_dates'].each do |review_date| %>
-          <span class="label label-info"><%= format_date.call(review_date) %></span>
+          <span class="label label-info"><%= presenter.localized_date(review_date) %></span>
         <% end %>
       </div>
     </div>
@@ -140,7 +133,7 @@
     <% presenter.curricular_plannings_by_review.each do |(review_number, review_date), lines| %>
       <h4>
         <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
-        (<%= format_date.call(review_date) %>)
+        (<%= presenter.localized_date(review_date) %>)
       </h4>
 
       <% lines.each do |line| %>
@@ -179,7 +172,7 @@
     <% presenter.periodic_evaluations_by_review.each do |(review_number, review_date), lines| %>
       <h4>
         <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
-        (<%= format_date.call(review_date) %>)
+        (<%= presenter.localized_date(review_date) %>)
       </h4>
 
       <% lines.each do |line| %>
