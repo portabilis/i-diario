@@ -74,24 +74,40 @@ $(function() {
   // ---- Finalizar: o modal "Salvar versão" preenche version_name e submete o próprio form ----
   var finalizeConfirmed = false;
 
+  var MIN_VERSION_NAME = 3;
+
+  function clearVersionNameError() {
+    $('#version_name').closest('.input').removeClass('state-error');
+    $('.iep-version-name-error').hide();
+  }
+
   $('#iep-finalize-confirm').on('click', function() {
     var $name = $('#version_name');
 
-    if (!$name.val() || !$name.val().trim()) {
+    // Nome da versão exige ao menos 3 caracteres.
+    if (($name.val() || '').trim().length < MIN_VERSION_NAME) {
       $name.closest('.input').addClass('state-error');
+      $('.iep-version-name-error').show();
       $name.focus();
       return;
     }
 
+    clearVersionNameError();
     finalizeConfirmed = true;
     $(this).prop('disabled', true);
     $('.smart-form').submit();
   });
 
+  // Some com o erro assim que o nome atinge o mínimo.
+  $('#version_name').on('input', function() {
+    if ($(this).val().trim().length >= MIN_VERSION_NAME) { clearVersionNameError(); }
+  });
+
   // Fechou o modal sem confirmar: limpa o nome e o estado de erro
   $('#iep-finalize-modal').on('hidden.bs.modal', function() {
     if (!finalizeConfirmed) {
-      $('#version_name').val('').closest('.input').removeClass('state-error');
+      $('#version_name').val('');
+      clearVersionNameError();
     }
   });
 

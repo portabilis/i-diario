@@ -30,6 +30,7 @@ pt-BR:
       finalize_modal_subtitle: "Esta versão será salva e substituirá a versão anterior"
       finalize_modal_text: "Você está salvando e publicando uma versão do PEI para este aluno."
       version_name: "Nome da versão"
+      version_name_min_length: "Digite ao menos 3 caracteres"
       finalize_modal_confirm: "Salvar"
     finalize:
       success: "Versão do Plano Educacional Individualizado publicada com sucesso."
