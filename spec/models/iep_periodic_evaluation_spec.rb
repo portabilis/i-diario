@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe IepPeriodicEvaluation, type: :model do
+  it { expect(subject).to belong_to(:iep_review_date) }
+  it { expect(subject).to validate_presence_of(:iep_review_date_id) }
+
   describe 'discipline XOR knowledge area (exactly one)' do
     it 'is valid with only a discipline' do
       evaluation = build(:iep_periodic_evaluation)
