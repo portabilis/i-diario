@@ -24,11 +24,15 @@ class IndividualizedEducationalPlansController < ApplicationController
     render json: students.map { |id, name| { id: id, name: name } }.to_json
   end
 
-  # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno).
+  # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
+  # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
     student = Student.find(params[:student_id])
 
-    render json: IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
+    data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
+    data[:has_existing_plan] = existing_plan?(student.id)
+
+    render json: data
   end
 
   def new
@@ -58,6 +62,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     if @individualized_educational_plan.save
       respond_with @individualized_educational_plan, location: individualized_educational_plans_path
     else
+      assign_display_fields
       set_form_options
       render :new
     end
@@ -68,10 +73,10 @@ class IndividualizedEducationalPlansController < ApplicationController
       iep_curricular_plannings: [:discipline, :knowledge_area],
       iep_periodic_evaluations: [:discipline, :knowledge_area]
     ).find(params[:id])
-    @individualized_educational_plan.unity_name = @individualized_educational_plan.unity&.name
-    @individualized_educational_plan.classroom_name = @individualized_educational_plan.classroom&.description
-    @individualized_educational_plan.teacher_name = @individualized_educational_plan.teacher&.name
-    prefill_student_fields
+    assign_display_fields
+    # Mantém 3 campos de data de revisão na edição, completando com campos vazios
+    # quando o plano foi salvo com menos de 3 (as datas já preenchidas são preservadas).
+    build_default_review_dates
     set_form_options
 
     authorize @individualized_educational_plan
@@ -86,6 +91,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     if @individualized_educational_plan.save
       respond_with @individualized_educational_plan, location: individualized_educational_plans_path
     else
+      assign_display_fields
       set_form_options
       render :edit
     end
@@ -107,6 +113,7 @@ class IndividualizedEducationalPlansController < ApplicationController
       review.errors.add(:review_date, :cannot_remove) if blocked_ids.include?(review.id)
     end
 
+    assign_display_fields
     set_form_options
     render :edit
   end
@@ -124,9 +131,26 @@ class IndividualizedEducationalPlansController < ApplicationController
   private
 
   # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
-  # em classrooms.regent_api_code). Sem regente cadastrado, cai no professor do perfil.
+  # em classrooms.regent_api_code). Sem regente cadastrado, retorna nil (o formulário
+  # exibe o aviso e o PEI pode ser criado sem professor responsável).
   def regent_teacher
-    Teacher.find_by(api_code: current_user_classroom&.regent_api_code) || current_teacher
+    Teacher.find_by(api_code: current_user_classroom&.regent_api_code)
+  end
+
+  # Recarrega os dados de exibição do formulário para evitar campos readonly em branco
+  # após re-renderização (edição, erro de validação ou remoção).
+  def assign_display_fields
+    plan = @individualized_educational_plan
+    plan.unity_name = plan.unity&.name
+    plan.classroom_name = plan.classroom&.description
+    plan.teacher_name = plan.teacher&.name
+    prefill_student_fields
+  end
+
+  def existing_plan?(student_id)
+    scope = IndividualizedEducationalPlan.where(student_id: student_id, year: current_school_year)
+    scope = scope.where.not(id: params[:plan_id]) if params[:plan_id].present?
+    scope.exists?
   end
 
   def prefill_student_fields

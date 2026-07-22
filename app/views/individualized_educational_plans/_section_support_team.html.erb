@@ -3,7 +3,9 @@
     <div class="col col-sm-12">
       <%= f.input :accompaniment_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::ACCOMPANIMENT],
-                  label: t('.accompaniment') %>
+                  label: t('.accompaniment'),
+                  input_html: { value: f.object.accompaniment_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 
@@ -11,7 +13,9 @@
     <div class="col col-sm-12">
       <%= f.input :support_type_option_ids, as: :select2, multiple: true,
                   elements: @iep_options_by_kind[IepOptionKinds::SUPPORT_TYPE],
-                  label: t('.support_type') %>
+                  label: t('.support_type'),
+                  input_html: { value: f.object.support_type_option_ids.join(','),
+                                data: { without_json_parser: true } } %>
     </div>
   </div>
 
