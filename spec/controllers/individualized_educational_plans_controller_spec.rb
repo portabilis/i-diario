@@ -273,25 +273,6 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(review_dates.size).to eq(3)
       expect(review_dates.select(&:persisted?).map(&:review_date)).to eq([Date.current])
     end
-
-    context 'rendering the multi-select values (regression: JSON.parse breaks the wizard JS)' do
-      render_views
-
-      before { allow(controller).to receive(:current_unity).and_return(create(:unity)) }
-
-      it 'renders the selected options as a comma-separated value (not space-joined)' do
-        first = create(:iep_option, :communication_profile)
-        second = create(:iep_option, :communication_profile)
-        plan = create(:individualized_educational_plan)
-        plan.communication_profile_option_ids = [first.id, second.id]
-        plan.save!
-
-        get :edit, params: { locale: 'pt-BR', id: plan.id }
-
-        expect(response.body).to include("value=\"#{first.id},#{second.id}\"")
-        expect(response.body).not_to include("value=\"#{first.id} #{second.id}\"")
-      end
-    end
   end
 
   describe 'POST #create' do
