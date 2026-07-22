@@ -49,6 +49,18 @@ class IndividualizedEducationalPlanReportPresenter
     keys.any? { |key| filled?(hash[key]) }
   end
 
+  # Formata SÓ valores de data para exibição: Date (plano vivo, from_record) ou string
+  # ISO (snapshot da versão, from_snapshot). Não parseia texto arbitrário — escola/turma/
+  # responsáveis não são datas. Erro esperado (string não-ISO) cai no valor original.
+  def localized_date(value)
+    return value if value.blank?
+    return I18n.l(value) if value.is_a?(Date)
+
+    I18n.l(Date.iso8601(value.to_s))
+  rescue ArgumentError
+    value
+  end
+
   private
 
   attr_reader :content
