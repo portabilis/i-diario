@@ -6,6 +6,8 @@ $(function () {
   var $discipline = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $avaliation = $('#avaliation_recovery_diary_record_avaliation_id');
   var $recorded_at = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_recorded_at');
+  // Mapa student_id -> nota já salva, para pré-preencher ao trocar a data.
+  var existingScores = $('#recovery-diary-record-students').data('existingScores') || {};
 
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
@@ -95,8 +97,8 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    $('#recovery-diary-record-students').empty();
-
+    // Sem empty(): a reconciliação por id (existing_ids x fetched_ids) preserva as
+    // linhas já renderizadas (com o id) ao trocar a data.
     if (_.isEmpty(data)) {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -111,12 +113,18 @@ $(function () {
 
         hideNoItemMessage();
 
+        // Coleta apenas ids numéricos das linhas de aluno já renderizadas. Ignora a
+        // linha placeholder (no_item_found), cujo id não é numérico, sem depender da
+        // sua posição — antes um shift() assumia cegamente que era o primeiro <tr>.
         $('#recovery-diary-record-students').children('tr').each(function () {
-          if (!$(this).hasClass('destroy')) {
-            existing_ids.push(parseInt(this.id));
+          if ($(this).hasClass('destroy')) { return; }
+
+          var row_id = parseInt(this.id, 10);
+
+          if (!isNaN(row_id)) {
+            existing_ids.push(row_id);
           }
         });
-        existing_ids.shift();
 
         if (_.isEmpty(existing_ids)) {
           _.each(daily_note_students, function (daily_note_student) {
@@ -197,6 +205,12 @@ $(function () {
       $(html).insertAfter($tbody.children('tr')[index]);
     } else {
       $tbody.append(html);
+    }
+
+    // Pré-preenche a nota já lançada desse aluno, se houver.
+    var existingScore = existingScores[daily_note_student.id];
+    if (existingScore !== undefined && existingScore !== null && existingScore !== '') {
+      $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_' + element_id + '_score').val(existingScore);
     }
   }
 
