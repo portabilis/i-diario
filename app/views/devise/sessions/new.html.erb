@@ -32,6 +32,17 @@
     </footer>
   <% end %>
 
+  <% if Rails.application.secrets.PASSPORT_LOGIN_BUTTON %>
+  <div style="border-top: 1px solid #ddd; padding: 10px;">
+    <%= button_to "Entrar com a Conta Portábilis",
+                  user_passport_omniauth_authorize_path,
+                  method: :post,
+                  class: "btn btn-portabilis",
+                  style: 'width: 100%',
+                  data: { disable_with: "Redirecionando..." } %>
+  </div>
+  <% end %>
+
   <script>
     var error = <%= @time %>;
 
