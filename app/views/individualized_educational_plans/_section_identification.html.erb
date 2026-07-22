@@ -2,7 +2,12 @@
   <div class="row">
     <div class="col col-sm-6">
       <%= f.input :student_id, as: :select2, elements: @students, label: t('.student'),
-                  placeholder: t('.select_student'), input_html: { class: 'iep-student-select' } %>
+                  placeholder: t('.select_student'),
+                  input_html: { class: 'iep-student-select', data: { plan_id: @individualized_educational_plan.id } } %>
+      <div class="alert alert-warning iep-existing-plan-warning"
+           style="display: none; margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+        <i class="fa-fw fa fa-warning"></i> <%= t('.existing_plan_warning') %>
+      </div>
     </div>
     <div class="col col-sm-3">
       <%= f.input :birth_date, label: t('.birth_date'), input_html: { readonly: true, class: 'iep-birth-date' } %>
@@ -41,6 +46,11 @@
     <div class="col col-sm-4">
       <%= f.input :teacher_name, label: t('.teacher'), input_html: { readonly: true } %>
       <%= f.input_field :teacher_id, as: :hidden %>
+      <% if @individualized_educational_plan.teacher_id.blank? %>
+        <div class="alert alert-warning" style="margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+          <i class="fa-fw fa fa-warning"></i> <%= t('.no_regent_warning') %>
+        </div>
+      <% end %>
     </div>
     <div class="col col-sm-4">
       <%= f.input :aee_teacher_id, as: :select2, elements: @aee_teachers, label: t('.aee_teacher'),
