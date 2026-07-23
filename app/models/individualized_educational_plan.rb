@@ -109,6 +109,9 @@ class IndividualizedEducationalPlan < ApplicationRecord
     removed_reviews.each do |review|
       next unless review_ids_still_in_use.include?(review.id)
 
+      # Cancela a remoção bloqueada: sem isso o cocoon renderiza o link com classe
+      # "destroyed" e o JS faz .hide() no carregamento — o input com erro fica invisível.
+      review.instance_variable_set(:@marked_for_destruction, false)
       review.errors.add(:review_date, :cannot_remove)
       errors.add(:base, I18n.t('activerecord.errors.models.iep_review_date.in_use'))
     end

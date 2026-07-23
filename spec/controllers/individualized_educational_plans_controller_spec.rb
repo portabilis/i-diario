@@ -226,28 +226,50 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #student_data' do
+    let(:classroom) { create(:classroom) }
+
     before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
       allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
-    it 'returns the student identification data with the existing-plan flag' do
+    # Enturma o aluno numa turma do perfil, tornando-o permitido em #student_data.
+    def enroll(student, target_classroom)
+      classrooms_grade = create(:classrooms_grade, classroom: target_classroom)
+      enrollment = create(:student_enrollment, student: student)
+      create(:student_enrollment_classroom, student_enrollment: enrollment,
+                                            classrooms_grade: classrooms_grade)
+    end
+
+    it 'returns the full identification contract (all fields form.js consumes) plus the flag' do
       student = create(:student)
-      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data)
-        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva')
+      enroll(student, classroom)
+      expect(IndividualizedEducationalPlanPrefill).to receive(:student_data)
+        .with(kind_of(Student), classroom: classroom)
+        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva', shift: 'Matutino')
 
       get :student_data, params: { locale: 'pt-BR', student_id: student.id, format: :json }
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to eq(
         'birth_date' => '10/03/2015', 'diagnosis' => 'TEA', 'guardians' => 'Maria Silva',
-        'has_existing_plan' => false
+        'shift' => 'Matutino', 'has_existing_plan' => false
       )
+    end
+
+    it 'does not return data for a student outside the permitted classrooms' do
+      other_student = create(:student) # não enturmado nas turmas do perfil
+      expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
+
+      get :student_data, params: { locale: 'pt-BR', student_id: other_student.id, format: :json }
+
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'flags when the student already has a plan for the year' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
       plan = create(:individualized_educational_plan, year: Date.current.year)
+      enroll(plan.student, classroom)
 
       get :student_data, params: { locale: 'pt-BR', student_id: plan.student_id, format: :json }
 
@@ -257,6 +279,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'ignores the plan being edited when flagging (plan_id)' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
       plan = create(:individualized_educational_plan, year: Date.current.year)
+      enroll(plan.student, classroom)
 
       get :student_data, params: {
         locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
@@ -564,6 +587,19 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(plan.reload.characterization).to eq('Atualizado')
       expect(response).to redirect_to(individualized_educational_plans_path)
+    end
+
+    it 'does not allow the student to be changed on update' do
+      plan = create(:individualized_educational_plan)
+      new_student = create(:student)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: { student_id: new_student.id, characterization: 'Tentativa de troca' }
+      }
+
+      expect(plan.reload.student_id).not_to eq(new_student.id)
+      expect(plan.reload.characterization).to eq('Tentativa de troca')
     end
   end
 end

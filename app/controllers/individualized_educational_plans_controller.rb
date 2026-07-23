@@ -29,12 +29,18 @@ class IndividualizedEducationalPlansController < ApplicationController
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
-    student = Student.find(params[:student_id])
+    authorize IndividualizedEducationalPlan, :new?
+
+    # find no escopo dos alunos permitidos: aluno de outra turma/escola resulta em 404,
+    # não vaza nascimento/diagnóstico/responsáveis via ?student_id sequencial.
+    student = permitted_students.find(params[:student_id])
 
     data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
     data[:has_existing_plan] = existing_plan?(student.id)
 
     render json: data
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
   end
 
   def new
@@ -57,7 +63,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def create
-    @individualized_educational_plan = IndividualizedEducationalPlan.new(resource_params)
+    @individualized_educational_plan = IndividualizedEducationalPlan.new(create_resource_params)
 
     authorize @individualized_educational_plan
 
@@ -72,7 +78,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def edit
     @individualized_educational_plan = IndividualizedEducationalPlan.includes(
-      iep_curricular_plannings: [:discipline, :knowledge_area],
+      iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
       iep_periodic_evaluations: [:discipline, :knowledge_area]
     ).find(params[:id])
     assign_display_fields
@@ -86,7 +92,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def update
     @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
-    @individualized_educational_plan.assign_attributes(resource_params)
+    @individualized_educational_plan.assign_attributes(update_resource_params)
 
     authorize @individualized_educational_plan
 
@@ -158,18 +164,31 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def set_form_options
-    set_options_by_user
-    student_ids = StudentEnrollment.by_classroom(@classrooms.map(&:id)).active.select(:student_id)
-    @students = Student.where(id: student_ids).order(:name)
+    @students = permitted_students.order(:name)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
     @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
     @disciplines = Discipline.by_classroom_id(@classrooms.map(&:id)).ordered
     @knowledge_areas = KnowledgeArea.by_classroom_id(@classrooms.map(&:id)).ordered
   end
 
+  # Alunos que o usuário pode selecionar no PEI: enturmados nas turmas do seu perfil.
+  def permitted_students
+    set_options_by_user
+    student_ids = StudentEnrollment.by_classroom(@classrooms.map(&:id)).active.select(:student_id)
+    Student.where(id: student_ids)
+  end
+
+  def create_resource_params
+    params.require(:individualized_educational_plan).permit(:student_id).merge(resource_params)
+  end
+
+  def update_resource_params
+    resource_params
+  end
+
   def resource_params
     params.require(:individualized_educational_plan).permit(
-      :student_id, :unity_id, :classroom_id, :teacher_id, :aee_teacher_id, :year,
+      :unity_id, :classroom_id, :teacher_id, :aee_teacher_id, :year,
       :support_professional, :elaborated_at,
       :characterization, :clinical_diagnosis_justification, :school_history,
       :potentialities, :difficulties, :preferences_interests, :effective_strategies,

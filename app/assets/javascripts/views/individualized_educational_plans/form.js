@@ -77,6 +77,8 @@ $(function() {
         $warning.toggle(!!data.has_existing_plan);
       },
       error: function() {
+        $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+        $warning.hide();
         flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
       }
     });
@@ -118,6 +120,7 @@ $(function() {
   var $componentModal = $('#iep-component-modal');
   var $componentModalSelect = $('#iep-component-modal-select');
   var pendingAdd = null;
+  var newComponentKey = 0;
 
   function usedComponentIds($panels) {
     var field = $panels.data('component-type') === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
@@ -168,6 +171,11 @@ $(function() {
     var $panels = pendingAdd.$panels;
     var field = pendingAdd.componentType === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
 
+    // O cocoon insere todo componente novo com o mesmo data-key literal ("new_<assoc>"),
+    // então geramos uma chave única aqui para o painel e a pill não colidirem entre si.
+    var uniqueKey = 'new_component_' + (newComponentKey += 1);
+    insertedItem.attr('data-key', uniqueKey);
+
     insertedItem.find('input[name$="[iep_review_date_id]"]').val($panels.data('review-id'));
     insertedItem.find('input[name$="[' + field + ']"]').val(pendingAdd.component.id);
     insertedItem.find('.iep-component-title').text(pendingAdd.component.text);
@@ -176,7 +184,7 @@ $(function() {
     $pills.find('li').removeClass('active');
     $pills.append(
       $('<li class="active"><a href="javascript:void(0)"></a></li>')
-        .find('a').text(pendingAdd.component.text).attr('data-target-key', insertedItem.data('key')).end()
+        .find('a').text(pendingAdd.component.text).attr('data-target-key', uniqueKey).end()
     );
 
     $panels.find('.iep-component-panel').hide();

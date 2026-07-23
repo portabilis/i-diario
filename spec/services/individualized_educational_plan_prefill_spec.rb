@@ -34,11 +34,17 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
       expect(described_class.student_data(student)[:guardians]).to eq('Maria Silva, João Silva')
     end
 
-    it 'returns nil guardians and notifies Honeybadger when the API fails' do
-      allow(IeducarApi::Students).to receive(:new).and_raise(StandardError.new('boom'))
+    it 'returns nil guardians and notifies Honeybadger on a network/API failure' do
+      allow(IeducarApi::Students).to receive(:new).and_raise(IeducarApi::Base::GenericError.new('boom'))
       expect(Honeybadger).to receive(:notify)
 
       expect(described_class.student_data(student)[:guardians]).to be_nil
+    end
+
+    it 'lets ApiError propagate (API not configured) instead of swallowing it as empty guardians' do
+      allow(IeducarApi::Students).to receive(:new).and_raise(IeducarApi::Base::ApiError.new('sem configuração'))
+
+      expect { described_class.student_data(student) }.to raise_error(IeducarApi::Base::ApiError)
     end
 
     context 'shift (turma do perfil)' do

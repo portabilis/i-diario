@@ -51,9 +51,12 @@ class IndividualizedEducationalPlanPrefill
     response = IeducarApi::Students.new(IeducarApiConfiguration.current.to_api).fetch_by_id(student.api_code)
 
     Array(response && response['nomes_responsaveis']).join(', ').presence
-  rescue StandardError => e
+  rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError => e
+    # Só falhas de rede/API são toleradas (campo opcional). ApiError (API não configurada)
+    # sobe para o rescue_from do ApplicationController sinalizar ao usuário, em vez de virar
+    # um "sem responsáveis" silencioso.
     Rails.logger.error("PEI prefill - falha ao buscar responsáveis (student #{student.id}): #{e.message}")
-    Honeybadger.notify(e)
+    Honeybadger.notify(e, context: { student_id: student.id })
     nil
   end
 
