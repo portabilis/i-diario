@@ -11,18 +11,32 @@ class IndividualizedEducationalPlanPrefill
     new(student, classroom).student_data
   end
 
+  # Só dados locais, sem chamada externa — usado no request síncrono (edit/create/update).
+  # Exclui "responsáveis", que dependem do i-Educar (timeout de 240s) e são buscados via AJAX.
+  def self.local_student_data(student, classroom: nil)
+    new(student, classroom).local_student_data
+  end
+
   def student_data
     {
-      birth_date: student.birth_date&.strftime('%d/%m/%Y'),
+      birth_date: birth_date,
       diagnosis: diagnosis,
       guardians: guardians,
       shift: shift
     }
   end
 
+  def local_student_data
+    { birth_date: birth_date, diagnosis: diagnosis, shift: shift }
+  end
+
   private
 
   attr_reader :student, :classroom
+
+  def birth_date
+    student.birth_date&.strftime('%d/%m/%Y')
+  end
 
   def diagnosis
     student.deficiencies.map(&:name).join(', ').presence

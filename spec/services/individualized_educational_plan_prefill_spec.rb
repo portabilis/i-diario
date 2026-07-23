@@ -70,4 +70,20 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
       end
     end
   end
+
+  describe '.local_student_data' do
+    let(:student) { create(:student, birth_date: Date.new(2015, 3, 10)) }
+
+    it 'returns birth date, diagnosis and shift without hitting the i-Educar API' do
+      expect(IeducarApi::Students).not_to receive(:new)
+
+      data = described_class.local_student_data(student)
+
+      expect(data).to eq(birth_date: '10/03/2015', diagnosis: nil, shift: nil)
+    end
+
+    it 'does not include guardians in the returned hash' do
+      expect(described_class.local_student_data(student).key?(:guardians)).to eq(false)
+    end
+  end
 end

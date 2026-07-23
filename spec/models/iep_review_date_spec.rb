@@ -32,5 +32,15 @@ RSpec.describe IepReviewDate, type: :model do
 
       expect { review_date.destroy }.to change(described_class, :count).by(-1)
     end
+
+    it 'is allowed when destroyed as part of the parent plan cascade (destroyed_by_association)' do
+      create(:iep_curricular_planning, iep: review_date.iep, iep_review_date: review_date)
+
+      # Recarrega o plano do banco (como o controller faz): `review_date.iep` traria a
+      # associação iep_review_dates cacheada da criação, antes de a revisão existir.
+      plan = IndividualizedEducationalPlan.find(review_date.iep.id)
+
+      expect { plan.destroy }.to change(described_class, :count).by(-1)
+    end
   end
 end

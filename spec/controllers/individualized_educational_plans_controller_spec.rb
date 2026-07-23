@@ -154,6 +154,22 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
+
+    it 'destroys the plan even with data in sections 4 and 5 (regression: cascade order blocked deletion)' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+      create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date, acquired_skills: 'Habilidades')
+
+      expect {
+        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+      }.to change(IndividualizedEducationalPlan, :count).by(-1)
+        .and change(IepReviewDate, :count).by(-1)
+        .and change(IepCurricularPlanning, :count).by(-1)
+        .and change(IepPeriodicEvaluation, :count).by(-1)
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+    end
   end
 
   describe 'GET #fetch_students_by_classroom' do
@@ -515,6 +531,28 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(IepCurricularPlanning.exists?(planning.id)).to eq(false)
       expect(review_date.reload.destroy).to be_truthy
+    end
+
+    it 'clears a section line and removes its review in the same submit (regression: prune ran too late to allow it)' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => {
+            id: planning.id, long_term_goal: '', stage_objectives: '', skills_to_develop: '', methodologies: '',
+            instructional_accommodation_option_ids: '', environmental_accommodation_option_ids: '',
+            assessment_accommodation_option_ids: ''
+          } },
+          iep_review_dates_attributes: { '0' => { id: review_date.id, _destroy: '1' } }
+        }
+      }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(IepCurricularPlanning.exists?(planning.id)).to eq(false)
+      expect(IepReviewDate.exists?(review_date.id)).to eq(false)
     end
 
     it 'updates the plan and redirects to the index' do

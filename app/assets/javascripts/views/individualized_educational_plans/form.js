@@ -4,6 +4,8 @@ $(function() {
   var $wizard = $('#pei-wizard');
   if ($wizard.length === 0) { return; }
 
+  var flashMessages = new FlashMessages();
+
   // Etapas do topo do wizard (fuelux steps); os painéis top-level ficam em .tab-content direto do wizard
   var $steps = $wizard.find('.fuelux .steps li');
   var $panes = $wizard.children('.tab-content').children('.tab-pane');
@@ -42,12 +44,11 @@ $(function() {
   refreshButtons();
 
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
-  $studentSelect.on('change', function() {
-    var studentId = $(this).val();
+  function fetchStudentData(studentId) {
     var $warning = $('.iep-existing-plan-warning');
 
-    // Trocar o aluno limpa o erro de duplicidade renderizado no submit anterior:
-    // remove a classe .error do .control-group (tira a borda vermelha do select2) e a mensagem.
+    // Limpa o erro de duplicidade do submit anterior: remove a classe .error do
+    // .control-group (tira a borda vermelha do select2) e a mensagem.
     var $wrapper = $studentSelect.closest('.control-group');
     $wrapper.removeClass('error');
     $wrapper.find('span.help-inline, .help-inline.error, span.error').remove();
@@ -58,18 +59,36 @@ $(function() {
     var planId = $studentSelect.data('plan-id');
     if (planId) { params.plan_id = planId; }
 
-    $.getJSON(
-      Routes.student_data_individualized_educational_plans_pt_br_path(params),
-      function(data) {
+    // Limpa os campos ANTES da requisição: numa falha (sessão expirada, sem permissão,
+    // timeout), o error handler abaixo assume — sem isso, os campos ficariam com o
+    // dado do aluno anterior rotulado como sendo do aluno recém-selecionado.
+    $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+    $warning.hide();
+
+    $.ajax({
+      url: Routes.student_data_individualized_educational_plans_pt_br_path(params),
+      dataType: 'json',
+      success: function(data) {
         $('.iep-birth-date').val(data.birth_date || '');
         $('.iep-guardians').val(data.guardians || '');
         $('.iep-diagnosis').val(data.diagnosis || '');
         $('.iep-shift').val(data.shift || '');
         // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
         $warning.toggle(!!data.has_existing_plan);
+      },
+      error: function() {
+        flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
       }
-    );
-  });
+    });
+  }
+
+  $studentSelect.on('change', function() { fetchStudentData($(this).val()); });
+
+  // Aluno já selecionado ao abrir a tela (edição, ou reabertura após erro de validação):
+  // busca os dados via AJAX, já que "Responsáveis" não vem preenchido do servidor.
+  if ($studentSelect.val() && $studentSelect.val() !== 'empty') {
+    fetchStudentData($studentSelect.val());
+  }
 
   // ---- Seções 4/5: botões de revisão mostram o painel da revisão ----
   $('.iep-review-buttons button').on('click', function() {

@@ -97,27 +97,6 @@ class IndividualizedEducationalPlansController < ApplicationController
       set_form_options
       render :edit
     end
-  rescue ActiveRecord::RecordNotDestroyed => e
-    # Remoção de data de revisão bloqueada (revisão com dados nas seções 4/5):
-    @individualized_educational_plan.errors.add(:base, e.record.errors[:base].to_sentence)
-
-    # O autosave interrompe na primeira falha; identifica TODAS as datas removidas que
-    # possuem dados, para destacar cada input bloqueado (não só o primeiro).
-    blocked_ids = @individualized_educational_plan.iep_review_dates
-                                                  .select(&:marked_for_destruction?)
-                                                  .select { |review|
-                                                    review.iep_curricular_plannings.exists? ||
-                                                      review.iep_periodic_evaluations.exists?
-                                                  }.map(&:id)
-
-    @individualized_educational_plan.iep_review_dates.reload
-    @individualized_educational_plan.iep_review_dates.each do |review|
-      review.errors.add(:review_date, :cannot_remove) if blocked_ids.include?(review.id)
-    end
-
-    assign_display_fields
-    set_form_options
-    render :edit
   end
 
   def destroy
@@ -155,16 +134,19 @@ class IndividualizedEducationalPlansController < ApplicationController
     scope.exists?
   end
 
+  # Dados locais (sem chamada externa) para exibir de imediato no formulário.
+  # "Responsáveis" não é preenchido aqui — depende de chamada síncrona ao i-Educar
+  # sem timeout curto disponível; é buscado via AJAX no carregamento da página
+  # (form.js dispara o mesmo fetch do endpoint student_data quando há aluno selecionado).
   def prefill_student_fields
     return if @individualized_educational_plan.student.blank?
 
-    data = IndividualizedEducationalPlanPrefill.student_data(
+    data = IndividualizedEducationalPlanPrefill.local_student_data(
       @individualized_educational_plan.student,
       classroom: @individualized_educational_plan.classroom
     )
     @individualized_educational_plan.birth_date = data[:birth_date]
     @individualized_educational_plan.diagnosis = data[:diagnosis]
-    @individualized_educational_plan.guardians = data[:guardians]
     @individualized_educational_plan.shift = data[:shift]
   end
 
