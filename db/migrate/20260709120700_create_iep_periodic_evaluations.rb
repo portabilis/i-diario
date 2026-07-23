@@ -20,6 +20,13 @@ class CreateIepPeriodicEvaluations < ActiveRecord::Migration[5.0]
     add_index :iep_periodic_evaluations, :knowledge_area_id
     add_index :iep_periodic_evaluations, :iep_review_date_id
 
+    # Um componente (disciplina OU campo de experiência) só pode aparecer uma vez por revisão.
+    # Índices parciais porque as colunas são mutuamente exclusivas (XOR do CHECK abaixo).
+    add_index :iep_periodic_evaluations, [:iep_review_date_id, :discipline_id],
+              unique: true, where: 'discipline_id IS NOT NULL', name: :idx_iep_pe_unique_discipline
+    add_index :iep_periodic_evaluations, [:iep_review_date_id, :knowledge_area_id],
+              unique: true, where: 'knowledge_area_id IS NOT NULL', name: :idx_iep_pe_unique_knowledge_area
+
     add_foreign_key :iep_periodic_evaluations, :individualized_educational_plans,
                     column: :individualized_educational_plan_id
     add_foreign_key :iep_periodic_evaluations, :disciplines
