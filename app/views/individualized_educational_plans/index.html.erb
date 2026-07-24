@@ -19,8 +19,10 @@
                           input_html: { class: 'iep-student-filter' } %>
             </th>
             <th scope="col">
-              <%= link_to t('.new_html'), new_individualized_educational_plan_path,
-                          class: 'btn btn-primary pull-right', style: 'width: 100%;' %>
+              <% if policy(IndividualizedEducationalPlan).new? %>
+                <%= link_to t('.new_html'), new_individualized_educational_plan_path,
+                            class: 'btn btn-primary pull-right', style: 'width: 100%;' %>
+              <% end %>
             </th>
           </tr>
 

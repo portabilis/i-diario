@@ -1,4 +1,8 @@
 <% view_only = local_assigns[:view_only] %>
+<%# component_scope (professor): quando presente, só as seções 4/5 do componente dele são
+    editáveis; as seções 1-3 e 6 ficam em leitura. Admin/servidor => nil (edita tudo). %>
+<% component_scope = @editable_component_scope %>
+<% sections_read_only = view_only || component_scope.present? %>
 <%# student_fetch: liga a busca AJAX dos responsáveis (novo/editar/plano vivo). Na versão
     publicada os dados vêm congelados do snapshot, então fica desligada (false). %>
 <% student_fetch = local_assigns.fetch(:student_fetch, true) %>
@@ -37,15 +41,15 @@
 
     <div class="tab-content">
       <div class="tab-pane active" id="pei-step-1">
-        <%= render 'section_identification', f: f, view_only: view_only %>
+        <%= render 'section_identification', f: f, view_only: sections_read_only %>
       </div>
 
       <div class="tab-pane" id="pei-step-2">
-        <%= render 'section_characterization', f: f, view_only: view_only %>
+        <%= render 'section_characterization', f: f, view_only: sections_read_only %>
       </div>
 
       <div class="tab-pane" id="pei-step-3">
-        <%= render 'section_support_team', f: f, view_only: view_only %>
+        <%= render 'section_support_team', f: f, view_only: sections_read_only %>
       </div>
 
       <%# No modo leitura inclui também as datas reconstruídas da versão (não persistidas);
@@ -57,7 +61,7 @@
       <div class="tab-pane" id="pei-step-4">
         <fieldset>
           <%= render 'review_component_section', f: f, review_dates: review_dates, view_only: view_only,
-                association: :iep_curricular_plannings,
+                component_scope: component_scope, association: :iep_curricular_plannings,
                 fields_partial: 'iep_curricular_planning_fields', dom_prefix: 's4' %>
         </fieldset>
       </div>
@@ -65,13 +69,13 @@
       <div class="tab-pane" id="pei-step-5">
         <fieldset>
           <%= render 'review_component_section', f: f, review_dates: review_dates, view_only: view_only,
-                association: :iep_periodic_evaluations,
+                component_scope: component_scope, association: :iep_periodic_evaluations,
                 fields_partial: 'iep_periodic_evaluation_fields', dom_prefix: 's5' %>
         </fieldset>
       </div>
 
       <div class="tab-pane" id="pei-step-6">
-        <%= render 'section_final_evaluation', f: f, view_only: view_only %>
+        <%= render 'section_final_evaluation', f: f, view_only: sections_read_only %>
       </div>
     </div>
   </div>

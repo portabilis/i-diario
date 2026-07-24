@@ -1,14 +1,20 @@
 <%# Painel de um tipo (Por Disciplina/Por Campo) dentro de uma revisão: pills dos
     componentes já adicionados + botão que abre o modal de adição.
     Locals: f, association, fields_partial, review_date, component_type (:discipline/:knowledge_area),
-            dom_id, view_only (opcional) %>
+            dom_id, view_only (opcional), component_scope (opcional) %>
 <% view_only = local_assigns[:view_only] %>
+<%# component_scope (professor): quando presente, só as linhas do componente dele são
+    editáveis; as demais aparecem, mas em leitura. Sem escopo => tudo editável. %>
+<% component_scope = local_assigns[:component_scope] %>
 <% lines = @individualized_educational_plan.send(association).select { |row|
      row.iep_review_date_id == review_date.id && !row.marked_for_destruction? &&
        row.public_send("#{component_type}_id").present?
    } %>
 
-<% unless view_only %>
+<%# Só oferece "adicionar" quando há componente daquele tipo disponível (o professor vê só
+    os seus; sem nenhum, o botão não aparece para não abrir um modal vazio). %>
+<% components_available = component_type == :discipline ? @disciplines.present? : @knowledge_areas.present? %>
+<% if !view_only && components_available %>
   <div style="margin: 15px 0;">
     <button type="button" class="btn btn-success btn-sm iep-add-component" data-panels="#<%= dom_id %>-panels">
       <%= t("individualized_educational_plans.form.add_#{component_type}") %>
@@ -31,8 +37,9 @@
   <% lines.each_with_index do |line, index| %>
     <%# child_index: line.id faz os name/id dos campos usarem o id real da linha (não o
         índice sequencial), casando com a pill (data-target-key) e o hidden lido pelo JS. %>
+    <% line_editable = !view_only && (component_scope.nil? || component_scope.owns_line?(line)) %>
     <%= f.simple_fields_for association, line, child_index: line.id do |line_form| %>
-      <%= render fields_partial, f: line_form, hidden: !index.zero?, view_only: view_only %>
+      <%= render fields_partial, f: line_form, hidden: !index.zero?, view_only: !line_editable %>
     <% end %>
   <% end %>
 </div>

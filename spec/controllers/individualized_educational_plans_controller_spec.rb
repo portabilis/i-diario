@@ -142,6 +142,74 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  # O professor só edita as seções 4/5 do próprio componente. A trava de escopo
+  # (authorize_teacher_component_scope!) é um método próprio do controller (não o authorize
+  # do Pundit, que é stubado aqui), então é de fato exercitada.
+  describe 'PATCH #update as a teacher' do
+    let(:teacher) { create(:teacher) }
+    let(:unity) { create(:unity) }
+    let(:classroom) { create(:classroom, unity: unity, year: Date.current.year) }
+    let(:knowledge_area) { create(:knowledge_area) }
+    let(:own_discipline) { create(:discipline, knowledge_area: knowledge_area) }
+    let(:other_discipline) { create(:discipline) }
+    let(:plan) { create(:individualized_educational_plan, classroom: classroom, characterization: 'Original') }
+    let(:review) { create(:iep_review_date, iep: plan, review_date: Date.current) }
+    let!(:own_line) do
+      create(:iep_curricular_planning, iep: plan, iep_review_date: review,
+                                       discipline: own_discipline, long_term_goal: 'Meta')
+    end
+
+    before do
+      allow(controller).to receive(:current_user).and_return(user)
+      allow(user).to receive(:current_role_is_admin_or_employee?).and_return(false)
+      allow(controller).to receive(:current_teacher).and_return(teacher)
+      allow(controller).to receive(:current_unity).and_return(unity)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      create(:teacher_discipline_classroom, teacher: teacher, classroom: classroom,
+                                            discipline: own_discipline, year: Date.current.year)
+    end
+
+    it 'updates a section 4/5 line of the own component' do
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => { id: own_line.id, long_term_goal: 'Meta revisada' } }
+        }
+      }
+
+      expect(own_line.reload.long_term_goal).to eq('Meta revisada')
+    end
+
+    it 'ignores fields outside sections 4/5 (strong parameters)' do
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          characterization: 'Invadido',
+          iep_curricular_plannings_attributes: { '0' => { id: own_line.id, long_term_goal: 'Meta ok' } }
+        }
+      }
+
+      expect(plan.reload.characterization).to eq('Original')
+      expect(own_line.reload.long_term_goal).to eq('Meta ok')
+    end
+
+    it 'blocks editing a line of another component and does not persist it' do
+      other_line = create(:iep_curricular_planning, iep: plan, iep_review_date: review,
+                                                    discipline: other_discipline, long_term_goal: 'De outro')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => { id: other_line.id, long_term_goal: 'Invadido' } }
+        }
+      }
+
+      expect(response).to redirect_to(root_path)
+      expect(other_line.reload.long_term_goal).to eq('De outro')
+    end
+  end
+
   describe 'DELETE #destroy' do
     before { allow(controller).to receive(:current_user_classroom).and_return(create(:classroom)) }
 

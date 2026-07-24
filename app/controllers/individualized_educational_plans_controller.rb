@@ -34,7 +34,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
-    authorize IndividualizedEducationalPlan, :new?
+    authorize IndividualizedEducationalPlan, :show?
 
     student = student_for_data
 
@@ -108,10 +108,11 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def update
-    @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
+    @individualized_educational_plan = plan_with_components
     @individualized_educational_plan.assign_attributes(update_resource_params)
 
     authorize @individualized_educational_plan
+    authorize_teacher_component_scope!
 
     if save_and_publish
       respond_after_save
@@ -230,8 +231,22 @@ class IndividualizedEducationalPlansController < ApplicationController
     @students = form_students.order(:name)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
     @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
-    @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
-    @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
+    set_component_options(classroom_ids)
+  end
+
+  # Componentes das seções 4/5. Admin/servidor veem todos os da turma; o professor só os
+  # seus, e @editable_component_scope (nil = tudo editável) diz à view quais linhas ele
+  # pode editar — as demais aparecem em leitura.
+  def set_component_options(classroom_ids)
+    if admin_or_employee?
+      @editable_component_scope = nil
+      @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
+      @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
+    else
+      @editable_component_scope = teacher_scope
+      @disciplines = teacher_scope.disciplines
+      @knowledge_areas = teacher_scope.knowledge_areas
+    end
   end
 
   def form_students
@@ -262,8 +277,49 @@ class IndividualizedEducationalPlansController < ApplicationController
     params.require(:individualized_educational_plan).permit(:student_id).merge(resource_params)
   end
 
+  # Admin/servidor editam o PEI inteiro; o professor só as seções 4/5 (planejamento/avaliação).
   def update_resource_params
-    resource_params
+    return resource_params if admin_or_employee?
+
+    teacher_resource_params
+  end
+
+  # Parâmetros permitidos ao professor: apenas as linhas das seções 4/5. As demais seções,
+  # datas de revisão, anexos e identificação são descartadas pelo strong parameters — a
+  # validação de que cada linha é do componente do professor é feita à parte (escopo).
+  def teacher_resource_params
+    params.require(:individualized_educational_plan).permit(
+      iep_curricular_plannings_attributes: [
+        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
+        :long_term_goal, :stage_objectives, :skills_to_develop, :methodologies, :_destroy,
+        :instructional_accommodation_option_ids, :environmental_accommodation_option_ids,
+        :assessment_accommodation_option_ids,
+        { instructional_accommodation_option_ids: [], environmental_accommodation_option_ids: [],
+          assessment_accommodation_option_ids: [] }
+      ],
+      iep_periodic_evaluations_attributes: [
+        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
+        :acquired_skills, :in_progress_skills, :not_acquired_skills, :period_report,
+        :next_stage_adjustments, :_destroy
+      ]
+    )
+  end
+
+  # Trava server-side do professor: nenhuma linha das seções 4/5 alterada neste submit pode
+  # ser de outro componente (nem por reatribuição de linha existente). Admin/servidor passam.
+  def authorize_teacher_component_scope!
+    return if admin_or_employee?
+    return if teacher_scope.touched_lines_authorized?
+
+    raise Pundit::NotAuthorizedError.new(query: :update?, record: @individualized_educational_plan)
+  end
+
+  def teacher_scope
+    @teacher_scope ||= IndividualizedEducationalPlanTeacherScope.new(current_teacher, @individualized_educational_plan)
+  end
+
+  def admin_or_employee?
+    current_user.current_role_is_admin_or_employee?
   end
 
   def resource_params

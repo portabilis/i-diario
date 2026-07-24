@@ -34,15 +34,17 @@
                 data: { original_title: t('individualized_educational_plans.index.history') }) do %>
             <i class="fa fa-history"></i>
           <% end %>
-          <%= link_to(
-                t('helpers.links.destroy_html'),
-                individualized_educational_plan_path(plan),
-                class: 'btn btn-danger apply_tooltip',
-                method: 'delete',
-                data: {
-                  confirm: t('views.index.confirm_deletion'),
-                  original_title: t('views.index.tooltips.delete')
-                }) %>
+          <% if policy(plan).destroy? %>
+            <%= link_to(
+                  t('helpers.links.destroy_html'),
+                  individualized_educational_plan_path(plan),
+                  class: 'btn btn-danger apply_tooltip',
+                  method: 'delete',
+                  data: {
+                    confirm: t('views.index.confirm_deletion'),
+                    original_title: t('views.index.tooltips.delete')
+                  }) %>
+          <% end %>
         </td>
       </tr>
     <% end %>
