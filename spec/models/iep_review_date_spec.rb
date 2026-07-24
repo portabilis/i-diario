@@ -14,7 +14,7 @@ RSpec.describe IepReviewDate, type: :model do
 
       expect(review_date.destroy).to eq(false)
       expect(review_date.errors[:base]).to include(
-        I18n.t('activerecord.errors.models.iep_review_date.in_use')
+        'Não é possível remover a revisão prevista, pois já existem informações preenchidas para o período'
       )
     end
 
@@ -23,7 +23,7 @@ RSpec.describe IepReviewDate, type: :model do
 
       expect(review_date.destroy).to eq(false)
       expect(review_date.errors[:base]).to include(
-        I18n.t('activerecord.errors.models.iep_review_date.in_use')
+        'Não é possível remover a revisão prevista, pois já existem informações preenchidas para o período'
       )
     end
 

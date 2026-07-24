@@ -347,6 +347,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(assigns(:individualized_educational_plan).iep_review_dates.size).to eq(3)
     end
+
+    # O require_current_classroom roda em TODAS as actions (não só no index): sem turma
+    # no perfil, o new também é barrado antes de montar o formulário.
+    it 'redirects to root without a classroom in the profile' do
+      allow(controller).to receive(:current_user_classroom).and_return(nil)
+
+      get :new, params: { locale: 'pt-BR' }
+
+      expect(response).to redirect_to(root_path)
+    end
   end
 
   describe 'GET #edit' do
