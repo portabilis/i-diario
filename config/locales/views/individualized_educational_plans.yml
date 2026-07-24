@@ -6,6 +6,8 @@ pt-BR:
       filter_by_student: "Filtrar aluno"
       last_edit: "Última edição"
       history: "Histórico de versões"
+    iep_attachment_show:
+      file_unavailable: "Arquivo indisponível"
     form:
       sections:
         identification: "Identificação do Estudante"

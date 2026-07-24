@@ -123,7 +123,7 @@ $(function() {
   var newComponentKey = 0;
 
   function usedComponentIds($panels) {
-    var field = $panels.data('component-type') === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
+    var field = $panels.data('component-type') + '_id';
 
     return $panels.find('.iep-component-panel')
       .filter(function() {
@@ -143,9 +143,10 @@ $(function() {
 
     pendingAdd = { $panels: $panels, componentType: componentType };
 
-    $componentModal.find('.modal-title').text(
-      componentType === 'discipline' ? $componentModal.find('.modal-title').data('title-discipline')
-                                     : $componentModal.find('.modal-title').data('title-knowledge-area')
+    var $modalTitle = $componentModal.find('.modal-title');
+    $modalTitle.text(
+      componentType === 'discipline' ? $modalTitle.data('title-discipline')
+                                     : $modalTitle.data('title-knowledge-area')
     );
 
     if ($componentModalSelect.data('select2')) { $componentModalSelect.select2('destroy'); }
@@ -169,7 +170,7 @@ $(function() {
     if (!pendingAdd || !pendingAdd.component) { return; }
 
     var $panels = pendingAdd.$panels;
-    var field = pendingAdd.componentType === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
+    var field = pendingAdd.componentType + '_id';
 
     // O cocoon insere todo componente novo com o mesmo data-key literal ("new_<assoc>"),
     // então geramos uma chave única aqui para o painel e a pill não colidirem entre si.

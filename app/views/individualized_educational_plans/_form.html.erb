@@ -9,7 +9,7 @@
   <% if @individualized_educational_plan.errors[:base].present? %>
     <div class="alert alert-danger fade in">
       <i class="fa-fw fa fa-times"></i>
-      <%= @individualized_educational_plan.errors[:base].join('<br>').html_safe %>
+      <%= safe_join(@individualized_educational_plan.errors[:base], tag(:br)) %>
     </div>
   <% end %>
 

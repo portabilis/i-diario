@@ -44,6 +44,8 @@ module IepMultiSelectable
   end
 
   def assign_iep_options_for(association, kind, ids)
+    # O select2 do formulário envia os ids como string separada por vírgula (padrão
+    # without_json_parser do projeto); os testes/console enviam Array. Normaliza os dois.
     ids = ids.split(',') if ids.is_a?(String)
 
     kind_value = IepOptionKinds.value_of(kind)

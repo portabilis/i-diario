@@ -104,7 +104,7 @@
       <% if @individualized_educational_plan.errors[:iep_attachments].present? %>
         <div class="alert alert-danger alert-block">
           <i class="fa-fw fa fa-times"></i>
-          <span class="help-inline"><%= @individualized_educational_plan.errors[:iep_attachments].join('<br />').html_safe %></span>
+          <span class="help-inline"><%= safe_join(@individualized_educational_plan.errors[:iep_attachments], tag(:br)) %></span>
         </div>
       <% end %>
 

@@ -9,6 +9,8 @@ class IepReviewDate < ApplicationRecord
 
   validates :review_date, presence: true
 
+  # prepend: true roda esta trava ANTES do dependent: :destroy das associações, para
+  # abortar a exclusão antes de já ter apagado qualquer filho.
   before_destroy :prevent_destroy_if_filled, prepend: true
 
   private
