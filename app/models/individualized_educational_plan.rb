@@ -14,39 +14,47 @@ class IndividualizedEducationalPlan < ApplicationRecord
   belongs_to :teacher                                  # professor regente (único, da turma)
   belongs_to :aee_teacher, class_name: 'Teacher'       # opcional
 
-  has_many :iep_review_dates, dependent: :destroy
   has_many :iep_attachments, dependent: :destroy
   has_many :iep_selected_options, dependent: :destroy
+
+  # Ordem importa: o Rails destrói as associações na ordem de declaração das has_many.
+  # Planejamentos/avaliações vêm ANTES de iep_review_dates para saírem primeiro — assim a
+  # revisão é destruída sem filhos apontando pra ela (evita erro de FK e o guard da revisão).
   has_many :iep_curricular_plannings, dependent: :destroy
   has_many :iep_periodic_evaluations, dependent: :destroy
+  has_many :iep_review_dates, dependent: :destroy
+
   has_many :iep_versions, dependent: :destroy
 
-  accepts_nested_attributes_for :iep_attachments, :iep_selected_options, allow_destroy: true
+  accepts_nested_attributes_for :iep_selected_options, allow_destroy: true
+
+  # reject_if descarta a linha de anexo aberta e salva sem arquivo (senão vira um
+  # IepAttachment vazio, que a tela de exibição renderiza como um link quebrado).
+  accepts_nested_attributes_for :iep_attachments, allow_destroy: true,
+    reject_if: ->(attrs) { attrs['id'].blank? && attrs['attachment'].blank? && attrs['attachment_cache'].blank? }
 
   # As 3 datas de revisão são exibidas por padrão, mas o preenchimento é opcional:
   # linhas novas em branco são descartadas (não viram registro nem disparam a validação de presença).
   accepts_nested_attributes_for :iep_review_dates, allow_destroy: true,
                                 reject_if: ->(attrs) { attrs['id'].blank? && attrs['review_date'].blank? }
 
-  # Campos que caracterizam "conteúdo preenchido" nas seções 4 e 5 — a régua para
-  # não criar linha nova vazia (reject_if) e para remover linha salva que foi esvaziada (prune).
-  SECTION4_CONTENT_FIELDS = %w[
-    long_term_goal stage_objectives skills_to_develop methodologies
-    instructional_accommodation_option_ids environmental_accommodation_option_ids
-    assessment_accommodation_option_ids
-  ].freeze
-  SECTION5_CONTENT_FIELDS = %w[
-    acquired_skills in_progress_skills not_acquired_skills period_report next_stage_adjustments
-  ].freeze
-
+  # Linha nova (sem id) totalmente vazia é descartada. A régua de "vazio" é UMA só: o
+  # empty_content? de cada model (o mesmo usado pelo prune de linhas salvas), evitando
+  # manter duas listas de campos em sincronia — quem esquecer uma delas reintroduz o bug
+  # de linha salva vazia travando/sumindo.
   accepts_nested_attributes_for :iep_curricular_plannings, allow_destroy: true,
-    reject_if: ->(attrs) { attrs['id'].blank? && SECTION4_CONTENT_FIELDS.all? { |field| attrs[field].blank? } }
+    reject_if: ->(attrs) { attrs['id'].blank? && IepCurricularPlanning.new(attrs.except('id', '_destroy')).empty_content? }
   accepts_nested_attributes_for :iep_periodic_evaluations, allow_destroy: true,
-    reject_if: ->(attrs) { attrs['id'].blank? && SECTION5_CONTENT_FIELDS.all? { |field| attrs[field].blank? } }
+    reject_if: ->(attrs) { attrs['id'].blank? && IepPeriodicEvaluation.new(attrs.except('id', '_destroy')).empty_content? }
 
-  # Linha já salva cujo formulário foi esvaziado é removida no save — sem isso a
-  # revisão vinculada ficaria bloqueada para remoção mesmo depois de limpar os campos.
-  before_save :prune_empty_section_lines
+  # Remove no save a linha já salva que foi esvaziada no formulário. Em before_validation
+  # para rodar antes da validação abaixo, que precisa enxergar a linha já marcada como removida.
+  before_validation :prune_empty_section_lines
+
+  # Bloqueia remover uma revisão que ainda tem conteúdo (não removido) nas seções 4/5.
+  # Validado aqui (coleção em memória, já podada) para cobrir todas as revisões do submit
+  # e preservar as demais edições do usuário ao exibir o erro.
+  validate :prevent_removing_review_dates_in_use
 
   # Multi-selects das seções 2 e 3
   iep_multi_select :iep_selected_options,
@@ -84,6 +92,26 @@ class IndividualizedEducationalPlan < ApplicationRecord
   def prune_empty_section_lines
     (iep_curricular_plannings + iep_periodic_evaluations).each do |line|
       line.mark_for_destruction if line.persisted? && !line.marked_for_destruction? && line.empty_content?
+    end
+  end
+
+  # Usa a coleção em memória (já podada), não o banco, para enxergar linhas esvaziadas no mesmo submit.
+  def prevent_removing_review_dates_in_use
+    removed_reviews = iep_review_dates.select(&:marked_for_destruction?)
+    return if removed_reviews.empty?
+
+    review_ids_still_in_use = (iep_curricular_plannings + iep_periodic_evaluations)
+                               .reject { |line| line.marked_for_destruction? || line.empty_content? }
+                               .map(&:iep_review_date_id)
+
+    removed_reviews.each do |review|
+      next unless review_ids_still_in_use.include?(review.id)
+
+      # Cancela a remoção bloqueada: sem isso o cocoon renderiza o link com classe
+      # "destroyed" e o JS faz .hide() no carregamento — o input com erro fica invisível.
+      review.instance_variable_set(:@marked_for_destruction, false)
+      review.errors.add(:review_date, :cannot_remove)
+      errors.add(:base, I18n.t('activerecord.errors.models.iep_review_date.in_use'))
     end
   end
 end

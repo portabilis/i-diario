@@ -9,13 +9,18 @@ class IepReviewDate < ApplicationRecord
 
   validates :review_date, presence: true
 
+  # prepend: true roda esta trava ANTES do dependent: :destroy das associações, para
+  # abortar a exclusão antes de já ter apagado qualquer filho.
   before_destroy :prevent_destroy_if_filled, prepend: true
 
   private
 
-  # Regra de negócio: a revisão não pode ser removida quando o período já tem
-  # informações preenchidas nas seções 4 (planejamento) e/ou 5 (avaliação).
+  # Impede remover uma revisão isolada que ainda tem conteúdo nas seções 4/5 apontando pra ela.
+  # Quando a remoção parte do plano (exclusão em cascata, ou conteúdo removido no mesmo save),
+  # a regra é validada no plano (IndividualizedEducationalPlan#prevent_removing_review_dates_in_use);
+  # aqui destroyed_by_association ou o EXISTS já limpo liberam a exclusão.
   def prevent_destroy_if_filled
+    return if destroyed_by_association
     return unless iep_curricular_plannings.exists? || iep_periodic_evaluations.exists?
 
     errors.add(:base, I18n.t('activerecord.errors.models.iep_review_date.in_use'))

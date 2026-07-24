@@ -1,9 +1,14 @@
+<% view_only = local_assigns[:view_only] %>
 <fieldset>
   <div class="row">
     <div class="col col-sm-6">
       <%= f.input :student_id, as: :select2, elements: @students, label: t('.student'),
                   placeholder: t('.select_student'),
-                  input_html: { class: 'iep-student-select', data: { plan_id: @individualized_educational_plan.id } } %>
+                  input_html: { class: 'iep-student-select',
+                                disabled: (@individualized_educational_plan.persisted? || view_only) } %>
+      <% if @individualized_educational_plan.persisted? %>
+        <%= f.hidden_field :student_id %>
+      <% end %>
       <div class="alert alert-warning iep-existing-plan-warning"
            style="display: none; margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
         <i class="fa-fw fa fa-warning"></i> <%= t('.existing_plan_warning') %>
@@ -20,6 +25,10 @@
   <div class="row">
     <div class="col col-sm-6">
       <%= f.input :guardians, label: t('.guardians'), input_html: { readonly: true, class: 'iep-guardians' } %>
+      <div class="alert alert-warning iep-guardians-warning"
+           style="display: none; margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+        <i class="fa-fw fa fa-warning"></i> <%= t('.guardians_unavailable') %>
+      </div>
     </div>
     <div class="col col-sm-6">
       <%= f.input :diagnosis, label: t('.diagnosis'), input_html: { readonly: true, class: 'iep-diagnosis' } %>
@@ -46,7 +55,7 @@
     <div class="col col-sm-4">
       <%= f.input :teacher_name, label: t('.teacher'), input_html: { readonly: true } %>
       <%= f.input_field :teacher_id, as: :hidden %>
-      <% if @individualized_educational_plan.teacher_id.blank? %>
+      <% if @individualized_educational_plan.teacher_id.blank? && !view_only %>
         <div class="alert alert-warning" style="margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
           <i class="fa-fw fa fa-warning"></i> <%= t('.no_regent_warning') %>
         </div>
@@ -54,17 +63,19 @@
     </div>
     <div class="col col-sm-4">
       <%= f.input :aee_teacher_id, as: :select2, elements: @aee_teachers, label: t('.aee_teacher'),
-                  placeholder: t('.select_aee_teacher') %>
+                  placeholder: t('.select_aee_teacher'), input_html: { disabled: view_only } %>
     </div>
     <div class="col col-sm-4">
-      <%= f.input :support_professional, label: t('.support_professional') %>
+      <%= f.input :support_professional, label: t('.support_professional'),
+                  input_html: { readonly: view_only } %>
     </div>
   </div>
 
   <div class="row">
     <div class="col col-sm-4">
       <%= f.input :elaborated_at, as: :date, label: t('.elaborated_at'),
-                  input_html: { value: @individualized_educational_plan.elaborated_at.try(:strftime, '%d/%m/%Y') } %>
+                  input_html: { readonly: view_only,
+                                value: @individualized_educational_plan.elaborated_at.try(:strftime, '%d/%m/%Y') } %>
     </div>
   </div>
 
@@ -76,32 +87,36 @@
 
   <div class="row" id="iep-review-dates">
     <%= f.simple_fields_for :iep_review_dates do |review_date| %>
-      <%= render 'iep_review_date_fields', f: review_date %>
+      <%= render 'iep_review_date_fields', f: review_date, view_only: view_only %>
     <% end %>
   </div>
 
-  <div class="row">
-    <div class="col col-sm-12">
-      <%= link_to_add_association t('.add_review_date'), f, :iep_review_dates,
-            class: 'btn btn-success btn-sm',
-            data: { association_insertion_node: '#iep-review-dates', association_insertion_method: 'append' } %>
+  <% unless view_only %>
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= link_to_add_association t('.add_review_date'), f, :iep_review_dates,
+              class: 'btn btn-success btn-sm',
+              data: { association_insertion_node: '#iep-review-dates', association_insertion_method: 'append' } %>
+      </div>
     </div>
-  </div>
+  <% end %>
 
   <div class="row textarea">
     <div class="col col-sm-12">
       <legend><%= t('.attachments') %></legend>
 
-      <div class="alert alert-info fade in">
-        <i class="fa-fw fa fa-info"></i>
-        <%= t('.format_message') + ' ' + t('.size_message') %>
-      </div>
-      <br>
+      <% unless view_only %>
+        <div class="alert alert-info fade in">
+          <i class="fa-fw fa fa-info"></i>
+          <%= t('.format_message') + ' ' + t('.size_message') %>
+        </div>
+        <br>
+      <% end %>
 
       <% if @individualized_educational_plan.errors[:iep_attachments].present? %>
         <div class="alert alert-danger alert-block">
           <i class="fa-fw fa fa-times"></i>
-          <span class="help-inline"><%= @individualized_educational_plan.errors[:iep_attachments].join('<br />').html_safe %></span>
+          <span class="help-inline"><%= safe_join(@individualized_educational_plan.errors[:iep_attachments], tag(:br)) %></span>
         </div>
       <% end %>
 
@@ -109,27 +124,46 @@
         <thead>
           <tr>
             <th scope="col"><%= t('.attachments') %></th>
-            <th scope="col" style="width: 73px"></th>
+            <% unless view_only %>
+              <th scope="col" style="width: 73px"></th>
+            <% end %>
           </tr>
         </thead>
         <tbody id="iep-attachments">
-          <%= f.simple_fields_for :iep_attachments do |attachment| %>
-            <% if attachment.object.persisted? %>
-              <%= render 'iep_attachment_show', f: attachment %>
-            <% else %>
-              <%= render 'iep_attachment_fields', f: attachment %>
+          <% if view_only && @frozen_attachments.present? %>
+            <%# Versão publicada: anexos congelados do snapshot (filename/url da época). %>
+            <% @frozen_attachments.each do |attachment| %>
+              <tr class="nested-fields">
+                <td>
+                  <% if attachment['url'].present? %>
+                    <%= link_to attachment['filename'], attachment['url'], target: '_blank' %>
+                  <% else %>
+                    <span class="text-muted"><%= attachment['filename'] %></span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <%= f.simple_fields_for :iep_attachments do |attachment| %>
+              <% if attachment.object.persisted? %>
+                <%= render 'iep_attachment_show', f: attachment, view_only: view_only %>
+              <% else %>
+                <%= render 'iep_attachment_fields', f: attachment %>
+              <% end %>
             <% end %>
           <% end %>
         </tbody>
-        <tfoot class="links">
-          <tr>
-            <td colspan="2">
-              <%= link_to_add_association t('.add_attachment'), f, :iep_attachments,
-                    class: 'btn btn-success btn-sm',
-                    data: { association_insertion_node: '#iep-attachments', association_insertion_method: 'append' } %>
-            </td>
-          </tr>
-        </tfoot>
+        <% unless view_only %>
+          <tfoot class="links">
+            <tr>
+              <td colspan="2">
+                <%= link_to_add_association t('.add_attachment'), f, :iep_attachments,
+                      class: 'btn btn-success btn-sm',
+                      data: { association_insertion_node: '#iep-attachments', association_insertion_method: 'append' } %>
+              </td>
+            </tr>
+          </tfoot>
+        <% end %>
       </table>
     </div>
   </div>

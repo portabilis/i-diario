@@ -1,7 +1,8 @@
 <%# Estrutura das seções 4/5: botões de revisão > abas Por Disciplina/Por Campo >
     componentes adicionados sob demanda (modal).
     Locals: f, review_dates, association (:iep_curricular_plannings/:iep_periodic_evaluations),
-            fields_partial, dom_prefix ("s4"/"s5") %>
+            fields_partial, dom_prefix ("s4"/"s5"), view_only (opcional) %>
+<% view_only = local_assigns[:view_only] %>
 <% if review_dates.empty? %>
   <div class="alert alert-info fade in">
     <i class="fa-fw fa fa-info"></i>
@@ -20,7 +21,7 @@
 
   <% review_dates.each_with_index do |review_date, review_index| %>
     <div class="iep-review-panel" data-review-id="<%= review_date.id %>"
-         <%= 'style=display:none;'.html_safe unless review_index.zero? %>>
+         <%= 'style="display:none;"'.html_safe unless review_index.zero? %>>
       <ul class="nav nav-tabs">
         <li class="active">
           <a href="#<%= dom_prefix %>-r<%= review_date.id %>-disciplines" data-toggle="tab">
@@ -37,13 +38,13 @@
       <div class="tab-content">
         <div class="tab-pane active" id="<%= dom_prefix %>-r<%= review_date.id %>-disciplines">
           <%= render 'component_type_panel', f: f, association: association, fields_partial: fields_partial,
-                review_date: review_date, component_type: :discipline,
+                review_date: review_date, component_type: :discipline, view_only: view_only,
                 dom_id: "#{dom_prefix}-r#{review_date.id}-d" %>
         </div>
 
         <div class="tab-pane" id="<%= dom_prefix %>-r<%= review_date.id %>-knowledge-areas">
           <%= render 'component_type_panel', f: f, association: association, fields_partial: fields_partial,
-                review_date: review_date, component_type: :knowledge_area,
+                review_date: review_date, component_type: :knowledge_area, view_only: view_only,
                 dom_id: "#{dom_prefix}-r#{review_date.id}-k" %>
         </div>
       </div>

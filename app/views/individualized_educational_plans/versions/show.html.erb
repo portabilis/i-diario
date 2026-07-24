@@ -1,3 +1,9 @@
+<%# Mesmo JS do form: navegação do wizard. A busca de responsáveis fica desligada
+    (student_fetch: false) — na versão os dados vêm congelados do snapshot. %>
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/form' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <div class="smart-form">
     <fieldset>
@@ -13,15 +19,15 @@
         </h4>
       </div>
       <div class="text-right">
-        <%= link_to t('.back'), individualized_educational_plan_versions_path(@individualized_educational_plan),
+        <%= link_to t('.back'), individualized_educational_plan_versions_path(@version.iep),
               class: 'btn btn-default' %>
         <%= link_to t('helpers.links.print_html'),
-              individualized_educational_plan_version_path(@individualized_educational_plan, @version, format: :pdf),
+              individualized_educational_plan_version_path(@version.iep, @version, format: :pdf),
               class: 'btn btn-info apply_tooltip', target: '_blank',
               data: { original_title: t('.download_pdf') } %>
       </div>
     </fieldset>
-
-    <%= render 'individualized_educational_plans/plan_content', presenter: @presenter %>
   </div>
+
+  <%= render 'individualized_educational_plans/form', view_only: true, student_fetch: false %>
 </div>

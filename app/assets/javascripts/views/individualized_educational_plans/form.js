@@ -4,10 +4,14 @@ $(function() {
   var $wizard = $('#pei-wizard');
   if ($wizard.length === 0) { return; }
 
+  var flashMessages = new FlashMessages();
+
   // Etapas do topo do wizard (fuelux steps); os painéis top-level ficam em .tab-content direto do wizard
   var $steps = $wizard.find('.fuelux .steps li');
   var $panes = $wizard.children('.tab-content').children('.tab-pane');
   var $studentSelect = $('.iep-student-select');
+  // Na versão publicada os dados do aluno vêm congelados do snapshot: não busca no i-Educar.
+  var studentFetchEnabled = $wizard.data('student-fetch') !== 'off';
 
   // ---- Navegação em passos (fuelux wizard: badge numerada + chevron) ----
   function currentIndex() {
@@ -42,12 +46,11 @@ $(function() {
   refreshButtons();
 
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
-  $studentSelect.on('change', function() {
-    var studentId = $(this).val();
+  function fetchStudentData(studentId) {
     var $warning = $('.iep-existing-plan-warning');
 
-    // Trocar o aluno limpa o erro de duplicidade renderizado no submit anterior:
-    // remove a classe .error do .control-group (tira a borda vermelha do select2) e a mensagem.
+    // Limpa o erro de duplicidade do submit anterior: remove a classe .error do
+    // .control-group (tira a borda vermelha do select2) e a mensagem.
     var $wrapper = $studentSelect.closest('.control-group');
     $wrapper.removeClass('error');
     $wrapper.find('span.help-inline, .help-inline.error, span.error').remove();
@@ -55,21 +58,49 @@ $(function() {
     if (!studentId || studentId === 'empty') { $warning.hide(); return; }
 
     var params = { student_id: studentId, format: 'json' };
-    var planId = $studentSelect.data('plan-id');
+    var planId = $wizard.data('plan-id');
     if (planId) { params.plan_id = planId; }
 
-    $.getJSON(
-      Routes.student_data_individualized_educational_plans_pt_br_path(params),
-      function(data) {
+    // Limpa os campos ANTES da requisição: numa falha (sessão expirada, sem permissão,
+    // timeout), o error handler abaixo assume — sem isso, os campos ficariam com o
+    // dado do aluno anterior rotulado como sendo do aluno recém-selecionado.
+    $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+    $('.iep-guardians-warning').hide();
+    $warning.hide();
+
+    $.ajax({
+      url: Routes.student_data_individualized_educational_plans_pt_br_path(params),
+      dataType: 'json',
+      success: function(data) {
         $('.iep-birth-date').val(data.birth_date || '');
         $('.iep-guardians').val(data.guardians || '');
         $('.iep-diagnosis').val(data.diagnosis || '');
         $('.iep-shift').val(data.shift || '');
+        $('.iep-guardians-warning').toggle(!!data.guardians_unavailable);
         // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
         $warning.toggle(!!data.has_existing_plan);
+      },
+      error: function() {
+        $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+        $('.iep-guardians-warning').hide();
+        $warning.hide();
+        flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
       }
-    );
+    });
+  }
+
+  $studentSelect.on('change', function() {
+    if (studentFetchEnabled) { fetchStudentData($(this).val()); }
   });
+
+  // Aluno já selecionado ao abrir a tela (edição, ou reabertura após erro de validação):
+  // busca os dados via AJAX, já que "Responsáveis" não vem preenchido do servidor. Na edição
+  // o select2 popula as options só DEPOIS deste código (o select ainda está vazio aqui), então
+  // o valor confiável do aluno é o hidden renderizado pelo servidor.
+  var initialStudentId = $studentSelect.val() || $('input[type="hidden"][name$="[student_id]"]').val();
+  if (studentFetchEnabled && initialStudentId && initialStudentId !== 'empty') {
+    fetchStudentData(initialStudentId);
+  }
 
   // ---- Finalizar: o modal "Salvar versão" preenche version_name e submete o próprio form ----
   var finalizeConfirmed = false;
@@ -139,9 +170,10 @@ $(function() {
   var $componentModal = $('#iep-component-modal');
   var $componentModalSelect = $('#iep-component-modal-select');
   var pendingAdd = null;
+  var newComponentKey = 0;
 
   function usedComponentIds($panels) {
-    var field = $panels.data('component-type') === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
+    var field = $panels.data('component-type') + '_id';
 
     return $panels.find('.iep-component-panel')
       .filter(function() {
@@ -161,9 +193,10 @@ $(function() {
 
     pendingAdd = { $panels: $panels, componentType: componentType };
 
-    $componentModal.find('.modal-title').text(
-      componentType === 'discipline' ? $componentModal.find('.modal-title').data('title-discipline')
-                                     : $componentModal.find('.modal-title').data('title-knowledge-area')
+    var $modalTitle = $componentModal.find('.modal-title');
+    $modalTitle.text(
+      componentType === 'discipline' ? $modalTitle.data('title-discipline')
+                                     : $modalTitle.data('title-knowledge-area')
     );
 
     if ($componentModalSelect.data('select2')) { $componentModalSelect.select2('destroy'); }
@@ -187,7 +220,12 @@ $(function() {
     if (!pendingAdd || !pendingAdd.component) { return; }
 
     var $panels = pendingAdd.$panels;
-    var field = pendingAdd.componentType === 'discipline' ? 'discipline_id' : 'knowledge_area_id';
+    var field = pendingAdd.componentType + '_id';
+
+    // O cocoon insere todo componente novo com o mesmo data-key literal ("new_<assoc>"),
+    // então geramos uma chave única aqui para o painel e a pill não colidirem entre si.
+    var uniqueKey = 'new_component_' + (newComponentKey += 1);
+    insertedItem.attr('data-key', uniqueKey);
 
     insertedItem.find('input[name$="[iep_review_date_id]"]').val($panels.data('review-id'));
     insertedItem.find('input[name$="[' + field + ']"]').val(pendingAdd.component.id);
@@ -197,7 +235,7 @@ $(function() {
     $pills.find('li').removeClass('active');
     $pills.append(
       $('<li class="active"><a href="javascript:void(0)"></a></li>')
-        .find('a').text(pendingAdd.component.text).attr('data-target-key', insertedItem.data('key')).end()
+        .find('a').text(pendingAdd.component.text).attr('data-target-key', uniqueKey).end()
     );
 
     $panels.find('.iep-component-panel').hide();

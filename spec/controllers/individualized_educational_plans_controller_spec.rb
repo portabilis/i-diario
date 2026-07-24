@@ -154,6 +154,22 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
+
+    it 'destroys the plan even with data in sections 4 and 5 (regression: cascade order blocked deletion)' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+      create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date, acquired_skills: 'Habilidades')
+
+      expect {
+        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+      }.to change(IndividualizedEducationalPlan, :count).by(-1)
+        .and change(IepReviewDate, :count).by(-1)
+        .and change(IepCurricularPlanning, :count).by(-1)
+        .and change(IepPeriodicEvaluation, :count).by(-1)
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+    end
   end
 
   describe 'GET #fetch_students_by_classroom' do
@@ -210,28 +226,50 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #student_data' do
+    let(:classroom) { create(:classroom) }
+
     before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
       allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
-    it 'returns the student identification data with the existing-plan flag' do
+    # Enturma o aluno numa turma do perfil, tornando-o permitido em #student_data.
+    def enroll(student, target_classroom)
+      classrooms_grade = create(:classrooms_grade, classroom: target_classroom)
+      enrollment = create(:student_enrollment, student: student)
+      create(:student_enrollment_classroom, student_enrollment: enrollment,
+                                            classrooms_grade: classrooms_grade)
+    end
+
+    it 'returns the full identification contract (all fields form.js consumes) plus the flag' do
       student = create(:student)
-      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data)
-        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva')
+      enroll(student, classroom)
+      expect(IndividualizedEducationalPlanPrefill).to receive(:student_data)
+        .with(kind_of(Student), classroom: classroom)
+        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva', shift: 'Matutino')
 
       get :student_data, params: { locale: 'pt-BR', student_id: student.id, format: :json }
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to eq(
         'birth_date' => '10/03/2015', 'diagnosis' => 'TEA', 'guardians' => 'Maria Silva',
-        'has_existing_plan' => false
+        'shift' => 'Matutino', 'has_existing_plan' => false
       )
+    end
+
+    it 'does not return data for a student outside the permitted classrooms' do
+      other_student = create(:student) # não enturmado nas turmas do perfil
+      expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
+
+      get :student_data, params: { locale: 'pt-BR', student_id: other_student.id, format: :json }
+
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'flags when the student already has a plan for the year' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
       plan = create(:individualized_educational_plan, year: Date.current.year)
+      enroll(plan.student, classroom)
 
       get :student_data, params: { locale: 'pt-BR', student_id: plan.student_id, format: :json }
 
@@ -241,12 +279,25 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'ignores the plan being edited when flagging (plan_id)' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
       plan = create(:individualized_educational_plan, year: Date.current.year)
+      enroll(plan.student, classroom)
 
       get :student_data, params: {
         locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
       }
 
       expect(JSON.parse(response.body)['has_existing_plan']).to eq(false)
+    end
+
+    it "returns the plan's own student on edit even if not enrolled in the profile classroom (plan_id)" do
+      plan = create(:individualized_educational_plan) # aluno NÃO enturmado na turma do perfil
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return(guardians: 'Maria Silva')
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
+      }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['guardians']).to eq('Maria Silva')
     end
   end
 
@@ -374,6 +425,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       get :new, params: { locale: 'pt-BR' }
 
       expect(assigns(:individualized_educational_plan).iep_review_dates.size).to eq(3)
+    end
+
+    # O require_current_classroom roda em TODAS as actions (não só no index): sem turma
+    # no perfil, o new também é barrado antes de montar o formulário.
+    it 'redirects to root without a classroom in the profile' do
+      allow(controller).to receive(:current_user_classroom).and_return(nil)
+
+      get :new, params: { locale: 'pt-BR' }
+
+      expect(response).to redirect_to(root_path)
     end
   end
 
@@ -584,6 +645,28 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(review_date.reload.destroy).to be_truthy
     end
 
+    it 'clears a section line and removes its review in the same submit (regression: prune ran too late to allow it)' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => {
+            id: planning.id, long_term_goal: '', stage_objectives: '', skills_to_develop: '', methodologies: '',
+            instructional_accommodation_option_ids: '', environmental_accommodation_option_ids: '',
+            assessment_accommodation_option_ids: ''
+          } },
+          iep_review_dates_attributes: { '0' => { id: review_date.id, _destroy: '1' } }
+        }
+      }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(IepCurricularPlanning.exists?(planning.id)).to eq(false)
+      expect(IepReviewDate.exists?(review_date.id)).to eq(false)
+    end
+
     it 'updates the plan and redirects to the index' do
       plan = create(:individualized_educational_plan)
 
@@ -593,6 +676,53 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(plan.reload.characterization).to eq('Atualizado')
       expect(response).to redirect_to(individualized_educational_plans_path)
+    end
+
+    it 'does not allow the student to be changed on update' do
+      plan = create(:individualized_educational_plan)
+      new_student = create(:student)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: { student_id: new_student.id, characterization: 'Tentativa de troca' }
+      }
+
+      expect(plan.reload.student_id).not_to eq(new_student.id)
+      expect(plan.reload.characterization).to eq('Tentativa de troca')
+    end
+
+    it 'assigns section 4 accommodations submitted as a comma-separated string (select2 nested)' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      discipline = create(:discipline)
+      acc_a = create(:iep_option, :instructional_accommodation)
+      acc_b = create(:iep_option, :instructional_accommodation)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => {
+            iep_review_date_id: review_date.id, discipline_id: discipline.id, long_term_goal: 'Meta',
+            instructional_accommodation_option_ids: [acc_a.id, acc_b.id].join(',')
+          } }
+        }
+      }
+
+      planning = plan.reload.iep_curricular_plannings.first
+      expect(planning.instructional_accommodation_option_ids).to match_array([acc_a.id, acc_b.id])
+    end
+
+    it 'discards an attachment row submitted without a file' do
+      plan = create(:individualized_educational_plan)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_attachments_attributes: { '0' => { attachment: '', attachment_cache: '' } }
+        }
+      }
+
+      expect(plan.reload.iep_attachments).to be_empty
     end
   end
 
