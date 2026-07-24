@@ -19,7 +19,7 @@ RSpec.describe IndividualizedEducationalPlanReportPresenter, type: :presenter do
              discipline: create(:discipline, description: 'Matemática'), long_term_goal: 'Meta anual')
 
       from_record = described_class.from_record(plan)
-      version = IndividualizedEducationalPlanPublisher.publish!(plan, name: 'V1', published_by: create(:user))
+      version = IndividualizedEducationalPlanPublisher.publish!(plan, name: 'Versão 1', published_by: create(:user))
       from_snapshot = described_class.from_snapshot(version.reload.content)
 
       expect(from_record.identification['student_name']).to eq(plan.student.name)
