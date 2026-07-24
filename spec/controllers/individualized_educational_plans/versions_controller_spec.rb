@@ -27,6 +27,29 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
       expect(response).to have_http_status(:ok)
       expect(assigns(:versions)).to eq([newer, older])
     end
+
+    it 'renders an empty history when the plan has no versions yet' do
+      plan = create(:individualized_educational_plan)
+
+      get :index, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id }
+
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:versions)).to eq([])
+    end
+
+    context 'with real authorization' do
+      before { allow(controller).to receive(:authorize).and_call_original }
+
+      it 'denies access when the user cannot view the feature' do
+        allow_any_instance_of(User).to receive(:can_show?)
+          .with('individualized_educational_plans').and_return(false)
+        plan = create(:individualized_educational_plan)
+
+        get :index, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id }
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
   end
 
   describe 'GET #show' do

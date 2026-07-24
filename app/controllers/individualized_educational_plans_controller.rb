@@ -151,6 +151,9 @@ class IndividualizedEducationalPlansController < ApplicationController
 
       saved
     end
+  rescue ActiveRecord::RecordNotUnique
+    @individualized_educational_plan.errors.add(:base, t('individualized_educational_plans.finalize.already_published'))
+    false
   end
 
   def respond_after_save
