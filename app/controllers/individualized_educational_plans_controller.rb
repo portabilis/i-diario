@@ -54,13 +54,13 @@ class IndividualizedEducationalPlansController < ApplicationController
       classroom_id: current_user_classroom&.id,
       teacher_id: teacher&.id,
       year: current_school_year,
-      elaborated_at: Date.current,
-      unity_name: current_unity&.name,
-      classroom_name: current_user_classroom&.description,
-      teacher_name: teacher&.name
+      elaborated_at: Date.current
     )
     authorize @individualized_educational_plan
 
+    # Deriva unity_name/classroom_name/teacher_name dos *_id recém-atribuídos (mesma lógica
+    # da re-renderização); no new não há aluno, então o prefill é no-op.
+    assign_display_fields
     build_default_review_dates
     set_form_options
   end
@@ -169,10 +169,11 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def set_form_options
     @students = permitted_students.order(:name)
+    classroom_ids = @classrooms.map(&:id)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
     @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
-    @disciplines = Discipline.by_classroom_id(@classrooms.map(&:id)).ordered
-    @knowledge_areas = KnowledgeArea.by_classroom_id(@classrooms.map(&:id)).ordered
+    @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
+    @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
   end
 
   # Alunos que o usuário pode selecionar no PEI: enturmados nas turmas do seu perfil.

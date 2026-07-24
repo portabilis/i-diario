@@ -38,21 +38,14 @@ class IndividualizedEducationalPlan < ApplicationRecord
   accepts_nested_attributes_for :iep_review_dates, allow_destroy: true,
                                 reject_if: ->(attrs) { attrs['id'].blank? && attrs['review_date'].blank? }
 
-  # Campos que caracterizam "conteúdo preenchido" nas seções 4 e 5 — a régua para
-  # não criar linha nova vazia (reject_if) e para remover linha salva que foi esvaziada (prune).
-  SECTION4_CONTENT_FIELDS = %w[
-    long_term_goal stage_objectives skills_to_develop methodologies
-    instructional_accommodation_option_ids environmental_accommodation_option_ids
-    assessment_accommodation_option_ids
-  ].freeze
-  SECTION5_CONTENT_FIELDS = %w[
-    acquired_skills in_progress_skills not_acquired_skills period_report next_stage_adjustments
-  ].freeze
-
+  # Linha nova (sem id) totalmente vazia é descartada. A régua de "vazio" é UMA só: o
+  # empty_content? de cada model (o mesmo usado pelo prune de linhas salvas), evitando
+  # manter duas listas de campos em sincronia — quem esquecer uma delas reintroduz o bug
+  # de linha salva vazia travando/sumindo.
   accepts_nested_attributes_for :iep_curricular_plannings, allow_destroy: true,
-    reject_if: ->(attrs) { attrs['id'].blank? && SECTION4_CONTENT_FIELDS.all? { |field| attrs[field].blank? } }
+    reject_if: ->(attrs) { attrs['id'].blank? && IepCurricularPlanning.new(attrs.except('id', '_destroy')).empty_content? }
   accepts_nested_attributes_for :iep_periodic_evaluations, allow_destroy: true,
-    reject_if: ->(attrs) { attrs['id'].blank? && SECTION5_CONTENT_FIELDS.all? { |field| attrs[field].blank? } }
+    reject_if: ->(attrs) { attrs['id'].blank? && IepPeriodicEvaluation.new(attrs.except('id', '_destroy')).empty_content? }
 
   # Remove no save a linha já salva que foi esvaziada no formulário. Em before_validation
   # para rodar antes da validação abaixo, que precisa enxergar a linha já marcada como removida.
