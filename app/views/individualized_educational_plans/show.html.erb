@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/form' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <div class="smart-form">
     <fieldset>
@@ -13,7 +17,7 @@
               class: 'btn btn-success' %>
       </div>
     </fieldset>
-
-    <%= render 'plan_content', presenter: @presenter %>
   </div>
+
+  <%= render 'form', view_only: true %>
 </div>

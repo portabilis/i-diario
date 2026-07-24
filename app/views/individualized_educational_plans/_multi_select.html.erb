@@ -1,12 +1,13 @@
 <%# Multi-select de opções do PEI (seções 2, 3 e 4). O valor precisa sair separado por
     vírgula (join) + without_json_parser: sem isso o Rails serializa o Array com ESPAÇO
     (value="1 2"), o JSON.parse do select2 global estoura e trava o JS da tela na edição.
-    Locals: f, attribute (ex.: :communication_profile), kind, label %>
+    Locals: f, attribute (ex.: :communication_profile), kind, label, view_only (opcional) %>
 <div class="row">
   <div class="col col-sm-12">
     <%= f.input :"#{attribute}_option_ids", as: :select2, multiple: true,
                 elements: @iep_options_by_kind[kind], label: label,
                 input_html: { value: f.object.public_send("#{attribute}_option_ids").join(','),
+                              disabled: local_assigns[:view_only],
                               data: { without_json_parser: true } } %>
   </div>
 </div>

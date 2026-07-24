@@ -10,6 +10,8 @@ $(function() {
   var $steps = $wizard.find('.fuelux .steps li');
   var $panes = $wizard.children('.tab-content').children('.tab-pane');
   var $studentSelect = $('.iep-student-select');
+  // Na versão publicada os dados do aluno vêm congelados do snapshot: não busca no i-Educar.
+  var studentFetchEnabled = $wizard.data('student-fetch') !== 'off';
 
   // ---- Navegação em passos (fuelux wizard: badge numerada + chevron) ----
   function currentIndex() {
@@ -87,14 +89,16 @@ $(function() {
     });
   }
 
-  $studentSelect.on('change', function() { fetchStudentData($(this).val()); });
+  $studentSelect.on('change', function() {
+    if (studentFetchEnabled) { fetchStudentData($(this).val()); }
+  });
 
   // Aluno já selecionado ao abrir a tela (edição, ou reabertura após erro de validação):
   // busca os dados via AJAX, já que "Responsáveis" não vem preenchido do servidor. Na edição
   // o select2 popula as options só DEPOIS deste código (o select ainda está vazio aqui), então
   // o valor confiável do aluno é o hidden renderizado pelo servidor.
   var initialStudentId = $studentSelect.val() || $('input[type="hidden"][name$="[student_id]"]').val();
-  if (initialStudentId && initialStudentId !== 'empty') {
+  if (studentFetchEnabled && initialStudentId && initialStudentId !== 'empty') {
     fetchStudentData(initialStudentId);
   }
 

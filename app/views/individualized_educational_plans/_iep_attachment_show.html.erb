@@ -1,3 +1,4 @@
+<% view_only = local_assigns[:view_only] %>
 <tr class="nested-fields">
   <td>
     <% if f.object.filename.present? %>
@@ -6,7 +7,9 @@
       <span class="text-muted"><%= t('.file_unavailable') %></span>
     <% end %>
   </td>
-  <td class="text-center" style="width: 60px;">
-    <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
-  </td>
+  <% unless view_only %>
+    <td class="text-center" style="width: 60px;">
+      <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
+    </td>
+  <% end %>
 </tr>

@@ -1,13 +1,16 @@
+<% view_only = local_assigns[:view_only] %>
 <div class="col col-sm-3 nested-fields">
   <table style="width: 100%;">
     <tr>
       <td>
         <%= f.input :review_date, as: :date, label: false,
-              input_html: { value: f.object.review_date.try(:strftime, '%d/%m/%Y') } %>
+              input_html: { readonly: view_only, value: f.object.review_date.try(:strftime, '%d/%m/%Y') } %>
       </td>
-      <td class="actions" style="width: 1px; padding-left: 6px; vertical-align: top;">
-        <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
-      </td>
+      <% unless view_only %>
+        <td class="actions" style="width: 1px; padding-left: 6px; vertical-align: top;">
+          <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
+        </td>
+      <% end %>
     </tr>
   </table>
 </div>

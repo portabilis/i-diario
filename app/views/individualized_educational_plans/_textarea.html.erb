@@ -1,8 +1,9 @@
 <%# Textarea padrão de texto livre das seções do PEI.
-    Locals: f, attribute, label, placeholder (opcional) %>
+    Locals: f, attribute, label, placeholder (opcional), view_only (opcional) %>
 <div class="row textarea">
   <div class="col col-sm-12">
     <%= f.input attribute, label: label,
-                input_html: { rows: 4, class: 'form-control', placeholder: local_assigns[:placeholder] } %>
+                input_html: { rows: 4, class: 'form-control', placeholder: local_assigns[:placeholder],
+                              readonly: local_assigns[:view_only] } %>
   </div>
 </div>

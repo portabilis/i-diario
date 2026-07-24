@@ -1,8 +1,14 @@
+<% view_only = local_assigns[:view_only] %>
+<%# student_fetch: liga a busca AJAX dos responsáveis (novo/editar/plano vivo). Na versão
+    publicada os dados vêm congelados do snapshot, então fica desligada (false). %>
+<% student_fetch = local_assigns.fetch(:student_fetch, true) %>
+<%# Em modo leitura (view_only) o submit é bloqueado: campos disabled não seriam enviados
+    e um submit acidental (Enter) apagaria opções/anexos. A tela é só visualização. %>
 <%= simple_form_for @individualized_educational_plan,
       url: (@individualized_educational_plan.persisted? ?
             individualized_educational_plan_path(@individualized_educational_plan) :
             individualized_educational_plans_path),
-      html: { class: 'smart-form', multipart: true } do |f| %>
+      html: { class: 'smart-form', multipart: true, onsubmit: ('return false;' if view_only) } do |f| %>
 
   <%= f.error_notification %>
 
@@ -13,7 +19,8 @@
     </div>
   <% end %>
 
-  <div id="pei-wizard" data-plan-id="<%= @individualized_educational_plan.id %>">
+  <div id="pei-wizard" data-plan-id="<%= @individualized_educational_plan.id %>"
+       data-student-fetch="<%= student_fetch ? 'on' : 'off' %>">
     <div class="fuelux">
       <div class="wizard">
         <ul class="steps">
@@ -30,22 +37,26 @@
 
     <div class="tab-content">
       <div class="tab-pane active" id="pei-step-1">
-        <%= render 'section_identification', f: f %>
+        <%= render 'section_identification', f: f, view_only: view_only %>
       </div>
 
       <div class="tab-pane" id="pei-step-2">
-        <%= render 'section_characterization', f: f %>
+        <%= render 'section_characterization', f: f, view_only: view_only %>
       </div>
 
       <div class="tab-pane" id="pei-step-3">
-        <%= render 'section_support_team', f: f %>
+        <%= render 'section_support_team', f: f, view_only: view_only %>
       </div>
 
-      <% review_dates = @individualized_educational_plan.iep_review_dates.select(&:persisted?).sort_by(&:review_date) %>
+      <%# No modo leitura inclui também as datas reconstruídas da versão (não persistidas);
+          no plano vivo/edição, só as já salvas. %>
+      <% review_dates = @individualized_educational_plan.iep_review_dates
+                          .select { |review_date| view_only || review_date.persisted? }
+                          .sort_by(&:review_date) %>
 
       <div class="tab-pane" id="pei-step-4">
         <fieldset>
-          <%= render 'review_component_section', f: f, review_dates: review_dates,
+          <%= render 'review_component_section', f: f, review_dates: review_dates, view_only: view_only,
                 association: :iep_curricular_plannings,
                 fields_partial: 'iep_curricular_planning_fields', dom_prefix: 's4' %>
         </fieldset>
@@ -53,75 +64,79 @@
 
       <div class="tab-pane" id="pei-step-5">
         <fieldset>
-          <%= render 'review_component_section', f: f, review_dates: review_dates,
+          <%= render 'review_component_section', f: f, review_dates: review_dates, view_only: view_only,
                 association: :iep_periodic_evaluations,
                 fields_partial: 'iep_periodic_evaluation_fields', dom_prefix: 's5' %>
         </fieldset>
       </div>
 
       <div class="tab-pane" id="pei-step-6">
-        <%= render 'section_final_evaluation', f: f %>
+        <%= render 'section_final_evaluation', f: f, view_only: view_only %>
       </div>
     </div>
   </div>
 
   <footer>
-    <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default pull-left' %>
+    <% unless view_only %>
+      <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default pull-left' %>
 
-    <button type="button" class="btn btn-success pei-wizard-finish" data-toggle="modal" data-target="#iep-finalize-modal">
-      <%= t('.finalize') %>
-    </button>
+      <button type="button" class="btn btn-success pei-wizard-finish" data-toggle="modal" data-target="#iep-finalize-modal">
+        <%= t('.finalize') %>
+      </button>
+    <% end %>
     <button type="button" class="btn btn-info pei-wizard-next"><%= t('.next') %></button>
     <button type="button" class="btn btn-info pei-wizard-prev"><%= t('.previous') %></button>
   </footer>
 
-  <%# Modal do Finalizar (issue): salva e publica no mesmo submit do formulário. %>
-  <div class="modal fade" id="iep-finalize-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="margin-top: 30vh;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
-          <h4 class="modal-title"><%= t('.finalize_modal_title') %></h4>
-        </div>
-        <div class="modal-body">
-          <p><strong><%= t('.finalize_modal_subtitle') %></strong></p>
-          <p><%= t('.finalize_modal_text') %></p>
-          <section>
-            <label class="label" for="version_name"><%= t('.version_name') %></label>
-            <label class="input">
-              <%= text_field_tag :version_name, nil, minlength: 3, maxlength: 100 %>
-            </label>
-            <em class="text-danger iep-version-name-error" style="display: none;">
-              <%= t('.version_name_min_length') %>
-            </em>
-          </section>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.modal_cancel') %></button>
-          <button type="button" class="btn btn-success" id="iep-finalize-confirm"><%= t('.finalize_modal_confirm') %></button>
+  <% unless view_only %>
+    <%# Modal do Finalizar: salva e publica no mesmo submit do formulário. %>
+    <div class="modal fade" id="iep-finalize-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            <h4 class="modal-title"><%= t('.finalize_modal_title') %></h4>
+          </div>
+          <div class="modal-body">
+            <p><strong><%= t('.finalize_modal_subtitle') %></strong></p>
+            <p><%= t('.finalize_modal_text') %></p>
+            <section>
+              <label class="label" for="version_name"><%= t('.version_name') %></label>
+              <label class="input">
+                <%= text_field_tag :version_name, nil, minlength: 3, maxlength: 100 %>
+              </label>
+              <em class="text-danger iep-version-name-error" style="display: none;">
+                <%= t('.version_name_min_length') %>
+              </em>
+            </section>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.modal_cancel') %></button>
+            <button type="button" class="btn btn-success" id="iep-finalize-confirm"><%= t('.finalize_modal_confirm') %></button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="modal fade" id="iep-component-modal" tabindex="-1" role="dialog"
-       data-disciplines="<%= @disciplines.map { |discipline| { id: discipline.id, name: discipline.description, text: discipline.description } }.to_json %>"
-       data-knowledge-areas="<%= @knowledge_areas.map { |area| { id: area.id, name: area.description, text: area.description } }.to_json %>">
-    <div class="modal-dialog" role="document" style="margin-top: 30vh;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
-          <h4 class="modal-title" data-title-discipline="<%= t('.add_discipline') %>"
-              data-title-knowledge-area="<%= t('.add_knowledge_area') %>"></h4>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="iep-component-modal-select" style="width: 100%;">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.modal_cancel') %></button>
-          <button type="button" class="btn btn-primary" id="iep-component-modal-confirm"><%= t('.modal_confirm') %></button>
+    <div class="modal fade" id="iep-component-modal" tabindex="-1" role="dialog"
+         data-disciplines="<%= @disciplines.map { |discipline| { id: discipline.id, name: discipline.description, text: discipline.description } }.to_json %>"
+         data-knowledge-areas="<%= @knowledge_areas.map { |area| { id: area.id, name: area.description, text: area.description } }.to_json %>">
+      <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            <h4 class="modal-title" data-title-discipline="<%= t('.add_discipline') %>"
+                data-title-knowledge-area="<%= t('.add_knowledge_area') %>"></h4>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="iep-component-modal-select" style="width: 100%;">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.modal_cancel') %></button>
+            <button type="button" class="btn btn-primary" id="iep-component-modal-confirm"><%= t('.modal_confirm') %></button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 <% end %>

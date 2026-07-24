@@ -38,4 +38,26 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
     expect(rendered).to include('iep-component-panel')
     expect(rendered).not_to include('translation_missing')
   end
+
+  # Modo leitura (view_only): mesmo formulário, sem controles de edição.
+  context 'in view_only mode' do
+    it 'renders read-only without edit controls and blocks submit' do
+      plan = create(:individualized_educational_plan)
+      review = create(:iep_review_date, iep: plan)
+      create(:iep_curricular_planning, iep: plan, iep_review_date: review, long_term_goal: 'Meta')
+      assign_form_options(plan.reload)
+
+      expect do
+        render partial: 'individualized_educational_plans/form', locals: { view_only: true }
+      end.not_to raise_error
+
+      expect(rendered).to include('id="pei-wizard"')
+      expect(rendered).not_to include('translation_missing')
+      # Bloqueia submit e não exibe os controles de edição/finalização.
+      expect(rendered).to include('onsubmit="return false;"')
+      expect(rendered).not_to include('pei-wizard-finish')
+      expect(rendered).not_to include('iep-finalize-modal')
+      expect(rendered).not_to include('iep-add-component')
+    end
+  end
 end

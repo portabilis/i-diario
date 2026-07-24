@@ -45,10 +45,11 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def show
-    @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
-    @presenter = IndividualizedEducationalPlanReportPresenter.from_record(@individualized_educational_plan)
-
+    @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
+
+    assign_display_fields
+    set_form_options
   end
 
   def new
@@ -83,10 +84,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def edit
-    @individualized_educational_plan = IndividualizedEducationalPlan.includes(
-      iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
-      iep_periodic_evaluations: [:discipline, :knowledge_area]
-    ).find(params[:id])
+    @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
 
     assign_display_fields
@@ -157,6 +155,13 @@ class IndividualizedEducationalPlansController < ApplicationController
     assign_display_fields
     set_form_options
     render action
+  end
+
+  def plan_with_components
+    IndividualizedEducationalPlan.includes(
+      iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
+      iep_periodic_evaluations: [:discipline, :knowledge_area]
+    ).find(params[:id])
   end
 
   # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
