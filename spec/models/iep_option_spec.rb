@@ -6,6 +6,19 @@ RSpec.describe IepOption, type: :model do
 
     it { expect(subject).to validate_presence_of(:kind) }
     it { expect(subject).to validate_presence_of(:description) }
+
+    it 'is invalid with a kind outside the enumeration' do
+      option = build(:iep_option, kind: 99)
+
+      expect(option).not_to be_valid
+      expect(option.errors[:kind]).to include(I18n.t('errors.messages.inclusion'))
+    end
+
+    it 'is valid with a kind from the enumeration' do
+      option = build(:iep_option, kind: IepOptionKinds::ASSESSMENT_ACCOMMODATION)
+
+      expect(option).to be_valid
+    end
   end
 
   describe '.by_kind' do
@@ -43,6 +56,14 @@ RSpec.describe IepOption, type: :model do
 
     it 'returns nil for an unknown kind (does not raise)' do
       expect(IepOptionKinds.value_of(:bogus)).to be_nil
+    end
+  end
+
+  describe '#to_s' do
+    it 'returns the description (label used by the selects)' do
+      option = build(:iep_option, description: 'Comunicação alternativa')
+
+      expect(option.to_s).to eq('Comunicação alternativa')
     end
   end
 end
