@@ -20,7 +20,7 @@
 
   <% review_dates.each_with_index do |review_date, review_index| %>
     <div class="iep-review-panel" data-review-id="<%= review_date.id %>"
-         <%= 'style=display:none;'.html_safe unless review_index.zero? %>>
+         <%= 'style="display:none;"'.html_safe unless review_index.zero? %>>
       <ul class="nav nav-tabs">
         <li class="active">
           <a href="#<%= dom_prefix %>-r<%= review_date.id %>-disciplines" data-toggle="tab">

@@ -1,0 +1,13 @@
+<%# Cabeçalho comum das linhas de componente das seções 4 e 5 (planejamento/avaliação):
+    hidden de vínculo + título (o JS depende do .iep-component-title) + botão de remover.
+    Local: f %>
+<%= f.input_field :iep_review_date_id, as: :hidden %>
+<%= f.input_field :discipline_id, as: :hidden %>
+<%= f.input_field :knowledge_area_id, as: :hidden %>
+
+<legend>
+  <span class="iep-component-title"><%= f.object.discipline&.description || f.object.knowledge_area&.description %></span>
+  <span class="pull-right">
+    <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f, class: 'btn btn-danger btn-sm' %>
+  </span>
+</legend>

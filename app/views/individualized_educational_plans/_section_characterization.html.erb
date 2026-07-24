@@ -1,83 +1,14 @@
 <fieldset>
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :characterization, label: t('.characterization'),
-                  input_html: { rows: 4, class: 'form-control', placeholder: t('.characterization_placeholder') } %>
-    </div>
-  </div>
+  <% %i[characterization clinical_diagnosis_justification school_history potentialities
+        difficulties preferences_interests effective_strategies].each do |field| %>
+    <%= render 'textarea', f: f, attribute: field, label: t(".#{field}"),
+          placeholder: t(".#{field}_placeholder", default: '').presence %>
+  <% end %>
 
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :clinical_diagnosis_justification, label: t('.clinical_diagnosis_justification'),
-                  input_html: { rows: 4, class: 'form-control' } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :school_history, label: t('.school_history'),
-                  input_html: { rows: 4, class: 'form-control', placeholder: t('.school_history_placeholder') } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :potentialities, label: t('.potentialities'),
-                  input_html: { rows: 4, class: 'form-control', placeholder: t('.potentialities_placeholder') } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :difficulties, label: t('.difficulties'),
-                  input_html: { rows: 4, class: 'form-control', placeholder: t('.difficulties_placeholder') } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :preferences_interests, label: t('.preferences_interests'),
-                  input_html: { rows: 4, class: 'form-control' } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :effective_strategies, label: t('.effective_strategies'),
-                  input_html: { rows: 4, class: 'form-control' } %>
-    </div>
-  </div>
-
-  <%# Multi-selects: o valor precisa sair separado por vírgula (join) + without_json_parser.
-      Sem isso, o Rails serializa o Array com ESPAÇO (value="1 2"), o JSON.parse do select2
-      global estoura e trava o JS da tela na edição. (mesmo padrão em test_settings) %>
-  <div class="row">
-    <div class="col col-sm-12">
-      <%= f.input :communication_profile_option_ids, as: :select2, multiple: true,
-                  elements: @iep_options_by_kind[IepOptionKinds::COMMUNICATION_PROFILE],
-                  label: t('.communication_profile'),
-                  input_html: { value: f.object.communication_profile_option_ids.join(','),
-                                data: { without_json_parser: true } } %>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col col-sm-12">
-      <%= f.input :social_interaction_profile_option_ids, as: :select2, multiple: true,
-                  elements: @iep_options_by_kind[IepOptionKinds::SOCIAL_INTERACTION_PROFILE],
-                  label: t('.social_interaction_profile'),
-                  input_html: { value: f.object.social_interaction_profile_option_ids.join(','),
-                                data: { without_json_parser: true } } %>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col col-sm-12">
-      <%= f.input :autonomy_option_ids, as: :select2, multiple: true,
-                  elements: @iep_options_by_kind[IepOptionKinds::AUTONOMY],
-                  label: t('.autonomy'),
-                  input_html: { value: f.object.autonomy_option_ids.join(','),
-                                data: { without_json_parser: true } } %>
-    </div>
-  </div>
+  <%= render 'multi_select', f: f, attribute: :communication_profile,
+        kind: IepOptionKinds::COMMUNICATION_PROFILE, label: t('.communication_profile') %>
+  <%= render 'multi_select', f: f, attribute: :social_interaction_profile,
+        kind: IepOptionKinds::SOCIAL_INTERACTION_PROFILE, label: t('.social_interaction_profile') %>
+  <%= render 'multi_select', f: f, attribute: :autonomy,
+        kind: IepOptionKinds::AUTONOMY, label: t('.autonomy') %>
 </fieldset>
