@@ -28,19 +28,43 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
     it 'fetches the guardians from the i-Educar API' do
       api = double
       allow(api).to receive(:fetch_by_id).with(student.api_code)
-                                         .and_return('nomes_responsaveis' => ['Maria Silva', 'João Silva'])
+        .and_return('id' => student.api_code, 'nomes_responsaveis' => ['Maria Silva', 'João Silva'])
       allow(IeducarApi::Students).to receive(:new).and_return(api)
 
-      expect(described_class.student_data(student)[:guardians]).to eq('Maria Silva, João Silva')
+      data = described_class.student_data(student)
+      expect(data[:guardians]).to eq('Maria Silva, João Silva')
+      expect(data[:guardians_unavailable]).to eq(false)
     end
 
-    it 'returns nil guardians on a network/API failure without notifying Honeybadger again (Base already did)' do
+    it 'flags guardians as unavailable (not "no guardians") on a network/API failure, without notifying Honeybadger again' do
       api = double
       allow(api).to receive(:fetch_by_id).and_raise(IeducarApi::Base::GenericError.new('boom'))
       allow(IeducarApi::Students).to receive(:new).and_return(api)
       expect(Honeybadger).not_to receive(:notify)
 
-      expect(described_class.student_data(student)[:guardians]).to be_nil
+      data = described_class.student_data(student)
+      expect(data[:guardians]).to be_nil
+      expect(data[:guardians_unavailable]).to eq(true)
+    end
+
+    it 'flags guardians as unavailable when the response is from another student (contract mismatch)' do
+      api = double
+      allow(api).to receive(:fetch_by_id).and_return('id' => 'outro-codigo', 'nomes_responsaveis' => ['Fulano'])
+      allow(IeducarApi::Students).to receive(:new).and_return(api)
+
+      data = described_class.student_data(student)
+      expect(data[:guardians]).to be_nil
+      expect(data[:guardians_unavailable]).to eq(true)
+    end
+
+    it 'does not flag as unavailable when the student simply has no guardians' do
+      api = double
+      allow(api).to receive(:fetch_by_id).and_return('id' => student.api_code, 'nomes_responsaveis' => [])
+      allow(IeducarApi::Students).to receive(:new).and_return(api)
+
+      data = described_class.student_data(student)
+      expect(data[:guardians]).to be_nil
+      expect(data[:guardians_unavailable]).to eq(false)
     end
 
     it 'lets ApiError propagate (API not configured) instead of swallowing it as empty guardians' do

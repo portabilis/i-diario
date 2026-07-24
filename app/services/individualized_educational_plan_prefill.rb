@@ -18,10 +18,13 @@ class IndividualizedEducationalPlanPrefill
   end
 
   def student_data
+    # Avalia guardians primeiro: ele é quem sinaliza @guardians_unavailable, lido abaixo.
+    guardians_names = guardians
     {
       birth_date: birth_date,
       diagnosis: diagnosis,
-      guardians: guardians,
+      guardians: guardians_names,
+      guardians_unavailable: @guardians_unavailable || false,
       shift: shift
     }
   end
@@ -42,21 +45,31 @@ class IndividualizedEducationalPlanPrefill
     student.deficiencies.map(&:name).join(', ').presence
   end
 
-  # Nomes dos responsáveis vêm da API do i-Educar em tempo real (não há coluna local).
-  # Campo opcional: qualquer falha da API externa não pode quebrar o preenchimento do formulário,
-  # por isso o rescue amplo em torno da única chamada externa (com log + Honeybadger).
+  # Nomes dos responsáveis: vêm da API do i-Educar em tempo real (não há coluna local).
+  # Distingue "aluno sem responsáveis" de "não foi possível buscar": no segundo caso sinaliza
+  # @guardians_unavailable, para a tela avisar em vez de exibir um campo vazio.
   def guardians
-    return if student.api_code.blank?
+    return mark_guardians_unavailable if student.api_code.blank?
 
     response = IeducarApi::Students.new(IeducarApiConfiguration.current.to_api).fetch_by_id(student.api_code)
 
-    Array(response && response['nomes_responsaveis']).join(', ').presence
+    return mark_guardians_unavailable unless response_matches_student?(response)
+
+    Array(response['nomes_responsaveis']).join(', ').presence
   rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError => e
-    # Só falhas de rede/API são toleradas (campo opcional). ApiError (API não configurada)
-    # sobe para o rescue_from do ApplicationController sinalizar ao usuário, em vez de virar
-    # um "sem responsáveis" silencioso.
     Rails.logger.error("PEI prefill - falha ao buscar responsáveis (student #{student.id}): #{e.message}")
+    mark_guardians_unavailable
+  end
+
+  # Marca que não foi possível obter os responsáveis (sem api_code, API fora ou resposta
+  # inesperada). Retorna nil: o valor fica vazio, mas a flag informa o motivo à tela.
+  def mark_guardians_unavailable
+    @guardians_unavailable = true
     nil
+  end
+
+  def response_matches_student?(response)
+    response.is_a?(Hash) && response['id'].to_s == student.api_code.to_s
   end
 
   # Turno efetivo do aluno na turma do perfil: o período da matrícula na turma

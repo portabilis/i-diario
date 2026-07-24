@@ -63,6 +63,7 @@ $(function() {
     // timeout), o error handler abaixo assume — sem isso, os campos ficariam com o
     // dado do aluno anterior rotulado como sendo do aluno recém-selecionado.
     $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+    $('.iep-guardians-warning').hide();
     $warning.hide();
 
     $.ajax({
@@ -73,11 +74,13 @@ $(function() {
         $('.iep-guardians').val(data.guardians || '');
         $('.iep-diagnosis').val(data.diagnosis || '');
         $('.iep-shift').val(data.shift || '');
+        $('.iep-guardians-warning').toggle(!!data.guardians_unavailable);
         // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
         $warning.toggle(!!data.has_existing_plan);
       },
       error: function() {
         $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+        $('.iep-guardians-warning').hide();
         $warning.hide();
         flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
       }

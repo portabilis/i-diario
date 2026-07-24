@@ -23,6 +23,10 @@
   <div class="row">
     <div class="col col-sm-6">
       <%= f.input :guardians, label: t('.guardians'), input_html: { readonly: true, class: 'iep-guardians' } %>
+      <div class="alert alert-warning iep-guardians-warning"
+           style="display: none; margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+        <i class="fa-fw fa fa-warning"></i> <%= t('.guardians_unavailable') %>
+      </div>
     </div>
     <div class="col col-sm-6">
       <%= f.input :diagnosis, label: t('.diagnosis'), input_html: { readonly: true, class: 'iep-diagnosis' } %>
