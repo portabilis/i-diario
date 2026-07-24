@@ -36,6 +36,7 @@ pt-BR:
       finalize_modal_confirm: "Salvar"
     finalize:
       success: "Versão do Plano Educacional Individualizado publicada com sucesso."
+      already_published: "Esta versão já foi publicada. Atualize a página para ver o histórico."
     versions:
       index:
         student: "Aluno"

@@ -717,5 +717,36 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response).to render_template(:edit)
       expect(plan.reload.iep_versions.count).to eq(0)
     end
+
+    it 'rolls back the plan save when the finalize authorization is denied' do
+      plan = create(:individualized_educational_plan, characterization: 'Original')
+      allow(controller).to receive(:authorize)
+        .with(kind_of(IndividualizedEducationalPlan), :finalize?).and_raise(Pundit::NotAuthorizedError)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { characterization: 'Alterado' }
+      }
+
+      expect(response).to redirect_to(root_path)
+      expect(plan.reload.characterization).to eq('Original')
+      expect(plan.iep_versions.count).to eq(0)
+    end
+
+    it 'shows a friendly error instead of a generic failure on a concurrent finalize collision' do
+      plan = create(:individualized_educational_plan)
+      allow(IndividualizedEducationalPlanPublisher).to receive(:publish!)
+        .and_raise(ActiveRecord::RecordNotUnique.new('duplicate active version'))
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { characterization: 'X' }
+      }
+
+      expect(response).to render_template(:edit)
+      expect(assigns(:individualized_educational_plan).errors[:base])
+        .to include(I18n.t('individualized_educational_plans.finalize.already_published'))
+      expect(plan.reload.iep_versions.count).to eq(0)
+    end
   end
 end

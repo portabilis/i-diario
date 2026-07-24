@@ -38,6 +38,32 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
       expect(plan.reload.finalized_at).to be_nil
     end
 
+    it 'rolls back and raises when a line references a review date from another plan' do
+      review_date = create(:iep_review_date, iep: plan, review_date: Date.current)
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date,
+                                                  long_term_goal: 'Meta')
+
+      foreign_review_date = create(:iep_review_date, review_date: Date.current)
+      planning.update_column(:iep_review_date_id, foreign_review_date.id)
+
+      expect {
+        described_class.publish!(plan, name: 'Versão 1', published_by: user)
+      }.to raise_error(ArgumentError, /não pertence ao plano/)
+
+      expect(plan.iep_versions.count).to eq(0)
+    end
+
+    it 'never mutates the content of a previously published version' do
+      first = described_class.publish!(plan, name: 'Versão 1', published_by: user)
+      original_content = first.content.deep_dup
+
+      plan.update!(annual_report: 'Relatório alterado depois')
+      described_class.publish!(plan, name: 'Versão 2', published_by: user)
+
+      expect(first.reload.content).to eq(original_content)
+      expect(first.content['final_evaluation']['annual_report']).to eq('Relatório do ano')
+    end
+
     describe 'snapshot content' do
       it 'stores resolved names for identification and final evaluation' do
         version = described_class.publish!(plan, name: 'Versão 1', published_by: user)

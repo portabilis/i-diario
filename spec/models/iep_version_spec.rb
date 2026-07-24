@@ -6,6 +6,11 @@ RSpec.describe IepVersion, type: :model do
 
     it { expect(subject).to validate_presence_of(:name) }
     it { expect(subject).to validate_presence_of(:published_at) }
+    it { expect(subject).to validate_length_of(:name).is_at_least(3) }
+
+    it 'rejects a name shorter than the client-side minimum' do
+      expect(build(:iep_version, name: 'ab')).not_to be_valid
+    end
   end
 
   describe '.current' do
