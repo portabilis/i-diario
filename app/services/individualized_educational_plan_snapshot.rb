@@ -116,8 +116,11 @@ class IndividualizedEducationalPlanSnapshot
     options.select { |option| option.kind == kind_value }.map(&:description)
   end
 
+  # Query fresca (ordena no SQL) + memoização: a associação em memória pode estar
+  # desatualizada — a validação do plano carrega iep_review_dates antes de as datas
+  # existirem, e usar esse cache faria o número da revisão sair errado.
   def ordered_review_dates
-    plan.iep_review_dates.sort_by(&:review_date)
+    @ordered_review_dates ||= plan.iep_review_dates.order(:review_date).to_a
   end
 
   # Posição da revisão (1ª, 2ª...) na ordem cronológica das datas previstas.

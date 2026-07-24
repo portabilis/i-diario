@@ -30,7 +30,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
   end
 
   describe 'GET #show' do
-    it 'presents the version from its snapshot' do
+    it 'reconstructs the version from its snapshot into the read-only form' do
       plan = create(:individualized_educational_plan)
       version = create(:iep_version, iep: plan, active: true,
                                      content: { 'identification' => { 'student_name' => 'Aluno Congelado' } })
@@ -39,7 +39,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
 
       expect(response).to have_http_status(:ok)
       expect(assigns(:version)).to eq(version)
-      expect(assigns(:presenter).identification['student_name']).to eq('Aluno Congelado')
+      expect(assigns(:individualized_educational_plan).student.name).to eq('Aluno Congelado')
     end
   end
 end

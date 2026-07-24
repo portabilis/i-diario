@@ -5,6 +5,13 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
 
   around(:each) { |example| entity.using_connection { example.run } }
 
+  # O snapshot congela os responsáveis via i-Educar; em teste a chamada externa é stubada
+  # (em produção a url existe e uma indisponibilidade real é tratada com rescue no prefill).
+  before do
+    allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+    allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+  end
+
   let(:user) { create(:user) }
   let(:plan) { create(:individualized_educational_plan, annual_report: 'Relatório do ano') }
 
