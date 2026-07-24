@@ -20,4 +20,12 @@ class IepCurricularPlanning < ApplicationRecord
   iep_multi_select :iep_curricular_planning_options,
                    :instructional_accommodation, :environmental_accommodation,
                    :assessment_accommodation
+
+  # Sem nenhum conteúdo preenchido (textos e acomodações) — usado para remover a
+  # linha quando o usuário esvazia o formulário do componente.
+  def empty_content?
+    long_term_goal.blank? && stage_objectives.blank? &&
+      skills_to_develop.blank? && methodologies.blank? &&
+      iep_curricular_planning_options.reject(&:marked_for_destruction?).empty?
+  end
 end
