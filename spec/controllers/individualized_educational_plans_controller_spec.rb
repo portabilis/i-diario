@@ -338,13 +338,14 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
-    it 'presents the living plan' do
+    it 'presents the living plan in the read-only form' do
       plan = create(:individualized_educational_plan, characterization: 'Perfil')
 
       get :show, params: { locale: 'pt-BR', id: plan.id }
 
       expect(response).to have_http_status(:ok)
-      expect(assigns(:presenter).characterization['characterization']).to eq('Perfil')
+      expect(assigns(:individualized_educational_plan)).to eq(plan)
+      expect(assigns(:individualized_educational_plan).characterization).to eq('Perfil')
     end
   end
 
@@ -776,9 +777,11 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'publishes nothing when the plan itself is invalid' do
       plan = create(:individualized_educational_plan)
 
+      # elaborated_at é obrigatório e editável; zerá-lo invalida o plano (o student_id
+      # não é editável no update, então não serviria para invalidar).
       patch :update, params: {
         locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
-        individualized_educational_plan: { student_id: nil }
+        individualized_educational_plan: { elaborated_at: nil }
       }
 
       expect(response).to render_template(:edit)
