@@ -107,8 +107,11 @@ class IndividualizedEducationalPlanSnapshot
   end
 
   def selected_option_descriptions(kind)
-    options = plan.iep_selected_options.includes(:iep_option).map(&:iep_option)
-    option_descriptions(options, kind)
+    option_descriptions(selected_options, kind)
+  end
+
+  def selected_options
+    @selected_options ||= plan.iep_selected_options.includes(:iep_option).map(&:iep_option)
   end
 
   def option_descriptions(options, kind)
@@ -124,7 +127,13 @@ class IndividualizedEducationalPlanSnapshot
   end
 
   # Posição da revisão (1ª, 2ª...) na ordem cronológica das datas previstas.
+  # Levanta erro se a data não pertencer ao plano: como o snapshot é imutável, um
+  # iep_review_date_id órfão (form adulterado/estado obsoleto) provocaria rollback do
+  # publish! em vez de gravar review_number errado (nil.to_i + 1 == 1) no histórico.
   def review_number(review_date_id)
-    ordered_review_dates.index { |review| review.id == review_date_id }.to_i + 1
+    index = ordered_review_dates.index { |review| review.id == review_date_id }
+    raise ArgumentError, "iep_review_date_id #{review_date_id} não pertence ao plano #{plan.id}" if index.nil?
+
+    index + 1
   end
 end

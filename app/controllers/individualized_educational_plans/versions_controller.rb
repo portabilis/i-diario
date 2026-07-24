@@ -15,9 +15,9 @@ module IndividualizedEducationalPlans
       @individualized_educational_plan = IndividualizedEducationalPlan.find(
         params[:individualized_educational_plan_id]
       )
-      @versions = @individualized_educational_plan.iep_versions.includes(:published_by).recent_first
-
       authorize @individualized_educational_plan, :show?
+
+      @versions = @individualized_educational_plan.iep_versions.includes(:published_by).recent_first
     end
 
     # Visualização de uma versão publicada: reconstrói o PEI congelado a partir do
