@@ -601,5 +601,39 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(plan.reload.student_id).not_to eq(new_student.id)
       expect(plan.reload.characterization).to eq('Tentativa de troca')
     end
+
+    it 'assigns section 4 accommodations submitted as a comma-separated string (select2 nested)' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      discipline = create(:discipline)
+      acc_a = create(:iep_option, :instructional_accommodation)
+      acc_b = create(:iep_option, :instructional_accommodation)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => {
+            iep_review_date_id: review_date.id, discipline_id: discipline.id, long_term_goal: 'Meta',
+            instructional_accommodation_option_ids: [acc_a.id, acc_b.id].join(',')
+          } }
+        }
+      }
+
+      planning = plan.reload.iep_curricular_plannings.first
+      expect(planning.instructional_accommodation_option_ids).to match_array([acc_a.id, acc_b.id])
+    end
+
+    it 'discards an attachment row submitted without a file' do
+      plan = create(:individualized_educational_plan)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id,
+        individualized_educational_plan: {
+          iep_attachments_attributes: { '0' => { attachment: '', attachment_cache: '' } }
+        }
+      }
+
+      expect(plan.reload.iep_attachments).to be_empty
+    end
   end
 end

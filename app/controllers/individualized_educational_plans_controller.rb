@@ -1,4 +1,7 @@
 class IndividualizedEducationalPlansController < ApplicationController
+  # Quantidade de campos de data de revisão exibidos por padrão no formulário.
+  DEFAULT_REVIEW_DATES_COUNT = 3
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -56,10 +59,10 @@ class IndividualizedEducationalPlansController < ApplicationController
       classroom_name: current_user_classroom&.description,
       teacher_name: teacher&.name
     )
+    authorize @individualized_educational_plan
+
     build_default_review_dates
     set_form_options
-
-    authorize @individualized_educational_plan
   end
 
   def create
@@ -70,9 +73,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     if @individualized_educational_plan.save
       respond_with @individualized_educational_plan, location: individualized_educational_plans_path
     else
-      assign_display_fields
-      set_form_options
-      render :new
+      render_form(:new)
     end
   end
 
@@ -81,13 +82,11 @@ class IndividualizedEducationalPlansController < ApplicationController
       iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
       iep_periodic_evaluations: [:discipline, :knowledge_area]
     ).find(params[:id])
+    authorize @individualized_educational_plan
+
     assign_display_fields
-    # Mantém 3 campos de data de revisão na edição, completando com campos vazios
-    # quando o plano foi salvo com menos de 3 (as datas já preenchidas são preservadas).
     build_default_review_dates
     set_form_options
-
-    authorize @individualized_educational_plan
   end
 
   def update
@@ -99,9 +98,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     if @individualized_educational_plan.save
       respond_with @individualized_educational_plan, location: individualized_educational_plans_path
     else
-      assign_display_fields
-      set_form_options
-      render :edit
+      render_form(:edit)
     end
   end
 
@@ -116,6 +113,13 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   private
+
+  # Repopula os campos de exibição e opções e re-renderiza o formulário (após erro de validação).
+  def render_form(action)
+    assign_display_fields
+    set_form_options
+    render action
+  end
 
   # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
   # em classrooms.regent_api_code). Sem regente cadastrado, retorna nil (o formulário
@@ -156,9 +160,9 @@ class IndividualizedEducationalPlansController < ApplicationController
     @individualized_educational_plan.shift = data[:shift]
   end
 
-  # Criar por padrão 3 campos de data de revisão.
+  # Completa os campos de data de revisão até o padrão (as já preenchidas são preservadas).
   def build_default_review_dates
-    (3 - @individualized_educational_plan.iep_review_dates.size).times do
+    (DEFAULT_REVIEW_DATES_COUNT - @individualized_educational_plan.iep_review_dates.size).times do
       @individualized_educational_plan.iep_review_dates.build
     end
   end

@@ -56,12 +56,12 @@ class IndividualizedEducationalPlanPrefill
     # sobe para o rescue_from do ApplicationController sinalizar ao usuário, em vez de virar
     # um "sem responsáveis" silencioso.
     Rails.logger.error("PEI prefill - falha ao buscar responsáveis (student #{student.id}): #{e.message}")
-    Honeybadger.notify(e, context: { student_id: student.id })
     nil
   end
 
-  # Turno efetivo do aluno na turma do perfil: em turma integral, o aluno pode estudar em um
-  # turno específico (student_enrollment_classrooms.period); quando ausente, cai no turno da turma.
+  # Turno efetivo do aluno na turma do perfil: o período da matrícula na turma
+  # (student_enrollment_classrooms.period) prevalece quando presente — motivado pela turma
+  # integral, mas vale para qualquer turma; sem ele, cai no turno da própria turma.
   def shift
     return if classroom.blank?
 
