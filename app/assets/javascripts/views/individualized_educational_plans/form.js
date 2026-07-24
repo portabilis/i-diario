@@ -115,7 +115,6 @@ $(function() {
   $('#iep-finalize-confirm').on('click', function() {
     var $name = $('#version_name');
 
-    // Nome da versão exige ao menos 3 caracteres.
     if (($name.val() || '').trim().length < MIN_VERSION_NAME) {
       $name.closest('.input').addClass('state-error');
       $('.iep-version-name-error').show();
@@ -129,7 +128,6 @@ $(function() {
     $('.smart-form').submit();
   });
 
-  // Some com o erro assim que o nome atinge o mínimo.
   $('#version_name').on('input', function() {
     if ($(this).val().trim().length >= MIN_VERSION_NAME) { clearVersionNameError(); }
   });
