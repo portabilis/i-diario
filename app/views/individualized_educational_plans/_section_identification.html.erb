@@ -3,7 +3,7 @@
     <div class="col col-sm-6">
       <%= f.input :student_id, as: :select2, elements: @students, label: t('.student'),
                   placeholder: t('.select_student'),
-                  input_html: { class: 'iep-student-select', data: { plan_id: @individualized_educational_plan.id }, disabled: @individualized_educational_plan.persisted? } %>
+                  input_html: { class: 'iep-student-select', disabled: @individualized_educational_plan.persisted? } %>
       <% if @individualized_educational_plan.persisted? %>
         <%= f.hidden_field :student_id %>
       <% end %>

@@ -56,7 +56,7 @@ $(function() {
     if (!studentId || studentId === 'empty') { $warning.hide(); return; }
 
     var params = { student_id: studentId, format: 'json' };
-    var planId = $studentSelect.data('plan-id');
+    var planId = $wizard.data('plan-id');
     if (planId) { params.plan_id = planId; }
 
     // Limpa os campos ANTES da requisição: numa falha (sessão expirada, sem permissão,
@@ -90,9 +90,12 @@ $(function() {
   $studentSelect.on('change', function() { fetchStudentData($(this).val()); });
 
   // Aluno já selecionado ao abrir a tela (edição, ou reabertura após erro de validação):
-  // busca os dados via AJAX, já que "Responsáveis" não vem preenchido do servidor.
-  if ($studentSelect.val() && $studentSelect.val() !== 'empty') {
-    fetchStudentData($studentSelect.val());
+  // busca os dados via AJAX, já que "Responsáveis" não vem preenchido do servidor. Na edição
+  // o select2 popula as options só DEPOIS deste código (o select ainda está vazio aqui), então
+  // o valor confiável do aluno é o hidden renderizado pelo servidor.
+  var initialStudentId = $studentSelect.val() || $('input[type="hidden"][name$="[student_id]"]').val();
+  if (initialStudentId && initialStudentId !== 'empty') {
+    fetchStudentData(initialStudentId);
   }
 
   // ---- Seções 4/5: botões de revisão mostram o painel da revisão ----

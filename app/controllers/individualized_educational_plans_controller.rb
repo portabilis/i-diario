@@ -34,9 +34,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   def student_data
     authorize IndividualizedEducationalPlan, :new?
 
-    # find no escopo dos alunos permitidos: aluno de outra turma/escola resulta em 404,
-    # não vaza nascimento/diagnóstico/responsáveis via ?student_id sequencial.
-    student = permitted_students.find(params[:student_id])
+    student = student_for_data
 
     data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
     data[:has_existing_plan] = existing_plan?(student.id)
@@ -168,19 +166,36 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def set_form_options
-    @students = permitted_students.order(:name)
-    classroom_ids = @classrooms.map(&:id)
+    classroom_ids = [current_user_classroom&.id].compact
+    @students = form_students.order(:name)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
     @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
     @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
     @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
   end
 
-  # Alunos que o usuário pode selecionar no PEI: enturmados nas turmas do seu perfil.
+  def form_students
+    return Student.where(id: @individualized_educational_plan.student_id) if @individualized_educational_plan.persisted?
+
+    permitted_students
+  end
+
+  # Alunos que o usuário pode selecionar ao criar um PEI: só os enturmados na turma do PERFIL
+  # selecionado (não em todas as turmas que o professor leciona — diferente da listagem).
   def permitted_students
-    set_options_by_user
-    student_ids = StudentEnrollment.by_classroom(@classrooms.map(&:id)).active.select(:student_id)
+    return Student.none if current_user_classroom.blank?
+
+    student_ids = StudentEnrollment.by_classroom(current_user_classroom.id).active.select(:student_id)
     Student.where(id: student_ids)
+  end
+
+  def student_for_data
+    if params[:plan_id].present?
+      plan = IndividualizedEducationalPlan.find(params[:plan_id])
+      return plan.student if plan.student_id.to_s == params[:student_id].to_s
+    end
+
+    permitted_students.find(params[:student_id])
   end
 
   def create_resource_params

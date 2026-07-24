@@ -287,6 +287,18 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(JSON.parse(response.body)['has_existing_plan']).to eq(false)
     end
+
+    it "returns the plan's own student on edit even if not enrolled in the profile classroom (plan_id)" do
+      plan = create(:individualized_educational_plan) # aluno NÃO enturmado na turma do perfil
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return(guardians: 'Maria Silva')
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
+      }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['guardians']).to eq('Maria Silva')
+    end
   end
 
   describe 're-rendering the form after a failure' do
