@@ -1,4 +1,7 @@
 class IndividualizedEducationalPlansController < ApplicationController
+  # Quantidade de campos de data de revisão exibidos por padrão no formulário.
+  DEFAULT_REVIEW_DATES_COUNT = 3
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -29,12 +32,16 @@ class IndividualizedEducationalPlansController < ApplicationController
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
-    student = Student.find(params[:student_id])
+    authorize IndividualizedEducationalPlan, :new?
+
+    student = student_for_data
 
     data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
     data[:has_existing_plan] = existing_plan?(student.id)
 
     render json: data
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
   end
 
   def show
@@ -52,79 +59,52 @@ class IndividualizedEducationalPlansController < ApplicationController
       classroom_id: current_user_classroom&.id,
       teacher_id: teacher&.id,
       year: current_school_year,
-      elaborated_at: Date.current,
-      unity_name: current_unity&.name,
-      classroom_name: current_user_classroom&.description,
-      teacher_name: teacher&.name
+      elaborated_at: Date.current
     )
+    authorize @individualized_educational_plan
+
+    # Deriva unity_name/classroom_name/teacher_name dos *_id recém-atribuídos (mesma lógica
+    # da re-renderização); no new não há aluno, então o prefill é no-op.
+    assign_display_fields
     build_default_review_dates
     set_form_options
-
-    authorize @individualized_educational_plan
   end
 
   def create
-    @individualized_educational_plan = IndividualizedEducationalPlan.new(resource_params)
+    @individualized_educational_plan = IndividualizedEducationalPlan.new(create_resource_params)
 
     authorize @individualized_educational_plan
 
     if save_and_publish
       respond_after_save
     else
-      assign_display_fields
-      set_form_options
-      render :new
+      render_form(:new)
     end
   end
 
   def edit
     @individualized_educational_plan = IndividualizedEducationalPlan.includes(
-      iep_curricular_plannings: [:discipline, :knowledge_area],
+      iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
       iep_periodic_evaluations: [:discipline, :knowledge_area]
     ).find(params[:id])
+    authorize @individualized_educational_plan
+
     assign_display_fields
-    # Mantém 3 campos de data de revisão na edição, completando com campos vazios
-    # quando o plano foi salvo com menos de 3 (as datas já preenchidas são preservadas).
     build_default_review_dates
     set_form_options
-
-    authorize @individualized_educational_plan
   end
 
   def update
     @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
-    @individualized_educational_plan.assign_attributes(resource_params)
+    @individualized_educational_plan.assign_attributes(update_resource_params)
 
     authorize @individualized_educational_plan
 
     if save_and_publish
       respond_after_save
     else
-      assign_display_fields
-      set_form_options
-      render :edit
+      render_form(:edit)
     end
-  rescue ActiveRecord::RecordNotDestroyed => e
-    # Remoção de data de revisão bloqueada (revisão com dados nas seções 4/5):
-    @individualized_educational_plan.errors.add(:base, e.record.errors[:base].to_sentence)
-
-    # O autosave interrompe na primeira falha; identifica TODAS as datas removidas que
-    # possuem dados, para destacar cada input bloqueado (não só o primeiro).
-    blocked_ids = @individualized_educational_plan.iep_review_dates
-                                                  .select(&:marked_for_destruction?)
-                                                  .select { |review|
-                                                    review.iep_curricular_plannings.exists? ||
-                                                      review.iep_periodic_evaluations.exists?
-                                                  }.map(&:id)
-
-    @individualized_educational_plan.iep_review_dates.reload
-    @individualized_educational_plan.iep_review_dates.each do |review|
-      review.errors.add(:review_date, :cannot_remove) if blocked_ids.include?(review.id)
-    end
-
-    assign_display_fields
-    set_form_options
-    render :edit
   end
 
   def destroy
@@ -172,6 +152,13 @@ class IndividualizedEducationalPlansController < ApplicationController
     params[:version_name].to_s.strip
   end
 
+  # Repopula os campos de exibição e opções e re-renderiza o formulário (após erro de validação).
+  def render_form(action)
+    assign_display_fields
+    set_form_options
+    render action
+  end
+
   # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
   # em classrooms.regent_api_code). Sem regente cadastrado, retorna nil (o formulário
   # exibe o aviso e o PEI pode ser criado sem professor responsável).
@@ -195,39 +182,73 @@ class IndividualizedEducationalPlansController < ApplicationController
     scope.exists?
   end
 
+  # Dados locais (sem chamada externa) para exibir de imediato no formulário.
+  # "Responsáveis" não é preenchido aqui — depende de chamada síncrona ao i-Educar
+  # sem timeout curto disponível; é buscado via AJAX no carregamento da página
+  # (form.js dispara o mesmo fetch do endpoint student_data quando há aluno selecionado).
   def prefill_student_fields
     return if @individualized_educational_plan.student.blank?
 
-    data = IndividualizedEducationalPlanPrefill.student_data(
+    data = IndividualizedEducationalPlanPrefill.local_student_data(
       @individualized_educational_plan.student,
       classroom: @individualized_educational_plan.classroom
     )
     @individualized_educational_plan.birth_date = data[:birth_date]
     @individualized_educational_plan.diagnosis = data[:diagnosis]
-    @individualized_educational_plan.guardians = data[:guardians]
     @individualized_educational_plan.shift = data[:shift]
   end
 
-  # Criar por padrão 3 campos de data de revisão.
+  # Completa os campos de data de revisão até o padrão (as já preenchidas são preservadas).
   def build_default_review_dates
-    (3 - @individualized_educational_plan.iep_review_dates.size).times do
+    (DEFAULT_REVIEW_DATES_COUNT - @individualized_educational_plan.iep_review_dates.size).times do
       @individualized_educational_plan.iep_review_dates.build
     end
   end
 
   def set_form_options
-    set_options_by_user
-    student_ids = StudentEnrollment.by_classroom(@classrooms.map(&:id)).active.select(:student_id)
-    @students = Student.where(id: student_ids).order(:name)
+    classroom_ids = [current_user_classroom&.id].compact
+    @students = form_students.order(:name)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
     @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
-    @disciplines = Discipline.by_classroom_id(@classrooms.map(&:id)).ordered
-    @knowledge_areas = KnowledgeArea.by_classroom_id(@classrooms.map(&:id)).ordered
+    @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
+    @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
+  end
+
+  def form_students
+    return Student.where(id: @individualized_educational_plan.student_id) if @individualized_educational_plan.persisted?
+
+    permitted_students
+  end
+
+  # Alunos que o usuário pode selecionar ao criar um PEI: só os enturmados na turma do PERFIL
+  # selecionado (não em todas as turmas que o professor leciona — diferente da listagem).
+  def permitted_students
+    return Student.none if current_user_classroom.blank?
+
+    student_ids = StudentEnrollment.by_classroom(current_user_classroom.id).active.select(:student_id)
+    Student.where(id: student_ids)
+  end
+
+  def student_for_data
+    if params[:plan_id].present?
+      plan = IndividualizedEducationalPlan.find(params[:plan_id])
+      return plan.student if plan.student_id.to_s == params[:student_id].to_s
+    end
+
+    permitted_students.find(params[:student_id])
+  end
+
+  def create_resource_params
+    params.require(:individualized_educational_plan).permit(:student_id).merge(resource_params)
+  end
+
+  def update_resource_params
+    resource_params
   end
 
   def resource_params
     params.require(:individualized_educational_plan).permit(
-      :student_id, :unity_id, :classroom_id, :teacher_id, :aee_teacher_id, :year,
+      :unity_id, :classroom_id, :teacher_id, :aee_teacher_id, :year,
       :support_professional, :elaborated_at,
       :characterization, :clinical_diagnosis_justification, :school_history,
       :potentialities, :difficulties, :preferences_interests, :effective_strategies,

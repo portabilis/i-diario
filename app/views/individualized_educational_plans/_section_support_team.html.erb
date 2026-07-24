@@ -1,35 +1,10 @@
 <fieldset>
-  <div class="row">
-    <div class="col col-sm-12">
-      <%= f.input :accompaniment_option_ids, as: :select2, multiple: true,
-                  elements: @iep_options_by_kind[IepOptionKinds::ACCOMPANIMENT],
-                  label: t('.accompaniment'),
-                  input_html: { value: f.object.accompaniment_option_ids.join(','),
-                                data: { without_json_parser: true } } %>
-    </div>
-  </div>
+  <%= render 'multi_select', f: f, attribute: :accompaniment,
+        kind: IepOptionKinds::ACCOMPANIMENT, label: t('.accompaniment') %>
+  <%= render 'multi_select', f: f, attribute: :support_type,
+        kind: IepOptionKinds::SUPPORT_TYPE, label: t('.support_type') %>
 
-  <div class="row">
-    <div class="col col-sm-12">
-      <%= f.input :support_type_option_ids, as: :select2, multiple: true,
-                  elements: @iep_options_by_kind[IepOptionKinds::SUPPORT_TYPE],
-                  label: t('.support_type'),
-                  input_html: { value: f.object.support_type_option_ids.join(','),
-                                data: { without_json_parser: true } } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :family_guidelines, label: t('.family_guidelines'),
-                  input_html: { rows: 4, class: 'form-control' } %>
-    </div>
-  </div>
-
-  <div class="row textarea">
-    <div class="col col-sm-12">
-      <%= f.input :external_professionals_guidelines, label: t('.external_professionals_guidelines'),
-                  input_html: { rows: 4, class: 'form-control' } %>
-    </div>
-  </div>
+  <% %i[family_guidelines external_professionals_guidelines].each do |field| %>
+    <%= render 'textarea', f: f, attribute: field, label: t(".#{field}") %>
+  <% end %>
 </fieldset>

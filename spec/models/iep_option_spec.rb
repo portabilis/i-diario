@@ -6,6 +6,19 @@ RSpec.describe IepOption, type: :model do
 
     it { expect(subject).to validate_presence_of(:kind) }
     it { expect(subject).to validate_presence_of(:description) }
+
+    it 'is invalid with a kind outside the enumeration' do
+      option = build(:iep_option, kind: 99)
+
+      expect(option).not_to be_valid
+      expect(option.errors[:kind]).to include(I18n.t('errors.messages.inclusion'))
+    end
+
+    it 'is valid with a kind from the enumeration' do
+      option = build(:iep_option, kind: IepOptionKinds::ASSESSMENT_ACCOMMODATION)
+
+      expect(option).to be_valid
+    end
   end
 
   describe '.by_kind' do
