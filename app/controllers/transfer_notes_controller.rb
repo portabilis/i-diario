@@ -43,22 +43,24 @@ class TransferNotesController < ApplicationController
 
     authorize @transfer_note
 
-    build_daily_note_students(resource_params[:daily_note_students_attributes])
+    @creator = TransferNoteCreator.new(@transfer_note, resource_params[:daily_note_students_attributes])
 
-    if save_transfer_note_with_students
+    if @creator.save
       respond_with @transfer_note, location: transfer_notes_path
     else
-      set_options_by_user
-      fetch_disciplines_by_classroom
-
-      render :new
+      render_transfer_note_form(@creator.daily_note_students)
     end
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+    Honeybadger.notify(e, context: save_error_context)
+    flash.now[:alert] = t('transfer_notes.save_error')
+
+    render_transfer_note_form(@creator.daily_note_students)
   end
 
   def edit
     @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.step_id = steps_fetcher.step(@transfer_note.step_number).try(:id)
-    @students_ordered = @transfer_note.daily_note_students.ordered
+    @transfer_note_students = @transfer_note.daily_note_students.ordered
 
     set_options_by_user
     fetch_disciplines_by_classroom
@@ -69,7 +71,8 @@ class TransferNotesController < ApplicationController
   def update
     @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.current_user = current_user
-    @transfer_note.assign_attributes(resource_params.to_unsafe_h)
+    @transfer_note.step_id = steps_fetcher.step(@transfer_note.step_number).try(:id)
+    @transfer_note.assign_attributes(resource_params.to_unsafe_h.slice(:daily_note_students_attributes))
 
     authorize @transfer_note
 
@@ -80,17 +83,14 @@ class TransferNotesController < ApplicationController
     else
       @transfer_note.errors.add(:base, :at_least_one_note_required) unless has_note
 
-      set_options_by_user
-      fetch_disciplines_by_classroom
-
-      render :new
+      render_transfer_note_form(@transfer_note.daily_note_students)
     end
   end
 
   def current_notes
     return unless params[:step_id].present? && params[:student_id].present? && params[:recorded_at].present?
 
-    step = StepsFetcher.new(Classroom.find(params[:classroom_id])).step_by_id(params[:step_id])
+    step = step_from_params
     end_date = step.end_at > params[:recorded_at].to_date ? params[:recorded_at].to_date : step.end_at
     avaliations = Avaliation.by_classroom_id(params[:classroom_id])
                             .by_discipline_id(params[:discipline_id])
@@ -112,26 +112,29 @@ class TransferNotesController < ApplicationController
     render(json: @daily_note_students, include: { daily_notes: [:avaliation] })
   end
 
-  # Verifica, em tempo real (ao selecionar o aluno na tela de novo lançamento), se já
-  # existe uma nota de transferência para o mesmo aluno na turma, disciplina e etapa,
-  # para avisar antes do usuário clicar em salvar.
+  # Verifica, em tempo real (ao trocar aluno/turma/disciplina/etapa/data na tela de novo
+  # lançamento), se já existe uma nota de transferência para o mesmo aluno na turma,
+  # disciplina e etapa, para avisar antes do usuário clicar em salvar.
   def existing_transfer_note
-    return render(json: { exists: false }) if [
-      params[:classroom_id], params[:discipline_id], params[:student_id], params[:step_id]
-    ].any?(&:blank?)
+    authorize TransferNote, :index?
 
-    step = StepsFetcher.new(Classroom.find(params[:classroom_id])).step_by_id(params[:step_id])
+    return render(json: { exists: false }) if %i[classroom_id discipline_id student_id step_id].any? do |key|
+      params[key].blank?
+    end
+
+    step = step_from_params
 
     return render(json: { exists: false }) if step.blank?
 
-    transfer_note = TransferNote.where(
-      classroom_id: params[:classroom_id],
-      discipline_id: params[:discipline_id],
-      student_id: params[:student_id],
-      step_number: step.step_number
+    transfer_note = TransferNote.for_student_in_step(
+      params[:classroom_id], params[:discipline_id], params[:student_id], step.step_number
     ).order(id: :desc).first
 
-    render json: { exists: transfer_note.present?, id: transfer_note&.id }
+    render json: {
+      exists: transfer_note.present?,
+      id: transfer_note&.id,
+      message: (already_exists_message if transfer_note)
+    }
   end
 
   def history
@@ -265,57 +268,37 @@ class TransferNotesController < ApplicationController
     @unities ||= @classrooms.map(&:unity).uniq
   end
 
-  # Monta em @students_ordered as notas do aluno (sem persistir), reaproveitando o
-  # DailyNoteStudent existente do mesmo daily_note + aluno quando houver.
-  def build_daily_note_students(daily_note_students_attributes)
-    @students_ordered = Array(daily_note_students_attributes&.values).map do |data|
-      record = DailyNoteStudent.with_discarded.find_or_initialize_by(
-        daily_note_id: data[:daily_note_id],
-        student_id: data[:student_id]
-      ).localized
+  # Reexibe o formulário (com os valores digitados e os erros) após falha de validação.
+  def render_transfer_note_form(transfer_note_students)
+    @transfer_note_students = transfer_note_students
+    set_options_by_user
+    fetch_disciplines_by_classroom
 
-      record.assign_attributes(
-        note: data[:note],
-        discarded_at: '', # string vazia é o valor que o proxy localizado converte para nil (des-descarta o registro)
-        active: true
-      )
-
-      record
-    end
+    render :new
   end
 
-  # Valida a nota de transferência e as notas do aluno ANTES de persistir, evitando
-  # registro órfão. Só salva se tudo for válido e houver ao menos uma nota informada.
-  def save_transfer_note_with_students
-    transfer_note_valid = @transfer_note.valid?
-    # map (não all?) para popular os erros em todos os inputs inválidos, não só no primeiro
-    students_valid = @students_ordered.map(&:valid?).all?
-    has_any_note = @students_ordered.any? { |record| record.attributes['note'].present? }
+  def step_from_params
+    classroom = Classroom.find_by(id: params[:classroom_id])
+    classroom && StepsFetcher.new(classroom).step_by_id(params[:step_id])
+  end
 
-    # adicionado após o valid? acima, senão seria limpo na próxima validação
-    @transfer_note.errors.add(:base, :at_least_one_note_required) unless has_any_note
-
-    return false unless transfer_note_valid && students_valid && has_any_note
-
-    ActiveRecord::Base.transaction do
-      @transfer_note.save!
-
-      @students_ordered.each do |record|
-        record.assign_attributes(transfer_note_id: @transfer_note.id)
-        record.save!
-      end
-    end
-
-    true
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
-    Honeybadger.notify(e)
-    flash.now[:alert] = 'Houve um problema ao salvar. Por favor, tente novamente.'
-
-    false
+  def save_error_context
+    {
+      transfer_note_id: @transfer_note.id,
+      classroom_id: @transfer_note.classroom_id,
+      discipline_id: @transfer_note.discipline_id,
+      student_id: @transfer_note.student_id,
+      step_number: @transfer_note.step_number,
+      daily_note_ids: @creator.daily_note_students.map(&:daily_note_id)
+    }
   end
 
   def any_note_informed?(daily_note_students_attributes)
     Array(daily_note_students_attributes&.values).any? { |data| data[:note].present? }
+  end
+
+  def already_exists_message
+    t('activerecord.errors.models.transfer_note.attributes.base.transfer_note_already_exists')
   end
 
   def fetch_disciplines_by_classroom

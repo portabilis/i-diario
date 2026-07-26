@@ -262,14 +262,17 @@ $(function () {
         student_id: student_id,
         format: 'json'
       }),
+      // guarda truthiness: num 500 o rescue_from redireciona (302 -> 200 HTML), o jQuery
+      // entrega uma String ao success e data.exists fica undefined -> cai no fail-open
       success: function (data) {
-        if (data.exists) {
+        if (data && data.exists) {
           var $editLink = $('<a>')
             .attr('href', Routes.edit_transfer_note_pt_br_path(data.id))
             .text('Clique aqui para editar o registro existente.');
 
+          // data.message vem do i18n (fonte única da frase); o link é só o rótulo da ação
           $('#transfer_note_already_exists_message')
-            .text('O aluno já possui uma nota de transferência lançada para esta turma, disciplina e etapa. ')
+            .text(data.message + ' ')
             .append($editLink);
           $('#transfer_note_already_exists_alert').show();
         } else {
@@ -277,11 +280,17 @@ $(function () {
         }
       },
       error: function () {
-        // em caso de falha na verificação, carrega as notas para não travar o fluxo
+        // fail-open (a validação do model é a autoridade), mas não silencioso
+        flashMessages.error('Ocorreu um erro ao verificar registros existentes do aluno.');
         loadStudentNotes();
       }
     });
   }
+
+  // a chave de duplicidade inclui a disciplina, então trocar a disciplina precisa reverificar
+  $discipline.on('change', function () {
+    refreshStudentNotes();
+  });
 
   $step.on('change', function () {
     refreshStudentNotes();

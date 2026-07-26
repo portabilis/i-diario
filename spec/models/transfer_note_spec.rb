@@ -106,14 +106,18 @@ RSpec.describe TransferNote, type: :model do
         expect(subject.errors[:base]).to include(expected_message)
       end
 
-      it 'allows a transfer note for the same student in a different step' do
-        subject.step_number = existing.step_number + 1
-
-        subject.valid?
-
-        expect(subject.errors[:base]).to_not include(
-          I18n.t('activerecord.errors.models.transfer_note.attributes.base.transfer_note_already_exists')
+      it 'allows a transfer note for a different student in the same scope' do
+        other_student_note = build(
+          :transfer_note,
+          classroom: existing.classroom,
+          discipline: existing.discipline,
+          student: create(:student),
+          teacher: existing.teacher,
+          step_number: existing.step_number,
+          recorded_at: existing.recorded_at
         )
+
+        expect(other_student_note.valid?).to be true
       end
     end
   end

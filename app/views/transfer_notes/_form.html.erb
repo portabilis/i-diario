@@ -3,14 +3,9 @@
 <% end %>
 
 <%= simple_form_for @transfer_note, html: { class: 'smart-form' } do |f| %>
-  <%= f.error_notification %>
+  <%= f.error_notification unless f.object.errors[:base].any? %>
 
-  <% if f.object.errors[:base].any? %>
-    <div class="alert alert-danger fade in">
-      <i class="fa-fw fa fa-times"></i>
-      <%= f.object.errors[:base].to_sentence %>
-    </div>
-  <% end %>
+  <%= render 'shared/base_error_alert', f: f %>
 
   <fieldset>
     <div class="row">
@@ -85,13 +80,6 @@
     </table>
   </fieldset>
   <fieldset>
-    <% if f.object.errors[:daily_note_students].any? %>
-      <div class="alert alert-danger fade in">
-        <i class="fa-fw fa fa-times"></i>
-        <%= f.object.errors[:daily_note_students].first %>
-      </div>
-    <% end %>
-
     <legend>Notas de aluno na turma atual</legend>
     <table class="table table-bordered table-striped table-condensed table-hover">
       <thead>
@@ -102,12 +90,12 @@
       </thead>
 
       <tbody id="current-notes-rows">
-        <%= f.simple_fields_for :daily_note_students, @students_ordered do |daily_note_student| %>
+        <%= f.simple_fields_for :daily_note_students, @transfer_note_students do |daily_note_student| %>
           <%= render 'current_notes_rows', f: daily_note_student %>
         <% end %>
       </tbody>
 
-      <tfoot class="no_current_notes_found" style="<%= @students_ordered.present? || f.object.daily_note_students.present? ? 'display: none;' : '' %>">
+      <tfoot class="no_current_notes_found" style="<%= @transfer_note_students.present? ? 'display: none;' : '' %>">
         <td colspan="2"><%= t('.no_current_notes_found') %></td>
       </tfoot>
     </table>
