@@ -225,28 +225,103 @@ $(function () {
     return false;
   });
 
-  function reset() {
-    removeStudentOldNotes();
-    removeStudentCurrentNotes();
+  function hideExistingTransferNoteAlert() {
+    $('#transfer_note_already_exists_alert').hide();
+    $('#transfer_note_already_exists_message').text('');
+  }
+
+  function loadStudentNotes() {
     fetchStudentOldNotes();
     fetchStudentCurrentNotes();
   }
 
+  // Ao trocar aluno/etapa/data, limpa as seções e o aviso e, se o aluno JÁ possui uma nota
+  // de transferência para a mesma turma, disciplina e etapa, apenas exibe o aviso e NÃO
+  // carrega as notas (evita que o usuário ache que pode editar por aqui). Caso contrário,
+  // carrega normalmente as notas da turma anterior e da turma atual.
+  function refreshStudentNotes() {
+    removeStudentOldNotes();
+    removeStudentCurrentNotes();
+    hideExistingTransferNoteAlert();
+
+    var classroom_id = $classroom.select2('val');
+    var discipline_id = $discipline.select2('val');
+    var step_id = $step.select2('val');
+    var student_id = $student.select2('val');
+
+    if (_.isEmpty(classroom_id) || _.isEmpty(discipline_id) || _.isEmpty(step_id) || _.isEmpty(student_id)) {
+      loadStudentNotes();
+      return;
+    }
+
+    $.ajax({
+      url: Routes.existing_transfer_note_transfer_notes_pt_br_path({
+        classroom_id: classroom_id,
+        discipline_id: discipline_id,
+        step_id: step_id,
+        student_id: student_id,
+        format: 'json'
+      }),
+      success: function (data) {
+        if (data.exists) {
+          var $editLink = $('<a>')
+            .attr('href', Routes.edit_transfer_note_pt_br_path(data.id))
+            .text('Clique aqui para editar o registro existente.');
+
+          $('#transfer_note_already_exists_message')
+            .text('O aluno já possui uma nota de transferência lançada para esta turma, disciplina e etapa. ')
+            .append($editLink);
+          $('#transfer_note_already_exists_alert').show();
+        } else {
+          loadStudentNotes();
+        }
+      },
+      error: function () {
+        // em caso de falha na verificação, carrega as notas para não travar o fluxo
+        loadStudentNotes();
+      }
+    });
+  }
+
   $step.on('change', function () {
-    reset();
+    refreshStudentNotes();
     fetchStudents();
   });
 
   $recordedAt.on('change', function () {
-    reset();
+    refreshStudentNotes();
     fetchStudents();
   });
 
   $student.on('change', function () {
-    reset();
+    refreshStudentNotes();
   });
 
-  if (!$('form[id^=edit_transfer_note]').length) {
+  // Enter pula para o próximo campo de nota em vez de submeter o formulário, igual às
+  // telas de avaliação. Assim o professor preenche as notas em sequência sem salvar sem querer.
+  $(document).on('keydown', '#current-notes-rows input.decimal', function (e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+
+      var inputs = $('#current-notes-rows input.decimal:not([readonly])');
+      var currentIndex = inputs.index(this);
+
+      if (currentIndex < inputs.length - 1) {
+        inputs.eq(currentIndex + 1).focus();
+      }
+    }
+  });
+
+  // Rede de segurança: ao submeter (ex.: clique em Salvar), força o blur nos campos de nota
+  // para o inputmask finalizar o valor (ex.: "4," -> "4,00") antes do envio.
+  $('#current-notes-rows').closest('form').on('submit', function () {
+    $(this).find('input.decimal').blur();
+  });
+
+  // Não busca as notas atuais via AJAX quando o servidor já renderizou as linhas
+  // (ex.: ao reexibir o formulário com erros de validação de nota), evitando duplicar
+  // linhas e preservando os valores que o professor havia preenchido.
+  if (!$('form[id^=edit_transfer_note]').length && !$('#current-notes-rows tr').length) {
     fetchStudentCurrentNotes();
   }
 

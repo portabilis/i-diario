@@ -5,6 +5,13 @@
 <%= simple_form_for @transfer_note, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
+  <% if f.object.errors[:base].any? %>
+    <div class="alert alert-danger fade in">
+      <i class="fa-fw fa fa-times"></i>
+      <%= f.object.errors[:base].to_sentence %>
+    </div>
+  <% end %>
+
   <fieldset>
     <div class="row">
       <div class="col col-sm-4">
@@ -43,6 +50,11 @@
       <div class="col col-sm-4">
         <%= f.input :student_id, as: :select2, elements: students, readonly: f.object.persisted? %>
       </div>
+    </div>
+
+    <div class="alert alert-warning fade in" id="transfer_note_already_exists_alert" style="display: none;">
+      <i class="fa-fw fa fa-exclamation-triangle"></i>
+      <span id="transfer_note_already_exists_message"></span>
     </div>
   </fieldset>
   <fieldset>
@@ -95,7 +107,7 @@
         <% end %>
       </tbody>
 
-      <tfoot class="no_current_notes_found" style="<%= f.object.daily_note_students.present? ? 'display: none;' : '' %>">
+      <tfoot class="no_current_notes_found" style="<%= @students_ordered.present? || f.object.daily_note_students.present? ? 'display: none;' : '' %>">
         <td colspan="2"><%= t('.no_current_notes_found') %></td>
       </tfoot>
     </table>

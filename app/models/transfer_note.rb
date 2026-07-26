@@ -30,6 +30,7 @@ class TransferNote < ApplicationRecord
   before_validation :set_transfer_date, on: [:create, :update]
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
+  validate :unique_transfer_note_per_student_and_step, on: :create
 
   default_scope -> { kept }
 
@@ -73,6 +74,21 @@ class TransferNote < ApplicationRecord
 
   def set_transfer_date
     self.transfer_date = recorded_at
+  end
+
+  # Impede criar mais de um registro de nota de transferência para o mesmo aluno na mesma turma,
+  # disciplina e etapa
+  def unique_transfer_note_per_student_and_step
+    return if classroom_id.blank? || discipline_id.blank? || student_id.blank? || step_number.blank?
+
+    duplicate = TransferNote.where(
+      classroom_id: classroom_id,
+      discipline_id: discipline_id,
+      student_id: student_id,
+      step_number: step_number
+    ).exists?
+
+    errors.add(:base, :transfer_note_already_exists) if duplicate
   end
 
   def valid_for_destruction?
