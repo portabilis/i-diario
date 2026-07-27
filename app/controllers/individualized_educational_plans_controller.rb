@@ -120,9 +120,9 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   private
 
-  # "Finalizar" (modal Salvar versão) salva e publica no mesmo submit: o formulário
-  # envia version_name e a versão é criada na mesma transação do save (issue: "Você
-  # está salvando e publicando uma versão do PEI"). Sem version_name, salva rascunho.
+  # "Finalizar" (modal Salvar versão) salva e publica no mesmo submit: o formulário envia
+  # version_name e a versão é criada na mesma transação do save. Sem version_name, apenas
+  # salva o plano (sem publicar versão).
   def save_and_publish
     # Busca externa (i-Educar, até 240s) fora da transação: dentro dela prenderia a conexão presa.
     prefetched_student_data = student_data_for_snapshot
