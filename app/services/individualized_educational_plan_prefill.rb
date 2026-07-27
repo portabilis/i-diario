@@ -56,13 +56,14 @@ class IndividualizedEducationalPlanPrefill
     return mark_guardians_unavailable unless response_matches_student?(response)
 
     Array(response['nomes_responsaveis']).join(', ').presence
-  rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError => e
+  rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError, IeducarApi::Base::ApiError => e
     Rails.logger.error("PEI prefill - falha ao buscar responsáveis (student #{student.id}): #{e.message}")
     mark_guardians_unavailable
   end
 
-  # Marca que não foi possível obter os responsáveis (sem api_code, API fora ou resposta
-  # inesperada). Retorna nil: o valor fica vazio, mas a flag informa o motivo à tela.
+  # Marca que não foi possível obter os responsáveis (sem api_code, entidade sem integração
+  # configurada, API fora ou resposta inesperada). Retorna nil: o valor fica vazio, mas a
+  # flag informa o motivo à tela.
   def mark_guardians_unavailable
     @guardians_unavailable = true
     nil
