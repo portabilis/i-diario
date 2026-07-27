@@ -1,9 +1,11 @@
 pt-BR:
+  transfer_notes:
+    save_error: 'Houve um problema ao salvar. Por favor, tente novamente.'
   activerecord:
     models:
       transfer_note:
-        one: 'Notas de transferência'
-        other: 'Notas de transferẽncias'
+        one: 'Nota de transferência'
+        other: 'Notas de transferência'
 
     attributes:
       transfer_note:
@@ -24,7 +26,8 @@ pt-BR:
       models:
         transfer_note:
           attributes:
+            base:
+              transfer_note_already_exists: 'O aluno já possui uma nota de transferência lançada para esta turma, disciplina e etapa.'
+              at_least_one_note_required: 'Deve ser informada ao menos uma nota de transferência.'
             transfer_date:
               must_be_in_step: 'Data deve estar dentro da etapa selecionada'
-            daily_note_students:
-              at_least_one_daily_note_student: 'Deve ser informada ao menos uma nota de transferência'

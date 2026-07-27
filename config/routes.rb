@@ -330,6 +330,7 @@ Rails.application.routes.draw do
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
+        get :existing_transfer_note
         get :find_step_number_by_classroom
         get :fetch_steps
       end
