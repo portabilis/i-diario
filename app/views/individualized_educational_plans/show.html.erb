@@ -13,8 +13,10 @@
               individualized_educational_plan_path(@individualized_educational_plan, format: :pdf),
               class: 'btn btn-info apply_tooltip', target: '_blank',
               data: { original_title: t('.print') } %>
-        <%= link_to t('.edit'), edit_individualized_educational_plan_path(@individualized_educational_plan),
-              class: 'btn btn-success' %>
+        <% if policy(@individualized_educational_plan).edit? %>
+          <%= link_to t('.edit'), edit_individualized_educational_plan_path(@individualized_educational_plan),
+                class: 'btn btn-success' %>
+        <% end %>
       </div>
     </fieldset>
   </div>

@@ -17,11 +17,13 @@
                 individualized_educational_plan_path(plan),
                 class: 'btn btn-info apply_tooltip',
                 data: { original_title: t('views.index.tooltips.show') }) %>
-          <%= link_to(
-                t('helpers.links.edit_html'),
-                edit_individualized_educational_plan_path(plan),
-                class: 'btn btn-success apply_tooltip',
-                data: { original_title: t('views.index.tooltips.edit') }) %>
+          <% if policy(plan).edit? %>
+            <%= link_to(
+                  t('helpers.links.edit_html'),
+                  edit_individualized_educational_plan_path(plan),
+                  class: 'btn btn-success apply_tooltip',
+                  data: { original_title: t('views.index.tooltips.edit') }) %>
+          <% end %>
           <%= link_to(
                 t('helpers.links.print_html'),
                 individualized_educational_plan_path(plan, format: :pdf),
