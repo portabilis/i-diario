@@ -91,7 +91,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     render_views
 
     it 'sends the version pdf rendered from the snapshot' do
-      plan = create(:individualized_educational_plan)
+      plan = create(:individualized_educational_plan, classroom: classroom)
       version = create(:iep_version, iep: plan, active: true,
                                      content: { 'identification' => { 'student_name' => 'Aluno Congelado' } })
       allow(ReportGenerator).to receive(:call).and_return(double(body: '%PDF-fake'))
@@ -107,7 +107,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     end
 
     it 'redirects with an alert when the pdf service fails' do
-      plan = create(:individualized_educational_plan)
+      plan = create(:individualized_educational_plan, classroom: classroom)
       version = create(:iep_version, iep: plan, active: true, content: {})
       allow(ReportGenerator).to receive(:call).and_raise(RestClient::Exceptions::ReadTimeout)
 
