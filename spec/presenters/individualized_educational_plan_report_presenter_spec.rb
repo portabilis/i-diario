@@ -70,15 +70,15 @@ RSpec.describe IndividualizedEducationalPlanReportPresenter, type: :presenter do
   describe '#localized_date' do
     subject(:presenter) { described_class.from_snapshot({}) }
 
-    it 'formats a Date object (plano vivo / from_record)' do
+    it 'formats a Date object (living plan / from_record)' do
       expect(presenter.localized_date(Date.new(2026, 3, 25))).to eq('25/03/2026')
     end
 
-    it 'formats an ISO string (snapshot da versão / from_snapshot)' do
+    it 'formats an ISO string (version snapshot / from_snapshot)' do
       expect(presenter.localized_date('2026-03-25')).to eq('25/03/2026')
     end
 
-    it 'returns non-date text unchanged (escola/turma/responsáveis não são datas)' do
+    it 'returns non-date text unchanged (unity/classroom/guardians are not dates)' do
       expect(presenter.localized_date('Escola Municipal 15 de Novembro')).to eq('Escola Municipal 15 de Novembro')
       expect(presenter.localized_date('Maria Silva')).to eq('Maria Silva')
     end
