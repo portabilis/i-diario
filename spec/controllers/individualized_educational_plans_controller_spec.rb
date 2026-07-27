@@ -365,6 +365,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
