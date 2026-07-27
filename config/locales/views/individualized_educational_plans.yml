@@ -42,7 +42,7 @@ pt-BR:
     show:
       back: "Voltar"
       history: "Histórico de versões"
-      download_pdf: "Baixar PDF"
+      print: "Imprimir"
       edit: "Editar"
     pdf:
       title: "Plano Educacional Individualizado (PEI)"
@@ -60,11 +60,11 @@ pt-BR:
         status: "Situação"
         active: "Ativo"
         show_tooltip: "Visualizar a versão"
-        print_tooltip: "Baixar PDF da versão"
+        print_tooltip: "Imprimir versão"
       show:
         back: "Voltar"
         active: "Ativo"
-        download_pdf: "Baixar PDF"
+        print: "Imprimir"
         published_info: "publicada em %{date} por %{author}"
     section_identification:
       student: "Aluno"
