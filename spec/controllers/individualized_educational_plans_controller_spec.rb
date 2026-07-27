@@ -709,9 +709,11 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'publishes nothing when the plan itself is invalid' do
       plan = create(:individualized_educational_plan)
 
+      # elaborated_at é obrigatório e editável; zerá-lo invalida o plano (student_id não é
+      # editável no update, então não serviria para invalidar).
       patch :update, params: {
         locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
-        individualized_educational_plan: { student_id: nil }
+        individualized_educational_plan: { elaborated_at: nil }
       }
 
       expect(response).to render_template(:edit)
