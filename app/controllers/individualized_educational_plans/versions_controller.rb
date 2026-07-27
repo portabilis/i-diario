@@ -1,5 +1,7 @@
 module IndividualizedEducationalPlans
   class VersionsController < ApplicationController
+    include IndividualizedEducationalPlanScoping
+
     before_action :require_current_teacher
     before_action :require_current_classroom
     # Controller aninhado: título/breadcrumb/menu usam o item do PEI no navigation.yml.
@@ -10,7 +12,7 @@ module IndividualizedEducationalPlans
     end
 
     def index
-      @individualized_educational_plan = IndividualizedEducationalPlan.find(
+      @individualized_educational_plan = accessible_plans.find(
         params[:individualized_educational_plan_id]
       )
       authorize @individualized_educational_plan, :show?
@@ -21,7 +23,7 @@ module IndividualizedEducationalPlans
     # Visualização de uma versão publicada: reconstrói o PEI congelado a partir do
     # snapshot (imutável) e renderiza a MESMA tela de formulário em modo leitura.
     def show
-      iep = IndividualizedEducationalPlan.find(params[:individualized_educational_plan_id])
+      iep = accessible_plans.find(params[:individualized_educational_plan_id])
       @version = iep.iep_versions.find(params[:id])
 
       authorize iep, :show?
@@ -35,6 +37,10 @@ module IndividualizedEducationalPlans
       # Modal de adicionar componente não é renderizado no modo leitura (não precisa das listas).
       @disciplines = []
       @knowledge_areas = []
+    rescue IndividualizedEducationalPlanSnapshotRestorer::InvalidSnapshot => e
+      Honeybadger.notify(e, context: { version_id: @version&.id, iep_id: iep&.id })
+      redirect_to individualized_educational_plan_versions_path(iep),
+                  alert: t('individualized_educational_plans.versions.corrupted')
     end
   end
 end

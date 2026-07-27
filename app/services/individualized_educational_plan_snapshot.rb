@@ -4,12 +4,13 @@
 #   - pela visualização/PDF, para renderizar tanto o plano vivo quanto uma versão
 #     (mesma estrutura => mesma renderização).
 class IndividualizedEducationalPlanSnapshot
-  def initialize(plan)
+  def initialize(plan, student_data: nil)
     @plan = plan
+    @student_data = student_data
   end
 
-  def self.build(plan)
-    new(plan).build
+  def self.build(plan, student_data: nil)
+    new(plan, student_data: student_data).build
   end
 
   def build
@@ -35,14 +36,16 @@ class IndividualizedEducationalPlanSnapshot
   attr_reader :plan
 
   def identification
-    student_data = IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: plan.classroom)
+    data = @student_data ||
+           IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: plan.classroom)
 
     {
       'student_name' => plan.student.name,
-      'birth_date' => student_data[:birth_date],
-      'guardians' => student_data[:guardians],
-      'diagnosis' => student_data[:diagnosis],
-      'shift' => student_data[:shift],
+      'birth_date' => data[:birth_date],
+      'guardians' => data[:guardians],
+      'guardians_unavailable' => data[:guardians_unavailable],
+      'diagnosis' => data[:diagnosis],
+      'shift' => data[:shift],
       'unity_name' => plan.unity.name,
       'classroom_name' => plan.classroom.description,
       'teacher_name' => plan.teacher&.name,

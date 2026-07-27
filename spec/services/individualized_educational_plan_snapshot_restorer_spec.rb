@@ -103,4 +103,30 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
   it 'exposes frozen attachments from the snapshot' do
     expect(result.attachments).to eq([{ 'filename' => 'laudo.pdf', 'url' => '/uploads/laudo.pdf' }])
   end
+
+  it 'freezes every stand-in as readonly with negative synthetic ids' do
+    plan = result.plan
+
+    # readonly! impede um POST acidental (o form aponta para create); ids negativos nunca casam com PK real.
+    expect(plan).to be_readonly
+    expect(plan.student).to be_readonly
+    expect(plan.iep_review_dates.first).to be_readonly
+    expect(plan.iep_curricular_plannings.first).to be_readonly
+    expect(plan.iep_review_dates.map(&:id)).to all(be_negative)
+  end
+
+  describe 'invalid snapshots' do
+    it 'raises InvalidSnapshot when the minimum (student name) is missing' do
+      expect { described_class.restore({}) }.to raise_error(described_class::InvalidSnapshot)
+      expect { described_class.restore('identification' => { 'year' => 2026 }) }
+        .to raise_error(described_class::InvalidSnapshot)
+    end
+
+    it 'raises InvalidSnapshot when a component line references an unresolved review' do
+      broken = content.deep_dup
+      broken['curricular_plannings'].first['review_number'] = 9 # não existe entre as review_dates
+
+      expect { described_class.restore(broken) }.to raise_error(described_class::InvalidSnapshot)
+    end
+  end
 end

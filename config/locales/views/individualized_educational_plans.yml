@@ -37,12 +37,15 @@ pt-BR:
     finalize:
       success: "Versão do Plano Educacional Individualizado publicada com sucesso."
       already_published: "Esta versão já foi publicada. Atualize a página para ver o histórico."
+    flash:
+      not_found: "Plano Educacional Individualizado não encontrado ou fora do seu acesso."
     show:
       back: "Voltar"
       history: "Histórico de versões"
       download_pdf: "Baixar PDF"
       edit: "Editar"
     versions:
+      corrupted: "Não foi possível abrir esta versão. Tente recarregar a página, se o problema persistir entre em contato com a Secretaria de Educação do seu município."
       index:
         student: "Aluno"
         back: "Voltar"

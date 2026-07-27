@@ -9,6 +9,10 @@
 # Retorna o plano + as coleções que o formulário usa para os selects (já com os mesmos
 # stand-ins, para os rótulos resolverem) + os anexos congelados (filename/url do snapshot).
 class IndividualizedEducationalPlanSnapshotRestorer
+  # Snapshot inválido/corrompido (mínimo ausente ou revisão não resolvida): a tela de versão
+  # trata e avisa, em vez de renderizar um documento imutável em branco/incompleto.
+  class InvalidSnapshot < StandardError; end
+
   Result = Struct.new(:plan, :students, :aee_teachers, :iep_options_by_kind, :attachments)
 
   def self.restore(content)
@@ -23,10 +27,14 @@ class IndividualizedEducationalPlanSnapshotRestorer
   end
 
   def restore
+    raise InvalidSnapshot, 'snapshot sem student_name na identificação' if identification['student_name'].blank?
+
     plan = build_plan
     build_review_dates(plan)
     build_curricular_plannings(plan)
     build_periodic_evaluations(plan)
+
+    plan.readonly!
 
     Result.new(plan, [plan.student].compact, [plan.aee_teacher].compact,
                @options_by_kind, Array(identification['attachments']))
@@ -52,9 +60,9 @@ class IndividualizedEducationalPlanSnapshotRestorer
     content['final_evaluation'] || {}
   end
 
-  # Id sintético único no escopo desta reconstrução (só para amarrar associações em memória).
+  # Id sintético NEGATIVO: se vazar para um hidden de FK, nunca casa com um PK real (positivo).
   def next_id
-    @sequence += 1
+    @sequence -= 1
   end
 
   def build_plan
@@ -83,6 +91,7 @@ class IndividualizedEducationalPlanSnapshotRestorer
     plan.teacher_name = identification['teacher_name']
     plan.birth_date = identification['birth_date']
     plan.guardians = identification['guardians']
+    plan.guardians_unavailable = identification['guardians_unavailable']
     plan.diagnosis = identification['diagnosis']
     plan.shift = identification['shift']
 
@@ -95,16 +104,17 @@ class IndividualizedEducationalPlanSnapshotRestorer
     plan
   end
 
-  # Stand-in não salvo (instância real da classe) com id sintético; nil se sem nome.
+  # Stand-in não salvo com id sintético (readonly!); nil se sem nome.
   def build_named(klass, name, attribute)
     return if name.blank?
 
-    klass.new(id: next_id, attribute => name)
+    klass.new(id: next_id, attribute => name).tap(&:readonly!)
   end
 
-  # Cria a opção congelada e a registra na coleção do formulário (para o select resolver o rótulo).
+  # Cria a opção congelada (readonly) e a registra na coleção do formulário (para o select resolver o rótulo).
   def frozen_option(kind, description)
     option = IepOption.new(id: next_id, kind: IepOptionKinds.value_of(kind), description: description)
+    option.readonly!
     @options_by_kind[option.kind] << option
     option
   end
@@ -122,6 +132,7 @@ class IndividualizedEducationalPlanSnapshotRestorer
     Array(identification['review_dates']).each_with_index do |date, index|
       review = plan.iep_review_dates.build(review_date: parse_date(date))
       review.id = next_id
+      review.readonly!
       @review_id_by_number[index + 1] = review.id
     end
   end
@@ -143,6 +154,8 @@ class IndividualizedEducationalPlanSnapshotRestorer
           planning.iep_curricular_planning_options.build(iep_option: option, iep_option_id: option.id)
         end
       end
+
+      planning.readonly!
     end
   end
 
@@ -157,12 +170,21 @@ class IndividualizedEducationalPlanSnapshotRestorer
       )
       evaluation.id = next_id
       assign_component(evaluation, line)
+      evaluation.readonly!
     end
   end
 
   # Amarra a linha à revisão (pelo número congelado) e ao componente (disciplina/campo).
   def assign_component(line, snapshot_line)
-    line.iep_review_date_id = @review_id_by_number[snapshot_line['review_number'].to_i]
+    review_number = snapshot_line['review_number']
+    review_id = @review_id_by_number[review_number.to_i]
+
+    # Revisão não resolvida: a linha sumiria da tela sem aviso — falha alto (a escrita já é rígida).
+    if review_id.nil?
+      raise InvalidSnapshot, "linha de componente com revisão não resolvida (review_number=#{review_number.inspect})"
+    end
+
+    line.iep_review_date_id = review_id
 
     if snapshot_line['component_type'] == 'discipline'
       line.discipline = build_named(Discipline, snapshot_line['component_name'], :description)
