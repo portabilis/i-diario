@@ -37,6 +37,7 @@ pt-BR:
     finalize:
       success: "Versão do Plano Educacional Individualizado publicada com sucesso."
       already_published: "Esta versão já foi publicada. Atualize a página para ver o histórico."
+      version_name_required: "Informe um nome para a versão antes de salvar."
     versions:
       index:
         student: "Aluno"

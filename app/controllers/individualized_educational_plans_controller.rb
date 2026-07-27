@@ -112,21 +112,22 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   private
 
-  # "Finalizar" (modal Salvar versão) salva e publica no mesmo submit: o formulário envia
-  # version_name e a versão é criada na mesma transação do save. Sem version_name, apenas
-  # salva o plano (sem publicar versão).
+  # Salva o plano e publica uma versão na mesma transação. version_name é obrigatório:
+  # sem ele, registra erro e retorna false para re-renderizar o formulário.
   def save_and_publish
+    if version_name.blank?
+      @individualized_educational_plan.errors.add(:base, t('individualized_educational_plans.finalize.version_name_required'))
+      return false
+    end
+
     ActiveRecord::Base.transaction do
       saved = @individualized_educational_plan.save
       raise ActiveRecord::Rollback unless saved
 
-      if version_name.present?
-        authorize @individualized_educational_plan, :finalize?
-        IndividualizedEducationalPlanPublisher.publish!(
-          @individualized_educational_plan, name: version_name, published_by: current_user
-        )
-        @published = true
-      end
+      authorize @individualized_educational_plan, :finalize?
+      IndividualizedEducationalPlanPublisher.publish!(
+        @individualized_educational_plan, name: version_name, published_by: current_user
+      )
 
       saved
     end
@@ -136,12 +137,8 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def respond_after_save
-    if @published
-      redirect_to individualized_educational_plans_path,
-                  notice: t('individualized_educational_plans.finalize.success')
-    else
-      respond_with @individualized_educational_plan, location: individualized_educational_plans_path
-    end
+    redirect_to individualized_educational_plans_path,
+                notice: t('individualized_educational_plans.finalize.success')
   end
 
   def version_name
