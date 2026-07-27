@@ -23,6 +23,7 @@ class IndividualizedEducationalPlanSnapshotRestorer
     @content = (content || {}).to_h
     @sequence = 0
     @options_by_kind = Hash.new { |hash, kind| hash[kind] = [] }
+    @frozen_options = {}
     @review_id_by_number = {}
   end
 
@@ -111,12 +112,16 @@ class IndividualizedEducationalPlanSnapshotRestorer
     klass.new(id: next_id, attribute => name).tap(&:readonly!)
   end
 
-  # Cria a opção congelada (readonly) e a registra na coleção do formulário (para o select resolver o rótulo).
+  # Opção congelada (readonly), memoizada por [kind, description]: a mesma acomodação em várias
+  # linhas reutiliza uma única IepOption, evitando <option> repetido na coleção do select.
   def frozen_option(kind, description)
-    option = IepOption.new(id: next_id, kind: IepOptionKinds.value_of(kind), description: description)
-    option.readonly!
-    @options_by_kind[option.kind] << option
-    option
+    kind_value = IepOptionKinds.value_of(kind)
+
+    @frozen_options[[kind_value, description]] ||= begin
+      option = IepOption.new(id: next_id, kind: kind_value, description: description).tap(&:readonly!)
+      @options_by_kind[kind_value] << option
+      option
+    end
   end
 
   def assign_selected_options(plan, section, kinds)

@@ -78,6 +78,9 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
 
     expect(plan.communication_profile_option_ids.size).to eq(2)
     expect(result.iep_options_by_kind[comm_kind].map(&:description)).to match_array(['Verbal', 'Gestual'])
+    # Os ids selecionados têm de existir na coleção do select, senão o multi-select abre vazio.
+    expect(plan.communication_profile_option_ids)
+      .to match_array(result.iep_options_by_kind[comm_kind].map(&:id))
     expect(plan.accompaniment_option_ids.size).to eq(1)
   end
 

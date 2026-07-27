@@ -14,6 +14,7 @@ class IndividualizedEducationalPlanPublisher
 
   def publish!
     plan.transaction do
+      # Bulk desativa a versão ativa anterior — seguro: IepVersion não tem callbacks nem audited.
       plan.iep_versions.current.update_all(active: false)
 
       version = plan.iep_versions.create!(

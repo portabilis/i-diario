@@ -7,6 +7,8 @@ module IndividualizedEducationalPlans
     # Controller aninhado: título/breadcrumb/menu usam o item do PEI no navigation.yml.
     before_action { @navigation_item = 'individualized_educational_plans' }
 
+    # Load-bearing: o _form renderiza parciais por nome curto (render 'section_identification'),
+    # resolvidas pelos prefixes do controller; sem isto, versions/show estoura MissingTemplate.
     def self._prefixes
       super + ['individualized_educational_plans']
     end
@@ -34,9 +36,6 @@ module IndividualizedEducationalPlans
       @aee_teachers = restored.aee_teachers
       @iep_options_by_kind = restored.iep_options_by_kind
       @frozen_attachments = restored.attachments
-      # Modal de adicionar componente não é renderizado no modo leitura (não precisa das listas).
-      @disciplines = []
-      @knowledge_areas = []
     rescue IndividualizedEducationalPlanSnapshotRestorer::InvalidSnapshot => e
       Honeybadger.notify(e, context: { version_id: @version&.id, iep_id: iep&.id })
       redirect_to individualized_educational_plan_versions_path(iep),
