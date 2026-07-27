@@ -9,9 +9,9 @@
     <fieldset>
       <div class="pull-left">
         <h4 style="margin: 5px 0;">
-          <%= @version.name %>
+          <%= @version.name %><br>
           <% if @version.active? %>
-            <span class="label label-success"><%= t('.active') %></span>
+            <span class="label label-success"><%= t('.active') %></span><br>
           <% end %>
           <small>
             <%= t('.published_info', date: l(@version.published_at, format: :short), author: @version.published_by.name) %>
@@ -24,7 +24,7 @@
         <%= link_to t('helpers.links.print_html'),
               individualized_educational_plan_version_path(@version.iep, @version, format: :pdf),
               class: 'btn btn-info apply_tooltip', target: '_blank',
-              data: { original_title: t('.download_pdf') } %>
+              data: { original_title: t('.print') } %>
       </div>
     </fieldset>
   </div>
