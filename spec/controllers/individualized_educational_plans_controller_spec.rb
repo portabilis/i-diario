@@ -316,7 +316,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       create(:individualized_educational_plan, student: student, year: Date.current.year) # dispara duplicidade
 
       post :create, params: {
-        locale: 'pt-BR',
+        locale: 'pt-BR', version_name: 'Versão 1',
         individualized_educational_plan: {
           student_id: student.id, unity_id: unity.id, classroom_id: classroom.id,
           teacher_id: teacher.id, year: Date.current.year, elaborated_at: Date.current
@@ -437,16 +437,21 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       }
     end
 
-    it 'creates a draft plan and redirects to the index' do
+    it 'creates the plan and publishes the first version' do
       expect do
-        post :create, params: { locale: 'pt-BR', individualized_educational_plan: valid_params }
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1', individualized_educational_plan: valid_params
+        }
       end.to change(IndividualizedEducationalPlan, :count).by(1)
 
       expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(IndividualizedEducationalPlan.last.active_version.name).to eq('Versão 1')
     end
 
     it 'persists the review dates' do
-      post :create, params: { locale: 'pt-BR', individualized_educational_plan: valid_params }
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1', individualized_educational_plan: valid_params
+      }
 
       expect(IndividualizedEducationalPlan.last.iep_review_dates.map(&:review_date)).to eq([Date.current + 30])
     end
@@ -455,7 +460,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       option = create(:iep_option)
 
       post :create, params: {
-        locale: 'pt-BR',
+        locale: 'pt-BR', version_name: 'Versão 1',
         individualized_educational_plan: valid_params.merge(communication_profile_option_ids: [option.id])
       }
 
@@ -466,7 +471,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       options = create_list(:iep_option, 2)
 
       post :create, params: {
-        locale: 'pt-BR',
+        locale: 'pt-BR', version_name: 'Versão 1',
         individualized_educational_plan: valid_params.merge(
           communication_profile_option_ids: options.map(&:id).join(',')
         )
@@ -478,7 +483,8 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'does not create an invalid plan (missing required fields)' do
       expect do
         post :create, params: {
-          locale: 'pt-BR', individualized_educational_plan: valid_params.merge(student_id: nil)
+          locale: 'pt-BR', version_name: 'Versão 1',
+          individualized_educational_plan: valid_params.merge(student_id: nil)
         }
       end.not_to change(IndividualizedEducationalPlan, :count)
     end
@@ -492,7 +498,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       accommodation = create(:iep_option, :instructional_accommodation)
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_curricular_plannings_attributes: { '0' => {
             iep_review_date_id: review_date.id, discipline_id: discipline.id,
@@ -519,7 +525,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       discipline = create(:discipline)
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_curricular_plannings_attributes: { '0' => {
             iep_review_date_id: review_date.id, discipline_id: discipline.id,
@@ -549,7 +555,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_review_dates_attributes: { '0' => { id: review_date.id, _destroy: '1' } }
         }
@@ -574,7 +580,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       create(:iep_periodic_evaluation, iep: plan, iep_review_date: second_review, acquired_skills: 'Habilidades')
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_review_dates_attributes: {
             '0' => { id: first_review.id, _destroy: '1' },
@@ -595,7 +601,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_curricular_plannings_attributes: { '0' => {
             id: planning.id, long_term_goal: '', stage_objectives: '', skills_to_develop: '', methodologies: '',
@@ -615,7 +621,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_curricular_plannings_attributes: { '0' => {
             id: planning.id, long_term_goal: '', stage_objectives: '', skills_to_develop: '', methodologies: '',
@@ -635,7 +641,8 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       plan = create(:individualized_educational_plan)
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id, individualized_educational_plan: { characterization: 'Atualizado' }
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { characterization: 'Atualizado' }
       }
 
       expect(plan.reload.characterization).to eq('Atualizado')
@@ -647,7 +654,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       new_student = create(:student)
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: { student_id: new_student.id, characterization: 'Tentativa de troca' }
       }
 
@@ -663,7 +670,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       acc_b = create(:iep_option, :instructional_accommodation)
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_curricular_plannings_attributes: { '0' => {
             iep_review_date_id: review_date.id, discipline_id: discipline.id, long_term_goal: 'Meta',
@@ -680,7 +687,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       plan = create(:individualized_educational_plan)
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id,
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           iep_attachments_attributes: { '0' => { attachment: '', attachment_cache: '' } }
         }
@@ -726,15 +733,18 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(plan.active_version.name).to eq('Primeira versão')
     end
 
-    it 'saves a draft without publishing when no version name is sent' do
-      plan = create(:individualized_educational_plan)
+    it 'does not save without a version name' do
+      plan = create(:individualized_educational_plan, characterization: 'Original')
 
       patch :update, params: {
-        locale: 'pt-BR', id: plan.id, individualized_educational_plan: { characterization: 'Rascunho' }
+        locale: 'pt-BR', id: plan.id, individualized_educational_plan: { characterization: 'Alterado' }
       }
 
-      expect(plan.reload.iep_versions.count).to eq(0)
-      expect(plan.finalized?).to eq(false)
+      expect(response).to render_template(:edit)
+      expect(plan.reload.characterization).to eq('Original')
+      expect(plan.iep_versions.count).to eq(0)
+      expect(assigns(:individualized_educational_plan).errors[:base])
+        .to include(I18n.t('individualized_educational_plans.finalize.version_name_required'))
     end
 
     it 'publishes nothing when the plan itself is invalid' do
