@@ -400,20 +400,31 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #show' do
+    let(:classroom) { create(:classroom) }
+
     before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
     it 'presents the living plan in the read-only form' do
-      plan = create(:individualized_educational_plan, characterization: 'Perfil')
+      plan = create(:individualized_educational_plan, classroom: classroom, characterization: 'Perfil')
 
       get :show, params: { locale: 'pt-BR', id: plan.id }
 
       expect(response).to have_http_status(:ok)
       expect(assigns(:individualized_educational_plan)).to eq(plan)
       expect(assigns(:individualized_educational_plan).characterization).to eq('Perfil')
+    end
+
+    it 'does not open a plan from a classroom the user is not linked to' do
+      plan = create(:individualized_educational_plan, classroom: create(:classroom))
+
+      get :show, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(assigns(:individualized_educational_plan)).to be_nil
     end
   end
 
@@ -508,14 +519,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #edit' do
+    let(:classroom) { create(:classroom) }
+
     before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
     it 'keeps 3 review date fields, completing the persisted ones' do
-      plan = create(:individualized_educational_plan)
+      plan = create(:individualized_educational_plan, classroom: classroom)
       create(:iep_review_date, iep: plan, review_date: Date.current)
 
       get :edit, params: { locale: 'pt-BR', id: plan.id }

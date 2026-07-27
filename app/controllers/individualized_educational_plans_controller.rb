@@ -1,5 +1,6 @@
 class IndividualizedEducationalPlansController < ApplicationController
   include RendersIepPdf
+  include IndividualizedEducationalPlanScoping
 
   # Quantidade de campos de data de revisão exibidos por padrão no formulário.
   DEFAULT_REVIEW_DATES_COUNT = 3
@@ -34,11 +35,12 @@ class IndividualizedEducationalPlansController < ApplicationController
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
-    authorize IndividualizedEducationalPlan, :show?
+    # Só :show? num plano existente (vem plan_id, o usuário só visualiza); :new? ao criar um PEI.
+    authorize IndividualizedEducationalPlan, (params[:plan_id].present? ? :show? : :new?)
 
     student = student_for_data
 
-    data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: current_user_classroom)
+    data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: classroom_for_data)
     data[:has_existing_plan] = existing_plan?(student.id)
 
     render json: data
@@ -137,6 +139,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   # envia version_name e a versão é criada na mesma transação do save (issue: "Você
   # está salvando e publicando uma versão do PEI"). Sem version_name, salva rascunho.
   def save_and_publish
+    # Busca externa (i-Educar, até 240s) fora da transação: dentro dela prenderia a conexão presa.
+    prefetched_student_data = student_data_for_snapshot
+
     ActiveRecord::Base.transaction do
       saved = @individualized_educational_plan.save
       raise ActiveRecord::Rollback unless saved
@@ -144,7 +149,8 @@ class IndividualizedEducationalPlansController < ApplicationController
       if version_name.present?
         authorize @individualized_educational_plan, :finalize?
         IndividualizedEducationalPlanPublisher.publish!(
-          @individualized_educational_plan, name: version_name, published_by: current_user
+          @individualized_educational_plan, name: version_name, published_by: current_user,
+          student_data: prefetched_student_data
         )
         @published = true
       end
@@ -169,6 +175,16 @@ class IndividualizedEducationalPlansController < ApplicationController
     params[:version_name].to_s.strip
   end
 
+  def student_data_for_snapshot
+    return unless version_name.present?
+    return if @individualized_educational_plan.student.blank?
+
+    IndividualizedEducationalPlanPrefill.student_data(
+      @individualized_educational_plan.student,
+      classroom: @individualized_educational_plan.classroom
+    )
+  end
+
   # Repopula os campos de exibição e opções e re-renderiza o formulário (após erro de validação).
   def render_form(action)
     assign_display_fields
@@ -177,7 +193,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def plan_with_components
-    IndividualizedEducationalPlan.includes(
+    accessible_plans.includes(
       iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
       iep_periodic_evaluations: [:discipline, :knowledge_area]
     ).find(params[:id])
@@ -268,12 +284,21 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def student_for_data
-    if params[:plan_id].present?
-      plan = IndividualizedEducationalPlan.find(params[:plan_id])
-      return plan.student if plan.student_id.to_s == params[:student_id].to_s
+    if data_plan
+      return data_plan.student if data_plan.student_id.to_s == params[:student_id].to_s
     end
 
     permitted_students.find(params[:student_id])
+  end
+
+  def data_plan
+    return @data_plan if defined?(@data_plan)
+
+    @data_plan = params[:plan_id].present? ? IndividualizedEducationalPlan.find(params[:plan_id]) : nil
+  end
+
+  def classroom_for_data
+    data_plan&.classroom || current_user_classroom
   end
 
   def create_resource_params
@@ -362,23 +387,9 @@ class IndividualizedEducationalPlansController < ApplicationController
     params[:filter][:by_classroom_id] ||= current_user_classroom.id
   end
 
-  # Admin/servidor: turma selecionada no perfil.
-  # Professor: todas as turmas que leciona na escola selecionada no perfil, no ano.
+  # Turmas do usuário para os filtros/listagem do índice (mesmo escopo de accessible_classrooms).
   def set_options_by_user
-    if current_user.current_role_is_admin_or_employee?
-      fetch_classrooms
-    else
-      fetch_linked_by_teacher
-    end
-  end
-
-  def fetch_classrooms
-    @classrooms ||= [current_user_classroom].compact
-  end
-
-  def fetch_linked_by_teacher
-    fetched = TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity, current_school_year)
-    @classrooms = fetched ? fetched[:classrooms] : []
+    @classrooms = accessible_classrooms
   end
 
   def fetch_plans

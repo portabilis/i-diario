@@ -1,9 +1,12 @@
 <%# Cabeçalho comum das linhas de componente das seções 4 e 5 (planejamento/avaliação):
     hidden de vínculo + título (o JS depende do .iep-component-title) + botão de remover.
     Locals: f, view_only (opcional) %>
-<%= f.input_field :iep_review_date_id, as: :hidden %>
-<%= f.input_field :discipline_id, as: :hidden %>
-<%= f.input_field :knowledge_area_id, as: :hidden %>
+<%# Hidden de FK só nas telas de escrita: em view_only os ids são sintéticos e não devem ser submetidos. %>
+<% unless local_assigns[:view_only] %>
+  <%= f.input_field :iep_review_date_id, as: :hidden %>
+  <%= f.input_field :discipline_id, as: :hidden %>
+  <%= f.input_field :knowledge_area_id, as: :hidden %>
+<% end %>
 
 <legend>
   <span class="iep-component-title"><%= f.object.discipline&.description || f.object.knowledge_area&.description %></span>

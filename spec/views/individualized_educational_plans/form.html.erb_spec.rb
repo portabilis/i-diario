@@ -60,4 +60,58 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
       expect(rendered).not_to include('iep-add-component')
     end
   end
+
+  # Tela de versão publicada: o MESMO form é alimentado pelo Result do restorer — plano NÃO salvo,
+  # ids sintéticos, coleções como Array e anexos congelados. Combinação que só a versão exercita.
+  context 'rendering a restored version snapshot' do
+    let(:content) do
+      {
+        'identification' => {
+          'student_name' => 'Aluno Congelado', 'guardians' => nil, 'guardians_unavailable' => true,
+          'year' => 2026, 'review_dates' => ['2026-04-01'],
+          'attachments' => [{ 'filename' => 'laudo.pdf', 'url' => '/uploads/laudo.pdf' }]
+        },
+        'characterization' => { 'characterization' => 'Perfil congelado',
+                                'communication_profile' => ['Comunicação verbal'] },
+        'curricular_plannings' => [
+          { 'review_number' => 1, 'component_type' => 'discipline',
+            'component_name' => 'Matemática', 'long_term_goal' => 'Meta congelada',
+            'instructional_accommodations' => ['Materiais concretos'],
+            'environmental_accommodations' => [], 'assessment_accommodations' => [] }
+        ]
+      }
+    end
+
+    before do
+      restored = IndividualizedEducationalPlanSnapshotRestorer.restore(content)
+      assign(:individualized_educational_plan, restored.plan)
+      assign(:students, restored.students)
+      assign(:aee_teachers, restored.aee_teachers)
+      assign(:iep_options_by_kind, restored.iep_options_by_kind)
+      assign(:frozen_attachments, restored.attachments)
+      assign(:disciplines, [])
+      assign(:knowledge_areas, [])
+    end
+
+    it 'renders the reconstructed version and shows the frozen values with student fetch off' do
+      expect do
+        render partial: 'individualized_educational_plans/form',
+               locals: { view_only: true, student_fetch: false }
+      end.not_to raise_error
+
+      expect(rendered).to include('Aluno Congelado')
+      expect(rendered).to include('Perfil congelado')
+      expect(rendered).to include('Meta congelada')
+      expect(rendered).to include('data-student-fetch="off"')
+      expect(rendered).not_to include('translation_missing')
+    end
+
+    it 'shows the guardians-unavailable warning frozen from the snapshot (not hidden)' do
+      render partial: 'individualized_educational_plans/form',
+             locals: { view_only: true, student_fetch: false }
+
+      # A flag congelada como indisponível → o aviso é renderizado sem display:none pelo servidor.
+      expect(rendered).not_to match(/iep-guardians-warning"[^>]*display: none/)
+    end
+  end
 end
