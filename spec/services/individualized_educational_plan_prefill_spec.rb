@@ -67,10 +67,12 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
       expect(data[:guardians_unavailable]).to eq(false)
     end
 
-    it 'lets ApiError propagate (API not configured) instead of swallowing it as empty guardians' do
+    it 'flags guardians as unavailable when the API is not configured (ApiError) instead of losing the form' do
       allow(IeducarApi::Students).to receive(:new).and_raise(IeducarApi::Base::ApiError.new('sem configuração'))
 
-      expect { described_class.student_data(student) }.to raise_error(IeducarApi::Base::ApiError)
+      data = described_class.student_data(student)
+      expect(data[:guardians]).to be_nil
+      expect(data[:guardians_unavailable]).to eq(true)
     end
 
     context 'shift (turma do perfil)' do
