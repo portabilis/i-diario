@@ -4,8 +4,10 @@ class IepCurricularPlanning < ApplicationRecord
 
   audited associated_with: :iep
 
+  # touch: mantém o updated_at do plano (coluna "Última edição" do index) atualizado
+  # quando o usuário edita só a seção 4, sem mexer em colunas do próprio plano.
   belongs_to :iep, class_name: 'IndividualizedEducationalPlan',
-             foreign_key: :individualized_educational_plan_id
+             foreign_key: :individualized_educational_plan_id, touch: true
   belongs_to :iep_review_date                          # revisão (1ª, 2ª...) a que o planejamento pertence
 
   validates :iep_review_date_id, presence: true

@@ -167,4 +167,63 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       expect(plan.reload.communication_profile_option_ids).to eq([])
     end
   end
+
+  # A coluna "Última edição" do index usa updated_at; editar só dados aninhados (sem tocar
+  # em colunas do próprio plano) precisa atualizar o updated_at via touch nas associações.
+  describe 'updated_at when only nested records change' do
+    let(:plan) { create(:individualized_educational_plan) }
+    let(:review) { create(:iep_review_date, iep: plan) }
+
+    it 'bumps when a curricular planning line (section 4) is added' do
+      original = plan.reload.updated_at
+
+      Timecop.travel(1.minute.from_now) do
+        create(:iep_curricular_planning, iep: plan, iep_review_date: review)
+
+        expect(plan.reload.updated_at).to be > original
+      end
+    end
+
+    it 'bumps when only an accommodation option of a line changes' do
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review)
+      original = plan.reload.updated_at
+
+      Timecop.travel(1.minute.from_now) do
+        create(:iep_curricular_planning_option, iep_curricular_planning: planning,
+                                                iep_option: create(:iep_option, :instructional_accommodation))
+
+        expect(plan.reload.updated_at).to be > original
+      end
+    end
+
+    it 'bumps when a periodic evaluation line (section 5) is added' do
+      original = plan.reload.updated_at
+
+      Timecop.travel(1.minute.from_now) do
+        create(:iep_periodic_evaluation, iep: plan, iep_review_date: review)
+
+        expect(plan.reload.updated_at).to be > original
+      end
+    end
+
+    it 'bumps when a review date is added' do
+      original = plan.reload.updated_at
+
+      Timecop.travel(1.minute.from_now) do
+        create(:iep_review_date, iep: plan)
+
+        expect(plan.reload.updated_at).to be > original
+      end
+    end
+
+    it 'bumps when a selected option (sections 2/3) changes' do
+      original = plan.reload.updated_at
+
+      Timecop.travel(1.minute.from_now) do
+        create(:iep_selected_option, iep: plan)
+
+        expect(plan.reload.updated_at).to be > original
+      end
+    end
+  end
 end

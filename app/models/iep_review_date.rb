@@ -1,8 +1,10 @@
 class IepReviewDate < ApplicationRecord
   audited associated_with: :iep
 
+  # touch: mantém o updated_at do plano (coluna "Última edição" do index) atualizado
+  # ao adicionar/remover uma data de revisão sem mexer em colunas do próprio plano.
   belongs_to :iep, class_name: 'IndividualizedEducationalPlan',
-             foreign_key: :individualized_educational_plan_id
+             foreign_key: :individualized_educational_plan_id, touch: true
 
   has_many :iep_curricular_plannings
   has_many :iep_periodic_evaluations
