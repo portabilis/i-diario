@@ -276,7 +276,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   # Componentes das seções 4/5. Cada ramo parte de uma turma diferente: o admin/servidor
   # lista os da turma do perfil (current_user_classroom); o professor, só os que leciona na
-  # turma do PLANO (via teacher_scope). @editable_component_scope tem duplo papel na view:
+  # turma do PLANO (via teacher_component_permission). @editable_component_scope tem duplo papel na view:
   # sua mera presença coloca as seções 1-3 e 6 em leitura (sections_read_only no _form) e ele
   # decide quais linhas das seções 4/5 são editáveis. nil (admin/servidor) = tudo editável.
   def set_component_options
@@ -286,9 +286,9 @@ class IndividualizedEducationalPlansController < ApplicationController
       @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
       @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
     else
-      @editable_component_scope = teacher_scope
-      @disciplines = teacher_scope.disciplines
-      @knowledge_areas = teacher_scope.knowledge_areas
+      @editable_component_scope = teacher_component_permission
+      @disciplines = teacher_component_permission.disciplines
+      @knowledge_areas = teacher_component_permission.knowledge_areas
     end
   end
 
@@ -349,7 +349,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   # ser de outro componente (nem por reatribuição de linha existente). Admin/servidor passam.
   def authorize_teacher_component_scope!
     return if admin_or_employee?
-    return if teacher_scope.touched_lines_authorized?
+    return if teacher_component_permission.touched_lines_authorized?
 
     Rails.logger.error(
       "PEI: professor tentou editar componente fora do escopo — plan=#{@individualized_educational_plan.id} " \
@@ -358,8 +358,9 @@ class IndividualizedEducationalPlansController < ApplicationController
     raise Pundit::NotAuthorizedError.new(query: :update?, record: @individualized_educational_plan)
   end
 
-  def teacher_scope
-    @teacher_scope ||= IndividualizedEducationalPlanTeacherScope.new(current_teacher, @individualized_educational_plan)
+  def teacher_component_permission
+    @teacher_component_permission ||=
+      IndividualizedEducationalPlanTeacherComponentPermission.new(current_teacher, @individualized_educational_plan)
   end
 
   def admin_or_employee?

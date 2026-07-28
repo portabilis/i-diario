@@ -6,7 +6,7 @@
 #
 # Usado tanto pela view (quais componentes/linhas são editáveis) quanto pelo controller
 # (trava server-side: nenhuma linha tocada pode ser de outro componente).
-class IndividualizedEducationalPlanTeacherScope
+class IndividualizedEducationalPlanTeacherComponentPermission
   def initialize(teacher, iep)
     @teacher = teacher
     @iep = iep

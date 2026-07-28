@@ -1,5 +1,5 @@
 <% view_only = local_assigns[:view_only] %>
-<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherScope).
+<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherComponentPermission).
     Presente => seções 1-3 e 6 em leitura e só as linhas 4/5 do componente dele editáveis.
     nil não significa "editável por qualquer um": é nil para admin/servidor (que edita tudo) e
     também na versão publicada (VersionsController#show), onde quem trava é view_only, não o escopo. %>

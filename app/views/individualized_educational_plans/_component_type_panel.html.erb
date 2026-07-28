@@ -3,7 +3,7 @@
     Locals: f, association, fields_partial, review_date, component_type (:discipline/:knowledge_area),
             dom_id, view_only (opcional) %>
 <% view_only = local_assigns[:view_only] %>
-<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherScope).
+<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherComponentPermission).
     Presente => só as linhas do componente dele são editáveis. nil (admin/servidor e também a
     versão publicada, onde quem trava é view_only) => nenhuma restrição por linha aqui. %>
 <% component_scope = @editable_component_scope %>

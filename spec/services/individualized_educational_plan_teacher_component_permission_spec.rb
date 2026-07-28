@@ -3,7 +3,7 @@ require 'rails_helper'
 # Responde a posse de componente do professor: quais disciplinas/áreas ele leciona na turma
 # do plano e se uma dada linha das seções 4/5 é dele (a restrição de seção em si mora nos
 # strong params e no _form; aqui é só a decisão de posse).
-RSpec.describe IndividualizedEducationalPlanTeacherScope, type: :service do
+RSpec.describe IndividualizedEducationalPlanTeacherComponentPermission, type: :service do
   let(:entity) { Entity.find_by(domain: 'test.host') }
 
   around(:each) { |example| entity.using_connection { example.run } }
