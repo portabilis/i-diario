@@ -32,9 +32,9 @@
     </footer>
   <% end %>
 
-  <% if Rails.application.secrets.PASSPORT_LOGIN_BUTTON %>
+  <% if GeneralConfiguration.current.sso_enabled %>
   <div style="border-top: 1px solid #ddd; padding: 10px;">
-    <%= button_to "Entrar com a Conta Portábilis",
+    <%= button_to Rails.application.secrets.PASSPORT_LOGIN_BUTTON,
                   user_passport_omniauth_authorize_path,
                   method: :post,
                   class: "btn btn-portabilis",
