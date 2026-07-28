@@ -1,18 +1,18 @@
 <%# Painel de um tipo (Por Disciplina/Por Campo) dentro de uma revisão: pills dos
     componentes já adicionados + botão que abre o modal de adição.
     Locals: f, association, fields_partial, review_date, component_type (:discipline/:knowledge_area),
-            dom_id, view_only (opcional), component_scope (opcional) %>
+            dom_id, view_only (opcional) %>
 <% view_only = local_assigns[:view_only] %>
-<%# component_scope (professor): quando presente, só as linhas do componente dele são
-    editáveis; as demais aparecem, mas em leitura. Sem escopo => tudo editável. %>
-<% component_scope = local_assigns[:component_scope] %>
+<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherScope).
+    Presente => só as linhas do componente dele são editáveis. nil (admin/servidor e também a
+    versão publicada, onde quem trava é view_only) => nenhuma restrição por linha aqui. %>
+<% component_scope = @editable_component_scope %>
 <% lines = @individualized_educational_plan.send(association).select { |row|
      row.iep_review_date_id == review_date.id && !row.marked_for_destruction? &&
        row.public_send("#{component_type}_id").present?
    } %>
 
-<%# Só oferece "adicionar" quando há componente daquele tipo disponível (o professor vê só
-    os seus; sem nenhum, o botão não aparece para não abrir um modal vazio). %>
+<%# Só mostra o botão de adicionar quando há componente daquele tipo (o professor vê só os seus). %>
 <% components_available = component_type == :discipline ? @disciplines.present? : @knowledge_areas.present? %>
 <% if !view_only && components_available %>
   <div style="margin: 15px 0;">
@@ -37,9 +37,9 @@
   <% lines.each_with_index do |line, index| %>
     <%# child_index: line.id faz os name/id dos campos usarem o id real da linha (não o
         índice sequencial), casando com a pill (data-target-key) e o hidden lido pelo JS. %>
-    <% line_editable = !view_only && (component_scope.nil? || component_scope.owns_line?(line)) %>
+    <% line_view_only = view_only || (component_scope.present? && !component_scope.owns_line?(line)) %>
     <%= f.simple_fields_for association, line, child_index: line.id do |line_form| %>
-      <%= render fields_partial, f: line_form, hidden: !index.zero?, view_only: !line_editable %>
+      <%= render fields_partial, f: line_form, hidden: !index.zero?, view_only: line_view_only %>
     <% end %>
   <% end %>
 </div>

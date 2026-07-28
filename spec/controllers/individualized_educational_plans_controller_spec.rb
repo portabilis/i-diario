@@ -178,6 +178,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         }
       }
 
+      expect(response).to redirect_to(individualized_educational_plans_path)
       expect(own_line.reload.long_term_goal).to eq('Meta revisada')
     end
 
@@ -277,9 +278,8 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
   describe 'GET #fetch_students_by_classroom' do
     before do
-    allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
-  end
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+    end
 
     let(:classroom) { create(:classroom) }
 
@@ -580,9 +580,11 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
   describe 'POST #create' do
     before do
-    allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
-  end
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      # alguns exemplos deste bloco exercitam o fluxo real de update das seções 4/5 (patch :update),
+      # que passa por plan_with_components → accessible_plans.
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+    end
 
     let(:valid_params) do
       {
@@ -708,9 +710,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
   describe 'PATCH #update' do
     before do
-    allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
-  end
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+    end
 
     it 'renders edit with a friendly error when removing a review that has section data' do
       plan = create(:individualized_educational_plan)
@@ -862,9 +864,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
   describe 'finalization (save + publish in the same submit)' do
     before do
-    allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
-  end
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+    end
 
     it 'publishes an active version when updating with a version name' do
       plan = create(:individualized_educational_plan)

@@ -1,6 +1,7 @@
 # Restringe o acesso aos PEIs às turmas do usuário (admin: turma do perfil; professor: as que
-# leciona). Compartilhado entre os controllers de PEI e de versões para fechar o IDOR das telas de
-# leitura: plano de turma sem vínculo → RecordNotFound.
+# leciona). Compartilhado entre os controllers de PEI e de versões: plano de turma sem vínculo →
+# RecordNotFound. Fecha o IDOR tanto nas telas de leitura quanto no update (que busca por
+# accessible_plans antes de gravar) e no destroy.
 module IndividualizedEducationalPlanScoping
   extend ActiveSupport::Concern
 
@@ -23,6 +24,14 @@ module IndividualizedEducationalPlanScoping
         fetched = TeacherClassroomAndDisciplineFetcher.fetch!(
           current_teacher.id, current_unity, current_school_year
         )
+        # nil quando teacher/unity vêm em branco: o professor cai para [] e vê "PEI não
+        # encontrado" num plano que pode ser dele — loga para tornar o caso diagnosticável.
+        unless fetched
+          Rails.logger.error(
+            "PEI: TeacherClassroomAndDisciplineFetcher retornou nil — teacher=#{current_teacher&.id} " \
+            "unity=#{current_unity&.id} year=#{current_school_year}"
+          )
+        end
         fetched ? fetched[:classrooms] : []
       end
   end

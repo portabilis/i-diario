@@ -62,6 +62,9 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     render json: data
   rescue ActiveRecord::RecordNotFound
+    Rails.logger.error(
+      "PEI: student_data não encontrou aluno — student_id=#{params[:student_id]} plan_id=#{params[:plan_id]}"
+    )
     head :not_found
   end
 
@@ -208,6 +211,8 @@ class IndividualizedEducationalPlansController < ApplicationController
     render action
   end
 
+  # Plano restrito às turmas do usuário (accessible_plans), com as seções 4/5 e suas opções
+  # pré-carregadas para a tela e para o escopo do professor.
   def plan_with_components
     accessible_plans.includes(
       iep_curricular_plannings: [:discipline, :knowledge_area, :iep_review_date,
@@ -263,18 +268,20 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def set_form_options
-    classroom_ids = [current_user_classroom&.id].compact
     @students = form_students.order(:name)
     @aee_teachers = current_unity ? Teacher.by_unity_id(current_unity.id).order_by_name : Teacher.none
     @iep_options_by_kind = IepOption.enabled.ordered.group_by(&:kind)
-    set_component_options(classroom_ids)
+    set_component_options
   end
 
-  # Componentes das seções 4/5. Admin/servidor veem todos os da turma; o professor só os
-  # seus, e @editable_component_scope (nil = tudo editável) diz à view quais linhas ele
-  # pode editar — as demais aparecem em leitura.
-  def set_component_options(classroom_ids)
+  # Componentes das seções 4/5. Cada ramo parte de uma turma diferente: o admin/servidor
+  # lista os da turma do perfil (current_user_classroom); o professor, só os que leciona na
+  # turma do PLANO (via teacher_scope). @editable_component_scope tem duplo papel na view:
+  # sua mera presença coloca as seções 1-3 e 6 em leitura (sections_read_only no _form) e ele
+  # decide quais linhas das seções 4/5 são editáveis. nil (admin/servidor) = tudo editável.
+  def set_component_options
     if admin_or_employee?
+      classroom_ids = [current_user_classroom&.id].compact
       @editable_component_scope = nil
       @disciplines = Discipline.by_classroom_id(classroom_ids).ordered
       @knowledge_areas = KnowledgeArea.by_classroom_id(classroom_ids).ordered
@@ -329,9 +336,8 @@ class IndividualizedEducationalPlansController < ApplicationController
     teacher_resource_params
   end
 
-  # Parâmetros permitidos ao professor: apenas as linhas das seções 4/5. As demais seções,
-  # datas de revisão, anexos e identificação são descartadas pelo strong parameters — a
-  # validação de que cada linha é do componente do professor é feita à parte (escopo).
+  # Permite ao professor apenas as linhas das seções 4/5 (planejamento e avaliação); as demais
+  # seções são descartadas pelo strong parameters.
   def teacher_resource_params
     params.require(:individualized_educational_plan).permit(
       iep_curricular_plannings_attributes: CURRICULAR_PLANNING_ATTRIBUTES,

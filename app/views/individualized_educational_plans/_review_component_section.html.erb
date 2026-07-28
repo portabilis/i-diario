@@ -1,9 +1,8 @@
 <%# Estrutura das seções 4/5: botões de revisão > abas Por Disciplina/Por Campo >
     componentes adicionados sob demanda (modal).
     Locals: f, review_dates, association (:iep_curricular_plannings/:iep_periodic_evaluations),
-            fields_partial, dom_prefix ("s4"/"s5"), view_only (opcional), component_scope (opcional) %>
+            fields_partial, dom_prefix ("s4"/"s5"), view_only (opcional) %>
 <% view_only = local_assigns[:view_only] %>
-<% component_scope = local_assigns[:component_scope] %>
 <% if review_dates.empty? %>
   <div class="alert alert-info fade in">
     <i class="fa-fw fa fa-info"></i>
@@ -40,13 +39,13 @@
         <div class="tab-pane active" id="<%= dom_prefix %>-r<%= review_date.id %>-disciplines">
           <%= render 'component_type_panel', f: f, association: association, fields_partial: fields_partial,
                 review_date: review_date, component_type: :discipline, view_only: view_only,
-                component_scope: component_scope, dom_id: "#{dom_prefix}-r#{review_date.id}-d" %>
+                dom_id: "#{dom_prefix}-r#{review_date.id}-d" %>
         </div>
 
         <div class="tab-pane" id="<%= dom_prefix %>-r<%= review_date.id %>-knowledge-areas">
           <%= render 'component_type_panel', f: f, association: association, fields_partial: fields_partial,
                 review_date: review_date, component_type: :knowledge_area, view_only: view_only,
-                component_scope: component_scope, dom_id: "#{dom_prefix}-r#{review_date.id}-k" %>
+                dom_id: "#{dom_prefix}-r#{review_date.id}-k" %>
         </div>
       </div>
     </div>

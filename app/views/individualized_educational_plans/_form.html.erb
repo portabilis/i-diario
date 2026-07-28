@@ -1,6 +1,8 @@
 <% view_only = local_assigns[:view_only] %>
-<%# component_scope (professor): quando presente, só as seções 4/5 do componente dele são
-    editáveis; as seções 1-3 e 6 ficam em leitura. Admin/servidor => nil (edita tudo). %>
+<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherScope).
+    Presente => seções 1-3 e 6 em leitura e só as linhas 4/5 do componente dele editáveis.
+    nil não significa "editável por qualquer um": é nil para admin/servidor (que edita tudo) e
+    também na versão publicada (VersionsController#show), onde quem trava é view_only, não o escopo. %>
 <% component_scope = @editable_component_scope %>
 <% sections_read_only = view_only || component_scope.present? %>
 <%# student_fetch: liga a busca AJAX dos responsáveis (novo/editar/plano vivo). Na versão
@@ -61,7 +63,7 @@
       <div class="tab-pane" id="pei-step-4">
         <fieldset>
           <%= render 'review_component_section', f: f, review_dates: review_dates, view_only: view_only,
-                component_scope: component_scope, association: :iep_curricular_plannings,
+                association: :iep_curricular_plannings,
                 fields_partial: 'iep_curricular_planning_fields', dom_prefix: 's4' %>
         </fieldset>
       </div>
@@ -69,7 +71,7 @@
       <div class="tab-pane" id="pei-step-5">
         <fieldset>
           <%= render 'review_component_section', f: f, review_dates: review_dates, view_only: view_only,
-                component_scope: component_scope, association: :iep_periodic_evaluations,
+                association: :iep_periodic_evaluations,
                 fields_partial: 'iep_periodic_evaluation_fields', dom_prefix: 's5' %>
         </fieldset>
       </div>

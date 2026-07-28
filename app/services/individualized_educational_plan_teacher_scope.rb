@@ -12,18 +12,15 @@ class IndividualizedEducationalPlanTeacherScope
     @iep = iep
   end
 
+  # Congelados: são o conjunto de autorização e também são entregues à view — o freeze
+  # impede que uma referência entregue mute o que decide a posse de componente.
   def disciplines
-    @disciplines ||= Discipline.by_teacher_and_classroom(@teacher.id, [@iep.classroom_id]).ordered.to_a
+    @disciplines ||= Discipline.by_teacher_and_classroom(@teacher.id, [@iep.classroom_id]).ordered.to_a.freeze
   end
 
   def knowledge_areas
-    @knowledge_areas ||= KnowledgeArea.where(id: disciplines.map(&:knowledge_area_id).uniq.compact).ordered.to_a
-  end
-
-  # A linha das seções 4/5 pertence ao componente do professor? (por disciplina ou por área)
-  def owns?(discipline_id, knowledge_area_id)
-    (discipline_id.present? && discipline_ids.include?(discipline_id)) ||
-      (knowledge_area_id.present? && knowledge_area_ids.include?(knowledge_area_id))
+    @knowledge_areas ||=
+      KnowledgeArea.where(id: disciplines.map(&:knowledge_area_id).uniq.compact).ordered.to_a.freeze
   end
 
   def owns_line?(line)
@@ -39,7 +36,11 @@ class IndividualizedEducationalPlanTeacherScope
 
   private
 
-  attr_reader :iep
+  # A linha das seções 4/5 pertence ao componente do professor? (por disciplina ou por área)
+  def owns?(discipline_id, knowledge_area_id)
+    (discipline_id.present? && discipline_ids.include?(discipline_id)) ||
+      (knowledge_area_id.present? && knowledge_area_ids.include?(knowledge_area_id))
+  end
 
   def discipline_ids
     @discipline_ids ||= disciplines.map(&:id)
@@ -49,8 +50,10 @@ class IndividualizedEducationalPlanTeacherScope
     @knowledge_area_ids ||= knowledge_areas.map(&:id)
   end
 
+  # Não memoizar: precisa reler as associações depois do assign_attributes do controller
+  # para enxergar linhas novas/marcadas para exclusão no submit atual.
   def section_lines
-    iep.iep_curricular_plannings + iep.iep_periodic_evaluations
+    @iep.iep_curricular_plannings + @iep.iep_periodic_evaluations
   end
 
   # "Tocada" cobre também a alteração só de acomodações (seção 4), que mexe nos registros de
@@ -71,8 +74,9 @@ class IndividualizedEducationalPlanTeacherScope
     value.to_s.delete("\r")
   end
 
+  # Alterou as acomodações da linha (só a seção 4 as tem): alguma opção adicionada ou removida.
   def options_touched?(line)
-    return false unless line.respond_to?(:iep_curricular_planning_options)
+    return false unless line.is_a?(IepCurricularPlanning)
 
     line.iep_curricular_planning_options.any? { |option| option.new_record? || option.marked_for_destruction? }
   end

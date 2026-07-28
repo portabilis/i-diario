@@ -1,7 +1,8 @@
 require 'rails_helper'
 
-# Escopo de edição do professor: só as seções 4/5 do componente que ele leciona na turma
-# do plano (disciplina) ou da área de conhecimento dessas disciplinas.
+# Responde a posse de componente do professor: quais disciplinas/áreas ele leciona na turma
+# do plano e se uma dada linha das seções 4/5 é dele (a restrição de seção em si mora nos
+# strong params e no _form; aqui é só a decisão de posse).
 RSpec.describe IndividualizedEducationalPlanTeacherScope, type: :service do
   let(:entity) { Entity.find_by(domain: 'test.host') }
 
@@ -26,12 +27,28 @@ RSpec.describe IndividualizedEducationalPlanTeacherScope, type: :service do
     expect(scope.knowledge_areas.map(&:id)).to contain_exactly(knowledge_area.id)
   end
 
-  describe '#owns?' do
+  context 'when the teacher has no discipline in the plan classroom' do
+    let(:teacher) { create(:teacher) }
+
+    before { TeacherDisciplineClassroom.delete_all }
+
+    it 'exposes no component and owns no line' do
+      expect(scope.disciplines).to be_empty
+      expect(scope.knowledge_areas).to be_empty
+      expect(scope.owns_line?(build(:iep_curricular_planning, iep: plan, discipline: own_discipline))).to eq(false)
+    end
+  end
+
+  describe '#owns_line?' do
     it 'matches by discipline or by knowledge area and rejects others' do
-      expect(scope.owns?(own_discipline.id, nil)).to eq(true)
-      expect(scope.owns?(nil, knowledge_area.id)).to eq(true)
-      expect(scope.owns?(other_discipline.id, nil)).to eq(false)
-      expect(scope.owns?(nil, nil)).to eq(false)
+      expect(scope.owns_line?(build(:iep_curricular_planning, iep: plan, discipline: own_discipline))).to eq(true)
+      expect(scope.owns_line?(
+        build(:iep_periodic_evaluation, iep: plan, discipline: nil, knowledge_area: knowledge_area)
+      )).to eq(true)
+      expect(scope.owns_line?(build(:iep_curricular_planning, iep: plan, discipline: other_discipline))).to eq(false)
+      expect(scope.owns_line?(
+        build(:iep_curricular_planning, iep: plan, discipline: nil, knowledge_area: nil)
+      )).to eq(false)
     end
   end
 
