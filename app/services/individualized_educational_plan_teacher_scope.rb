@@ -56,7 +56,19 @@ class IndividualizedEducationalPlanTeacherScope
   # "Tocada" cobre também a alteração só de acomodações (seção 4), que mexe nos registros de
   # junção sem marcar a própria linha como changed?.
   def touched?(line)
-    line.new_record? || line.changed? || line.marked_for_destruction? || options_touched?(line)
+    line.new_record? || line.marked_for_destruction? || options_touched?(line) || content_changed?(line)
+  end
+
+  # Mudança real de conteúdo, ignorando diferenças que o round-trip do form gera sem edição:
+  # nil vs "" e o \r\n que o navegador injeta em <textarea>. Sem isto, uma linha alheia que o
+  # professor só ecoa (readonly) poderia ser marcada como tocada pela representação e bloqueá-lo
+  # indevidamente.
+  def content_changed?(line)
+    line.changes.any? { |_attr, (was, now)| normalize(was) != normalize(now) }
+  end
+
+  def normalize(value)
+    value.to_s.delete("\r")
   end
 
   def options_touched?(line)

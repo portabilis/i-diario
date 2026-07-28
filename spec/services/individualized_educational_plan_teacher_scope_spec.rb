@@ -58,5 +58,17 @@ RSpec.describe IndividualizedEducationalPlanTeacherScope, type: :service do
 
       expect(scope.touched_lines_authorized?).to eq(true)
     end
+
+    it 'ignores round-trip-only changes on other lines (nil/"" and the browser \r\n)' do
+      other = create(:iep_curricular_planning, iep: plan, discipline: other_discipline,
+                                               long_term_goal: "linha1\nlinha2", stage_objectives: nil)
+      plan.reload
+      row = plan.iep_curricular_plannings.detect { |r| r.id == other.id }
+      # o navegador reenvia a linha alheia (readonly) com \r\n e "" no lugar de nil
+      row.long_term_goal = "linha1\r\nlinha2"
+      row.stage_objectives = ''
+
+      expect(scope.touched_lines_authorized?).to eq(true)
+    end
   end
 end

@@ -5,6 +5,23 @@ class IndividualizedEducationalPlansController < ApplicationController
   # Quantidade de campos de data de revisão exibidos por padrão no formulário.
   DEFAULT_REVIEW_DATES_COUNT = 3
 
+  # Atributos permitidos das seções 4/5 (planejamento/avaliação), compartilhados entre o params
+  # completo (admin/servidor) e o restrito do professor — para não divergirem em silêncio.
+  CURRICULAR_PLANNING_ATTRIBUTES = [
+    :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
+    :long_term_goal, :stage_objectives, :skills_to_develop, :methodologies, :_destroy,
+    :instructional_accommodation_option_ids, :environmental_accommodation_option_ids,
+    :assessment_accommodation_option_ids,
+    { instructional_accommodation_option_ids: [], environmental_accommodation_option_ids: [],
+      assessment_accommodation_option_ids: [] }
+  ].freeze
+
+  PERIODIC_EVALUATION_ATTRIBUTES = [
+    :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
+    :acquired_skills, :in_progress_skills, :not_acquired_skills, :period_report,
+    :next_stage_adjustments, :_destroy
+  ].freeze
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -124,7 +141,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def destroy
-    @individualized_educational_plan = IndividualizedEducationalPlan.find(params[:id])
+    # Escopado por turma (accessible_plans): impede excluir plano de turma sem vínculo — a policy
+    # só valida a feature + perfil, não o registro. Sem isto, exclusão destrutiva por id (IDOR).
+    @individualized_educational_plan = accessible_plans.find(params[:id])
 
     authorize @individualized_educational_plan
 
@@ -191,8 +210,9 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def plan_with_components
     accessible_plans.includes(
-      iep_curricular_plannings: [:discipline, :knowledge_area, { iep_curricular_planning_options: :iep_option }],
-      iep_periodic_evaluations: [:discipline, :knowledge_area]
+      iep_curricular_plannings: [:discipline, :knowledge_area, :iep_review_date,
+                                 { iep_curricular_planning_options: :iep_option }],
+      iep_periodic_evaluations: [:discipline, :knowledge_area, :iep_review_date]
     ).find(params[:id])
   end
 
@@ -314,19 +334,8 @@ class IndividualizedEducationalPlansController < ApplicationController
   # validação de que cada linha é do componente do professor é feita à parte (escopo).
   def teacher_resource_params
     params.require(:individualized_educational_plan).permit(
-      iep_curricular_plannings_attributes: [
-        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
-        :long_term_goal, :stage_objectives, :skills_to_develop, :methodologies, :_destroy,
-        :instructional_accommodation_option_ids, :environmental_accommodation_option_ids,
-        :assessment_accommodation_option_ids,
-        { instructional_accommodation_option_ids: [], environmental_accommodation_option_ids: [],
-          assessment_accommodation_option_ids: [] }
-      ],
-      iep_periodic_evaluations_attributes: [
-        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
-        :acquired_skills, :in_progress_skills, :not_acquired_skills, :period_report,
-        :next_stage_adjustments, :_destroy
-      ]
+      iep_curricular_plannings_attributes: CURRICULAR_PLANNING_ATTRIBUTES,
+      iep_periodic_evaluations_attributes: PERIODIC_EVALUATION_ATTRIBUTES
     )
   end
 
@@ -336,6 +345,10 @@ class IndividualizedEducationalPlansController < ApplicationController
     return if admin_or_employee?
     return if teacher_scope.touched_lines_authorized?
 
+    Rails.logger.error(
+      "PEI: professor tentou editar componente fora do escopo — plan=#{@individualized_educational_plan.id} " \
+      "teacher=#{current_teacher&.id} user=#{current_user&.id}"
+    )
     raise Pundit::NotAuthorizedError.new(query: :update?, record: @individualized_educational_plan)
   end
 
@@ -361,19 +374,8 @@ class IndividualizedEducationalPlansController < ApplicationController
       autonomy_option_ids: [], accompaniment_option_ids: [], support_type_option_ids: [],
       iep_review_dates_attributes: [:id, :review_date, :_destroy],
       iep_attachments_attributes: [:id, :attachment, :attachment_cache, :_destroy],
-      iep_curricular_plannings_attributes: [
-        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
-        :long_term_goal, :stage_objectives, :skills_to_develop, :methodologies, :_destroy,
-        :instructional_accommodation_option_ids, :environmental_accommodation_option_ids,
-        :assessment_accommodation_option_ids,
-        { instructional_accommodation_option_ids: [], environmental_accommodation_option_ids: [],
-          assessment_accommodation_option_ids: [] }
-      ],
-      iep_periodic_evaluations_attributes: [
-        :id, :discipline_id, :knowledge_area_id, :iep_review_date_id,
-        :acquired_skills, :in_progress_skills, :not_acquired_skills, :period_report,
-        :next_stage_adjustments, :_destroy
-      ]
+      iep_curricular_plannings_attributes: CURRICULAR_PLANNING_ATTRIBUTES,
+      iep_periodic_evaluations_attributes: PERIODIC_EVALUATION_ATTRIBUTES
     )
   end
 

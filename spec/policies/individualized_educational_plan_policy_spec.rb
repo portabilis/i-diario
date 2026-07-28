@@ -28,7 +28,7 @@ RSpec.describe IndividualizedEducationalPlanPolicy do
     end
   end
 
-  # 7876: criação e exclusão são de gestão (admin/servidor). O professor edita as seções 4/5
+  # Criação e exclusão são de gestão (admin/servidor). O professor edita as seções 4/5
   # do próprio componente e pode finalizar, mas não cria nem exclui.
   describe 'create/new/destroy by role' do
     before { allow(user).to receive(:can_change?).with('individualized_educational_plans').and_return(true) }

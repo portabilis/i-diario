@@ -4,6 +4,10 @@
       <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found') %></td>
     </tr>
   <% else %>
+    <%# edit?/destroy? dependem só da feature/perfil, não do registro — calcula uma vez fora do
+        loop para não repetir a query de permissão por linha (N+1). %>
+    <% can_edit_plan = policy(IndividualizedEducationalPlan.new).edit? %>
+    <% can_destroy_plan = policy(IndividualizedEducationalPlan.new).destroy? %>
     <% @individualized_educational_plans.each do |plan| %>
       <tr>
         <td><%= plan.year %></td>
@@ -17,7 +21,7 @@
                 individualized_educational_plan_path(plan),
                 class: 'btn btn-info apply_tooltip',
                 data: { original_title: t('views.index.tooltips.show') }) %>
-          <% if policy(plan).edit? %>
+          <% if can_edit_plan %>
             <%= link_to(
                   t('helpers.links.edit_html'),
                   edit_individualized_educational_plan_path(plan),
@@ -36,7 +40,7 @@
                 data: { original_title: t('individualized_educational_plans.index.history') }) do %>
             <i class="fa fa-history"></i>
           <% end %>
-          <% if policy(plan).destroy? %>
+          <% if can_destroy_plan %>
             <%= link_to(
                   t('helpers.links.destroy_html'),
                   individualized_educational_plan_path(plan),

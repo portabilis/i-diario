@@ -212,9 +212,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
   describe 'DELETE #destroy' do
     before do
-    allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
-  end
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+    end
 
     it 'destroys the plan and redirects to the index' do
       plan = create(:individualized_educational_plan)
@@ -238,6 +238,17 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         .and change(IepReviewDate, :count).by(-1)
         .and change(IepCurricularPlanning, :count).by(-1)
         .and change(IepPeriodicEvaluation, :count).by(-1)
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+    end
+
+    it 'does not destroy a plan from a classroom the user is not linked to' do
+      allow(controller).to receive(:accessible_plans).and_call_original
+      plan = create(:individualized_educational_plan, classroom: create(:classroom))
+
+      expect {
+        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+      }.not_to change(IndividualizedEducationalPlan, :count)
 
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
