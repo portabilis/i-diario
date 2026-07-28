@@ -2,8 +2,10 @@ class IepAttachment < ApplicationRecord
   audited associated_with: :iep,
           except: [:attachment_updated_at, :attachment, :individualized_educational_plan_id]
 
+  # touch: mantém o updated_at do plano (coluna "Última edição" do index) atualizado
+  # ao anexar/remover um documento sem mexer em colunas do próprio plano.
   belongs_to :iep, class_name: 'IndividualizedEducationalPlan',
-             foreign_key: :individualized_educational_plan_id
+             foreign_key: :individualized_educational_plan_id, touch: true
 
   mount_uploader :attachment, DocUploader
 
