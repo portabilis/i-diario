@@ -70,5 +70,70 @@ RSpec.describe IndividualizedEducationalPlanTeacherScope, type: :service do
 
       expect(scope.touched_lines_authorized?).to eq(true)
     end
+
+    # Troca de componente (defesa do discipline_id_was)
+    it 'blocks reassigning another component line to the teacher discipline' do
+      line = create(:iep_curricular_planning, iep: plan, discipline: other_discipline, long_term_goal: 'De outro')
+      plan.reload
+      plan.iep_curricular_plannings.detect { |r| r.id == line.id }.discipline_id = own_discipline.id
+
+      expect(scope.touched_lines_authorized?).to eq(false)
+    end
+
+    it 'blocks reassigning the own line to another discipline' do
+      line = create(:iep_curricular_planning, iep: plan, discipline: own_discipline, long_term_goal: 'Minha')
+      plan.reload
+      plan.iep_curricular_plannings.detect { |r| r.id == line.id }.discipline_id = other_discipline.id
+
+      expect(scope.touched_lines_authorized?).to eq(false)
+    end
+
+    # Edição só de acomodações (options_touched?)
+    it 'blocks changing only the accommodations of another component line' do
+      line = create(:iep_curricular_planning, iep: plan, discipline: other_discipline, long_term_goal: 'De outro')
+      plan.reload
+      plan.iep_curricular_plannings.detect { |r| r.id == line.id }
+          .iep_curricular_planning_options.build(iep_option: create(:iep_option, :instructional_accommodation))
+
+      expect(scope.touched_lines_authorized?).to eq(false)
+    end
+
+    # Seção 5 (avaliações periódicas)
+    it 'checks section 5 (periodic evaluations) lines too' do
+      line = create(:iep_periodic_evaluation, iep: plan, discipline: other_discipline, acquired_skills: 'De outro')
+      plan.reload
+      plan.iep_periodic_evaluations.detect { |r| r.id == line.id }.acquired_skills = 'Invadido'
+
+      expect(scope.touched_lines_authorized?).to eq(false)
+    end
+
+    it 'allows changing the own section 5 line' do
+      line = create(:iep_periodic_evaluation, iep: plan, discipline: own_discipline, acquired_skills: 'Minha')
+      plan.reload
+      plan.iep_periodic_evaluations.detect { |r| r.id == line.id }.acquired_skills = 'Atualizada'
+
+      expect(scope.touched_lines_authorized?).to eq(true)
+    end
+
+    # Adicionar linha (new_record) e excluir (_destroy)
+    it 'allows adding a new line in the own component' do
+      plan.iep_curricular_plannings.build(discipline: own_discipline, long_term_goal: 'Nova')
+
+      expect(scope.touched_lines_authorized?).to eq(true)
+    end
+
+    it 'blocks adding a new line in another component' do
+      plan.iep_curricular_plannings.build(discipline: other_discipline, long_term_goal: 'Nova')
+
+      expect(scope.touched_lines_authorized?).to eq(false)
+    end
+
+    it 'blocks destroying another component line' do
+      line = create(:iep_curricular_planning, iep: plan, discipline: other_discipline, long_term_goal: 'De outro')
+      plan.reload
+      plan.iep_curricular_plannings.detect { |r| r.id == line.id }.mark_for_destruction
+
+      expect(scope.touched_lines_authorized?).to eq(false)
+    end
   end
 end

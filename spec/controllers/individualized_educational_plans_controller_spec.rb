@@ -208,6 +208,27 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response).to redirect_to(root_path)
       expect(other_line.reload.long_term_goal).to eq('De outro')
     end
+
+    it 'does not update a plan of a classroom the teacher is not linked to' do
+      other_plan = create(:individualized_educational_plan, classroom: create(:classroom, unity: unity))
+
+      patch :update, params: {
+        locale: 'pt-BR', id: other_plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => { discipline_id: own_discipline.id, long_term_goal: 'x' } }
+        }
+      }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(other_plan.iep_versions.count).to eq(0)
+    end
+
+    it 'restricts the editable components to the teacher own components on edit' do
+      get :edit, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(assigns(:disciplines).map(&:id)).to contain_exactly(own_discipline.id)
+      expect(assigns(:editable_component_scope)).to be_present
+    end
   end
 
   describe 'DELETE #destroy' do

@@ -57,6 +57,19 @@ RSpec.describe IndividualizedEducationalPlanPolicy do
         expect(subject.finalize?).to eq(true)
       end
     end
+
+    context 'as an admin without change permission on the feature' do
+      before do
+        allow(user).to receive(:can_change?).with('individualized_educational_plans').and_return(false)
+        allow(user).to receive(:current_role_is_admin_or_employee?).and_return(true)
+      end
+
+      it 'denies create, new and destroy (feature permission is still required)' do
+        expect(subject.create?).to eq(false)
+        expect(subject.new?).to eq(false)
+        expect(subject.destroy?).to eq(false)
+      end
+    end
   end
 
   describe '#finalize?' do
