@@ -15,7 +15,6 @@ class IndividualizedEducationalPlan < ApplicationRecord
   belongs_to :teacher                                  # professor regente (único, da turma)
   belongs_to :aee_teacher, class_name: 'Teacher'       # opcional
 
-  has_many :iep_attachments, dependent: :destroy
   has_many :iep_selected_options, dependent: :destroy
 
   # Ordem importa: o Rails destrói as associações na ordem de declaração das has_many.
@@ -28,11 +27,6 @@ class IndividualizedEducationalPlan < ApplicationRecord
   has_many :iep_versions, dependent: :destroy
 
   accepts_nested_attributes_for :iep_selected_options, allow_destroy: true
-
-  # reject_if descarta a linha de anexo aberta e salva sem arquivo (senão vira um
-  # IepAttachment vazio, que a tela de exibição renderiza como um link quebrado).
-  accepts_nested_attributes_for :iep_attachments, allow_destroy: true,
-    reject_if: ->(attrs) { attrs['id'].blank? && attrs['attachment'].blank? && attrs['attachment_cache'].blank? }
 
   # As 3 datas de revisão são exibidas por padrão, mas o preenchimento é opcional:
   # linhas novas em branco são descartadas (não viram registro nem disparam a validação de presença).

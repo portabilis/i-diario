@@ -62,14 +62,13 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
   end
 
   # Tela de versão publicada: o MESMO form é alimentado pelo Result do restorer — plano NÃO salvo,
-  # ids sintéticos, coleções como Array e anexos congelados. Combinação que só a versão exercita.
+  # ids sintéticos e coleções como Array. Combinação que só a versão exercita.
   context 'rendering a restored version snapshot' do
     let(:content) do
       {
         'identification' => {
           'student_name' => 'Aluno Congelado', 'guardians' => nil, 'guardians_unavailable' => true,
-          'year' => 2026, 'review_dates' => ['2026-04-01'],
-          'attachments' => [{ 'filename' => 'laudo.pdf', 'url' => '/uploads/laudo.pdf' }]
+          'year' => 2026, 'review_dates' => ['2026-04-01']
         },
         'characterization' => { 'characterization' => 'Perfil congelado',
                                 'communication_profile' => ['Comunicação verbal'] },
@@ -88,7 +87,6 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
       assign(:students, restored.students)
       assign(:aee_teachers, restored.aee_teachers)
       assign(:iep_options_by_kind, restored.iep_options_by_kind)
-      assign(:frozen_attachments, restored.attachments)
       assign(:disciplines, [])
       assign(:knowledge_areas, [])
     end

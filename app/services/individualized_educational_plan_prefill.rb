@@ -1,6 +1,6 @@
 # Monta os dados de identificação do aluno (seção 1 do PEI) a partir de fontes já
-# sincronizadas do i-Educar. Apenas os responsáveis são buscados na API em tempo real
-# (não há coluna local para eles).
+# sincronizadas do i-Educar. Responsáveis e laudos não têm cópia local: os dois são lidos
+# do cadastro do aluno no i-Educar, na MESMA consulta.
 class IndividualizedEducationalPlanPrefill
   def initialize(student, classroom)
     @student = student
@@ -12,25 +12,48 @@ class IndividualizedEducationalPlanPrefill
   end
 
   # Só dados locais, sem chamada externa — usado no request síncrono (edit/create/update).
-  # Exclui "responsáveis", que dependem do i-Educar (timeout de 240s) e são buscados via AJAX.
+  # Exclui "responsáveis" e laudos, que dependem do i-Educar (timeout de 240s) e são
+  # buscados via AJAX.
   def self.local_student_data(student, classroom: nil)
     new(student, classroom).local_student_data
   end
 
+  # Só os laudos. Usado na tela de versão publicada, onde o restante vem congelado do
+  # snapshot mas o laudo é sempre o que está hoje no cadastro do aluno.
+  def self.medical_reports_data(student)
+    new(student, nil).medical_reports_data
+  end
+
+  # URL do laudo resolvida no momento do clique: a URL que o i-Educar devolve é assinada e
+  # expira em 5 minutos, então não pode ser renderizada na tela e usada depois.
+  def self.medical_report_url(student, name)
+    new(student, nil).medical_report_url(name)
+  end
+
   def student_data
-    # Avalia guardians primeiro: ele é quem sinaliza @guardians_unavailable, lido abaixo.
-    guardians_names = guardians
     {
       birth_date: birth_date,
       diagnosis: diagnosis,
-      guardians: guardians_names,
-      guardians_unavailable: @guardians_unavailable || false,
+      guardians: guardians,
+      guardians_unavailable: ieducar_student.nil?,
       shift: shift
-    }
+    }.merge(medical_reports_data)
   end
 
   def local_student_data
     { birth_date: birth_date, diagnosis: diagnosis, shift: shift }
+  end
+
+  def medical_reports_data
+    { medical_reports: medical_reports, medical_reports_unavailable: ieducar_student.nil? }
+  end
+
+  def medical_report_url(name)
+    return if name.blank?
+
+    report = raw_medical_reports.find { |item| item['original_name'] == name }
+
+    report && report['url'].presence
   end
 
   private
@@ -45,27 +68,48 @@ class IndividualizedEducationalPlanPrefill
     student.deficiencies.map(&:name).join(', ').presence
   end
 
-  # Nomes dos responsáveis: vêm da API do i-Educar em tempo real (não há coluna local).
-  # Distingue "aluno sem responsáveis" de "não foi possível buscar": no segundo caso sinaliza
-  # @guardians_unavailable, para a tela avisar em vez de exibir um campo vazio.
   def guardians
-    return mark_guardians_unavailable if student.api_code.blank?
+    Array(ieducar_student && ieducar_student['nomes_responsaveis']).join(', ').presence
+  end
+
+  # Laudos anexados ao cadastro do aluno. A URL não é devolvida de propósito (expira em 5
+  # minutos): a tela mostra nome e data, e resolve a URL no clique.
+  def medical_reports
+    raw_medical_reports.map do |report|
+      { name: report['original_name'], sent_at: formatted_date(report['created_at']) }
+    end
+  end
+
+  def raw_medical_reports
+    Array(ieducar_student && ieducar_student['laudos']).select { |report| report.is_a?(Hash) }
+  end
+
+  def formatted_date(value)
+    Time.zone.parse(value.to_s)&.strftime('%d/%m/%Y')
+  rescue ArgumentError
+    nil
+  end
+
+  # Consulta o cadastro do aluno no i-Educar UMA vez por instância — responsáveis e laudos
+  # saem da mesma resposta. nil significa "não foi possível obter" (aluno sem api_code,
+  # entidade sem integração configurada, API fora ou resposta de outro aluno); a tela avisa,
+  # em vez de exibir campo vazio como se o aluno não tivesse o dado.
+  def ieducar_student
+    return @ieducar_student if defined?(@ieducar_student)
+
+    @ieducar_student = fetch_ieducar_student
+  end
+
+  def fetch_ieducar_student
+    return if student.api_code.blank?
 
     response = IeducarApi::Students.new(IeducarApiConfiguration.current.to_api).fetch_by_id(student.api_code)
 
-    return mark_guardians_unavailable unless response_matches_student?(response)
-
-    Array(response['nomes_responsaveis']).join(', ').presence
+    response_matches_student?(response) ? response : nil
   rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError, IeducarApi::Base::ApiError => e
-    Rails.logger.error("PEI prefill - falha ao buscar responsáveis (student #{student.id}): #{e.message}")
-    mark_guardians_unavailable
-  end
-
-  # Marca que não foi possível obter os responsáveis (sem api_code, entidade sem integração
-  # configurada, API fora ou resposta inesperada). Retorna nil: o valor fica vazio, mas a
-  # flag informa o motivo à tela.
-  def mark_guardians_unavailable
-    @guardians_unavailable = true
+    Rails.logger.error(
+      "PEI prefill - falha ao consultar o cadastro do aluno no i-Educar (student #{student.id}): #{e.message}"
+    )
     nil
   end
 

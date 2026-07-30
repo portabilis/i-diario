@@ -8,6 +8,8 @@
 <%# student_fetch: liga a busca AJAX dos responsáveis (novo/editar/plano vivo). Na versão
     publicada os dados vêm congelados do snapshot, então fica desligada (false). %>
 <% student_fetch = local_assigns.fetch(:student_fetch, true) %>
+<% medical_reports_plan_id = local_assigns.fetch(:medical_reports_plan_id,
+                                                 @individualized_educational_plan.id) %>
 <%# Em modo leitura (view_only) o submit é bloqueado: campos disabled não seriam enviados
     e um submit acidental (Enter) apagaria opções/anexos. A tela é só visualização. %>
 <%= simple_form_for @individualized_educational_plan,
@@ -26,7 +28,8 @@
   <% end %>
 
   <div id="pei-wizard" data-plan-id="<%= @individualized_educational_plan.id %>"
-       data-student-fetch="<%= student_fetch ? 'on' : 'off' %>">
+       data-student-fetch="<%= student_fetch ? 'on' : 'off' %>"
+       data-medical-reports-plan-id="<%= medical_reports_plan_id %>">
     <div class="fuelux">
       <div class="wizard">
         <ul class="steps">

@@ -12,6 +12,10 @@ $(function() {
   var $studentSelect = $('.iep-student-select');
   // Na versão publicada os dados do aluno vêm congelados do snapshot: não busca no i-Educar.
   var studentFetchEnabled = $wizard.data('student-fetch') !== 'off';
+  // Laudos: nunca congelados — são sempre os do cadastro do aluno no i-Educar, inclusive na
+  // versão publicada (que busca pelo plano de origem, já que o plano da tela é um stand-in).
+  var $medicalReports = $('#iep-medical-reports');
+  var medicalReportsPlanId = $wizard.data('medical-reports-plan-id');
 
   // ---- Navegação em passos (fuelux wizard: badge numerada + chevron) ----
   function currentIndex() {
@@ -45,6 +49,80 @@ $(function() {
   $steps.on('click', function() { showStep($steps.index(this)); });
   refreshButtons();
 
+  // ---- Laudos (seção 1): lista lida do cadastro do aluno no i-Educar ----
+  // Identifica o aluno pelo plano (edição/visualização/versão) ou pelo aluno selecionado
+  // (criação, quando o plano ainda não existe). Recebe o studentId de quem chama, em vez de
+  // reler o select: na criação a releitura volta vazia no callback do AJAX e o laudo acabava
+  // renderizado como texto, sem link.
+  function medicalReportIdentity(studentId) {
+    if (medicalReportsPlanId) { return { plan_id: medicalReportsPlanId }; }
+
+    if (!studentId || studentId === 'empty') { return null; }
+
+    return { student_id: studentId };
+  }
+
+  function medicalReportsMessage(text) {
+    $medicalReports.empty().append(
+      $('<tr>').append($('<td>').attr('colspan', 2).addClass('text-muted').text(text))
+    );
+  }
+
+  // .text() em vez de HTML: o nome do arquivo vem do i-Educar e não é confiável para
+  // interpolar como markup.
+  function renderMedicalReports(reports, unavailable, identity) {
+    if ($medicalReports.length === 0) { return; }
+
+    if (unavailable) {
+      medicalReportsMessage($medicalReports.data('unavailable-text'));
+      return;
+    }
+
+    if (!reports || reports.length === 0) {
+      medicalReportsMessage($medicalReports.data('empty-text'));
+      return;
+    }
+
+    $medicalReports.empty();
+
+    $.each(reports, function(_index, report) {
+      var $name = identity ?
+        $('<a>')
+          .attr('href', Routes.open_medical_report_individualized_educational_plans_pt_br_path(
+            $.extend({ name: report.name }, identity)
+          ))
+          .attr('target', '_blank')
+          .text(report.name) :
+        $('<span>').text(report.name);
+
+      $medicalReports.append(
+        $('<tr>').append($('<td>').append($name)).append($('<td>').text(report.sent_at || ''))
+      );
+    });
+  }
+
+  // Busca dedicada: usada onde o prefill do aluno não roda (versão publicada), já que os
+  // laudos não são congelados no snapshot.
+  function fetchMedicalReports(studentId) {
+    if ($medicalReports.length === 0) { return; }
+
+    var identity = medicalReportIdentity(studentId);
+    if (!identity) { medicalReportsMessage($medicalReports.data('empty-text')); return; }
+
+    $.ajax({
+      url: Routes.medical_reports_individualized_educational_plans_pt_br_path(
+        $.extend({ format: 'json' }, identity)
+      ),
+      dataType: 'json',
+      success: function(data) {
+        renderMedicalReports(data.medical_reports, data.medical_reports_unavailable, identity);
+      },
+      error: function() {
+        renderMedicalReports([], true, identity);
+      }
+    });
+  }
+
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
   function fetchStudentData(studentId) {
     var $warning = $('.iep-existing-plan-warning');
@@ -55,7 +133,11 @@ $(function() {
     $wrapper.removeClass('error');
     $wrapper.find('span.help-inline, .help-inline.error, span.error').remove();
 
-    if (!studentId || studentId === 'empty') { $warning.hide(); return; }
+    if (!studentId || studentId === 'empty') {
+      $warning.hide();
+      medicalReportsMessage($medicalReports.data('empty-text'));
+      return;
+    }
 
     var params = { student_id: studentId, format: 'json' };
     var planId = $wizard.data('plan-id');
@@ -77,12 +159,17 @@ $(function() {
         $('.iep-diagnosis').val(data.diagnosis || '');
         $('.iep-shift').val(data.shift || '');
         $('.iep-guardians-warning').toggle(!!data.guardians_unavailable);
+        // Os laudos vêm na MESMA resposta (mesma consulta ao i-Educar): renderiza daqui em
+        // vez de fazer uma segunda chamada. A identidade é o studentId desta requisição.
+        renderMedicalReports(data.medical_reports, data.medical_reports_unavailable,
+                             medicalReportIdentity(studentId));
         // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
         $warning.toggle(!!data.has_existing_plan);
       },
       error: function() {
         $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
         $('.iep-guardians-warning').hide();
+        renderMedicalReports([], true, medicalReportIdentity(studentId));
         $warning.hide();
         flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
       }
@@ -100,6 +187,10 @@ $(function() {
   var initialStudentId = $studentSelect.val() || $('input[type="hidden"][name$="[student_id]"]').val();
   if (studentFetchEnabled && initialStudentId && initialStudentId !== 'empty') {
     fetchStudentData(initialStudentId);
+  } else {
+    // Versão publicada (ou tela sem aluno ainda): o prefill não roda, mas o laudo é sempre
+    // buscado — ele não faz parte do que a versão congela.
+    fetchMedicalReports();
   }
 
   // ---- Finalizar: o modal "Salvar versão" preenche version_name e submete o próprio form ----

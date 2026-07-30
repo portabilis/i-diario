@@ -8,7 +8,6 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     it { expect(subject).to belong_to(:teacher) }
     it { expect(subject).to belong_to(:aee_teacher).class_name('Teacher') }
     it { expect(subject).to have_many(:iep_review_dates).dependent(:destroy) }
-    it { expect(subject).to have_many(:iep_attachments).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_selected_options).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_curricular_plannings).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_periodic_evaluations).dependent(:destroy) }

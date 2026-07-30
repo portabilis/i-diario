@@ -16,8 +16,7 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
         'teacher_name' => 'Prof Regente', 'aee_teacher_name' => 'Prof AEE',
         'support_professional' => 'Apoio Y', 'year' => 2026,
         'elaborated_at' => '2026-02-01',
-        'review_dates' => ['2026-04-01', '2026-08-01'],
-        'attachments' => [{ 'filename' => 'laudo.pdf', 'url' => '/uploads/laudo.pdf' }]
+        'review_dates' => ['2026-04-01', '2026-08-01']
       },
       'characterization' => {
         'characterization' => 'Texto caracterizacao', 'potentialities' => 'Potencialidades',
@@ -101,10 +100,6 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
     expect(evaluation.knowledge_area.description).to eq('Linguagem')
     expect(evaluation.discipline).to be_nil
     expect(evaluation.iep_review_date_id).to eq(plan.iep_review_dates.second.id)
-  end
-
-  it 'exposes frozen attachments from the snapshot' do
-    expect(result.attachments).to eq([{ 'filename' => 'laudo.pdf', 'url' => '/uploads/laudo.pdf' }])
   end
 
   it 'freezes every stand-in as readonly with negative synthetic ids' do

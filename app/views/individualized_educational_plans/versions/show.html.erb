@@ -29,5 +29,6 @@
     </fieldset>
   </div>
 
-  <%= render 'individualized_educational_plans/form', view_only: true, student_fetch: false %>
+  <%= render 'individualized_educational_plans/form', view_only: true, student_fetch: false,
+        medical_reports_plan_id: @version.individualized_educational_plan_id %>
 </div>

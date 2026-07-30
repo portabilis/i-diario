@@ -93,18 +93,6 @@
         <% end %>
       </td>
     </tr>
-    <% if presenter.filled?(identification['attachments']) %>
-      <tr>
-        <td colspan="3">
-          <span class="field-label"><%= id_label.call('attachments') %></span>
-          <ul>
-            <% identification['attachments'].each do |attachment| %>
-              <li><%= attachment['filename'] %></li>
-            <% end %>
-          </ul>
-        </td>
-      </tr>
-    <% end %>
   </tbody>
 </table>
 

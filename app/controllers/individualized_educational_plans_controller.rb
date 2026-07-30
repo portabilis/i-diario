@@ -52,8 +52,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
-    # Só :show? num plano existente (vem plan_id, o usuário só visualiza); :new? ao criar um PEI.
-    authorize IndividualizedEducationalPlan, (params[:plan_id].present? ? :show? : :new?)
+    authorize_student_query
 
     student = student_for_data
 
@@ -62,10 +61,32 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     render json: data
   rescue ActiveRecord::RecordNotFound
-    Rails.logger.error(
-      "PEI: student_data não encontrou aluno — student_id=#{params[:student_id]} plan_id=#{params[:plan_id]}"
-    )
-    head :not_found
+    student_query_not_found(:student_data)
+  end
+
+  # Laudos do aluno: a fonte é o cadastro do aluno no i-Educar — o i-Diário não guarda cópia.
+  # Endpoint próprio (e não só dentro do student_data) porque a tela de versão publicada não
+  # busca o restante dos dados, congelados no snapshot, mas o laudo é sempre o atual.
+  def medical_reports
+    authorize_student_query
+
+    render json: IndividualizedEducationalPlanPrefill.medical_reports_data(student_for_medical_reports)
+  rescue ActiveRecord::RecordNotFound
+    student_query_not_found(:medical_reports)
+  end
+
+  # Abre o laudo. A URL que o i-Educar devolve é assinada e expira em 5 minutos, então é
+  # resolvida aqui, no clique, em vez de ser renderizada na tela e usada depois.
+  def open_medical_report
+    authorize_student_query
+
+    url = IndividualizedEducationalPlanPrefill.medical_report_url(student_for_medical_reports, params[:name])
+
+    return head :not_found if url.blank?
+
+    redirect_to url
+  rescue ActiveRecord::RecordNotFound
+    student_query_not_found(:open_medical_report)
   end
 
   def show
@@ -325,6 +346,33 @@ class IndividualizedEducationalPlansController < ApplicationController
     data_plan&.classroom || current_user_classroom
   end
 
+  # Consultas de dados do aluno (prefill e laudos): só :show? num plano existente (vem plan_id,
+  # o usuário só visualiza); :new? ao criar um PEI.
+  def authorize_student_query
+    authorize IndividualizedEducationalPlan, (params[:plan_id].present? ? :show? : :new?)
+  end
+
+  def student_query_not_found(action)
+    Rails.logger.error(
+      "PEI: #{action} não encontrou aluno/plano — student_id=#{params[:student_id]} plan_id=#{params[:plan_id]}"
+    )
+    head :not_found
+  end
+
+  # Aluno da consulta de laudos: pelo plano (edição/visualização/versão, onde o aluno da tela
+  # pode ser um stand-in do snapshot) ou pelo aluno escolhido no formulário (criação).
+  def student_for_medical_reports
+    return medical_reports_plan.student if medical_reports_plan
+
+    permitted_students.find(params[:student_id])
+  end
+
+  def medical_reports_plan
+    return @medical_reports_plan if defined?(@medical_reports_plan)
+
+    @medical_reports_plan = params[:plan_id].present? ? accessible_plans.find(params[:plan_id]) : nil
+  end
+
   def create_resource_params
     params.require(:individualized_educational_plan).permit(:student_id).merge(resource_params)
   end
@@ -380,7 +428,6 @@ class IndividualizedEducationalPlansController < ApplicationController
       communication_profile_option_ids: [], social_interaction_profile_option_ids: [],
       autonomy_option_ids: [], accompaniment_option_ids: [], support_type_option_ids: [],
       iep_review_dates_attributes: [:id, :review_date, :_destroy],
-      iep_attachments_attributes: [:id, :attachment, :attachment_cache, :_destroy],
       iep_curricular_plannings_attributes: CURRICULAR_PLANNING_ATTRIBUTES,
       iep_periodic_evaluations_attributes: PERIODIC_EVALUATION_ATTRIBUTES
     )

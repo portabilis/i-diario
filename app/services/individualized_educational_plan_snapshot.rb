@@ -53,10 +53,7 @@ class IndividualizedEducationalPlanSnapshot
       'support_professional' => plan.support_professional,
       'year' => plan.year,
       'elaborated_at' => plan.elaborated_at,
-      'review_dates' => ordered_review_dates.map(&:review_date),
-      'attachments' => plan.iep_attachments.map { |attachment|
-        { 'filename' => attachment.filename, 'url' => attachment.attachment.url }
-      }
+      'review_dates' => ordered_review_dates.map(&:review_date)
     }
   end
 

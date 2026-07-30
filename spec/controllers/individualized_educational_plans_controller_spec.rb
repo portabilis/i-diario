@@ -331,6 +331,63 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  # Laudos: a fonte é o cadastro do aluno no i-Educar. Endpoints próprios porque a tela de
+  # versão publicada não busca o restante dos dados (congelados) mas mostra o laudo atual.
+  describe 'medical reports' do
+    let(:classroom) { create(:classroom) }
+    let(:plan) { create(:individualized_educational_plan, classroom: classroom) }
+
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+    end
+
+    describe 'GET #medical_reports' do
+      it 'returns the reports of the plan student' do
+        expect(IndividualizedEducationalPlanPrefill).to receive(:medical_reports_data)
+          .with(plan.student)
+          .and_return(medical_reports: [{ name: 'laudo.pdf', sent_at: '27/04/2023' }],
+                      medical_reports_unavailable: false)
+
+        get :medical_reports, params: { locale: 'pt-BR', plan_id: plan.id, format: :json }
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)).to eq(
+          'medical_reports' => [{ 'name' => 'laudo.pdf', 'sent_at' => '27/04/2023' }],
+          'medical_reports_unavailable' => false
+        )
+      end
+
+      it 'does not return reports of a plan outside the user classrooms' do
+        other_plan = create(:individualized_educational_plan)
+        expect(IndividualizedEducationalPlanPrefill).not_to receive(:medical_reports_data)
+
+        get :medical_reports, params: { locale: 'pt-BR', plan_id: other_plan.id, format: :json }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    describe 'GET #open_medical_report' do
+      it 'redirects to the url resolved at click time' do
+        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_url)
+          .with(plan.student, 'laudo.pdf').and_return('https://s3.amazonaws.com/laudo-assinado')
+
+        get :open_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, name: 'laudo.pdf' }
+
+        expect(response).to redirect_to('https://s3.amazonaws.com/laudo-assinado')
+      end
+
+      it 'returns not found when the report is no longer in the student record' do
+        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_url).and_return(nil)
+
+        get :open_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, name: 'laudo.pdf' }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
   describe 'GET #student_data' do
     let(:classroom) { create(:classroom) }
 
@@ -848,18 +905,6 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(planning.instructional_accommodation_option_ids).to match_array([acc_a.id, acc_b.id])
     end
 
-    it 'discards an attachment row submitted without a file' do
-      plan = create(:individualized_educational_plan)
-
-      patch :update, params: {
-        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
-        individualized_educational_plan: {
-          iep_attachments_attributes: { '0' => { attachment: '', attachment_cache: '' } }
-        }
-      }
-
-      expect(plan.reload.iep_attachments).to be_empty
-    end
   end
 
   describe 'finalization (save + publish in the same submit)' do

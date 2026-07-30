@@ -6,8 +6,6 @@ pt-BR:
       filter_by_student: "Filtrar aluno"
       last_edit: "Última edição"
       history: "Histórico de versões"
-    iep_attachment_show:
-      file_unavailable: "Arquivo indisponível"
     form:
       sections:
         identification: "Identificação do Estudante"
@@ -87,10 +85,13 @@ pt-BR:
       elaborated_at: "Data de elaboração"
       review_dates: "Datas previstas de revisão"
       add_review_date: "+ Adicionar revisão"
-      attachments: "Laudo/Documentação Médica"
-      add_attachment: "Adicionar anexo"
-      format_message: "Somente arquivos nos formatos jpeg, jpg, png, gif, pdf, odt, doc, docx, ods, xls, xlsx, odp, ppt, pptx, odg, xml, csv."
-      size_message: "Tamanho máximo por arquivo: 3MB"
+      medical_reports: "Laudo/Documentação Médica"
+      medical_reports_source: "Os laudos vêm do cadastro do aluno no i-Educar e são sempre os atuais. Para anexar ou remover um laudo, use o cadastro do aluno no i-Educar."
+      medical_report_file: "Arquivo"
+      medical_report_sent_at: "Data de envio"
+      medical_reports_loading: "Buscando laudos no i-Educar..."
+      medical_reports_empty: "Nenhum laudo anexado no cadastro do aluno."
+      medical_reports_unavailable: "Não foi possível consultar os laudos no i-Educar."
     section_characterization:
       characterization: "Caracterização do Estudante"
       characterization_placeholder: "Quais são as características sociocomunicativas, habilidades sociais, padrão cognitivo e sensorial do aluno?"

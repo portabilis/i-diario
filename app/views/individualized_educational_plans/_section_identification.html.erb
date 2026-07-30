@@ -104,67 +104,30 @@
 
   <div class="row textarea">
     <div class="col col-sm-12">
-      <legend><%= t('.attachments') %></legend>
+      <legend><%= t('.medical_reports') %></legend>
 
-      <% unless view_only %>
-        <div class="alert alert-info fade in">
-          <i class="fa-fw fa fa-info"></i>
-          <%= t('.format_message') + ' ' + t('.size_message') %>
-        </div>
-        <br>
-      <% end %>
-
-      <% if @individualized_educational_plan.errors[:iep_attachments].present? %>
-        <div class="alert alert-danger alert-block">
-          <i class="fa-fw fa fa-times"></i>
-          <span class="help-inline"><%= safe_join(@individualized_educational_plan.errors[:iep_attachments], tag(:br)) %></span>
-        </div>
-      <% end %>
+      <%# O laudo é documento do cadastro do aluno no i-Educar (fonte da verdade): o PEI só
+          exibe, e exibe sempre o estado ATUAL — inclusive ao abrir uma versão publicada. %>
+      <div class="alert alert-info fade in">
+        <i class="fa-fw fa fa-info"></i>
+        <%= t('.medical_reports_source') %>
+      </div>
+      <br>
 
       <table class="table table-striped table-bordered table-condensed records">
         <thead>
           <tr>
-            <th scope="col"><%= t('.attachments') %></th>
-            <% unless view_only %>
-              <th scope="col" style="width: 73px"></th>
-            <% end %>
+            <th scope="col"><%= t('.medical_report_file') %></th>
+            <th scope="col" style="width: 160px"><%= t('.medical_report_sent_at') %></th>
           </tr>
         </thead>
-        <tbody id="iep-attachments">
-          <% if view_only && @frozen_attachments.present? %>
-            <%# Versão publicada: anexos congelados do snapshot (filename/url da época). %>
-            <% @frozen_attachments.each do |attachment| %>
-              <tr class="nested-fields">
-                <td>
-                  <% if attachment['url'].present? %>
-                    <%= link_to attachment['filename'], attachment['url'], target: '_blank' %>
-                  <% else %>
-                    <span class="text-muted"><%= attachment['filename'] %></span>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          <% else %>
-            <%= f.simple_fields_for :iep_attachments do |attachment| %>
-              <% if attachment.object.persisted? %>
-                <%= render 'iep_attachment_show', f: attachment, view_only: view_only %>
-              <% else %>
-                <%= render 'iep_attachment_fields', f: attachment %>
-              <% end %>
-            <% end %>
-          <% end %>
+        <tbody id="iep-medical-reports"
+               data-empty-text="<%= t('.medical_reports_empty') %>"
+               data-unavailable-text="<%= t('.medical_reports_unavailable') %>">
+          <tr>
+            <td colspan="2" class="text-muted"><%= t('.medical_reports_loading') %></td>
+          </tr>
         </tbody>
-        <% unless view_only %>
-          <tfoot class="links">
-            <tr>
-              <td colspan="2">
-                <%= link_to_add_association t('.add_attachment'), f, :iep_attachments,
-                      class: 'btn btn-success btn-sm',
-                      data: { association_insertion_node: '#iep-attachments', association_insertion_method: 'append' } %>
-              </td>
-            </tr>
-          </tfoot>
-        <% end %>
       </table>
     </div>
   </div>

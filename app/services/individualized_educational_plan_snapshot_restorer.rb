@@ -7,13 +7,14 @@
 # renomeada ou removida depois, a versão continua mostrando o valor da época (imutável).
 #
 # Retorna o plano + as coleções que o formulário usa para os selects (já com os mesmos
-# stand-ins, para os rótulos resolverem) + os anexos congelados (filename/url do snapshot).
+# stand-ins, para os rótulos resolverem). O laudo não está aqui: não é congelado na versão,
+# é lido do cadastro do aluno no i-Educar pela própria tela.
 class IndividualizedEducationalPlanSnapshotRestorer
   # Snapshot inválido/corrompido (mínimo ausente ou revisão não resolvida): a tela de versão
   # trata e avisa, em vez de renderizar um documento imutável em branco/incompleto.
   class InvalidSnapshot < StandardError; end
 
-  Result = Struct.new(:plan, :students, :aee_teachers, :iep_options_by_kind, :attachments)
+  Result = Struct.new(:plan, :students, :aee_teachers, :iep_options_by_kind)
 
   def self.restore(content)
     new(content).restore
@@ -37,8 +38,7 @@ class IndividualizedEducationalPlanSnapshotRestorer
 
     plan.readonly!
 
-    Result.new(plan, [plan.student].compact, [plan.aee_teacher].compact,
-               @options_by_kind, Array(identification['attachments']))
+    Result.new(plan, [plan.student].compact, [plan.aee_teacher].compact, @options_by_kind)
   end
 
   private

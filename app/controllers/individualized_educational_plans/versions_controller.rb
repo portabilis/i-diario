@@ -39,7 +39,6 @@ module IndividualizedEducationalPlans
           @students = restored.students
           @aee_teachers = restored.aee_teachers
           @iep_options_by_kind = restored.iep_options_by_kind
-          @frozen_attachments = restored.attachments
         end
         # PDF: documento de impressão (flat) a partir do snapshot imutável da versão.
         format.pdf do

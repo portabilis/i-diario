@@ -201,6 +201,8 @@ Rails.application.routes.draw do
       collection do
         get :fetch_students_by_classroom
         get :student_data
+        get :medical_reports
+        get :open_medical_report
       end
 
       resources :versions, only: [:index, :show], controller: 'individualized_educational_plans/versions'
