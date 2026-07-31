@@ -11,7 +11,7 @@
 <% medical_reports_plan_id = local_assigns.fetch(:medical_reports_plan_id,
                                                  @individualized_educational_plan.id) %>
 <%# Em modo leitura (view_only) o submit é bloqueado: campos disabled não seriam enviados
-    e um submit acidental (Enter) apagaria opções/anexos. A tela é só visualização. %>
+    e um submit acidental (Enter) apagaria o que já está preenchido. A tela é só visualização. %>
 <%= simple_form_for @individualized_educational_plan,
       url: (@individualized_educational_plan.persisted? ?
             individualized_educational_plan_path(@individualized_educational_plan) :

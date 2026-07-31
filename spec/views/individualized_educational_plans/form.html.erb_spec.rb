@@ -104,6 +104,15 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
       expect(rendered).not_to include('translation_missing')
     end
 
+    # O plano da versão é um stand-in sem id: sem o local, o data attribute sai vazio e a tela
+    # deixa de buscar os laudos — que, ao contrário do resto, não são congelados no snapshot.
+    it 'carries the id of the origin plan so the medical reports are still fetched' do
+      render partial: 'individualized_educational_plans/form',
+             locals: { view_only: true, student_fetch: false, medical_reports_plan_id: 42 }
+
+      expect(rendered).to include('data-medical-reports-plan-id="42"')
+    end
+
     it 'shows the guardians-unavailable warning frozen from the snapshot (not hidden)' do
       render partial: 'individualized_educational_plans/form',
              locals: { view_only: true, student_fetch: false }

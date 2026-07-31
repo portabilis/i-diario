@@ -342,6 +342,49 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
+    def enroll(student, target_classroom)
+      classrooms_grade = create(:classrooms_grade, classroom: target_classroom)
+      enrollment = create(:student_enrollment, student: student)
+      create(:student_enrollment_classroom, student_enrollment: enrollment,
+                                            classrooms_grade: classrooms_grade)
+    end
+
+    # Na criação do PEI o plano ainda não existe: o form consulta por student_id, e quem
+    # autoriza é o vínculo do aluno com a turma do perfil.
+    describe 'by student (creation, without plan_id)' do
+      it 'returns the reports of a student enrolled in the profile classroom' do
+        student = create(:student)
+        enroll(student, classroom)
+        expect(IndividualizedEducationalPlanPrefill).to receive(:medical_reports_data)
+          .with(student)
+          .and_return(medical_reports: [], medical_reports_unavailable: false)
+
+        get :medical_reports, params: { locale: 'pt-BR', student_id: student.id, format: :json }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'does not return reports of a student outside the profile classroom' do
+        other_student = create(:student) # não enturmado nas turmas do perfil
+        expect(IndividualizedEducationalPlanPrefill).not_to receive(:medical_reports_data)
+
+        get :medical_reports, params: { locale: 'pt-BR', student_id: other_student.id, format: :json }
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'does not open the report of a student outside the profile classroom' do
+        other_student = create(:student)
+        expect(IndividualizedEducationalPlanPrefill).not_to receive(:medical_report_lookup)
+
+        get :open_medical_report, params: {
+          locale: 'pt-BR', student_id: other_student.id, name: 'laudo.pdf'
+        }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     describe 'GET #medical_reports' do
       it 'returns the reports of the plan student' do
         expect(IndividualizedEducationalPlanPrefill).to receive(:medical_reports_data)
@@ -370,18 +413,47 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     describe 'GET #open_medical_report' do
       it 'redirects to the url resolved at click time' do
-        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_url)
-          .with(plan.student, 'laudo.pdf').and_return('https://s3.amazonaws.com/laudo-assinado')
+        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_lookup)
+          .with(plan.student, 'laudo.pdf', '2023-04-27T12:36:18.000000Z')
+          .and_return(url: 'https://s3.amazonaws.com/laudo-assinado', unavailable: false)
 
-        get :open_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, name: 'laudo.pdf' }
+        get :open_medical_report, params: {
+          locale: 'pt-BR', plan_id: plan.id, name: 'laudo.pdf',
+          created_at: '2023-04-27T12:36:18.000000Z'
+        }
 
         expect(response).to redirect_to('https://s3.amazonaws.com/laudo-assinado')
       end
 
-      it 'returns not found when the report is no longer in the student record' do
-        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_url).and_return(nil)
+      it 'explains that the report is no longer in the student record' do
+        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_lookup)
+          .and_return(url: nil, unavailable: false)
 
         get :open_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, name: 'laudo.pdf' }
+
+        expect(response).to redirect_to(individualized_educational_plans_path)
+        expect(flash[:alert]).to eq(I18n.t('individualized_educational_plans.flash.medical_report_gone'))
+      end
+
+      it 'distinguishes an unreachable i-Educar from a report that was removed' do
+        allow(IndividualizedEducationalPlanPrefill).to receive(:medical_report_lookup)
+          .and_return(url: nil, unavailable: true)
+
+        get :open_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, name: 'laudo.pdf' }
+
+        expect(response).to redirect_to(individualized_educational_plans_path)
+        expect(flash[:alert]).to eq(
+          I18n.t('individualized_educational_plans.flash.medical_report_unavailable')
+        )
+      end
+
+      it 'does not open the report of a plan outside the user classrooms' do
+        other_plan = create(:individualized_educational_plan)
+        expect(IndividualizedEducationalPlanPrefill).not_to receive(:medical_report_lookup)
+
+        get :open_medical_report, params: {
+          locale: 'pt-BR', plan_id: other_plan.id, name: 'laudo.pdf'
+        }
 
         expect(response).to have_http_status(:not_found)
       end
@@ -409,14 +481,22 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       enroll(student, classroom)
       expect(IndividualizedEducationalPlanPrefill).to receive(:student_data)
         .with(kind_of(Student), classroom: classroom)
-        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva', shift: 'Matutino')
+        .and_return(birth_date: '10/03/2015', diagnosis: 'TEA', guardians: 'Maria Silva',
+                    shift: 'Matutino',
+                    medical_reports: [{ name: 'laudo.pdf', sent_at: '27/04/2023',
+                                        created_at: '2023-04-27T12:36:18.000000Z' }],
+                    medical_reports_unavailable: false)
 
       get :student_data, params: { locale: 'pt-BR', student_id: student.id, format: :json }
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to eq(
         'birth_date' => '10/03/2015', 'diagnosis' => 'TEA', 'guardians' => 'Maria Silva',
-        'shift' => 'Matutino', 'has_existing_plan' => false
+        'shift' => 'Matutino',
+        'medical_reports' => [{ 'name' => 'laudo.pdf', 'sent_at' => '27/04/2023',
+                                'created_at' => '2023-04-27T12:36:18.000000Z' }],
+        'medical_reports_unavailable' => false,
+        'has_existing_plan' => false
       )
     end
 
@@ -441,7 +521,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     it 'ignores the plan being edited when flagging (plan_id)' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
-      plan = create(:individualized_educational_plan, year: Date.current.year)
+      plan = create(:individualized_educational_plan, year: Date.current.year, classroom: classroom)
       enroll(plan.student, classroom)
 
       get :student_data, params: {
@@ -452,7 +532,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     it "returns the plan's own student on edit even if not enrolled in the profile classroom (plan_id)" do
-      plan = create(:individualized_educational_plan) # aluno NÃO enturmado na turma do perfil
+      plan = create(:individualized_educational_plan, classroom: classroom) # aluno NÃO enturmado
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return(guardians: 'Maria Silva')
 
       get :student_data, params: {
@@ -461,6 +541,17 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['guardians']).to eq('Maria Silva')
+    end
+
+    it 'does not return data through a plan outside the user classrooms (plan_id)' do
+      other_plan = create(:individualized_educational_plan)
+      expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: other_plan.student_id, plan_id: other_plan.id, format: :json
+      }
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 

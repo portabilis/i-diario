@@ -38,6 +38,8 @@ pt-BR:
       version_name_required: "Informe um nome para a versão antes de salvar."
     flash:
       not_found: "Plano Educacional Individualizado não encontrado ou fora do seu acesso."
+      medical_report_unavailable: "Não foi possível consultar o laudo no cadastro do aluno no i-Educar. Tente novamente em instantes."
+      medical_report_gone: "Este laudo não está mais no cadastro do aluno no i-Educar."
     show:
       back: "Voltar"
       history: "Histórico de versões"
@@ -90,6 +92,7 @@ pt-BR:
       medical_report_file: "Arquivo"
       medical_report_sent_at: "Data de envio"
       medical_reports_loading: "Buscando laudos no i-Educar..."
+      medical_reports_pending: "Selecione o aluno para ver os laudos do cadastro."
       medical_reports_empty: "Nenhum laudo anexado no cadastro do aluno."
       medical_reports_unavailable: "Não foi possível consultar os laudos no i-Educar."
     section_characterization:

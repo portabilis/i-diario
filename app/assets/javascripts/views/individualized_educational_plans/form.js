@@ -86,14 +86,12 @@ $(function() {
     $medicalReports.empty();
 
     $.each(reports, function(_index, report) {
-      var $name = identity ?
-        $('<a>')
-          .attr('href', Routes.open_medical_report_individualized_educational_plans_pt_br_path(
-            $.extend({ name: report.name }, identity)
-          ))
-          .attr('target', '_blank')
-          .text(report.name) :
-        $('<span>').text(report.name);
+      var $name = $('<a>')
+        .attr('href', Routes.open_medical_report_individualized_educational_plans_pt_br_path(
+          $.extend({ name: report.name, created_at: report.created_at }, identity)
+        ))
+        .attr('target', '_blank')
+        .text(report.name);
 
       $medicalReports.append(
         $('<tr>').append($('<td>').append($name)).append($('<td>').text(report.sent_at || ''))
@@ -107,7 +105,7 @@ $(function() {
     if ($medicalReports.length === 0) { return; }
 
     var identity = medicalReportIdentity(studentId);
-    if (!identity) { medicalReportsMessage($medicalReports.data('empty-text')); return; }
+    if (!identity) { medicalReportsMessage($medicalReports.data('pending-text')); return; }
 
     $.ajax({
       url: Routes.medical_reports_individualized_educational_plans_pt_br_path(
@@ -117,10 +115,21 @@ $(function() {
       success: function(data) {
         renderMedicalReports(data.medical_reports, data.medical_reports_unavailable, identity);
       },
-      error: function() {
+      error: function(jqXHR, textStatus) {
         renderMedicalReports([], true, identity);
+        flashMessages.error(medicalReportsErrorMessage(jqXHR, textStatus));
       }
     });
+  }
+
+  function medicalReportsErrorMessage(jqXHR, textStatus) {
+    var status = jqXHR && jqXHR.status;
+
+    if (status === 401 || status === 403 || textStatus === 'parsererror') {
+      return 'Sua sessão expirou ou você não tem acesso a este plano. Recarregue a página e tente novamente.';
+    }
+
+    return 'Não foi possível consultar os laudos no i-Educar.';
   }
 
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
@@ -135,7 +144,7 @@ $(function() {
 
     if (!studentId || studentId === 'empty') {
       $warning.hide();
-      medicalReportsMessage($medicalReports.data('empty-text'));
+      medicalReportsMessage($medicalReports.data('pending-text'));
       return;
     }
 
@@ -188,8 +197,8 @@ $(function() {
   if (studentFetchEnabled && initialStudentId && initialStudentId !== 'empty') {
     fetchStudentData(initialStudentId);
   } else {
-    // Versão publicada (ou tela sem aluno ainda): o prefill não roda, mas o laudo é sempre
-    // buscado — ele não faz parte do que a versão congela.
+    // Versão publicada (ou tela sem aluno ainda): o prefill não roda, mas o laudo é buscado
+    // sempre que há plano ou aluno — ele não faz parte do que a versão congela.
     fetchMedicalReports();
   }
 

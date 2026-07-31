@@ -80,11 +80,15 @@ class IndividualizedEducationalPlansController < ApplicationController
   def open_medical_report
     authorize_student_query
 
-    url = IndividualizedEducationalPlanPrefill.medical_report_url(student_for_medical_reports, params[:name])
+    lookup = IndividualizedEducationalPlanPrefill.medical_report_lookup(
+      student_for_medical_reports, params[:name], params[:created_at]
+    )
 
-    return head :not_found if url.blank?
+    # O link abre em outra aba: resposta vazia viraria uma aba em branco, sem dizer o motivo.
+    return redirect_to_plans(:medical_report_unavailable) if lookup[:unavailable]
+    return redirect_to_plans(:medical_report_gone) if lookup[:url].blank?
 
-    redirect_to url
+    redirect_to lookup[:url]
   rescue ActiveRecord::RecordNotFound
     student_query_not_found(:open_medical_report)
   end
@@ -336,10 +340,12 @@ class IndividualizedEducationalPlansController < ApplicationController
     permitted_students.find(params[:student_id])
   end
 
+  # Escopado por accessible_plans: o plan_id vem do cliente e decide de qual aluno o prefill
+  # devolve os dados, então sem escopo ele burla o permitted_students do caminho de baixo.
   def data_plan
     return @data_plan if defined?(@data_plan)
 
-    @data_plan = params[:plan_id].present? ? IndividualizedEducationalPlan.find(params[:plan_id]) : nil
+    @data_plan = params[:plan_id].present? ? accessible_plans.find(params[:plan_id]) : nil
   end
 
   def classroom_for_data
@@ -350,6 +356,11 @@ class IndividualizedEducationalPlansController < ApplicationController
   # o usuário só visualiza); :new? ao criar um PEI.
   def authorize_student_query
     authorize IndividualizedEducationalPlan, (params[:plan_id].present? ? :show? : :new?)
+  end
+
+  def redirect_to_plans(flash_key)
+    redirect_to individualized_educational_plans_path,
+                alert: t("individualized_educational_plans.flash.#{flash_key}")
   end
 
   def student_query_not_found(action)

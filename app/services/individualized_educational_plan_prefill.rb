@@ -24,10 +24,10 @@ class IndividualizedEducationalPlanPrefill
     new(student, nil).medical_reports_data
   end
 
-  # URL do laudo resolvida no momento do clique: a URL que o i-Educar devolve é assinada e
-  # expira em 5 minutos, então não pode ser renderizada na tela e usada depois.
-  def self.medical_report_url(student, name)
-    new(student, nil).medical_report_url(name)
+  # Devolve o unavailable junto com a URL: sem ele, "não deu para consultar o cadastro" e "o
+  # laudo não está mais lá" chegariam à tela do mesmo jeito, como URL em branco.
+  def self.medical_report_lookup(student, name, created_at)
+    new(student, nil).medical_report_lookup(name, created_at)
   end
 
   def student_data
@@ -45,15 +45,13 @@ class IndividualizedEducationalPlanPrefill
   end
 
   def medical_reports_data
-    { medical_reports: medical_reports, medical_reports_unavailable: ieducar_student.nil? }
+    { medical_reports: medical_reports, medical_reports_unavailable: medical_reports_unavailable? }
   end
 
-  def medical_report_url(name)
-    return if name.blank?
+  def medical_report_lookup(name, created_at)
+    return { url: nil, unavailable: false } if name.blank?
 
-    report = raw_medical_reports.find { |item| item['original_name'] == name }
-
-    report && report['url'].presence
+    { url: medical_report_url(name, created_at), unavailable: medical_reports_unavailable? }
   end
 
   private
@@ -74,10 +72,31 @@ class IndividualizedEducationalPlanPrefill
 
   # Laudos anexados ao cadastro do aluno. A URL não é devolvida de propósito (expira em 5
   # minutos): a tela mostra nome e data, e resolve a URL no clique.
+  #
+  # O created_at vai junto porque o i-Educar não expõe id de arquivo e o nome não é único —
+  # é o par (nome, data de envio) que identifica o laudo na hora de abrir.
   def medical_reports
     raw_medical_reports.map do |report|
-      { name: report['original_name'], sent_at: formatted_date(report['created_at']) }
+      {
+        name: report['original_name'],
+        sent_at: formatted_date(report['created_at']),
+        created_at: report['created_at']
+      }
     end
+  end
+
+  # Sem a chave 'laudos' na resposta não dá para afirmar que o aluno não tem laudo: é o que
+  # acontece com um i-Educar anterior à entrega dos laudos, ou se o campo for renomeado.
+  def medical_reports_unavailable?
+    ieducar_student.nil? || !ieducar_student.key?('laudos')
+  end
+
+  def medical_report_url(name, created_at)
+    report = raw_medical_reports.find do |item|
+      item['original_name'] == name && item['created_at'].to_s == created_at.to_s
+    end
+
+    report && report['url'].presence
   end
 
   def raw_medical_reports
@@ -105,12 +124,28 @@ class IndividualizedEducationalPlanPrefill
 
     response = IeducarApi::Students.new(IeducarApiConfiguration.current.to_api).fetch_by_id(student.api_code)
 
-    response_matches_student?(response) ? response : nil
-  rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError, IeducarApi::Base::ApiError => e
+    return response if response_matches_student?(response)
+
     Rails.logger.error(
-      "PEI prefill - falha ao consultar o cadastro do aluno no i-Educar (student #{student.id}): #{e.message}"
+      "PEI prefill - resposta do i-Educar não corresponde ao aluno (student #{student.id}, " \
+      "api_code #{student.api_code}, id recebido #{response.is_a?(Hash) ? response['id'].inspect : response.class})"
     )
     nil
+  rescue IeducarApi::Base::ApiError => e
+    # Único caminho que o IeducarApi::Base não reporta ao Honeybadger (configuração da
+    # entidade incompleta ou URL inválida) — os demais já chegam lá antes de virar exceção.
+    Honeybadger.notify(e, context: { student_id: student.id, api_code: student.api_code })
+    log_ieducar_failure(e)
+    nil
+  rescue IeducarApi::Base::NetworkException, IeducarApi::Base::GenericError => e
+    log_ieducar_failure(e)
+    nil
+  end
+
+  def log_ieducar_failure(error)
+    Rails.logger.error(
+      "PEI prefill - falha ao consultar o cadastro do aluno no i-Educar (student #{student.id}): #{error.message}"
+    )
   end
 
   def response_matches_student?(response)
