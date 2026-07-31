@@ -1,0 +1,30 @@
+<% view_only = local_assigns[:view_only] %>
+<div class="iep-component-panel nested-fields" data-key="<%= f.index %>"
+     <%= 'style="display:none;"'.html_safe if local_assigns[:hidden] %>>
+  <%= render 'component_fields_header', f: f, view_only: view_only %>
+
+  <div class="row textarea">
+    <div class="col col-sm-6">
+      <%= f.input :long_term_goal, label: t('.long_term_goal'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :stage_objectives, label: t('.stage_objectives'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-6">
+      <%= f.input :skills_to_develop, label: t('.skills_to_develop'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :methodologies, label: t('.methodologies'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+  </div>
+
+  <%= render 'multi_select', f: f, attribute: :instructional_accommodation, view_only: view_only,
+        kind: IepOptionKinds::INSTRUCTIONAL_ACCOMMODATION, label: t('.instructional_accommodations') %>
+  <%= render 'multi_select', f: f, attribute: :environmental_accommodation, view_only: view_only,
+        kind: IepOptionKinds::ENVIRONMENTAL_ACCOMMODATION, label: t('.environmental_accommodations') %>
+  <%= render 'multi_select', f: f, attribute: :assessment_accommodation, view_only: view_only,
+        kind: IepOptionKinds::ASSESSMENT_ACCOMMODATION, label: t('.assessment_accommodations') %>
+</div>

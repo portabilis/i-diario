@@ -1,0 +1,11 @@
+<% view_only = local_assigns[:view_only] %>
+<fieldset>
+  <%= render 'multi_select', f: f, attribute: :accompaniment, view_only: view_only,
+        kind: IepOptionKinds::ACCOMPANIMENT, label: t('.accompaniment') %>
+  <%= render 'multi_select', f: f, attribute: :support_type, view_only: view_only,
+        kind: IepOptionKinds::SUPPORT_TYPE, label: t('.support_type') %>
+
+  <% %i[family_guidelines external_professionals_guidelines].each do |field| %>
+    <%= render 'textarea', f: f, attribute: field, label: t(".#{field}"), view_only: view_only %>
+  <% end %>
+</fieldset>

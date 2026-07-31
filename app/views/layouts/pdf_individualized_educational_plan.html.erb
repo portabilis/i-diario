@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xml:lang="pt-BR">
+  <head>
+    <title>Plano Educacional Individualizado</title>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        width: 210mm;
+        margin: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 95%;
+        margin: 2%;
+      }
+
+      th,
+      td {
+        border: 1px solid #000000;
+        text-align: left;
+        padding: 8px;
+      }
+
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 15px;
+        background-color: #DEDEDE;
+        font-weight: bold;
+      }
+
+      .field-label {
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      ul {
+        margin: 5px 0;
+        padding-left: 20px;
+      }
+
+      li {
+        margin: 5px 0;
+      }
+
+      p {
+        margin: 5px 0;
+        text-align: justify;
+      }
+
+      .empty-message {
+        font-style: italic;
+        color: #666;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

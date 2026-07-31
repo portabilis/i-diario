@@ -1,0 +1,259 @@
+<%# Conteúdo do PDF do PEI. Dados vêm do `presenter` (local); datas são formatadas
+    por presenter.localized_date. "-" quando o campo está vazio. %>
+<%
+  display = ->(value) { presenter.filled?(value) ? value : '-' }
+
+  identification = presenter.identification
+  characterization = presenter.characterization
+  support_team = presenter.support_team
+  final_evaluation = presenter.final_evaluation
+
+  characterization_texts = %w[characterization clinical_diagnosis_justification school_history
+                              potentialities difficulties preferences_interests effective_strategies]
+  characterization_badges = %w[communication_profile social_interaction_profile autonomy]
+  support_badges = %w[accompaniment support_type]
+  support_texts = %w[family_guidelines external_professionals_guidelines]
+  final_texts = %w[annual_report overall_evolution next_year_recommendations referrals_made]
+  section4_texts = %w[long_term_goal stage_objectives skills_to_develop methodologies]
+  section4_badges = %w[instructional_accommodations environmental_accommodations assessment_accommodations]
+  section5_texts = %w[acquired_skills in_progress_skills not_acquired_skills period_report next_stage_adjustments]
+
+  id_label = ->(field) { t("individualized_educational_plans.section_identification.#{field}") }
+%>
+
+<table>
+  <thead>
+    <tr><th colspan="3" class="section-title">1. <%= t('individualized_educational_plans.form.sections.identification') %></th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="width: 40%">
+        <span class="field-label"><%= id_label.call('student') %></span>
+        <br><%= display.call(identification['student_name']) %>
+      </td>
+      <td style="width: 30%">
+        <span class="field-label"><%= id_label.call('birth_date') %></span>
+        <br><%= display.call(identification['birth_date']) %>
+      </td>
+      <td style="width: 30%">
+        <span class="field-label"><%= id_label.call('diagnosis') %></span>
+        <br><%= display.call(identification['diagnosis']) %>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <span class="field-label"><%= id_label.call('guardians') %></span>
+        <br><%= display.call(identification['guardians']) %>
+      </td>
+      <td>
+        <span class="field-label"><%= id_label.call('year') %></span>
+        <br><%= display.call(identification['year']) %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="field-label"><%= id_label.call('unity') %></span>
+        <br><%= display.call(identification['unity_name']) %>
+      </td>
+      <td>
+        <span class="field-label"><%= id_label.call('classroom') %></span>
+        <br><%= display.call(identification['classroom_name']) %>
+      </td>
+      <td>
+        <span class="field-label"><%= id_label.call('shift') %></span>
+        <br><%= display.call(identification['shift']) %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="field-label"><%= id_label.call('teacher') %></span>
+        <br><%= display.call(identification['teacher_name']) %>
+      </td>
+      <td>
+        <span class="field-label"><%= id_label.call('aee_teacher') %></span>
+        <br><%= display.call(identification['aee_teacher_name']) %>
+      </td>
+      <td>
+        <span class="field-label"><%= id_label.call('support_professional') %></span>
+        <br><%= display.call(identification['support_professional']) %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="field-label"><%= id_label.call('elaborated_at') %></span>
+        <br><%= display.call(presenter.localized_date(identification['elaborated_at'])) %>
+      </td>
+      <td colspan="2">
+        <span class="field-label"><%= id_label.call('review_dates') %></span>
+        <br>
+        <% if presenter.filled?(identification['review_dates']) %>
+          <%= identification['review_dates'].map { |date| presenter.localized_date(date) }.join(', ') %>
+        <% else %>
+          -
+        <% end %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th class="section-title">2. <%= t('individualized_educational_plans.form.sections.characterization') %></th></tr>
+  </thead>
+  <tbody>
+    <% if presenter.any_filled?(characterization, characterization_texts + characterization_badges) %>
+      <% characterization_texts.each do |field| %>
+        <% next unless presenter.filled?(characterization[field]) %>
+        <tr>
+          <td>
+            <span class="field-label"><%= t("individualized_educational_plans.section_characterization.#{field}") %></span>
+            <%= simple_format(characterization[field]) %>
+          </td>
+        </tr>
+      <% end %>
+      <% characterization_badges.each do |field| %>
+        <% next unless presenter.filled?(characterization[field]) %>
+        <tr>
+          <td>
+            <span class="field-label"><%= t("individualized_educational_plans.section_characterization.#{field}") %></span>
+            <ul>
+              <% characterization[field].each do |description| %>
+                <li><%= description %></li>
+              <% end %>
+            </ul>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr><td class="empty-message"><%= t('individualized_educational_plans.pdf.empty_message') %></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th class="section-title">3. <%= t('individualized_educational_plans.form.sections.support_team') %></th></tr>
+  </thead>
+  <tbody>
+    <% if presenter.any_filled?(support_team, support_badges + support_texts) %>
+      <% support_badges.each do |field| %>
+        <% next unless presenter.filled?(support_team[field]) %>
+        <tr>
+          <td>
+            <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
+            <ul>
+              <% support_team[field].each do |description| %>
+                <li><%= description %></li>
+              <% end %>
+            </ul>
+          </td>
+        </tr>
+      <% end %>
+      <% support_texts.each do |field| %>
+        <% next unless presenter.filled?(support_team[field]) %>
+        <tr>
+          <td>
+            <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
+            <%= simple_format(support_team[field]) %>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr><td class="empty-message"><%= t('individualized_educational_plans.pdf.empty_message') %></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th class="section-title">4. <%= t('individualized_educational_plans.form.sections.curricular_planning') %></th></tr>
+  </thead>
+  <tbody>
+    <% if presenter.curricular_plannings_by_review.any? %>
+      <% presenter.curricular_plannings_by_review.each do |(review_number, review_date), lines| %>
+        <tr>
+          <th>
+            <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
+            (<%= presenter.localized_date(review_date) %>)
+          </th>
+        </tr>
+        <% lines.each do |line| %>
+          <tr>
+            <td>
+              <b><%= line['component_name'] %></b>
+              <% section4_texts.each do |field| %>
+                <% next unless presenter.filled?(line[field]) %>
+                <br><span class="field-label"><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></span>
+                <%= simple_format(line[field]) %>
+              <% end %>
+              <% section4_badges.each do |field| %>
+                <% next unless presenter.filled?(line[field]) %>
+                <br><span class="field-label"><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></span>
+                <ul>
+                  <% line[field].each do |description| %>
+                    <li><%= description %></li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    <% else %>
+      <tr><td class="empty-message"><%= t('individualized_educational_plans.pdf.empty_message') %></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th class="section-title">5. <%= t('individualized_educational_plans.form.sections.periodic_evaluation') %></th></tr>
+  </thead>
+  <tbody>
+    <% if presenter.periodic_evaluations_by_review.any? %>
+      <% presenter.periodic_evaluations_by_review.each do |(review_number, review_date), lines| %>
+        <tr>
+          <th>
+            <%= t('individualized_educational_plans.form.review_label', number: review_number) %>
+            (<%= presenter.localized_date(review_date) %>)
+          </th>
+        </tr>
+        <% lines.each do |line| %>
+          <tr>
+            <td>
+              <b><%= line['component_name'] %></b>
+              <% section5_texts.each do |field| %>
+                <% next unless presenter.filled?(line[field]) %>
+                <br><span class="field-label"><%= t("individualized_educational_plans.iep_periodic_evaluation_fields.#{field}") %></span>
+                <%= simple_format(line[field]) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    <% else %>
+      <tr><td class="empty-message"><%= t('individualized_educational_plans.pdf.empty_message') %></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th class="section-title">6. <%= t('individualized_educational_plans.form.sections.final_evaluation') %></th></tr>
+  </thead>
+  <tbody>
+    <% if presenter.any_filled?(final_evaluation, final_texts) %>
+      <% final_texts.each do |field| %>
+        <% next unless presenter.filled?(final_evaluation[field]) %>
+        <tr>
+          <td>
+            <span class="field-label"><%= t("individualized_educational_plans.section_final_evaluation.#{field}") %></span>
+            <%= simple_format(final_evaluation[field]) %>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr><td class="empty-message"><%= t('individualized_educational_plans.pdf.empty_message') %></td></tr>
+    <% end %>
+  </tbody>
+</table>

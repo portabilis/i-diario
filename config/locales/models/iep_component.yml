@@ -1,0 +1,12 @@
+pt-BR:
+  activerecord:
+    errors:
+      messages:
+        component_or_experience_required: "Informe uma disciplina ou um campo de experiência (apenas um)"
+    attributes:
+      iep_curricular_planning:
+        discipline: "Disciplina"
+        knowledge_area: "Campo de experiência"
+      iep_periodic_evaluation:
+        discipline: "Disciplina"
+        knowledge_area: "Campo de experiência"

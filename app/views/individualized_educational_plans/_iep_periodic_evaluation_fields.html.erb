@@ -1,0 +1,29 @@
+<% view_only = local_assigns[:view_only] %>
+<div class="iep-component-panel nested-fields" data-key="<%= f.index %>"
+     <%= 'style="display:none;"'.html_safe if local_assigns[:hidden] %>>
+  <%= render 'component_fields_header', f: f, view_only: view_only %>
+
+  <div class="row textarea">
+    <div class="col col-sm-6">
+      <%= f.input :acquired_skills, label: t('.acquired_skills'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :in_progress_skills, label: t('.in_progress_skills'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-6">
+      <%= f.input :not_acquired_skills, label: t('.not_acquired_skills'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :period_report, label: t('.period_report'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+  </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <%= f.input :next_stage_adjustments, label: t('.next_stage_adjustments'), input_html: { rows: 3, class: 'form-control', readonly: view_only } %>
+    </div>
+  </div>
+</div>
