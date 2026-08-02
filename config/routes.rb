@@ -6,8 +6,10 @@ Rails.application.routes.draw do
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
+  devise_for :users, only: :omniauth_callbacks, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
+
   localized do
-    devise_for :users, controllers: {
+    devise_for :users, skip: :omniauth_callbacks, controllers: {
       sessions: 'users/sessions',
       passwords: 'users/passwords',
       unlocks: 'users/unlocks'

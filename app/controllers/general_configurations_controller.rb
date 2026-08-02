@@ -49,6 +49,7 @@ class GeneralConfigurationsController < ApplicationController
       :days_to_consider_alternate_absences,
       :create_users_for_students_when_synchronize,
       :allows_copy_lesson_plans_to_other_grades,
+      :sso_enabled,
       :type_of_teaching,
       :types_of_teaching,
       :days_to_expire_password,
