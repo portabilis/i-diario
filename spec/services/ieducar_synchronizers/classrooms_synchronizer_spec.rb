@@ -201,4 +201,79 @@ RSpec.describe ClassroomsSynchronizer do
       expect(Classroom.find_by(api_code: '999').regent_api_code).to eq('777')
     end
   end
+
+  describe '#discard_orphan_descriptive_exams' do
+    let(:synchronization) { create(:ieducar_api_synchronization, full_synchronization: false) }
+    let(:worker_batch) { create(:worker_batch) }
+    let(:worker_state) { create(:worker_state, worker_batch: worker_batch) }
+    let(:unity) { create(:unity) }
+    let(:entity_id) { Entity.first.id }
+    let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
+
+    let(:synchronizer) do
+      described_class.new(
+        synchronization: synchronization,
+        worker_batch: worker_batch,
+        worker_state: worker_state,
+        entity_id: entity_id,
+        year: Date.current.year,
+        unity_api_code: unity.api_code
+      )
+    end
+
+    context 'when the opinion_type matches no rule of the classroom' do
+      before do
+        create(:classrooms_grade, classroom: classroom,
+                                  exam_rule: create(:exam_rule, opinion_type: OpinionTypes::BY_YEAR))
+      end
+
+      let!(:orphan) do
+        create(:descriptive_exam, classroom: classroom,
+                                  opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE, optional_teacher: true)
+      end
+
+      it 'destroys the orphaned descriptive exam' do
+        synchronizer.send(:discard_orphan_descriptive_exams, classroom)
+
+        expect(DescriptiveExam.exists?(orphan.id)).to be false
+      end
+    end
+
+    context 'when the opinion_type matches a rule of the classroom' do
+      before do
+        create(:classrooms_grade, classroom: classroom,
+                                  exam_rule: create(:exam_rule, opinion_type: OpinionTypes::BY_YEAR))
+      end
+
+      let!(:valid_exam) do
+        create(:descriptive_exam, classroom: classroom, opinion_type: OpinionTypes::BY_YEAR, optional_teacher: true)
+      end
+
+      it 'keeps the descriptive exam' do
+        synchronizer.send(:discard_orphan_descriptive_exams, classroom)
+
+        expect(DescriptiveExam.exists?(valid_exam.id)).to be true
+      end
+    end
+
+    context 'when the opinion_type matches the differentiated (inclusive) rule' do
+      before do
+        inclusive = create(:exam_rule, opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE)
+        create(:classrooms_grade, classroom: classroom,
+                                  exam_rule: create(:exam_rule, opinion_type: OpinionTypes::BY_YEAR,
+                                                                differentiated_exam_rule: inclusive))
+      end
+
+      let!(:inclusive_exam) do
+        create(:descriptive_exam, classroom: classroom,
+                                  opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE, optional_teacher: true)
+      end
+
+      it 'keeps the inclusive descriptive exam' do
+        synchronizer.send(:discard_orphan_descriptive_exams, classroom)
+
+        expect(DescriptiveExam.exists?(inclusive_exam.id)).to be true
+      end
+    end
+  end
 end

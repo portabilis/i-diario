@@ -62,6 +62,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
         preload_classrooms_grades(classroom.id)
 
         grades_ids = []
+        exam_rule_changed = false
 
         classroom_record.series_regras.each do |grade_exam_rule|
           grade = grade(grade_exam_rule.serie_id)
@@ -76,11 +77,16 @@ class ClassroomsSynchronizer < BaseSynchronizer
             ClassroomsGrade.new(classroom_id: classroom.id, grade_id: grade.id)
           ).tap do |classroom_grade|
             classroom_grade.exam_rule_id = exam_rule.id
+            # Marca se uma série já existente trocou de regra — só nesse caso um lançamento
+            # antigo pode ter ficado órfão. (Série nova não tem lançamento anterior.)
+            exam_rule_changed ||= classroom_grade.persisted? && classroom_grade.exam_rule_id_changed?
             classroom_grade.save!
           end
         end
 
         destroy_old_grades(grades_ids, classroom.classrooms_grades, classroom_record.updated_at)
+
+        discard_orphan_descriptive_exams(classroom) if exam_rule_changed
 
         update_label(classroom.id, new_name) if old_name != new_name
 
@@ -95,6 +101,27 @@ class ClassroomsSynchronizer < BaseSynchronizer
     return unless should_destroy_old_grades?(classroom_updated_at)
 
     classroom_grades.where.not(grade_id: grades_ids).destroy_all
+  end
+
+  # Reapontar uma série para uma regra com opinion_type diferente, numa turma que já tem
+  # lançamentos de parecer, pode deixar esses lançamentos órfãos. Este método exclui os
+  # órfãos: os pareceres cujo opinion_type não bate com nenhuma regra atual da turma (nem
+  # com a diferenciada dela) — mesma régua do envio (DescriptiveExamPoster).
+  def discard_orphan_descriptive_exams(classroom)
+    valid_opinion_types = ClassroomsGrade.where(classroom_id: classroom.id)
+                                         .includes(exam_rule: :differentiated_exam_rule)
+                                         .flat_map { |classroom_grade|
+                                           exam_rule = classroom_grade.exam_rule
+                                           [exam_rule&.opinion_type, exam_rule&.differentiated_exam_rule&.opinion_type]
+                                         }
+                                         .compact.uniq
+    return if valid_opinion_types.blank?
+
+    Audited.audit_class.as_user('descriptive_exams_opinion_type_sync') do
+      DescriptiveExam.where(classroom_id: classroom.id)
+                     .where.not(opinion_type: valid_opinion_types)
+                     .destroy_all
+    end
   end
 
   # So deve destruir grades antigas se:
