@@ -17,8 +17,8 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def failure
-    redirect_to new_user_session_path,
-      alert: t('devise.omniauth_callbacks.failure', kind: 'SSO', reason: failure_message)
+    set_flash_message! :alert, :failure, kind: 'SSO', reason: 'autorização não foi concedida'
+    redirect_to new_user_session_path
   end
 
   private
