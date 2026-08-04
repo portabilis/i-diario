@@ -1,5 +1,5 @@
 class IepSelectedOption < ApplicationRecord
-  audited
+  audited associated_with: :iep
 
   # touch: mantém o updated_at do plano (coluna "Última edição" do index) atualizado
   # ao marcar/desmarcar opções das seções 2/3 sem mexer em colunas do próprio plano.

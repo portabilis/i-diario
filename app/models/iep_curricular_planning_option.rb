@@ -1,5 +1,5 @@
 class IepCurricularPlanningOption < ApplicationRecord
-  audited
+  audited associated_with: :iep_curricular_planning
 
   # touch: cascateia até o plano (planning → iep, ambos com touch) para atualizar o
   # updated_at (coluna "Última edição" do index) ao editar só as acomodações da seção 4.
