@@ -3,9 +3,6 @@ require 'rails_helper'
 RSpec.describe IndividualizedEducationalPlan, type: :model do
   describe 'associations' do
     it { expect(subject).to belong_to(:student) }
-    it { expect(subject).to belong_to(:unity) }
-    it { expect(subject).to belong_to(:classroom) }
-    it { expect(subject).to belong_to(:teacher) }
     it { expect(subject).to belong_to(:aee_teacher).class_name('Teacher') }
     it { expect(subject).to have_many(:iep_review_dates).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_selected_options).dependent(:destroy) }
@@ -18,16 +15,8 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     subject { build(:individualized_educational_plan) }
 
     it { expect(subject).to validate_presence_of(:student_id) }
-    it { expect(subject).to validate_presence_of(:unity_id) }
-    it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:year) }
     it { expect(subject).to validate_presence_of(:elaborated_at) }
-
-    it 'is valid without a teacher (classroom may have no regent in i-Educar)' do
-      plan = build(:individualized_educational_plan, teacher: nil)
-
-      expect(plan).to be_valid
-    end
 
     it 'validates uniqueness of student_id scoped to year (application-level)' do
       existing = create(:individualized_educational_plan)

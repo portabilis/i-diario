@@ -10,9 +10,10 @@
     <% can_destroy_plan = policy(IndividualizedEducationalPlan.new).destroy? %>
     <% @individualized_educational_plans.each do |plan| %>
       <tr>
+        <% current_classroom = @display_classrooms[plan.student_id] %>
         <td><%= plan.year %></td>
-        <td><%= plan.unity %></td>
-        <td><%= plan.classroom %></td>
+        <td><%= current_classroom&.unity %></td>
+        <td><%= current_classroom %></td>
         <td><%= plan.student %></td>
         <td><%= l(plan.updated_at, format: :short) %></td>
         <td class="actions">

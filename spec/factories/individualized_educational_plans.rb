@@ -1,9 +1,6 @@
 FactoryGirl.define do
   factory :individualized_educational_plan do
     student
-    unity
-    classroom
-    teacher
     year { Date.current.year }
     elaborated_at { Date.current }
 

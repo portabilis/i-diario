@@ -202,6 +202,7 @@ Rails.application.routes.draw do
     resources :individualized_educational_plans do
       collection do
         get :fetch_students_by_classroom
+        get :students_by_elaboration_date
         get :student_data
         get :medical_reports
         get :open_medical_report

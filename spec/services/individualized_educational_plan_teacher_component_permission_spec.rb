@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-# Responde a posse de componente do professor: quais disciplinas/áreas ele leciona na turma
-# do plano e se uma dada linha das seções 4/5 é dele (a restrição de seção em si mora nos
-# strong params e no _form; aqui é só a decisão de posse).
+# Responde a posse de componente do professor: quais disciplinas/áreas ele leciona nas turmas
+# ATIVAS do aluno e se uma dada linha das seções 4/5 é dele (a restrição de seção em si mora
+# nos strong params e no _form; aqui é só a decisão de posse).
 RSpec.describe IndividualizedEducationalPlanTeacherComponentPermission, type: :service do
   let(:entity) { Entity.find_by(domain: 'test.host') }
 
@@ -13,13 +13,17 @@ RSpec.describe IndividualizedEducationalPlanTeacherComponentPermission, type: :s
   let(:knowledge_area) { create(:knowledge_area) }
   let(:own_discipline) { create(:discipline, knowledge_area: knowledge_area) }
   let(:other_discipline) { create(:discipline) }
-  let(:plan) { create(:individualized_educational_plan, classroom: classroom) }
+  let(:plan) { create(:individualized_educational_plan) }
 
   subject(:scope) { described_class.new(teacher, plan) }
 
   before do
     create(:teacher_discipline_classroom, teacher: teacher, classroom: classroom,
                                           discipline: own_discipline, year: Date.current.year)
+    # aluno enturmado (aberto) na turma do plano → turma "ativa" do aluno (fonte do escopo)
+    create(:student_enrollment_classroom,
+           student_enrollment: create(:student_enrollment, student: plan.student),
+           classrooms_grade: create(:classrooms_grade, classroom: classroom))
   end
 
   it 'returns only the components the teacher teaches in the plan classroom' do

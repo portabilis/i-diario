@@ -20,7 +20,8 @@ module IndividualizedEducationalPlans
       )
       authorize @individualized_educational_plan, :show?
 
-      @versions = @individualized_educational_plan.iep_versions.includes(:published_by).recent_first
+      # Congelamento: aluno que não cursa mais na turma o usuário só vê o histórico até a data em que saiu.
+      @versions = versions_for(@individualized_educational_plan)
     end
 
     # Visualização de uma versão publicada: reconstrói o PEI congelado a partir do
@@ -30,6 +31,12 @@ module IndividualizedEducationalPlans
       @version = iep.iep_versions.find(params[:id])
 
       authorize iep, :show?
+
+      # Congelamento: bloqueia abrir uma versão publicada depois que o aluno saiu da turma.
+      if version_frozen_out?(iep, @version)
+        return redirect_to individualized_educational_plan_versions_path(iep),
+                           alert: t('individualized_educational_plans.versions.frozen_out')
+      end
 
       respond_to do |format|
         # HTML: reconstrói a versão congelada e renderiza o mesmo formulário em modo leitura.

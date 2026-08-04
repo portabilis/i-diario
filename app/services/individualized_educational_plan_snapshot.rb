@@ -4,13 +4,14 @@
 #   - pela visualização/PDF, para renderizar tanto o plano vivo quanto uma versão
 #     (mesma estrutura => mesma renderização).
 class IndividualizedEducationalPlanSnapshot
-  def initialize(plan, student_data: nil)
+  def initialize(plan, student_data: nil, classroom: nil)
     @plan = plan
     @student_data = student_data
+    @classroom = classroom
   end
 
-  def self.build(plan, student_data: nil)
-    new(plan, student_data: student_data).build
+  def self.build(plan, student_data: nil, classroom: nil)
+    new(plan, student_data: student_data, classroom: classroom).build
   end
 
   def build
@@ -37,7 +38,7 @@ class IndividualizedEducationalPlanSnapshot
 
   def identification
     data = @student_data ||
-           IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: plan.classroom)
+           IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: @classroom)
 
     {
       'student_name' => plan.student.name,
@@ -46,9 +47,9 @@ class IndividualizedEducationalPlanSnapshot
       'guardians_unavailable' => data[:guardians_unavailable],
       'diagnosis' => data[:diagnosis],
       'shift' => data[:shift],
-      'unity_name' => plan.unity.name,
-      'classroom_name' => plan.classroom.description,
-      'teacher_name' => plan.teacher&.name,
+      'unity_name' => @classroom&.unity&.name,
+      'classroom_name' => @classroom&.description,
+      'teacher_name' => Teacher.find_by(api_code: @classroom&.regent_api_code)&.name,
       'aee_teacher_name' => plan.aee_teacher&.name,
       'support_professional' => plan.support_professional,
       'year' => plan.year,

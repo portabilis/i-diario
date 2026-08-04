@@ -143,6 +143,9 @@ $(function() {
     $wrapper.find('span.help-inline, .help-inline.error, span.error').remove();
 
     if (!studentId || studentId === 'empty') {
+      // Sem aluno (limpo manualmente ou ao trocar a data de elaboração): zera a seção 1.
+      $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+      $('.iep-guardians-warning').hide();
       $warning.hide();
       medicalReportsMessage($medicalReports.data('pending-text'));
       return;
@@ -151,6 +154,9 @@ $(function() {
     var params = { student_id: studentId, format: 'json' };
     var planId = $wizard.data('plan-id');
     if (planId) { params.plan_id = planId; }
+    // Mesma data do select: valida o aluno contra a enturmação da data de elaboração (não hoje).
+    var elaboratedAt = $('.iep-elaborated-at').val();
+    if (elaboratedAt) { params.elaborated_at = elaboratedAt; }
 
     // Limpa os campos ANTES da requisição: numa falha (sessão expirada, sem permissão,
     // timeout), o error handler abaixo assume — sem isso, os campos ficariam com o
@@ -200,6 +206,87 @@ $(function() {
     // Versão publicada (ou tela sem aluno ainda): o prefill não roda, mas o laudo é buscado
     // sempre que há plano ou aluno — ele não faz parte do que a versão congela.
     fetchMedicalReports();
+  }
+
+  // ---- Criação: a data de elaboração filtra os alunos ----
+  // O usuário escolhe a data primeiro; o select passa a listar só quem estava enturmado na turma
+  // do perfil NAQUELA data. No editar/visualizar o aluno é fixo (select desabilitado) → não roda.
+  var $elaboratedAt = $('.iep-elaborated-at');
+
+  // Repopula o select2 pelo destroy + re-init com data (mesmo idioma do index.js). Trocar as
+  // <option> do select nativo direto quebra o widget do select2 (vira uma lista solta).
+  function setStudentOptions(students) {
+    var studentOptions = $.map(students, function(student) {
+      return { id: student.id, name: student.name, text: student.name };
+    });
+    studentOptions.unshift({ id: 'empty', name: '', text: '' });
+
+    $studentSelect.select2('destroy');
+    $studentSelect.select2({
+      data: studentOptions,
+      formatResult: function(el) { return "<div class='select2-user-result'>" + el.name + "</div>"; },
+      formatSelection: function(el) {
+        return "<div class='select2-user-result'>" + (el.text || el.name) + "</div>";
+      },
+      allowClear: true,
+      theme: 'classic'
+    });
+    $studentSelect.select2('val', '');
+    fetchStudentData('');
+  }
+
+  // Aviso de data fora do calendário letivo (o bloqueio real é no servidor ao salvar).
+  function setElaborationCalendarWarning(message) {
+    var $group = $elaboratedAt.closest('.control-group');
+    $group.find('.iep-posting-warning').remove();
+    if (message) {
+      $('<span class="help-inline error iep-posting-warning"></span>').text(message).insertAfter($elaboratedAt);
+    }
+  }
+
+  // Data completa e real no formato dd/mm/yyyy. Enquanto a data não for válida (ex.: "04/85/2026")
+  // não consultamos o servidor nem mexemos no aviso — a validação de "data válida" do form assume.
+  function isValidElaborationDate(value) {
+    var match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value || '');
+    if (!match) { return false; }
+
+    var day = parseInt(match[1], 10);
+    var month = parseInt(match[2], 10);
+    var year = parseInt(match[3], 10);
+    var date = new Date(year, month - 1, day);
+
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+  }
+
+  function reloadStudentsForElaborationDate(dateStr) {
+    $.ajax({
+      url: Routes.students_by_elaboration_date_individualized_educational_plans_pt_br_path(
+        { elaborated_at: dateStr, format: 'json' }
+      ),
+      dataType: 'json',
+      success: function(data) {
+        if (data && Array.isArray(data.students)) { setStudentOptions(data.students); }
+        setElaborationCalendarWarning(data && data.calendar_error);
+      },
+      error: function() {
+        flashMessages.error('Não foi possível atualizar a lista de alunos para a data de elaboração.');
+      }
+    });
+  }
+
+  if ($elaboratedAt.length && !$studentSelect.prop('disabled')) {
+    $elaboratedAt.on('change changeDate', function() {
+      var value = $(this).val();
+
+      // Data inválida: não consulta o servidor e limpa só o aviso de calendário — o vermelho de
+      // "data válida" fica por conta do validador de data do form, até o usuário corrigir.
+      if (!isValidElaborationDate(value)) {
+        setElaborationCalendarWarning('');
+        return;
+      }
+
+      reloadStudentsForElaborationDate(value);
+    });
   }
 
   // ---- Finalizar: o modal "Salvar versão" preenche version_name e submete o próprio form ----

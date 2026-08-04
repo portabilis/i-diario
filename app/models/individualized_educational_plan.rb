@@ -9,10 +9,9 @@ class IndividualizedEducationalPlan < ApplicationRecord
   audited
   has_associated_audits
 
+  # O PEI segue o aluno: escola/turma/regente NÃO são propriedade do documento — são derivados
+  # da matrícula atual (na tela/index/snapshot). Só o AEE é escolhido e fica no plano.
   belongs_to :student
-  belongs_to :unity
-  belongs_to :classroom
-  belongs_to :teacher                                  # professor regente (único, da turma)
   belongs_to :aee_teacher, class_name: 'Teacher'       # opcional
 
   has_many :iep_selected_options, dependent: :destroy
@@ -56,8 +55,7 @@ class IndividualizedEducationalPlan < ApplicationRecord
                    :communication_profile, :social_interaction_profile, :autonomy,
                    :accompaniment, :support_type
 
-  validates :student_id, :unity_id, :classroom_id, :year, :elaborated_at,
-            presence: true
+  validates :student_id, :year, :elaborated_at, presence: true
 
   # Unicidade 1 PEI por aluno/ano: índice único no banco + esta validação para a mensagem amigável.
   validates :student_id, uniqueness: { scope: :year }
@@ -71,7 +69,10 @@ class IndividualizedEducationalPlan < ApplicationRecord
 
   scope :finalized, -> { where(ACTIVE_VERSION_EXISTS_SQL) }
   scope :draft, -> { where("NOT #{ACTIVE_VERSION_EXISTS_SQL}") }
-  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
+  scope :by_classroom_id, ->(classroom_id) {
+    where(student_id: StudentEnrollmentClassroom.by_classroom(classroom_id)
+                        .joins(:student_enrollment).select('student_enrollments.student_id'))
+  }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
 
   def finalized?

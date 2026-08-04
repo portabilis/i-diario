@@ -14,7 +14,7 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
   describe '.build identification' do
     it 'freezes the student data fields from the prefill' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data)
-        .with(plan.student, classroom: plan.classroom)
+        .with(plan.student, classroom: nil)
         .and_return(birth_date: '10/03/2015', guardians: 'Maria e João',
                     guardians_unavailable: false, diagnosis: 'TEA', shift: 'Matutino')
 

@@ -1,15 +1,16 @@
 # Publica ("finaliza") uma versão do PEI: desativa a versão vigente, grava uma nova
 # versão ativa com o snapshot completo do plano e atualiza o cache finalized_at.
 class IndividualizedEducationalPlanPublisher
-  def initialize(plan, name, published_by, student_data)
+  def initialize(plan, name, published_by, student_data, classroom)
     @plan = plan
     @name = name
     @published_by = published_by
     @student_data = student_data
+    @classroom = classroom
   end
 
-  def self.publish!(plan, name:, published_by:, student_data: nil)
-    new(plan, name, published_by, student_data).publish!
+  def self.publish!(plan, name:, published_by:, student_data: nil, classroom: nil)
+    new(plan, name, published_by, student_data, classroom).publish!
   end
 
   def publish!
@@ -22,7 +23,8 @@ class IndividualizedEducationalPlanPublisher
         published_by: published_by,
         published_at: Time.current,
         active: true,
-        content: IndividualizedEducationalPlanSnapshot.build(plan, student_data: student_data)
+        classroom: classroom,
+        content: IndividualizedEducationalPlanSnapshot.build(plan, student_data: student_data, classroom: classroom)
       )
 
       # Cache do estado "finalizado" (a verdade é a existência de versão ativa).
@@ -34,5 +36,5 @@ class IndividualizedEducationalPlanPublisher
 
   private
 
-  attr_reader :plan, :name, :published_by, :student_data
+  attr_reader :plan, :name, :published_by, :student_data, :classroom
 end

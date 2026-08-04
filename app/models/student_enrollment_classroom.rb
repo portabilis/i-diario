@@ -39,6 +39,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
   scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
+  scope :attending_on, ->(date) { status_attending.by_left_at_date(date) }
   scope :by_opinion_type, lambda { |opinion_type, classrooms| by_opinion_type_query(opinion_type, classrooms) }
 
   delegate :student_id, to: :student_enrollment, allow_nil: true
