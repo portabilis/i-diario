@@ -14,7 +14,8 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
   end
 
   def publish_and_restore(plan)
-    version = IndividualizedEducationalPlanPublisher.publish!(plan, name: 'Versão 1', published_by: create(:user))
+    version = IndividualizedEducationalPlanPublisher.publish!(plan, name: 'Versão 1',
+                                                              published_by: create(:user), classroom: create(:classroom))
     IndividualizedEducationalPlanSnapshotRestorer.restore(version.reload.content).plan
   end
 
@@ -48,7 +49,8 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
     create(:iep_curricular_planning, iep: plan, iep_review_date: review_date,
                                      discipline: discipline, long_term_goal: 'Meta')
 
-    version = IndividualizedEducationalPlanPublisher.publish!(plan, name: 'Versão 1', published_by: create(:user))
+    version = IndividualizedEducationalPlanPublisher.publish!(plan, name: 'Versão 1',
+                                                              published_by: create(:user), classroom: create(:classroom))
     discipline.update!(description: 'Matemática I') # renomeada depois da publicação
 
     restored = IndividualizedEducationalPlanSnapshotRestorer.restore(version.reload.content).plan
