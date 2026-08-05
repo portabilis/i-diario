@@ -33,8 +33,11 @@ class IndividualizedEducationalPlansController < ApplicationController
     set_filters
 
     @individualized_educational_plans = fetch_plans
-    @display_classrooms = display_classrooms_for(@individualized_educational_plans)
-    @editable_student_ids = editable_student_ids_for(@individualized_educational_plans)
+    index_classrooms = IndividualizedEducationalPlanIndexClassroomsQuery.new(
+      @individualized_educational_plans, accessible_classrooms.map(&:id)
+    )
+    @display_classrooms = index_classrooms.display_classrooms
+    @editable_student_ids = index_classrooms.editable_student_ids
 
     authorize @individualized_educational_plans
   end
@@ -60,7 +63,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     render json: {
       students: students,
-      calendar_error: elaboration_date_calendar_error(current_user_classroom, date)
+      calendar_error: IndividualizedEducationalPlanElaborationDayCheck.error_for(current_user_classroom, date)
     }.to_json
   rescue ActiveRecord::RecordNotFound
     head :not_found
@@ -240,7 +243,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     # readonly e não vem no submit do professor, então revalidar o valor armazenado (contra o
     # calendário da turma atual, possivelmente outra escola) trancaria a escola que recebeu o aluno.
     if @individualized_educational_plan.new_record? || @individualized_educational_plan.elaborated_at_changed?
-      calendar_error = elaboration_date_calendar_error(
+      calendar_error = IndividualizedEducationalPlanElaborationDayCheck.error_for(
         current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at
       )
       if calendar_error
@@ -443,21 +446,6 @@ class IndividualizedEducationalPlansController < ApplicationController
     Date.current
   end
 
-  def elaboration_date_calendar_error(classroom, date)
-    return if date.blank? || classroom.blank?
-
-    calendar = CurrentSchoolCalendarFetcher.new(classroom.unity, classroom, date.year).fetch
-    return if calendar.blank?
-
-    # [nil] quando a turma não tem série: day_allows_entry? então valida só por eventos/etapas
-    # (degrada para uma regra sem série — não é erro; mesmo sentinela do SchoolCalendarDayValidator).
-    grade_ids = classroom.grades.pluck(:id).presence || [nil]
-    return if grade_ids.all? { |grade_id| calendar.day_allows_entry?(date, grade_id, classroom.id) }
-
-    step = calendar.steps.posting_date_after_and_before(date).first
-    I18n.t(step ? 'errors.messages.not_school_calendar_day' : 'errors.messages.is_not_between_steps')
-  end
-
   def student_for_data
     if data_plan
       return data_plan.student if data_plan.student_id.to_s == params[:student_id].to_s
@@ -587,58 +575,5 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def fetch_plans
     apply_scopes(accessible_plans.includes(:student).order(updated_at: :desc))
-  end
-
-  # Turma exibida por aluno no index: prefere a turma acessível onde ele está enturmado (aberta
-  # primeiro). Se o plano é visível só por AUTORIA (aluno já não cursa turma acessível), cai na
-  # turma que publicou a versão — senão a linha ficaria com escola/turma em branco.
-  def display_classrooms_for(plans)
-    student_ids = plans.map(&:student_id)
-    return {} if student_ids.empty?
-
-    map = enrolled_classrooms_by_student(student_ids)
-    fill_authoring_classrooms(map, plans.reject { |plan| map.key?(plan.student_id) })
-    map
-  end
-
-  def enrolled_classrooms_by_student(student_ids)
-    rows = StudentEnrollmentClassroom
-           .by_classroom(accessible_classrooms.map(&:id))
-           .by_student(student_ids)
-           .joins(classrooms_grade: :classroom)
-           .order(Arel.sql("CASE WHEN left_at IS NULL OR left_at = '' THEN 0 ELSE 1 END"))
-           .pluck('student_enrollments.student_id', 'classrooms.id')
-    classrooms = Classroom.where(id: rows.map(&:last).uniq).includes(:unity).index_by(&:id)
-    rows.each_with_object({}) { |(sid, cid), map| map[sid] ||= classrooms[cid] }
-  end
-
-  # Plano que aparece só por AUTORIA (o aluno não cursa mais turma acessível) ficaria com
-  # escola/turma em branco no index → cai na turma que PUBLICOU o plano (a versão mais recente).
-  # Ex.: plano do aluno João publicado pela turma B; João foi transferido → a linha mostra B.
-  def fill_authoring_classrooms(map, plans)
-    return if plans.empty?
-
-    classroom_by_plan = IepVersion
-                        .where(individualized_educational_plan_id: plans.map(&:id))
-                        .by_classroom(accessible_classrooms.map(&:id))
-                        .recent_first
-                        .pluck(:individualized_educational_plan_id, :classroom_id)
-                        .each_with_object({}) { |(pid, cid), acc| acc[pid] ||= cid }
-    classrooms = Classroom.where(id: classroom_by_plan.values.uniq).includes(:unity).index_by(&:id)
-    plans.each { |plan| map[plan.student_id] ||= classrooms[classroom_by_plan[plan.id]] }
-  end
-
-  # Ids dos alunos que o usuário pode editar (cursando turma acessível hoje) — uma query só, para
-  # o index decidir por linha se HABILITA o botão "Editar" sem cair em N+1 de plan_editable?.
-  def editable_student_ids_for(plans)
-    return Set.new if plans.empty?
-
-    StudentEnrollmentClassroom
-      .by_classroom(accessible_classrooms.map(&:id))
-      .attending_on(Date.current)
-      .by_student(plans.map(&:student_id))
-      .joins(:student_enrollment)
-      .pluck('student_enrollments.student_id')
-      .to_set
   end
 end

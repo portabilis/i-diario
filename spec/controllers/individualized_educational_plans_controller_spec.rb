@@ -432,7 +432,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     it 'reports calendar_error when the date is not a valid school calendar day' do
-      allow(controller).to receive(:elaboration_date_calendar_error)
+      allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for)
         .and_return(I18n.t('errors.messages.is_not_between_steps'))
 
       get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: '2026-04-10', format: :json }
@@ -914,7 +914,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     it 'blocks creating when the elaboration date is not a school calendar day' do
-      allow(controller).to receive(:elaboration_date_calendar_error)
+      allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for)
         .and_return(I18n.t('errors.messages.is_not_between_steps'))
 
       expect do
@@ -1247,7 +1247,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     # Escola que recebeu o aluno não pode ser travada por um elaborated_at readonly (de outra escola).
     it 'does not revalidate the school-calendar day on update when the elaboration date is unchanged' do
       plan = create(:individualized_educational_plan)
-      expect(controller).not_to receive(:elaboration_date_calendar_error)
+      expect(IndividualizedEducationalPlanElaborationDayCheck).not_to receive(:error_for)
 
       patch :update, params: {
         locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
