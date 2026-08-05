@@ -36,11 +36,6 @@ class IndividualizedEducationalPlanSnapshot
 
   attr_reader :plan
 
-  def regent_teacher_name
-    api_code = @classroom&.regent_api_code
-    Teacher.find_by(api_code: api_code)&.name if api_code.present?
-  end
-
   def identification
     data = @student_data ||
            IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: @classroom)
@@ -54,7 +49,7 @@ class IndividualizedEducationalPlanSnapshot
       'shift' => data[:shift],
       'unity_name' => @classroom&.unity&.name,
       'classroom_name' => @classroom&.description,
-      'teacher_name' => regent_teacher_name,
+      'teacher_name' => @classroom&.regent&.name,
       'aee_teacher_name' => plan.aee_teacher&.name,
       'support_professional' => plan.support_professional,
       'year' => plan.year,

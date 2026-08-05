@@ -133,6 +133,14 @@ $(function() {
   }
 
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
+  // Zera os campos da seção 1 e esconde os avisos do aluno (usado no branch vazio, antes da
+  // requisição e no erro — para não deixar dado do aluno anterior rotulado como do novo).
+  function clearStudentSection1() {
+    $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+    $('.iep-guardians-warning').hide();
+    $('.iep-existing-plan-warning').hide();
+  }
+
   function fetchStudentData(studentId) {
     var $warning = $('.iep-existing-plan-warning');
 
@@ -144,9 +152,7 @@ $(function() {
 
     if (!studentId || studentId === 'empty') {
       // Sem aluno (limpo manualmente ou ao trocar a data de elaboração): zera a seção 1.
-      $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
-      $('.iep-guardians-warning').hide();
-      $warning.hide();
+      clearStudentSection1();
       medicalReportsMessage($medicalReports.data('pending-text'));
       return;
     }
@@ -161,9 +167,7 @@ $(function() {
     // Limpa os campos ANTES da requisição: numa falha (sessão expirada, sem permissão,
     // timeout), o error handler abaixo assume — sem isso, os campos ficariam com o
     // dado do aluno anterior rotulado como sendo do aluno recém-selecionado.
-    $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
-    $('.iep-guardians-warning').hide();
-    $warning.hide();
+    clearStudentSection1();
 
     $.ajax({
       url: Routes.student_data_individualized_educational_plans_pt_br_path(params),
@@ -182,10 +186,8 @@ $(function() {
         $warning.toggle(!!data.has_existing_plan);
       },
       error: function() {
-        $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
-        $('.iep-guardians-warning').hide();
+        clearStudentSection1();
         renderMedicalReports([], true, medicalReportIdentity(studentId));
-        $warning.hide();
         flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
       }
     });
@@ -224,9 +226,10 @@ $(function() {
     $studentSelect.select2('destroy');
     $studentSelect.select2({
       data: studentOptions,
-      formatResult: function(el) { return "<div class='select2-user-result'>" + el.name + "</div>"; },
+      // _.escape: o nome vem do endpoint e não é confiável para interpolar como HTML.
+      formatResult: function(el) { return "<div class='select2-user-result'>" + _.escape(el.name) + "</div>"; },
       formatSelection: function(el) {
-        return "<div class='select2-user-result'>" + (el.text || el.name) + "</div>";
+        return "<div class='select2-user-result'>" + _.escape(el.text || el.name) + "</div>";
       },
       allowClear: true,
       theme: 'classic'
@@ -242,20 +245,6 @@ $(function() {
     if (message) {
       $('<span class="help-inline error iep-posting-warning"></span>').text(message).insertAfter($elaboratedAt);
     }
-  }
-
-  // Data completa e real no formato dd/mm/yyyy. Enquanto a data não for válida (ex.: "04/85/2026")
-  // não consultamos o servidor nem mexemos no aviso — a validação de "data válida" do form assume.
-  function isValidElaborationDate(value) {
-    var match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value || '');
-    if (!match) { return false; }
-
-    var day = parseInt(match[1], 10);
-    var month = parseInt(match[2], 10);
-    var year = parseInt(match[3], 10);
-    var date = new Date(year, month - 1, day);
-
-    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   }
 
   function reloadStudentsForElaborationDate(dateStr) {
@@ -280,9 +269,9 @@ $(function() {
     $elaboratedAt.on('change changeDate', function() {
       var value = $(this).val();
 
-      // Data inválida: não consulta o servidor e limpa só o aviso de calendário — o vermelho de
-      // "data válida" fica por conta do validador de data do form, até o usuário corrigir.
-      if (!isValidElaborationDate(value)) {
+      // Data inválida (isValidDate global, date.js): não consulta o servidor e limpa só o aviso
+      // de calendário — o vermelho de "data válida" fica por conta do validador de data do form.
+      if (!isValidDate(value)) {
         setElaborationCalendarWarning('');
         return;
       }

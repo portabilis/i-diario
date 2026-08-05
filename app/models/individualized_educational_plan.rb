@@ -69,6 +69,8 @@ class IndividualizedEducationalPlan < ApplicationRecord
 
   scope :finalized, -> { where(ACTIVE_VERSION_EXISTS_SQL) }
   scope :draft, -> { where("NOT #{ACTIVE_VERSION_EXISTS_SQL}") }
+  # Alunos que ALGUM DIA estiveram na turma (sem data/status/ano). Só para o filtro do index —
+  # NÃO é escopo de acesso (isso é o accessible_plans).
   scope :by_classroom_id, ->(classroom_id) {
     where(student_id: StudentEnrollmentClassroom.by_classroom(classroom_id)
                         .joins(:student_enrollment).select('student_enrollments.student_id'))

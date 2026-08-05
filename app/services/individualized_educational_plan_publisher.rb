@@ -1,7 +1,7 @@
 # Publica ("finaliza") uma versão do PEI: desativa a versão vigente, grava uma nova
 # versão ativa com o snapshot completo do plano e atualiza o cache finalized_at.
 class IndividualizedEducationalPlanPublisher
-  def initialize(plan, name, published_by, student_data, classroom)
+  def initialize(plan, name:, published_by:, student_data: nil, classroom: nil)
     @plan = plan
     @name = name
     @published_by = published_by
@@ -10,7 +10,7 @@ class IndividualizedEducationalPlanPublisher
   end
 
   def self.publish!(plan, name:, published_by:, student_data: nil, classroom: nil)
-    new(plan, name, published_by, student_data, classroom).publish!
+    new(plan, name: name, published_by: published_by, student_data: student_data, classroom: classroom).publish!
   end
 
   def publish!

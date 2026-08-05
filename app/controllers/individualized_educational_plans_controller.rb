@@ -43,6 +43,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   def fetch_students_by_classroom
     authorize IndividualizedEducationalPlan, :index?
 
+    # .to_json (String) evita o wrapping com raiz do active_model_serializers no render json:.
     return render(json: [].to_json) if params[:classroom_id].blank?
 
     student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
@@ -61,6 +62,8 @@ class IndividualizedEducationalPlansController < ApplicationController
       students: students,
       calendar_error: elaboration_date_calendar_error(current_user_classroom, date)
     }.to_json
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
   end
 
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
@@ -332,11 +335,6 @@ class IndividualizedEducationalPlansController < ApplicationController
     end
   end
 
-  def regent_of(classroom)
-    api_code = classroom&.regent_api_code
-    Teacher.find_by(api_code: api_code) if api_code.present?
-  end
-
   # Recarrega os dados de exibição do formulário (escola/turma/regente derivados da turma atual)
   # para evitar campos readonly em branco após re-renderização.
   def assign_display_fields
@@ -344,7 +342,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     classroom = current_classroom_for(plan)
     plan.unity_name = classroom&.unity&.name
     plan.classroom_name = classroom&.description
-    plan.teacher_name = regent_of(classroom)&.name
+    plan.teacher_name = classroom&.regent&.name
     prefill_student_fields
   end
 
@@ -451,6 +449,8 @@ class IndividualizedEducationalPlansController < ApplicationController
     calendar = CurrentSchoolCalendarFetcher.new(classroom.unity, classroom, date.year).fetch
     return if calendar.blank?
 
+    # [nil] quando a turma não tem série: day_allows_entry? então valida só por eventos/etapas
+    # (degrada para uma regra sem série — não é erro; mesmo sentinela do SchoolCalendarDayValidator).
     grade_ids = classroom.grades.pluck(:id).presence || [nil]
     return if grade_ids.all? { |grade_id| calendar.day_allows_entry?(date, grade_id, classroom.id) }
 
@@ -490,9 +490,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def student_query_not_found(action)
-    Rails.logger.error(
-      "PEI: #{action} não encontrou aluno/plano — student_id=#{params[:student_id]} plan_id=#{params[:plan_id]}"
-    )
+    context = { action: action, student_id: params[:student_id], plan_id: params[:plan_id] }
+    Rails.logger.error("PEI: #{action} não encontrou aluno/plano — #{context}")
+    Honeybadger.notify("PEI: consulta de aluno não encontrada", context: context)
     head :not_found
   end
 
@@ -501,7 +501,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   def student_for_medical_reports
     return medical_reports_plan.student if medical_reports_plan
 
-    permitted_students.find(params[:student_id])
+    permitted_students(parsed_elaboration_date).find(params[:student_id])
   end
 
   def medical_reports_plan

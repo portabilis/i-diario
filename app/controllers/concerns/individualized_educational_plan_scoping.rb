@@ -73,13 +73,18 @@ module IndividualizedEducationalPlanScoping
       .exists?
   end
 
-  # CONGELAMENTO por AUTORIA (privacidade): quem não cursa mais o aluno enxerga o PEI só até a SUA
-  # última contribuição — a última versão publicada por uma turma sua. Não vê os lançamentos que a
-  # turma nova fez depois. freeze_date é esse published_at (Time exato); nil = cursando (vê o vivo).
+  # Congelamento por autoria: quem não cursa mais o aluno vê o PEI só até a última versão que uma
+  # turma sua publicou (nil = cursando, vê o vivo). Memoizado com key? porque o resultado pode ser nil.
   def freeze_date_for(plan)
-    return if plan_editable?(plan)
+    cache = (@freeze_date_for ||= {})
+    return cache[plan.id] if cache.key?(plan.id)
 
-    plan.iep_versions.by_classroom(accessible_classrooms.map(&:id)).maximum(:published_at)
+    cache[plan.id] =
+      if plan_editable?(plan)
+        nil
+      else
+        plan.iep_versions.by_classroom(accessible_classrooms.map(&:id)).maximum(:published_at)
+      end
   end
 
   # Versão que o autor inativo enxerga na tela: a mais recente publicada até a sua última contribuição.

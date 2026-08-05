@@ -84,6 +84,12 @@ class Classroom < ApplicationRecord
     description
   end
 
+  def regent
+    return if regent_api_code.blank?
+
+    Teacher.find_by(api_code: regent_api_code)
+  end
+
   def period_humanized
     Periods.t(period)
   end
