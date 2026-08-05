@@ -6,6 +6,7 @@ pt-BR:
       filter_by_student: "Filtrar aluno"
       last_edit: "Última edição"
       history: "Histórico de versões"
+      edit_disabled: "Edição indisponível: o aluno não está mais enturmado nesta turma."
     form:
       sections:
         identification: "Identificação do Estudante"

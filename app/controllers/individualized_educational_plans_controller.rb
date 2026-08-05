@@ -34,6 +34,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     @individualized_educational_plans = fetch_plans
     @display_classrooms = display_classrooms_for(@individualized_educational_plans)
+    @editable_student_ids = editable_student_ids_for(@individualized_educational_plans)
 
     authorize @individualized_educational_plans
   end
@@ -66,6 +67,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
     authorize_student_query
+    # Prefill traz dados VIVOS do aluno (nascimento, diagnóstico, responsáveis). Autor que não
+    # cursa mais o aluno vê o plano congelado — não deve puxar o estado atual por este endpoint.
+    return head :forbidden if data_plan && !plan_editable?(data_plan)
 
     student = student_for_data
 
@@ -180,11 +184,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   def edit
     @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
-    # Aluno transferido (sem enturmação aberta): edição não se aplica — cai na visualização, que
-    # leva à versão congelada da data de saída (leitura). Editar é só para quem cursa o aluno.
-    unless plan_editable?(@individualized_educational_plan)
-      return redirect_to individualized_educational_plan_path(@individualized_educational_plan)
-    end
+    # Aluno transferido (sem enturmação aberta): edição não se aplica — cai na visualização (leitura),
+    # com mensagem, em vez de um redirect calado. Editar é só para quem cursa o aluno.
+    return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
 
     assign_display_fields
     build_default_review_dates
@@ -260,7 +262,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
       saved
     end
-  rescue ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordNotUnique => e
+    Honeybadger.notify(e, context: { plan_id: @individualized_educational_plan.id })
     @individualized_educational_plan.errors.add(:base, t('individualized_educational_plans.finalize.already_published'))
     false
   end
@@ -307,7 +310,6 @@ class IndividualizedEducationalPlansController < ApplicationController
     ).find(params[:id])
   end
 
-
   def current_classroom_for(plan)
     return current_user_classroom unless plan&.persisted?
 
@@ -319,16 +321,20 @@ class IndividualizedEducationalPlansController < ApplicationController
                       .joins(classrooms_grade: :classroom)
                       .pluck('classrooms.id')
 
+      # Aluno cursa a turma do perfil → mantém a do perfil.
       if attending_ids.include?(current_user_classroom&.id)
         current_user_classroom
+      # Não cursa a do perfil (ex.: cursa B e C) → a de menor id entre as que cursa. O order fixa
+      # a escolha para não gravar autorias diferentes em dois saves.
       else
-        Classroom.where(id: attending_ids).first || current_user_classroom
+        Classroom.where(id: attending_ids).order(:id).first || current_user_classroom
       end
     end
   end
 
   def regent_of(classroom)
-    Teacher.find_by(api_code: classroom&.regent_api_code)
+    api_code = classroom&.regent_api_code
+    Teacher.find_by(api_code: api_code) if api_code.present?
   end
 
   # Recarrega os dados de exibição do formulário (escola/turma/regente derivados da turma atual)
@@ -418,13 +424,15 @@ class IndividualizedEducationalPlansController < ApplicationController
       .exists?(id: @individualized_educational_plan.student_id)
   end
 
-  # Alunos que o usuário pode selecionar ao criar um PEI: só os que estão CURSANDO a turma do PERFIL
+  # Alunos selecionáveis ao criar um PEI: enturmados na turma do perfil NA DATA informada (matrícula
+  # ativa). Usa by_date (não status "cursando hoje") para permitir PEI retroativo de aluno já transferido.
   def permitted_students(on_date = Date.current)
     return Student.none if current_user_classroom.blank?
 
     student_ids = StudentEnrollmentClassroom
                   .by_classroom(current_user_classroom.id)
                   .by_date(on_date)
+                  .active
                   .joins(:student_enrollment)
                   .select('student_enrollments.student_id')
     Student.where(id: student_ids)
@@ -503,7 +511,10 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def create_resource_params
-    params.require(:individualized_educational_plan).permit(:student_id).merge(resource_params)
+    params.require(:individualized_educational_plan)
+          .permit(:student_id)
+          .merge(resource_params)
+          .merge(year: current_school_year)
   end
 
   # Admin/servidor editam o PEI inteiro; o professor só as seções 4/5 (planejamento/avaliação).
@@ -546,7 +557,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def resource_params
     params.require(:individualized_educational_plan).permit(
-      :aee_teacher_id, :year,
+      :aee_teacher_id,
       :support_professional, :elaborated_at,
       :characterization, :clinical_diagnosis_justification, :school_history,
       :potentialities, :difficulties, :preferences_interests, :effective_strategies,
@@ -578,10 +589,19 @@ class IndividualizedEducationalPlansController < ApplicationController
     apply_scopes(accessible_plans.includes(:student).order(updated_at: :desc))
   end
 
+  # Turma exibida por aluno no index: prefere a turma acessível onde ele está enturmado (aberta
+  # primeiro). Se o plano é visível só por AUTORIA (aluno já não cursa turma acessível), cai na
+  # turma que publicou a versão — senão a linha ficaria com escola/turma em branco.
   def display_classrooms_for(plans)
     student_ids = plans.map(&:student_id)
     return {} if student_ids.empty?
 
+    map = enrolled_classrooms_by_student(student_ids)
+    fill_authoring_classrooms(map, plans.reject { |plan| map.key?(plan.student_id) })
+    map
+  end
+
+  def enrolled_classrooms_by_student(student_ids)
     rows = StudentEnrollmentClassroom
            .by_classroom(accessible_classrooms.map(&:id))
            .by_student(student_ids)
@@ -590,5 +610,35 @@ class IndividualizedEducationalPlansController < ApplicationController
            .pluck('student_enrollments.student_id', 'classrooms.id')
     classrooms = Classroom.where(id: rows.map(&:last).uniq).includes(:unity).index_by(&:id)
     rows.each_with_object({}) { |(sid, cid), map| map[sid] ||= classrooms[cid] }
+  end
+
+  # Plano que aparece só por AUTORIA (o aluno não cursa mais turma acessível) ficaria com
+  # escola/turma em branco no index → cai na turma que PUBLICOU o plano (a versão mais recente).
+  # Ex.: plano do aluno João publicado pela turma B; João foi transferido → a linha mostra B.
+  def fill_authoring_classrooms(map, plans)
+    return if plans.empty?
+
+    classroom_by_plan = IepVersion
+                        .where(individualized_educational_plan_id: plans.map(&:id))
+                        .by_classroom(accessible_classrooms.map(&:id))
+                        .recent_first
+                        .pluck(:individualized_educational_plan_id, :classroom_id)
+                        .each_with_object({}) { |(pid, cid), acc| acc[pid] ||= cid }
+    classrooms = Classroom.where(id: classroom_by_plan.values.uniq).includes(:unity).index_by(&:id)
+    plans.each { |plan| map[plan.student_id] ||= classrooms[classroom_by_plan[plan.id]] }
+  end
+
+  # Ids dos alunos que o usuário pode editar (cursando turma acessível hoje) — uma query só, para
+  # o index decidir por linha se HABILITA o botão "Editar" sem cair em N+1 de plan_editable?.
+  def editable_student_ids_for(plans)
+    return Set.new if plans.empty?
+
+    StudentEnrollmentClassroom
+      .by_classroom(accessible_classrooms.map(&:id))
+      .attending_on(Date.current)
+      .by_student(plans.map(&:student_id))
+      .joins(:student_enrollment)
+      .pluck('student_enrollments.student_id')
+      .to_set
   end
 end

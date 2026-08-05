@@ -679,7 +679,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(JSON.parse(response.body)['has_existing_plan']).to eq(false)
     end
 
-    it "returns the plan's own student on edit for a plan the classroom authored (plan_id)" do
+    # Congelamento: quem só vê o plano por autoria (aluno não cursa mais a turma) não pode puxar
+    # os dados VIVOS do aluno pelo prefill — só a versão congelada.
+    it 'forbids the prefill for a plan visible only by authorship (student no longer attending)' do
       plan = create(:individualized_educational_plan)
       create(:iep_version, iep: plan, classroom_id: classroom.id, published_at: Time.current, active: true,
                            content: { 'identification' => { 'student_name' => plan.student.name } })
@@ -689,8 +691,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
       }
 
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['guardians']).to eq('Maria Silva')
+      expect(response).to have_http_status(:forbidden)
     end
 
     it 'does not return data through a plan outside the user classrooms (plan_id)' do
@@ -712,6 +713,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
       allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
@@ -895,6 +897,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:plan_editable?).and_return(true)
       # Aluno permitido: a fronteira server-side do create é exercida em teste próprio.
       allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
     let(:valid_params) do
@@ -957,6 +960,15 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       }
 
       expect(IndividualizedEducationalPlan.last.iep_review_dates.map(&:review_date)).to eq([Date.current + 30])
+    end
+
+    it 'ignores a year sent by the client and uses the current school year' do
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: valid_params.merge(year: 2000)
+      }
+
+      expect(IndividualizedEducationalPlan.last.year).to eq(Date.current.year)
     end
 
     it 'rejects a student not enrolled in the profile classroom on the elaboration date' do
@@ -1212,6 +1224,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
       allow(controller).to receive(:plan_editable?).and_return(true)
       allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
     it 'publishes an active version when updating with a version name' do

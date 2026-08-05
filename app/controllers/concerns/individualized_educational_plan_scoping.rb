@@ -42,8 +42,8 @@ module IndividualizedEducationalPlanScoping
       end
   end
 
-  # Planos que o usuário enxerga: aluno cursando uma turma dele, OU turma dele que já publicou
-  # alguma versão do plano (autoria).
+  # Planos que o usuário enxerga, do ANO LETIVO CORRENTE: aluno cursando uma turma dele, OU turma
+  # dele que já publicou alguma versão do plano (autoria).
   def accessible_plans
     ids = accessible_classrooms.map(&:id)
     base = IndividualizedEducationalPlan.where(year: current_school_year)

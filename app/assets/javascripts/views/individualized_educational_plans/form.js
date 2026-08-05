@@ -269,6 +269,8 @@ $(function() {
         setElaborationCalendarWarning(data && data.calendar_error);
       },
       error: function() {
+        setStudentOptions([]);
+        setElaborationCalendarWarning('');
         flashMessages.error('Não foi possível atualizar a lista de alunos para a data de elaboração.');
       }
     });
