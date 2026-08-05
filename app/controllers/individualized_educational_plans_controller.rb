@@ -48,6 +48,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     # .to_json (String) evita o wrapping com raiz do active_model_serializers no render json:.
     return render(json: [].to_json) if params[:classroom_id].blank?
+    # Só turma do usuário: sem isto, um classroom_id forjado listaria alunos de turma alheia.
+    return render(json: [].to_json) unless accessible_classrooms.map(&:id).include?(params[:classroom_id].to_i)
 
     student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
@@ -80,7 +82,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     student = student_for_data
 
     data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: classroom_for_data)
-    data[:has_existing_plan] = existing_plan?(student.id)
+    data[:has_existing_plan] = plan_exists_for_student?(student.id)
 
     render json: data
   rescue ActiveRecord::RecordNotFound
@@ -166,7 +168,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def create
-    existing = existing_accessible_plan(create_resource_params[:student_id])
+    existing = accessible_plan_for_student(create_resource_params[:student_id])
     return redirect_to_existing_plan(existing) if existing
 
     @individualized_educational_plan = IndividualizedEducationalPlan.new(create_resource_params)
@@ -349,13 +351,13 @@ class IndividualizedEducationalPlansController < ApplicationController
     prefill_student_fields
   end
 
-  def existing_plan?(student_id)
+  def plan_exists_for_student?(student_id)
     scope = IndividualizedEducationalPlan.where(student_id: student_id, year: current_school_year)
     scope = scope.where.not(id: params[:plan_id]) if params[:plan_id].present?
     scope.exists?
   end
 
-  def existing_accessible_plan(student_id)
+  def accessible_plan_for_student(student_id)
     return if student_id.blank?
 
     accessible_plans.find_by(student_id: student_id)
@@ -439,10 +441,14 @@ class IndividualizedEducationalPlansController < ApplicationController
     Student.where(id: student_ids)
   end
 
-  # Data de elaboração vinda do select via AJAX; inválida/ausente cai para hoje.
+  # Data de elaboração vinda do select via AJAX; inválida/ausente cai para hoje (registra o valor
+  # rejeitado para não trocar a data em silêncio).
   def parsed_elaboration_date
     Date.parse(params[:elaborated_at].to_s)
   rescue ArgumentError
+    if params[:elaborated_at].present?
+      Rails.logger.warn("PEI: elaborated_at inválido (#{params[:elaborated_at].inspect}) — usando a data atual")
+    end
     Date.current
   end
 

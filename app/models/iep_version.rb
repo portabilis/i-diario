@@ -12,5 +12,7 @@ class IepVersion < ApplicationRecord
 
   scope :recent_first, -> { order(published_at: :desc) }
   scope :current, -> { where(active: true) }   # versão vigente ("Ativo")
-  scope :by_classroom, ->(classroom_ids) { where(classroom_id: classroom_ids) } # versões que aquelas turmas publicaram
+  # Versões publicadas por aquelas turmas (autoria). classroom_id é NULL nas versões legadas, então
+  # by_classroom nunca as casa.
+  scope :by_classroom, ->(classroom_ids) { where(classroom_id: classroom_ids) }
 end

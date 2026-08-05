@@ -313,11 +313,12 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #fetch_students_by_classroom' do
-    before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    end
-
     let(:classroom) { create(:classroom) }
+
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:accessible_classrooms).and_return([classroom])
+    end
 
     it 'returns only students that have a plan and are enrolled in the classroom' do
       plan = create(:individualized_educational_plan)
@@ -352,6 +353,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
 
       expect(JSON.parse(response.body).map { |s| s['name'] }).to eq(%w[Ana Zilda])
+    end
+
+    it 'returns an empty list for a classroom the user cannot access' do
+      other_classroom = create(:classroom)
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, other_classroom)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: other_classroom.id, format: :json }
+
+      expect(JSON.parse(response.body)).to eq([])
     end
 
     it 'returns an empty list when no classroom is given' do
@@ -1453,6 +1464,18 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       get :show, params: { locale: 'pt-BR', id: plan.id }
 
       expect(response).to redirect_to(individualized_educational_plan_version_path(plan, frozen))
+    end
+
+    # O congelamento também vale no PDF: sem isto, imprimir levaria ao plano vivo (com o conteúdo
+    # que a turma nova lançou depois).
+    it 'redirects show.pdf to the frozen version pdf' do
+      transferred = create(:student)
+      plan = plan_for(transferred)
+      frozen = author_version(plan, classroom_a, published_at: 2.months.ago)
+
+      get :show, params: { locale: 'pt-BR', id: plan.id, format: :pdf }
+
+      expect(response).to redirect_to(individualized_educational_plan_version_path(plan, frozen, format: :pdf))
     end
 
     # Aluno cursando duas turmas acessíveis ao mesmo tempo. O contexto
