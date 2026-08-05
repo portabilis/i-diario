@@ -299,6 +299,17 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
+
+    it 'does not destroy a plan the user can no longer edit (visible only by authorship)' do
+      allow(controller).to receive(:plan_editable?).and_return(false)
+      plan = create(:individualized_educational_plan)
+
+      expect {
+        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+      }.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to redirect_to(individualized_educational_plan_path(plan))
+    end
   end
 
   describe 'GET #fetch_students_by_classroom' do
@@ -700,6 +711,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     before do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
@@ -881,6 +893,8 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       # que passa por plan_with_components → accessible_plans.
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
       allow(controller).to receive(:plan_editable?).and_return(true)
+      # Aluno permitido: a fronteira server-side do create é exercida em teste próprio.
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
     end
 
     let(:valid_params) do
@@ -943,6 +957,20 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       }
 
       expect(IndividualizedEducationalPlan.last.iep_review_dates.map(&:review_date)).to eq([Date.current + 30])
+    end
+
+    it 'rejects a student not enrolled in the profile classroom on the elaboration date' do
+      allow(controller).to receive(:student_permitted_for_creation?).and_call_original
+
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1', individualized_educational_plan: valid_params
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to render_template(:new)
+      expect(assigns(:individualized_educational_plan).errors[:student_id])
+        .to include(I18n.t('individualized_educational_plans.create.student_not_permitted'))
     end
 
     it 'assigns the multi-select options' do
@@ -1183,6 +1211,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
       allow(controller).to receive(:plan_editable?).and_return(true)
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
     end
 
     it 'publishes an active version when updating with a version name' do
@@ -1200,6 +1229,19 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(version.published_by).to eq(user)
       expect(version.content['characterization']['characterization']).to eq('Atualizado')
       expect(plan.finalized?).to eq(true)
+    end
+
+    # Escola que recebeu o aluno não pode ser travada por um elaborated_at readonly (de outra escola).
+    it 'does not revalidate the school-calendar day on update when the elaboration date is unchanged' do
+      plan = create(:individualized_educational_plan)
+      expect(controller).not_to receive(:elaboration_date_calendar_error)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { characterization: 'Atualizado' }
+      }
+
+      expect(plan.reload.active_version.name).to eq('Versão 1')
     end
 
     it 'publishes the first version right on creation' do

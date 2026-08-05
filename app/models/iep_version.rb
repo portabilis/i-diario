@@ -6,6 +6,9 @@ class IepVersion < ApplicationRecord
 
   validates :name, :published_at, presence: true
   validates :name, length: { minimum: 3 }, allow_blank: true
+  # Autoria obrigatória: a visibilidade e o congelamento do PEI dependem da turma que publicou a
+  # versão. on: :create porque o classroom_id é definido no publish e nunca muda depois.
+  validates :classroom_id, presence: true, on: :create
 
   scope :recent_first, -> { order(published_at: :desc) }
   scope :current, -> { where(active: true) }   # versão vigente ("Ativo")

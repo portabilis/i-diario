@@ -163,6 +163,13 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
+    unless student_permitted_for_creation?
+      @individualized_educational_plan.errors.add(
+        :student_id, t('individualized_educational_plans.create.student_not_permitted')
+      )
+      return render_form(:new)
+    end
+
     if save_and_publish
       respond_after_save
     else
@@ -207,6 +214,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
+    return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
+
     @individualized_educational_plan.destroy
 
     respond_with @individualized_educational_plan, location: individualized_educational_plans_path
@@ -222,12 +231,17 @@ class IndividualizedEducationalPlansController < ApplicationController
       return false
     end
 
-    calendar_error = elaboration_date_calendar_error(
-      current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at
-    )
-    if calendar_error
-      @individualized_educational_plan.errors.add(:elaborated_at, calendar_error)
-      return false
+    # Só valida o dia letivo quando a data de elaboração é definida/alterada. No update ela é
+    # readonly e não vem no submit do professor, então revalidar o valor armazenado (contra o
+    # calendário da turma atual, possivelmente outra escola) trancaria a escola que recebeu o aluno.
+    if @individualized_educational_plan.new_record? || @individualized_educational_plan.elaborated_at_changed?
+      calendar_error = elaboration_date_calendar_error(
+        current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at
+      )
+      if calendar_error
+        @individualized_educational_plan.errors.add(:elaborated_at, calendar_error)
+        return false
+      end
     end
 
     # Busca externa (i-Educar, até 240s) fora da transação: dentro dela prenderia a conexão presa.
@@ -397,6 +411,11 @@ class IndividualizedEducationalPlansController < ApplicationController
     return Student.where(id: @individualized_educational_plan.student_id) if @individualized_educational_plan.persisted?
 
     permitted_students(@individualized_educational_plan.elaborated_at || Date.current)
+  end
+
+  def student_permitted_for_creation?
+    permitted_students(@individualized_educational_plan.elaborated_at || Date.current)
+      .exists?(id: @individualized_educational_plan.student_id)
   end
 
   # Alunos que o usuário pode selecionar ao criar um PEI: só os que estão CURSANDO a turma do PERFIL

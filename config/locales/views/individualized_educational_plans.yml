@@ -36,6 +36,8 @@ pt-BR:
       success: "Versão do Plano Educacional Individualizado publicada com sucesso."
       already_published: "Esta versão já foi publicada. Atualize a página para ver o histórico."
       version_name_required: "Informe um nome para a versão antes de salvar."
+    create:
+      student_not_permitted: "Selecione um aluno enturmado na turma na data de elaboração informada."
     flash:
       not_found: "Plano Educacional Individualizado não encontrado ou fora do seu acesso."
       medical_report_unavailable: "Não foi possível consultar o laudo no cadastro do aluno no i-Educar. Tente novamente em instantes."
