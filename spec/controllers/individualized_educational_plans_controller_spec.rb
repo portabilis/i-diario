@@ -425,10 +425,10 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
                                             joined_at: '2026-02-01', left_at: '2026-08-04')
 
       get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: '2026-08-04', format: :json }
-      expect(JSON.parse(response.body)['students'].map { |s| s['id'] }).not_to include(transferred.id)
+      expect(JSON.parse(response.body)['students']).to be_empty
 
       get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: '2026-08-03', format: :json }
-      expect(JSON.parse(response.body)['students'].map { |s| s['id'] }).to include(transferred.id)
+      expect(JSON.parse(response.body)['students'].map { |s| s['id'] }).to contain_exactly(transferred.id)
     end
 
     it 'reports calendar_error when the date is not a valid school calendar day' do
@@ -903,10 +903,6 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     let(:valid_params) do
       {
         student_id: create(:student).id,
-        unity_id: create(:unity).id,
-        classroom_id: create(:classroom).id,
-        teacher_id: create(:teacher).id,
-        year: Date.current.year,
         elaborated_at: Date.current,
         characterization: 'Perfil do estudante',
         iep_review_dates_attributes: { '0' => { review_date: Date.current + 30 } }
@@ -1262,10 +1258,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       post :create, params: {
         locale: 'pt-BR', version_name: 'Primeira versão',
-        individualized_educational_plan: {
-          student_id: student.id, unity_id: create(:unity).id, classroom_id: create(:classroom).id,
-          teacher_id: create(:teacher).id, year: Date.current.year, elaborated_at: Date.current
-        }
+        individualized_educational_plan: { student_id: student.id, elaborated_at: Date.current }
       }
 
       plan = IndividualizedEducationalPlan.last
@@ -1380,12 +1373,12 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       # só passou pela turma do perfil (enturmação fechada) sem publicar nada → NÃO visível
       passed = create(:student)
       enroll(passed, classroom_a, left_at: 1.month.ago.to_date.to_s)
-      passed_plan = plan_for(passed)
+      plan_for(passed)
 
       accessible = controller.send(:accessible_plans)
 
-      expect(accessible).to include(attending_plan, authored_plan)
-      expect(accessible).not_to include(passed_plan)
+      # contain_exactly já garante que o plano de quem só passou (passed) fica de fora
+      expect(accessible).to contain_exactly(attending_plan, authored_plan)
     end
 
     it 'excludes a plan the classroom only saw the student pass through (never authored)' do
