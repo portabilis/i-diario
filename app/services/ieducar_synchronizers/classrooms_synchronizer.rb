@@ -62,25 +62,31 @@ class ClassroomsSynchronizer < BaseSynchronizer
         preload_classrooms_grades(classroom.id)
 
         grades_ids = []
+        exam_rule_changed = false
 
-        classroom_record.series_regras.each do |grade_exam_rule|
-          grade = grade(grade_exam_rule.serie_id)
-          exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
+        # Transação: se a limpeza de pareceres órfãos falhar, o reapontamento (exam_rule_id)
+        # volta atrás junto, e o retry do Sidekiq detecta a mudança de novo (idempotência).
+        ActiveRecord::Base.transaction do
+          classroom_record.series_regras.each do |grade_exam_rule|
+            grade = grade(grade_exam_rule.serie_id)
+            exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
 
-          next if grade.blank? || exam_rule.blank?
+            next if grade.blank? || exam_rule.blank?
 
-          grades_ids << grade.id
+            grades_ids << grade.id
 
-          (
-            classrooms_grade(classroom.id, grade.id) ||
-            ClassroomsGrade.new(classroom_id: classroom.id, grade_id: grade.id)
-          ).tap do |classroom_grade|
-            classroom_grade.exam_rule_id = exam_rule.id
-            classroom_grade.save!
+            exam_rule_changed ||= upsert_classrooms_grade(classroom.id, grade.id, exam_rule.id)
+          end
+
+          destroy_old_grades(grades_ids, classroom.classrooms_grades, classroom_record.updated_at)
+
+          # Só reconcilia quando uma regra já existente mudou (aí pode ter sobrado parecer
+          # órfão). Turma sendo excluída (soft delete, reversível) fica de fora — não vale
+          # hard-deletar parecer dela.
+          if exam_rule_changed && classroom_record.deleted_at.blank?
+            destroy_orphan_descriptive_exams(classroom)
           end
         end
-
-        destroy_old_grades(grades_ids, classroom.classrooms_grades, classroom_record.updated_at)
 
         update_label(classroom.id, new_name) if old_name != new_name
 
@@ -95,6 +101,59 @@ class ClassroomsSynchronizer < BaseSynchronizer
     return unless should_destroy_old_grades?(classroom_updated_at)
 
     classroom_grades.where.not(grade_id: grades_ids).destroy_all
+  end
+
+  # Cria/atualiza o ClassroomsGrade da série e devolve true se uma série JÁ EXISTENTE
+  # trocou de regra (série nova retorna false — não tinha regra anterior).
+  def upsert_classrooms_grade(classroom_id, grade_id, exam_rule_id)
+    classrooms_grade = classrooms_grade(classroom_id, grade_id) ||
+                       ClassroomsGrade.new(classroom_id: classroom_id, grade_id: grade_id)
+    classrooms_grade.exam_rule_id = exam_rule_id
+    rule_changed = classrooms_grade.persisted? && classrooms_grade.exam_rule_id_changed?
+    classrooms_grade.save!
+    rule_changed
+  end
+
+  # Exclui os pareceres órfãos da turma: opinion_type que não bate com nenhuma regra atual
+  # (a tela não lista alunos). Hard delete, mas recuperável via `audits` (o texto é auditado)
+  # — por isso logamos cada exclusão.
+  def destroy_orphan_descriptive_exams(classroom)
+    valid_opinion_types = descriptive_opinion_types(classroom)
+    # Sem regra que use parecer, where.not(opinion_type: []) apagaria TODOS os pareceres da
+    # turma — então não fazemos nada.
+    return if valid_opinion_types.blank?
+
+    Audited.audit_class.as_user('descriptive_exams_opinion_type_sync') do
+      destroyed = DescriptiveExam.where(classroom_id: classroom.id)
+                                 .where.not(opinion_type: valid_opinion_types)
+                                 .destroy_all
+
+      log_orphan_destruction(classroom, destroyed, valid_opinion_types) if destroyed.any?
+    end
+  end
+
+  # Tipos de parecer válidos hoje na turma: os das regras que permitem parecer
+  # (allow_descriptive_exam? exclui DONT_USE/nil) + os das diferenciadas (inclusivas).
+  # Superconjunto conservador da régua do envio (DescriptiveExamPoster), que decide por aluno.
+  def descriptive_opinion_types(classroom)
+    ClassroomsGrade.where(classroom_id: classroom.id)
+                   .includes(exam_rule: :differentiated_exam_rule)
+                   .flat_map do |classroom_grade|
+                     exam_rule = classroom_grade.exam_rule
+                     [exam_rule, exam_rule&.differentiated_exam_rule]
+                       .select { |rule| rule&.allow_descriptive_exam? }
+                       .map(&:opinion_type)
+                   end
+                   .uniq
+  end
+
+  def log_orphan_destruction(classroom, destroyed, valid_opinion_types)
+    Rails.logger.warn(
+      '[descriptive_exams_orphan_sync] ' \
+      "entity_id=#{entity_id} classroom_id=#{classroom.id} api_code=#{classroom.api_code} " \
+      "destroyed=#{destroyed.size} removed_opinion_types=#{destroyed.map(&:opinion_type).uniq} " \
+      "valid_opinion_types=#{valid_opinion_types}"
+    )
   end
 
   # So deve destruir grades antigas se:
