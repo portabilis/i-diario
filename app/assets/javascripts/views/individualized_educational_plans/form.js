@@ -129,14 +129,18 @@ $(function() {
     });
   }
 
-  function medicalReportsErrorMessage(jqXHR, textStatus) {
+  function sessionExpiredMessage(jqXHR, textStatus) {
     var status = jqXHR && jqXHR.status;
 
     if (status === 401 || status === 403 || textStatus === 'parsererror') {
       return 'Sua sessão expirou ou você não tem acesso a este plano. Recarregue a página e tente novamente.';
     }
 
-    return 'Não foi possível consultar os laudos no i-Educar.';
+    return null;
+  }
+
+  function medicalReportsErrorMessage(jqXHR, textStatus) {
+    return sessionExpiredMessage(jqXHR, textStatus) || 'Não foi possível consultar os laudos no i-Educar.';
   }
 
   // ---- Envio de laudo (seção 1): grava direto no cadastro do aluno no i-Educar ----
@@ -148,8 +152,11 @@ $(function() {
   var $uploadFile = $('#iep-medical-report-file');
   var $pendingReports = $('#iep-medical-reports-pending');
   var $sendModal = $('#iep-medical-report-send-modal');
+  var $sendConfirm = $('#iep-medical-report-send-confirm');
+  var sendButtonHtml = $sendButton.html();
   var pendingUploads = [];
   var pendingKey = 0;
+  var uploading = false;
 
   // Espelho das regras do endpoint do i-Educar (tipo/tamanho) para feedback imediato — o
   // servidor revalida antes de enviar.
@@ -211,13 +218,29 @@ $(function() {
     $addButton.prop('disabled', sending);
     $pendingReports.find('button').prop('disabled', sending);
     $('.pei-wizard-finish').prop('disabled', sending);
+    $sendConfirm.prop('disabled', sending);
     if (sending) {
       $sendButton.prop('disabled', true);
-      $sendButton.data('original-html', $sendButton.html());
       $sendButton.text($sendButton.data('sending-text'));
     } else {
-      $sendButton.html($sendButton.data('original-html'));
+      $sendButton.html(sendButtonHtml);
       refreshSendButton();
+    }
+  }
+
+  function clearPendingUploads() {
+    if (pendingUploads.length === 0) { return false; }
+
+    pendingUploads = [];
+    $pendingReports.find('tr[data-pending-key]').remove();
+    refreshSendButton();
+
+    return true;
+  }
+
+  function discardPendingUploadsOnStudentChange() {
+    if (clearPendingUploads()) {
+      showMedicalReportError('O laudo anexado foi descartado porque o aluno mudou. Anexe novamente para enviar.');
     }
   }
 
@@ -257,7 +280,9 @@ $(function() {
       var data = $studentSelect.select2('data');
 
       return (data && (data.text || data.name)) || '';
-    } catch (_error) {
+    } catch (error) {
+      if (window.console) { console.error('PEI: não foi possível ler o aluno selecionado', error); }
+
       return '';
     }
   }
@@ -270,15 +295,15 @@ $(function() {
       return;
     }
 
-    var studentName = selectedStudentName();
-    var $studentLine = $sendModal.find('.iep-medical-report-send-student');
-    $studentLine.toggle(!!studentName);
-    $studentLine.find('span').text(studentName);
+    $sendModal.find('.iep-medical-report-send-student').show()
+      .find('span').text(selectedStudentName() || 'não foi possível identificar — confira o aluno na seção 1');
 
     $sendModal.modal('show');
   });
 
-  $('#iep-medical-report-send-confirm').on('click', function() {
+  $sendConfirm.on('click', function() {
+    if (uploading) { return; }
+
     $sendModal.modal('hide');
 
     var identity = medicalReportIdentity($studentSelect.val());
@@ -287,6 +312,7 @@ $(function() {
     clearMedicalReportError();
     $pendingReports.find('.iep-medical-report-row-error').hide().empty();
 
+    uploading = true;
     setUploadSending(true);
     sendNextPending(identity, false);
   });
@@ -312,14 +338,16 @@ $(function() {
       success: function(data) {
         pendingUploads.shift();
         $pendingReports.find('tr[data-pending-key="' + item.key + '"]').remove();
-        flashMessages.success((data && data.message) || 'Laudo enviado para o cadastro do aluno no i-Educar.');
+        flashMessages.success(_.escape((data && data.message) || 'Laudo enviado para o cadastro do aluno no i-Educar.'));
         sendNextPending(identity, true);
       },
-      error: function(jqXHR) {
-        var message = jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message;
+      error: function(jqXHR, textStatus) {
+        var message = (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message) ||
+                      sessionExpiredMessage(jqXHR, textStatus) ||
+                      'Não foi possível enviar o laudo ao i-Educar.';
 
         $pendingReports.find('tr[data-pending-key="' + item.key + '"] .iep-medical-report-row-error')
-          .text(message || 'Não foi possível enviar o laudo ao i-Educar.')
+          .text(message)
           .show();
         finishSending(identity, sentAny);
       }
@@ -327,6 +355,7 @@ $(function() {
   }
 
   function finishSending(identity, sentAny) {
+    uploading = false;
     setUploadSending(false);
 
     if (!sentAny) { return; }
@@ -416,6 +445,7 @@ $(function() {
 
   $studentSelect.on('change', function() {
     clearMedicalReportError();
+    discardPendingUploadsOnStudentChange();
     if (studentFetchEnabled) { fetchStudentData($(this).val()); }
   });
 
@@ -457,6 +487,7 @@ $(function() {
       theme: 'classic'
     });
     $studentSelect.select2('val', '');
+    discardPendingUploadsOnStudentChange();
     fetchStudentData('');
   }
 

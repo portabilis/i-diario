@@ -517,7 +517,10 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def student_query_not_found(action)
-    context = { action: action, student_id: params[:student_id], plan_id: params[:plan_id] }
+    context = {
+      action: action, student_id: params[:student_id], plan_id: params[:plan_id],
+      elaborated_at: params[:elaborated_at]
+    }
     Rails.logger.error("PEI: #{action} não encontrou aluno/plano — #{context}")
     Honeybadger.notify("PEI: consulta de aluno não encontrada", context: context)
     head :not_found

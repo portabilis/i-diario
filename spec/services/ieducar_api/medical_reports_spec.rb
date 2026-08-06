@@ -141,22 +141,32 @@ RSpec.describe IeducarApi::MedicalReports, type: :service do
     end
 
     context 'when the i-Educar fails to persist the file (500)' do
-      it 'relays the i-Educar message and notifies Honeybadger' do
+      it 'shows the generic message and keeps the remote text in the Honeybadger context' do
         allow(RestClient::Request).to receive(:execute).and_raise(
-          http_error(500, '{"message":"Não foi possível salvar o laudo para o aluno informado."}')
+          http_error(500, '{"message":"SQLSTATE[HY000] em /var/www/app/Services/FileService.php:41"}')
         )
-        expect(Honeybadger).to receive(:notify)
+        expect(Honeybadger).to receive(:notify).with(
+          instance_of(RestClient::ExceptionWithResponse),
+          hash_including(
+            context: hash_including(
+              remote_message: 'SQLSTATE[HY000] em /var/www/app/Services/FileService.php:41'
+            )
+          )
+        )
 
         result = service.upload(student_api_code: '123', file: file)
 
         expect(result.success?).to eq(false)
-        expect(result.message).to eq('Não foi possível salvar o laudo para o aluno informado.')
+        expect(result.message).to eq('Não foi possível enviar o laudo ao i-Educar.')
         expect(result.http_status).to eq(:bad_gateway)
       end
 
-      it 'falls back to the local failure message when the body is not JSON' do
+      it 'does not send the file name to Honeybadger (laudo file names carry student data)' do
         allow(RestClient::Request).to receive(:execute).and_raise(http_error(500, '<html>oops</html>'))
-        allow(Honeybadger).to receive(:notify)
+        expect(Honeybadger).to receive(:notify) do |_error, options|
+          expect(options[:context]).to include(file_extension: '.pdf', student_api_code: '123')
+          expect(options[:context].keys).not_to include(:filename)
+        end
 
         result = service.upload(student_api_code: '123', file: file)
 
@@ -179,6 +189,29 @@ RSpec.describe IeducarApi::MedicalReports, type: :service do
 
       it 'fails with the connection message when the host is unreachable' do
         allow(RestClient::Request).to receive(:execute).and_raise(SocketError.new('getaddrinfo failed'))
+        allow(Honeybadger).to receive(:notify)
+
+        result = service.upload(student_api_code: '123', file: file)
+
+        expect(result.success?).to eq(false)
+        expect(result.message).to eq('Não foi possível conectar ao i-Educar. Tente novamente em instantes.')
+      end
+
+      it 'fails with the connection message when the i-Educar certificate is not valid' do
+        allow(RestClient::Request).to receive(:execute)
+          .and_raise(RestClient::SSLCertificateNotVerified.new('certificate verify failed'))
+        allow(Honeybadger).to receive(:notify)
+
+        result = service.upload(student_api_code: '123', file: file)
+
+        expect(result.success?).to eq(false)
+        expect(result.message).to eq('Não foi possível conectar ao i-Educar. Tente novamente em instantes.')
+        expect(result.http_status).to eq(:bad_gateway)
+      end
+
+      it 'fails with the connection message on a generic TLS failure' do
+        allow(RestClient::Request).to receive(:execute)
+          .and_raise(OpenSSL::SSL::SSLError.new('wrong version number'))
         allow(Honeybadger).to receive(:notify)
 
         result = service.upload(student_api_code: '123', file: file)

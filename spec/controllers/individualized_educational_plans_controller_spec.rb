@@ -667,10 +667,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       end
 
       it 'does not upload when the student has no i-Educar api_code' do
-        student = create(:student)
-        # O model valida presença de api_code hoje; o guard protege registros legados criados
-        # antes da validação — update_column simula esse dado sem burlar o resto do setup.
-        student.update_column(:api_code, '')
+        student = create(:student, api: false, api_code: '')
         enroll(student, classroom)
         expect(IeducarApi::MedicalReports).not_to receive(:upload)
 

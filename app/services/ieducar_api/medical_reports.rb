@@ -34,6 +34,7 @@ module IeducarApi
 
       Result.new(true, message_from(response.body) || t(:success), :ok)
     rescue RestClient::Exceptions::Timeout, RestClient::ServerBrokeConnection,
+           RestClient::SSLCertificateNotVerified, OpenSSL::SSL::SSLError,
            SocketError, SystemCallError => e
       log_and_notify(e, student_api_code, file)
       failure(t(:network_error), :bad_gateway)
@@ -79,19 +80,19 @@ module IeducarApi
 
       case status
       when 422
-        log_failure(error, student_api_code, file)
+        log_failure(error, student_api_code, file, remote_message)
         failure(remote_message || t(:failed), :unprocessable_entity)
       when 401
         # Token divergente entre os dois sistemas.
-        log_and_notify(error, student_api_code, file)
+        log_and_notify(error, student_api_code, file, remote_message)
         failure(t(:unauthorized), :bad_gateway)
       when 404
         # i-Educar do município ainda sem o recurso de upload (deploy pendente).
-        log_and_notify(error, student_api_code, file)
+        log_and_notify(error, student_api_code, file, remote_message)
         failure(t(:endpoint_missing), :bad_gateway)
       else
-        log_and_notify(error, student_api_code, file)
-        failure(remote_message || t(:failed), :bad_gateway)
+        log_and_notify(error, student_api_code, file, remote_message)
+        failure(t(:failed), :bad_gateway)
       end
     end
 
@@ -107,21 +108,23 @@ module IeducarApi
       Result.new(false, message, http_status)
     end
 
-    def log_failure(error, student_api_code, file)
+    def log_failure(error, student_api_code, file, remote_message = nil)
       Rails.logger.error(
         "PEI laudo - falha no envio ao i-Educar (aluno #{student_api_code}, " \
-        "arquivo #{file.try(:original_filename)}): #{error.class} - #{error.message}"
+        "arquivo #{file.try(:original_filename)}): #{error.class} - #{error.message}" \
+        "#{" - resposta: #{remote_message}" if remote_message.present?}"
       )
     end
 
-    def log_and_notify(error, student_api_code, file)
-      log_failure(error, student_api_code, file)
+    def log_and_notify(error, student_api_code, file, remote_message = nil)
+      log_failure(error, student_api_code, file, remote_message)
       Honeybadger.notify(
         error,
         context: {
           student_api_code: student_api_code,
-          filename: file.try(:original_filename),
+          file_extension: File.extname(file.try(:original_filename).to_s).presence,
           file_size: file.try(:size),
+          remote_message: remote_message,
           url: "#{configuration.url}#{UPLOAD_PATH}"
         }
       )
