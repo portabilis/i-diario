@@ -1,11 +1,12 @@
-
-desc "Refreshes materialized views used in the pedagogical tracking dashboard"
+desc 'Enfileira a atualização das views materializadas do acompanhamento pedagógico'
 task refresh_pedagogical_tracking_views: :environment do
-  Entity.active.each do |entity|
-    entity.using_connection do
-      connection = ActiveRecord::Base.connection
-      connection.execute('REFRESH MATERIALIZED VIEW mvw_frequency_by_school_classroom_teachers')
-      connection.execute('REFRESH MATERIALIZED VIEW mvw_content_record_by_school_classroom_teachers')
-    end
-  end
+  # A atualização roda em jobs encadeados (um por entidade) para que a falha em
+  # uma base não impeça a atualização das demais.
+  entity_ids = Entity.active.order(:id).pluck(:id)
+
+  next if entity_ids.empty?
+
+  first_entity_id, *remaining_entity_ids = entity_ids
+
+  RefreshPedagogicalTrackingViewsWorker.perform_async(first_entity_id, remaining_entity_ids)
 end
