@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   localized do
     devise_for :users, skip: :omniauth_callbacks, controllers: {
       sessions: 'users/sessions',
+      omniauth_callbacks: "users/omniauth_callbacks",
       passwords: 'users/passwords',
       unlocks: 'users/unlocks'
     }
