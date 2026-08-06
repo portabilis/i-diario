@@ -206,6 +206,7 @@ Rails.application.routes.draw do
         get :student_data
         get :medical_reports
         get :open_medical_report
+        post :upload_medical_report
       end
 
       resources :versions, only: [:index, :show], controller: 'individualized_educational_plans/versions'
