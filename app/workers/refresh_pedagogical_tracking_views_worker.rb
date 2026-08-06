@@ -21,10 +21,10 @@ class RefreshPedagogicalTrackingViewsWorker
     enqueue_next(remaining_entity_ids)
   end
 
-  VIEWS = %w[
-    mvw_frequency_by_school_classroom_teachers
-    mvw_content_record_by_school_classroom_teachers
-  ].freeze
+  VIEWS = [
+    MvwFrequencyBySchoolClassroomTeacher,
+    MvwContentRecordBySchoolClassroomTeacher
+  ].map(&:table_name).freeze
 
   def self.enqueue_next(remaining_entity_ids)
     remaining = Array(remaining_entity_ids)
@@ -63,12 +63,33 @@ class RefreshPedagogicalTrackingViewsWorker
 
   def refresh(entity, view)
     started_at = Time.current
+    concurrently = populated?(view)
 
-    ActiveRecord::Base.connection.execute("REFRESH MATERIALIZED VIEW #{view}")
+    ActiveRecord::Base.connection.execute(refresh_statement(view, concurrently))
+
+    MaterializedViewRefresh.register!(view)
 
     Rails.logger.info(
       "[refresh_pedagogical_tracking] entity=#{entity.name} view=#{view} " \
+      "modo=#{concurrently ? 'concurrently' : 'exclusivo'} " \
       "duracao=#{(Time.current - started_at).round(1)}s"
+    )
+  end
+
+  # CONCURRENTLY não bloqueia as leituras do dashboard durante a atualização,
+  # mas o Postgres o recusa em view ainda não populada (ex.: primeira carga de
+  # uma base nova) — nesse caso usa o refresh exclusivo.
+  def refresh_statement(view, concurrently)
+    "REFRESH MATERIALIZED VIEW #{concurrently ? 'CONCURRENTLY ' : ''}#{view}"
+  end
+
+  def populated?(view)
+    connection = ActiveRecord::Base.connection
+
+    ActiveRecord::Type::Boolean.new.cast(
+      connection.select_value(
+        "SELECT relispopulated FROM pg_class WHERE relname = #{connection.quote(view)}"
+      )
     )
   end
 end

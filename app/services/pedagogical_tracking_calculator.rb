@@ -60,8 +60,9 @@ class PedagogicalTrackingCalculator
   end
 
   def updated_at_data
-    last_refresh = MvwFrequencyBySchoolClassroomTeacher.first&.last_refresh ||
-                   MvwContentRecordBySchoolClassroomTeacher.first&.last_refresh
+    last_refresh =
+      MaterializedViewRefresh.refreshed_at_for(MvwFrequencyBySchoolClassroomTeacher.table_name) ||
+      MaterializedViewRefresh.refreshed_at_for(MvwContentRecordBySchoolClassroomTeacher.table_name)
 
     return unless last_refresh
 
@@ -111,7 +112,6 @@ class PedagogicalTrackingCalculator
     records = MvwFrequencyBySchoolClassroomTeacher
                 .by_unity_id(unity_ids)
                 .by_date_between(start_date, end_date)
-                .distinct
                 .pluck(:unity_id, :classroom_id, :teacher_id, :frequency_date)
 
     frequencies_hash = Hash.new { |h, k| h[k] = [] }
@@ -127,7 +127,6 @@ class PedagogicalTrackingCalculator
     records = MvwContentRecordBySchoolClassroomTeacher
                 .by_unity_id(unity_ids)
                 .by_date_between(start_date, end_date)
-                .distinct
                 .pluck(:unity_id, :classroom_id, :teacher_id, :record_date)
 
     contents_hash = Hash.new { |h, k| h[k] = [] }
