@@ -16,21 +16,28 @@ RSpec.describe RefreshPedagogicalTrackingViewsWorker, type: :worker do
   end
 
   describe '#perform' do
-    it 'refreshes the materialized views' do
+    it 'refreshes the materialized views without duplicated rows' do
+      # O REFRESH CONCURRENTLY não roda dentro da transação do teste e não
+      # enxergaria dados não commitados — o modo exclusivo cobre o caminho real
+      # de execução do SQL contra o banco.
+      allow(subject).to receive(:populated?).and_return(false)
+
       teacher = create(:teacher)
       classroom = create(:classroom, :with_classroom_semester_steps)
-      discipline = create(:discipline)
+      disciplines = create_list(:discipline, 2)
 
-      create(
-        :teacher_discipline_classroom,
-        teacher: teacher,
-        classroom: classroom,
-        discipline: discipline
-      )
+      disciplines.each do |discipline|
+        create(
+          :teacher_discipline_classroom,
+          teacher: teacher,
+          classroom: classroom,
+          discipline: discipline
+        )
+      end
       frequency = create(
         :daily_frequency,
         classroom: classroom,
-        discipline: discipline,
+        discipline: disciplines.first,
         teacher: teacher
       )
       create(:unity_school_day, unity: classroom.unity, school_day: frequency.frequency_date)
@@ -39,11 +46,21 @@ RSpec.describe RefreshPedagogicalTrackingViewsWorker, type: :worker do
 
       subject.perform(entity.id, [])
 
+      # Mesmo com dois vínculos de disciplina do professor na turma, o fato
+      # (data, escola, turma, professor) aparece uma única vez na view.
       expect(
         MvwFrequencyBySchoolClassroomTeacher
           .pluck(:unity_id, :classroom_id, :teacher_id, :frequency_date)
-          .uniq
       ).to eq([[classroom.unity_id, classroom.id, teacher.id, frequency.frequency_date]])
+    end
+
+    it 'registers the refresh timestamp of each view' do
+      allow(subject).to receive(:populated?).and_return(false)
+
+      subject.perform(entity.id, [])
+
+      expect(MaterializedViewRefresh.pluck(:view_name)).to match_array(described_class::VIEWS)
+      expect(MaterializedViewRefresh.pluck(:refreshed_at)).to all(be_present)
     end
 
     it 'enqueues the next entity of the chain with the remaining ones' do
@@ -71,6 +88,29 @@ RSpec.describe RefreshPedagogicalTrackingViewsWorker, type: :worker do
       }.to raise_error(ActiveRecord::StatementInvalid)
 
       expect(described_class.jobs).to be_empty
+    end
+  end
+
+  describe '#refresh_statement' do
+    it 'uses CONCURRENTLY when the view is populated' do
+      expect(subject.send(:refresh_statement, 'mvw_test', true))
+        .to eq('REFRESH MATERIALIZED VIEW CONCURRENTLY mvw_test')
+    end
+
+    it 'uses the exclusive mode when the view was never populated' do
+      expect(subject.send(:refresh_statement, 'mvw_test', false))
+        .to eq('REFRESH MATERIALIZED VIEW mvw_test')
+    end
+  end
+
+  describe '#populated?' do
+    it 'returns true for the materialized views of the test database' do
+      # As views são criadas populadas pela migration (WITH DATA).
+      expect(subject.send(:populated?, MvwFrequencyBySchoolClassroomTeacher.table_name)).to eq(true)
+    end
+
+    it 'returns nil for an unknown relation' do
+      expect(subject.send(:populated?, 'mvw_unknown_view')).to be_nil
     end
   end
 
