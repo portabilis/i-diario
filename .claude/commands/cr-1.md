@@ -1,5 +1,5 @@
 ---
-description: Code review baseline — roda Skill code-review xhigh e salva em ./tmp/cr_1_<PR>.md
+description: Code review baseline — roda Skill code-review high e salva em ./tmp/cr_1_<PR>.md
 argument-hint: <PR-number>
 ---
 
@@ -28,7 +28,7 @@ Ao terminar, confirme que branch e SHA são os que você registrou. Se algum mud
 rm -f "./tmp/cr_1_$PR_NUM.md"
 ```
 
-Rode `/code-review xhigh $PR_NUM` e salve o output em `./tmp/cr_1_$PR_NUM.md`. **Sobrescreva o arquivo por completo** (Write tool / `>`, nunca append nem Edit sobre conteúdo antigo). O `SHA` no header DEVE ser o head atual do PR (`gh pr view $PR_NUM --json headRefOid -q .headRefOid`).
+Rode `/code-review high $PR_NUM` e salve o output em `./tmp/cr_1_$PR_NUM.md`. **Sobrescreva o arquivo por completo** (Write tool / `>`, nunca append nem Edit sobre conteúdo antigo). O `SHA` no header DEVE ser o head atual do PR (`gh pr view $PR_NUM --json headRefOid -q .headRefOid`).
 
 **Formato do arquivo salvo** (header + output literal da skill):
 
@@ -39,7 +39,7 @@ Rode `/code-review xhigh $PR_NUM` e salve o output em `./tmp/cr_1_$PR_NUM.md`. *
 **SHA:** <PR head SHA>
 **Branch:** <PR head branch>
 **Timestamp:** <UTC ISO 8601>
-**Skill:** /code-review xhigh (5 agentes Sonnet em paralelo: CLAUDE.md compliance, shallow bug scan, git blame/history, PRs anteriores, code comments)
+**Skill:** /code-review high (5 agentes Sonnet em paralelo: CLAUDE.md compliance, shallow bug scan, git blame/history, PRs anteriores, code comments)
 
 ---
 
