@@ -34,7 +34,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     @individualized_educational_plans = fetch_plans
     index_classrooms = IndividualizedEducationalPlanIndexClassroomsQuery.new(
-      @individualized_educational_plans, accessible_classrooms.map(&:id)
+      @individualized_educational_plans, accessible_classroom_ids
     )
     @display_classrooms = index_classrooms.display_classrooms
     @editable_student_ids = index_classrooms.editable_student_ids
@@ -49,7 +49,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     # .to_json (String) evita o wrapping com raiz do active_model_serializers no render json:.
     return render(json: [].to_json) if params[:classroom_id].blank?
     # Só turma do usuário: sem isto, um classroom_id forjado listaria alunos de turma alheia.
-    return render(json: [].to_json) unless accessible_classrooms.map(&:id).include?(params[:classroom_id].to_i)
+    return render(json: [].to_json) unless accessible_classroom_ids.include?(params[:classroom_id].to_i)
 
     student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
@@ -321,9 +321,12 @@ class IndividualizedEducationalPlansController < ApplicationController
   def current_classroom_for(plan)
     return current_user_classroom unless plan&.persisted?
 
-    (@current_classroom_for ||= {})[plan.id] ||= begin
+    cache = (@current_classroom_for ||= {})
+    return cache[plan.id] if cache.key?(plan.id)
+
+    cache[plan.id] = begin
       attending_ids = StudentEnrollmentClassroom
-                      .by_classroom(accessible_classrooms.map(&:id))
+                      .by_classroom(accessible_classroom_ids)
                       .attending_on(Date.current)
                       .by_student(plan.student_id)
                       .joins(classrooms_grade: :classroom)

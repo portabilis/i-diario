@@ -9,8 +9,6 @@ class IndividualizedEducationalPlan < ApplicationRecord
   audited
   has_associated_audits
 
-  # O PEI segue o aluno: escola/turma/regente NÃO são propriedade do documento — são derivados
-  # da matrícula atual (na tela/index/snapshot). Só o AEE é escolhido e fica no plano.
   belongs_to :student
   belongs_to :aee_teacher, class_name: 'Teacher'       # opcional
 

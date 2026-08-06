@@ -47,7 +47,7 @@ class IndividualizedEducationalPlanIndexClassroomsQuery
            .order(Arel.sql("CASE WHEN left_at IS NULL OR left_at = '' THEN 0 ELSE 1 END"))
            .pluck('student_enrollments.student_id', 'classrooms.id')
     classrooms = Classroom.where(id: rows.map(&:last).uniq).includes(:unity).index_by(&:id)
-    rows.each_with_object({}) { |(sid, cid), map| map[sid] ||= classrooms[cid] }
+    rows.each_with_object({}) { |(sid, cid), map| map[sid] ||= classrooms[cid] if classrooms[cid] }
   end
 
   # Preenche (em lote, sem N+1) os planos sem enturmação acessível com a turma autora mais recente.

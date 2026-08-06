@@ -87,7 +87,7 @@ class Classroom < ApplicationRecord
   def regent
     return if regent_api_code.blank?
 
-    Teacher.find_by(api_code: regent_api_code)
+    @regent ||= Teacher.find_by(api_code: regent_api_code)
   end
 
   def period_humanized

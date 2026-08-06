@@ -42,10 +42,14 @@ module IndividualizedEducationalPlanScoping
       end
   end
 
+  def accessible_classroom_ids
+    @accessible_classroom_ids ||= accessible_classrooms.map(&:id)
+  end
+
   # Planos que o usuário enxerga, do ANO LETIVO CORRENTE: aluno cursando uma turma dele, OU turma
   # dele que já publicou alguma versão do plano (autoria).
   def accessible_plans
-    ids = accessible_classrooms.map(&:id)
+    ids = accessible_classroom_ids
     base = IndividualizedEducationalPlan.where(year: current_school_year)
 
     base.where(id: IepVersion.by_classroom(ids).select(:individualized_educational_plan_id))
@@ -66,11 +70,14 @@ module IndividualizedEducationalPlanScoping
   # frequência + enturmação aberta — ver attending_on). Transferido/abandono/reclassificado/
   # enturmação fechada → somente leitura.
   def plan_editable?(plan)
-    StudentEnrollmentClassroom
-      .by_classroom(accessible_classrooms.map(&:id))
-      .attending_on(Date.current)
-      .by_student(plan.student_id)
-      .exists?
+    cache = (@plan_editable_cache ||= {})
+    return cache[plan.id] if cache.key?(plan.id)
+
+    cache[plan.id] = StudentEnrollmentClassroom
+                     .by_classroom(accessible_classroom_ids)
+                     .attending_on(Date.current)
+                     .by_student(plan.student_id)
+                     .exists?
   end
 
   # Congelamento por autoria: quem não cursa mais o aluno vê o PEI só até a última versão que uma
@@ -83,7 +90,7 @@ module IndividualizedEducationalPlanScoping
       if plan_editable?(plan)
         nil
       else
-        plan.iep_versions.by_classroom(accessible_classrooms.map(&:id)).maximum(:published_at)
+        plan.iep_versions.by_classroom(accessible_classroom_ids).maximum(:published_at)
       end
   end
 
