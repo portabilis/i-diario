@@ -38,7 +38,7 @@ flowchart TD
 
     subgraph paralelo ["Instâncias Claude limpas — paralelizáveis"]
         direction LR
-        B["/cr-1 &lt;PR&gt;<br/><sub>skill code-review xhigh<br/>fan-out 5 agentes</sub>"] --> B1[("./tmp/cr_1_&lt;PR&gt;.md")]
+        B["/cr-1 &lt;PR&gt;<br/><sub>skill code-review high<br/>fan-out 5 agentes</sub>"] --> B1[("./tmp/cr_1_&lt;PR&gt;.md")]
         C["/cr-2 &lt;PR&gt;<br/><sub>pr-review-toolkit<br/>errors/tests/types/comments</sub>"] --> C1[("./tmp/cr_2_&lt;PR&gt;.md")]
     end
 
@@ -67,7 +67,7 @@ flowchart TD
 
 | Comando | O que faz |
 |---|---|
-| `/cr-1 <PR>` | Invoca `/code-review xhigh <PR>` (built-in do Claude Code, fan-out 5 agentes). Salva output em `./tmp/cr_1_<PR>.md`. |
+| `/cr-1 <PR>` | Invoca `/code-review high <PR>` (built-in do Claude Code, fan-out 5 agentes). Salva output em `./tmp/cr_1_<PR>.md`. |
 | `/cr-2 <PR>` | Invoca `/pr-review-toolkit:review-pr <PR>` (plugin oficial) com aspectos explícitos entre `code`/`tests`/`errors`/`comments`/`types`, conforme o diff. Nunca `all` nem `simplify` (ver [Por que `simplify` fica de fora](#por-que-simplify-fica-de-fora)). Salva output em `./tmp/cr_2_<PR>.md`. |
 | `/cr-consolidate <PR>` | Lê os 2 outputs em `./tmp/`, deduplica por `(file, line, descrição)`, categoriza por severidade (CRITICAL/HIGH/MEDIUM/LOW), posta UM comment consolidado no PR. |
 
@@ -193,11 +193,11 @@ gh pr review 1234 --request @username
 | Level | Comportamento |
 |---|---|
 | `low`/`medium` | Poucos findings, alta confiança |
-| `high`→`max` | Cobertura mais ampla, pode incluir findings menos certeiros |
-| **`xhigh`** | Nível que usamos no `/cr-1` (alta cobertura, balanceia entre `high` e `max`) |
+| **`high`** | Nível que usamos no `/cr-1` — cobertura ampla, pode incluir findings menos certeiros |
+| `xhigh`/`max` | Cobertura maior ainda, mas **exigem modo de pensamento estendido ativo** — sem ele a skill não roda nesse nível |
 | `ultra` | Deep multi-agent review na cloud (mais caro e lento) |
 
-Usamos `xhigh` porque rodamos só quando dev chama (não em CI) — trade-off de mais ruído vs. mais cobertura é aceitável.
+`high` é o teto que roda sem depender do modo de pensamento estar ligado na sessão. Como o CR é chamado pelo dev (não em CI), o trade-off de mais ruído vs. mais cobertura é aceitável nesse nível.
 
 ### `/cr-2` — Plugin `pr-review-toolkit`
 
