@@ -11,7 +11,8 @@ RSpec.describe 'individualized_educational_plans/_resources', type: :view do
 
   def render_resources(edit:, destroy:, editable_student: true)
     assign(:individualized_educational_plans, [plan])
-    assign(:display_classrooms, { plan.student_id => create(:classroom) })
+    entry = IndividualizedEducationalPlanIndexClassroomsQuery::Entry.new([create(:classroom)])
+    assign(:display_classrooms, { plan.student_id => entry })
     assign(:editable_student_ids, editable_student ? Set[plan.student_id] : Set.new)
     allow(view).to receive(:policy).and_return(double(edit?: edit, destroy?: destroy))
     render partial: 'individualized_educational_plans/resources'

@@ -1,20 +1,37 @@
-# Dados de turma por aluno para o index do PEI, derivados do grafo de matrícula (o plano não tem
-# mais coluna de turma). Recebe os planos da página e os ids das turmas acessíveis do usuário.
+# Turma(s) por aluno para o index do PEI: como o PEI não guarda turma, ela é derivada da matrícula
+# (turmas que o aluno cursa hoje) e da autoria das versões. Recebe os planos da página e os ids das
+# turmas acessíveis do usuário.
 class IndividualizedEducationalPlanIndexClassroomsQuery
+  # Turmas exibidas na linha do aluno: as que ele cursa hoje + as que publicaram versão
+  # (contribuíram). Uma turma que contribuiu permanece na lista mesmo após a transferência.
+  Entry = Struct.new(:classrooms) do
+    def unities_label
+      classrooms.map(&:unity).uniq.join(', ')
+    end
+
+    def classrooms_label
+      classrooms.join(', ')
+    end
+  end
+
   def initialize(plans, accessible_classroom_ids)
     @plans = plans
     @classroom_ids = accessible_classroom_ids
   end
 
-  # student_id => turma exibida: prefere a turma acessível onde o aluno está enturmado (aberta
-  # primeiro); se o plano é visível só por AUTORIA (aluno não cursa turma acessível), cai na turma
-  # que publicou a versão — senão a linha ficaria com escola/turma em branco.
+  # student_id => Entry com TODAS as turmas acessíveis ligadas ao PEI: cursando hoje ∪ turmas
+  # autoras. Ex.: aluno em regular + AEE aparece nas duas; se saiu da AEE mas ela publicou versão,
+  # a AEE permanece. Fica de fora só quando o aluno não cursa nem tem autoria em turma acessível.
   def display_classrooms
     return {} if student_ids.empty?
 
-    map = enrolled_classrooms_by_student
-    fill_authoring_classrooms(map, plans.reject { |plan| map.key?(plan.student_id) })
-    map
+    ids_by_student = union(attending_ids_by_student, authoring_ids_by_student)
+    classrooms = Classroom.where(id: ids_by_student.values.flatten.uniq).includes(:unity).index_by(&:id)
+
+    ids_by_student.each_with_object({}) do |(sid, ids), acc|
+      list = ids.map { |id| classrooms[id] }.compact.sort_by(&:to_s)
+      acc[sid] = Entry.new(list) unless list.empty?
+    end
   end
 
   # Set de student_ids que o usuário pode editar (cursando turma acessível hoje) — uma query só,
@@ -39,29 +56,33 @@ class IndividualizedEducationalPlanIndexClassroomsQuery
     @student_ids ||= plans.map(&:student_id)
   end
 
-  def enrolled_classrooms_by_student
-    rows = StudentEnrollmentClassroom
-           .by_classroom(classroom_ids)
-           .by_student(student_ids)
-           .joins(classrooms_grade: :classroom)
-           .order(Arel.sql("CASE WHEN left_at IS NULL OR left_at = '' THEN 0 ELSE 1 END"))
-           .pluck('student_enrollments.student_id', 'classrooms.id')
-    classrooms = Classroom.where(id: rows.map(&:last).uniq).includes(:unity).index_by(&:id)
-    rows.each_with_object({}) { |(sid, cid), map| map[sid] ||= classrooms[cid] if classrooms[cid] }
+  # student_id => ids das turmas acessíveis que o aluno CURSA hoje.
+  def attending_ids_by_student
+    StudentEnrollmentClassroom
+      .by_classroom(classroom_ids)
+      .attending_on(Date.current)
+      .by_student(student_ids)
+      .joins(classrooms_grade: :classroom)
+      .pluck('student_enrollments.student_id', 'classrooms.id')
+      .each_with_object({}) { |(sid, cid), acc| (acc[sid] ||= []) << cid }
   end
 
-  # Preenche (em lote, sem N+1) os planos sem enturmação acessível com a turma autora mais recente.
-  # Ex.: plano do aluno João publicado pela turma B; João foi transferido → a linha mostra B.
-  def fill_authoring_classrooms(map, plans_without_classroom)
-    return if plans_without_classroom.empty?
+  # student_id => ids das turmas acessíveis que PUBLICARAM versão do PEI do aluno (autoria). Traz
+  # todas as turmas autoras (não só a mais recente): se A e B publicaram, ambas entram na coluna.
+  def authoring_ids_by_student
+    student_id_by_plan = plans.each_with_object({}) { |plan, acc| acc[plan.id] = plan.student_id }
 
-    classroom_by_plan = IepVersion
-                        .where(individualized_educational_plan_id: plans_without_classroom.map(&:id))
-                        .by_classroom(classroom_ids)
-                        .recent_first
-                        .pluck(:individualized_educational_plan_id, :classroom_id)
-                        .each_with_object({}) { |(pid, cid), acc| acc[pid] ||= cid }
-    classrooms = Classroom.where(id: classroom_by_plan.values.uniq).includes(:unity).index_by(&:id)
-    plans_without_classroom.each { |plan| map[plan.student_id] ||= classrooms[classroom_by_plan[plan.id]] }
+    IepVersion
+      .where(individualized_educational_plan_id: student_id_by_plan.keys)
+      .by_classroom(classroom_ids)
+      .pluck(:individualized_educational_plan_id, :classroom_id)
+      .each_with_object({}) { |(pid, cid), acc| (acc[student_id_by_plan[pid]] ||= []) << cid }
+  end
+
+  # Une os dois mapas por student_id, sem repetir turma.
+  def union(attending, authoring)
+    (attending.keys | authoring.keys).each_with_object({}) do |sid, acc|
+      acc[sid] = attending.fetch(sid, []) | authoring.fetch(sid, [])
+    end
   end
 end

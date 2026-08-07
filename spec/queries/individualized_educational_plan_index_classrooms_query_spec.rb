@@ -14,22 +14,53 @@ RSpec.describe IndividualizedEducationalPlanIndexClassroomsQuery do
   end
 
   describe '#display_classrooms' do
-    it 'maps the student to the accessible classroom where they are enrolled' do
+    it 'lists the accessible classroom where the student attends' do
       plan = create(:individualized_educational_plan)
       enroll(plan.student, classroom)
 
       result = described_class.new([plan], [classroom.id]).display_classrooms
 
-      expect(result[plan.student_id]).to eq(classroom)
+      expect(result[plan.student_id].classrooms).to contain_exactly(classroom)
     end
 
-    it 'falls back to the authoring classroom when the student no longer attends (authorship only)' do
+    it 'lists every accessible classroom the student currently attends' do
+      other = create(:classroom)
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+      enroll(plan.student, other)
+
+      result = described_class.new([plan], [classroom.id, other.id]).display_classrooms
+
+      expect(result[plan.student_id].classrooms).to contain_exactly(classroom, other)
+    end
+
+    it 'keeps an authoring classroom the student no longer attends (union with attendance)' do
+      author = create(:classroom)
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+      create(:iep_version, iep: plan, classroom: author, active: true, published_at: Time.current)
+
+      result = described_class.new([plan], [classroom.id, author.id]).display_classrooms
+
+      expect(result[plan.student_id].classrooms).to contain_exactly(classroom, author)
+    end
+
+    it 'falls back to the authoring classroom when the student attends none' do
       plan = create(:individualized_educational_plan)
       create(:iep_version, iep: plan, classroom: classroom, active: true, published_at: Time.current)
 
       result = described_class.new([plan], [classroom.id]).display_classrooms
 
-      expect(result[plan.student_id]).to eq(classroom)
+      expect(result[plan.student_id].classrooms).to contain_exactly(classroom)
+    end
+
+    it 'ignores classrooms outside the accessible set' do
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+
+      result = described_class.new([plan], []).display_classrooms
+
+      expect(result).to eq({})
     end
   end
 
