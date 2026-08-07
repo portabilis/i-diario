@@ -214,4 +214,41 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       end
     end
   end
+
+  # Filtro/cascata do index: turma filtrada = aluno cursando hoje ∪ turma autora. Enturmação
+  # encerrada (ou de um dia) numa turma que não contribuiu NÃO deve trazer o aluno.
+  describe '.by_classroom_id' do
+    let(:entity) { Entity.find_by(domain: 'test.host') }
+
+    around(:each) { |example| entity.using_connection { example.run } }
+
+    let(:classroom) { create(:classroom) }
+
+    def enroll(student, target_classroom, left_at: '')
+      cg = create(:classrooms_grade, classroom: target_classroom)
+      se = create(:student_enrollment, student: student)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg, left_at: left_at)
+    end
+
+    it 'includes the plan of a student currently attending the classroom' do
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+
+      expect(described_class.by_classroom_id(classroom.id)).to contain_exactly(plan)
+    end
+
+    it 'excludes the plan when the student left the classroom and it did not author a version' do
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom, left_at: 1.day.ago.to_date.to_s)
+
+      expect(described_class.by_classroom_id(classroom.id)).to be_empty
+    end
+
+    it 'includes the plan authored by the classroom even if the student no longer attends it' do
+      plan = create(:individualized_educational_plan)
+      create(:iep_version, iep: plan, classroom: classroom, active: true, published_at: Time.current)
+
+      expect(described_class.by_classroom_id(classroom.id)).to contain_exactly(plan)
+    end
+  end
 end
