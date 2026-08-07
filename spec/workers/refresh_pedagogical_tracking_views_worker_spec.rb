@@ -16,7 +16,7 @@ RSpec.describe RefreshPedagogicalTrackingViewsWorker, type: :worker do
   end
 
   describe '#perform' do
-    it 'refreshes the materialized views' do
+    it 'refreshes the frequency materialized view' do
       teacher = create(:teacher)
       classroom = create(:classroom, :with_classroom_semester_steps)
       discipline = create(:discipline)
@@ -46,6 +46,49 @@ RSpec.describe RefreshPedagogicalTrackingViewsWorker, type: :worker do
       ).to eq([[classroom.unity_id, classroom.id, teacher.id, frequency.frequency_date]])
     end
 
+    it 'refreshes the content record materialized view' do
+      teacher = create(:teacher)
+      classroom = create(:classroom, :score_type_numeric, :with_classroom_semester_steps)
+      discipline = create(:discipline)
+
+      create(
+        :teacher_discipline_classroom,
+        teacher: teacher,
+        classroom: classroom,
+        discipline: discipline
+      )
+      content_record = create(
+        :content_record,
+        :with_contents,
+        teacher: teacher,
+        classroom: classroom
+      )
+      # O autosave do content_record dispara a validação de update, que exige o usuário corrente.
+      content_record.current_user = User.current
+
+      create(
+        :discipline_content_record,
+        content_record: content_record,
+        discipline: discipline,
+        teacher_id: teacher.id
+      )
+      create(
+        :unity_school_day,
+        unity: classroom.unity,
+        school_day: content_record.record_date
+      )
+
+      expect(MvwContentRecordBySchoolClassroomTeacher.count).to eq(0)
+
+      subject.perform(entity.id, [])
+
+      expect(
+        MvwContentRecordBySchoolClassroomTeacher
+          .pluck(:unity_id, :classroom_id, :teacher_id, :record_date)
+          .uniq
+      ).to eq([[classroom.unity_id, classroom.id, teacher.id, content_record.record_date]])
+    end
+
     it 'enqueues the next entity of the chain with the remaining ones' do
       allow(subject).to receive(:refresh)
 
@@ -72,19 +115,32 @@ RSpec.describe RefreshPedagogicalTrackingViewsWorker, type: :worker do
 
       expect(described_class.jobs).to be_empty
     end
+
+    it 'skips a disabled entity without refreshing and keeps the chain going' do
+      disabled_entity = create(:entity, domain: 'disabled.test.host', disabled: true)
+
+      expect(subject).not_to receive(:refresh)
+
+      subject.perform(disabled_entity.id, [111])
+
+      expect(described_class).to have_enqueued_sidekiq_job(111, [])
+    end
+
+    it 'skips an entity that no longer exists without refreshing' do
+      expect(subject).not_to receive(:refresh)
+
+      subject.perform(0, [111])
+
+      expect(described_class).to have_enqueued_sidekiq_job(111, [])
+    end
   end
 
   describe '.enqueue_next' do
-    it 'skips an entity whose enqueue is rejected by the unique lock and continues the chain' do
-      # perform_async retorna nil quando o lock único rejeita o job (entidade já
-      # em fila/execução) — a cadeia deve pular para a próxima entidade.
-      allow(described_class).to receive(:perform_async).with(111, [222, 333]).and_return(nil)
-      allow(described_class).to receive(:perform_async).with(222, [333]).and_return('jid')
-
+    it 'enqueues the head of the list carrying the remaining entities' do
       described_class.enqueue_next([111, 222, 333])
 
-      expect(described_class).to have_received(:perform_async).with(222, [333])
-      expect(described_class).not_to have_received(:perform_async).with(333, [])
+      expect(described_class).to have_enqueued_sidekiq_job(111, [222, 333])
+      expect(described_class.jobs.size).to eq(1)
     end
 
     it 'does not enqueue anything when the list is empty' do
