@@ -67,11 +67,15 @@ class IndividualizedEducationalPlan < ApplicationRecord
 
   scope :finalized, -> { where(ACTIVE_VERSION_EXISTS_SQL) }
   scope :draft, -> { where("NOT #{ACTIVE_VERSION_EXISTS_SQL}") }
-  # Alunos que ALGUM DIA estiveram na turma (sem data/status/ano). Só para o filtro do index —
-  # NÃO é escopo de acesso (isso é o accessible_plans).
+  # PEIs ligados à turma, para o filtro/cascata do index: aluno CURSANDO a turma hoje, ou turma que
+  # publicou versão (autoria) — mesma regra do accessible_plans, só que restrita a uma turma. Sem o
+  # attending_on, uma enturmação encerrada sem contribuição no PEI faria o aluno aparecer ao filtrar.
   scope :by_classroom_id, ->(classroom_id) {
-    where(student_id: StudentEnrollmentClassroom.by_classroom(classroom_id)
-                        .joins(:student_enrollment).select('student_enrollments.student_id'))
+    where(id: IepVersion.by_classroom(classroom_id).select(:individualized_educational_plan_id))
+      .or(where(student_id: StudentEnrollmentClassroom.by_classroom(classroom_id)
+                              .attending_on(Date.current)
+                              .joins(:student_enrollment)
+                              .select('student_enrollments.student_id')))
   }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
 
