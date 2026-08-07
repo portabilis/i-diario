@@ -12,20 +12,22 @@ RSpec.describe MaterializedViewRefresh, type: :model do
   end
 
   describe '.register!' do
+    let(:registered_at) { Time.zone.local(Date.current.year, 5, 10, 4, 30) }
+
     it 'creates the record on the first registration' do
-      described_class.register!('mvw_test')
+      Timecop.freeze(registered_at) { described_class.register!('mvw_test') }
 
       expect(described_class.pluck(:view_name)).to eq(['mvw_test'])
-      expect(described_class.first.refreshed_at).to be_present
+      expect(described_class.first.refreshed_at).to eq(registered_at)
     end
 
     it 'updates the existing record on the following registrations' do
       create(:materialized_view_refresh, view_name: 'mvw_test', refreshed_at: 1.day.ago)
 
-      described_class.register!('mvw_test')
+      Timecop.freeze(registered_at) { described_class.register!('mvw_test') }
 
       expect(described_class.where(view_name: 'mvw_test').count).to eq(1)
-      expect(described_class.find_by(view_name: 'mvw_test').refreshed_at).to be > 1.hour.ago
+      expect(described_class.find_by(view_name: 'mvw_test').refreshed_at).to eq(registered_at)
     end
   end
 
