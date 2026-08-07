@@ -60,9 +60,15 @@ class PedagogicalTrackingCalculator
   end
 
   def updated_at_data
-    last_refresh =
-      MaterializedViewRefresh.refreshed_at_for(MvwFrequencyBySchoolClassroomTeacher.table_name) ||
+    # Durante o deploy a tabela de controle pode ainda não existir na entidade:
+    # a data exibida é informativa e não justifica derrubar o dashboard.
+    return unless MaterializedViewRefresh.table_exists?
+
+    # A tela cobre as duas views, então a data honesta é a da mais atrasada.
+    last_refresh = [
+      MaterializedViewRefresh.refreshed_at_for(MvwFrequencyBySchoolClassroomTeacher.table_name),
       MaterializedViewRefresh.refreshed_at_for(MvwContentRecordBySchoolClassroomTeacher.table_name)
+    ].compact.min
 
     return unless last_refresh
 

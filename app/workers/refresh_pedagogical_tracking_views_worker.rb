@@ -22,6 +22,8 @@ class RefreshPedagogicalTrackingViewsWorker
     MvwContentRecordBySchoolClassroomTeacher
   ].map(&:table_name).freeze
 
+  LOCK_TIMEOUT = '10min'.freeze
+
   def self.enqueue_next(remaining_entity_ids)
     next_entity_id, *remaining = Array(remaining_entity_ids)
 
@@ -56,7 +58,9 @@ class RefreshPedagogicalTrackingViewsWorker
     started_at = Time.current
     concurrently = populated?(view)
 
-    ActiveRecord::Base.connection.execute(refresh_statement(view, concurrently))
+    with_lock_timeout do
+      ActiveRecord::Base.connection.execute(refresh_statement(view, concurrently))
+    end
 
     MaterializedViewRefresh.register!(view)
 
@@ -67,9 +71,20 @@ class RefreshPedagogicalTrackingViewsWorker
     )
   end
 
-  # CONCURRENTLY não bloqueia as leituras do dashboard durante a atualização,
-  # mas o Postgres o recusa em view ainda não populada (ex.: primeira carga de
-  # uma base nova) — nesse caso usa o refresh exclusivo.
+  # Duas atualizações da mesma view se esperam sem limite de tempo: sem o timeout,
+  # uma cadeia que alcança outra em andamento ficaria parada sem erro e sem log.
+  def with_lock_timeout
+    connection = ActiveRecord::Base.connection
+
+    connection.execute("SET lock_timeout = '#{LOCK_TIMEOUT}'")
+
+    yield
+  ensure
+    connection.execute('SET lock_timeout = DEFAULT')
+  end
+
+  # CONCURRENTLY não bloqueia as leituras do dashboard, mas o Postgres o recusa
+  # em view ainda não populada — caso de base restaurada só com a estrutura.
   def refresh_statement(view, concurrently)
     "REFRESH MATERIALIZED VIEW #{concurrently ? 'CONCURRENTLY ' : ''}#{view}"
   end
@@ -79,8 +94,9 @@ class RefreshPedagogicalTrackingViewsWorker
 
     ActiveRecord::Type::Boolean.new.cast(
       connection.select_value(
-        "SELECT relispopulated FROM pg_class WHERE relname = #{connection.quote(view)}"
+        'SELECT relispopulated FROM pg_class ' \
+        "WHERE relkind = 'm' AND relname = #{connection.quote(view)}"
       )
-    )
+    ).present?
   end
 end

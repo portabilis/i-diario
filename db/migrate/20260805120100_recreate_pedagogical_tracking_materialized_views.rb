@@ -40,7 +40,10 @@ class RecreatePedagogicalTrackingMaterializedViews < ActiveRecord::Migration[5.0
                   AND tdc.classroom_id = daily_frequencies.classroom_id
                   AND tdc.discarded_at IS NULL
              )
-       GROUP BY 1, 2, 3, 4;
+       GROUP BY daily_frequencies.frequency_date,
+                classrooms.unity_id,
+                daily_frequencies.classroom_id,
+                daily_frequencies.owner_teacher_id;
 
       CREATE UNIQUE INDEX idx_mvw_freq_unique
           ON mvw_frequency_by_school_classroom_teachers
@@ -83,15 +86,33 @@ class RecreatePedagogicalTrackingMaterializedViews < ActiveRecord::Migration[5.0
                            AND tdc.discarded_at IS NULL
                       )
              )
-       GROUP BY 1, 2, 3, 4;
+       GROUP BY content_records.record_date,
+                classrooms.unity_id,
+                content_records.classroom_id,
+                content_records.teacher_id;
 
       CREATE UNIQUE INDEX idx_mvw_content_unique
           ON mvw_content_record_by_school_classroom_teachers
              (unity_id, record_date, classroom_id, teacher_id);
     SQL
+
+    # As views nascem populadas, mas a data exibida na tela passa a vir da
+    # tabela de controle: sem este registro inicial o dashboard afirmaria que
+    # não existem lançamentos até a primeira execução da rotina noturna.
+    execute <<-SQL
+      INSERT INTO materialized_view_refreshes (view_name, refreshed_at)
+           VALUES ('mvw_frequency_by_school_classroom_teachers', now()),
+                  ('mvw_content_record_by_school_classroom_teachers', now());
+    SQL
   end
 
   def down
+    execute <<-SQL
+      DELETE FROM materialized_view_refreshes
+            WHERE view_name IN ('mvw_frequency_by_school_classroom_teachers',
+                                'mvw_content_record_by_school_classroom_teachers');
+    SQL
+
     execute <<-SQL
       DROP MATERIALIZED VIEW mvw_frequency_by_school_classroom_teachers;
 
