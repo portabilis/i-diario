@@ -1,4 +1,6 @@
 class DeficienciesSynchronizer < BaseSynchronizer
+  UNIQUE_INDEX = 'idx_deficiency_students_unique_kept'.freeze
+
   def synchronize!
     update_deficiencies(
       HashDecorator.new(
@@ -64,7 +66,10 @@ class DeficienciesSynchronizer < BaseSynchronizer
     discard_inexisting_deficiency_students(deficiency_id, student_ids)
   end
 
-  # Cria ou reaproveita o vínculo do aluno com a deficiência e garante que fique ativo.
+  # Cria ou reaproveita o vínculo do aluno com a deficiência e o reativa quando estiver
+  # descartado. O índice único parcial permite corrida entre workers da mesma sincronização:
+  # nesse caso o save! levanta RecordNotUnique e a nova tentativa reencontra o registro
+  # criado pelo outro worker.
   def sync_deficiency_student(deficiency_id, student_id)
     retries = 0
 
@@ -75,29 +80,39 @@ class DeficienciesSynchronizer < BaseSynchronizer
       deficiency_student.unity_id ||= target_unity_id(student_id)
       deficiency_student.save! if deficiency_student.changed?
       deficiency_student.discard_or_undiscard(false)
-    rescue ActiveRecord::RecordNotUnique
-      raise if (retries += 1) > MAX_RECORD_RETRIES
+    rescue ActiveRecord::RecordNotUnique => error
+      raise error unless error.message.include?(UNIQUE_INDEX)
+
+      retries += 1
+      raise error if retries > MAX_RECORD_RETRIES
+
+      Rails.logger.warn(
+        "#{self.class.name}: corrida em deficiency_id=#{deficiency_id} student_id=#{student_id} " \
+        "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RECORD_RETRIES})"
+      )
 
       retry
     end
   end
 
-  # Procura o vínculo entre as escolas sincronizadas e também entre os sem escola, que são
-  # reaproveitados em vez de virarem cópia. Prefere o candidato que já tem escola definida.
+  # Procura o vínculo entre as escolas desta execução e também entre os sem escola, que são
+  # reaproveitados em vez de virarem cópia. Prefere o candidato ativo — reativar um descartado
+  # havendo outro ativo violaria o índice único — e, entre os ativos, o que já tem escola.
   def existing_deficiency_student(deficiency_id, student_id)
     DeficiencyStudent.with_discarded
                      .by_deficiency_id(deficiency_id)
                      .by_student_id(student_id)
                      .by_unity_id([unity_id, nil].flatten)
-                     .order('unity_id IS NULL, id')
+                     .order(Arel.sql('discarded_at IS NOT NULL, unity_id IS NULL, id'))
                      .first
   end
 
-  # Escola a gravar no vínculo, sempre uma das consideradas na busca — do contrário o vínculo
-  # não seria reencontrado e cada execução criaria uma cópia. Com várias escolas de uma vez,
-  # usa a matrícula mais recente do aluno que esteja entre as sincronizadas.
+  # Escola a gravar no vínculo, sempre uma das escolas desta execução — do contrário o vínculo
+  # não seria reencontrado e cada execução criaria uma cópia. Na sincronização parcial o worker
+  # recebe todas de uma vez e não há como saber qual informou o aluno: desempata pela enturmação
+  # ativa mais recente entre elas, ou fica sem escola, que a busca também considera.
   def target_unity_id(student_id)
-    unity_ids = unity_id.compact
+    unity_ids = unity_id.compact.uniq
 
     return unity_ids.first if unity_ids.one?
 
@@ -132,10 +147,11 @@ class DeficienciesSynchronizer < BaseSynchronizer
   end
 
   def student_unities(student_id)
-    Unity.joins(classrooms: [student_enrollment_classrooms: :student_enrollment])
-         .where(student_enrollments: { student_id: student_id, active: 1 })
-         .order('student_enrollment_classrooms.joined_at desc')
-         .ids
-         .uniq
+    @student_unities ||= {}
+    @student_unities[student_id] ||= Unity.joins(classrooms: [student_enrollment_classrooms: :student_enrollment])
+                                          .where(student_enrollments: { student_id: student_id, active: 1 })
+                                          .order('student_enrollment_classrooms.joined_at desc')
+                                          .ids
+                                          .uniq
   end
 end
