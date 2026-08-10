@@ -25,6 +25,15 @@ RSpec.describe IndividualizedEducationalPlanPrefill, type: :service do
       expect(described_class.student_data(student)[:diagnosis]).to eq('TEA')
     end
 
+    it 'returns the deficiency name once when the student has it informed by more than one unity' do
+      deficiency = create(:deficiency, name: 'TEA')
+      create(:deficiency_student, student: student, deficiency: deficiency, unity_id: create(:unity).id)
+      create(:deficiency_student, student: student, deficiency: deficiency, unity_id: create(:unity).id)
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+
+      expect(described_class.student_data(student)[:diagnosis]).to eq('TEA')
+    end
+
     it 'fetches the guardians from the i-Educar API' do
       api = double
       allow(api).to receive(:fetch_by_id).with(student.api_code)
