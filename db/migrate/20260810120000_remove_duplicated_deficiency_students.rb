@@ -1,6 +1,6 @@
 # Remove as cópias de vínculo entre aluno e deficiência geradas pelo sincronizador, mantendo
-# para cada aluno/deficiência/escola o registro ativo mais antigo (ou o mais antigo
-# descartado, quando não houver nenhum ativo).
+# para cada aluno/deficiência/escola o registro ativo de menor id (ou o descartado de menor
+# id, quando não houver nenhum ativo).
 class RemoveDuplicatedDeficiencyStudents < ActiveRecord::Migration[5.0]
   def up
     execute <<-SQL
