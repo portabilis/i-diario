@@ -28,6 +28,18 @@ RSpec.describe DeficienciesSynchronizer do
     )
   }
 
+  # Executa apenas a sincronização, sem o controle de worker_batch/worker_state do método de
+  # classe, que não pode ser reexecutado na mesma instância.
+  def synchronize
+    described_class.new(
+      synchronization: synchronization,
+      worker_batch: worker_batch,
+      worker_state: worker_state,
+      year: Date.current.year,
+      unity_api_code: unity_id,
+      entity_id: Entity.first.id
+    ).synchronize!
+  end
 
   describe '#synchronize!' do
     context 'when params are valid' do
@@ -58,6 +70,45 @@ RSpec.describe DeficienciesSynchronizer do
           )
           expect(DeficiencyStudent.count).to eq 1
         end
+      end
+    end
+
+    context 'when the synchronization runs more than once' do
+      before { student.update(api_code: existing_api_code) }
+
+      it 'does not duplicate the relation between deficiency and student' do
+        VCR.use_cassette('all_deficiencies', allow_playback_repeats: true) do
+          unity
+          2.times { synchronize }
+        end
+
+        expect(DeficiencyStudent.count).to eq 1
+      end
+
+      it 'stores the synchronized unity in the relation' do
+        VCR.use_cassette('all_deficiencies', allow_playback_repeats: true) do
+          unity
+          synchronize
+        end
+
+        expect(DeficiencyStudent.first.unity_id).to eq unity.id
+      end
+
+      it 'reuses a relation left without unity by an older synchronization' do
+        deficiency_student = create(
+          :deficiency_student,
+          deficiency: deficiency,
+          student: student,
+          unity_id: nil
+        )
+
+        VCR.use_cassette('all_deficiencies', allow_playback_repeats: true) do
+          unity
+          synchronize
+        end
+
+        expect(DeficiencyStudent.by_student_id(student.id).count).to eq 1
+        expect(deficiency_student.reload.unity_id).to eq unity.id
       end
     end
 
