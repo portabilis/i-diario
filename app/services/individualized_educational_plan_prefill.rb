@@ -63,7 +63,7 @@ class IndividualizedEducationalPlanPrefill
   end
 
   def diagnosis
-    student.deficiencies.map(&:name).join(', ').presence
+    student.deficiencies.distinct.map(&:name).join(', ').presence
   end
 
   def guardians
