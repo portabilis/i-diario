@@ -91,6 +91,49 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
   end
 
+  describe 'POST #create' do
+    def post_create(start_date:, end_date:)
+      classrooms_grade
+
+      post :create, params: {
+        locale: 'pt-BR',
+        frequency_in_batch_form: {
+          unity_id: unity.id,
+          classroom_id: classroom.id,
+          discipline_id: discipline.id,
+          start_date: start_date,
+          end_date: end_date
+        }
+      }
+    end
+
+    # Datas inexistentes ("31/06") faziam o to_date levantar Date::Error. Como o
+    # ApplicationController tem um rescue_from Exception, o usuário era jogado na home
+    # com um alerta genérico em vez de ver o erro no próprio formulário.
+    context 'when the informed date does not exist' do
+      it 'renders the form pointing the error at the date field' do
+        post_create(start_date: '01/06/2026', end_date: '31/06/2026')
+
+        expect(response).to render_template(:new)
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to include(
+          I18n.t('errors.messages.invalid_date')
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to be_empty
+      end
+    end
+
+    context 'when the date is blank' do
+      it 'renders the form pointing the error at the date field' do
+        post_create(start_date: '', end_date: '')
+
+        expect(response).to render_template(:new)
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to include(
+          I18n.t('errors.messages.blank')
+        )
+      end
+    end
+  end
+
   describe 'POST #create_or_update_multiple' do
     let(:frequency_date) { school_calendar.steps.first.start_at }
     let(:form_params) do

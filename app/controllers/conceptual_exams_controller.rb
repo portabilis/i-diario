@@ -1,4 +1,6 @@
 class ConceptualExamsController < ApplicationController
+  include DateValidation
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -160,11 +162,12 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_students
-    return if params[:classroom_id].blank? || params[:discipline_id].blank? || params[:date].blank?
+    date = parse_date(params[:date])
+
+    return if params[:classroom_id].blank? || params[:discipline_id].blank? || date.blank?
 
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
-    date = params[:date].to_date
 
     student_enrollments = StudentEnrollmentsList.new(
       classroom: classroom,

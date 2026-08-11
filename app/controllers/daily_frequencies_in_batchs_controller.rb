@@ -1,4 +1,6 @@
 class DailyFrequenciesInBatchsController < ApplicationController
+  include DateValidation
+
   before_action :require_current_classroom
   before_action :require_teacher
   before_action :require_allocation_on_lessons_board
@@ -26,9 +28,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
+    start_date = parse_date(params[:frequency_in_batch_form][:start_date])
+    end_date = parse_date(params[:frequency_in_batch_form][:end_date])
     classroom_id = params[:frequency_in_batch_form][:classroom_id]
+
+    return render_invalid_dates if start_date.blank? || end_date.blank?
+
     grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
 
     if invalid_dates?(start_date, end_date, classroom_id, grade_id)
@@ -781,6 +786,28 @@ nil, @period)
                   .by_classroom(@classroom)
                   .exists?
     end
+  end
+
+  # Data em branco ou inexistente ("31/06") é apontado erro no próprio campo.
+  def render_invalid_dates
+    form_params = params[:frequency_in_batch_form]
+
+    @frequency_in_batch_form = FrequencyInBatchForm.new(
+      unity_id: form_params[:unity_id],
+      classroom_id: form_params[:classroom_id],
+      discipline_id: form_params[:discipline_id]
+    )
+
+    %i[start_date end_date].each do |field|
+      next if valid_date?(form_params[field])
+
+      @frequency_in_batch_form.errors.add(field, form_params[field].blank? ? :blank : :invalid_date)
+    end
+
+    @frequency_type = current_frequency_type(current_user_classroom)
+    set_options_by_user
+
+    render :new
   end
 
   def invalid_dates?(start_date, end_date, classroom_id, grade_id)

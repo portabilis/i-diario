@@ -1,4 +1,6 @@
 class DisciplineLessonPlanReportController < ApplicationController
+  include DateValidation
+
   DISCIPLINE_LESSON_PLAN_REPORT = "1"
   DISCIPLINE_CONTENT_RECORD = "2"
 
@@ -75,8 +77,8 @@ class DisciplineLessonPlanReportController < ApplicationController
     date_start = resource_params[:date_start]
     date_end = resource_params[:date_end]
 
-    @discipline_lesson_plan_report_form.date_start = '' unless date_start.try(:to_date)
-    @discipline_lesson_plan_report_form.date_end = '' unless date_end.try(:to_date)
+    @discipline_lesson_plan_report_form.date_start = '' unless valid_date?(date_start)
+    @discipline_lesson_plan_report_form.date_end = '' unless valid_date?(date_end)
   end
 
   def set_options_by_user

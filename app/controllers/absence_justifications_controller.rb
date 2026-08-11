@@ -1,4 +1,6 @@
 class AbsenceJustificationsController < ApplicationController
+  include DateValidation
+
   before_action :require_current_teacher
   before_action :require_current_classroom
 
@@ -262,8 +264,8 @@ class AbsenceJustificationsController < ApplicationController
     absence_date = resource_params[:absence_date]
     absence_date_end = resource_params[:absence_date_end]
 
-    @absence_justification.absence_date = '' unless absence_date.try(:to_date)
-    @absence_justification.absence_date_end = '' unless absence_date_end.try(:to_date)
+    @absence_justification.absence_date = '' unless valid_date?(absence_date)
+    @absence_justification.absence_date_end = '' unless valid_date?(absence_date_end)
   end
 
   def fetch_absence_justifications_by_user

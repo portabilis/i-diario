@@ -1,4 +1,6 @@
 class SchoolCalendarEventsController < ApplicationController
+  include DateValidation
+
   has_scope :page, default: 1
   has_scope :per, default: 10
   respond_to :json, only: [:grades, :classrooms]
@@ -201,8 +203,8 @@ class SchoolCalendarEventsController < ApplicationController
     start_date = resource_params[:start_date]
     end_date = resource_params[:end_date]
 
-    @school_calendar_event.start_date = '' unless start_date.try(:to_date)
-    @school_calendar_event.end_date = '' unless end_date.try(:to_date)
+    @school_calendar_event.start_date = '' unless valid_date?(start_date)
+    @school_calendar_event.end_date = '' unless valid_date?(end_date)
   end
 
   def check_user_unity
