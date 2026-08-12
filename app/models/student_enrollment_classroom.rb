@@ -46,6 +46,44 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   delegate :student_id, to: :student_enrollment, allow_nil: true
 
+  # Alunos que cursam as turmas. Relation (não array) para virar subquery: where(student_id: ...).
+  def self.attending_student_ids(classroom_ids, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date)
+                               .joins(:student_enrollment)
+                               .select('student_enrollments.student_id')
+  end
+
+  # O aluno cursa alguma destas turmas? (EXISTS — quando não importa qual)
+  def self.attending_any_classroom?(classroom_ids, student_id, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date).by_student(student_id).exists?
+  end
+
+  # Quais destas turmas o aluno cursa. Pode ser mais de uma (ex.: regular + AEE).
+  def self.attending_classroom_ids(classroom_ids, student_id, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date).by_student(student_id)
+                               .joins(classrooms_grade: :classroom)
+                               .distinct
+                               .pluck('classrooms.id')
+  end
+
+  # Em quais turmas do ano letivo o aluno está. Sem lista de turmas: descobre quais são.
+  def self.attending_classroom_ids_in_year(student_id, year, on_date = Date.current)
+    by_student(student_id).attending_on(on_date)
+                          .joins(classrooms_grade: :classroom)
+                          .where(classrooms: { year: year })
+                          .distinct
+                          .pluck('classrooms.id')
+  end
+
+  # O mesmo do acima para VÁRIOS alunos numa query só (evita N+1 na listagem):
+  # devolve { student_id => [ids das turmas] }.
+  def self.attending_classroom_ids_by_student(classroom_ids, student_ids, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date).by_student(student_ids)
+                               .joins(classrooms_grade: :classroom)
+                               .pluck('student_enrollments.student_id', 'classrooms.id')
+                               .each_with_object({}) { |(sid, cid), acc| (acc[sid] ||= []) << cid }
+  end
+
   def self.by_opinion_type_query(opinion_type, classrooms)
     return where(nil) unless opinion_type.present? && classrooms.present?
 

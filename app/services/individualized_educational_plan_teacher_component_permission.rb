@@ -38,17 +38,11 @@ class IndividualizedEducationalPlanTeacherComponentPermission
 
   private
 
-  # Ids das turmas do ano do PEI onde o aluno está cursando (attending_on).
+  # Ids das turmas do ano do PEI onde o aluno está cursando.
   # Pode ser mais de uma ao mesmo tempo — ex.: regular + AEE.
   def active_classroom_ids
     @active_classroom_ids ||=
-      StudentEnrollmentClassroom
-        .by_student(@iep.student_id)
-        .attending_on(Date.current)
-        .joins(classrooms_grade: :classroom)
-        .where(classrooms: { year: @iep.year })
-        .distinct
-        .pluck('classrooms.id')
+      StudentEnrollmentClassroom.attending_classroom_ids_in_year(@iep.student_id, @iep.year)
   end
 
   # A linha das seções 4/5 pertence ao componente do professor? (por disciplina ou por área)
