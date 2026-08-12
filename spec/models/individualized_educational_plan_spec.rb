@@ -33,14 +33,50 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     end
 
     it 'allows the same student in different years' do
-      existing = create(:individualized_educational_plan, year: 2025)
+      existing = create(:individualized_educational_plan, year: Date.current.year - 1,
+                                                          elaborated_at: Date.new(Date.current.year - 1, 3, 10))
       other_year = build(
         :individualized_educational_plan,
         student: existing.student,
-        year: 2026
+        year: Date.current.year,
+        elaborated_at: Date.current
       )
 
       expect(other_year).to be_valid
+    end
+
+    it 'rejects an elaboration date in the future' do
+      plan = build(:individualized_educational_plan, year: Date.current.year, elaborated_at: Date.current + 1)
+
+      expect(plan).not_to be_valid
+      expect(plan.errors[:elaborated_at]).to eq([I18n.t('errors.messages.not_in_future')])
+    end
+
+    it 'accepts today as the elaboration date' do
+      plan = build(:individualized_educational_plan, year: Date.current.year, elaborated_at: Date.current)
+
+      expect(plan).to be_valid
+    end
+
+    it 'accepts the first day of the plan school year' do
+      plan = build(:individualized_educational_plan, year: Date.current.year,
+                                                     elaborated_at: Date.new(Date.current.year, 1, 1))
+
+      expect(plan).to be_valid
+    end
+
+    # Passada, mas de outro ano: a regra de data futura não pega, a de ano sim.
+    it 'rejects a past elaboration date outside the plan school year' do
+      plan = build(:individualized_educational_plan, year: Date.current.year,
+                                                     elaborated_at: Date.new(Date.current.year - 1, 12, 15))
+
+      expect(plan).not_to be_valid
+      expect(plan.errors[:elaborated_at]).to eq(
+        [I18n.t(
+          'activerecord.errors.models.individualized_educational_plan.attributes.elaborated_at.not_in_plan_year',
+          year: Date.current.year
+        )]
+      )
     end
   end
 
