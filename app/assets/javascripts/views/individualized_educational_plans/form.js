@@ -435,10 +435,14 @@ $(function() {
         // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
         $warning.toggle(!!data.has_existing_plan);
       },
-      error: function() {
+      error: function(jqXHR) {
         clearStudentSection1();
         renderMedicalReports([], true, medicalReportIdentity(studentId));
-        flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
+        flashMessages.error(
+          jqXHR && jqXHR.status === 403
+            ? 'Este aluno já possui um PEI que você acessa somente em leitura. Abra o plano pela listagem.'
+            : 'Ocorreu um erro ao buscar os dados do aluno selecionado.'
+        );
       }
     });
   }
@@ -500,8 +504,12 @@ $(function() {
     }
   }
 
+  var studentsXhr = null;
+
   function reloadStudentsForElaborationDate(dateStr) {
-    $.ajax({
+    if (studentsXhr) { studentsXhr.abort(); }
+
+    studentsXhr = $.ajax({
       url: Routes.students_by_elaboration_date_individualized_educational_plans_pt_br_path(
         { elaborated_at: dateStr, format: 'json' }
       ),
@@ -510,16 +518,22 @@ $(function() {
         if (data && Array.isArray(data.students)) { setStudentOptions(data.students); }
         setElaborationCalendarWarning(data && data.calendar_error);
       },
-      error: function() {
+      error: function(jqXHR, textStatus) {
+        // A requisição abortada acima também cai aqui: é substituição, não falha.
+        if (textStatus === 'abort') { return; }
+
         setStudentOptions([]);
         setElaborationCalendarWarning('');
         flashMessages.error('Não foi possível atualizar a lista de alunos para a data de elaboração.');
+      },
+      complete: function(jqXHR) {
+        if (studentsXhr === jqXHR) { studentsXhr = null; }
       }
     });
   }
 
   if ($elaboratedAt.length && !$studentSelect.prop('disabled')) {
-    $elaboratedAt.on('change changeDate', function() {
+    $elaboratedAt.on('change', function() {
       var value = $(this).val();
 
       // Data inválida (isValidDate global, date.js): não consulta o servidor e limpa só o aviso

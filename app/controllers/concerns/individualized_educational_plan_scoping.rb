@@ -49,21 +49,8 @@ module IndividualizedEducationalPlanScoping
   # Planos que o usuário enxerga, do ANO LETIVO CORRENTE: aluno cursando uma turma dele, OU turma
   # dele que já publicou alguma versão do plano (autoria).
   def accessible_plans
-    ids = accessible_classroom_ids
-    base = IndividualizedEducationalPlan.where(year: current_school_year)
-
-    base.where(id: IepVersion.by_classroom(ids).select(:individualized_educational_plan_id))
-        .or(base.where(student_id: currently_attending_student_ids(ids)))
-  end
-
-  # Alunos que o usuário tem CURSANDO agora (enturmação em status de frequência + aberta) nas turmas
-  # informadas — subquery (Relation) para o semi-join do accessible_plans.
-  def currently_attending_student_ids(classroom_ids)
-    StudentEnrollmentClassroom
-      .by_classroom(classroom_ids)
-      .attending_on(Date.current)
-      .joins(:student_enrollment)
-      .select('student_enrollments.student_id')
+    IndividualizedEducationalPlan.where(year: current_school_year)
+                                 .by_classroom_id(accessible_classroom_ids)
   end
 
   # Editável quando o aluno está CURSANDO uma turma do usuário (matrícula em status de
@@ -73,11 +60,9 @@ module IndividualizedEducationalPlanScoping
     cache = (@plan_editable_cache ||= {})
     return cache[plan.id] if cache.key?(plan.id)
 
-    cache[plan.id] = StudentEnrollmentClassroom
-                     .by_classroom(accessible_classroom_ids)
-                     .attending_on(Date.current)
-                     .by_student(plan.student_id)
-                     .exists?
+    cache[plan.id] = StudentEnrollmentClassroom.attending_any_classroom?(
+      accessible_classroom_ids, plan.student_id
+    )
   end
 
   # Congelamento por autoria: quem não cursa mais o aluno vê o PEI só até a última versão que uma

@@ -48,6 +48,9 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # e preservar as demais edições do usuário ao exibir o erro.
   validate :prevent_removing_review_dates_in_use
 
+  validates :elaborated_at, not_in_future: true
+  validate :elaborated_at_within_year
+
   # Multi-selects das seções 2 e 3
   iep_multi_select :iep_selected_options,
                    :communication_profile, :social_interaction_profile, :autonomy,
@@ -72,10 +75,7 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # attending_on, uma enturmação encerrada sem contribuição no PEI faria o aluno aparecer ao filtrar.
   scope :by_classroom_id, ->(classroom_id) {
     where(id: IepVersion.by_classroom(classroom_id).select(:individualized_educational_plan_id))
-      .or(where(student_id: StudentEnrollmentClassroom.by_classroom(classroom_id)
-                              .attending_on(Date.current)
-                              .joins(:student_enrollment)
-                              .select('student_enrollments.student_id')))
+      .or(where(student_id: StudentEnrollmentClassroom.attending_student_ids(classroom_id)))
   }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
 
@@ -88,6 +88,15 @@ class IndividualizedEducationalPlan < ApplicationRecord
   end
 
   private
+
+  def elaborated_at_within_year
+    return if elaborated_at.blank? || year.blank?
+    # Mesma guarda do NotInFutureValidator: uma mensagem por campo, a primeira que couber.
+    return if errors[:elaborated_at].any?
+    return if elaborated_at.year == year.to_i
+
+    errors.add(:elaborated_at, :not_in_plan_year, year: year)
+  end
 
   def prune_empty_section_lines
     (iep_curricular_plannings + iep_periodic_evaluations).each do |line|

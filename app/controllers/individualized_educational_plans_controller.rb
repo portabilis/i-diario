@@ -51,7 +51,11 @@ class IndividualizedEducationalPlansController < ApplicationController
     # Só turma do usuário: sem isto, um classroom_id forjado listaria alunos de turma alheia.
     return render(json: [].to_json) unless accessible_classroom_ids.include?(params[:classroom_id].to_i)
 
-    student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
+    # Escopado ao ano letivo, como o accessible_plans que alimenta a listagem: sem isto, um aluno
+    # cujo único PEI na turma é de ano anterior vira opção do dropdown que resulta em lista vazia.
+    student_ids = IndividualizedEducationalPlan.where(year: current_school_year)
+                                               .by_classroom_id(params[:classroom_id])
+                                               .select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
 
     render json: students.map { |id, name| { id: id, name: name } }.to_json
@@ -65,7 +69,9 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     render json: {
       students: students,
-      calendar_error: IndividualizedEducationalPlanElaborationDayCheck.error_for(current_user_classroom, date)
+      calendar_error: IndividualizedEducationalPlanElaborationDayCheck.error_for(
+        current_user_classroom, date, year: current_school_year
+      )
     }.to_json
   rescue ActiveRecord::RecordNotFound
     head :not_found
@@ -77,7 +83,7 @@ class IndividualizedEducationalPlansController < ApplicationController
     authorize_student_query
     # Prefill traz dados VIVOS do aluno (nascimento, diagnóstico, responsáveis). Autor que não
     # cursa mais o aluno vê o plano congelado — não deve puxar o estado atual por este endpoint.
-    return head :forbidden if data_plan && !plan_editable?(data_plan)
+    return head :forbidden if frozen_plan_for_data?
 
     student = student_for_data
 
@@ -190,12 +196,12 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def create
-    existing = accessible_plan_for_student(create_resource_params[:student_id])
-    return redirect_to_existing_plan(existing) if existing
-
     @individualized_educational_plan = IndividualizedEducationalPlan.new(create_resource_params)
 
     authorize @individualized_educational_plan
+
+    existing = accessible_plan_for_student(@individualized_educational_plan.student_id)
+    return redirect_to_existing_plan(existing) if existing
 
     unless student_permitted_for_creation?
       @individualized_educational_plan.errors.add(
@@ -225,11 +231,11 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def update
     @individualized_educational_plan = plan_with_components
+    authorize @individualized_educational_plan
     return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
 
     @individualized_educational_plan.assign_attributes(update_resource_params)
 
-    authorize @individualized_educational_plan
     authorize_teacher_component_scope!
 
     if save_and_publish
@@ -268,7 +274,8 @@ class IndividualizedEducationalPlansController < ApplicationController
     # calendário da turma atual, possivelmente outra escola) trancaria a escola que recebeu o aluno.
     if @individualized_educational_plan.new_record? || @individualized_educational_plan.elaborated_at_changed?
       calendar_error = IndividualizedEducationalPlanElaborationDayCheck.error_for(
-        current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at
+        current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at,
+        year: @individualized_educational_plan.year
       )
       if calendar_error
         @individualized_educational_plan.errors.add(:elaborated_at, calendar_error)
@@ -347,12 +354,9 @@ class IndividualizedEducationalPlansController < ApplicationController
     return cache[plan.id] if cache.key?(plan.id)
 
     cache[plan.id] = begin
-      attending_ids = StudentEnrollmentClassroom
-                      .by_classroom(accessible_classroom_ids)
-                      .attending_on(Date.current)
-                      .by_student(plan.student_id)
-                      .joins(classrooms_grade: :classroom)
-                      .pluck('classrooms.id')
+      attending_ids = StudentEnrollmentClassroom.attending_classroom_ids(
+        accessible_classroom_ids, plan.student_id
+      )
 
       # Aluno cursa a turma do perfil → mantém a do perfil.
       if attending_ids.include?(current_user_classroom&.id)
@@ -483,6 +487,12 @@ class IndividualizedEducationalPlansController < ApplicationController
     end
 
     permitted_students(parsed_elaboration_date).find(params[:student_id])
+  end
+
+  def frozen_plan_for_data?
+    plan = data_plan || accessible_plan_for_student(params[:student_id])
+
+    plan.present? && !plan_editable?(plan)
   end
 
   # Escopado por accessible_plans: o plan_id vem do cliente e decide de qual aluno o prefill

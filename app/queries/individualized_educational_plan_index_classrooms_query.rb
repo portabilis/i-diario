@@ -34,18 +34,10 @@ class IndividualizedEducationalPlanIndexClassroomsQuery
     end
   end
 
-  # Set de student_ids que o usuário pode editar (cursando turma acessível hoje) — uma query só,
-  # para o index decidir por linha se HABILITA o botão "Editar" sem N+1 de plan_editable?.
+  # Set de student_ids que o usuário pode editar (cursando turma acessível hoje), para o index
+  # decidir por linha se HABILITA o botão "Editar" sem N+1 de plan_editable?.
   def editable_student_ids
-    return Set.new if plans.empty?
-
-    StudentEnrollmentClassroom
-      .by_classroom(classroom_ids)
-      .attending_on(Date.current)
-      .by_student(student_ids)
-      .joins(:student_enrollment)
-      .pluck('student_enrollments.student_id')
-      .to_set
+    attending_ids_by_student.keys.to_set
   end
 
   private
@@ -56,15 +48,17 @@ class IndividualizedEducationalPlanIndexClassroomsQuery
     @student_ids ||= plans.map(&:student_id)
   end
 
-  # student_id => ids das turmas acessíveis que o aluno CURSA hoje.
+  # student_id => ids das turmas acessíveis que o aluno CURSA hoje. Memoizado: alimenta tanto o
+  # display_classrooms quanto o editable_student_ids, ambos chamados no mesmo index.
   def attending_ids_by_student
-    StudentEnrollmentClassroom
-      .by_classroom(classroom_ids)
-      .attending_on(Date.current)
-      .by_student(student_ids)
-      .joins(classrooms_grade: :classroom)
-      .pluck('student_enrollments.student_id', 'classrooms.id')
-      .each_with_object({}) { |(sid, cid), acc| (acc[sid] ||= []) << cid }
+    return @attending_ids_by_student if defined?(@attending_ids_by_student)
+
+    @attending_ids_by_student =
+      if student_ids.empty?
+        {}
+      else
+        StudentEnrollmentClassroom.attending_classroom_ids_by_student(classroom_ids, student_ids)
+      end
   end
 
   # student_id => ids das turmas acessíveis que PUBLICARAM versão do PEI do aluno (autoria). Traz
