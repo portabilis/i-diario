@@ -318,6 +318,21 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
       allow(controller).to receive(:accessible_classrooms).and_return([classroom])
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+    end
+
+    it 'excludes a student whose only plan in the classroom is from another school year' do
+      current = create(:individualized_educational_plan)
+      enroll(current.student, classroom)
+      previous = create(:individualized_educational_plan, year: Date.current.year - 1,
+                                                          elaborated_at: Date.new(Date.current.year - 1, 3, 10))
+      enroll(previous.student, classroom)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
+
+      expect(JSON.parse(response.body)).to contain_exactly(
+        'id' => current.student_id, 'name' => current.student.name
+      )
     end
 
     it 'returns only students that have a plan and are enrolled in the classroom' do
@@ -414,6 +429,25 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       ids = JSON.parse(response.body)['students'].map { |student| student['id'] }
       expect(ids).to contain_exactly(current.id)
+    end
+
+    it 'warns right away that a future elaboration date is not allowed' do
+      get :students_by_elaboration_date, params: {
+        locale: 'pt-BR', elaborated_at: (Date.current + 1).to_s, format: :json
+      }
+
+      expect(JSON.parse(response.body)['calendar_error']).to eq(I18n.t('errors.messages.not_in_future'))
+    end
+
+    # O aviso tem que dar o motivo real, não "deve ser um dia letivo" do calendário daquele ano.
+    it 'warns right away that the date is outside the plan school year' do
+      get :students_by_elaboration_date, params: {
+        locale: 'pt-BR', elaborated_at: Date.new(Date.current.year - 1, 6, 3).to_s, format: :json
+      }
+
+      expect(JSON.parse(response.body)['calendar_error']).to eq(
+        I18n.t(IndividualizedEducationalPlanElaborationDayCheck::NOT_IN_PLAN_YEAR_KEY, year: Date.current.year)
+      )
     end
 
     it 'falls back to today when the date is invalid' do
@@ -705,6 +739,26 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response).to have_http_status(:forbidden)
     end
 
+    # O congelamento vale pelo aluno: sem isto, omitir o plan_id e mandar data retroativa
+    # devolvia os dados vivos de quem o usuário só pode ver congelado.
+    it 'forbids the prefill of a frozen plan even when plan_id is omitted' do
+      student = create(:student)
+      cg = create(:classrooms_grade, classroom: classroom)
+      se = create(:student_enrollment, student: student, status: StudentEnrollmentStatus::TRANSFERRED)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg,
+                                            joined_at: '2026-02-01', left_at: '2026-08-04')
+      plan = create(:individualized_educational_plan, student: student, year: Date.current.year)
+      create(:iep_version, iep: plan, classroom_id: classroom.id, published_at: Time.current, active: true,
+                           content: { 'identification' => { 'student_name' => student.name } })
+      expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: student.id, elaborated_at: '2026-08-03', format: :json
+      }
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
     it 'does not return data through a plan outside the user classrooms (plan_id)' do
       other_plan = create(:individualized_educational_plan)
       expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
@@ -933,6 +987,34 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response).to render_template(:new)
       expect(assigns(:individualized_educational_plan).errors[:elaborated_at])
         .to include(I18n.t('errors.messages.is_not_between_steps'))
+    end
+
+    # Sem stub do day check: quem barra aqui é o model.
+    it 'blocks creating with a future elaboration date' do
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1',
+          individualized_educational_plan: valid_params.merge(elaborated_at: Date.current + 1)
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to render_template(:new)
+      expect(assigns(:individualized_educational_plan).errors[:elaborated_at])
+        .to include(I18n.t('errors.messages.not_in_future'))
+    end
+
+    # Pundit antes dos guards de negócio: professor tem que levar 403, não o redirect de "já existe".
+    it 'runs the policy before the existing-plan redirect' do
+      student = create(:student)
+      create(:individualized_educational_plan, student: student, year: Date.current.year)
+      allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError)
+
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: { student_id: student.id }
+      }
+
+      expect(response).to redirect_to(root_path)
     end
 
     it 'routes to the existing plan instead of creating a duplicate' do
