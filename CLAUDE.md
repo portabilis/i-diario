@@ -148,7 +148,7 @@ Regras explícitas que os agentes de code review devem aplicar. Mudanças que vi
 - Jobs devem ser idempotentes sempre que possível (Sidekiq pode fazer retry)
 
 #### Database migrations (Critical)
-- Usa `structure.sql` (não `schema.rb`) — confirmar que `db/structure.sql` foi commitado junto da migration
+- Usa `structure.sql` (não `schema.rb`), porém `db/structure.sql` está no `.gitignore` e não é versionado — cada ambiente gera o seu ao rodar as migrations. Portanto, migration sem `db/structure.sql` no diff é o esperado e não deve ser apontada
 - `add_column` com `NOT NULL` em tabela existente: usar default ou backfill em migration separada
 - `add_index` em tabela grande: usar `algorithm: :concurrently` e `disable_ddl_transaction!`
 - `remove_column` sempre em duas releases (ignorar no Rails primeiro com `ignored_columns`, depois remover)
@@ -180,7 +180,7 @@ Regras explícitas que os agentes de code review devem aplicar. Mudanças que vi
 - E2E (Playwright em `spec/e2e/`) só para fluxos críticos de usuário, em pt-BR
 
 ### Database Notes
-- Uses `structure.sql` instead of `schema.rb`
+- Uses `structure.sql` instead of `schema.rb` — `db/structure.sql` is gitignored (not versioned); generated locally per environment
 - Multi-tenant architecture with Entity-specific databases
 - Extensive use of PostgreSQL features
 - Database-level constraints and validations
