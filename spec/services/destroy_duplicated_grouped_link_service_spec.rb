@@ -131,5 +131,22 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
         expect(TeacherDisciplineClassroom.where(id: regular_link.id)).to exist
       end
     end
+
+    # Duplicata é anomalia de dados independentemente da flag: sem esse caminho, uma área com o
+    # agrupamento desligado, dois agrupadores ativos e uma regular ativa escaparia das duas limpezas
+    context 'when the knowledge area no longer groups descriptors' do
+      let(:knowledge_area) { create(:knowledge_area, group_descriptors: false) }
+
+      it 'destroys all the duplicated grouper links' do
+        create_link(regular_discipline)
+        grouper_link_1 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
+        grouper_link_2 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}-dup")
+
+        described_class.call
+
+        remaining = TeacherDisciplineClassroom.unscoped.where(id: [grouper_link_1.id, grouper_link_2.id])
+        expect(remaining.count).to eq(0)
+      end
+    end
   end
 end
