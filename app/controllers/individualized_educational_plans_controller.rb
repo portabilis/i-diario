@@ -124,6 +124,28 @@ class IndividualizedEducationalPlansController < ApplicationController
     student_query_not_found(:open_medical_report)
   end
 
+  def upload_medical_report
+    authorize IndividualizedEducationalPlan, (params[:plan_id].present? ? :update? : :new?)
+
+    return render_upload_error(upload_t(:not_allowed), :forbidden) unless admin_or_employee?
+
+    if medical_reports_plan && !plan_editable?(medical_reports_plan)
+      return render_upload_error(t('individualized_educational_plans.flash.read_only_transferred'), :forbidden)
+    end
+
+    student = student_for_medical_reports
+
+    if student.api_code.blank?
+      return render_upload_error(upload_t(:student_without_ieducar), :unprocessable_entity)
+    end
+
+    result = IeducarApi::MedicalReports.upload(student_api_code: student.api_code, file: params[:file])
+
+    render json: { message: result.message }, status: (result.success? ? :ok : result.http_status)
+  rescue ActiveRecord::RecordNotFound
+    student_query_not_found(:upload_medical_report)
+  end
+
   def show
     @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
@@ -496,8 +518,19 @@ class IndividualizedEducationalPlansController < ApplicationController
                 alert: t("individualized_educational_plans.flash.#{flash_key}")
   end
 
+  def render_upload_error(message, status)
+    render json: { message: message }, status: status
+  end
+
+  def upload_t(key)
+    t("individualized_educational_plans.medical_report_upload.#{key}")
+  end
+
   def student_query_not_found(action)
-    context = { action: action, student_id: params[:student_id], plan_id: params[:plan_id] }
+    context = {
+      action: action, student_id: params[:student_id], plan_id: params[:plan_id],
+      elaborated_at: params[:elaborated_at]
+    }
     Rails.logger.error("PEI: #{action} não encontrou aluno/plano — #{context}")
     Honeybadger.notify("PEI: consulta de aluno não encontrada", context: context)
     head :not_found

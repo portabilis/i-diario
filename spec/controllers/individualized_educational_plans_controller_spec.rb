@@ -619,6 +619,114 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    describe 'POST #upload_medical_report' do
+      let(:file) do
+        Rack::Test::UploadedFile.new(Rails.root.join('spec', 'fixtures', 'image.png'), 'image/png')
+      end
+      let(:success_result) do
+        IeducarApi::MedicalReports::Result.new(true, 'Laudo salvo com sucesso.', :ok)
+      end
+
+      before do
+        allow(controller).to receive(:current_user).and_return(user)
+        allow(user).to receive(:current_role_is_admin_or_employee?).and_return(true)
+      end
+
+      it 'sends the file of the plan student to the i-Educar' do
+        expect(IeducarApi::MedicalReports).to receive(:upload)
+          .with(student_api_code: plan.student.api_code, file: duck_type(:original_filename, :read))
+          .and_return(success_result)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, file: file }
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)).to eq('message' => 'Laudo salvo com sucesso.')
+      end
+
+      it 'sends the file of an enrolled student during creation (without plan_id)' do
+        student = create(:student)
+        enroll(student, classroom)
+        expect(IeducarApi::MedicalReports).to receive(:upload)
+          .with(student_api_code: student.api_code, file: duck_type(:original_filename, :read))
+          .and_return(success_result)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', student_id: student.id, file: file }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      # A seção 1 (onde mora o laudo) é somente leitura para o professor: a trava da view
+      # é reforçada aqui no servidor.
+      it 'does not allow a teacher to upload' do
+        allow(user).to receive(:current_role_is_admin_or_employee?).and_return(false)
+        expect(IeducarApi::MedicalReports).not_to receive(:upload)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, file: file }
+
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)).to eq(
+          'message' => 'Somente administradores e servidores podem enviar laudos.'
+        )
+      end
+
+      it 'does not upload to a plan outside the user classrooms' do
+        other_plan = create(:individualized_educational_plan)
+        expect(IeducarApi::MedicalReports).not_to receive(:upload)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', plan_id: other_plan.id, file: file }
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'does not upload for a student outside the profile classroom (creation)' do
+        other_student = create(:student)
+        expect(IeducarApi::MedicalReports).not_to receive(:upload)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', student_id: other_student.id, file: file }
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'does not upload when the plan is read-only (student no longer attending)' do
+        allow(controller).to receive(:plan_editable?).and_return(false)
+        expect(IeducarApi::MedicalReports).not_to receive(:upload)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, file: file }
+
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)).to eq(
+          'message' => I18n.t('individualized_educational_plans.flash.read_only_transferred')
+        )
+      end
+
+      it 'does not upload when the student has no i-Educar api_code' do
+        student = create(:student, api: false, api_code: '')
+        enroll(student, classroom)
+        expect(IeducarApi::MedicalReports).not_to receive(:upload)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', student_id: student.id, file: file }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)).to eq(
+          'message' => 'O aluno não possui vínculo com o cadastro do i-Educar.'
+        )
+      end
+
+      it 'relays the failure message and status from the service' do
+        failure = IeducarApi::MedicalReports::Result.new(
+          false, 'Não foi possível conectar ao i-Educar. Tente novamente em instantes.', :bad_gateway
+        )
+        allow(IeducarApi::MedicalReports).to receive(:upload).and_return(failure)
+
+        post :upload_medical_report, params: { locale: 'pt-BR', plan_id: plan.id, file: file }
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(JSON.parse(response.body)).to eq(
+          'message' => 'Não foi possível conectar ao i-Educar. Tente novamente em instantes.'
+        )
+      end
+    end
   end
 
   describe 'GET #student_data' do

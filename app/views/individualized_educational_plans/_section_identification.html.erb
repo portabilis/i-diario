@@ -106,11 +106,13 @@
     <div class="col col-sm-12">
       <legend><%= t('.medical_reports') %></legend>
 
-      <%# O laudo é documento do cadastro do aluno no i-Educar (fonte da verdade): o PEI só
-          exibe, e exibe sempre o estado ATUAL — inclusive ao abrir uma versão publicada. %>
+      <%# O laudo é documento do cadastro do aluno no i-Educar (fonte da verdade): o PEI exibe
+          sempre o estado ATUAL — inclusive ao abrir uma versão publicada — e, para quem edita a
+          seção 1, também envia laudo novo direto para o cadastro. %>
       <div class="alert alert-info fade in">
         <i class="fa-fw fa fa-info"></i>
-        <%= t('.medical_reports_source') %>
+        <%= view_only ? t('.medical_reports_source')
+                      : t('.medical_reports_source_uploadable') + ' ' + t('.medical_report_upload_hint') %>
       </div>
       <br>
 
@@ -129,7 +131,55 @@
             <td colspan="2" class="text-muted"><%= t('.medical_reports_loading') %></td>
           </tr>
         </tbody>
+        <% unless view_only %>
+          <tbody id="iep-medical-reports-pending"
+                 data-remove-text="<%= t('.medical_report_remove') %>"
+                 data-not-sent-text="<%= t('.medical_report_not_sent') %>"></tbody>
+          <tfoot class="links">
+            <tr>
+              <td colspan="2">
+                <input type="file" id="iep-medical-report-file" accept=".jpg,.jpeg,.png,.pdf,.doc"
+                       style="display: none;">
+                <button type="button" id="iep-medical-report-add-button" class="btn btn-success btn-sm">
+                  <%= t('.medical_report_upload_button') %>
+                </button>
+                <button type="button" id="iep-medical-report-send-button" class="btn btn-primary btn-sm"
+                        disabled="disabled" data-sending-text="<%= t('.medical_report_upload_sending') %>">
+                  <%= t('.medical_report_send_button') %>
+                </button>
+              </td>
+            </tr>
+          </tfoot>
+        <% end %>
       </table>
+
+      <% unless view_only %>
+        <%# Modal de confirmação do envio do laudo %>
+        <div class="modal fade" id="iep-medical-report-send-modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+                <h4 class="modal-title"><%= t('.medical_report_send_modal_title') %></h4>
+              </div>
+              <div class="modal-body">
+                <p class="iep-medical-report-send-student" style="display: none;">
+                  <strong><%= t('.student') %>:</strong> <span></span>
+                </p>
+                <p><%= t('.medical_report_send_modal_text') %></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  <%= t('individualized_educational_plans.form.modal_cancel') %>
+                </button>
+                <button type="button" class="btn btn-success" id="iep-medical-report-send-confirm">
+                  <%= t('.medical_report_send_modal_confirm') %>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </fieldset>

@@ -9,7 +9,10 @@ $(function() {
   // Etapas do topo do wizard (fuelux steps); os painéis top-level ficam em .tab-content direto do wizard
   var $steps = $wizard.find('.fuelux .steps li');
   var $panes = $wizard.children('.tab-content').children('.tab-pane');
-  var $studentSelect = $('.iep-student-select');
+  // "input." obrigatório: o select2 v3 copia as classes do input para o container div que ele
+  // insere ANTES do input — sem o prefixo, $('.iep-student-select') casa com o div primeiro e
+  // .val() devolve undefined mesmo com aluno selecionado.
+  var $studentSelect = $('input.iep-student-select');
   // Na versão publicada os dados do aluno vêm congelados do snapshot: não busca no i-Educar.
   var studentFetchEnabled = $wizard.data('student-fetch') !== 'off';
   // Laudos: nunca congelados — são sempre os do cadastro do aluno no i-Educar, inclusive na
@@ -126,15 +129,258 @@ $(function() {
     });
   }
 
-  function medicalReportsErrorMessage(jqXHR, textStatus) {
+  function sessionExpiredMessage(jqXHR, textStatus) {
     var status = jqXHR && jqXHR.status;
 
     if (status === 401 || status === 403 || textStatus === 'parsererror') {
       return 'Sua sessão expirou ou você não tem acesso a este plano. Recarregue a página e tente novamente.';
     }
 
-    return 'Não foi possível consultar os laudos no i-Educar.';
+    return null;
   }
+
+  function medicalReportsErrorMessage(jqXHR, textStatus) {
+    return sessionExpiredMessage(jqXHR, textStatus) || 'Não foi possível consultar os laudos no i-Educar.';
+  }
+
+  // ---- Envio de laudo (seção 1): grava direto no cadastro do aluno no i-Educar ----
+  // O envio é IRREVERSÍVEL pelo i-Diário (a remoção só existe no cadastro do aluno no i-Educar).
+  // Por isso o fluxo tem duas etapas: "Adicionar laudo" cria uma linha PENDENTE (removível) e
+  // "Enviar laudo" pede confirmação antes de gravar. Finalizar com pendência é bloqueado abaixo.
+  var $addButton = $('#iep-medical-report-add-button');
+  var $sendButton = $('#iep-medical-report-send-button');
+  var $uploadFile = $('#iep-medical-report-file');
+  var $pendingReports = $('#iep-medical-reports-pending');
+  var $sendModal = $('#iep-medical-report-send-modal');
+  var $sendConfirm = $('#iep-medical-report-send-confirm');
+  var sendButtonHtml = $sendButton.html();
+  var pendingUploads = [];
+  var pendingKey = 0;
+  var uploading = false;
+
+  // Espelho das regras do endpoint do i-Educar (tipo/tamanho) para feedback imediato — o
+  // servidor revalida antes de enviar.
+  var UPLOAD_EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'doc'];
+  var UPLOAD_MAX_SIZE = 2 * 1024 * 1024;
+
+  function uploadValidationError(file) {
+    var extension = (file.name.split('.').pop() || '').toLowerCase();
+    if (UPLOAD_EXTENSIONS.indexOf(extension) === -1) {
+      return 'Deve ser enviado um arquivo do tipo jpg, jpeg, png, pdf ou doc.';
+    }
+
+    if (file.size > UPLOAD_MAX_SIZE) { return 'Não são permitidos arquivos com mais de 2MB.'; }
+
+    return null;
+  }
+
+  function refreshSendButton() {
+    $sendButton.prop('disabled', pendingUploads.length === 0);
+  }
+
+  // Erros de anexo/envio aparecem junto da tabela de laudos: o flash do topo fica fora da
+  // tela nesta altura do formulário.
+  function clearMedicalReportError() {
+    $pendingReports.find('.iep-medical-report-error-row').remove();
+  }
+
+  function showMedicalReportError(message) {
+    clearMedicalReportError();
+    $pendingReports.append(
+      $('<tr class="iep-medical-report-error-row">').append(
+        $('<td colspan="2">').append($('<span class="help-inline error">').text(message))
+      )
+    );
+  }
+
+  function addPendingRow(item) {
+    var $remove = $('<button type="button" class="btn btn-danger btn-sm iep-medical-report-remove"></button>')
+      .text($pendingReports.data('remove-text'));
+
+    var $badge = $('<span class="label label-warning pull-right">')
+      .css({ display: 'inline-block', width: 'auto' })
+      .text($pendingReports.data('not-sent-text'));
+
+    $pendingReports.append(
+      $('<tr>').attr('data-pending-key', item.key)
+        .append(
+          $('<td>').css('vertical-align', 'middle').append(
+            $('<span>').text(item.file.name),
+            $badge,
+            $('<div class="help-inline error iep-medical-report-row-error" style="display: none;"></div>')
+          )
+        )
+        .append($('<td>').css('vertical-align', 'middle').append($remove))
+    );
+  }
+
+  function setUploadSending(sending) {
+    $addButton.prop('disabled', sending);
+    $pendingReports.find('button').prop('disabled', sending);
+    $('.pei-wizard-finish').prop('disabled', sending);
+    $sendConfirm.prop('disabled', sending);
+    if (sending) {
+      $sendButton.prop('disabled', true);
+      $sendButton.text($sendButton.data('sending-text'));
+    } else {
+      $sendButton.html(sendButtonHtml);
+      refreshSendButton();
+    }
+  }
+
+  function clearPendingUploads() {
+    if (pendingUploads.length === 0) { return false; }
+
+    pendingUploads = [];
+    $pendingReports.find('tr[data-pending-key]').remove();
+    refreshSendButton();
+
+    return true;
+  }
+
+  function discardPendingUploadsOnStudentChange() {
+    if (clearPendingUploads()) {
+      showMedicalReportError('O laudo anexado foi descartado porque o aluno mudou. Anexe novamente para enviar.');
+    }
+  }
+
+  $addButton.on('click', function() { $uploadFile.trigger('click'); });
+
+  $uploadFile.on('change', function() {
+    var file = this.files && this.files[0];
+    if (!file) { return; }
+
+    $uploadFile.val('');
+
+    var validationError = uploadValidationError(file);
+    if (validationError) {
+      showMedicalReportError(file.name + ': ' + validationError);
+      return;
+    }
+
+    clearMedicalReportError();
+
+    var item = { key: (pendingKey += 1), file: file };
+    pendingUploads.push(item);
+    addPendingRow(item);
+    refreshSendButton();
+  });
+
+  $pendingReports.on('click', '.iep-medical-report-remove', function() {
+    var key = $(this).closest('tr').data('pending-key');
+
+    pendingUploads = pendingUploads.filter(function(item) { return item.key !== key; });
+    $(this).closest('tr').remove();
+    clearMedicalReportError();
+    refreshSendButton();
+  });
+
+  function selectedStudentName() {
+    try {
+      var data = $studentSelect.select2('data');
+
+      return (data && (data.text || data.name)) || '';
+    } catch (error) {
+      if (window.console) { console.error('PEI: não foi possível ler o aluno selecionado', error); }
+
+      return '';
+    }
+  }
+
+  $sendButton.on('click', function() {
+    if (pendingUploads.length === 0) { return; }
+
+    if (!medicalReportIdentity($studentSelect.val())) {
+      showMedicalReportError('Selecione o aluno antes de enviar o laudo.');
+      return;
+    }
+
+    $sendModal.find('.iep-medical-report-send-student').show()
+      .find('span').text(selectedStudentName() || 'não foi possível identificar — confira o aluno na seção 1');
+
+    $sendModal.modal('show');
+  });
+
+  $sendConfirm.on('click', function() {
+    if (uploading) { return; }
+
+    $sendModal.modal('hide');
+
+    var identity = medicalReportIdentity($studentSelect.val());
+    if (!identity) { showMedicalReportError('Selecione o aluno antes de enviar o laudo.'); return; }
+
+    clearMedicalReportError();
+    $pendingReports.find('.iep-medical-report-row-error').hide().empty();
+
+    uploading = true;
+    setUploadSending(true);
+    sendNextPending(identity, false);
+  });
+
+  // Envia a fila um a um (o endpoint recebe um arquivo por request). Para no primeiro erro:
+  // o que falhou continua pendente, pode ser removido ou reenviado.
+  function sendNextPending(identity, sentAny) {
+    var item = pendingUploads[0];
+    if (!item) { finishSending(identity, sentAny); return; }
+
+    var formData = new FormData();
+    formData.append('file', item.file);
+    $.each(identity, function(key, value) { formData.append(key, value); });
+
+    $.ajax({
+      url: Routes.upload_medical_report_individualized_educational_plans_pt_br_path(),
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      success: function(data) {
+        pendingUploads.shift();
+        $pendingReports.find('tr[data-pending-key="' + item.key + '"]').remove();
+        flashMessages.success(_.escape((data && data.message) || 'Laudo enviado para o cadastro do aluno no i-Educar.'));
+        sendNextPending(identity, true);
+      },
+      error: function(jqXHR, textStatus) {
+        var message = (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message) ||
+                      sessionExpiredMessage(jqXHR, textStatus) ||
+                      'Não foi possível enviar o laudo ao i-Educar.';
+
+        $pendingReports.find('tr[data-pending-key="' + item.key + '"] .iep-medical-report-row-error')
+          .text(message)
+          .show();
+        finishSending(identity, sentAny);
+      }
+    });
+  }
+
+  function finishSending(identity, sentAny) {
+    uploading = false;
+    setUploadSending(false);
+
+    if (!sentAny) { return; }
+
+    if (identity.plan_id) {
+      fetchMedicalReports();
+    } else {
+      fetchStudentData(identity.student_id);
+    }
+  }
+
+  // Finalizar com laudo anexado e não enviado descartaria o anexo em silêncio: bloqueia a
+  // abertura do modal de finalização (stopPropagation barra o data-toggle do Bootstrap,
+  // delegado no document) e volta para a seção 1, onde está a pendência.
+  $('.pei-wizard-finish').on('click', function(event) {
+    if (pendingUploads.length === 0) { return; }
+
+    event.preventDefault();
+    event.stopPropagation();
+    showStep(0);
+    showMedicalReportError('Há laudo anexado que ainda não foi enviado ao i-Educar. Envie ou remova o anexo antes de finalizar.');
+    flashMessages.error(
+      'Há laudo anexado que ainda não foi enviado ao i-Educar. Envie ou remova o anexo na seção 1 antes de finalizar.'
+    );
+  });
 
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
   // Zera os campos da seção 1 e esconde os avisos do aluno (usado no branch vazio, antes da
@@ -202,6 +448,8 @@ $(function() {
   }
 
   $studentSelect.on('change', function() {
+    clearMedicalReportError();
+    discardPendingUploadsOnStudentChange();
     if (studentFetchEnabled) { fetchStudentData($(this).val()); }
   });
 
@@ -243,6 +491,7 @@ $(function() {
       theme: 'classic'
     });
     $studentSelect.select2('val', '');
+    discardPendingUploadsOnStudentChange();
     fetchStudentData('');
   }
 
