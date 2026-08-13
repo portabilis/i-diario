@@ -42,6 +42,57 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
       end
     end
 
+    context 'when the knowledge area no longer groups descriptors' do
+      let(:knowledge_area) { create(:knowledge_area, group_descriptors: false) }
+
+      it 'destroys the orphaned grouper' do
+        grouper_link = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
+        regular_link = create_link(regular_discipline)
+        regular_link.discard
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).not_to exist
+      end
+
+      it 'does not destroy the grouper while regular disciplines are still active' do
+        grouper_link = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
+        create_link(regular_discipline)
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).to exist
+      end
+    end
+
+    context 'when the links have no grade' do
+      it 'does not destroy the grouper while regular disciplines are still active' do
+        grouper_link = create_link(
+          grouper_discipline,
+          api_code: "grouper:#{grouper_discipline.id}",
+          grade: nil
+        )
+        create_link(regular_discipline, grade: nil)
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).to exist
+      end
+
+      it 'destroys the grouper when the regular disciplines are discarded' do
+        grouper_link = create_link(
+          grouper_discipline,
+          api_code: "grouper:#{grouper_discipline.id}",
+          grade: nil
+        )
+        create_link(regular_discipline, grade: nil).discard
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).not_to exist
+      end
+    end
+
     context 'when two orphaned groupers have different grade_ids' do
       it 'destroys both groupers' do
         second_grade = create(:grade)

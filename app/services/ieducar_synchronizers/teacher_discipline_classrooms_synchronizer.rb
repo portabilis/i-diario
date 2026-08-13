@@ -66,19 +66,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           end
         end
 
-        if teacher_discipline_classroom_record.disciplinas.blank?
-          links_fake_disciplines = teacher_discipline_classroom_record
-        end
-
-        create_or_destroy_teacher_disciplines_classrooms(
-          created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines
-        )
+        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
 
         teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
           teacher_discipline_classroom_record,
           existing_discipline_api_codes
         )
         discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)
+
+        destroy_grouped_links(classroom_id, teacher_id)
       end
     end
 
@@ -198,21 +194,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     )
   end
 
-  def create_or_destroy_teacher_disciplines_classrooms(
-    linked_teachers,
-    teacher_id,
-    classroom_id,
-    links_fake_disciplines = nil
-  )
-    if links_fake_disciplines.present? && links_fake_disciplines.deleted_at.present?
-      link_fake = TeacherDisciplineClassroom.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
-
-      return if link_fake.nil?
-
-      link_fake.api_code.include?('grouper') ? link_fake.discard : return
-    end
-
-    teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
+  def create_or_destroy_teacher_disciplines_classrooms(linked_teachers)
+    # compact porque create_or_update_teacher_discipline_classrooms devolve nil quando a
+    # disciplina ou a série do i-Educar ainda não existem no i-Diário
+    teacher_discipline_classrooms_ids = linked_teachers.compact.map(&:id)
 
     TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
                               .where(id: teacher_discipline_classrooms_ids)
@@ -223,7 +208,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         grouper: true
       )
 
-      return if fake_discipline.nil?
+      next if fake_discipline.nil?
 
       link_teacher = TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
@@ -246,7 +231,6 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       link_teacher.save! if link_teacher.new_record? || link_teacher.changed?
     end
-    destroy_grouped_links(classroom_id, teacher_id)
   end
 
   def destroy_grouped_links(classroom_id, teacher_id)

@@ -1,4 +1,6 @@
 class DisciplinesSynchronizer < BaseSynchronizer
+  include GrouperLinksDiscardable
+
   def synchronize!
     update_records(
       HashDecorator.new(
@@ -30,14 +32,18 @@ class DisciplinesSynchronizer < BaseSynchronizer
         discipline.knowledge_area = knowledge_area
         discipline.descriptor = group_descriptors
 
-        create_or_destroy_grouper_disciplines(knowledge_area) if group_descriptors
+        create_or_discard_grouper_disciplines(knowledge_area)
 
         discipline.save! if discipline.changed?
       end
     end
   end
 
-  def create_or_destroy_grouper_disciplines(knowledge_area)
+  def create_or_discard_grouper_disciplines(knowledge_area)
+    return if processed_knowledge_areas.include?(knowledge_area.id)
+
+    processed_knowledge_areas << knowledge_area.id
+
     if knowledge_area.group_descriptors
       Discipline.unscoped.find_or_initialize_by(
         knowledge_area_id: knowledge_area.id,
@@ -49,11 +55,11 @@ class DisciplinesSynchronizer < BaseSynchronizer
         grouper_discipline.save!
       end
     else
-      Discipline.unscoped.find_by(
-        knowledge_area_id: knowledge_area.id,
-        grouper: true,
-        api_code: "grouper:#{knowledge_area.id}"
-      )&.destroy
+      discard_grouper_links(knowledge_area)
     end
+  end
+
+  def processed_knowledge_areas
+    @processed_knowledge_areas ||= Set.new
   end
 end
