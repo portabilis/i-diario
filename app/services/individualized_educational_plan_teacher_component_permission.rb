@@ -1,8 +1,9 @@
 # Escopo de edição do PROFESSOR no PEI.
 #
 # O professor só edita as seções 4/5 (planejamento curricular / avaliação periódica) do
-# SEU componente: as disciplinas que leciona na turma do plano ou as áreas de conhecimento
-# dessas disciplinas. As demais seções e as linhas de outros componentes ficam em leitura.
+# SEU componente: as disciplinas que leciona nas turmas ATIVAS do aluno (o PEI segue o aluno)
+# ou as áreas de conhecimento dessas disciplinas. As demais seções e as linhas de outros
+# componentes ficam em leitura.
 #
 # Usado tanto pela view (quais componentes/linhas são editáveis) quanto pelo controller
 # (trava server-side: nenhuma linha tocada pode ser de outro componente).
@@ -15,7 +16,8 @@ class IndividualizedEducationalPlanTeacherComponentPermission
   # Congelados: são o conjunto de autorização e também são entregues à view — o freeze
   # impede que uma referência entregue mute o que decide a posse de componente.
   def disciplines
-    @disciplines ||= Discipline.by_teacher_and_classroom(@teacher.id, [@iep.classroom_id]).ordered.to_a.freeze
+    @disciplines ||=
+      Discipline.by_teacher_and_classroom(@teacher.id, active_classroom_ids).ordered.to_a.freeze
   end
 
   def knowledge_areas
@@ -35,6 +37,13 @@ class IndividualizedEducationalPlanTeacherComponentPermission
   end
 
   private
+
+  # Ids das turmas do ano do PEI onde o aluno está cursando.
+  # Pode ser mais de uma ao mesmo tempo — ex.: regular + AEE.
+  def active_classroom_ids
+    @active_classroom_ids ||=
+      StudentEnrollmentClassroom.attending_classroom_ids_in_year(@iep.student_id, @iep.year)
+  end
 
   # A linha das seções 4/5 pertence ao componente do professor? (por disciplina ou por área)
   def owns?(discipline_id, knowledge_area_id)

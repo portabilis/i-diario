@@ -3,9 +3,6 @@ require 'rails_helper'
 RSpec.describe IndividualizedEducationalPlan, type: :model do
   describe 'associations' do
     it { expect(subject).to belong_to(:student) }
-    it { expect(subject).to belong_to(:unity) }
-    it { expect(subject).to belong_to(:classroom) }
-    it { expect(subject).to belong_to(:teacher) }
     it { expect(subject).to belong_to(:aee_teacher).class_name('Teacher') }
     it { expect(subject).to have_many(:iep_review_dates).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_selected_options).dependent(:destroy) }
@@ -18,16 +15,8 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     subject { build(:individualized_educational_plan) }
 
     it { expect(subject).to validate_presence_of(:student_id) }
-    it { expect(subject).to validate_presence_of(:unity_id) }
-    it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:year) }
     it { expect(subject).to validate_presence_of(:elaborated_at) }
-
-    it 'is valid without a teacher (classroom may have no regent in i-Educar)' do
-      plan = build(:individualized_educational_plan, teacher: nil)
-
-      expect(plan).to be_valid
-    end
 
     it 'validates uniqueness of student_id scoped to year (application-level)' do
       existing = create(:individualized_educational_plan)
@@ -44,14 +33,50 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     end
 
     it 'allows the same student in different years' do
-      existing = create(:individualized_educational_plan, year: 2025)
+      existing = create(:individualized_educational_plan, year: Date.current.year - 1,
+                                                          elaborated_at: Date.new(Date.current.year - 1, 3, 10))
       other_year = build(
         :individualized_educational_plan,
         student: existing.student,
-        year: 2026
+        year: Date.current.year,
+        elaborated_at: Date.current
       )
 
       expect(other_year).to be_valid
+    end
+
+    it 'rejects an elaboration date in the future' do
+      plan = build(:individualized_educational_plan, year: Date.current.year, elaborated_at: Date.current + 1)
+
+      expect(plan).not_to be_valid
+      expect(plan.errors[:elaborated_at]).to eq([I18n.t('errors.messages.not_in_future')])
+    end
+
+    it 'accepts today as the elaboration date' do
+      plan = build(:individualized_educational_plan, year: Date.current.year, elaborated_at: Date.current)
+
+      expect(plan).to be_valid
+    end
+
+    it 'accepts the first day of the plan school year' do
+      plan = build(:individualized_educational_plan, year: Date.current.year,
+                                                     elaborated_at: Date.new(Date.current.year, 1, 1))
+
+      expect(plan).to be_valid
+    end
+
+    # Passada, mas de outro ano: a regra de data futura não pega, a de ano sim.
+    it 'rejects a past elaboration date outside the plan school year' do
+      plan = build(:individualized_educational_plan, year: Date.current.year,
+                                                     elaborated_at: Date.new(Date.current.year - 1, 12, 15))
+
+      expect(plan).not_to be_valid
+      expect(plan.errors[:elaborated_at]).to eq(
+        [I18n.t(
+          'activerecord.errors.models.individualized_educational_plan.attributes.elaborated_at.not_in_plan_year',
+          year: Date.current.year
+        )]
+      )
     end
   end
 
@@ -223,6 +248,43 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
 
         expect(plan.reload.updated_at).to be > original
       end
+    end
+  end
+
+  # Filtro/cascata do index: turma filtrada = aluno cursando hoje ∪ turma autora. Enturmação
+  # encerrada (ou de um dia) numa turma que não contribuiu NÃO deve trazer o aluno.
+  describe '.by_classroom_id' do
+    let(:entity) { Entity.find_by(domain: 'test.host') }
+
+    around(:each) { |example| entity.using_connection { example.run } }
+
+    let(:classroom) { create(:classroom) }
+
+    def enroll(student, target_classroom, left_at: '')
+      cg = create(:classrooms_grade, classroom: target_classroom)
+      se = create(:student_enrollment, student: student)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg, left_at: left_at)
+    end
+
+    it 'includes the plan of a student currently attending the classroom' do
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+
+      expect(described_class.by_classroom_id(classroom.id)).to contain_exactly(plan)
+    end
+
+    it 'excludes the plan when the student left the classroom and it did not author a version' do
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom, left_at: 1.day.ago.to_date.to_s)
+
+      expect(described_class.by_classroom_id(classroom.id)).to be_empty
+    end
+
+    it 'includes the plan authored by the classroom even if the student no longer attends it' do
+      plan = create(:individualized_educational_plan)
+      create(:iep_version, iep: plan, classroom: classroom, active: true, published_at: Time.current)
+
+      expect(described_class.by_classroom_id(classroom.id)).to contain_exactly(plan)
     end
   end
 end

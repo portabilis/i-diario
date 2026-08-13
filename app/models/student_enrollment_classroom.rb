@@ -26,7 +26,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
-  scope :by_left_at_date, ->(date) { where("left_at IN (NULL, '') OR left_at > ?", date.to_date) }
+  scope :by_left_at_date, ->(date) { where("COALESCE(left_at, '') = '' OR left_at > ?", date.to_date) }
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classrooms_grade).where(classrooms_grades: { grade_id: grade_id }) }
@@ -39,9 +39,50 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :ordered, -> { order(:joined_at, :index) }
   scope :ordered_student, -> { joins(student_enrollment: :student).order('sequence ASC, students.name ASC') }
   scope :status_attending, -> { joins(:student_enrollment).merge(StudentEnrollment.status_attending) }
+  # Cursando na data: matrícula em status de frequência + enturmação cobrindo a data. by_date (não
+  # só by_left_at_date) para checar os DOIS lados — uma enturmação que começa depois não conta.
+  scope :attending_on, ->(date) { status_attending.by_date(date) }
   scope :by_opinion_type, lambda { |opinion_type, classrooms| by_opinion_type_query(opinion_type, classrooms) }
 
   delegate :student_id, to: :student_enrollment, allow_nil: true
+
+  # Alunos que cursam as turmas. Relation (não array) para virar subquery: where(student_id: ...).
+  def self.attending_student_ids(classroom_ids, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date)
+                               .joins(:student_enrollment)
+                               .select('student_enrollments.student_id')
+  end
+
+  # O aluno cursa alguma destas turmas? (EXISTS — quando não importa qual)
+  def self.attending_any_classroom?(classroom_ids, student_id, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date).by_student(student_id).exists?
+  end
+
+  # Quais destas turmas o aluno cursa. Pode ser mais de uma (ex.: regular + AEE).
+  def self.attending_classroom_ids(classroom_ids, student_id, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date).by_student(student_id)
+                               .joins(classrooms_grade: :classroom)
+                               .distinct
+                               .pluck('classrooms.id')
+  end
+
+  # Em quais turmas do ano letivo o aluno está. Sem lista de turmas: descobre quais são.
+  def self.attending_classroom_ids_in_year(student_id, year, on_date = Date.current)
+    by_student(student_id).attending_on(on_date)
+                          .joins(classrooms_grade: :classroom)
+                          .where(classrooms: { year: year })
+                          .distinct
+                          .pluck('classrooms.id')
+  end
+
+  # O mesmo do acima para VÁRIOS alunos numa query só (evita N+1 na listagem):
+  # devolve { student_id => [ids das turmas] }.
+  def self.attending_classroom_ids_by_student(classroom_ids, student_ids, on_date = Date.current)
+    by_classroom(classroom_ids).attending_on(on_date).by_student(student_ids)
+                               .joins(classrooms_grade: :classroom)
+                               .pluck('student_enrollments.student_id', 'classrooms.id')
+                               .each_with_object({}) { |(sid, cid), acc| (acc[sid] ||= []) << cid }
+  end
 
   def self.by_opinion_type_query(opinion_type, classrooms)
     return where(nil) unless opinion_type.present? && classrooms.present?

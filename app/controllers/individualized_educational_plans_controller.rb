@@ -33,6 +33,11 @@ class IndividualizedEducationalPlansController < ApplicationController
     set_filters
 
     @individualized_educational_plans = fetch_plans
+    index_classrooms = IndividualizedEducationalPlanIndexClassroomsQuery.new(
+      @individualized_educational_plans, accessible_classroom_ids
+    )
+    @display_classrooms = index_classrooms.display_classrooms
+    @editable_student_ids = index_classrooms.editable_student_ids
 
     authorize @individualized_educational_plans
   end
@@ -41,23 +46,49 @@ class IndividualizedEducationalPlansController < ApplicationController
   def fetch_students_by_classroom
     authorize IndividualizedEducationalPlan, :index?
 
+    # .to_json (String) evita o wrapping com raiz do active_model_serializers no render json:.
     return render(json: [].to_json) if params[:classroom_id].blank?
+    # Só turma do usuário: sem isto, um classroom_id forjado listaria alunos de turma alheia.
+    return render(json: [].to_json) unless accessible_classroom_ids.include?(params[:classroom_id].to_i)
 
-    student_ids = IndividualizedEducationalPlan.by_classroom_id(params[:classroom_id]).select(:student_id)
+    # Escopado ao ano letivo, como o accessible_plans que alimenta a listagem: sem isto, um aluno
+    # cujo único PEI na turma é de ano anterior vira opção do dropdown que resulta em lista vazia.
+    student_ids = IndividualizedEducationalPlan.where(year: current_school_year)
+                                               .by_classroom_id(params[:classroom_id])
+                                               .select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
 
     render json: students.map { |id, name| { id: id, name: name } }.to_json
+  end
+
+  def students_by_elaboration_date
+    authorize IndividualizedEducationalPlan, :new?
+
+    date = parsed_elaboration_date
+    students = permitted_students(date).order(:name).pluck(:id, :name).map { |id, name| { id: id, name: name } }
+
+    render json: {
+      students: students,
+      calendar_error: IndividualizedEducationalPlanElaborationDayCheck.error_for(
+        current_user_classroom, date, year: current_school_year
+      )
+    }.to_json
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
   end
 
   # Prefill da seção 1: dados de identificação do aluno (nascimento, diagnóstico, responsáveis, turno)
   # + aviso antecipado de que o aluno já possui um PEI no ano letivo (antes de o usuário preencher).
   def student_data
     authorize_student_query
+    # Prefill traz dados VIVOS do aluno (nascimento, diagnóstico, responsáveis). Autor que não
+    # cursa mais o aluno vê o plano congelado — não deve puxar o estado atual por este endpoint.
+    return head :forbidden if frozen_plan_for_data?
 
     student = student_for_data
 
     data = IndividualizedEducationalPlanPrefill.student_data(student, classroom: classroom_for_data)
-    data[:has_existing_plan] = existing_plan?(student.id)
+    data[:has_existing_plan] = plan_exists_for_student?(student.id)
 
     render json: data
   rescue ActiveRecord::RecordNotFound
@@ -96,6 +127,18 @@ class IndividualizedEducationalPlansController < ApplicationController
   def show
     @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
+    @plan_editable = plan_editable?(@individualized_educational_plan)
+
+    frozen = frozen_version_for(@individualized_educational_plan)
+    if frozen
+      return redirect_to individualized_educational_plan_version_path(
+        @individualized_educational_plan, frozen, format: (:pdf if request.format.pdf?)
+      )
+    elsif !@plan_editable
+      # Inativo sem versão do seu período: a visibilidade já barra este caso — defesa em
+      # profundidade para nunca renderizar o plano vivo a quem não cursa mais o aluno.
+      return individualized_educational_plan_not_found
+    end
 
     respond_to do |format|
       # HTML: mesmo formulário do preenchimento, em modo leitura.
@@ -105,7 +148,9 @@ class IndividualizedEducationalPlansController < ApplicationController
       end
       # PDF: documento de impressão (flat), a partir do snapshot do plano vivo.
       format.pdf do
-        @presenter = IndividualizedEducationalPlanReportPresenter.from_record(@individualized_educational_plan)
+        @presenter = IndividualizedEducationalPlanReportPresenter.from_record(
+          @individualized_educational_plan, classroom: current_classroom_for(@individualized_educational_plan)
+        )
         send_iep_pdf(
           filename: "plano_educacional_individualizado_#{@individualized_educational_plan.id}.pdf",
           log_context: "plan #{@individualized_educational_plan.id}"
@@ -115,12 +160,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def new
-    teacher = regent_teacher
-
     @individualized_educational_plan = IndividualizedEducationalPlan.new(
-      unity_id: current_unity&.id,
-      classroom_id: current_user_classroom&.id,
-      teacher_id: teacher&.id,
       year: current_school_year,
       elaborated_at: Date.current
     )
@@ -138,6 +178,16 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
+    existing = accessible_plan_for_student(@individualized_educational_plan.student_id)
+    return redirect_to_existing_plan(existing) if existing
+
+    unless student_permitted_for_creation?
+      @individualized_educational_plan.errors.add(
+        :student_id, t('individualized_educational_plans.create.student_not_permitted')
+      )
+      return render_form(:new)
+    end
+
     if save_and_publish
       respond_after_save
     else
@@ -148,6 +198,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   def edit
     @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
+    # Aluno transferido (sem enturmação aberta): edição não se aplica — cai na visualização (leitura),
+    # com mensagem, em vez de um redirect calado. Editar é só para quem cursa o aluno.
+    return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
 
     assign_display_fields
     build_default_review_dates
@@ -156,9 +209,11 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def update
     @individualized_educational_plan = plan_with_components
+    authorize @individualized_educational_plan
+    return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
+
     @individualized_educational_plan.assign_attributes(update_resource_params)
 
-    authorize @individualized_educational_plan
     authorize_teacher_component_scope!
 
     if save_and_publish
@@ -175,6 +230,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
+    return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
+
     @individualized_educational_plan.destroy
 
     respond_with @individualized_educational_plan, location: individualized_educational_plans_path
@@ -190,6 +247,20 @@ class IndividualizedEducationalPlansController < ApplicationController
       return false
     end
 
+    # Só valida o dia letivo quando a data de elaboração é definida/alterada. No update ela é
+    # readonly e não vem no submit do professor, então revalidar o valor armazenado (contra o
+    # calendário da turma atual, possivelmente outra escola) trancaria a escola que recebeu o aluno.
+    if @individualized_educational_plan.new_record? || @individualized_educational_plan.elaborated_at_changed?
+      calendar_error = IndividualizedEducationalPlanElaborationDayCheck.error_for(
+        current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at,
+        year: @individualized_educational_plan.year
+      )
+      if calendar_error
+        @individualized_educational_plan.errors.add(:elaborated_at, calendar_error)
+        return false
+      end
+    end
+
     # Busca externa (i-Educar, até 240s) fora da transação: dentro dela prenderia a conexão presa.
     prefetched_student_data = student_data_for_snapshot
 
@@ -200,12 +271,14 @@ class IndividualizedEducationalPlansController < ApplicationController
       authorize @individualized_educational_plan, :finalize?
       IndividualizedEducationalPlanPublisher.publish!(
         @individualized_educational_plan, name: version_name, published_by: current_user,
-        student_data: prefetched_student_data
+        student_data: prefetched_student_data,
+        classroom: current_classroom_for(@individualized_educational_plan)
       )
 
       saved
     end
-  rescue ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordNotUnique => e
+    Honeybadger.notify(e, context: { plan_id: @individualized_educational_plan.id })
     @individualized_educational_plan.errors.add(:base, t('individualized_educational_plans.finalize.already_published'))
     false
   end
@@ -213,6 +286,12 @@ class IndividualizedEducationalPlansController < ApplicationController
   def respond_after_save
     redirect_to individualized_educational_plans_path,
                 notice: t('individualized_educational_plans.finalize.success')
+  end
+
+  # Aluno transferido (sem enturmação aberta na turma do usuário): o PEI é somente leitura.
+  def read_only_transferred_redirect
+    redirect_to individualized_educational_plan_path(@individualized_educational_plan),
+                alert: t('individualized_educational_plans.flash.read_only_transferred')
   end
 
   def version_name
@@ -225,7 +304,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     IndividualizedEducationalPlanPrefill.student_data(
       @individualized_educational_plan.student,
-      classroom: @individualized_educational_plan.classroom
+      classroom: current_classroom_for(@individualized_educational_plan)
     )
   end
 
@@ -246,27 +325,54 @@ class IndividualizedEducationalPlansController < ApplicationController
     ).find(params[:id])
   end
 
-  # Professor da seção 1 = regente da turma (ref_cod_regente do i-Educar, sincronizado
-  # em classrooms.regent_api_code). Sem regente cadastrado, retorna nil (o formulário
-  # exibe o aviso e o PEI pode ser criado sem professor responsável).
-  def regent_teacher
-    Teacher.find_by(api_code: current_user_classroom&.regent_api_code)
+  def current_classroom_for(plan)
+    return current_user_classroom unless plan&.persisted?
+
+    cache = (@current_classroom_for ||= {})
+    return cache[plan.id] if cache.key?(plan.id)
+
+    cache[plan.id] = begin
+      attending_ids = StudentEnrollmentClassroom.attending_classroom_ids(
+        accessible_classroom_ids, plan.student_id
+      )
+
+      # Aluno cursa a turma do perfil → mantém a do perfil.
+      if attending_ids.include?(current_user_classroom&.id)
+        current_user_classroom
+      # Não cursa a do perfil (ex.: cursa B e C) → a de menor id entre as que cursa. O order fixa
+      # a escolha para não gravar autorias diferentes em dois saves.
+      else
+        Classroom.where(id: attending_ids).order(:id).first || current_user_classroom
+      end
+    end
   end
 
-  # Recarrega os dados de exibição do formulário para evitar campos readonly em branco
-  # após re-renderização (edição, erro de validação ou remoção).
+  # Recarrega os dados de exibição do formulário (escola/turma/regente derivados da turma atual)
+  # para evitar campos readonly em branco após re-renderização.
   def assign_display_fields
     plan = @individualized_educational_plan
-    plan.unity_name = plan.unity&.name
-    plan.classroom_name = plan.classroom&.description
-    plan.teacher_name = plan.teacher&.name
+    classroom = current_classroom_for(plan)
+    plan.unity_name = classroom&.unity&.name
+    plan.classroom_name = classroom&.description
+    plan.teacher_name = classroom&.regent&.name
     prefill_student_fields
   end
 
-  def existing_plan?(student_id)
+  def plan_exists_for_student?(student_id)
     scope = IndividualizedEducationalPlan.where(student_id: student_id, year: current_school_year)
     scope = scope.where.not(id: params[:plan_id]) if params[:plan_id].present?
     scope.exists?
+  end
+
+  def accessible_plan_for_student(student_id)
+    return if student_id.blank?
+
+    accessible_plans.find_by(student_id: student_id)
+  end
+
+  def redirect_to_existing_plan(plan)
+    redirect_to edit_individualized_educational_plan_path(plan),
+                notice: t('individualized_educational_plans.flash.already_exists_editing')
   end
 
   # Dados locais (sem chamada externa) para exibir de imediato no formulário.
@@ -278,7 +384,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     data = IndividualizedEducationalPlanPrefill.local_student_data(
       @individualized_educational_plan.student,
-      classroom: @individualized_educational_plan.classroom
+      classroom: current_classroom_for(@individualized_educational_plan)
     )
     @individualized_educational_plan.birth_date = data[:birth_date]
     @individualized_educational_plan.diagnosis = data[:diagnosis]
@@ -320,16 +426,37 @@ class IndividualizedEducationalPlansController < ApplicationController
   def form_students
     return Student.where(id: @individualized_educational_plan.student_id) if @individualized_educational_plan.persisted?
 
-    permitted_students
+    permitted_students(@individualized_educational_plan.elaborated_at || Date.current)
   end
 
-  # Alunos que o usuário pode selecionar ao criar um PEI: só os enturmados na turma do PERFIL
-  # selecionado (não em todas as turmas que o professor leciona — diferente da listagem).
-  def permitted_students
+  def student_permitted_for_creation?
+    permitted_students(@individualized_educational_plan.elaborated_at || Date.current)
+      .exists?(id: @individualized_educational_plan.student_id)
+  end
+
+  # Alunos selecionáveis ao criar um PEI: enturmados na turma do perfil NA DATA informada (matrícula
+  # ativa). Usa by_date (não status "cursando hoje") para permitir PEI retroativo de aluno já transferido.
+  def permitted_students(on_date = Date.current)
     return Student.none if current_user_classroom.blank?
 
-    student_ids = StudentEnrollment.by_classroom(current_user_classroom.id).active.select(:student_id)
+    student_ids = StudentEnrollmentClassroom
+                  .by_classroom(current_user_classroom.id)
+                  .by_date(on_date)
+                  .active
+                  .joins(:student_enrollment)
+                  .select('student_enrollments.student_id')
     Student.where(id: student_ids)
+  end
+
+  # Data de elaboração vinda do select via AJAX; inválida/ausente cai para hoje (registra o valor
+  # rejeitado para não trocar a data em silêncio).
+  def parsed_elaboration_date
+    Date.parse(params[:elaborated_at].to_s)
+  rescue ArgumentError
+    if params[:elaborated_at].present?
+      Rails.logger.warn("PEI: elaborated_at inválido (#{params[:elaborated_at].inspect}) — usando a data atual")
+    end
+    Date.current
   end
 
   def student_for_data
@@ -337,7 +464,13 @@ class IndividualizedEducationalPlansController < ApplicationController
       return data_plan.student if data_plan.student_id.to_s == params[:student_id].to_s
     end
 
-    permitted_students.find(params[:student_id])
+    permitted_students(parsed_elaboration_date).find(params[:student_id])
+  end
+
+  def frozen_plan_for_data?
+    plan = data_plan || accessible_plan_for_student(params[:student_id])
+
+    plan.present? && !plan_editable?(plan)
   end
 
   # Escopado por accessible_plans: o plan_id vem do cliente e decide de qual aluno o prefill
@@ -349,7 +482,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def classroom_for_data
-    data_plan&.classroom || current_user_classroom
+    data_plan ? current_classroom_for(data_plan) : current_user_classroom
   end
 
   # Consultas de dados do aluno (prefill e laudos): só :show? num plano existente (vem plan_id,
@@ -364,9 +497,9 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def student_query_not_found(action)
-    Rails.logger.error(
-      "PEI: #{action} não encontrou aluno/plano — student_id=#{params[:student_id]} plan_id=#{params[:plan_id]}"
-    )
+    context = { action: action, student_id: params[:student_id], plan_id: params[:plan_id] }
+    Rails.logger.error("PEI: #{action} não encontrou aluno/plano — #{context}")
+    Honeybadger.notify("PEI: consulta de aluno não encontrada", context: context)
     head :not_found
   end
 
@@ -375,7 +508,7 @@ class IndividualizedEducationalPlansController < ApplicationController
   def student_for_medical_reports
     return medical_reports_plan.student if medical_reports_plan
 
-    permitted_students.find(params[:student_id])
+    permitted_students(parsed_elaboration_date).find(params[:student_id])
   end
 
   def medical_reports_plan
@@ -385,7 +518,10 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def create_resource_params
-    params.require(:individualized_educational_plan).permit(:student_id).merge(resource_params)
+    params.require(:individualized_educational_plan)
+          .permit(:student_id)
+          .merge(resource_params)
+          .merge(year: current_school_year)
   end
 
   # Admin/servidor editam o PEI inteiro; o professor só as seções 4/5 (planejamento/avaliação).
@@ -428,7 +564,7 @@ class IndividualizedEducationalPlansController < ApplicationController
 
   def resource_params
     params.require(:individualized_educational_plan).permit(
-      :unity_id, :classroom_id, :teacher_id, :aee_teacher_id, :year,
+      :aee_teacher_id,
       :support_professional, :elaborated_at,
       :characterization, :clinical_diagnosis_justification, :school_history,
       :potentialities, :difficulties, :preferences_interests, :effective_strategies,
@@ -457,11 +593,6 @@ class IndividualizedEducationalPlansController < ApplicationController
   end
 
   def fetch_plans
-    apply_scopes(
-      IndividualizedEducationalPlan
-        .by_classroom_id(@classrooms.map(&:id))
-        .includes(:student, :classroom, :unity)
-        .order(updated_at: :desc)
-    )
+    apply_scopes(accessible_plans.includes(:student).order(updated_at: :desc))
   end
 end

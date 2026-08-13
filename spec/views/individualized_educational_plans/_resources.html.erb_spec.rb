@@ -9,16 +9,27 @@ RSpec.describe 'individualized_educational_plans/_resources', type: :view do
 
   let(:plan) { create(:individualized_educational_plan) }
 
-  def render_resources(edit:, destroy:)
+  def render_resources(edit:, destroy:, editable_student: true)
     assign(:individualized_educational_plans, [plan])
+    entry = IndividualizedEducationalPlanIndexClassroomsQuery::Entry.new([create(:classroom)])
+    assign(:display_classrooms, { plan.student_id => entry })
+    assign(:editable_student_ids, editable_student ? Set[plan.student_id] : Set.new)
     allow(view).to receive(:policy).and_return(double(edit?: edit, destroy?: destroy))
     render partial: 'individualized_educational_plans/resources'
   end
 
-  it 'renders the edit link only when editing is allowed' do
+  it 'renders the edit link enabled when the student is editable' do
     render_resources(edit: true, destroy: false)
 
     expect(rendered).to include(edit_individualized_educational_plan_path(plan))
+    expect(rendered).not_to include('disabled')
+  end
+
+  it 'renders the edit link disabled for a plan the user cannot edit (visible only by authorship)' do
+    render_resources(edit: true, destroy: false, editable_student: false)
+
+    expect(rendered).to include(edit_individualized_educational_plan_path(plan))
+    expect(rendered).to include('btn btn-success apply_tooltip disabled')
   end
 
   it 'hides the edit link when editing is not allowed' do

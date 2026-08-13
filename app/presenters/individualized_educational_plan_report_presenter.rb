@@ -6,8 +6,8 @@ class IndividualizedEducationalPlanReportPresenter
     @content = content.to_h
   end
 
-  def self.from_record(plan)
-    new(IndividualizedEducationalPlanSnapshot.build(plan))
+  def self.from_record(plan, classroom: nil)
+    new(IndividualizedEducationalPlanSnapshot.build(plan, classroom: classroom))
   end
 
   def self.from_snapshot(content)

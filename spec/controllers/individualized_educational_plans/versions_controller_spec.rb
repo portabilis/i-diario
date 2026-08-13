@@ -15,11 +15,22 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:require_current_teacher).and_return(true)
     allow(controller).to receive(:current_user_classroom).and_return(classroom)
+    allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+  end
+
+  # O acesso ao PEI deriva da matrícula: cria um plano cujo aluno está enturmado na turma
+  # do perfil (acessível).
+  def accessible_plan
+    plan = create(:individualized_educational_plan, year: Date.current.year)
+    cg = create(:classrooms_grade, classroom: classroom)
+    se = create(:student_enrollment, student: plan.student)
+    create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg, left_at: '')
+    plan
   end
 
   describe 'GET #index' do
     it 'lists the plan versions, most recent first' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = accessible_plan
       older = create(:iep_version, iep: plan, published_at: 2.days.ago, active: false)
       newer = create(:iep_version, iep: plan, published_at: 1.day.ago, active: true)
       create(:iep_version) # versão de outro PEI, não deve aparecer
@@ -31,7 +42,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     end
 
     it 'renders an empty history when the plan has no versions yet' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = accessible_plan
 
       get :index, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id }
 
@@ -40,7 +51,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     end
 
     it 'does not list versions of a plan from a classroom the user is not linked to' do
-      plan = create(:individualized_educational_plan, classroom: create(:classroom))
+      plan = create(:individualized_educational_plan)
 
       get :index, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id }
 
@@ -53,7 +64,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
       it 'denies access when the user cannot view the feature' do
         allow_any_instance_of(User).to receive(:can_show?)
           .with('individualized_educational_plans').and_return(false)
-        plan = create(:individualized_educational_plan, classroom: classroom)
+        plan = accessible_plan
 
         get :index, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id }
 
@@ -64,7 +75,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
 
   describe 'GET #show' do
     it 'reconstructs the version from its snapshot into the read-only form' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = accessible_plan
       version = create(:iep_version, iep: plan, active: true,
                                      content: { 'identification' => { 'student_name' => 'Aluno Congelado' } })
 
@@ -76,7 +87,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     end
 
     it 'redirects with a warning and notifies when the snapshot is corrupted' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = accessible_plan
       version = create(:iep_version, iep: plan, active: true, content: { 'identification' => {} })
       expect(Honeybadger).to receive(:notify)
 
@@ -91,7 +102,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     render_views
 
     it 'sends the version pdf rendered from the snapshot' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = accessible_plan
       version = create(:iep_version, iep: plan, active: true,
                                      content: { 'identification' => { 'student_name' => 'Aluno Congelado' } })
       allow(ReportGenerator).to receive(:call).and_return(double(body: '%PDF-fake'))
@@ -107,7 +118,7 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
     end
 
     it 'redirects with an alert when the pdf service fails' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = accessible_plan
       version = create(:iep_version, iep: plan, active: true, content: {})
       allow(ReportGenerator).to receive(:call).and_raise(RestClient::Exceptions::ReadTimeout)
 
@@ -117,6 +128,45 @@ RSpec.describe IndividualizedEducationalPlans::VersionsController, type: :contro
 
       expect(response).to redirect_to(individualized_educational_plans_path)
       expect(flash[:alert]).to be_present
+    end
+  end
+
+  # Congelamento por AUTORIA: a turma do perfil publicou versões deste PEI, mas o aluno não cursa
+  # mais ela. Ela só enxerga o histórico até a SUA última contribuição — não as versões que a turma
+  # nova publicou depois. Visibilidade vem da autoria (iep_versions.classroom_id), não da matrícula.
+  describe 'freeze (author who no longer teaches)' do
+    let(:other_classroom) { create(:classroom) }
+    let(:plan) { create(:individualized_educational_plan, year: Date.current.year) }
+
+    # última contribuição da turma do perfil
+    let!(:before_version) do
+      create(:iep_version, iep: plan, classroom_id: classroom.id, published_at: 2.months.ago, active: false,
+                           content: { 'identification' => { 'student_name' => plan.student.name } })
+    end
+    # versão que a turma NOVA publicou depois → não deve aparecer para a turma do perfil
+    let!(:after_version) do
+      create(:iep_version, iep: plan, classroom_id: other_classroom.id, published_at: Time.current, active: true,
+                           content: { 'identification' => { 'student_name' => plan.student.name } })
+    end
+
+    it 'lists only versions up to the classroom last contribution' do
+      get :index, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id }
+
+      expect(assigns(:versions)).to eq([before_version])
+    end
+
+    it 'blocks opening a version published after the classroom last contribution' do
+      get :show, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id, id: after_version.id }
+
+      expect(response).to redirect_to(individualized_educational_plan_versions_path(plan))
+      expect(flash[:alert]).to eq(I18n.t('individualized_educational_plans.versions.frozen_out'))
+    end
+
+    it 'allows opening a version the classroom authored' do
+      get :show, params: { locale: 'pt-BR', individualized_educational_plan_id: plan.id, id: before_version.id }
+
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:version)).to eq(before_version)
     end
   end
 end

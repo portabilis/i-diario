@@ -26,3 +26,5 @@ pt-BR:
           attributes:
             student_id:
               taken: "já possui um PEI para este ano letivo"
+            elaborated_at:
+              not_in_plan_year: "deve estar dentro do ano letivo do plano (%{year})"

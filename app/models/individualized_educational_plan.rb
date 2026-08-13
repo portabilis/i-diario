@@ -10,9 +10,6 @@ class IndividualizedEducationalPlan < ApplicationRecord
   has_associated_audits
 
   belongs_to :student
-  belongs_to :unity
-  belongs_to :classroom
-  belongs_to :teacher                                  # professor regente (único, da turma)
   belongs_to :aee_teacher, class_name: 'Teacher'       # opcional
 
   has_many :iep_selected_options, dependent: :destroy
@@ -51,13 +48,15 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # e preservar as demais edições do usuário ao exibir o erro.
   validate :prevent_removing_review_dates_in_use
 
+  validates :elaborated_at, not_in_future: true
+  validate :elaborated_at_within_year
+
   # Multi-selects das seções 2 e 3
   iep_multi_select :iep_selected_options,
                    :communication_profile, :social_interaction_profile, :autonomy,
                    :accompaniment, :support_type
 
-  validates :student_id, :unity_id, :classroom_id, :year, :elaborated_at,
-            presence: true
+  validates :student_id, :year, :elaborated_at, presence: true
 
   # Unicidade 1 PEI por aluno/ano: índice único no banco + esta validação para a mensagem amigável.
   validates :student_id, uniqueness: { scope: :year }
@@ -71,7 +70,13 @@ class IndividualizedEducationalPlan < ApplicationRecord
 
   scope :finalized, -> { where(ACTIVE_VERSION_EXISTS_SQL) }
   scope :draft, -> { where("NOT #{ACTIVE_VERSION_EXISTS_SQL}") }
-  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
+  # PEIs ligados à turma, para o filtro/cascata do index: aluno CURSANDO a turma hoje, ou turma que
+  # publicou versão (autoria) — mesma regra do accessible_plans, só que restrita a uma turma. Sem o
+  # attending_on, uma enturmação encerrada sem contribuição no PEI faria o aluno aparecer ao filtrar.
+  scope :by_classroom_id, ->(classroom_id) {
+    where(id: IepVersion.by_classroom(classroom_id).select(:individualized_educational_plan_id))
+      .or(where(student_id: StudentEnrollmentClassroom.attending_student_ids(classroom_id)))
+  }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
 
   def finalized?
@@ -83,6 +88,15 @@ class IndividualizedEducationalPlan < ApplicationRecord
   end
 
   private
+
+  def elaborated_at_within_year
+    return if elaborated_at.blank? || year.blank?
+    # Mesma guarda do NotInFutureValidator: uma mensagem por campo, a primeira que couber.
+    return if errors[:elaborated_at].any?
+    return if elaborated_at.year == year.to_i
+
+    errors.add(:elaborated_at, :not_in_plan_year, year: year)
+  end
 
   def prune_empty_section_lines
     (iep_curricular_plannings + iep_periodic_evaluations).each do |line|

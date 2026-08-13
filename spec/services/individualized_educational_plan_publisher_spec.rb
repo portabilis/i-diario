@@ -13,11 +13,12 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
   end
 
   let(:user) { create(:user) }
+  let(:classroom) { create(:classroom) }
   let(:plan) { create(:individualized_educational_plan, annual_report: 'Relatório do ano') }
 
   describe '.publish!' do
     it 'creates an active version with name, author and publication time' do
-      version = described_class.publish!(plan, name: 'Versão 1', published_by: user)
+      version = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
 
       expect(version.reload.active).to eq(true)
       expect(version.name).to eq('Versão 1')
@@ -26,9 +27,16 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
       expect(plan.reload.finalized_at.to_i).to eq(version.published_at.to_i)
     end
 
+    it 'stamps the publishing classroom on the version (authorship)' do
+      classroom = create(:classroom)
+      version = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
+
+      expect(version.classroom_id).to eq(classroom.id)
+    end
+
     it 'deactivates the previous version keeping both in the history' do
-      first = described_class.publish!(plan, name: 'Versão 1', published_by: user)
-      second = described_class.publish!(plan, name: 'Versão 2', published_by: user)
+      first = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
+      second = described_class.publish!(plan, name: 'Versão 2', published_by: user, classroom: classroom)
 
       expect(plan.iep_versions.count).to eq(2)
       expect(first.reload.active).to eq(false)
@@ -38,7 +46,7 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
 
     it 'does not publish without a version name' do
       expect {
-        described_class.publish!(plan, name: '', published_by: user)
+        described_class.publish!(plan, name: '', published_by: user, classroom: classroom)
       }.to raise_error(ActiveRecord::RecordInvalid)
 
       expect(plan.iep_versions.count).to eq(0)
@@ -54,18 +62,18 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
       planning.update_column(:iep_review_date_id, foreign_review_date.id)
 
       expect {
-        described_class.publish!(plan, name: 'Versão 1', published_by: user)
+        described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
       }.to raise_error(ArgumentError, /não pertence ao plano/)
 
       expect(plan.iep_versions.count).to eq(0)
     end
 
     it 'never mutates the content of a previously published version' do
-      first = described_class.publish!(plan, name: 'Versão 1', published_by: user)
+      first = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
       original_content = first.content.deep_dup
 
       plan.update!(annual_report: 'Relatório alterado depois')
-      described_class.publish!(plan, name: 'Versão 2', published_by: user)
+      described_class.publish!(plan, name: 'Versão 2', published_by: user, classroom: classroom)
 
       expect(first.reload.content).to eq(original_content)
       expect(first.content['final_evaluation']['annual_report']).to eq('Relatório do ano')
@@ -73,12 +81,17 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
 
     describe 'snapshot content' do
       it 'stores resolved names for identification and final evaluation' do
-        version = described_class.publish!(plan, name: 'Versão 1', published_by: user)
+        # escola/turma/regente são derivados da TURMA passada ao publish (o PEI não os possui);
+        # o regente vem do api_code da turma.
+        regent = create(:teacher, api_code: 'REGENT-1')
+        classroom = create(:classroom, regent_api_code: 'REGENT-1')
+        version = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
 
         identification = version.content['identification']
         expect(identification['student_name']).to eq(plan.student.name)
-        expect(identification['classroom_name']).to eq(plan.classroom.description)
-        expect(identification['teacher_name']).to eq(plan.teacher.name)
+        expect(identification['unity_name']).to eq(classroom.unity.name)
+        expect(identification['classroom_name']).to eq(classroom.description)
+        expect(identification['teacher_name']).to eq(regent.name)
         expect(version.content['final_evaluation']['annual_report']).to eq('Relatório do ano')
       end
 
@@ -87,7 +100,7 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
         plan.communication_profile_option_ids = [option.id]
         plan.save!
 
-        version = described_class.publish!(plan, name: 'Versão 1', published_by: user)
+        version = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
 
         expect(version.content['characterization']['communication_profile'])
           .to eq(['Comunicação funcional'])
@@ -102,7 +115,7 @@ RSpec.describe IndividualizedEducationalPlanPublisher, type: :service do
         planning.instructional_accommodation_option_ids = [accommodation.id]
         planning.save!
 
-        version = described_class.publish!(plan, name: 'Versão 1', published_by: user)
+        version = described_class.publish!(plan, name: 'Versão 1', published_by: user, classroom: classroom)
 
         line = version.content['curricular_plannings'].first
         expect(line['review_number']).to eq(1)

@@ -1,5 +1,15 @@
 <% view_only = local_assigns[:view_only] %>
 <fieldset>
+  <%# Data de elaboração vem ANTES do aluno: escolher a data primeiro filtra o select de alunos
+      pelos que estavam enturmados na turma NAQUELA data. %>
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :elaborated_at, as: :date, label: t('.elaborated_at'),
+                  input_html: { readonly: view_only, class: 'iep-elaborated-at',
+                                value: @individualized_educational_plan.elaborated_at.try(:strftime, '%d/%m/%Y') } %>
+    </div>
+  </div>
+
   <div class="row">
     <div class="col col-sm-6">
       <%= f.input :student_id, as: :select2, elements: @students, label: t('.student'),
@@ -39,11 +49,9 @@
   <div class="row">
     <div class="col col-sm-4">
       <%= f.input :unity_name, label: t('.unity'), input_html: { readonly: true } %>
-      <%= f.input_field :unity_id, as: :hidden %>
     </div>
     <div class="col col-sm-4">
       <%= f.input :classroom_name, label: t('.classroom'), input_html: { readonly: true } %>
-      <%= f.input_field :classroom_id, as: :hidden %>
     </div>
     <div class="col col-sm-4">
       <%= f.input :shift, label: t('.shift'), input_html: { readonly: true, class: 'iep-shift' } %>
@@ -55,8 +63,7 @@
   <div class="row">
     <div class="col col-sm-4">
       <%= f.input :teacher_name, label: t('.teacher'), input_html: { readonly: true } %>
-      <%= f.input_field :teacher_id, as: :hidden %>
-      <% if @individualized_educational_plan.teacher_id.blank? && !view_only %>
+      <% if @individualized_educational_plan.teacher_name.blank? && !view_only %>
         <div class="alert alert-warning" style="margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
           <i class="fa-fw fa fa-warning"></i> <%= t('.no_regent_warning') %>
         </div>
@@ -64,19 +71,12 @@
     </div>
     <div class="col col-sm-4">
       <%= f.input :aee_teacher_id, as: :select2, elements: @aee_teachers, label: t('.aee_teacher'),
-                  placeholder: t('.select_aee_teacher'), input_html: { disabled: view_only } %>
+                  placeholder: (t('.select_aee_teacher') unless view_only),
+                  input_html: { disabled: view_only } %>
     </div>
     <div class="col col-sm-4">
       <%= f.input :support_professional, label: t('.support_professional'),
                   input_html: { readonly: view_only } %>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col col-sm-4">
-      <%= f.input :elaborated_at, as: :date, label: t('.elaborated_at'),
-                  input_html: { readonly: view_only,
-                                value: @individualized_educational_plan.elaborated_at.try(:strftime, '%d/%m/%Y') } %>
     </div>
   </div>
 

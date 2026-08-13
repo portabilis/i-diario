@@ -27,6 +27,16 @@
     </div>
   <% end %>
 
+  <%# Barra de etapas do wizard (fuelux): por padrão o .wizard usa overflow:hidden e a ul tem
+      width fixo, então em zoom alto / telas estreitas a última etapa fica CORTADA. Aqui a barra
+      passa a rolar na horizontal (as etapas ficam sempre acessíveis). Escopo só no PEI — é o
+      único wizard fuelux do sistema. %>
+  <style>
+    #pei-wizard .fuelux .wizard { overflow-x: auto; overflow-y: hidden; }
+    #pei-wizard .fuelux .wizard ul.steps { width: auto; display: flex; }
+    #pei-wizard .fuelux .wizard ul.steps > li { float: none; flex: 0 0 auto; }
+  </style>
+
   <div id="pei-wizard" data-plan-id="<%= @individualized_educational_plan.id %>"
        data-student-fetch="<%= student_fetch ? 'on' : 'off' %>"
        data-medical-reports-plan-id="<%= medical_reports_plan_id %>">

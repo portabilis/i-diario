@@ -59,7 +59,11 @@ $(function() {
 
     if (!studentId || studentId === 'empty') { return null; }
 
-    return { student_id: studentId };
+    var identity = { student_id: studentId };
+    var elaboratedAt = $('.iep-elaborated-at').val();
+    if (elaboratedAt) { identity.elaborated_at = elaboratedAt; }
+
+    return identity;
   }
 
   function medicalReportsMessage(text) {
@@ -133,6 +137,14 @@ $(function() {
   }
 
   // ---- Prefill dos dados do aluno (seção 1) — a turma é fixa (perfil selecionado) ----
+  // Zera os campos da seção 1 e esconde os avisos do aluno (usado no branch vazio, antes da
+  // requisição e no erro — para não deixar dado do aluno anterior rotulado como do novo).
+  function clearStudentSection1() {
+    $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
+    $('.iep-guardians-warning').hide();
+    $('.iep-existing-plan-warning').hide();
+  }
+
   function fetchStudentData(studentId) {
     var $warning = $('.iep-existing-plan-warning');
 
@@ -143,7 +155,8 @@ $(function() {
     $wrapper.find('span.help-inline, .help-inline.error, span.error').remove();
 
     if (!studentId || studentId === 'empty') {
-      $warning.hide();
+      // Sem aluno (limpo manualmente ou ao trocar a data de elaboração): zera a seção 1.
+      clearStudentSection1();
       medicalReportsMessage($medicalReports.data('pending-text'));
       return;
     }
@@ -151,13 +164,14 @@ $(function() {
     var params = { student_id: studentId, format: 'json' };
     var planId = $wizard.data('plan-id');
     if (planId) { params.plan_id = planId; }
+    // Mesma data do select: valida o aluno contra a enturmação da data de elaboração (não hoje).
+    var elaboratedAt = $('.iep-elaborated-at').val();
+    if (elaboratedAt) { params.elaborated_at = elaboratedAt; }
 
     // Limpa os campos ANTES da requisição: numa falha (sessão expirada, sem permissão,
     // timeout), o error handler abaixo assume — sem isso, os campos ficariam com o
     // dado do aluno anterior rotulado como sendo do aluno recém-selecionado.
-    $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
-    $('.iep-guardians-warning').hide();
-    $warning.hide();
+    clearStudentSection1();
 
     $.ajax({
       url: Routes.student_data_individualized_educational_plans_pt_br_path(params),
@@ -175,12 +189,14 @@ $(function() {
         // Aviso antecipado: aluno já tem PEI neste ano letivo (antes de preencher/finalizar)
         $warning.toggle(!!data.has_existing_plan);
       },
-      error: function() {
-        $('.iep-birth-date, .iep-guardians, .iep-diagnosis, .iep-shift').val('');
-        $('.iep-guardians-warning').hide();
+      error: function(jqXHR) {
+        clearStudentSection1();
         renderMedicalReports([], true, medicalReportIdentity(studentId));
-        $warning.hide();
-        flashMessages.error('Ocorreu um erro ao buscar os dados do aluno selecionado.');
+        flashMessages.error(
+          jqXHR && jqXHR.status === 403
+            ? 'Este aluno já possui um PEI que você acessa somente em leitura. Abra o plano pela listagem.'
+            : 'Ocorreu um erro ao buscar os dados do aluno selecionado.'
+        );
       }
     });
   }
@@ -200,6 +216,86 @@ $(function() {
     // Versão publicada (ou tela sem aluno ainda): o prefill não roda, mas o laudo é buscado
     // sempre que há plano ou aluno — ele não faz parte do que a versão congela.
     fetchMedicalReports();
+  }
+
+  // ---- Criação: a data de elaboração filtra os alunos ----
+  // O usuário escolhe a data primeiro; o select passa a listar só quem estava enturmado na turma
+  // do perfil NAQUELA data. No editar/visualizar o aluno é fixo (select desabilitado) → não roda.
+  var $elaboratedAt = $('.iep-elaborated-at');
+
+  // Repopula o select2 pelo destroy + re-init com data (mesmo idioma do index.js). Trocar as
+  // <option> do select nativo direto quebra o widget do select2 (vira uma lista solta).
+  function setStudentOptions(students) {
+    var studentOptions = $.map(students, function(student) {
+      return { id: student.id, name: student.name, text: student.name };
+    });
+    studentOptions.unshift({ id: 'empty', name: '', text: '' });
+
+    $studentSelect.select2('destroy');
+    $studentSelect.select2({
+      data: studentOptions,
+      // _.escape: o nome vem do endpoint e não é confiável para interpolar como HTML.
+      formatResult: function(el) { return "<div class='select2-user-result'>" + _.escape(el.name) + "</div>"; },
+      formatSelection: function(el) {
+        return "<div class='select2-user-result'>" + _.escape(el.text || el.name) + "</div>";
+      },
+      allowClear: true,
+      theme: 'classic'
+    });
+    $studentSelect.select2('val', '');
+    fetchStudentData('');
+  }
+
+  // Aviso de data fora do calendário letivo (o bloqueio real é no servidor ao salvar).
+  function setElaborationCalendarWarning(message) {
+    var $group = $elaboratedAt.closest('.control-group');
+    $group.find('.iep-posting-warning').remove();
+    if (message) {
+      $('<span class="help-inline error iep-posting-warning"></span>').text(message).insertAfter($elaboratedAt);
+    }
+  }
+
+  var studentsXhr = null;
+
+  function reloadStudentsForElaborationDate(dateStr) {
+    if (studentsXhr) { studentsXhr.abort(); }
+
+    studentsXhr = $.ajax({
+      url: Routes.students_by_elaboration_date_individualized_educational_plans_pt_br_path(
+        { elaborated_at: dateStr, format: 'json' }
+      ),
+      dataType: 'json',
+      success: function(data) {
+        if (data && Array.isArray(data.students)) { setStudentOptions(data.students); }
+        setElaborationCalendarWarning(data && data.calendar_error);
+      },
+      error: function(jqXHR, textStatus) {
+        // A requisição abortada acima também cai aqui: é substituição, não falha.
+        if (textStatus === 'abort') { return; }
+
+        setStudentOptions([]);
+        setElaborationCalendarWarning('');
+        flashMessages.error('Não foi possível atualizar a lista de alunos para a data de elaboração.');
+      },
+      complete: function(jqXHR) {
+        if (studentsXhr === jqXHR) { studentsXhr = null; }
+      }
+    });
+  }
+
+  if ($elaboratedAt.length && !$studentSelect.prop('disabled')) {
+    $elaboratedAt.on('change', function() {
+      var value = $(this).val();
+
+      // Data inválida (isValidDate global, date.js): não consulta o servidor e limpa só o aviso
+      // de calendário — o vermelho de "data válida" fica por conta do validador de data do form.
+      if (!isValidDate(value)) {
+        setElaborationCalendarWarning('');
+        return;
+      }
+
+      reloadStudentsForElaborationDate(value);
+    });
   }
 
   // ---- Finalizar: o modal "Salvar versão" preenche version_name e submete o próprio form ----

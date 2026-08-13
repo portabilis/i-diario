@@ -14,15 +14,31 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     allow(controller).to receive(:require_current_teacher).and_return(true)
   end
 
+  # Enturma o aluno numa turma (left_at '' = aberta). O acesso ao PEI deriva da matrícula.
+  def enroll(student, classroom, left_at: '')
+    cg = create(:classrooms_grade, classroom: classroom)
+    se = create(:student_enrollment, student: student)
+    create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg, left_at: left_at)
+  end
+
   describe 'GET #index' do
     context 'as an admin/employee' do
-      let(:classroom) { create(:classroom) }
+      let(:classroom) { create(:classroom, year: Date.current.year) }
 
-      before { allow(controller).to receive(:current_user_classroom).and_return(classroom) }
+      before do
+        allow(controller).to receive(:current_user_classroom).and_return(classroom)
+        allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+      end
 
-      it 'lists only plans of the selected classroom' do
-        target = create(:individualized_educational_plan, classroom: classroom)
-        create(:individualized_educational_plan) # plano em outra turma, deve ser excluído
+      def plan_enrolled_in(classroom)
+        plan = create(:individualized_educational_plan, year: Date.current.year)
+        enroll(plan.student, classroom)
+        plan
+      end
+
+      it 'lists only plans of students enrolled in the selected classroom' do
+        target = plan_enrolled_in(classroom)
+        create(:individualized_educational_plan, year: Date.current.year)
 
         get :index, params: { locale: 'pt-BR' }
 
@@ -31,8 +47,8 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       end
 
       it 'filters by student' do
-        target = create(:individualized_educational_plan, classroom: classroom)
-        create(:individualized_educational_plan, classroom: classroom)
+        target = plan_enrolled_in(classroom)
+        plan_enrolled_in(classroom)
 
         get :index, params: { locale: 'pt-BR', filter: { by_student_id: target.student_id } }
 
@@ -40,7 +56,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       end
 
       it 'paginates the plans (default 10 per page)' do
-        create_list(:individualized_educational_plan, 11, classroom: classroom)
+        11.times { plan_enrolled_in(classroom) }
 
         get :index, params: { locale: 'pt-BR', page: 1 }
         first_page_ids = assigns(:individualized_educational_plans).map(&:id)
@@ -110,8 +126,10 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       it 'opens filtered by the profile classroom' do
         other_classroom = create(:classroom, unity: selected_unity, year: Date.current.year)
         create(:teacher_discipline_classroom, teacher: teacher, classroom: other_classroom, year: Date.current.year)
-        target = create(:individualized_educational_plan, classroom: classroom, year: Date.current.year)
-        create(:individualized_educational_plan, classroom: other_classroom, year: Date.current.year)
+        target = create(:individualized_educational_plan, year: Date.current.year)
+        enroll(target.student, classroom)
+        other = create(:individualized_educational_plan, year: Date.current.year)
+        enroll(other.student, other_classroom)
 
         get :index, params: { locale: 'pt-BR' }
 
@@ -122,8 +140,10 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       it 'lists all teacher classrooms when the classroom filter is cleared' do
         other_classroom = create(:classroom, unity: selected_unity, year: Date.current.year)
         create(:teacher_discipline_classroom, teacher: teacher, classroom: other_classroom, year: Date.current.year)
-        plan_in_profile = create(:individualized_educational_plan, classroom: classroom, year: Date.current.year)
-        plan_in_other = create(:individualized_educational_plan, classroom: other_classroom, year: Date.current.year)
+        plan_in_profile = create(:individualized_educational_plan, year: Date.current.year)
+        enroll(plan_in_profile.student, classroom)
+        plan_in_other = create(:individualized_educational_plan, year: Date.current.year)
+        enroll(plan_in_other.student, other_classroom)
 
         get :index, params: { locale: 'pt-BR', filter: { by_classroom_id: '' } }
 
@@ -132,7 +152,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       it 'renders empty when the teacher has no linked classrooms' do
         allow(TeacherClassroomAndDisciplineFetcher).to receive(:fetch!).and_return(nil)
-        create(:individualized_educational_plan, classroom: classroom)
+        create(:individualized_educational_plan)
 
         get :index, params: { locale: 'pt-BR' }
 
@@ -152,7 +172,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     let(:knowledge_area) { create(:knowledge_area) }
     let(:own_discipline) { create(:discipline, knowledge_area: knowledge_area) }
     let(:other_discipline) { create(:discipline) }
-    let(:plan) { create(:individualized_educational_plan, classroom: classroom, characterization: 'Original') }
+    let(:plan) { create(:individualized_educational_plan, characterization: 'Original') }
     let(:review) { create(:iep_review_date, iep: plan, review_date: Date.current) }
     let!(:own_line) do
       create(:iep_curricular_planning, iep: plan, iep_review_date: review,
@@ -168,6 +188,10 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
       create(:teacher_discipline_classroom, teacher: teacher, classroom: classroom,
                                             discipline: own_discipline, year: Date.current.year)
+      # aluno do plano enturmado (aberto) na turma do professor → PEI acessível e editável
+      create(:student_enrollment_classroom,
+             student_enrollment: create(:student_enrollment, student: plan.student),
+             classrooms_grade: create(:classrooms_grade, classroom: classroom))
     end
 
     it 'updates a section 4/5 line of the own component' do
@@ -211,7 +235,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     it 'does not update a plan of a classroom the teacher is not linked to' do
-      other_plan = create(:individualized_educational_plan, classroom: create(:classroom, unity: unity))
+      other_plan = create(:individualized_educational_plan)
 
       patch :update, params: {
         locale: 'pt-BR', id: other_plan.id, version_name: 'Versão 1',
@@ -236,6 +260,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:plan_editable?).and_return(true)
     end
 
     it 'destroys the plan and redirects to the index' do
@@ -266,7 +291,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     it 'does not destroy a plan from a classroom the user is not linked to' do
       allow(controller).to receive(:accessible_plans).and_call_original
-      plan = create(:individualized_educational_plan, classroom: create(:classroom))
+      plan = create(:individualized_educational_plan)
 
       expect {
         delete :destroy, params: { locale: 'pt-BR', id: plan.id }
@@ -274,18 +299,47 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
+
+    it 'does not destroy a plan the user can no longer edit (visible only by authorship)' do
+      allow(controller).to receive(:plan_editable?).and_return(false)
+      plan = create(:individualized_educational_plan)
+
+      expect {
+        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+      }.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to redirect_to(individualized_educational_plan_path(plan))
+    end
   end
 
   describe 'GET #fetch_students_by_classroom' do
-    before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-    end
-
     let(:classroom) { create(:classroom) }
 
-    it 'returns only students that have a plan in the classroom' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
-      create(:individualized_educational_plan) # plano em outra turma
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:accessible_classrooms).and_return([classroom])
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+    end
+
+    it 'excludes a student whose only plan in the classroom is from another school year' do
+      current = create(:individualized_educational_plan)
+      enroll(current.student, classroom)
+      previous = create(:individualized_educational_plan, year: Date.current.year - 1,
+                                                          elaborated_at: Date.new(Date.current.year - 1, 3, 10))
+      enroll(previous.student, classroom)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
+
+      expect(JSON.parse(response.body)).to contain_exactly(
+        'id' => current.student_id, 'name' => current.student.name
+      )
+    end
+
+    it 'returns only students that have a plan and are enrolled in the classroom' do
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+      other = create(:individualized_educational_plan) # aluno enturmado em outra turma
+      enroll(other.student, create(:classroom))
 
       get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
 
@@ -294,8 +348,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     it 'excludes a student without a plan in the classroom' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
-      create(:student) # aluno sem PEI — não deve ser listado
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, classroom)
+      enroll(create(:student), classroom) # aluno enturmado mas sem PEI — não deve ser listado
 
       get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
 
@@ -305,12 +360,24 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'sorts the students by name' do
       zilda = create(:student, name: 'Zilda')
       ana = create(:student, name: 'Ana')
-      create(:individualized_educational_plan, classroom: classroom, student: zilda)
-      create(:individualized_educational_plan, classroom: classroom, student: ana)
+      [zilda, ana].each do |s|
+        create(:individualized_educational_plan, student: s)
+        enroll(s, classroom)
+      end
 
       get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
 
       expect(JSON.parse(response.body).map { |s| s['name'] }).to eq(%w[Ana Zilda])
+    end
+
+    it 'returns an empty list for a classroom the user cannot access' do
+      other_classroom = create(:classroom)
+      plan = create(:individualized_educational_plan)
+      enroll(plan.student, other_classroom)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: other_classroom.id, format: :json }
+
+      expect(JSON.parse(response.body)).to eq([])
     end
 
     it 'returns an empty list when no classroom is given' do
@@ -331,11 +398,105 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
   end
 
+  # Select de aluno na criação filtra pelos enturmados na turma do perfil na DATA DE
+  # ELABORAÇÃO escolhida (não hoje) — o usuário escolhe a data primeiro.
+  describe 'GET #students_by_elaboration_date' do
+    let(:classroom) { create(:classroom) }
+
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+    end
+
+    def enroll(student, joined_at:, left_at: '')
+      cg = create(:classrooms_grade, classroom: classroom)
+      se = create(:student_enrollment, student: student)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg,
+                                            joined_at: joined_at, left_at: left_at)
+    end
+
+    it 'lists only students enrolled in the profile classroom on the elaboration date' do
+      current = create(:student)
+      enroll(current, joined_at: '2026-02-01', left_at: '')                # aberta, cobre a data
+      left_before = create(:student)
+      enroll(left_before, joined_at: '2026-02-01', left_at: '2026-03-01')  # saiu antes da data
+      joined_after = create(:student)
+      enroll(joined_after, joined_at: '2026-05-01', left_at: '')           # entrou depois da data
+
+      get :students_by_elaboration_date, params: {
+        locale: 'pt-BR', elaborated_at: '2026-04-10', format: :json
+      }
+
+      ids = JSON.parse(response.body)['students'].map { |student| student['id'] }
+      expect(ids).to contain_exactly(current.id)
+    end
+
+    it 'warns right away that a future elaboration date is not allowed' do
+      get :students_by_elaboration_date, params: {
+        locale: 'pt-BR', elaborated_at: (Date.current + 1).to_s, format: :json
+      }
+
+      expect(JSON.parse(response.body)['calendar_error']).to eq(I18n.t('errors.messages.not_in_future'))
+    end
+
+    # O aviso tem que dar o motivo real, não "deve ser um dia letivo" do calendário daquele ano.
+    it 'warns right away that the date is outside the plan school year' do
+      get :students_by_elaboration_date, params: {
+        locale: 'pt-BR', elaborated_at: Date.new(Date.current.year - 1, 6, 3).to_s, format: :json
+      }
+
+      expect(JSON.parse(response.body)['calendar_error']).to eq(
+        I18n.t(IndividualizedEducationalPlanElaborationDayCheck::NOT_IN_PLAN_YEAR_KEY, year: Date.current.year)
+      )
+    end
+
+    it 'falls back to today when the date is invalid' do
+      today_student = create(:student)
+      enroll(today_student, joined_at: 1.year.ago.to_date.to_s, left_at: '')
+
+      get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: 'xx', format: :json }
+
+      ids = JSON.parse(response.body)['students'].map { |student| student['id'] }
+      expect(ids).to contain_exactly(today_student.id)
+    end
+
+    # O status da matrícula é ATUAL: um aluno transferido HOJE ainda estava na turma ONTEM, então
+    # numa data anterior à saída ele deve aparecer (não filtrar por status_attending).
+    it 'includes a student enrolled on the date even if transferred afterwards' do
+      transferred = create(:student)
+      cg = create(:classrooms_grade, classroom: classroom)
+      se = create(:student_enrollment, student: transferred, status: StudentEnrollmentStatus::TRANSFERRED)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg,
+                                            joined_at: '2026-02-01', left_at: '2026-08-04')
+
+      get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: '2026-08-04', format: :json }
+      expect(JSON.parse(response.body)['students']).to be_empty
+
+      get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: '2026-08-03', format: :json }
+      expect(JSON.parse(response.body)['students'].map { |s| s['id'] }).to contain_exactly(transferred.id)
+    end
+
+    it 'reports calendar_error when the date is not a valid school calendar day' do
+      allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for)
+        .and_return(I18n.t('errors.messages.is_not_between_steps'))
+
+      get :students_by_elaboration_date, params: { locale: 'pt-BR', elaborated_at: '2026-04-10', format: :json }
+
+      expect(JSON.parse(response.body)['calendar_error']).to eq(I18n.t('errors.messages.is_not_between_steps'))
+    end
+  end
+
   # Laudos: a fonte é o cadastro do aluno no i-Educar. Endpoints próprios porque a tela de
   # versão publicada não busca o restante dos dados (congelados) mas mostra o laudo atual.
   describe 'medical reports' do
     let(:classroom) { create(:classroom) }
-    let(:plan) { create(:individualized_educational_plan, classroom: classroom) }
+    # Acesso por plan_id deriva da matrícula (accessible_plans): o aluno do plano precisa estar
+    # enturmado na turma do perfil.
+    let(:plan) do
+      p = create(:individualized_educational_plan)
+      enroll(p.student, classroom)
+      p
+    end
 
     before do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
@@ -468,12 +629,34 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
-    # Enturma o aluno numa turma do perfil, tornando-o permitido em #student_data.
-    def enroll(student, target_classroom)
+    # Enturma o aluno numa turma do perfil. left_at '' = aberta (permitido); data passada =
+    # transferido (não permitido em #student_data / na criação).
+    def enroll(student, target_classroom, left_at: '')
       classrooms_grade = create(:classrooms_grade, classroom: target_classroom)
       enrollment = create(:student_enrollment, student: student)
       create(:student_enrollment_classroom, student_enrollment: enrollment,
-                                            classrooms_grade: classrooms_grade)
+                                            classrooms_grade: classrooms_grade, left_at: left_at)
+    end
+
+    # Consistente com o select: valida o aluno pela enturmação da DATA DE ELABORAÇÃO, não de hoje —
+    # um aluno transferido depois da data aparece no select e o prefill não pode estourar.
+    it 'returns data for a student enrolled on the elaboration date even if transferred afterwards' do
+      student = create(:student)
+      cg = create(:classrooms_grade, classroom: classroom)
+      se = create(:student_enrollment, student: student, status: StudentEnrollmentStatus::TRANSFERRED)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg,
+                                            joined_at: '2026-02-01', left_at: '2026-08-04')
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return(guardians: 'Maria')
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: student.id, elaborated_at: '2026-08-03', format: :json
+      }
+      expect(response).to have_http_status(:ok)
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: student.id, elaborated_at: '2026-08-04', format: :json
+      }
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'returns the full identification contract (all fields form.js consumes) plus the flag' do
@@ -509,6 +692,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(response).to have_http_status(:not_found)
     end
 
+    it 'does not return data for a transferred student (closed enrollment)' do
+      student = create(:student)
+      enroll(student, classroom, left_at: 1.month.ago.to_date.to_s)
+      expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
+
+      get :student_data, params: { locale: 'pt-BR', student_id: student.id, format: :json }
+
+      expect(response).to have_http_status(:not_found)
+    end
+
     it 'flags when the student already has a plan for the year' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
       plan = create(:individualized_educational_plan, year: Date.current.year)
@@ -521,7 +714,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     it 'ignores the plan being edited when flagging (plan_id)' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
-      plan = create(:individualized_educational_plan, year: Date.current.year, classroom: classroom)
+      plan = create(:individualized_educational_plan, year: Date.current.year)
       enroll(plan.student, classroom)
 
       get :student_data, params: {
@@ -531,16 +724,39 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(JSON.parse(response.body)['has_existing_plan']).to eq(false)
     end
 
-    it "returns the plan's own student on edit even if not enrolled in the profile classroom (plan_id)" do
-      plan = create(:individualized_educational_plan, classroom: classroom) # aluno NÃO enturmado
+    # Congelamento: quem só vê o plano por autoria (aluno não cursa mais a turma) não pode puxar
+    # os dados VIVOS do aluno pelo prefill — só a versão congelada.
+    it 'forbids the prefill for a plan visible only by authorship (student no longer attending)' do
+      plan = create(:individualized_educational_plan)
+      create(:iep_version, iep: plan, classroom_id: classroom.id, published_at: Time.current, active: true,
+                           content: { 'identification' => { 'student_name' => plan.student.name } })
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return(guardians: 'Maria Silva')
 
       get :student_data, params: {
         locale: 'pt-BR', student_id: plan.student_id, plan_id: plan.id, format: :json
       }
 
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['guardians']).to eq('Maria Silva')
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    # O congelamento vale pelo aluno: sem isto, omitir o plan_id e mandar data retroativa
+    # devolvia os dados vivos de quem o usuário só pode ver congelado.
+    it 'forbids the prefill of a frozen plan even when plan_id is omitted' do
+      student = create(:student)
+      cg = create(:classrooms_grade, classroom: classroom)
+      se = create(:student_enrollment, student: student, status: StudentEnrollmentStatus::TRANSFERRED)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg,
+                                            joined_at: '2026-02-01', left_at: '2026-08-04')
+      plan = create(:individualized_educational_plan, student: student, year: Date.current.year)
+      create(:iep_version, iep: plan, classroom_id: classroom.id, published_at: Time.current, active: true,
+                           content: { 'identification' => { 'student_name' => student.name } })
+      expect(IndividualizedEducationalPlanPrefill).not_to receive(:student_data)
+
+      get :student_data, params: {
+        locale: 'pt-BR', student_id: student.id, elaborated_at: '2026-08-03', format: :json
+      }
+
+      expect(response).to have_http_status(:forbidden)
     end
 
     it 'does not return data through a plan outside the user classrooms (plan_id)' do
@@ -556,24 +772,27 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 're-rendering the form after a failure' do
+    let(:unity) { create(:unity) }
+    let(:classroom) { create(:classroom, unity: unity) }
+
     before do
-      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
-    it 'repopulates the display fields on a create validation failure' do
-      unity = create(:unity)
-      classroom = create(:classroom, unity: unity)
-      teacher = create(:teacher)
+    # No modelo novo o contexto (escola/turma) do formulário de criação é derivado da turma
+    # do perfil, não de unity_id/classroom_id enviados.
+    it 'repopulates the display fields from the profile classroom on a create validation failure' do
       student = create(:student)
       create(:individualized_educational_plan, student: student, year: Date.current.year) # dispara duplicidade
 
       post :create, params: {
         locale: 'pt-BR', version_name: 'Versão 1',
         individualized_educational_plan: {
-          student_id: student.id, unity_id: unity.id, classroom_id: classroom.id,
-          teacher_id: teacher.id, year: Date.current.year, elaborated_at: Date.current
+          student_id: student.id, year: Date.current.year, elaborated_at: Date.current
         }
       }
 
@@ -581,7 +800,6 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       plan = assigns(:individualized_educational_plan)
       expect(plan.unity_name).to eq(unity.name)
       expect(plan.classroom_name).to eq(classroom.description)
-      expect(plan.teacher_name).to eq(teacher.name)
     end
   end
 
@@ -590,12 +808,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     before do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
     it 'presents the living plan in the read-only form' do
-      plan = create(:individualized_educational_plan, classroom: classroom, characterization: 'Perfil')
+      plan = create(:individualized_educational_plan, year: Date.current.year, characterization: 'Perfil')
+      create(:student_enrollment_classroom,
+             student_enrollment: create(:student_enrollment, student: plan.student),
+             classrooms_grade: create(:classrooms_grade, classroom: classroom))
 
       get :show, params: { locale: 'pt-BR', id: plan.id }
 
@@ -605,7 +827,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     it 'does not open a plan from a classroom the user is not linked to' do
-      plan = create(:individualized_educational_plan, classroom: create(:classroom))
+      plan = create(:individualized_educational_plan)
 
       get :show, params: { locale: 'pt-BR', id: plan.id }
 
@@ -620,6 +842,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:plan_editable?).and_return(true)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
@@ -666,14 +889,14 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   end
 
   describe 'GET #new' do
-    it 'assigns the classroom regent (i-Educar) as the teacher' do
+    it 'shows the profile classroom regent (i-Educar) as the derived teacher' do
       regent = create(:teacher, api_code: '777')
       classroom = create(:classroom, regent_api_code: '777')
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
 
       get :new, params: { locale: 'pt-BR' }
 
-      expect(assigns(:individualized_educational_plan).teacher_id).to eq(regent.id)
+      expect(assigns(:individualized_educational_plan).teacher_name).to eq(regent.name)
     end
 
     it 'leaves the teacher blank when the classroom has no regent (no fallback)' do
@@ -683,7 +906,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       get :new, params: { locale: 'pt-BR' }
 
-      expect(assigns(:individualized_educational_plan).teacher_id).to be_nil
+      expect(assigns(:individualized_educational_plan).teacher_name).to be_nil
     end
 
     it 'shows 3 review date fields by default' do
@@ -710,13 +933,17 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     before do
       allow(controller).to receive(:current_user_classroom).and_return(classroom)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
     it 'keeps 3 review date fields, completing the persisted ones' do
-      plan = create(:individualized_educational_plan, classroom: classroom)
+      plan = create(:individualized_educational_plan, year: Date.current.year)
       create(:iep_review_date, iep: plan, review_date: Date.current)
+      create(:student_enrollment_classroom,
+             student_enrollment: create(:student_enrollment, student: plan.student),
+             classrooms_grade: create(:classrooms_grade, classroom: classroom))
 
       get :edit, params: { locale: 'pt-BR', id: plan.id }
 
@@ -732,19 +959,77 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       # alguns exemplos deste bloco exercitam o fluxo real de update das seções 4/5 (patch :update),
       # que passa por plan_with_components → accessible_plans.
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:plan_editable?).and_return(true)
+      # Aluno permitido: a fronteira server-side do create é exercida em teste próprio.
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
     let(:valid_params) do
       {
         student_id: create(:student).id,
-        unity_id: create(:unity).id,
-        classroom_id: create(:classroom).id,
-        teacher_id: create(:teacher).id,
-        year: Date.current.year,
         elaborated_at: Date.current,
         characterization: 'Perfil do estudante',
         iep_review_dates_attributes: { '0' => { review_date: Date.current + 30 } }
       }
+    end
+
+    it 'blocks creating when the elaboration date is not a school calendar day' do
+      allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for)
+        .and_return(I18n.t('errors.messages.is_not_between_steps'))
+
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1', individualized_educational_plan: valid_params
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to render_template(:new)
+      expect(assigns(:individualized_educational_plan).errors[:elaborated_at])
+        .to include(I18n.t('errors.messages.is_not_between_steps'))
+    end
+
+    # Sem stub do day check: quem barra aqui é o model.
+    it 'blocks creating with a future elaboration date' do
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1',
+          individualized_educational_plan: valid_params.merge(elaborated_at: Date.current + 1)
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to render_template(:new)
+      expect(assigns(:individualized_educational_plan).errors[:elaborated_at])
+        .to include(I18n.t('errors.messages.not_in_future'))
+    end
+
+    # Pundit antes dos guards de negócio: professor tem que levar 403, não o redirect de "já existe".
+    it 'runs the policy before the existing-plan redirect' do
+      student = create(:student)
+      create(:individualized_educational_plan, student: student, year: Date.current.year)
+      allow(controller).to receive(:authorize).and_raise(Pundit::NotAuthorizedError)
+
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: { student_id: student.id }
+      }
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it 'routes to the existing plan instead of creating a duplicate' do
+      student = create(:student)
+      existing = create(:individualized_educational_plan, student: student, year: Date.current.year)
+
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1',
+          individualized_educational_plan: { student_id: student.id }
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to redirect_to(edit_individualized_educational_plan_path(existing))
+      expect(flash[:notice]).to eq(I18n.t('individualized_educational_plans.flash.already_exists_editing'))
     end
 
     it 'creates the plan and publishes the first version' do
@@ -764,6 +1049,29 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       }
 
       expect(IndividualizedEducationalPlan.last.iep_review_dates.map(&:review_date)).to eq([Date.current + 30])
+    end
+
+    it 'ignores a year sent by the client and uses the current school year' do
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: valid_params.merge(year: 2000)
+      }
+
+      expect(IndividualizedEducationalPlan.last.year).to eq(Date.current.year)
+    end
+
+    it 'rejects a student not enrolled in the profile classroom on the elaboration date' do
+      allow(controller).to receive(:student_permitted_for_creation?).and_call_original
+
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1', individualized_educational_plan: valid_params
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to render_template(:new)
+      expect(assigns(:individualized_educational_plan).errors[:student_id])
+        .to include(I18n.t('individualized_educational_plans.create.student_not_permitted'))
     end
 
     it 'assigns the multi-select options' do
@@ -860,6 +1168,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:plan_editable?).and_return(true)
     end
 
     it 'renders edit with a friendly error when removing a review that has section data' do
@@ -1002,6 +1311,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:plan_editable?).and_return(true)
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
     end
 
     it 'publishes an active version when updating with a version name' do
@@ -1021,15 +1333,25 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(plan.finalized?).to eq(true)
     end
 
+    # Escola que recebeu o aluno não pode ser travada por um elaborated_at readonly (de outra escola).
+    it 'does not revalidate the school-calendar day on update when the elaboration date is unchanged' do
+      plan = create(:individualized_educational_plan)
+      expect(IndividualizedEducationalPlanElaborationDayCheck).not_to receive(:error_for)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: { characterization: 'Atualizado' }
+      }
+
+      expect(plan.reload.active_version.name).to eq('Versão 1')
+    end
+
     it 'publishes the first version right on creation' do
       student = create(:student)
 
       post :create, params: {
         locale: 'pt-BR', version_name: 'Primeira versão',
-        individualized_educational_plan: {
-          student_id: student.id, unity_id: create(:unity).id, classroom_id: create(:classroom).id,
-          teacher_id: create(:teacher).id, year: Date.current.year, elaborated_at: Date.current
-        }
+        individualized_educational_plan: { student_id: student.id, elaborated_at: Date.current }
       }
 
       plan = IndividualizedEducationalPlan.last
@@ -1094,6 +1416,162 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(assigns(:individualized_educational_plan).errors[:base])
         .to include(I18n.t('individualized_educational_plans.finalize.already_published'))
       expect(plan.reload.iep_versions.count).to eq(0)
+    end
+  end
+
+  # O acesso ao PEI passa a derivar do grafo de matrícula (o PEI segue o aluno nas
+  # transferências), não do classroom_id armazenado. Visível = qualquer enturmação
+  # (aberta/fechada); editável = só enturmação ABERTA na turma do usuário.
+  describe 'access derived from enrollment and authorship (student transfers)' do
+    let(:classroom_a) { create(:classroom, year: Date.current.year) }
+    let(:classroom_b) { create(:classroom, year: Date.current.year) }
+
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(classroom_a)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+    end
+
+    # Enturma o aluno numa turma. left_at '' = aberta (cursando); data passada = saiu da turma.
+    # status: matrícula (studying = cursando; transferred/abandono/etc. = não cursando).
+    def enroll(student, classroom, left_at: '', status: StudentEnrollmentStatus::STUDYING)
+      cg = create(:classrooms_grade, classroom: classroom)
+      se = create(:student_enrollment, student: student, status: status)
+      create(:student_enrollment_classroom, student_enrollment: se, classrooms_grade: cg, left_at: left_at)
+    end
+
+    def plan_for(student)
+      create(:individualized_educational_plan, student: student, year: Date.current.year)
+    end
+
+    # Registra que `classroom` publicou uma versão do plano (autoria — o que dá visibilidade
+    # independentemente da matrícula, imune a transferência retroativa).
+    def author_version(plan, classroom, published_at: Time.current)
+      create(:iep_version, iep: plan, classroom_id: classroom.id, published_at: published_at, active: true,
+                           content: { 'identification' => { 'student_name' => plan.student.name } })
+    end
+
+    it 'includes plans the classroom is currently teaching or has authored' do
+      # cursando a turma do perfil → visível (continuidade), mesmo sem ter publicado nada
+      attending = create(:student)
+      enroll(attending, classroom_a)
+      attending_plan = plan_for(attending)
+
+      # não cursa mais, mas a turma do perfil publicou uma versão → visível (autoria)
+      authored = create(:student)
+      authored_plan = plan_for(authored)
+      author_version(authored_plan, classroom_a)
+
+      # só passou pela turma do perfil (enturmação fechada) sem publicar nada → NÃO visível
+      passed = create(:student)
+      enroll(passed, classroom_a, left_at: 1.month.ago.to_date.to_s)
+      plan_for(passed)
+
+      accessible = controller.send(:accessible_plans)
+
+      # contain_exactly já garante que o plano de quem só passou (passed) fica de fora
+      expect(accessible).to contain_exactly(attending_plan, authored_plan)
+    end
+
+    it 'excludes a plan the classroom only saw the student pass through (never authored)' do
+      student = create(:student)
+      enroll(student, classroom_a, left_at: 2.months.ago.to_date.to_s) # passou pela turma e saiu
+      plan = plan_for(student)
+      author_version(plan, classroom_b) # o plano foi lançado por OUTRA turma
+
+      expect(controller.send(:accessible_plans)).not_to include(plan)
+    end
+
+    it 'is editable only when the student has an OPEN enrollment in the profile classroom' do
+      active = create(:student)
+      enroll(active, classroom_a)
+      active_plan = plan_for(active)
+
+      transferred = create(:student)
+      enroll(transferred, classroom_a, left_at: 1.month.ago.to_date.to_s)
+      transferred_plan = plan_for(transferred)
+
+      expect(controller.send(:plan_editable?, active_plan)).to eq(true)
+      expect(controller.send(:plan_editable?, transferred_plan)).to eq(false)
+    end
+
+    it 'is not editable when the enrollment status is not attending, even with an open placement' do
+      student = create(:student)
+      enroll(student, classroom_a, status: StudentEnrollmentStatus::TRANSFERRED) # enturmação aberta, mas status transferido
+      plan = plan_for(student)
+
+      expect(controller.send(:plan_editable?, plan)).to eq(false)
+    end
+
+    it 'renders edit for an active student and redirects an author who no longer teaches to the read-only view' do
+      active = create(:student)
+      enroll(active, classroom_a)
+      active_plan = plan_for(active)
+
+      # a turma do perfil publicou (autora), mas o aluno não cursa mais ela
+      transferred = create(:student)
+      transferred_plan = plan_for(transferred)
+      author_version(transferred_plan, classroom_a)
+
+      get :edit, params: { locale: 'pt-BR', id: active_plan.id }
+      expect(response).to have_http_status(:ok)
+
+      # Não cursa mais → não edita: cai na visualização (que leva à versão congelada em leitura).
+      get :edit, params: { locale: 'pt-BR', id: transferred_plan.id }
+      expect(response).to redirect_to(individualized_educational_plan_path(transferred_plan))
+    end
+
+    it 'blocks updating the plan of a student the classroom no longer teaches (read-only)' do
+      transferred = create(:student)
+      plan = plan_for(transferred)
+      author_version(plan, classroom_a) # visível por autoria; aluno não cursa mais → leitura
+
+      expect do
+        patch :update, params: {
+          locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+          individualized_educational_plan: { characterization: 'Invadido' }
+        }
+      end.not_to change { plan.reload.iep_versions.count }
+
+      expect(response).to redirect_to(individualized_educational_plan_path(plan))
+      expect(flash[:alert]).to eq(I18n.t('individualized_educational_plans.flash.read_only_transferred'))
+    end
+
+    it 'redirects show to the frozen version for an author who no longer teaches (freeze)' do
+      transferred = create(:student)
+      plan = plan_for(transferred)
+      frozen = author_version(plan, classroom_a, published_at: 2.months.ago)
+
+      get :show, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(response).to redirect_to(individualized_educational_plan_version_path(plan, frozen))
+    end
+
+    # O congelamento também vale no PDF: sem isto, imprimir levaria ao plano vivo (com o conteúdo
+    # que a turma nova lançou depois).
+    it 'redirects show.pdf to the frozen version pdf' do
+      transferred = create(:student)
+      plan = plan_for(transferred)
+      frozen = author_version(plan, classroom_a, published_at: 2.months.ago)
+
+      get :show, params: { locale: 'pt-BR', id: plan.id, format: :pdf }
+
+      expect(response).to redirect_to(individualized_educational_plan_version_path(plan, frozen, format: :pdf))
+    end
+
+    # Aluno cursando duas turmas acessíveis ao mesmo tempo. O contexto
+    # exibido/carimbado é a turma pela qual o usuário está acessando (a do perfil), não uma
+    # qualquer — mesmo que ela ainda não tenha publicado nenhuma versão.
+    it 'uses the viewing classroom as the context, even one that has not authored yet' do
+      student = create(:student)
+      enroll(student, classroom_a) # turma que já poderia ter criado o PEI
+      enroll(student, classroom_b) # turma pela qual o usuário está acessando agora
+      plan = plan_for(student)
+      allow(controller).to receive(:accessible_classrooms).and_return([classroom_a, classroom_b])
+      allow(controller).to receive(:current_user_classroom).and_return(classroom_b)
+
+      expect(controller.send(:current_classroom_for, plan)).to eq(classroom_b)
     end
   end
 end
