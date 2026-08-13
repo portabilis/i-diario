@@ -4,7 +4,14 @@ require 'rails_helper'
 
 RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
   let(:entity) { Entity.find_by_domain('test.host') }
-  let!(:ieducar_api_configuration) { create(:ieducar_api_configuration) }
+  # O serviço usa IeducarApiConfiguration.current — o primeiro registro do banco da entidade de
+  # teste, que já vem semeado. Criar um segundo pela factory não o alcança, então configuramos ele.
+  let!(:ieducar_api_configuration) do
+    IeducarApiConfiguration.current.tap do |configuration|
+      configuration.assign_attributes(attributes_for(:ieducar_api_configuration))
+      configuration.save!
+    end
+  end
   let!(:unity) { create(:unity) }
   let!(:discipline) { create(:discipline) }
   let!(:classroom) do
@@ -39,6 +46,16 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     end
   end
 
+  # As faltas gerais são enviadas pela API v2 do i-Educar, em endpoint e formato próprios.
+  before do
+    stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
+      .to_return(
+        status: 200,
+        body: '{"message": "Faltas gerais salvas com sucesso."}',
+        headers: { 'Content-Type' => 'application/json' }
+      )
+  end
+
   subject { described_class.new(student: student, classroom: classroom) }
 
   # Regressão issue 7960: turmas sem nota (apuração apenas por frequência) só
@@ -47,10 +64,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
   describe '#post_to_ieducar! - last step for classrooms without a score' do
     let(:last_step) { classroom.calendar.classroom_steps.last }
     let(:faltas_geral_request) do
-      a_request(
-        :post,
-        %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*}
-      )
+      a_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
     end
 
     before do
@@ -79,8 +93,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'sends the previous steps but not the last one (still open)' do
         subject.post_to_ieducar!
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).not_to have_been_made
       end
 
       it 'sets last_step_skipped to true' do
@@ -102,8 +116,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'sends all steps, including the last one (already closed)' do
         subject.post_to_ieducar!
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).to have_been_made.once
       end
 
       it 'keeps last_step_skipped as false' do
@@ -121,8 +135,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
           subject.post_to_ieducar!
         end
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).to have_been_made.once
       end
 
       it 'uses the current date and skips the last step when today is still within it' do
@@ -130,8 +144,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
           subject.post_to_ieducar!
         end
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).not_to have_been_made
         expect(subject.last_step_skipped).to eq(true)
       end
     end
@@ -148,8 +162,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'parses the string and does not send the last step (still open)' do
         subject.post_to_ieducar!
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).not_to have_been_made
       end
     end
 
@@ -171,8 +185,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         end
 
         expect(Honeybadger).to have_received(:notify).once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).to have_been_made.once
       end
     end
 
@@ -186,7 +200,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
           subject.post_to_ieducar!
         end
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).to have_been_made.once
       end
     end
   end
@@ -194,10 +208,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
   describe '#post_to_ieducar! - classrooms with a score are not affected by the filter' do
     let(:last_step) { classroom.calendar.classroom_steps.last }
     let(:faltas_geral_request) do
-      a_request(
-        :post,
-        %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*}
-      )
+      a_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
     end
 
     before do
@@ -221,8 +232,8 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'ignores the filter and sends all steps' do
         subject.post_to_ieducar!
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=2') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).to have_been_made.once
         expect(subject.last_step_skipped).to eq(false)
       end
     end
@@ -240,10 +251,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       a_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
     end
     let(:faltas_geral_request) do
-      a_request(
-        :post,
-        %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*}
-      )
+      a_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
     end
 
     before do
@@ -267,13 +275,14 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'sends the ongoing step, even if partial' do
         subject.post_to_ieducar!
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
       end
 
       it 'does not send any data from the future step, not even zeroed absences' do
         subject.post_to_ieducar!
 
         expect(diario_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).not_to have_been_made
       end
 
       it 'sets last_step_skipped to true' do
@@ -298,8 +307,9 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
           subject.post_to_ieducar!
         end
 
-        expect(faltas_geral_request.with { |req| req.body.include?('etapa=1') }).to have_been_made.once
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":1') }).to have_been_made.once
         expect(diario_request.with { |req| req.body.include?('etapa=2') }).not_to have_been_made
+        expect(faltas_geral_request.with { |req| req.body.include?('"etapa":2') }).not_to have_been_made
       end
     end
   end
@@ -465,10 +475,19 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       end
 
       it 'sends absences to i-Educar' do
-        absence_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-geral.*})
+        absence_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'faltas' => 1
+            )
+          )
           .to_return(
           status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
+          body: '{"message": "Faltas gerais salvas com sucesso."}',
           headers: { 'Content-Type' => 'application/json' }
         )
 

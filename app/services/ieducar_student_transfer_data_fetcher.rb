@@ -245,15 +245,12 @@ class IeducarStudentTransferDataFetcher
 
     params = {
       etapa: step.to_number,
-      resource: 'faltas-geral',
-      faltas: {
-        classroom.api_code => {
-          student.api_code => { 'valor' => value }
-        }
-      }
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      faltas: value
     }
 
-    send_to_ieducar(ApiPostingTypes::ABSENCE, params)
+    send_general_absences_to_ieducar(params)
   end
 
   def post_absences_by_discipline_for_step(step)
@@ -469,6 +466,13 @@ class IeducarStudentTransferDataFetcher
     end
 
     api = api_class.new(ieducar_api.to_api)
+    response = IeducarResponseDecorator.new(api.send_post(params))
+    @all_postings_sent = false if response.any_error_message?
+  end
+
+  # Faltas gerais usam a API v2 do i-Educar, que tem autenticação e formato de resposta próprios.
+  def send_general_absences_to_ieducar(params)
+    api = IeducarApi::PostGeneralAbsences.new(ieducar_api)
     response = IeducarResponseDecorator.new(api.send_post(params))
     @all_postings_sent = false if response.any_error_message?
   end

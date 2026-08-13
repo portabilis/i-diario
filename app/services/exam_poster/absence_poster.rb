@@ -3,6 +3,8 @@ module ExamPoster
     private
 
     def generate_requests
+      # As faltas gerais usam a API v2 do i-Educar (POST /api/v2/falta-geral), que recebe um aluno
+      # por requisição em payload achatado. As faltas por componente seguem na API legada.
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           requests << {
@@ -12,12 +14,9 @@ module ExamPoster
             },
             request: {
               etapa: @post_data.step.to_number,
-              resource: 'faltas-geral',
-              faltas: {
-                classroom_id => {
-                  student_id => student_absence
-                }
-              }
+              turma_id: classroom_id,
+              aluno_id: student_id,
+              faltas: student_absence
             }
           }
         end
@@ -76,7 +75,7 @@ module ExamPoster
 
           value = absence_count_service.count(student, classroom, start_date, end_date)
 
-          absences[classroom.api_code][student.api_code]['valor'] = value
+          absences[classroom.api_code][student.api_code] = value
         end
       end
 

@@ -4,5 +4,6 @@ FactoryGirl.define do
     token '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'
     secret_token '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC'
     unity_code 1
+    api_security_token 'nSDpPZg2DiYyOMPTaWTBoAcCVKlDdE'
   end
 end

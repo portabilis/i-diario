@@ -45,7 +45,7 @@ module Ieducar
         information = info_message(info)
 
         begin
-          response = IeducarResponseDecorator.new(api(posting).send_post(params))
+          response = IeducarResponseDecorator.new(api(posting, params).send_post(params))
 
           posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
         rescue StandardError => error
@@ -115,7 +115,7 @@ module Ieducar
       params[:faltas] || params[:notas] || params[:pareceres]
     end
 
-    def api(posting)
+    def api(posting, params)
       case posting.post_type
       when ApiPostingTypes::NUMERICAL_EXAM
         IeducarApi::PostExams.new(posting.to_api)
@@ -124,7 +124,14 @@ module Ieducar
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         IeducarApi::PostDescriptiveExams.new(posting.to_api)
       when ApiPostingTypes::ABSENCE
-        IeducarApi::PostAbsences.new(posting.to_api)
+        # Faltas gerais vão para a API v2 do i-Educar, identificadas pelo payload achatado
+        # (turma_id/aluno_id). Faltas por componente — e jobs enfileirados antes deste deploy,
+        # que ainda usam o hash aninhado — seguem na API legada.
+        if params[:turma_id].present?
+          IeducarApi::PostGeneralAbsences.new(posting.ieducar_api_configuration)
+        else
+          IeducarApi::PostAbsences.new(posting.to_api)
+        end
       when ApiPostingTypes::FINAL_RECOVERY
         IeducarApi::FinalRecoveries.new(posting.to_api)
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY
