@@ -27,7 +27,7 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
 
         described_class.call
 
-        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link.id)).not_to exist
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
 
         described_class.call
 
-        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link.id)).not_to exist
       end
 
       it 'does not destroy the grouper while regular disciplines are still active' do
@@ -89,7 +89,7 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
 
         described_class.call
 
-        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link.id)).not_to exist
       end
     end
 
@@ -110,23 +110,25 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
 
         described_class.call
 
-        expect(TeacherDisciplineClassroom.where(id: grouper_link_a.id)).not_to exist
-        expect(TeacherDisciplineClassroom.where(id: grouper_link_b.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link_a.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link_b.id)).not_to exist
       end
     end
   end
 
   describe '.destroy_duplicated_groupers' do
     context 'when there are duplicated groupers' do
-      it 'destroys the duplicated grouper' do
-        create_link(regular_discipline)
+      # O service destrói TODAS as linhas dos grupos com mais de um grouper ativo, não mantém uma
+      it 'destroys all the duplicated grouper links' do
+        regular_link = create_link(regular_discipline)
         grouper_link_1 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
         grouper_link_2 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}-dup")
 
         described_class.call
 
-        remaining = TeacherDisciplineClassroom.where(id: [grouper_link_1.id, grouper_link_2.id])
-        expect(remaining.count).to be <= 1
+        remaining = TeacherDisciplineClassroom.unscoped.where(id: [grouper_link_1.id, grouper_link_2.id])
+        expect(remaining.count).to eq(0)
+        expect(TeacherDisciplineClassroom.where(id: regular_link.id)).to exist
       end
     end
   end

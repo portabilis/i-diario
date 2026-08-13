@@ -68,9 +68,10 @@ RSpec.describe DisciplinesSynchronizer do
       expect(Discipline.unscoped.where(id: grouper_discipline.id)).to exist
     end
 
-    # Anos encerrados guardam planos de aula, conteúdos e frequências lançados sob a agrupadora
-    it 'does not discard links from years outside the synchronization' do
-      closed_year_link = create(
+    # O descarte é limitado aos anos da janela de sincronização — anos fora dela (que guardam
+    # planos de aula, conteúdos e frequências lançados sob a agrupadora) não são alcançados
+    it 'does not discard links from years outside the synchronization window' do
+      outside_window_link = create(
         :teacher_discipline_classroom,
         discipline: grouper_discipline,
         year: Date.current.year - 2
@@ -78,7 +79,14 @@ RSpec.describe DisciplinesSynchronizer do
 
       synchronize!
 
-      expect(closed_year_link.reload).not_to be_discarded
+      expect(outside_window_link.reload).not_to be_discarded
+    end
+
+    it 'does not raise for areas without a grouper discipline' do
+      grouper_link.destroy
+      grouper_discipline.destroy
+
+      expect { synchronize! }.not_to raise_error
     end
 
     # O SynchronizerBuilder manda todos os anos numa string única para synchronizers
@@ -138,13 +146,11 @@ RSpec.describe DisciplinesSynchronizer do
       allow_any_instance_of(IeducarApi::Disciplines).to receive(:fetch).and_return(response)
       synchronizer.synchronize!
 
-      expect(
-        Discipline.unscoped.find_by(
-          knowledge_area_id: other_knowledge_area.id,
-          grouper: true,
-          api_code: "grouper:#{other_knowledge_area.id}"
-        )
-      ).to be_present
+      groupers = Discipline.unscoped.where(knowledge_area_id: other_knowledge_area.id, grouper: true)
+
+      expect(groupers.count).to eq(1)
+      expect(groupers.first.api_code).to eq("grouper:#{other_knowledge_area.id}")
+      expect(groupers.first.description).to eq(other_knowledge_area.description)
     end
   end
 end

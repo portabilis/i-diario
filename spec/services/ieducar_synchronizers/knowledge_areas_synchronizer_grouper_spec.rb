@@ -79,18 +79,32 @@ RSpec.describe KnowledgeAreasSynchronizer do
   context 'when group_descriptors was already off' do
     let!(:knowledge_area) { create(:knowledge_area, group_descriptors: false) }
 
-    it 'does not discard links again (no transition)' do
-      discarded_link = create(
-        :teacher_discipline_classroom,
-        discipline: grouper_discipline,
-        year: Date.current.year - 2
-      )
-
+    # O vínculo é do ano corrente (dentro da janela de sincronização): se ele sobrevive, é a
+    # guarda de transição que impediu o descarte, não o filtro de ano
+    it 'does not discard links without a true -> false transition' do
       synchronize!(agrupar_descritores: false)
 
-      # Sem transição true->false o descarte não dispara — vínculos de anos fora da
-      # sincronização não são alcançados em syncs subsequentes
-      expect(discarded_link.reload).not_to be_discarded
+      expect(grouper_link.reload).not_to be_discarded
+    end
+  end
+
+  # Synchronizers `by_year: false` recebem todos os anos numa string única
+  context 'when the synchronization covers more than one year' do
+    let(:year) { "#{Date.current.year},#{Date.current.year - 1}" }
+
+    let!(:previous_year_link) do
+      create(
+        :teacher_discipline_classroom,
+        discipline: grouper_discipline,
+        year: Date.current.year - 1
+      )
+    end
+
+    it 'discards the links of every synchronized year' do
+      synchronize!(agrupar_descritores: false)
+
+      expect(grouper_link.reload).to be_discarded
+      expect(previous_year_link.reload).to be_discarded
     end
   end
 end

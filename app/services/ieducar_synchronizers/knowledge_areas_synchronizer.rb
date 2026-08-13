@@ -29,13 +29,18 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
         knowledge_area.sequence = knowledge_area_record.ordenamento_ac
         knowledge_area.group_descriptors = knowledge_area_record.agrupar_descritores
 
-        # Quando o agrupamento de descritores da área é desligado no i-Educar, descarta os
-        # vínculos da disciplina agrupadora, que deixam de valer com a flag desabilitada
+        # A transição precisa ser lida ANTES do `save!`, que zera o dirty tracking
         group_descriptors_disabled = knowledge_area.group_descriptors_changed?(from: true, to: false)
 
-        knowledge_area.save! if knowledge_area.changed?
+        # Quando o agrupamento de descritores é desligado no i-Educar, descarta os vínculos da
+        # disciplina agrupadora, que deixam de valer com a flag desabilitada. Na mesma transação
+        # do `save!`: se o descarte falhar, o rollback restaura a flag e a transição volta a ser
+        # detectada no retry do worker
+        ActiveRecord::Base.transaction do
+          knowledge_area.save! if knowledge_area.changed?
 
-        discard_grouper_links(knowledge_area) if group_descriptors_disabled
+          discard_grouper_links(knowledge_area) if group_descriptors_disabled
+        end
 
         knowledge_area.discard_or_undiscard(knowledge_area_record.deleted_at.present?)
       end

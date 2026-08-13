@@ -32,14 +32,16 @@ class DisciplinesSynchronizer < BaseSynchronizer
         discipline.knowledge_area = knowledge_area
         discipline.descriptor = group_descriptors
 
-        create_or_discard_grouper_disciplines(knowledge_area)
+        create_grouper_discipline_or_discard_links(knowledge_area)
 
         discipline.save! if discipline.changed?
       end
     end
   end
 
-  def create_or_discard_grouper_disciplines(knowledge_area)
+  def create_grouper_discipline_or_discard_links(knowledge_area)
+    # O payload traz uma linha por disciplina, então a mesma área chega várias vezes —
+    # processa cada área uma única vez por sincronização
     return if processed_knowledge_areas.include?(knowledge_area.id)
 
     processed_knowledge_areas << knowledge_area.id

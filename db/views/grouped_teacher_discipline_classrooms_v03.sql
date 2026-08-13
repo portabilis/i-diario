@@ -1,16 +1,16 @@
--- "Essa view serve apenas para identificar os registros de `teacher_discipline_classrooms`
-  -- que devem ser removidos devido a disciplinas fakes órfãs"
+-- Identifica os vínculos de teacher_discipline_classrooms com disciplina agrupadora (fake) que
+-- ficaram órfãos: sem nenhuma disciplina regular ativa da mesma área de conhecimento para o
+-- mesmo professor/turma/ano/série.
 --
--- Um vínculo agrupador é órfão quando não existe nenhuma disciplina regular ativa da mesma
--- área de conhecimento para o mesmo professor/turma/ano/série. Isso independe da flag
--- `group_descriptors` da área: quando a rede desliga o agrupamento no i-Educar, os vínculos
--- agrupadores que sobraram também precisam ser removidos — por isso a view não filtra por ela.
+-- Sem filtro por knowledge_areas.group_descriptors: o vínculo agrupador órfão precisa ser
+-- removido independentemente de a flag de agrupamento estar ligada ou desligada na área.
 SELECT tdc.id AS link_id, tdc.teacher_id, tdc.classroom_id
 FROM teacher_discipline_classrooms tdc
 INNER JOIN disciplines d ON d.id = tdc.discipline_id
 WHERE tdc.discarded_at IS NULL
   AND tdc.active = true
   AND d.grouper = true
+  AND d.knowledge_area_id IS NOT NULL
   AND NOT EXISTS (
     SELECT 1 FROM teacher_discipline_classrooms regular
     INNER JOIN disciplines rd ON rd.id = regular.discipline_id
@@ -23,5 +23,6 @@ WHERE tdc.discarded_at IS NULL
       AND regular.discarded_at IS NULL
       AND regular.active = true
       AND rd.knowledge_area_id = d.knowledge_area_id
-      AND rd.grouper = false
+      -- IS NOT TRUE (e não = false) para contar como regular também disciplinas com grouper nulo
+      AND rd.grouper IS NOT TRUE
   )

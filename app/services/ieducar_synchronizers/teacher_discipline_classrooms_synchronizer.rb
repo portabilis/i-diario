@@ -66,7 +66,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           end
         end
 
-        create_or_destroy_teacher_disciplines_classrooms(created_linked_teachers)
+        create_grouper_links(created_linked_teachers)
 
         teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
           teacher_discipline_classroom_record,
@@ -91,11 +91,23 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   )
     discipline_id = discipline(discipline_api_code).try(:id)
 
-    return if discipline_id.blank?
+    if discipline_id.blank?
+      Rails.logger.warn(
+        "[TeacherDisciplineClassroomsSynchronizer] vínculo ignorado: disciplina #{discipline_api_code} " \
+        "ainda não sincronizada (teacher_id: #{teacher_id}, classroom_id: #{classroom_id}, year: #{year})"
+      )
+      return
+    end
 
     grade_id = grade(grade_api_code).try(:id)
 
-    return if grade_id.blank?
+    if grade_id.blank?
+      Rails.logger.warn(
+        "[TeacherDisciplineClassroomsSynchronizer] vínculo ignorado: série #{grade_api_code} " \
+        "ainda não sincronizada (teacher_id: #{teacher_id}, classroom_id: #{classroom_id}, year: #{year})"
+      )
+      return
+    end
 
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
@@ -194,7 +206,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     )
   end
 
-  def create_or_destroy_teacher_disciplines_classrooms(linked_teachers)
+  def create_grouper_links(linked_teachers)
     # compact porque create_or_update_teacher_discipline_classrooms devolve nil quando a
     # disciplina ou a série do i-Educar ainda não existem no i-Diário
     teacher_discipline_classrooms_ids = linked_teachers.compact.map(&:id)
@@ -208,6 +220,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         grouper: true
       )
 
+      # next (não return): a área pode ainda não ter disciplina agrupadora criada, e abortar o
+      # loop deixaria os vínculos das demais áreas do lote sem o agrupador
       next if fake_discipline.nil?
 
       link_teacher = TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
@@ -239,6 +253,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       classroom_id: classroom_id
     ).map(&:link_id)
 
-    TeacherDisciplineClassroom.where(id: grouped_link_id).each(&:destroy)
+    TeacherDisciplineClassroom.where(id: grouped_link_id).each do |link|
+      next if link.destroy
+
+      Rails.logger.error(
+        "[TeacherDisciplineClassroomsSynchronizer] falha ao remover vínculo agrupador órfão " \
+        "(id: #{link.id}, erros: #{link.errors.full_messages.join('; ')})"
+      )
+    end
   end
 end

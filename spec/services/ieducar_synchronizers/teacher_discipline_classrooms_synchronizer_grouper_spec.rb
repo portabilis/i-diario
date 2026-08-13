@@ -34,7 +34,7 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
     )
   end
 
-  let(:api_code) { 'link-8180' }
+  let(:api_code) { 'link-1' }
 
   def mock_api_response(deleted_at: nil)
     {
@@ -64,8 +64,10 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
     synchronizer.synchronize!
   end
 
+  # unscoped: os exemplos precisam distinguir destroy (linha some) de discard (linha fica com
+  # discarded_at) — o default_scope esconderia essa diferença
   def grouper_links
-    TeacherDisciplineClassroom.kept.where(discipline_id: grouper_discipline.id)
+    TeacherDisciplineClassroom.unscoped.where(discipline_id: grouper_discipline.id)
   end
 
   before do
@@ -80,7 +82,7 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
       synchronize_with(mock_api_response)
 
       expect(TeacherDisciplineClassroom.kept.count).to eq(2)
-      expect(grouper_links.count).to eq(1)
+      expect(grouper_links.kept.count).to eq(1)
 
       synchronize_with(mock_api_response(deleted_at: Time.current.to_s))
 
@@ -91,7 +93,7 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
     it 'removes the grouper link even when the link no longer carries disciplines' do
       synchronize_with(mock_api_response)
 
-      expect(grouper_links.count).to eq(1)
+      expect(grouper_links.kept.count).to eq(1)
 
       response = mock_api_response(deleted_at: Time.current.to_s)
       response['vinculos'].first['disciplinas'] = []
@@ -107,7 +109,7 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
     it 'removes the grouper link when the knowledge area no longer groups descriptors' do
       synchronize_with(mock_api_response)
 
-      expect(grouper_links.count).to eq(1)
+      expect(grouper_links.kept.count).to eq(1)
 
       knowledge_area.update!(group_descriptors: false)
 
@@ -124,7 +126,7 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
       synchronize_with(mock_api_response)
 
       expect(TeacherDisciplineClassroom.kept.count).to eq(2)
-      expect(grouper_links.count).to eq(1)
+      expect(grouper_links.kept.count).to eq(1)
     end
 
     it 'keeps the grouper link when another discipline of the same area is removed' do
@@ -143,8 +145,72 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer do
 
       synchronize_with(mock_api_response)
 
-      expect(grouper_links.count).to eq(1)
+      expect(grouper_links.kept.count).to eq(1)
       expect(TeacherDisciplineClassroom.kept.count).to eq(2)
+    end
+  end
+
+  describe 'when the grouper link was previously discarded' do
+    it 'reuses the same record via undiscard instead of creating a duplicate' do
+      synchronize_with(mock_api_response)
+
+      link = grouper_links.first
+      link.discard
+
+      synchronize_with(mock_api_response)
+
+      expect(grouper_links.count).to eq(1)
+      expect(link.reload).not_to be_discarded
+    end
+
+    # Trava o fix: com a flag desligada, o sync ordinário (vínculo do professor ativo) não pode
+    # recriar nem reativar o vínculo agrupador descartado
+    it 'does not resurrect the link while the knowledge area does not group descriptors' do
+      synchronize_with(mock_api_response)
+
+      link = grouper_links.first
+      knowledge_area.update!(group_descriptors: false)
+      link.discard
+
+      synchronize_with(mock_api_response)
+
+      expect(grouper_links.count).to eq(1)
+      expect(link.reload).to be_discarded
+    end
+  end
+
+  describe 'when the payload references a discipline not yet synchronized' do
+    it 'skips it without raising and keeps the other links' do
+      response = mock_api_response
+      response['vinculos'].first['disciplinas'] << {
+        'id' => 'discipline-not-synced-yet',
+        'tipo_nota' => 1,
+        'serie_id' => grade.api_code
+      }
+
+      expect { synchronize_with(response) }.not_to raise_error
+
+      expect(TeacherDisciplineClassroom.kept.count).to eq(2)
+      expect(grouper_links.kept.count).to eq(1)
+    end
+  end
+
+  describe 'when the first grouped area has no grouper discipline yet' do
+    it 'still creates the grouper link for the other area' do
+      area_without_grouper = create(:knowledge_area, group_descriptors: true)
+      pending_discipline = create(:discipline, knowledge_area: area_without_grouper)
+
+      response = mock_api_response
+      # unshift: a área sem agrupadora precisa ser processada primeiro para exercitar o `next`
+      response['vinculos'].first['disciplinas'].unshift(
+        'id' => pending_discipline.api_code,
+        'tipo_nota' => 1,
+        'serie_id' => grade.api_code
+      )
+
+      synchronize_with(response)
+
+      expect(grouper_links.kept.count).to eq(1)
     end
   end
 end
