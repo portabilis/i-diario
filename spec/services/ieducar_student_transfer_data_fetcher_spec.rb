@@ -8,7 +8,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
   # teste, que já vem semeado. Criar um segundo pela factory não o alcança, então configuramos ele.
   let!(:ieducar_api_configuration) do
     IeducarApiConfiguration.current.tap do |configuration|
-      configuration.assign_attributes(attributes_for(:ieducar_api_configuration))
+      configuration.assign_attributes(attributes_for(:ieducar_api_configuration, :with_api_security_token))
       configuration.save!
     end
   end
