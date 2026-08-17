@@ -27,7 +27,7 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
 
         described_class.call
 
-        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link.id)).not_to exist
       end
     end
 
@@ -39,6 +39,57 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
         described_class.call
 
         expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).to exist
+      end
+    end
+
+    context 'when the knowledge area no longer groups descriptors' do
+      let(:knowledge_area) { create(:knowledge_area, group_descriptors: false) }
+
+      it 'destroys the orphaned grouper' do
+        grouper_link = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
+        regular_link = create_link(regular_discipline)
+        regular_link.discard
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link.id)).not_to exist
+      end
+
+      it 'does not destroy the grouper while regular disciplines are still active' do
+        grouper_link = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
+        create_link(regular_discipline)
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).to exist
+      end
+    end
+
+    context 'when the links have no grade' do
+      it 'does not destroy the grouper while regular disciplines are still active' do
+        grouper_link = create_link(
+          grouper_discipline,
+          api_code: "grouper:#{grouper_discipline.id}",
+          grade: nil
+        )
+        create_link(regular_discipline, grade: nil)
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.where(id: grouper_link.id)).to exist
+      end
+
+      it 'destroys the grouper when the regular disciplines are discarded' do
+        grouper_link = create_link(
+          grouper_discipline,
+          api_code: "grouper:#{grouper_discipline.id}",
+          grade: nil
+        )
+        create_link(regular_discipline, grade: nil).discard
+
+        described_class.call
+
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link.id)).not_to exist
       end
     end
 
@@ -59,23 +110,42 @@ RSpec.describe DestroyDuplicatedGroupedLinkService do
 
         described_class.call
 
-        expect(TeacherDisciplineClassroom.where(id: grouper_link_a.id)).not_to exist
-        expect(TeacherDisciplineClassroom.where(id: grouper_link_b.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link_a.id)).not_to exist
+        expect(TeacherDisciplineClassroom.unscoped.where(id: grouper_link_b.id)).not_to exist
       end
     end
   end
 
   describe '.destroy_duplicated_groupers' do
     context 'when there are duplicated groupers' do
-      it 'destroys the duplicated grouper' do
+      # O service destrói TODAS as linhas dos grupos com mais de um grouper ativo, não mantém uma
+      it 'destroys all the duplicated grouper links' do
+        regular_link = create_link(regular_discipline)
+        grouper_link_1 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
+        grouper_link_2 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}-dup")
+
+        described_class.call
+
+        remaining = TeacherDisciplineClassroom.unscoped.where(id: [grouper_link_1.id, grouper_link_2.id])
+        expect(remaining.count).to eq(0)
+        expect(TeacherDisciplineClassroom.where(id: regular_link.id)).to exist
+      end
+    end
+
+    # Duplicata é anomalia de dados independentemente da flag: sem esse caminho, uma área com o
+    # agrupamento desligado, dois agrupadores ativos e uma regular ativa escaparia das duas limpezas
+    context 'when the knowledge area no longer groups descriptors' do
+      let(:knowledge_area) { create(:knowledge_area, group_descriptors: false) }
+
+      it 'destroys all the duplicated grouper links' do
         create_link(regular_discipline)
         grouper_link_1 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}")
         grouper_link_2 = create_link(grouper_discipline, api_code: "grouper:#{grouper_discipline.id}-dup")
 
         described_class.call
 
-        remaining = TeacherDisciplineClassroom.where(id: [grouper_link_1.id, grouper_link_2.id])
-        expect(remaining.count).to be <= 1
+        remaining = TeacherDisciplineClassroom.unscoped.where(id: [grouper_link_1.id, grouper_link_2.id])
+        expect(remaining.count).to eq(0)
       end
     end
   end
