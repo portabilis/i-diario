@@ -137,6 +137,16 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         expect(IeducarResponseDecorator.new(result).any_error_message?).to eq(false)
       end
 
+      # Fora do status de gravação, corpo sem mensagem não prova que foi o i-Educar respondendo.
+      it 'fails hard on a 200 whose body carries no message' do
+        allow(RestClient::Request).to receive(:execute).and_return(double(code: 200, body: '{}'))
+        expect(Honeybadger).to receive(:notify)
+
+        expect {
+          service.send_post(params)
+        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
+      end
+
       it 'refuses to treat a non JSON body as a successful post' do
         allow(RestClient::Request).to receive(:execute).and_return(
           double(code: 202, body: '<html><body>502 Bad Gateway</body></html>')
@@ -185,22 +195,25 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
     end
 
     context "when the classroom's evaluation rule does not allow general absences (422)" do
-      # Recusa de negócio que a API legada devolvia como erro conhecido 1008. Precisa continuar
-      # sendo aviso: derrubar o envio inteiro por causa de uma turma penaliza as demais.
-      it 'becomes a warning instead of failing the whole posting' do
+      # Recusa de negócio que a API legada devolvia como erro conhecido 1008. Continua sendo aviso
+      # — derrubar o envio inteiro por causa de uma turma penaliza as demais — e não vai para o
+      # Honeybadger: se repete a cada aluno enquanto a divergência de regra existir.
+      it 'becomes a warning, without reporting one incident per student' do
         allow(RestClient::Request).to receive(:execute).and_raise(
           http_error(
             RestClient::UnprocessableEntity, 422,
             '{"message":"A regra da turma 9240 não permite lançamento de faltas geral."}'
           )
         )
-        allow(Honeybadger).to receive(:notify)
+        expect(Honeybadger).not_to receive(:notify)
 
         result = service.send_post(params)
 
-        expect(result['any_error_msg']).to eq(true)
-        expect(result['error']['message'])
-          .to eq('A regra da turma 9240 não permite lançamento de faltas geral.')
+        expect(result).to eq(
+          'msgs' => [],
+          'any_error_msg' => true,
+          'error' => { 'message' => 'A regra da turma 9240 não permite lançamento de faltas geral.' }
+        )
       end
     end
 
@@ -221,7 +234,6 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
 
         expect(result['any_error_msg']).to eq(true)
         expect(result['error']).to eq(
-          'code' => nil,
           'message' => 'O campo etapa não pode ser superior a 4. O campo aluno id é obrigatório.'
         )
       end
@@ -230,11 +242,11 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         allow(RestClient::Request).to receive(:execute).and_raise(
           http_error(RestClient::UnprocessableEntity, 422, '{"message":"Dados inválidos.","errors":{}}')
         )
-        allow(Honeybadger).to receive(:notify)
+        expect(Honeybadger).not_to receive(:notify)
 
         result = service.send_post(params)
 
-        expect(result['error']).to eq('code' => nil, 'message' => 'Dados inválidos.')
+        expect(result['error']).to eq('message' => 'Dados inválidos.')
       end
 
       it 'fails hard when the body carries no recognizable message' do

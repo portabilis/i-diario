@@ -513,6 +513,25 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         expect(subject.all_postings_sent).to eq(false)
       end
 
+      # `post_to_ieducar!` não tem rescue: um erro de integração interrompe o laço e as etapas
+      # seguintes não são enviadas. Quem repete é o IeducarStudentTransferPostingWorker.
+      it 'lets an integration error abort the posting loop' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
+          .to_return(
+            status: 401,
+            body: '{"message": "Unauthorized"}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Honeybadger).to receive(:notify)
+
+        expect {
+          subject.post_to_ieducar!
+        }.to raise_error(
+          IeducarApi::Base::GenericError,
+          'Token de segurança divergente entre o i-Diário e o i-Educar.'
+        )
+      end
+
       # Aluno que deixou de frequentar não é falha da transferência: o i-Educar recusa porque não
       # há onde lançar, e isso não deve marcar o envio como parcial.
       it 'keeps all_postings_sent as true when there was no eligible registration' do

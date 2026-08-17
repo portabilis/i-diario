@@ -122,6 +122,11 @@ module IeducarApi
 
       message = message_from(parsed)
 
+      # Fora do status de gravação, o corpo é a única prova de que foi o i-Educar respondendo:
+      # sem mensagem, pode ser um intermediário devolvendo 200 vazio.
+      return unrecognized_response!(response.code, response.body, params) if
+        response.code != SAVED_STATUS && message.blank?
+
       return not_saved(message, params, response.code) unless response.code == SAVED_STATUS
 
       log_debug("Response: #{message || SUCCESS_MESSAGE}")
@@ -147,7 +152,8 @@ module IeducarApi
     def handle_response_error(error, params)
       status = error.http_code
       body = error.response&.body
-      message = message_from(parse_body(body))
+      parsed = parse_body(body)
+      message = message_from(parsed)
 
       case status
       when 404
@@ -158,11 +164,17 @@ module IeducarApi
 
         not_saved(message, params, status)
       when 422
-        # Recusa do i-Educar: regra da turma que não permite falta geral, ou payload fora do
-        # contrato. Vira aviso para não derrubar o envio dos demais alunos, mas é reportado.
+        # Vira aviso, nos dois casos, para não derrubar o envio dos demais alunos da turma. Mas só
+        # a recusa de validação é reportada: ela significa que nós enviamos algo fora do contrato.
+        # A recusa de negócio — regra da turma que não permite falta geral — se repete a cada aluno
+        # enquanto a divergência existir, e notificá-la afogaria o tracker.
         return unrecognized_response!(status, body, params) if message.blank?
 
-        notify(error, params, status, message)
+        if validation_errors?(parsed)
+          notify(error, params, status, message)
+        else
+          log(:warn, 'envio recusado pelo i-Educar', params, status: status, detail: message)
+        end
 
         warning(message)
       when 401
@@ -212,9 +224,15 @@ module IeducarApi
 
     def message_from(parsed)
       return if parsed.nil?
-      return parsed['errors'].values.flatten.join(' ') if parsed['errors'].is_a?(Hash) && parsed['errors'].present?
+      return parsed['errors'].values.flatten.join(' ') if validation_errors?(parsed)
 
       parsed['message'].presence
+    end
+
+    # A validação do Laravel devolve o detalhe em `errors`; as recusas de negócio trazem só
+    # `message`. É o que separa "enviamos algo inválido" de "o i-Educar não aceita este caso".
+    def validation_errors?(parsed)
+      parsed.present? && parsed['errors'].is_a?(Hash) && parsed['errors'].present?
     end
 
     def success(message)
@@ -231,11 +249,11 @@ module IeducarApi
       }
     end
 
-    def warning(message, code: nil)
+    def warning(message)
       {
         'msgs' => [],
         'any_error_msg' => true,
-        'error' => { 'code' => code, 'message' => message }
+        'error' => { 'message' => message }
       }
     end
 
