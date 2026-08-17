@@ -1,37 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe ExamPoster::AbsencePoster do
+RSpec.describe ExamPoster::AbsencePoster, type: :service do
   let(:teacher) { create(:teacher) }
-  let!(:classroom) do
-    create(
-      :classroom,
-      :with_classroom_semester_steps,
-      :score_type_numeric,
-      period: Periods::MATUTINAL
-    )
-  end
-  let!(:teacher_discipline_classroom) do
-    create(:teacher_discipline_classroom, classroom: classroom, teacher: teacher)
-  end
-  let(:step) { classroom.calendar.classroom_steps.first }
-  let(:student) { create(:student) }
-  let!(:daily_frequency) do
-    create(
-      :daily_frequency,
-      :without_discipline,
-      classroom: classroom,
-      unity: classroom.unity,
-      frequency_date: step.start_at + 1.day
-    )
-  end
-  let!(:daily_frequency_student) do
-    create(
-      :daily_frequency_student,
-      daily_frequency: daily_frequency,
-      student: student,
-      present: false
-    )
-  end
+
+  subject { described_class.new(exam_posting, entity.id) }
+
+  let(:entity) { Entity.find_by(domain: 'test.host') }
   let(:exam_posting) do
     create(
       :ieducar_api_exam_posting,
@@ -40,25 +14,111 @@ RSpec.describe ExamPoster::AbsencePoster do
       teacher: teacher
     )
   end
+  let(:step) { classroom.calendar.classroom_steps.first }
 
-  subject { described_class.new(exam_posting, Entity.first.id) }
+  describe '#post! with general frequency' do
+    let!(:classroom) do
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_numeric,
+        period: Periods::MATUTINAL
+      )
+    end
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, teacher: teacher)
+    end
+    let(:absent_student) { create(:student) }
+    let(:present_student) { create(:student) }
+    let!(:daily_frequencies) do
+      (1..3).map do |day|
+        create(
+          :daily_frequency,
+          :without_discipline,
+          classroom: classroom,
+          unity: classroom.unity,
+          frequency_date: step.start_at + day.days
+        )
+      end
+    end
 
-  describe '#post!' do
-    it 'enqueues one flat request per student for the general absence endpoint' do
+    before do
+      # Um aluno com três faltas e outro com uma: contagens diferentes provam que cada requisição
+      # carrega o aluno e o valor corretos, e não o último do laço repetido.
+      daily_frequencies.each do |daily_frequency|
+        create(
+          :daily_frequency_student,
+          daily_frequency: daily_frequency,
+          student: absent_student,
+          present: false
+        )
+      end
+
+      create(
+        :daily_frequency_student,
+        daily_frequency: daily_frequencies.first,
+        student: present_student,
+        present: false
+      )
+      daily_frequencies.drop(1).each do |daily_frequency|
+        create(
+          :daily_frequency_student,
+          daily_frequency: daily_frequency,
+          student: present_student,
+          present: true
+        )
+      end
+    end
+
+    it 'builds one flat request per student, each with its own absence count' do
+      subject.post!
+
+      expect(subject.requests).to match_array(
+        [
+          {
+            info: { classroom: classroom.api_code, student: absent_student.api_code },
+            request: {
+              etapa: step.to_number,
+              turma_id: classroom.api_code,
+              aluno_id: absent_student.api_code,
+              faltas: 3
+            }
+          },
+          {
+            info: { classroom: classroom.api_code, student: present_student.api_code },
+            request: {
+              etapa: step.to_number,
+              turma_id: classroom.api_code,
+              aluno_id: present_student.api_code,
+              faltas: 1
+            }
+          }
+        ]
+      )
+    end
+
+    it 'enqueues exactly one job per student and records the batch size' do
+      subject.post!
+
+      expect(Ieducar::SendPostWorker.jobs.size).to eq(2)
+      expect(exam_posting.worker_batch.reload.total_workers).to eq(2)
+    end
+
+    it 'enqueues the request with the arguments the worker expects' do
       subject.post!
 
       expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
-        Entity.first.id,
+        entity.id,
         exam_posting.id,
         {
           etapa: step.to_number,
           turma_id: classroom.api_code,
-          aluno_id: student.api_code,
-          faltas: 1
+          aluno_id: absent_student.api_code,
+          faltas: 3
         },
         {
           classroom: classroom.api_code,
-          student: student.api_code
+          student: absent_student.api_code
         },
         'critical',
         0
@@ -66,26 +126,79 @@ RSpec.describe ExamPoster::AbsencePoster do
     end
 
     it 'sends zero when the student has no absences in the step' do
-      daily_frequency_student.update!(present: true)
+      DailyFrequencyStudent.update_all(present: true)
 
       subject.post!
 
-      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
-        Entity.first.id,
-        exam_posting.id,
-        {
-          etapa: step.to_number,
-          turma_id: classroom.api_code,
-          aluno_id: student.api_code,
-          faltas: 0
-        },
-        {
-          classroom: classroom.api_code,
-          student: student.api_code
-        },
-        'critical',
-        0
+      expect(subject.requests.map { |request| request[:request][:faltas] }).to eq([0, 0])
+    end
+  end
+
+  describe '#post! with frequency by discipline' do
+    let(:discipline) { create(:discipline) }
+    let!(:classroom) do
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :by_discipline_create_rule,
+        period: Periods::MATUTINAL
       )
+    end
+    let!(:teacher_discipline_classroom) do
+      create(
+        :teacher_discipline_classroom,
+        classroom: classroom,
+        discipline: discipline,
+        teacher: teacher
+      )
+    end
+    let(:student) { create(:student) }
+    let!(:daily_frequency) do
+      create(
+        :daily_frequency,
+        classroom: classroom,
+        discipline: discipline,
+        unity: classroom.unity,
+        frequency_date: step.start_at + 1.day
+      )
+    end
+    let!(:daily_frequency_student) do
+      create(
+        :daily_frequency_student,
+        daily_frequency: daily_frequency,
+        student: student,
+        present: false
+      )
+    end
+
+    # Este é o formato do qual o Ieducar::SendPostWorker depende para rotear à API legada: se ele
+    # for achatado junto com o das faltas gerais, o envio por componente quebra.
+    it 'keeps the nested legacy payload, with resource and without turma_id' do
+      subject.post!
+
+      expect(subject.requests).to eq(
+        [
+          {
+            info: {
+              classroom: classroom.api_code,
+              student: student.api_code,
+              discipline: discipline.api_code
+            },
+            request: {
+              etapa: step.to_number,
+              resource: 'faltas-por-componente',
+              faltas: {
+                classroom.api_code => {
+                  student.api_code => {
+                    discipline.api_code => { 'valor' => 1, 'area_do_conhecimento' => nil }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      )
+      expect(subject.requests.map { |request| request[:request][:turma_id] }).to eq([nil])
     end
   end
 end

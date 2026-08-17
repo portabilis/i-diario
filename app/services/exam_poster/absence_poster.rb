@@ -3,8 +3,8 @@ module ExamPoster
     private
 
     def generate_requests
-      # As faltas gerais usam a API v2 do i-Educar (POST /api/v2/falta-geral), que recebe um aluno
-      # por requisição em payload achatado. As faltas por componente seguem na API legada.
+      # O formato do payload é contrato: o Ieducar::SendPostWorker escolhe entre a API v2 e a
+      # legada pela presença de `turma_id` (achatado) ou de `resource` (aninhado).
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           requests << {
@@ -22,6 +22,8 @@ module ExamPoster
         end
       end
 
+      # Aninhado e com `resource`: faltas por componente não têm endpoint na API v2 e continuam
+      # sendo enviadas pela API legada.
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|

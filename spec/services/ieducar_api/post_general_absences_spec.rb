@@ -6,13 +6,25 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
   around(:each) { |example| entity.using_connection { example.run } }
 
   let(:configuration) do
-    IeducarApiConfiguration.new(url: 'https://ieducar.example.com', api_security_token: 'shared-secret')
+    build(:ieducar_api_configuration, :with_api_security_token, url: 'https://ieducar.example.com')
   end
+  let(:token) { configuration.api_security_token }
   let(:service) { described_class.new(configuration) }
   let(:params) { { etapa: 1, turma_id: '4502', aluno_id: '1234', faltas: 7 } }
 
-  def http_error(status, body)
-    RestClient::ExceptionWithResponse.new(double(code: status, body: body), status)
+  # Usa as subclasses concretas do rest-client: a classe pai devolveria "ExceptionWithResponse" em
+  # `message`, enquanto produção levanta "500 Internal Server Error" — texto do qual o
+  # Ieducar::SendPostWorker depende para classificar o erro.
+  def http_error(error_class, status, body)
+    error_class.new(double(code: status, body: body), status)
+  end
+
+  describe '#initialize' do
+    it 'rejects a collaborator that is not an api configuration' do
+      expect {
+        described_class.new(configuration.to_api)
+      }.to raise_error(IeducarApi::Base::ApiError, 'É necessário informar a configuração da API do i-Educar')
+    end
   end
 
   describe '#send_post' do
@@ -49,6 +61,15 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         }.to raise_error(IeducarApi::Base::ApiError, 'É necessário informar o aluno')
       end
 
+      it 'requires the configured url' do
+        configuration.url = ''
+        expect(RestClient::Request).not_to receive(:execute)
+
+        expect {
+          service.send_post(params)
+        }.to raise_error(IeducarApi::Base::ApiError, 'É necessário informar a url de acesso: url')
+      end
+
       it 'requires the shared token to be configured' do
         configuration.api_security_token = ''
         expect(RestClient::Request).not_to receive(:execute)
@@ -56,6 +77,17 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         expect {
           service.send_post(params)
         }.to raise_error(IeducarApi::Base::ApiError, 'É necessário informar o token de segurança do i-Diário')
+      end
+
+      it 'rejects a non numeric value instead of coercing it to zero' do
+        expect(RestClient::Request).not_to receive(:execute)
+
+        expect {
+          service.send_post(params.merge(turma_id: 'abc'))
+        }.to raise_error(
+          IeducarApi::Base::ApiError,
+          'O valor informado para a turma não é um número inteiro'
+        )
       end
     end
 
@@ -67,8 +99,8 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
           open_timeout: described_class::OPEN_TIMEOUT,
           read_timeout: described_class::READ_TIMEOUT,
           payload: { turma_id: 4502, aluno_id: 1234, etapa: 1, faltas: 7 }.to_json,
-          headers: { token: 'shared-secret', content_type: :json, accept: :json }
-        ).and_return(double(body: '{"message":"Faltas gerais salvas com sucesso."}'))
+          headers: { token: token, content_type: :json, accept: :json }
+        ).and_return(double(code: 202, body: '{"message":"Faltas gerais salvas com sucesso."}'))
 
         result = service.send_post(params)
 
@@ -82,65 +114,156 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
       it 'sends zero absences instead of skipping the student' do
         expect(RestClient::Request).to receive(:execute).with(
           hash_including(payload: { turma_id: 4502, aluno_id: 1234, etapa: 1, faltas: 0 }.to_json)
-        ).and_return(double(body: '{}'))
+        ).and_return(double(code: 202, body: '{}'))
 
         result = service.send_post(params.merge(faltas: 0))
 
         expect(result['msgs']).to eq([{ 'msg' => 'Faltas postadas com sucesso!' }])
       end
+
+      # O endpoint separa "gravou" (202) de "não havia matrícula elegível" (200). O segundo caso é
+      # o aluno que deixou de frequentar: desfecho esperado, sobre o qual o professor não tem o
+      # que fazer, então não gera aviso na tela — só log.
+      it 'does not notify the teacher when there was no eligible registration' do
+        allow(RestClient::Request).to receive(:execute).and_return(
+          double(code: 200, body: '{"message":"Matrícula não encontrada para o aluno e turma informados."}')
+        )
+        expect(Honeybadger).not_to receive(:notify)
+        expect(Rails.logger).to receive(:warn).with(/matrícula recusada pelo i-Educar/)
+
+        result = service.send_post(params)
+
+        expect(result).to eq('msgs' => [], 'any_error_msg' => false)
+        expect(IeducarResponseDecorator.new(result).any_error_message?).to eq(false)
+      end
+
+      it 'refuses to treat a non JSON body as a successful post' do
+        allow(RestClient::Request).to receive(:execute).and_return(
+          double(code: 202, body: '<html><body>502 Bad Gateway</body></html>')
+        )
+        expect(Honeybadger).to receive(:notify).with(
+          instance_of(IeducarApi::Base::GenericError),
+          hash_including(context: hash_including(:remote_body))
+        )
+
+        expect {
+          service.send_post(params)
+        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
+      end
     end
 
-    context 'when the student has no registration in the classroom (404)' do
-      it 'returns a warning instead of failing the whole posting' do
+    context 'when an older i-Educar answers 404 for a registration it does not accept' do
+      it 'behaves the same as the 200: log only, no notice' do
         allow(RestClient::Request).to receive(:execute).and_raise(
-          http_error(404, '{"message":"Matrícula não encontrada para o aluno e turma informados."}')
+          http_error(
+            RestClient::NotFound, 404,
+            '{"message":"Matrícula não encontrada para o aluno e turma informados."}'
+          )
         )
         expect(Honeybadger).not_to receive(:notify)
 
         result = service.send_post(params)
 
-        expect(result).to eq(
-          'msgs' => [],
-          'any_error_msg' => true,
-          'error' => { 'message' => 'Matrícula não encontrada para o aluno e turma informados.' }
+        expect(result).to eq('msgs' => [], 'any_error_msg' => false)
+      end
+    end
+
+    context 'when the i-Educar does not publish the endpoint yet (404 without a body)' do
+      it 'fails hard instead of reporting a missing registration' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(RestClient::NotFound, 404, '<html>404 Not Found</html>')
+        )
+        expect(Honeybadger).to receive(:notify).with(
+          instance_of(IeducarApi::Base::GenericError),
+          hash_including(context: hash_including(status: 404))
         )
 
-        response = IeducarResponseDecorator.new(result)
+        expect {
+          service.send_post(params)
+        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
+      end
+    end
 
-        expect(response.any_error_message?).to eq(true)
-        expect(response.full_error_message('Aluno: João;'))
-          .to eq('Aluno: João; Matrícula não encontrada para o aluno e turma informados.')
+    context "when the classroom's evaluation rule does not allow general absences (422)" do
+      # Recusa de negócio que a API legada devolvia como erro conhecido 1008. Precisa continuar
+      # sendo aviso: derrubar o envio inteiro por causa de uma turma penaliza as demais.
+      it 'becomes a warning instead of failing the whole posting' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(
+            RestClient::UnprocessableEntity, 422,
+            '{"message":"A regra da turma 9240 não permite lançamento de faltas geral."}'
+          )
+        )
+        allow(Honeybadger).to receive(:notify)
+
+        result = service.send_post(params)
+
+        expect(result['any_error_msg']).to eq(true)
+        expect(result['error']['message'])
+          .to eq('A regra da turma 9240 não permite lançamento de faltas geral.')
       end
     end
 
     context 'when the i-Educar rejects the payload (422)' do
-      # Corpo real devolvido pelo i-Educar quando a etapa passa do limite aceito pelo endpoint.
-      it 'returns a warning with the validation messages' do
+      # Corpo real do Laravel: `message` genérica e o detalhe útil em `errors`.
+      it 'joins every validation message and reports it' do
         allow(RestClient::Request).to receive(:execute).and_raise(
-          http_error(422, '{"message":"O campo etapa não pode ser superior a 4.",' \
-                          '"errors":{"etapa":["O campo etapa não pode ser superior a 4."]}}')
+          http_error(
+            RestClient::UnprocessableEntity, 422,
+            '{"message":"The given data was invalid.",' \
+            '"errors":{"etapa":["O campo etapa não pode ser superior a 4."],' \
+            '"aluno_id":["O campo aluno id é obrigatório."]}}'
+          )
         )
-        expect(Honeybadger).not_to receive(:notify)
+        expect(Honeybadger).to receive(:notify)
 
         result = service.send_post(params.merge(etapa: 5))
 
         expect(result['any_error_msg']).to eq(true)
-        expect(result['error']).to eq('message' => 'O campo etapa não pode ser superior a 4.')
+        expect(result['error']).to eq(
+          'code' => nil,
+          'message' => 'O campo etapa não pode ser superior a 4. O campo aluno id é obrigatório.'
+        )
       end
 
-      it 'falls back to a local message when the body has no text' do
-        allow(RestClient::Request).to receive(:execute).and_raise(http_error(422, ''))
+      it 'falls back to the message when the errors hash is empty' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(RestClient::UnprocessableEntity, 422, '{"message":"Dados inválidos.","errors":{}}')
+        )
+        allow(Honeybadger).to receive(:notify)
 
         result = service.send_post(params)
 
-        expect(result['error']).to eq('message' => 'O i-Educar recusou os dados enviados.')
+        expect(result['error']).to eq('code' => nil, 'message' => 'Dados inválidos.')
+      end
+
+      it 'fails hard when the body carries no recognizable message' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(RestClient::UnprocessableEntity, 422, '')
+        )
+        expect(Honeybadger).to receive(:notify)
+
+        expect {
+          service.send_post(params)
+        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
       end
     end
 
     context 'when the shared token diverges between the two systems (401)' do
-      it 'raises explaining the integration problem and notifies Honeybadger' do
-        allow(RestClient::Request).to receive(:execute).and_raise(http_error(401, '{"message":"Unauthorized"}'))
-        expect(Honeybadger).to receive(:notify)
+      it 'raises explaining the integration problem and notifies Honeybadger with context' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(RestClient::Unauthorized, 401, '{"message":"Unauthorized"}')
+        )
+        expect(Honeybadger).to receive(:notify).with(
+          instance_of(RestClient::Unauthorized),
+          hash_including(
+            context: hash_including(
+              endpoint: 'https://ieducar.example.com/api/v2/falta-geral',
+              status: 401,
+              remote_message: 'Unauthorized'
+            )
+          )
+        )
 
         expect {
           service.send_post(params)
@@ -152,37 +275,89 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
     end
 
     context 'when the i-Educar fails to save the absences (500)' do
-      it 'raises with the remote message so the posting records the error' do
+      # O i-Educar passou a repassar a mensagem original do banco entre parênteses. É ela que o
+      # Ieducar::SendPostWorker procura em RETRY_ERRORS para refazer a requisição sozinho quando
+      # dois envios simultâneos disputam a mesma linha.
+      it 'preserves the database message so the worker can retry a duplicate key' do
         allow(RestClient::Request).to receive(:execute).and_raise(
-          http_error(500, '{"message":"Não foi possível salvar as faltas gerais para o aluno e turma informados."}')
+          http_error(
+            RestClient::InternalServerError, 500,
+            '{"message":"Não foi possível salvar as faltas gerais para o aluno e turma informados. ' \
+            '(SQLSTATE[23505]: Unique violation: 7 ERROR: duplicate key value violates unique ' \
+            'constraint \\"falta_geral_pkey\\")"}'
+          )
+        )
+        expect(Honeybadger).to receive(:notify)
+
+        raised = nil
+
+        begin
+          service.send_post(params)
+        rescue IeducarApi::Base::GenericError => error
+          raised = error
+        end
+
+        expect(raised.message).to start_with('500 Internal Server Error - ')
+        expect(
+          Ieducar::SendPostWorker::RETRY_ERRORS.any? { |retry_error| raised.message.include?(retry_error) }
+        ).to eq(true)
+      end
+
+      it 'falls back to the rest-client text when the body is not JSON' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(RestClient::InternalServerError, 500, '<html>Server Error</html>')
         )
         expect(Honeybadger).to receive(:notify)
 
         expect {
           service.send_post(params)
-        }.to raise_error(
-          IeducarApi::Base::GenericError,
-          'Não foi possível salvar as faltas gerais para o aluno e turma informados.'
-        )
+        }.to raise_error(IeducarApi::Base::GenericError, '500 Internal Server Error')
       end
     end
 
     context 'when the i-Educar is momentarily unavailable' do
-      it 'raises NetworkException on a gateway error so the worker retries' do
-        allow(RestClient::Request).to receive(:execute).and_raise(http_error(502, ''))
+      [
+        [RestClient::BadGateway, 502],
+        [RestClient::ServiceUnavailable, 503],
+        [RestClient::GatewayTimeout, 504]
+      ].each do |error_class, status|
+        it "raises NetworkException on #{status} so the worker retries, without paging" do
+          allow(RestClient::Request).to receive(:execute).and_raise(http_error(error_class, status, ''))
+          expect(Honeybadger).not_to receive(:notify)
+
+          expect {
+            service.send_post(params)
+          }.to raise_error(IeducarApi::Base::NetworkException)
+        end
+      end
+
+      # Este é o caminho mais provável de falha real: uma requisição por aluno num endpoint que
+      # ainda recalcula a situação da matrícula.
+      [
+        RestClient::Exceptions::ReadTimeout,
+        RestClient::Exceptions::OpenTimeout,
+        RestClient::ServerBrokeConnection,
+        RestClient::SSLCertificateNotVerified,
+        OpenSSL::SSL::SSLError,
+        SocketError
+      ].each do |error_class|
+        it "raises NetworkException on #{error_class} so the worker retries" do
+          allow(RestClient::Request).to receive(:execute).and_raise(error_class, 'falha de transporte')
+          expect(Honeybadger).to receive(:notify)
+
+          expect {
+            service.send_post(params)
+          }.to raise_error(IeducarApi::Base::NetworkException)
+        end
+      end
+
+      it 'raises NetworkException on a system call error so the worker retries' do
+        allow(RestClient::Request).to receive(:execute).and_raise(Errno::ECONNREFUSED)
+        expect(Honeybadger).to receive(:notify)
 
         expect {
           service.send_post(params)
         }.to raise_error(IeducarApi::Base::NetworkException)
-      end
-
-      it 'raises NetworkException on a socket error so the worker retries' do
-        allow(RestClient::Request).to receive(:execute).and_raise(SocketError, 'Temporary failure in name resolution')
-        allow(Honeybadger).to receive(:notify)
-
-        expect {
-          service.send_post(params)
-        }.to raise_error(IeducarApi::Base::NetworkException, 'Temporary failure in name resolution')
       end
     end
   end

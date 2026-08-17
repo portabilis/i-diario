@@ -46,11 +46,12 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     end
   end
 
-  # As faltas gerais são enviadas pela API v2 do i-Educar, em endpoint e formato próprios.
+  # As faltas gerais são enviadas pela API v2 do i-Educar, em endpoint e formato próprios. Ela
+  # responde 202 quando grava — 200 significaria que não havia matrícula elegível.
   before do
     stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
       .to_return(
-        status: 200,
+        status: 202,
         body: '{"message": "Faltas gerais salvas com sucesso."}',
         headers: { 'Content-Type' => 'application/json' }
       )
@@ -486,16 +487,46 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
             )
           )
           .to_return(
-          status: 200,
+          status: 202,
           body: '{"message": "Faltas gerais salvas com sucesso."}',
           headers: { 'Content-Type' => 'application/json' }
         )
 
         subject.post_to_ieducar!
 
-        expect(absence_stub).to have_been_requested.at_least_once
+        # Contagem exata: envio duplicado de falta geral é falha conhecida deste endpoint — a
+        # violação de `falta_geral_pkey` está na lista de retry do Ieducar::SendPostWorker.
+        expect(absence_stub).to have_been_requested.once
       end
 
+      it 'flips all_postings_sent to false when the i-Educar refuses the absences' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
+          .to_return(
+            status: 422,
+            body: '{"message": "A regra da turma 4502 não permite lançamento de faltas geral."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Honeybadger).to receive(:notify)
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(false)
+      end
+
+      # Aluno que deixou de frequentar não é falha da transferência: o i-Educar recusa porque não
+      # há onde lançar, e isso não deve marcar o envio como parcial.
+      it 'keeps all_postings_sent as true when there was no eligible registration' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
+          .to_return(
+            status: 200,
+            body: '{"message": "Matrícula não encontrada para o aluno e turma informados."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(true)
+      end
     end
 
     context 'with absences by discipline' do

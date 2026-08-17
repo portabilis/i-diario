@@ -470,11 +470,22 @@ class IeducarStudentTransferDataFetcher
     @all_postings_sent = false if response.any_error_message?
   end
 
-  # Faltas gerais usam a API v2 do i-Educar, que tem autenticação e formato de resposta próprios.
+  # Recebe a configuration, e não o `to_api` dos métodos vizinhos: o hash legado não expõe o
+  # api_security_token, que é como a API v2 autentica.
   def send_general_absences_to_ieducar(params)
     api = IeducarApi::PostGeneralAbsences.new(ieducar_api)
     response = IeducarResponseDecorator.new(api.send_post(params))
-    @all_postings_sent = false if response.any_error_message?
+
+    return unless response.any_error_message?
+
+    # Aqui não existe IeducarApiExamPosting para registrar o aviso: sem o log, o motivo da falha
+    # parcial não fica em lugar nenhum.
+    Rails.logger.warn(
+      "[transferência] falta geral não enviada - aluno: #{student.id}, turma: #{classroom.id}, " \
+      "etapa: #{params[:etapa]}: #{response.error.message}"
+    )
+
+    @all_postings_sent = false
   end
 
   def send_final_recovery_to_ieducar(params)

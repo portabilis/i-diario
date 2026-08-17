@@ -1,48 +1,53 @@
 module IeducarApi
   # Envia as faltas gerais de um aluno ao i-Educar (POST /api/v2/falta-geral).
   #
-  # Não herda de IeducarApi::Base: a Base fala com a API legada, que autentica por
-  # access_key/secret_key na query string, recebe as faltas em um hash aninhado
-  # (turma => aluno => valor) e responde sempre em HTTP 200 no formato
-  # { msgs: [...], any_error_msg: bool, error: {...} }.
+  # Não herda de IeducarApi::Base: aquela fala com a API legada, que autentica por chaves na query
+  # string e devolve erro de negócio dentro de um HTTP 200. Esta autentica pelo header `token` — o
+  # `api_security_token` daqui é o `token_novo_educacao` de lá — e usa o status HTTP.
   #
-  # A API v2 autentica pelo header `token` — o mesmo segredo compartilhado entre os dois sistemas
-  # (api_security_token aqui, token_novo_educacao no i-Educar) —, recebe um aluno por requisição
-  # em payload achatado e sinaliza o resultado pelo status HTTP, com o texto em { message: "..." }.
-  #
-  # Para não espalhar o contrato novo pelo resto da aplicação, a resposta HTTP é traduzida aqui
-  # para o formato que IeducarResponseDecorator já entende.
+  # A resposta é traduzida para o formato do IeducarResponseDecorator. As exceções continuam vindo
+  # de Base porque o Ieducar::SendPostWorker decide o retry por Base::NetworkException.
   class PostGeneralAbsences
     POST_PATH = '/api/v2/falta-geral'.freeze
+    # O endpoint responde 202 quando gravou e 200 quando não havia matrícula elegível.
+    SAVED_STATUS = 202
     OPEN_TIMEOUT = 10
     READ_TIMEOUT = 240
-    # Status que indicam indisponibilidade momentânea do i-Educar e valem uma nova tentativa.
     NETWORK_ERROR_STATUSES = [502, 503, 504].freeze
+    # Erros de transporte: não têm resposta HTTP e valem nova tentativa.
+    NETWORK_ERRORS = [
+      RestClient::Exceptions::Timeout,
+      RestClient::ServerBrokeConnection,
+      RestClient::SSLCertificateNotVerified,
+      OpenSSL::SSL::SSLError,
+      SocketError,
+      SystemCallError
+    ].freeze
     SUCCESS_MESSAGE = 'Faltas postadas com sucesso!'.freeze
-    REGISTRATION_NOT_FOUND_MESSAGE = 'Matrícula não encontrada para o aluno e turma informados.'.freeze
-    INVALID_DATA_MESSAGE = 'O i-Educar recusou os dados enviados.'.freeze
     UNAUTHORIZED_MESSAGE = 'Token de segurança divergente entre o i-Diário e o i-Educar.'.freeze
+    UNRECOGNIZED_RESPONSE_MESSAGE = 'O i-Educar devolveu uma resposta não reconhecida.'.freeze
+    LOG_PREFIX = '[falta-geral]'.freeze
+    MAX_LOGGED_BODY = 500
 
-    def initialize(configuration = IeducarApiConfiguration.current)
+    def initialize(configuration)
+      raise Base::ApiError, 'É necessário informar a configuração da API do i-Educar' unless
+        configuration.respond_to?(:api_security_token)
+
       @configuration = configuration
     end
 
     def send_post(params = {})
-      params = params.with_indifferent_access
+      params = (params || {}).with_indifferent_access
 
       validate!(params)
 
-      response = execute_post(params)
-
-      success(message_from(response.body) || SUCCESS_MESSAGE)
+      handle_success(execute_post(params), params)
+    # A ordem importa: no rest-client a exceção de timeout descende de ExceptionWithResponse, então
+    # invertendo os dois rescues todo timeout cai no de baixo e perde o retry escalonado.
+    rescue *NETWORK_ERRORS => error
+      handle_network_error(error, params)
     rescue RestClient::ExceptionWithResponse => error
       handle_response_error(error, params)
-    rescue RestClient::Exceptions::Timeout, RestClient::ServerBrokeConnection, SocketError,
-           SystemCallError => error
-      log_debug("Network error occurred: #{error.class} - #{error.message}")
-      Honeybadger.notify(error, context: honeybadger_context(params))
-
-      raise Base::NetworkException, error.message
     end
 
     private
@@ -56,7 +61,7 @@ module IeducarApi
       raise Base::ApiError, 'É necessário informar o aluno' if params[:aluno_id].blank?
       raise Base::ApiError, 'É necessário informar a url de acesso: url' if configuration.url.blank?
 
-      return if configuration.api_security_token.present?
+      return if request_token.present?
 
       raise Base::ApiError, 'É necessário informar o token de segurança do i-Diário'
     end
@@ -73,88 +78,186 @@ module IeducarApi
         read_timeout: READ_TIMEOUT,
         payload: payload.to_json,
         headers: {
-          token: configuration.api_security_token,
+          token: request_token,
           content_type: :json,
           accept: :json
         }
       )
     end
 
+    # Fora de produção, um dump restaurado traz a url e o token reais do cliente — um envio de
+    # teste gravaria no i-Educar dele. Definir `staging_api_security_token` nos secrets do ambiente
+    # restabelece o guard que a API legada tinha.
+    def request_token
+      return configuration.api_security_token if Rails.env.production?
+
+      Rails.application.secrets.staging_api_security_token.presence ||
+        configuration.api_security_token
+    end
+
     def payload_for(params)
       {
-        turma_id: params[:turma_id].to_i,
-        aluno_id: params[:aluno_id].to_i,
-        etapa: params[:etapa].to_i,
-        faltas: params[:faltas].to_i
+        turma_id: integer_from(params, :turma_id, 'a turma'),
+        aluno_id: integer_from(params, :aluno_id, 'o aluno'),
+        etapa: integer_from(params, :etapa, 'a etapa'),
+        faltas: integer_from(params, :faltas, 'as faltas')
       }
+    end
+
+    # `to_i` devolveria 0 para lixo, e 0 aqui é valor legítimo: zera as faltas do aluno na etapa.
+    def integer_from(params, key, description)
+      Integer(params[key].to_s, 10)
+    rescue ArgumentError, TypeError
+      raise Base::ApiError, "O valor informado para #{description} não é um número inteiro"
     end
 
     def endpoint
       "#{configuration.url}#{POST_PATH}"
     end
 
+    def handle_success(response, params)
+      parsed = parse_body(response.body)
+
+      return unrecognized_response!('2xx', response.body, params) if parsed.nil?
+
+      message = message_from(parsed)
+
+      return not_saved(message, params, response.code) unless response.code == SAVED_STATUS
+
+      log_debug("Response: #{message || SUCCESS_MESSAGE}")
+
+      success(message || SUCCESS_MESSAGE)
+    end
+
+    # Matrícula fora das situações que o i-Educar aceita — tipicamente aluno que deixou de
+    # frequentar. É desfecho esperado e o professor não tem o que fazer, então fica só no log.
+    def not_saved(message, params, status)
+      log(:warn, 'matrícula recusada pelo i-Educar', params, status: status, detail: message)
+
+      nothing_to_post
+    end
+
+    def handle_network_error(error, params)
+      log(:error, 'falha de rede ao enviar', params, detail: "#{error.class} - #{error.message}")
+      Honeybadger.notify(error, context: honeybadger_context(params))
+
+      raise Base::NetworkException, error.message
+    end
+
     def handle_response_error(error, params)
-      status = error.response&.code
-      message = message_from(error.response&.body)
+      status = error.http_code
+      body = error.response&.body
+      message = message_from(parse_body(body))
 
       case status
-      when 404, 422
-        # 404: o aluno não tem matrícula ativa na turma informada. 422: o i-Educar recusou o
-        # payload. Nenhum dos dois se resolve com nova tentativa, então viram aviso no
-        # acompanhamento do envio em vez de derrubar a postagem inteira.
-        warning(message || default_message_for(status))
+      when 404
+        # Hoje 404 é a rota não existir — i-Educar do município sem o endpoint publicado — e
+        # precisa falhar alto. Versões anteriores o usavam para matrícula inelegível, com mensagem
+        # identificando o caso: daí o corpo ser considerado antes.
+        return unrecognized_response!(status, body, params) if message.blank?
+
+        not_saved(message, params, status)
+      when 422
+        # Recusa do i-Educar: regra da turma que não permite falta geral, ou payload fora do
+        # contrato. Vira aviso para não derrubar o envio dos demais alunos, mas é reportado.
+        return unrecognized_response!(status, body, params) if message.blank?
+
+        notify(error, params, status, message)
+
+        warning(message)
       when 401
-        Honeybadger.notify(error, context: honeybadger_context(params))
+        notify(error, params, status, message)
 
         raise Base::GenericError, UNAUTHORIZED_MESSAGE
       when *NETWORK_ERROR_STATUSES
+        log(:warn, 'i-Educar indisponível', params, status: status, detail: error.message)
+
         raise Base::NetworkException, error.message
       else
-        Honeybadger.notify(error, context: honeybadger_context(params))
+        notify(error, params, status, message)
 
-        raise Base::GenericError, message.presence || error.message
+        # Preserva o texto do RestClient ("500 Internal Server Error") junto da mensagem remota: é
+        # por eles que o worker classifica o erro e decide refazer a requisição sozinho.
+        raise Base::GenericError, [error.message, message].reject(&:blank?).join(' - ')
       end
     end
 
-    def default_message_for(status)
-      status == 404 ? REGISTRATION_NOT_FOUND_MESSAGE : INVALID_DATA_MESSAGE
+    def unrecognized_response!(status, body, params)
+      error = Base::GenericError.new("#{UNRECOGNIZED_RESPONSE_MESSAGE} (HTTP #{status})")
+
+      log(:error, 'resposta não reconhecida', params, status: status, detail: truncate(body))
+      Honeybadger.notify(
+        error,
+        context: honeybadger_context(params, status: status, remote_body: truncate(body))
+      )
+
+      raise error
     end
 
-    def message_from(body)
+    def notify(error, params, status, message)
+      log(:error, 'envio recusado pelo i-Educar', params, status: status, detail: message)
+      Honeybadger.notify(
+        error,
+        context: honeybadger_context(params, status: status, remote_message: message)
+      )
+    end
+
+    def parse_body(body)
       parsed = JSON.parse(body.to_s)
 
-      return unless parsed.is_a?(Hash)
-      return parsed['errors'].values.flatten.join(' ') if parsed['errors'].is_a?(Hash) && parsed['errors'].present?
-
-      parsed['message'].presence
+      parsed if parsed.is_a?(Hash)
     rescue JSON::ParserError
       nil
     end
 
-    def success(message)
-      log_debug("Response: #{message}")
+    def message_from(parsed)
+      return if parsed.nil?
+      return parsed['errors'].values.flatten.join(' ') if parsed['errors'].is_a?(Hash) && parsed['errors'].present?
 
+      parsed['message'].presence
+    end
+
+    def success(message)
       {
         'msgs' => [{ 'msg' => message }],
         'any_error_msg' => false
       }
     end
 
-    def warning(message)
-      log_debug("Response with warning: #{message}")
-
+    def nothing_to_post
       {
         'msgs' => [],
-        'any_error_msg' => true,
-        'error' => { 'message' => message }
+        'any_error_msg' => false
       }
     end
 
-    def honeybadger_context(params)
+    def warning(message, code: nil)
+      {
+        'msgs' => [],
+        'any_error_msg' => true,
+        'error' => { 'code' => code, 'message' => message }
+      }
+    end
+
+    def honeybadger_context(params, extra = {})
       {
         endpoint: endpoint,
-        payload: payload_for(params)
-      }
+        # Params crus: `payload_for` coage, e a coerção pode ser exatamente o que falhou.
+        params: params.to_h
+      }.merge(extra)
+    end
+
+    def log(level, description, params, status: nil, detail: nil)
+      message = "#{LOG_PREFIX} #{description} - turma: #{params[:turma_id]}, " \
+                "aluno: #{params[:aluno_id]}, etapa: #{params[:etapa]}, faltas: #{params[:faltas]}"
+      message += ", status: #{status}" if status.present?
+      message += ", resposta: #{detail}" if detail.present?
+
+      Rails.logger.public_send(level, message)
+    end
+
+    def truncate(body)
+      body.to_s.truncate(MAX_LOGGED_BODY)
     end
 
     def log_debug(message)
