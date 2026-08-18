@@ -13,7 +13,7 @@ module IeducarApi
     SAVED_STATUS = 202
     OPEN_TIMEOUT = 10
     READ_TIMEOUT = 240
-    NETWORK_ERROR_STATUSES = [502, 503, 504].freeze
+    RETRYABLE_STATUSES = [408, 429, 502, 503, 504].freeze
     # Erros de transporte: não têm resposta HTTP e valem nova tentativa.
     NETWORK_ERRORS = [
       RestClient::Exceptions::Timeout,
@@ -181,8 +181,8 @@ module IeducarApi
         notify(error, params, status, message)
 
         raise Base::GenericError, UNAUTHORIZED_MESSAGE
-      when *NETWORK_ERROR_STATUSES
-        log(:warn, 'i-Educar indisponível', params, status: status, detail: error.message)
+      when *RETRYABLE_STATUSES
+        log(:warn, 'recusa temporária do i-Educar', params, status: status, detail: message || error.message)
 
         raise Base::NetworkException, error.message
       else

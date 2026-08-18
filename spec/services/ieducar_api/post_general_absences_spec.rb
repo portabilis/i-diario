@@ -329,18 +329,29 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
 
     context 'when the i-Educar is momentarily unavailable' do
       [
-        [RestClient::BadGateway, 502],
-        [RestClient::ServiceUnavailable, 503],
-        [RestClient::GatewayTimeout, 504]
-      ].each do |error_class, status|
+        [RestClient::RequestTimeout, 408, ''],
+        [RestClient::TooManyRequests, 429, '{"message":"Too Many Attempts."}'],
+        [RestClient::BadGateway, 502, ''],
+        [RestClient::ServiceUnavailable, 503, ''],
+        [RestClient::GatewayTimeout, 504, '']
+      ].each do |error_class, status, body|
         it "raises NetworkException on #{status} so the worker retries, without paging" do
-          allow(RestClient::Request).to receive(:execute).and_raise(http_error(error_class, status, ''))
+          allow(RestClient::Request).to receive(:execute).and_raise(http_error(error_class, status, body))
           expect(Honeybadger).not_to receive(:notify)
 
           expect {
             service.send_post(params)
           }.to raise_error(IeducarApi::Base::NetworkException)
         end
+      end
+
+      it 'logs what the i-Educar answered when it refuses by rate limit' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(RestClient::TooManyRequests, 429, '{"message":"Too Many Attempts."}')
+        )
+        expect(Rails.logger).to receive(:warn).with(/recusa temporária.*status: 429.*Too Many Attempts/)
+
+        expect { service.send_post(params) }.to raise_error(IeducarApi::Base::NetworkException)
       end
 
       # Este é o caminho mais provável de falha real: uma requisição por aluno num endpoint que
