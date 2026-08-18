@@ -45,6 +45,7 @@ class ConceptualExamsController < ApplicationController
     ).localized
 
     @conceptual_exam.assign_attributes(resource_params) if params[:conceptual_exam].present?
+    @conceptual_exam.classroom ||= current_user_classroom
 
     authorize @conceptual_exam
 
