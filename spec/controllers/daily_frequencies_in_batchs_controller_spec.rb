@@ -110,25 +110,80 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     # Datas inexistentes ("31/06") faziam o to_date levantar Date::Error. Como o
     # ApplicationController tem um rescue_from Exception, o usuário era jogado na home
     # com um alerta genérico em vez de ver o erro no próprio formulário.
-    context 'when the informed date does not exist' do
-      it 'renders the form pointing the error at the date field' do
+    context 'when the end date does not exist' do
+      it 'renders the form pointing the error at the end date' do
         post_create(start_date: '01/06/2026', end_date: '31/06/2026')
 
         expect(response).to render_template(:new)
-        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to include(
-          I18n.t('errors.messages.invalid_date')
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to eq(
+          [I18n.t('errors.messages.invalid_date')]
         )
         expect(assigns(:frequency_in_batch_form).errors[:start_date]).to be_empty
+      end
+
+      it 'keeps the dates typed by the user' do
+        post_create(start_date: '01/06/2026', end_date: '31/06/2026')
+
+        expect(assigns(:frequency_in_batch_form).start_date).to eq('01/06/2026')
+        expect(assigns(:frequency_in_batch_form).end_date).to eq('31/06/2026')
+      end
+    end
+
+    context 'when the start date does not exist' do
+      it 'renders the form pointing the error at the start date' do
+        post_create(start_date: '31/06/2026', end_date: '30/06/2026')
+
+        expect(response).to render_template(:new)
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to eq(
+          [I18n.t('errors.messages.invalid_date')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to be_empty
       end
     end
 
     context 'when the date is blank' do
-      it 'renders the form pointing the error at the date field' do
+      it 'renders the form pointing the error at both date fields' do
         post_create(start_date: '', end_date: '')
 
         expect(response).to render_template(:new)
-        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to include(
-          I18n.t('errors.messages.blank')
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to eq(
+          [I18n.t('errors.messages.blank')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to eq(
+          [I18n.t('errors.messages.blank')]
+        )
+      end
+    end
+
+    # Um campo em branco e outro inexistente exercitam os dois lados da distinção na
+    # mesma requisição.
+    context 'when one date is blank and the other does not exist' do
+      it 'reports each field with its own reason' do
+        post_create(start_date: '', end_date: '31/06/2026')
+
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to eq(
+          [I18n.t('errors.messages.blank')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to eq(
+          [I18n.t('errors.messages.invalid_date')]
+        )
+      end
+    end
+
+    # Garante que a verificação de data nova não engoliu o caminho feliz.
+    context 'when both dates exist' do
+      it 'moves on to the frequency screen' do
+        post_create(start_date: Date.current.strftime('%d/%m/%Y'),
+                    end_date: Date.current.strftime('%d/%m/%Y'))
+
+        expect(response).to redirect_to(
+          create_or_update_multiple_daily_frequencies_in_batchs_path(
+            start_date: Date.current,
+            end_date: Date.current,
+            classroom_id: classroom.id,
+            discipline_id: discipline.id
+          )
         )
       end
     end

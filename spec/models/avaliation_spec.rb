@@ -188,8 +188,8 @@ RSpec.describe Avaliation, type: :model do
     end
 
     # Criar a avaliação sem preencher a data quebrava com NoMethodError em vez de
-    # apontar o campo obrigatório. O tipo de cálculo por soma é o que aciona a
-    # validação que consulta a etapa a partir da data.
+    # apontar o campo obrigatório. Neste cenário é o tipo de cálculo por soma que aciona
+    # a validação que consulta a etapa a partir da data.
     context 'when test_date is blank' do
       let(:test_setting_with_sum_calculation_type) { create(:test_setting_with_sum_calculation_type) }
 

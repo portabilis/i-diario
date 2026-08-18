@@ -162,9 +162,13 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_students
+    return if params[:classroom_id].blank? || params[:discipline_id].blank? || params[:date].blank?
+
     date = parse_date(params[:date])
 
-    return if params[:classroom_id].blank? || params[:discipline_id].blank? || date.blank?
+    # Sem data não há como montar a lista. Responde erro para a tela avisar o usuário, em
+    # vez de devolver corpo vazio, que ela interpretaria como turma sem alunos.
+    return render json: { students: [] }, status: :unprocessable_entity if date.blank?
 
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])

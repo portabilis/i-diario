@@ -21,8 +21,9 @@ RSpec.describe FinalRecoveryDiaryRecord, type: :model do
     it { expect(subject).to validate_presence_of(:school_calendar) }
   end
 
-  # Salvar a recuperação final com a data em branco quebrava com NoMethodError
-  # em vez de apontar o campo obrigatório.
+  # Salvar a recuperação final com a data em branco quebrava com NoMethodError. Sem data
+  # não há etapa correspondente, então o registro é recusado por não estar na última
+  # etapa — o que importa aqui é que o erro chega como validação, e não como exceção.
   describe '#recorded_at_must_be_in_last_school_calendar_step' do
     let(:error_key) { 'activerecord.errors.models.final_recovery_diary_record.attributes.recovery_diary_record' }
 

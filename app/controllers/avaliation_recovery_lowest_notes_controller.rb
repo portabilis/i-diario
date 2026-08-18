@@ -316,9 +316,15 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def recorded_at_in_selected_step
+    if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
+      return render json: nil
+    end
+
     recorded_at = parse_date(params[:recorded_at])
 
-    return render json: nil if params[:step_id].blank? || recorded_at.blank? || params[:classroom_id].blank?
+    # Data inexistente não é o mesmo que data fora da etapa. Responde erro para a tela não
+    # informar o motivo errado ao usuário.
+    return render json: nil, status: :unprocessable_entity if recorded_at.blank?
 
     classroom = Classroom.find(params[:classroom_id])
     steps_fetcher = StepsFetcher.new(classroom)

@@ -788,14 +788,16 @@ nil, @period)
     end
   end
 
-  # Data em branco ou inexistente ("31/06") é apontado erro no próprio campo.
+  # Mostra o erro no próprio campo, em vez de devolver o usuário ao formulário vazio.
   def render_invalid_dates
     form_params = params[:frequency_in_batch_form]
 
     @frequency_in_batch_form = FrequencyInBatchForm.new(
       unity_id: form_params[:unity_id],
       classroom_id: form_params[:classroom_id],
-      discipline_id: form_params[:discipline_id]
+      discipline_id: form_params[:discipline_id],
+      start_date: form_params[:start_date],
+      end_date: form_params[:end_date]
     )
 
     %i[start_date end_date].each do |field|
@@ -807,15 +809,10 @@ nil, @period)
     @frequency_type = current_frequency_type(current_user_classroom)
     set_options_by_user
 
-    render :new
+    render :new, status: :unprocessable_entity
   end
 
   def invalid_dates?(start_date, end_date, classroom_id, grade_id)
-    if start_date.nil? || end_date.nil?
-      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.blank_dates')
-      return true
-    end
-
     unless SchoolDayChecker.new(current_school_calendar, start_date, grade_id, classroom_id, nil).school_day?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.initial_date_no_school_day')
       return true
