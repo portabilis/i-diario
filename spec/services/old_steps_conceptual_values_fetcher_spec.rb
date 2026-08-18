@@ -46,4 +46,17 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
       expect(subject.fetch.count).to eq(0)
     end
   end
+
+  context 'when current step is nil' do
+    # Acontece quando o step_id recebido não pertence ao calendário da turma
+    # (ex: etapa selecionada a partir da lista de outra turma) ou quando a
+    # turma não possui calendário escolar no ano.
+    subject do
+      described_class.new(classroom, student, nil)
+    end
+
+    it 'returns an empty array without raising' do
+      expect(subject.fetch).to eq([])
+    end
+  end
 end
