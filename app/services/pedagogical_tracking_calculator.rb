@@ -60,8 +60,15 @@ class PedagogicalTrackingCalculator
   end
 
   def updated_at_data
-    last_refresh = MvwFrequencyBySchoolClassroomTeacher.first&.last_refresh ||
-                   MvwContentRecordBySchoolClassroomTeacher.first&.last_refresh
+    # Durante o deploy a tabela de controle pode ainda não existir na entidade:
+    # a data exibida é informativa e não justifica derrubar o dashboard.
+    return unless MaterializedViewRefresh.table_exists?
+
+    # A tela cobre as duas views, então a data honesta é a da mais atrasada.
+    last_refresh = [
+      MaterializedViewRefresh.refreshed_at_for(MvwFrequencyBySchoolClassroomTeacher.table_name),
+      MaterializedViewRefresh.refreshed_at_for(MvwContentRecordBySchoolClassroomTeacher.table_name)
+    ].compact.min
 
     return unless last_refresh
 
@@ -111,7 +118,6 @@ class PedagogicalTrackingCalculator
     records = MvwFrequencyBySchoolClassroomTeacher
                 .by_unity_id(unity_ids)
                 .by_date_between(start_date, end_date)
-                .distinct
                 .pluck(:unity_id, :classroom_id, :teacher_id, :frequency_date)
 
     frequencies_hash = Hash.new { |h, k| h[k] = [] }
@@ -127,7 +133,6 @@ class PedagogicalTrackingCalculator
     records = MvwContentRecordBySchoolClassroomTeacher
                 .by_unity_id(unity_ids)
                 .by_date_between(start_date, end_date)
-                .distinct
                 .pluck(:unity_id, :classroom_id, :teacher_id, :record_date)
 
     contents_hash = Hash.new { |h, k| h[k] = [] }
