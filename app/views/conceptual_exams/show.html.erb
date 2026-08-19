@@ -14,7 +14,7 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+        <%= f.input :step_id, as: :select2_step, classroom: form_classroom,
                     readonly: @conceptual_exam.persisted?, required: true %>
       </div>
     </div>

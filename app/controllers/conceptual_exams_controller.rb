@@ -576,6 +576,13 @@ class ConceptualExamsController < ApplicationController
   end
   helper_method :old_values
 
+  # Turma que o formulário usa para montar as etapas. É a turma do lançamento,
+  # que pode diferir da turma corrente quando a tela é carregada por parâmetros.
+  def form_classroom
+    @conceptual_exam.classroom || current_user_classroom
+  end
+  helper_method :form_classroom
+
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
     exempted_disciplines.by_discipline(discipline_id)
       .by_step_number(@conceptual_exam.step_number)
