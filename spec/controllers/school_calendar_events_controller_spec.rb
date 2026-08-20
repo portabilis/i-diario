@@ -20,6 +20,34 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
     request.env['REQUEST_PATH'] = ''
   end
 
+  # Cobre o vínculo entre o controller e o DateValidation: sem o include, a limpeza da
+  # data derruba a requisição em vez de devolver o formulário.
+  describe 'POST #create' do
+    let(:school_calendar) { classroom.calendar.school_calendar }
+
+    context 'when the informed date does not exist' do
+      it 'renders the form clearing the invalid date' do
+        post :create, params: {
+          school_calendar_id: school_calendar.id,
+          locale: 'pt-BR',
+          frequency_deletion_confirmed: true,
+          school_calendar_event: {
+            description: 'Evento',
+            event_type: EventTypes::NO_SCHOOL,
+            coverage: 'by_unity',
+            periods: Periods::VESPERTINE,
+            legend: 'A',
+            start_date: '31/06/2026',
+            end_date: '31/06/2026'
+          }
+        }
+
+        expect(response).to render_template(:new)
+        expect(assigns(:school_calendar_event).start_date).to be_blank
+      end
+    end
+  end
+
   describe 'GET #index' do
     let(:school_calendar) { classroom.calendar.school_calendar }
     let(:school_calendar_event) { create(:school_calendar_event, school_calendar: school_calendar) }

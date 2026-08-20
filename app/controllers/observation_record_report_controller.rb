@@ -1,4 +1,6 @@
 class ObservationRecordReportController < ApplicationController
+  include DateValidation
+
   before_action :require_current_teacher
 
   def form
@@ -132,7 +134,7 @@ class ObservationRecordReportController < ApplicationController
     start_at = resource_params[:start_at]
     end_at = resource_params[:end_at]
 
-    @observation_record_report_form.start_at = '' unless start_at.try(:to_date)
-    @observation_record_report_form.end_at = '' unless end_at.try(:to_date)
+    @observation_record_report_form.start_at = '' unless valid_date?(start_at)
+    @observation_record_report_form.end_at = '' unless valid_date?(end_at)
   end
 end
