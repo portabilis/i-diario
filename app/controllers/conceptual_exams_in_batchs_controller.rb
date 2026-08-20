@@ -250,7 +250,8 @@ class ConceptualExamsInBatchsController < ApplicationController
     @old_values ||= {}
 
     @conceptual_exams.each do |conceptual_exam|
-      next if conceptual_exam.classroom.nil? && conceptual_exam.student.nil? && conceptual_exam.step.nil?
+      # Qualquer um dos três ausente inviabiliza a busca — o fetcher desreferencia os três
+      next if conceptual_exam.classroom.nil? || conceptual_exam.student.nil? || conceptual_exam.step.nil?
 
       @old_values[conceptual_exam.id] ||= OldStepsConceptualValuesFetcher.new(
         conceptual_exam.classroom,

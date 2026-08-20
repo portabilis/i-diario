@@ -6,6 +6,8 @@ class OldStepsConceptualValuesFetcher
   end
 
   def fetch
+    return [] if @current_step.blank?
+
     old_steps.map do |step|
       {
         description: "#{step}",

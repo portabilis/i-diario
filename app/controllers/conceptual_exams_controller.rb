@@ -47,6 +47,7 @@ class ConceptualExamsController < ApplicationController
     ).localized
 
     @conceptual_exam.assign_attributes(resource_params) if params[:conceptual_exam].present?
+    @conceptual_exam.classroom ||= current_user_classroom
 
     authorize @conceptual_exam
 
@@ -581,6 +582,13 @@ class ConceptualExamsController < ApplicationController
     @old_values ||= OldStepsConceptualValuesFetcher.new(@conceptual_exam.classroom, @conceptual_exam.student, @conceptual_exam.step).fetch
   end
   helper_method :old_values
+
+  # Turma que o formulário usa para montar as etapas. É a turma do lançamento,
+  # que pode diferir da turma corrente quando a tela é carregada por parâmetros.
+  def form_classroom
+    @conceptual_exam.classroom || current_user_classroom
+  end
+  helper_method :form_classroom
 
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
     exempted_disciplines.by_discipline(discipline_id)
