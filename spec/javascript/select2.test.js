@@ -4,9 +4,9 @@
 
 // Testes de caracterização de app/assets/javascripts/select2.js.
 //
-// Esse arquivo inicializa TODOS os select2 do sistema (112 views / 387 inputs), então qualquer
-// alteração nele precisa provar que o comportamento observável continua igual. Os testes carregam
-// o jQuery e o underscore realmente vendorizados (1.11.0 e 1.5.1) e espionam `$.fn.select2`.
+// Esse arquivo inicializa todos os select2 do sistema, então qualquer alteração nele precisa
+// provar que o comportamento observável continua igual. Os testes carregam o jQuery e o underscore
+// vendorizados e espionam `$.fn.select2`.
 
 const fs = require('fs');
 const path = require('path');
@@ -62,7 +62,7 @@ beforeAll(async () => {
   await new Promise((resolve) => setTimeout(resolve, 0));
 });
 
-describe('quais inputs são inicializados', () => {
+describe('which inputs are initialized', () => {
   beforeEach(() => {
     runScript(`
       <input id="simples" class="select2" type="hidden">
@@ -105,7 +105,7 @@ describe('quais inputs são inicializados', () => {
   });
 });
 
-describe('opções passadas ao select2', () => {
+describe('the options passed to select2', () => {
   const elements = [{ id: 1, name: 'ESCOLA A', text: 'ESCOLA A' }];
 
   beforeEach(() => {
@@ -157,7 +157,7 @@ describe('opções passadas ao select2', () => {
   });
 });
 
-describe('valor inicial de campos múltiplos', () => {
+describe('the initial value of multiple fields', () => {
   function valCallFor(id) {
     return select2Calls.find(function (call) {
       return call.id === id && call.args[0] === 'val';
@@ -192,10 +192,9 @@ describe('valor inicial de campos múltiplos', () => {
   });
 });
 
-describe('handler de change do elemento vazio', () => {
-  // O segundo bloco do arquivo registra um handler de change nos mesmos inputs. O corpo dele lê
-  // `element.val` do objeto de evento (sempre undefined), então hoje é um ramo morto — o teste
-  // trava apenas o que é observável: em quais elementos o handler é registrado.
+describe('the change handler of the empty element', () => {
+  // O corpo do handler lê `element.val` do objeto de evento, que é sempre undefined: o ramo nunca
+  // executa. O teste trava só o que é observável — em quais elementos o handler é registrado.
   it('binds a change handler on the same inputs it initializes', () => {
     runScript(`
       <input id="campo" class="select2" type="hidden">
@@ -218,8 +217,8 @@ describe('handler de change do elemento vazio', () => {
   });
 });
 
-describe('initSelect2 como ponto de entrada reutilizável', () => {
-  // Extraído para que respostas remotas recriem um select2 sem duplicar a configuração.
+describe('initSelect2 as a reusable entry point', () => {
+  // Respostas remotas usam esta função para recriar um select2 sem duplicar a configuração.
   it('is exposed globally', () => {
     runScript('<input id="campo" class="select2" type="hidden">');
 
@@ -235,7 +234,7 @@ describe('initSelect2 como ponto de entrada reutilizável', () => {
     window.initSelect2(window.jQuery('#campo'));
     const direto = optionsFor('campo');
 
-    // as funções são recriadas a cada chamada, então compara o comportamento e não a referência
+    // as funções são recriadas a cada chamada: compara o comportamento, não a referência
     expect(Object.keys(direto).sort()).toEqual(Object.keys(noReady).sort());
     expect(direto.data).toEqual(noReady.data);
     expect(direto.multiple).toBe(noReady.multiple);

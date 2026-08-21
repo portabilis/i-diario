@@ -57,13 +57,16 @@ RSpec.describe LessonBoardsFetcher, type: :service do
       expect(fetcher.lesson_boards.to_a).to contain_exactly(lessons_board)
     end
 
-    # A implementação anterior percorria todos os quadros para descobrir as unidades (N+1)
+    # Descobrir as escolas não percorre os quadros, então o custo não cresce com o volume
     it 'does not run more queries when there are more lessons boards' do
-      queries_with_one_lessons_board = count_queries { described_class.new(user).unities.to_a }
+      # User#current_unity memoiza, então cada medição usa uma instância nova do usuário
+      fetch_unities = -> { described_class.new(User.find(user.id)).unities.to_a }
+
+      queries_with_one_lessons_board = count_queries(&fetch_unities)
 
       create_list(:lessons_board, 5, classrooms_grade: create(:classrooms_grade, classroom: classroom))
 
-      expect(count_queries { described_class.new(user).unities.to_a }).to eq(queries_with_one_lessons_board)
+      expect(count_queries(&fetch_unities)).to eq(queries_with_one_lessons_board)
     end
   end
 

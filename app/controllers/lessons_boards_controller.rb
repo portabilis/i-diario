@@ -1,19 +1,21 @@
 class LessonsBoardsController < ApplicationController
-  # Valor enviado pelo elemento vazio do select2 (ver Select2Input#insert_empty_element).
-  SELECT2_EMPTY_VALUE = 'empty'.freeze
-
   has_scope :page, default: 1
   has_scope :per, default: 10
 
   def index
-    @filtering_params = filtering_params(params[:search])
-    lessons_boards = fetcher.lesson_boards
+    filters = filter_resolver.resolve
 
-    load_filter_options(lessons_boards)
+    @filtering_params = filters.to_form_params
+    @unities_options = filters.unity_options
+    @grades_options = filters.grade_options
+    @classrooms_options = filters.classroom_options
 
-    @lessons_boards = apply_scopes(lessons_boards).filter_from_params(@filtering_params)
-                                                  .preload(classrooms_grade: [:grade, { classroom: :unity }])
-                                                  .order('classrooms.description')
+    log_unity_out_of_reach(filters.unity_id_out_of_reach)
+
+    @lessons_boards = apply_scopes(fetcher.lesson_boards)
+                        .filter_from_params(filters.to_filter_params)
+                        .preload(classrooms_grade: [:grade, { classroom: :unity }])
+                        .order('classrooms.description', 'lessons_boards.id')
 
     authorize @lessons_boards
   end
@@ -225,78 +227,23 @@ class LessonsBoardsController < ApplicationController
     @fetcher ||= LessonBoardsFetcher.new(current_user)
   end
 
-  # Primeiro acesso à tela (sem `params[:search]`): filtra pelo ano selecionado no perfil do usuário.
-  # Depois disso o formulário sempre envia o campo, então limpá-lo significa "listar todos os anos".
-  def filtering_params(params)
-    return { by_year: current_user_school_year.to_s }.with_indifferent_access unless params.respond_to?(:permit)
-
-    sanitized = params.permit(:by_year, :by_unity, :by_grade, :by_classroom)
-                      .to_h
-                      .with_indifferent_access
-                      .transform_values { |value| value == SELECT2_EMPTY_VALUE ? '' : value.to_s.strip }
-
-    # O campo de ano tem debounce: sem isso um ano parcial ("202") viraria filtro e esvaziaria a tela.
-    sanitized[:by_year] = '' unless sanitized[:by_year] =~ /\A\d{4}\z/
-
-    sanitized
-  end
-
-  # A ordem importa: cada nível da cascata só é resolvido depois que o nível acima foi saneado,
-  # descartando o que não existe mais (ex.: turma que pertencia à escola anterior).
-  def load_filter_options(lessons_boards)
-    query = LessonsBoardsFilterOptionsQuery.new(lessons_boards)
-
-    load_unity_options(query)
-    load_grade_options(query)
-    load_classroom_options(query)
-  end
-
-  # A escola só é descartada quando está fora do acesso do usuário: não ter quadro no ano filtrado
-  # não invalida a escolha, senão digitar um ano sem quadros limparia a escola sem aviso.
-  def load_unity_options(query)
-    @filtering_params[:by_unity] = '' unless option_ids(fetcher.unities).include?(@filtering_params[:by_unity])
-
-    @unities_options = query.unities(
-      year: @filtering_params[:by_year],
-      selected_id: @filtering_params[:by_unity]
-    ).to_a
-  end
-
-  def load_grade_options(query)
-    @grades_options = query.grades(
-      year: @filtering_params[:by_year],
-      unity_id: @filtering_params[:by_unity]
-    ).to_a
-
-    @filtering_params[:by_grade] = '' unless option_ids(@grades_options).include?(@filtering_params[:by_grade])
-  end
-
-  def load_classroom_options(query)
-    @classrooms_options = classroom_options(
-      query.classrooms(
-        year: @filtering_params[:by_year],
-        unity_id: @filtering_params[:by_unity],
-        grade_id: @filtering_params[:by_grade]
-      )
+  def filter_resolver
+    LessonsBoardsFilterResolver.new(
+      params[:search],
+      fetcher: fetcher,
+      default_year: current_user_school_year
     )
-
-    @filtering_params[:by_classroom] = '' unless option_ids(@classrooms_options).include?(@filtering_params[:by_classroom])
   end
 
-  # Sem filtro de ano a lista mistura anos e turmas homônimas ficam indistinguíveis, então o ano
-  # entra no rótulo da opção.
-  def classroom_options(classrooms)
-    return classrooms.to_a if @filtering_params[:by_year].present?
+  # Escola fora do acesso indica URL adulterada, favorito antigo ou defeito na cascata: registra
+  # para o descarte não sumir sem rastro.
+  def log_unity_out_of_reach(unity_id)
+    return if unity_id.blank?
 
-    classrooms.map do |classroom|
-      label = "#{classroom.description} - #{classroom.year}"
-
-      OpenStruct.new(id: classroom.id, name: label, text: label)
-    end
-  end
-
-  def option_ids(records)
-    records.map { |record| record.id.to_s }
+    Rails.logger.warn(
+      "[LessonsBoards#index] escola fora do acesso descartada do filtro: by_unity=#{unity_id.inspect} " \
+      "user_id=#{current_user&.id.inspect} user_role_id=#{current_user&.current_user_role_id.inspect}"
+    )
   end
 
   def validate_lessons_number

@@ -1,22 +1,46 @@
-// Recria um filtro da tela quando o servidor devolve as opções da cascata (ver index.js.erb).
-// A cascata é resolvida no servidor: ele manda as opções válidas e o valor já saneado de cada
-// filtro, então aqui só resta reconstruir o select2 — reusando o initSelect2 global para que estes
-// campos não divirjam dos demais select2 do sistema.
+// Recria um filtro da tela com as opções e o valor que o servidor devolve (ver index.js.erb).
+// Usa o initSelect2 global para estes campos não divergirem dos demais select2 do sistema.
 window.lessonsBoardsIndex = {
   refreshFilter: function (fieldId, elements, value) {
-    var $field = $('#' + fieldId);
+    // As três chamadas rodam no mesmo script: uma exceção aqui deixaria os outros filtros com
+    // opções antigas e sem sinal.
+    try {
+      var $field = $('#' + fieldId);
 
-    if ($field.length === 0) { return; }
+      if ($field.length === 0) {
+        // O servidor só chama refreshFilter para um filtro que acabou de renderizar, então campo
+        // ausente é defeito.
+        console.warn('lessonsBoardsIndex: filtro não encontrado na página: #' + fieldId);
+        return;
+      }
 
-    // O select2 v3 não recarrega `data` de um campo já inicializado, por isso o destroy.
-    if ($field.data('select2')) { $field.select2('destroy'); }
+      // O select2 não recarrega `data` de um campo já inicializado.
+      if ($field.data('select2')) { $field.select2('destroy'); }
 
-    $field.data('elements', elements);
+      $field.data('elements', elements);
 
-    // `val` puro, sem disparar change: o handler global do filterable_search_form refaz a busca a
-    // cada change e entraria em loop de requisições.
-    $field.val(value);
+      // `val` puro, sem disparar change: o handler do filterable_search_form refaz a busca a cada
+      // change e entraria em loop.
+      $field.val(value);
 
-    window.initSelect2($field);
+      window.initSelect2($field);
+    } catch (error) {
+      console.error('lessonsBoardsIndex: falha ao recriar o filtro #' + fieldId, error);
+    }
   }
 };
+
+$(function () {
+  var flashMessages = new FlashMessages();
+
+  // Quando a requisição remota falha nada é reescrito e a tela segue exibindo o resultado
+  // anterior como se fosse o novo. O handler mora no arquivo desta tela, então o aviso vale só
+  // para o quadro de aulas.
+  $(document).ajaxError(function (event, jqxhr) {
+    if (jqxhr && jqxhr.statusText === 'abort') { return; }
+
+    flashMessages.error(
+      'Não foi possível atualizar a listagem. Verifique sua conexão e tente novamente.'
+    );
+  });
+});

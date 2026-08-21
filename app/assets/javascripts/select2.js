@@ -1,5 +1,5 @@
-// Exposto globalmente para que respostas remotas (.js.erb) possam recriar um select2 com novas
-// opções usando exatamente a mesma configuração do carregamento da página, sem duplicá-la.
+// Exposto globalmente para respostas remotas recriarem um select2 com novas opções usando a
+// mesma configuração do carregamento da página.
 window.initSelect2 = function(element) {
   $(element).select2({
     formatResult: function(el) {

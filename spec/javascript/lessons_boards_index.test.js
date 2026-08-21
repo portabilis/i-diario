@@ -4,15 +4,16 @@
 
 // Testes de app/assets/javascripts/views/lessons_boards/index.js.
 //
-// A cascata dos filtros do quadro de aulas é resolvida no servidor: a resposta remota
-// (lessons_boards/index.js.erb) chama refreshFilter com as opções válidas e o valor já saneado de
-// cada filtro. Esta função é o único JS da tela.
+// A cascata dos filtros é resolvida no servidor: a resposta remota (lessons_boards/index.js.erb)
+// chama refreshFilter com as opções válidas e o valor já saneado de cada filtro. O arquivo também
+// registra o aviso de falha da requisição.
 
 const fs = require('fs');
 const path = require('path');
 
 const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
 const SELECT2_PATH = path.resolve(__dirname, '../../app/assets/javascripts/select2.js');
+const FLASH_PATH = path.resolve(__dirname, '../../app/assets/javascripts/flash_messages.js');
 const PAGE_PATH = path.resolve(__dirname, '../../app/assets/javascripts/views/lessons_boards/index.js');
 
 const select2Source = fs.readFileSync(SELECT2_PATH, 'utf-8');
@@ -32,7 +33,7 @@ function stubSelect2Plugin() {
 
     select2Calls.push({ id: this.attr('id'), args: args });
 
-    // o plugin real guarda a instância em data('select2'); é assim que a página sabe se há o que destruir
+    // o plugin real guarda a instância em data('select2'): é assim que a página sabe o que destruir
     if (typeof args[0] === 'object') {
       this.data('select2', { fake: true });
     } else if (args[0] === 'destroy') {
@@ -44,7 +45,7 @@ function stubSelect2Plugin() {
 }
 
 function setup(html) {
-  document.body.innerHTML = html;
+  document.body.innerHTML = '<div id="flash-messages"></div>' + html;
   stubSelect2Plugin();
   window.eval(select2Source);
   window.eval(pageSource);
@@ -62,6 +63,7 @@ const ELEMENTS = [
 beforeAll(async () => {
   loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
   loadIntoWindow(path.join(VENDOR_PATH, 'underscore.js'));
+  loadIntoWindow(FLASH_PATH);
 
   await new Promise((resolve) => setTimeout(resolve, 0));
 });
@@ -109,7 +111,7 @@ describe('lessonsBoardsIndex.refreshFilter', () => {
     expect(select2Calls.map((call) => call.args[0])).not.toContain('destroy');
   });
 
-  // o handler global do filterable_search_form refaz a busca a cada change: disparar aqui é loop
+  // o handler do filterable_search_form refaz a busca a cada change: disparar aqui vira loop
   it('does not trigger change when applying the value', () => {
     const onChange = jest.fn();
     window.jQuery('#search_by_unity').on('change', onChange);
@@ -136,5 +138,24 @@ describe('lessonsBoardsIndex.refreshFilter', () => {
     }).not.toThrow();
 
     expect(select2Calls).toHaveLength(0);
+  });
+});
+
+describe('the warning when the remote request fails', () => {
+  // Sem o aviso a tela mantém a listagem anterior como se fosse o resultado do novo filtro
+  beforeEach(() => {
+    setup('<input id="search_by_unity" class="select2" type="hidden">');
+  });
+
+  it('shows an error message when an ajax request fails', () => {
+    window.jQuery(document).trigger('ajaxError', [{ statusText: 'error', status: 500 }]);
+
+    expect(document.getElementById('flash-messages').innerHTML).toContain('Não foi possível atualizar');
+  });
+
+  it('stays quiet when the request was aborted', () => {
+    window.jQuery(document).trigger('ajaxError', [{ statusText: 'abort' }]);
+
+    expect(document.getElementById('flash-messages').innerHTML).toBe('');
   });
 });

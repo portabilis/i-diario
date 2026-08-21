@@ -1,15 +1,15 @@
 # Monta as opções dos filtros do index de quadro de aulas em cascata: cada nível lista apenas os
-# registros que possuem quadro de aula dentro dos filtros do nível acima (ano > escola > série).
+# registros com quadro de aula dentro dos filtros do nível acima (ano > escola > série).
 #
-# A relação recebida já vem restrita às unidades visíveis para o usuário (LessonBoardsFetcher),
-# então nenhuma opção pode vazar de fora do escopo de acesso.
+# As opções saem da relação recebida; restringi-la às escolas visíveis cabe ao chamador.
 class LessonsBoardsFilterOptionsQuery
   def initialize(lessons_boards)
     @lessons_boards = lessons_boards.unscope(:order)
   end
 
-  # `selected_id` mantém na lista a escola escolhida pelo usuário mesmo que ela não tenha quadro no
-  # ano filtrado — sem isso, digitar um ano sem quadros apagaria a seleção de escola sem aviso.
+  # `selected_id` entra na lista mesmo sem quadro no ano filtrado, para não apagar a escola que o
+  # usuário escolheu. Ele não passa pela relação, então cabe ao chamador garantir que está dentro
+  # do acesso do usuário.
   def unities(year: nil, selected_id: nil)
     unity_ids = scoped(year: year).distinct.pluck('classrooms.unity_id')
     unity_ids << selected_id if selected_id.present?
@@ -31,7 +31,7 @@ class LessonsBoardsFilterOptionsQuery
 
   private
 
-  attr_accessor :lessons_boards
+  attr_reader :lessons_boards
 
   def scoped(year: nil, unity_id: nil, grade_id: nil)
     relation = lessons_boards.joins(classrooms_grade: :classroom)
