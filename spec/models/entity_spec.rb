@@ -78,6 +78,22 @@ RSpec.describe Entity, :type => :model do
       end
     end
 
+    it 'keeps the Honeybadger entity tag of the block when completing inside a rescue handler' do
+      # Cenário sidekiq_retries_exhausted: $! está setado durante o handler,
+      # então o restore é pulado e a tag fica na entidade do próprio bloco.
+      entity
+      other_entity
+      Honeybadger.context(entity: { name: other_entity.name, id: other_entity.id })
+
+      begin
+        raise 'expected error'
+      rescue RuntimeError
+        entity.using_connection {}
+      end
+
+      expect(Honeybadger.get_context[:entity]).to eq(name: entity.name, id: entity.id)
+    end
+
     it 'keeps the Honeybadger entity tag of the failing entity when the block raises' do
       # Materializa fora dos blocos: dentro deles a conexão proxied escreve
       # fora da transação de teste e o registro persistiria entre runs.
