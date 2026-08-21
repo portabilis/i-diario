@@ -50,9 +50,9 @@ RSpec.describe Entity, :type => :model do
     it 'restores the previous Entity.current when the block raises' do
       Entity.current = other_entity
 
-      expect {
+      expect do
         entity.using_connection { raise 'boom' }
-      }.to raise_error('boom')
+      end.to raise_error('boom')
 
       expect(Entity.current).to eq(other_entity)
     end
