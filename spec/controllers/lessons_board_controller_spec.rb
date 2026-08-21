@@ -49,11 +49,16 @@ RSpec.describe LessonsBoardsController, type: :controller do
   end
 
   describe '#index' do
+    let(:previous_year_classroom) { create(:classroom, unity: classroom.unity, year: classroom.year - 1) }
+    let!(:lessons_board_previous_year) do
+      create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: previous_year_classroom))
+    end
+
     context 'when user have access' do
       it 'list all lessons board' do
-        get :index, params: { locale: 'pt-BR' }
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
 
-        expect(assigns(:lessons_boards).size).to eq(2)
+        expect(assigns(:lessons_boards).size).to eq(3)
       end
     end
 
@@ -64,6 +69,91 @@ RSpec.describe LessonsBoardsController, type: :controller do
         get :index, params: { locale: 'pt-BR' }
 
         expect(assigns(:lessons_boards)).to be_empty
+      end
+    end
+
+    context 'when there is no search param' do
+      it 'filters by the school year selected on the user profile' do
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq(classroom.year.to_s)
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_1, lessons_board_2])
+      end
+
+      it 'falls back to the profile year when the search param is malformed' do
+        get :index, params: { locale: 'pt-BR', search: 'invalid' }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq(classroom.year.to_s)
+      end
+    end
+
+    context 'when the year filter is cleared' do
+      it 'lists lessons boards of every year' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
+
+        expect(assigns(:lessons_boards)).to match_array(
+          [lessons_board_1, lessons_board_2, lessons_board_previous_year]
+        )
+      end
+
+      it 'includes the year on the classroom options' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
+
+        expect(assigns(:classrooms_options).map(&:name)).to include(
+          "#{classroom.description} - #{classroom.year}"
+        )
+      end
+    end
+
+    context 'when the year filter is incomplete' do
+      it 'ignores the year' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '20' } }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq('')
+        expect(assigns(:lessons_boards).size).to eq(3)
+      end
+    end
+
+    context 'when a filter is not valid anymore' do
+      it 'treats the empty value of select2 as no filter' do
+        get :index, params: { locale: 'pt-BR', search: { by_unity: 'empty' } }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq('')
+      end
+
+      it 'keeps the selected unity when it has no lessons board on the filtered year' do
+        get :index, params: {
+          locale: 'pt-BR', search: { by_year: '1999', by_unity: classroom.unity.id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq(classroom.unity.id.to_s)
+        expect(assigns(:unities_options)).to include(classroom.unity)
+        expect(assigns(:lessons_boards).to_a).to eq([])
+      end
+
+      it 'discards a unity the user has no access to' do
+        get :index, params: { locale: 'pt-BR', search: { by_unity: unity.id.to_s } }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq('')
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_1, lessons_board_2])
+      end
+
+      it 'discards a grade without lessons boards' do
+        grade_without_lessons_board = create(:grade)
+
+        get :index, params: { locale: 'pt-BR', search: { by_grade: grade_without_lessons_board.id.to_s } }
+
+        expect(assigns(:filtering_params)[:by_grade]).to eq('')
+      end
+
+      it 'discards a classroom without lessons boards' do
+        classroom_without_lessons_board = create(:classroom, unity: classroom.unity, year: classroom.year)
+
+        get :index, params: {
+          locale: 'pt-BR', search: { by_classroom: classroom_without_lessons_board.id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_classroom]).to eq('')
       end
     end
   end

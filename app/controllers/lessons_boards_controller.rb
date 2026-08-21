@@ -1,10 +1,20 @@
 class LessonsBoardsController < ApplicationController
+  # Valor enviado pelo elemento vazio do select2 (ver Select2Input#insert_empty_element).
+  SELECT2_EMPTY_VALUE = 'empty'.freeze
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
   def index
-    @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
-    @lessons_boards = apply_scopes(@lessons_boards).filter_from_params(filtering_params(params[:search]))
+    @filtering_params = filtering_params(params[:search])
+    lessons_boards = fetcher.lesson_boards
+
+    load_filter_options(lessons_boards)
+
+    @lessons_boards = apply_scopes(lessons_boards).filter_from_params(@filtering_params)
+                                                  .preload(classrooms_grade: [:grade, { classroom: :unity }])
+                                                  .order('classrooms.description')
+
     authorize @lessons_boards
   end
 
@@ -69,17 +79,6 @@ class LessonsBoardsController < ApplicationController
     respond_with resource, location: lessons_boards_path
   end
 
-  def filtering_params(params)
-    params = {} unless params
-
-    params.slice(
-      :by_year,
-      :by_unity,
-      :by_grade,
-      :by_classroom
-    )
-  end
-
   def generate_lesson_board_pdf
     @lesson_board = LessonsBoard.find(params[:id])
     html_content = render_to_string(
@@ -92,27 +91,6 @@ class LessonsBoardsController < ApplicationController
               type: "application/pdf",
               disposition: "inline"
   end
-
-  def lesson_unities
-    lessons_unities = if user_role_administrator?
-                        LessonsBoard.by_unity(unities_id)
-                                    .map(&:unity_id)
-                                    .uniq
-                      elsif current_user.employee?
-                        roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
-                        unities_user = UserRole.where(user_id: current_user.id,
-role_id: roles_ids).pluck(:unity_id)
-
-                        LessonsBoard.by_unity(unities_user)
-                                    .map(&:unity_id)
-                                    .uniq
-                      else
-                        unities
-                      end
-
-    Unity.where(id: lessons_unities).ordered
-  end
-  helper_method :lesson_unities
 
   def user_role_administrator?
     @role_administrator ||= current_user.reload_current_user_role&.role&.administrator?
@@ -129,30 +107,6 @@ role_id: roles_ids).pluck(:unity_id)
          .where(school_calendars: { year: current_user_school_year })
          .ordered
   end
-
-  def unities_id
-    unities.map(&:id)
-  end
-
-  def lesson_grades
-    lessons_grades = LessonsBoard.by_unity(unities_id)
-                                 .map(&:grade_id)
-                                 .uniq
-
-    Grade.find(lessons_grades)
-  end
-
-  helper_method :lesson_grades
-
-  def lesson_classrooms
-    lessons_classrooms = LessonsBoard.by_unity(unities_id)
-                                     .map(&:classroom_id)
-                                     .uniq
-
-    Classroom.find(lessons_classrooms)
-  end
-
-  helper_method :lesson_classrooms
 
   def resource
     @lessons_board ||= case params[:action]
@@ -266,6 +220,84 @@ role_id: roles_ids).pluck(:unity_id)
   end
 
   private
+
+  def fetcher
+    @fetcher ||= LessonBoardsFetcher.new(current_user)
+  end
+
+  # Primeiro acesso à tela (sem `params[:search]`): filtra pelo ano selecionado no perfil do usuário.
+  # Depois disso o formulário sempre envia o campo, então limpá-lo significa "listar todos os anos".
+  def filtering_params(params)
+    return { by_year: current_user_school_year.to_s }.with_indifferent_access unless params.respond_to?(:permit)
+
+    sanitized = params.permit(:by_year, :by_unity, :by_grade, :by_classroom)
+                      .to_h
+                      .with_indifferent_access
+                      .transform_values { |value| value == SELECT2_EMPTY_VALUE ? '' : value.to_s.strip }
+
+    # O campo de ano tem debounce: sem isso um ano parcial ("202") viraria filtro e esvaziaria a tela.
+    sanitized[:by_year] = '' unless sanitized[:by_year] =~ /\A\d{4}\z/
+
+    sanitized
+  end
+
+  # A ordem importa: cada nível da cascata só é resolvido depois que o nível acima foi saneado,
+  # descartando o que não existe mais (ex.: turma que pertencia à escola anterior).
+  def load_filter_options(lessons_boards)
+    query = LessonsBoardsFilterOptionsQuery.new(lessons_boards)
+
+    load_unity_options(query)
+    load_grade_options(query)
+    load_classroom_options(query)
+  end
+
+  # A escola só é descartada quando está fora do acesso do usuário: não ter quadro no ano filtrado
+  # não invalida a escolha, senão digitar um ano sem quadros limparia a escola sem aviso.
+  def load_unity_options(query)
+    @filtering_params[:by_unity] = '' unless option_ids(fetcher.unities).include?(@filtering_params[:by_unity])
+
+    @unities_options = query.unities(
+      year: @filtering_params[:by_year],
+      selected_id: @filtering_params[:by_unity]
+    ).to_a
+  end
+
+  def load_grade_options(query)
+    @grades_options = query.grades(
+      year: @filtering_params[:by_year],
+      unity_id: @filtering_params[:by_unity]
+    ).to_a
+
+    @filtering_params[:by_grade] = '' unless option_ids(@grades_options).include?(@filtering_params[:by_grade])
+  end
+
+  def load_classroom_options(query)
+    @classrooms_options = classroom_options(
+      query.classrooms(
+        year: @filtering_params[:by_year],
+        unity_id: @filtering_params[:by_unity],
+        grade_id: @filtering_params[:by_grade]
+      )
+    )
+
+    @filtering_params[:by_classroom] = '' unless option_ids(@classrooms_options).include?(@filtering_params[:by_classroom])
+  end
+
+  # Sem filtro de ano a lista mistura anos e turmas homônimas ficam indistinguíveis, então o ano
+  # entra no rótulo da opção.
+  def classroom_options(classrooms)
+    return classrooms.to_a if @filtering_params[:by_year].present?
+
+    classrooms.map do |classroom|
+      label = "#{classroom.description} - #{classroom.year}"
+
+      OpenStruct.new(id: classroom.id, name: label, text: label)
+    end
+  end
+
+  def option_ids(records)
+    records.map { |record| record.id.to_s }
+  end
 
   def validate_lessons_number
     classroom_lessons = resource.classroom.number_of_classes
