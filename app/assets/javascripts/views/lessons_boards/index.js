@@ -1,72 +1,22 @@
-$(function () {
-  'use strict';
+// Recria um filtro da tela quando o servidor devolve as opções da cascata (ver index.js.erb).
+// A cascata é resolvida no servidor: ele manda as opções válidas e o valor já saneado de cada
+// filtro, então aqui só resta reconstruir o select2 — reusando o initSelect2 global para que estes
+// campos não divirjam dos demais select2 do sistema.
+window.lessonsBoardsIndex = {
+  refreshFilter: function (fieldId, elements, value) {
+    var $field = $('#' + fieldId);
 
-  $('#search_by_unity').on('change', async function () {
-    clearClassroomsAndGrades();
-    await updateGrades();
-    await updateClassrooms();
-  })
+    if ($field.length === 0) { return; }
 
-  $('#search_by_grade').on('change', async function () {
-    await updateClassrooms();
-  })
+    // O select2 v3 não recarrega `data` de um campo já inicializado, por isso o destroy.
+    if ($field.data('select2')) { $field.select2('destroy'); }
 
-  async function updateGrades() {
-    let unity_id = $('#search_by_unity').select2('val');
-    if (!_.isEmpty(unity_id)) {
-      $.ajax({
-        url: Routes.grades_by_unity_lessons_boards_pt_br_path({
-          unity_id: unity_id,
-          format: 'json'
-        }),
-        success: handleFetchGradesSuccess,
-        error: handleFetchGradesError
-      });
-    }
+    $field.data('elements', elements);
+
+    // `val` puro, sem disparar change: o handler global do filterable_search_form refaz a busca a
+    // cada change e entraria em loop de requisições.
+    $field.val(value);
+
+    window.initSelect2($field);
   }
-
-  function handleFetchGradesSuccess(data) {
-    let grades = _.map(data.lessons_boards, function(lessons_board) {
-      return { id: lessons_board.table.id, name: lessons_board.table.name, text: lessons_board.table.text };
-    });
-
-    $('#search_by_grade').select2({ data: grades })
-  }
-
-  function handleFetchGradesError() {
-    flashMessages.error('Ocorreu um erro ao buscar as séries.');
-  }
-
-  async function updateClassrooms() {
-    let unity_id = $('#search_by_unity').select2('val');
-    let grade_id = $('#search_by_grade').select2('val');
-
-    if (!_.isEmpty(grade_id) || !_.isEmpty(unity_id)) {
-      $.ajax({
-        url: Routes.classrooms_filter_lessons_boards_pt_br_path({
-          unity_id: unity_id,
-          grade_id: grade_id,
-          format: 'json'
-        }),
-        success: handleFetchClassroomsSuccess,
-        error: handleFetchClassroomsError
-      });
-    }
-  }
-
-  function handleFetchClassroomsSuccess(data) {
-    let classrooms = _.map(data.lessons_boards, function(lessons_board) {
-      return { id: lessons_board.table.id, name: lessons_board.table.name, text: lessons_board.table.text };
-    });
-    $('#search_by_classroom').select2({ data: classrooms })
-  }
-
-  function handleFetchClassroomsError() {
-    flashMessages.error('Ocorreu um erro ao buscar as turmas.');
-  }
-
-  function clearClassroomsAndGrades() {
-    $('#search_by_grade').select2('val', '');
-    $('#search_by_classroom').select2('val', '');
-  }
-})
+};
