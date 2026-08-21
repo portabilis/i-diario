@@ -96,6 +96,11 @@ class ApplicationController < ActionController::Base
     else
       redirect_to '/404'
     end
+  ensure
+    # current_entity seta Entity.current antes do using_connection capturar o
+    # valor anterior, então o restore de lá devolve a própria entidade — a
+    # fronteira da request é aqui: a thread do Puma não pode reter o tenant.
+    Entity.current = nil
   end
 
   def check_entity_status

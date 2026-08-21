@@ -33,10 +33,14 @@ RSpec.describe Entity, :type => :model do
     let(:entity) { create(:entity, name: 'Primeira', domain: 'primeira.connection.test') }
     let(:other_entity) { create(:entity, name: 'Outra', domain: 'outra.connection.test') }
 
+    after { Honeybadger.context.clear! }
+
     it 'sets Entity.current inside the block' do
-      entity.using_connection do
-        expect(Entity.current).to eq(entity)
-      end
+      seen_inside = :unset
+
+      entity.using_connection { seen_inside = Entity.current }
+
+      expect(seen_inside).to eq(entity)
     end
 
     it 'restores the previous Entity.current after the block' do
@@ -47,6 +51,12 @@ RSpec.describe Entity, :type => :model do
       expect(Entity.current).to eq(other_entity)
     end
 
+    it 'restores Entity.current to nil after a top-level block' do
+      entity.using_connection {}
+
+      expect(Entity.current).to be_nil
+    end
+
     it 'restores the previous Entity.current when the block raises' do
       Entity.current = other_entity
 
@@ -55,6 +65,32 @@ RSpec.describe Entity, :type => :model do
       end.to raise_error('boom')
 
       expect(Entity.current).to eq(other_entity)
+    end
+
+    it 'restores the Honeybadger entity tag after a nested block' do
+      entity
+      other_entity
+
+      entity.using_connection do
+        other_entity.using_connection {}
+
+        expect(Honeybadger.get_context[:entity]).to eq(name: entity.name, id: entity.id)
+      end
+    end
+
+    it 'keeps the Honeybadger entity tag of the failing entity when the block raises' do
+      # Materializa fora dos blocos: dentro deles a conexão proxied escreve
+      # fora da transação de teste e o registro persistiria entre runs.
+      entity
+      other_entity
+
+      expect do
+        entity.using_connection do
+          other_entity.using_connection { raise 'boom' }
+        end
+      end.to raise_error('boom')
+
+      expect(Honeybadger.get_context[:entity]).to eq(name: other_entity.name, id: other_entity.id)
     end
   end
 end

@@ -30,12 +30,26 @@ class Entity < ApplicationRecord
 
   def using_connection(&block)
     previous_entity = Entity.current
+    # dup: get_context expõe o hash interno que o set_context muta — sem
+    # cópia, a "foto" do contexto anterior mudaria junto.
+    previous_context = Honeybadger.get_context&.dup
     Entity.current = self
     Honeybadger.context(entity: { name: name, id: id })
 
     ActiveRecord::Base.using_connection(id, connection_spec, &block)
   ensure
     Entity.current = previous_entity
+
+    # A tag de tenant do Honeybadger acompanha o restore, senão blocos
+    # aninhados/sequenciais no mesmo job deixam a tag apontando para a última
+    # entidade enquanto Entity.current já voltou. Só em saída normal: se o
+    # bloco levantou, o report acontece depois deste ensure e precisa ainda
+    # apontar para a entidade que falhou. E só a chave :entity: clear! zeraria
+    # breadcrumbs e contexto alheio; sem chave anterior, os limpadores por
+    # job/request do próprio Honeybadger cobrem a fronteira.
+    if $!.nil? && previous_context&.key?(:entity)
+      Honeybadger.context(entity: previous_context[:entity])
+    end
   end
 
   def self.establish_connection(entity)

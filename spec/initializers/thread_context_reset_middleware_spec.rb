@@ -30,17 +30,39 @@ RSpec.describe ThreadContextResetMiddleware do
     expect(Thread.current[:origin_type]).to be_nil
   end
 
+  it 'starts the job with a clean context even when the thread inherited one' do
+    Entity.current = entity
+
+    seen_inside = :unset
+    middleware.call(nil, {}, 'default') { seen_inside = Entity.current }
+
+    expect(seen_inside).to be_nil
+  end
+
+  it 'isolates two sequential jobs on the same thread' do
+    middleware.call(nil, {}, 'default') { Entity.current = entity }
+
+    second_job_context = :unset
+    middleware.call(nil, {}, 'default') { second_job_context = Entity.current }
+
+    expect(second_job_context).to be_nil
+  end
+
   it 'returns the value yielded by the job' do
     expect(middleware.call(nil, {}, 'default') { :job_result }).to eq(:job_result)
   end
 
-  describe '.register' do
-    it 'adds the middleware to the chain' do
+  describe 'server wiring (config/initializers/sidekiq_middleware.rb)' do
+    it 'prepends the middleware to the server chain' do
       chain = Sidekiq::Middleware::Chain.new
+      config = double('sidekiq config')
+      allow(config).to receive(:server_middleware).and_yield(chain)
+      allow(Sidekiq).to receive(:configure_server).and_yield(config)
 
-      described_class.register(chain)
+      load Rails.root.join('config/initializers/sidekiq_middleware.rb')
 
       expect(chain.exists?(described_class)).to eq(true)
+      expect(chain.entries.first.klass).to eq(described_class)
     end
   end
 end
