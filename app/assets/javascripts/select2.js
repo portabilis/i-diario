@@ -1,25 +1,31 @@
+// Exposto globalmente para que respostas remotas (.js.erb) possam recriar um select2 com novas
+// opções usando exatamente a mesma configuração do carregamento da página, sem duplicá-la.
+window.initSelect2 = function(element) {
+  $(element).select2({
+    formatResult: function(el) {
+      return "<div class='select2-user-result'>" + el.name + "</div>";
+    },
+    formatSelection: function(el) {
+      if(el.text) {
+        return "<div class='select2-user-result'>" + el.text + "</div>";
+      } else {
+        return "<div class='select2-user-result'>" + el.name + "</div>";
+      }
+    },
+    data: $(element).data('elements'),
+    multiple: $(element).data('multiple'),
+    allowClear: !$(element).data('hide-empty-element'),
+    theme: 'classic'
+  });
+
+  if ($(element).data('multiple') && !$(element).data('without-json-parser') && !_.isEmpty($(element).val())){
+    $(element).select2("val", JSON.parse($(element).val()));
+  }
+};
+
 $(document).ready(function(){
   _.each($('input.select2, input[class^=select2]').not('input.select2_remote'), function(element) {
-    $(element).select2({
-      formatResult: function(el) {
-        return "<div class='select2-user-result'>" + el.name + "</div>";
-      },
-      formatSelection: function(el) {
-        if(el.text) {
-          return "<div class='select2-user-result'>" + el.text + "</div>";
-        } else {
-          return "<div class='select2-user-result'>" + el.name + "</div>";
-        }
-      },
-      data: $(element).data('elements'),
-      multiple: $(element).data('multiple'),
-      allowClear: !$(element).data('hide-empty-element'),
-      theme: 'classic'
-    });
-
-    if ($(element).data('multiple') && !$(element).data('without-json-parser') && !_.isEmpty($(element).val())){
-      $(element).select2("val", JSON.parse($(element).val()));
-    }
+    window.initSelect2(element);
   });
 });
 
