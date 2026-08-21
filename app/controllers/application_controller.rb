@@ -91,16 +91,20 @@ class ApplicationController < ActionController::Base
   helper_method :policy
 
   def handle_customer(&block)
+    # current_entity seta Entity.current antes do using_connection capturar o
+    # valor anterior, então o restore de lá devolve a própria entidade — a
+    # fronteira da request é aqui: captura antes de qualquer atribuição e
+    # restaura ao fim, para a thread do Puma não reter o tenant (em produção
+    # o valor anterior é nil; em specs preserva o using_connection externo).
+    previous_entity = Entity.current
+
     if current_entity
       current_entity.using_connection(&block)
     else
       redirect_to '/404'
     end
   ensure
-    # current_entity seta Entity.current antes do using_connection capturar o
-    # valor anterior, então o restore de lá devolve a própria entidade — a
-    # fronteira da request é aqui: a thread do Puma não pode reter o tenant.
-    Entity.current = nil
+    Entity.current = previous_entity
   end
 
   def check_entity_status

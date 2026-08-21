@@ -44,9 +44,12 @@ class Entity < ApplicationRecord
     # aninhados/sequenciais no mesmo job deixam a tag apontando para a última
     # entidade enquanto Entity.current já voltou. Só em saída normal: se o
     # bloco levantou, o report acontece depois deste ensure e precisa ainda
-    # apontar para a entidade que falhou. E só a chave :entity: clear! zeraria
-    # breadcrumbs e contexto alheio; sem chave anterior, os limpadores por
-    # job/request do próprio Honeybadger cobrem a fronteira.
+    # apontar para a entidade que falhou. ($! também é não-nil dentro de
+    # handlers de rescue, ex. sidekiq_retries_exhausted — ali o restore é
+    # pulado e a tag fica na entidade do próprio bloco, que é a desejada.)
+    # E só a chave :entity: clear! zeraria breadcrumbs e contexto alheio; sem
+    # chave anterior, os limpadores por job/request do Honeybadger cobrem a
+    # fronteira.
     if $!.nil? && previous_context&.key?(:entity)
       Honeybadger.context(entity: previous_context[:entity])
     end

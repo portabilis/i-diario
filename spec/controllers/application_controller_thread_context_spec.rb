@@ -31,5 +31,14 @@ RSpec.describe ApplicationController, type: :controller do
 
       expect(Entity.current).to be_nil
     end
+
+    it 'restores an entity set before the request (using_connection wrapping in specs)' do
+      outer_entity = create(:entity, name: 'Externa', domain: 'externa.handle.test')
+      Entity.current = outer_entity
+
+      controller.send(:handle_customer) {}
+
+      expect(Entity.current).to eq(outer_entity)
+    end
   end
 end
