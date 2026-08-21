@@ -131,11 +131,14 @@ RSpec.describe LessonsBoardsController, type: :controller do
         expect(assigns(:lessons_boards).to_a).to eq([])
       end
 
+      # sem `by_year` no formulário o filtro de ano fica vazio, então lista todos os anos
       it 'discards a unity the user has no access to' do
         get :index, params: { locale: 'pt-BR', search: { by_unity: unity.id.to_s } }
 
         expect(assigns(:filtering_params)[:by_unity]).to eq('')
-        expect(assigns(:lessons_boards)).to match_array([lessons_board_1, lessons_board_2])
+        expect(assigns(:lessons_boards)).to match_array(
+          [lessons_board_1, lessons_board_2, lessons_board_previous_year]
+        )
       end
 
       it 'discards a grade without lessons boards' do
