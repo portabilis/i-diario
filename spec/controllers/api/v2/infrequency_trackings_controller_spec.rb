@@ -32,13 +32,13 @@ RSpec.describe Api::V2::InfrequencyTrackingsController, type: :controller do
     it 'returns 401 without a valid token' do
       request.headers['token'] = 'invalid'
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'returns 422 when the period or the unity is missing' do
-      get :index, params: { format: :json }
+      get :index, params: { format: :json, locale: 'en' }
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)['error']).to include('unity_api_code', 'start_at', 'end_at')
@@ -62,7 +62,7 @@ RSpec.describe Api::V2::InfrequencyTrackingsController, type: :controller do
         notification_data: [{ teacher_id: 1, absences: %w[2026-06-03 2026-06-01 2026-06-02] }]
       )
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:success)
 
@@ -92,7 +92,7 @@ RSpec.describe Api::V2::InfrequencyTrackingsController, type: :controller do
         ]
       )
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       row = JSON.parse(response.body).find { |item| item['student_api_code'] == 'dup' }
 
@@ -114,7 +114,7 @@ RSpec.describe Api::V2::InfrequencyTrackingsController, type: :controller do
         notification_date: '2026-06-15'
       )
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       codes = JSON.parse(response.body).map { |item| item['student_api_code'] }
 
@@ -138,7 +138,7 @@ RSpec.describe Api::V2::InfrequencyTrackingsController, type: :controller do
         notification_date: '2026-06-15'
       )
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       codes = JSON.parse(response.body).map { |item| item['student_api_code'] }
 

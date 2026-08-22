@@ -1,9 +1,26 @@
 require 'rails_helper'
 
 RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
-  let(:year) { Date.current.year }
+  include ActiveSupport::Testing::TimeHelpers
+
+  # O ambiente de teste congela o relógio em 2017; as datas do exemplo são de
+  # 2026, e lançar falta exige data não futura dentro do calendário letivo.
+  before(:all) { travel_to Time.zone.local(2026, 7, 2, 0, 0, 0) }
+  after(:all) { travel_back }
+
+  let(:year) { 2026 }
   let(:unity) { create(:unity, api_code: 'unity-1') }
   let(:classroom) { create(:classroom, unity: unity, year: year) }
+  let(:school_calendar) { create(:school_calendar, year: year, unity_id: unity.id) }
+  let!(:school_calendar_step) do
+    create(
+      :school_calendar_step,
+      school_calendar: school_calendar,
+      step_number: 1,
+      start_at: '2026-02-02',
+      end_at: '2026-12-12'
+    )
+  end
   let(:student) { create(:student, api_code: '777') }
   let(:api_token) { SecureRandom.hex(15) }
   let(:period) { { unity_api_code: unity.api_code, start_at: '2026-06-01', end_at: '2026-06-30' } }
@@ -55,13 +72,13 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
     it 'returns 401 without a valid token' do
       request.headers['token'] = 'invalid'
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'returns 422 when the period or the unity is missing' do
-      get :index, params: { format: :json }
+      get :index, params: { format: :json, locale: 'en' }
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -74,7 +91,7 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
       consolidate('2026-06-11', present: false, student: student)
       entry('2026-06-11', student: student)
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:success)
 
@@ -94,7 +111,7 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
       consolidate('2026-06-12', present: true, student: student)
       entry('2026-06-12', student: student)
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(JSON.parse(response.body)).to be_empty
     end
@@ -103,7 +120,7 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
       consolidate('2026-05-20', present: false, student: student)
       entry('2026-05-20', student: student)
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(JSON.parse(response.body)).to be_empty
     end
@@ -121,7 +138,7 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
       consolidate('2026-06-10', present: false, student: student)
       entry('2026-06-10', student: student)
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       codes = JSON.parse(response.body).map { |item| item['student_api_code'] }
 

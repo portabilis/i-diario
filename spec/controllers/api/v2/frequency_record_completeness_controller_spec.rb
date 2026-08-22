@@ -1,8 +1,25 @@
 require 'rails_helper'
 
 RSpec.describe Api::V2::FrequencyRecordCompletenessController, type: :controller do
+  include ActiveSupport::Testing::TimeHelpers
+
+  # O ambiente de teste congela o relógio em 2017; as datas do exemplo são de
+  # 2026, e lançar frequência exige data dentro do calendário letivo.
+  before(:all) { travel_to Time.zone.local(2026, 7, 2, 0, 0, 0) }
+  after(:all) { travel_back }
+
   let(:unity) { create(:unity, api_code: 'unity-1') }
   let(:classroom) { create(:classroom, unity: unity, year: 2026) }
+  let(:school_calendar) { create(:school_calendar, year: 2026, unity_id: unity.id) }
+  let!(:school_calendar_step) do
+    create(
+      :school_calendar_step,
+      school_calendar: school_calendar,
+      step_number: 1,
+      start_at: '2026-02-02',
+      end_at: '2026-12-12'
+    )
+  end
   let(:api_token) { SecureRandom.hex(15) }
   let(:period) { { unity_api_code: unity.api_code, start_at: '2026-06-01', end_at: '2026-06-30' } }
 
@@ -27,13 +44,13 @@ RSpec.describe Api::V2::FrequencyRecordCompletenessController, type: :controller
     it 'returns 401 without a valid token' do
       request.headers['token'] = 'invalid'
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'returns 422 when the period or the unity is missing' do
-      get :index, params: { format: :json }
+      get :index, params: { format: :json, locale: 'en' }
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -48,7 +65,7 @@ RSpec.describe Api::V2::FrequencyRecordCompletenessController, type: :controller
       create(:daily_frequency, classroom: classroom, frequency_date: '2026-06-01')
       create(:daily_frequency, classroom: classroom, frequency_date: '2026-06-02')
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:success)
 
@@ -64,7 +81,7 @@ RSpec.describe Api::V2::FrequencyRecordCompletenessController, type: :controller
       create(:unity_school_day, unity: unity, school_day: '2026-06-01')
       classroom
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       row = JSON.parse(response.body).find { |item| item['classroom_api_code'] == classroom.api_code }
 
@@ -77,7 +94,7 @@ RSpec.describe Api::V2::FrequencyRecordCompletenessController, type: :controller
       other_classroom = create(:classroom, unity: create(:unity, api_code: 'unity-2'), year: 2026)
       classroom
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       codes = JSON.parse(response.body).map { |item| item['classroom_api_code'] }
 

@@ -24,7 +24,7 @@ RSpec.describe Api::V2::GeneralConfigurationsController, type: :controller do
     it 'returns 401 without a valid token' do
       request.headers['token'] = 'invalid'
 
-      get :show, params: { format: :json }
+      get :show, params: { format: :json, locale: 'en' }
 
       expect(response).to have_http_status(:unauthorized)
     end
@@ -37,7 +37,7 @@ RSpec.describe Api::V2::GeneralConfigurationsController, type: :controller do
         days_to_consider_alternate_absences: 10
       )
 
-      get :show, params: { format: :json }
+      get :show, params: { format: :json, locale: 'en' }
 
       expect(response).to have_http_status(:success)
 
@@ -62,7 +62,7 @@ RSpec.describe Api::V2::GeneralConfigurationsController, type: :controller do
         days_to_consider_alternate_absences: nil
       )
 
-      get :show, params: { format: :json }
+      get :show, params: { format: :json, locale: 'en' }
 
       body = JSON.parse(response.body)
 

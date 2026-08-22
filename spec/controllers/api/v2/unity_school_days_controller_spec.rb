@@ -26,13 +26,13 @@ RSpec.describe Api::V2::UnitySchoolDaysController, type: :controller do
     it 'returns 401 without a valid token' do
       request.headers['token'] = 'invalid'
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'returns 422 when the period or the unity is missing' do
-      get :index, params: { format: :json }
+      get :index, params: { format: :json, locale: 'en' }
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -42,7 +42,7 @@ RSpec.describe Api::V2::UnitySchoolDaysController, type: :controller do
       create(:unity_school_day, unity: unity, school_day: '2026-06-01')
       create(:unity_school_day, unity: unity, school_day: '2026-06-02')
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       expect(response).to have_http_status(:success)
 
@@ -63,7 +63,7 @@ RSpec.describe Api::V2::UnitySchoolDaysController, type: :controller do
       create(:unity_school_day, unity: unity, school_day: '2026-05-20')
       create(:unity_school_day, unity: other_unity, school_day: '2026-06-10')
 
-      get :index, params: { format: :json }.merge(period)
+      get :index, params: { format: :json, locale: 'en' }.merge(period)
 
       body = JSON.parse(response.body)
 
