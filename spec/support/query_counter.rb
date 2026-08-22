@@ -5,7 +5,7 @@ module QueryCounter
     count = 0
 
     counter = lambda do |_name, _start, _finish, _id, payload|
-      next if payload[:name] == 'SCHEMA' || payload[:sql].to_s =~ IGNORED_QUERIES
+      next if payload[:cached] || payload[:name] == 'SCHEMA' || payload[:sql].to_s =~ IGNORED_QUERIES
 
       count += 1
     end

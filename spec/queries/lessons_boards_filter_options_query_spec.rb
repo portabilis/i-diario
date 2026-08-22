@@ -31,7 +31,7 @@ RSpec.describe LessonsBoardsFilterOptionsQuery, type: :query do
   let!(:lessons_board_previous_year) { create(:lessons_board, classrooms_grade: classrooms_grade_previous_year) }
 
   # Turma sem quadro de aula: nunca pode aparecer em nenhuma das listas de opções
-  let!(:classroom_without_lessons_board) do
+  let!(:classrooms_grade_without_lessons_board) do
     create(:classrooms_grade, classroom: create(:classroom, unity: unity_without_lessons_board, year: current_year))
   end
 
@@ -62,6 +62,18 @@ RSpec.describe LessonsBoardsFilterOptionsQuery, type: :query do
       restricted_query = described_class.new(LessonsBoard.by_unity(unity_a.id))
 
       expect(restricted_query.unities(year: current_year).to_a).to contain_exactly(unity_a)
+    end
+
+    # A relação chega ordenada do controller e SELECT DISTINCT não aceita ORDER BY de coluna fora
+    # da projeção, então a consulta precisa descartar a ordenação recebida.
+    it 'accepts an ordered relation' do
+      ordered_query = described_class.new(LessonsBoard.all.order('lessons_boards.id'))
+
+      expect(ordered_query.unities(year: current_year).to_a).to contain_exactly(unity_a, unity_b)
+    end
+
+    it 'resolves the options with two queries' do
+      expect(count_queries { query.unities(year: current_year).to_a }).to eq(2)
     end
   end
 

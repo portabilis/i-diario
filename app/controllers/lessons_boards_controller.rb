@@ -5,17 +5,12 @@ class LessonsBoardsController < ApplicationController
   def index
     filters = filter_resolver.resolve
 
-    @filtering_params = filters.to_form_params
-    @unities_options = filters.unity_options
-    @grades_options = filters.grade_options
-    @classrooms_options = filters.classroom_options
-
-    log_unity_out_of_reach(filters.unity_id_out_of_reach)
+    assign_filters(filters)
 
     @lessons_boards = apply_scopes(fetcher.lesson_boards)
-                        .filter_from_params(filters.to_filter_params)
-                        .preload(classrooms_grade: [:grade, { classroom: :unity }])
-                        .order('classrooms.description', 'lessons_boards.id')
+                      .filter_from_params(filters.to_filter_params)
+                      .preload(classrooms_grade: [:grade, { classroom: :unity }])
+                      .order('classrooms.description', 'lessons_boards.id')
 
     authorize @lessons_boards
   end
@@ -225,6 +220,15 @@ class LessonsBoardsController < ApplicationController
 
   def fetcher
     @fetcher ||= LessonBoardsFetcher.new(current_user)
+  end
+
+  def assign_filters(filters)
+    @filtering_params = filters.to_form_params
+    @unities_options = filters.unity_options
+    @grades_options = filters.grade_options
+    @classrooms_options = filters.classroom_options
+
+    log_unity_out_of_reach(filters.unity_id_out_of_reach)
   end
 
   def filter_resolver

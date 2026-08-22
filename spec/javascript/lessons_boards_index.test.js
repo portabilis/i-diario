@@ -132,6 +132,13 @@ describe('lessonsBoardsIndex.refreshFilter', () => {
       .toBe("<div class='select2-user-result'>ESCOLA A</div>");
   });
 
+  it('accepts a level of the cascade with no options', () => {
+    window.lessonsBoardsIndex.refreshFilter('search_by_unity', [], '');
+
+    expect(initCallFor('search_by_unity').args[0].data).toEqual([]);
+    expect(window.jQuery('#search_by_unity').val()).toBe('');
+  });
+
   it('does nothing when the field is not on the page', () => {
     expect(() => {
       window.lessonsBoardsIndex.refreshFilter('nao_existe', ELEMENTS, '4');

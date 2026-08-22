@@ -64,7 +64,11 @@ RSpec.describe LessonBoardsFetcher, type: :service do
 
       queries_with_one_lessons_board = count_queries(&fetch_unities)
 
-      create_list(:lessons_board, 5, classrooms_grade: create(:classrooms_grade, classroom: classroom))
+      # turmas distintas: quadros na mesma turma não exercitariam o carregamento por associação
+      5.times do
+        other_classroom = create(:classroom, unity: unity, year: current_year)
+        create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: other_classroom))
+      end
 
       expect(count_queries(&fetch_unities)).to eq(queries_with_one_lessons_board)
     end

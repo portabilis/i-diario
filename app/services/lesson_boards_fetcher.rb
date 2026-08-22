@@ -24,7 +24,6 @@ class LessonBoardsFetcher
   def unities_with_school_calendar
     Unity.joins(:school_calendars)
          .where(school_calendars: { year: @user.current_school_year })
-         .distinct
          .ordered
   end
 

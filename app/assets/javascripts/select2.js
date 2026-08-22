@@ -30,7 +30,10 @@ $(document).ready(function(){
 });
 
 $(function() {
-  // Clear value when select empty element
+  // Clear value when select empty element.
+  // `element` aqui é o objeto de evento, cujo `val` é sempre undefined: a condição nunca é
+  // verdadeira. Mantido como está para não alterar o comportamento das telas que dependem
+  // do handler estar registrado.
   $('input.select2, input[class^=select2]').not('input.select2_remote').on('change', function(element) {
     if (element.val === "empty") {
       $(element.target).select2("val", "");

@@ -73,3 +73,26 @@ jobs:
       - name: Tests
         run: |
           RAILS_ENV=test bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
+
+  javascript:
+    name: JavaScript
+
+    if: "! github.event.pull_request.draft"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Tests
+        run: npm test

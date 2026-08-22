@@ -148,6 +148,14 @@ RSpec.describe LessonsBoardsController, type: :controller do
         )
       end
 
+      # `permit` recusa o array e a chave some, então o filtro fica vazio em vez de chegar cru
+      it 'ignores a filter sent as a list' do
+        get :index, params: { locale: 'pt-BR', search: { by_unity: [unity.id.to_s] } }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq('')
+        expect(response).to have_http_status(:ok)
+      end
+
       it 'discards a grade without lessons boards' do
         grade_without_lessons_board = create(:grade)
 
@@ -204,6 +212,35 @@ RSpec.describe LessonsBoardsController, type: :controller do
         }
 
         expect(assigns(:lessons_boards)).to match_array([lessons_board_previous_year])
+      end
+    end
+
+    context 'ordering' do
+      let(:first_classroom) { create(:classroom, unity: classroom.unity, year: classroom.year, description: 'AAA') }
+      let(:last_classroom) { create(:classroom, unity: classroom.unity, year: classroom.year, description: 'ZZZ') }
+      let!(:first_lessons_board) do
+        create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: first_classroom))
+      end
+      let!(:last_lessons_board) do
+        create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: last_classroom))
+      end
+
+      it 'orders by the classroom description' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }
+
+        expect(assigns(:lessons_boards).to_a.first).to eq(first_lessons_board)
+        expect(assigns(:lessons_boards).to_a.last).to eq(last_lessons_board)
+      end
+
+      # Descrições repetem entre escolas e anos: sem desempate a mesma linha pode cair em duas
+      # páginas e outra em nenhuma.
+      it 'falls back to the record identifier when descriptions tie' do
+        tied = create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: first_classroom))
+
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }
+
+        listed = assigns(:lessons_boards).to_a
+        expect(listed.index(first_lessons_board)).to be < listed.index(tied)
       end
     end
 
