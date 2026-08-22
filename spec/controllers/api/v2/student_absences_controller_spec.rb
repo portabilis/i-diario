@@ -25,9 +25,20 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
     request.headers['token'] = api_token
   end
 
-  # A justificativa não tem associação declarada no model: o vínculo é a
-  # própria coluna, e é a presença dela que define "falta justificada".
-  def absence_on(date, justified: false, student: nil)
+  # O dia consolidado é o que o motor de infrequência enxerga.
+  def consolidate(date, present:, student:)
+    create(
+      :unique_daily_frequency_student,
+      student: student,
+      classroom: classroom,
+      frequency_date: date,
+      present: present
+    )
+  end
+
+  # O lançamento do diário: é nele que a justificativa se prende (a coluna é o
+  # vínculo; o model não declara associação).
+  def entry(date, student:, justified: false)
     daily_frequency = create(:daily_frequency, classroom: classroom, frequency_date: date)
     justification = justified ? create(:absence_justifications_student, student: student) : nil
 
@@ -55,10 +66,13 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
-    it 'separates the entries with a justification from the ones without it' do
-      absence_on('2026-06-10', justified: true, student: student)
-      absence_on('2026-06-10', student: student)
-      absence_on('2026-06-11', student: student)
+    it 'reports how many entries of the day carry a justification' do
+      consolidate('2026-06-10', present: false, student: student)
+      entry('2026-06-10', student: student, justified: true)
+      entry('2026-06-10', student: student)
+
+      consolidate('2026-06-11', present: false, student: student)
+      entry('2026-06-11', student: student)
 
       get :index, params: { format: :json }.merge(period)
 
@@ -66,8 +80,6 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
 
       row = JSON.parse(response.body).find { |item| item['student_api_code'] == '777' }
 
-      # O dia 10 teve duas faltas lançadas e só uma justificada: o fato vai
-      # cru, porque a régua de "dia justificado" é de quem lê.
       expect(row['absences']).to eq(
         [
           { 'date' => '2026-06-10', 'entries_count' => 2, 'justified_entries_count' => 1 },
@@ -76,11 +88,20 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
       )
     end
 
-    it 'ignores presences and days outside the period' do
-      absence_on('2026-05-20', student: student)
+    # A regra do produto de origem: o dia consolidado manda. Se ele fechou como
+    # presente, o dia não é falta aqui — mesmo havendo falta numa aula solta.
+    it 'ignores a day that consolidated as present even with an absent entry' do
+      consolidate('2026-06-12', present: true, student: student)
+      entry('2026-06-12', student: student)
 
-      daily_frequency = create(:daily_frequency, classroom: classroom, frequency_date: '2026-06-12')
-      create(:daily_frequency_student, daily_frequency: daily_frequency, student: student, present: true)
+      get :index, params: { format: :json }.merge(period)
+
+      expect(JSON.parse(response.body)).to be_empty
+    end
+
+    it 'ignores days outside the period' do
+      consolidate('2026-05-20', present: false, student: student)
+      entry('2026-05-20', student: student)
 
       get :index, params: { format: :json }.merge(period)
 
@@ -89,14 +110,16 @@ RSpec.describe Api::V2::StudentAbsencesController, type: :controller do
 
     it 'keeps only the absences of the requested unity' do
       other_classroom = create(:classroom, unity: create(:unity, api_code: 'unity-2'), year: year)
-      other_frequency = create(:daily_frequency, classroom: other_classroom, frequency_date: '2026-06-10')
       create(
-        :daily_frequency_student,
-        daily_frequency: other_frequency,
+        :unique_daily_frequency_student,
         student: create(:student, api_code: 'theirs'),
+        classroom: other_classroom,
+        frequency_date: '2026-06-10',
         present: false
       )
-      absence_on('2026-06-10', student: student)
+
+      consolidate('2026-06-10', present: false, student: student)
+      entry('2026-06-10', student: student)
 
       get :index, params: { format: :json }.merge(period)
 
