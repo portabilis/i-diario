@@ -59,11 +59,16 @@ module Api
     # ref_cod_matricula do i-Educar = api_code da matrícula do estudante
     # naquela turma. Resolvido de uma vez: por linha, seria uma consulta por
     # notificação.
+    #
+    # A ordem é explícita porque o mesmo estudante pode ter mais de uma
+    # matrícula viva na mesma turma; sem ela, qual delas vence dependeria da
+    # ordem que o banco devolvesse, e a resposta mudaria entre chamadas iguais.
     def registration_api_codes
       @registration_api_codes ||=
         StudentEnrollment.joins(student_enrollment_classrooms: :classrooms_grade)
                          .where(student_id: trackings.map(&:student_id).uniq)
                          .where(classrooms_grades: { classroom_id: trackings.map(&:classroom_id).uniq })
+                         .order('student_enrollments.id')
                          .pluck(:student_id, 'classrooms_grades.classroom_id', 'student_enrollments.api_code')
                          .each_with_object({}) do |(student_id, classroom_id, api_code), mapa|
                            mapa[[student_id, classroom_id]] ||= api_code
