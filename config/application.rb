@@ -41,6 +41,11 @@ module Educacao
         resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options]
       end
     end
+
+    # Fronteira de tenant da request: como middleware mais externo, o reset
+    # roda depois de qualquer controller, inclusive os que pulam o
+    # handle_customer (ver app/middleware/thread_context_reset_rack_middleware.rb).
+    config.middleware.insert_before 0, 'ThreadContextResetRackMiddleware'
     config.to_prepare do
       DeviseController.respond_to :html, :json
     end

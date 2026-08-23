@@ -8,6 +8,8 @@
 # não passam (workers de e-mail NotifyByEmailDailyFrequency*) não leem
 # contexto — e nenhum seta User.current/origin_type. Mas nada impede código
 # novo de setar o contexto diretamente, e este middleware fecha esse vetor.
+#
+# Contraparte web: ThreadContextResetRackMiddleware.
 class ThreadContextResetMiddleware
   def call(_worker, _job, _queue)
     reset_context

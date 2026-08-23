@@ -92,10 +92,11 @@ class ApplicationController < ActionController::Base
 
   def handle_customer(&block)
     # current_entity seta Entity.current antes do using_connection capturar o
-    # valor anterior, então o restore de lá devolve a própria entidade — a
-    # fronteira da request é aqui: captura antes de qualquer atribuição e
-    # restaura ao fim, para a thread do Puma não reter o tenant (em produção
-    # o valor anterior é nil; em specs preserva o using_connection externo).
+    # valor anterior, então o restore de lá devolve a própria entidade — daí a
+    # captura acontecer aqui, antes de qualquer atribuição. A fronteira da
+    # request em si é o ThreadContextResetRackMiddleware (que cobre inclusive
+    # quem pula este around_action); este restore mantém o escopo aninhado
+    # correto dentro da request e preserva o using_connection externo nos specs.
     previous_entity = Entity.current
 
     if current_entity
