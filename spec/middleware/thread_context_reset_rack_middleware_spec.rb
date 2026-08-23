@@ -71,10 +71,23 @@ RSpec.describe ThreadContextResetRackMiddleware do
   end
 
   describe 'stack registration' do
-    it 'runs outside the controller stack' do
-      middlewares = Rails.application.middleware.map(&:name)
+    let(:middlewares) { Rails.application.middleware.map(&:name) }
 
+    it 'runs outside the controller stack' do
       expect(middlewares).to include(described_class.name)
+    end
+
+    # A posição relativa é o que dá valor ao middleware, e duas inserções em
+    # insert_before 0 (esta e a do Rack::Cors) tornam a ordem dependente da
+    # sequência das linhas em config/application.rb. Sem esta asserção, uma
+    # reordenação passaria despercebida e os reports de exceção chegariam ao
+    # Honeybadger sem a tag de tenant.
+    it 'runs below the Honeybadger error notifier, so the report still sees the tenant' do
+      reset_index = middlewares.index(described_class.name)
+      notifier_index = middlewares.index('Honeybadger::Rack::ErrorNotifier')
+
+      expect(notifier_index).not_to be_nil
+      expect(reset_index).to be > notifier_index
     end
   end
 end

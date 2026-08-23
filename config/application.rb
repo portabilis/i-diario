@@ -42,9 +42,11 @@ module Educacao
       end
     end
 
-    # Fronteira de tenant da request: como middleware mais externo, o reset
-    # roda depois de qualquer controller, inclusive os que pulam o
-    # handle_customer (ver app/middleware/thread_context_reset_rack_middleware.rb).
+    # Fronteira de tenant da request: acima do controller stack — o reset roda
+    # depois de qualquer controller, inclusive os que pulam o handle_customer —
+    # e abaixo do notificador de erro do Honeybadger, para que o report da
+    # exceção ainda enxergue o tenant setado. O spec do middleware fixa essa
+    # posição relativa (ver app/middleware/thread_context_reset_rack_middleware.rb).
     config.middleware.insert_before 0, 'ThreadContextResetRackMiddleware'
     config.to_prepare do
       DeviseController.respond_to :html, :json
