@@ -58,6 +58,8 @@ class SchoolCalendar < ApplicationRecord
   end
 
   def step(date)
+    return if date.blank?
+
     # Memorização para evitar consultas repetidas ao banco
     @steps_by_date ||= {}
 

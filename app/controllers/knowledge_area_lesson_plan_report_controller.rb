@@ -1,4 +1,6 @@
 class KnowledgeAreaLessonPlanReportController < ApplicationController
+  include DateValidation
+
   before_action :require_current_teacher
   before_action :require_current_classroom, only: [:form, :lesson_plan_report, :content_record_report]
 
@@ -102,7 +104,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
     date_start = resource_params[:date_start]
     date_end = resource_params[:date_end]
 
-    @knowledge_area_lesson_plan_report_form.date_start = '' unless date_start.try(:to_date)
-    @knowledge_area_lesson_plan_report_form.date_end = '' unless date_end.try(:to_date)
+    @knowledge_area_lesson_plan_report_form.date_start = '' unless valid_date?(date_start)
+    @knowledge_area_lesson_plan_report_form.date_end = '' unless valid_date?(date_end)
   end
 end

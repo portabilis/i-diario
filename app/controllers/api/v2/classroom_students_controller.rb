@@ -1,6 +1,8 @@
 module Api
   module V2
     class ClassroomStudentsController < Api::V2::BaseController
+      include DateValidation
+
       respond_to :json
 
       def index
@@ -13,7 +15,7 @@ module Api
         return [] unless school_calendar
 
         discipline_id = params[:discipline_id]
-        frequency_date = params[:frequency_date] || Time.zone.today
+        frequency_date = parse_date(params[:frequency_date]) || Time.zone.today
         step_number = step_number(frequency_date)
 
         @student_enrollments = StudentEnrollment.includes(:student)

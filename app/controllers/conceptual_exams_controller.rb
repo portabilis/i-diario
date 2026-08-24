@@ -1,4 +1,6 @@
 class ConceptualExamsController < ApplicationController
+  include DateValidation
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -45,6 +47,7 @@ class ConceptualExamsController < ApplicationController
     ).localized
 
     @conceptual_exam.assign_attributes(resource_params) if params[:conceptual_exam].present?
+    @conceptual_exam.classroom ||= current_user_classroom
 
     authorize @conceptual_exam
 
@@ -162,9 +165,14 @@ class ConceptualExamsController < ApplicationController
   def fetch_students
     return if params[:classroom_id].blank? || params[:discipline_id].blank? || params[:date].blank?
 
+    date = parse_date(params[:date])
+
+    # Sem data não há como montar a lista. Responde erro para a tela avisar o usuário, em
+    # vez de devolver corpo vazio, que ela interpretaria como turma sem alunos.
+    return render json: { students: [] }, status: :unprocessable_entity if date.blank?
+
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
-    date = params[:date].to_date
 
     student_enrollments = StudentEnrollmentsList.new(
       classroom: classroom,
@@ -574,6 +582,13 @@ class ConceptualExamsController < ApplicationController
     @old_values ||= OldStepsConceptualValuesFetcher.new(@conceptual_exam.classroom, @conceptual_exam.student, @conceptual_exam.step).fetch
   end
   helper_method :old_values
+
+  # Turma que o formulário usa para montar as etapas. É a turma do lançamento,
+  # que pode diferir da turma corrente quando a tela é carregada por parâmetros.
+  def form_classroom
+    @conceptual_exam.classroom || current_user_classroom
+  end
+  helper_method :form_classroom
 
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
     exempted_disciplines.by_discipline(discipline_id)

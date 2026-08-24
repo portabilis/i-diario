@@ -382,7 +382,7 @@ Rails.application.routes.draw do
         delete :destroy_multiple
       end
     end
-    resources :old_steps_conceptual_values, except: [:only]
+    resources :old_steps_conceptual_values, only: [:index]
     resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
         get :find

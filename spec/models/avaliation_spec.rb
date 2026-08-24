@@ -186,5 +186,28 @@ RSpec.describe Avaliation, type: :model do
 
       it { expect(subject).to validate_presence_of(:description) }
     end
+
+    # Criar a avaliação sem preencher a data quebrava com NoMethodError em vez de
+    # apontar o campo obrigatório. Neste cenário é o tipo de cálculo por soma que aciona
+    # a validação que consulta a etapa a partir da data.
+    context 'when test_date is blank' do
+      let(:test_setting_with_sum_calculation_type) { create(:test_setting_with_sum_calculation_type) }
+
+      subject do
+        build(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom,
+          test_date: nil,
+          test_setting: test_setting_with_sum_calculation_type
+        )
+      end
+
+      it 'adds a validation error instead of raising NoMethodError' do
+        expect { subject.valid? }.not_to raise_error
+
+        expect(subject.errors[:test_date]).to include(I18n.t('errors.messages.blank'))
+      end
+    end
   end
 end
