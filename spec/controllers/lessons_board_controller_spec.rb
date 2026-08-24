@@ -74,8 +74,12 @@ RSpec.describe LessonsBoardsController, type: :controller do
     end
 
     context 'when the profile has no school year' do
+      # usuário próprio: alterar o usuário compartilhado dos demais exemplos deixaria o estado
+      # dependente da ordem de execução
+      let(:user_without_school_year) { create(:user, :with_user_role_administrator, admin: true) }
+
       it 'redirects instead of listing' do
-        user.update_column(:current_school_year, nil)
+        sign_in(user_without_school_year)
 
         get :index, params: { locale: 'pt-BR' }
 
