@@ -1,4 +1,6 @@
 class LessonsBoardsController < ApplicationController
+  before_action :require_current_year, only: :index
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 

@@ -14,8 +14,9 @@ RSpec.describe LessonsBoardsController, type: :controller do
     )
   end
 
+  # com ano no perfil para o exemplo de acesso chegar na listagem, e não parar no before_action
   let(:other_user) do
-    create(:user)
+    create(:user, current_school_year: classroom.year)
   end
 
   let(:user_role) { user.user_roles.first }
@@ -69,6 +70,17 @@ RSpec.describe LessonsBoardsController, type: :controller do
         get :index, params: { locale: 'pt-BR' }
 
         expect(assigns(:lessons_boards)).to be_empty
+      end
+    end
+
+    context 'when the profile has no school year' do
+      it 'redirects instead of listing' do
+        user.update_column(:current_school_year, nil)
+
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to eq(I18n.t('errors.general.require_current_year'))
       end
     end
 
