@@ -45,7 +45,7 @@ module Ieducar
         information = info_message(info)
 
         begin
-          response = IeducarResponseDecorator.new(api(posting).send_post(params))
+          response = IeducarResponseDecorator.new(api(posting, params).send_post(params))
 
           posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
         rescue StandardError => error
@@ -115,7 +115,15 @@ module Ieducar
       params[:faltas] || params[:notas] || params[:pareceres]
     end
 
-    def api(posting)
+    # Faltas por componente também chegam como ABSENCE, e os jobs enfileirados antes da migração
+    # ainda vão chegar até a fila drenar. Os dois carregam `resource`; só a v2 é achatada.
+    def general_absence_payload?(params)
+      params = params.with_indifferent_access
+
+      params[:resource].blank? && params[:turma_id].present?
+    end
+
+    def api(posting, params)
       case posting.post_type
       when ApiPostingTypes::NUMERICAL_EXAM
         IeducarApi::PostExams.new(posting.to_api)
@@ -124,7 +132,13 @@ module Ieducar
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         IeducarApi::PostDescriptiveExams.new(posting.to_api)
       when ApiPostingTypes::ABSENCE
-        IeducarApi::PostAbsences.new(posting.to_api)
+        if general_absence_payload?(params)
+          # Recebe a configuration, e não o `to_api` dos demais ramos: o hash legado não expõe o
+          # api_security_token, que é como a API v2 autentica.
+          IeducarApi::PostGeneralAbsences.new(posting.ieducar_api_configuration)
+        else
+          IeducarApi::PostAbsences.new(posting.to_api)
+        end
       when ApiPostingTypes::FINAL_RECOVERY
         IeducarApi::FinalRecoveries.new(posting.to_api)
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY
