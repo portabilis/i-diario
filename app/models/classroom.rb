@@ -70,11 +70,20 @@ class Classroom < ApplicationRecord
   scope :by_id, ->(id) { where(id: id) }
   scope :with_grade, -> { joins(:classrooms_grades).where.not(classrooms_grades: { grade: nil }) }
 
-  # Sem par `after_undiscard`: a reativação dos vínculos é decidida pela sincronização,
-  # registro a registro, pelo `deleted_at` do i-Educar.
   after_discard do
     teacher_discipline_classrooms.discard_all
     classrooms_grades.discard_all
+  end
+
+  # Os vínculos de professor voltam aqui porque a sincronização parcial não os alcança: o
+  # i-Educar filtra os vínculos por `updated_at` próprio, e reativar a turma não toca nesse
+  # campo. Sem isso a turma volta e o quadro de aulas fica sem professor até a próxima
+  # sincronização completa.
+  #
+  # Os vínculos de série ficam de fora: quem os reativa é o ClassroomsSynchronizer, restrito às
+  # séries que a API ainda devolve. Aqui voltariam também as séries que saíram da turma.
+  after_undiscard do
+    undiscard_dependents_discarded_with(teacher_discipline_classrooms)
   end
 
   def to_s

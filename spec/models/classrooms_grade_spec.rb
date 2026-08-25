@@ -12,15 +12,14 @@ RSpec.describe ClassroomsGrade, type: :model do
     it { expect(subject).to belong_to(:grade) }
     it { expect(subject).to belong_to(:exam_rule) }
     it { expect(subject).to have_many(:student_enrollment_classrooms) }
-    it { expect(subject).to have_one(:lessons_board) }
+    it { expect(subject).to have_many(:lessons_boards) }
   end
 
   describe 'undiscard cascade' do
     let(:classrooms_grade) { create(:classrooms_grade) }
 
-    # A reativação chega pela sincronização, sobre o registro recarregado do banco — nunca no
-    # mesmo objeto que fez o descarte. Reaproveitar o objeto usaria as associações que ficaram
-    # em cache nele, que não passam pelo escopo `kept`.
+    # Espelha o caminho real: a reativação chega pela sincronização, sobre um registro lido do
+    # banco — nunca sobre o mesmo objeto que fez o descarte.
     def undiscard_from_a_fresh_record
       ClassroomsGrade.with_discarded.find(classrooms_grade.id).undiscard
     end
@@ -63,7 +62,9 @@ RSpec.describe ClassroomsGrade, type: :model do
       let!(:lessons_board) { create(:lessons_board, classrooms_grade: classrooms_grade) }
 
       before do
-        # Exclusão anterior e independente do descarte do vínculo — não pode ser desfeita.
+        # Exclusão completa e anterior ao descarte do vínculo — o `discard` primeiro deixa a
+        # árvore do quadro consistente, e só então a data é recuada.
+        lessons_board.discard
         lessons_board.update_columns(discarded_at: 10.days.ago)
         classrooms_grade.discard
       end
@@ -82,12 +83,32 @@ RSpec.describe ClassroomsGrade, type: :model do
 
       before { classrooms_grade.discard }
 
-      it 'does not bring the enrollments back' do
+      it 'brings the enrollments back' do
         undiscard_from_a_fresh_record
 
         expect(
           StudentEnrollmentClassroom.with_discarded.find(student_enrollment_classroom.id)
-        ).to be_discarded
+        ).to be_kept
+      end
+    end
+
+    context 'when another grade link has discarded dependents of its own' do
+      let!(:lessons_board) { create(:lessons_board, classrooms_grade: classrooms_grade) }
+      let(:other_classrooms_grade) { create(:classrooms_grade) }
+      let!(:other_lessons_board) do
+        create(:lessons_board, classrooms_grade: other_classrooms_grade)
+      end
+
+      before do
+        other_classrooms_grade.discard
+        classrooms_grade.discard
+      end
+
+      it 'brings back only the dependents of the reactivated grade link' do
+        undiscard_from_a_fresh_record
+
+        expect(LessonsBoard.with_discarded.find(lessons_board.id)).to be_kept
+        expect(LessonsBoard.with_discarded.find(other_lessons_board.id)).to be_discarded
       end
     end
   end

@@ -25,7 +25,7 @@ RSpec.describe LessonsBoardLesson, type: :model do
 
       expect(kept_weekdays_count).to eq(0)
 
-      # Recarregado de propósito: ver LessonsBoard spec.
+      # Espelha o caminho real: a reativação chega sobre um registro lido do banco.
       LessonsBoardLesson.with_discarded.find(lessons_board_lesson.id).undiscard
 
       expect(kept_weekdays_count).to eq(5)
@@ -33,7 +33,8 @@ RSpec.describe LessonsBoardLesson, type: :model do
 
     it 'keeps a weekday that had been removed before the lesson was discarded' do
       removed_weekday = lessons_board_lesson.lessons_board_lesson_weekdays.find_by(weekday: :friday)
-      # Slot removido pela sincronização antes do descarte da aula — não volta com ela.
+      # Slot que saiu do horário antes do descarte da aula — não volta com ela.
+      removed_weekday.discard
       removed_weekday.update_columns(discarded_at: 10.days.ago)
 
       lessons_board_lesson.discard

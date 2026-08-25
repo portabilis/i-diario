@@ -388,18 +388,18 @@ RSpec.describe ClassroomsSynchronizer, type: :service do
         synchronization: create(:ieducar_api_synchronization, full_synchronization: true),
         worker_batch: nil,
         worker_state: nil,
-        entity_id: (Entity.first || create(:entity)).id,
+        entity_id: Entity.first.id,
         year: Date.current.year,
         unity_api_code: unity.api_code
       )
     end
 
-    def payload(deleted_at)
+    def payload(deleted_at, series_regras = [{ 'serie_id' => '22', 'regra_avaliacao_id' => '33' }])
       HashDecorator.new(
         [{
           'id' => '999', 'nome' => classroom.description, 'ano' => Date.current.year,
           'escola_id' => '111', 'turno_id' => 1, 'max_aluno' => 30, 'ref_cod_regente' => nil,
-          'series_regras' => [{ 'serie_id' => '22', 'regra_avaliacao_id' => '33' }],
+          'series_regras' => series_regras,
           'updated_at' => Date.current.to_s, 'deleted_at' => deleted_at
         }]
       )
@@ -424,6 +424,48 @@ RSpec.describe ClassroomsSynchronizer, type: :service do
         synchronizer.send(:update_classrooms, payload(nil))
 
         expect(Classroom.by_grade(grade.id).pluck(:id)).to eq([classroom.id])
+      end
+    end
+
+    context 'when the classroom that comes back has a filled lessons board' do
+      let!(:lessons_board) do
+        create(:lessons_board, :full_lessons_board, classrooms_grade: classrooms_grade)
+      end
+
+      def kept_weekdays_count
+        LessonsBoardLessonWeekday.joins(:lessons_board_lesson)
+                                 .where(lessons_board_lessons: { lessons_board_id: lessons_board.id })
+                                 .count
+      end
+
+      before { classroom.discard }
+
+      it 'brings the whole lessons board back, down to the weekdays' do
+        expect(kept_weekdays_count).to eq(0)
+
+        synchronizer.send(:update_classrooms, payload(nil))
+
+        expect(LessonsBoard.with_discarded.find(lessons_board.id)).to be_kept
+        expect(kept_weekdays_count).to eq(20)
+      end
+    end
+
+    context 'when the classroom has more than one grade' do
+      let(:other_grade) { create(:grade, api_code: '44') }
+      let!(:other_classrooms_grade) do
+        create(:classrooms_grade, classroom: classroom, grade: other_grade, exam_rule: exam_rule)
+      end
+
+      before { classroom.discard }
+
+      it 'reactivates every grade link returned by the API' do
+        synchronizer.send(:update_classrooms, payload(nil, [
+                                                       { 'serie_id' => '22', 'regra_avaliacao_id' => '33' },
+                                                       { 'serie_id' => '44', 'regra_avaliacao_id' => '33' }
+                                                     ]))
+
+        expect(ClassroomsGrade.where(classroom_id: classroom.id).pluck(:id))
+          .to contain_exactly(classrooms_grade.id, other_classrooms_grade.id)
       end
     end
 

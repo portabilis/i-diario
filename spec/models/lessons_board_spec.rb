@@ -19,22 +19,33 @@ RSpec.describe LessonsBoard, type: :model do
   describe 'discard and undiscard cascade' do
     let(:lessons_board) { create(:lessons_board, :full_lessons_board) }
 
-    def kept_lessons_count
-      LessonsBoardLesson.where(lessons_board_id: lessons_board.id).count
+    def kept_lesson_ids
+      LessonsBoardLesson.where(lessons_board_id: lessons_board.id).pluck(:id)
     end
 
     it 'discards the lessons with the board and brings them back on undiscard' do
-      expect(kept_lessons_count).to eq(4)
+      lesson_ids = kept_lesson_ids
+      expect(lesson_ids.size).to eq(4)
 
       lessons_board.discard
 
-      expect(kept_lessons_count).to eq(0)
+      expect(kept_lesson_ids).to be_empty
 
-      # Recarregado de propósito: a reativação chega sobre um registro novo, e só assim a
-      # associação filtrada por `kept` entra em jogo.
+      # Espelha o caminho real: a reativação chega sobre um registro lido do banco.
       LessonsBoard.with_discarded.find(lessons_board.id).undiscard
 
-      expect(kept_lessons_count).to eq(4)
+      expect(kept_lesson_ids).to match_array(lesson_ids)
+    end
+
+    it 'brings back only the lessons of the reactivated board' do
+      other_board = create(:lessons_board, :full_lessons_board)
+      other_board.discard
+      lessons_board.discard
+
+      LessonsBoard.with_discarded.find(lessons_board.id).undiscard
+
+      expect(kept_lesson_ids.size).to eq(4)
+      expect(LessonsBoardLesson.where(lessons_board_id: other_board.id)).to be_empty
     end
   end
 end

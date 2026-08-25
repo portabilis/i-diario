@@ -96,9 +96,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
 
         # O descarte dos vínculos vem em cascata pelo after_discard da turma. A reativação
-        # precisa ser explícita e só das séries que a API ainda devolve. Fica depois da
-        # transação: a limpeza de pareceres órfãos só considera vínculos ativos.
-        undiscard_classrooms_grades(synced_classrooms_grades) if classroom_record.deleted_at.blank?
+        # precisa ser explícita e só das séries que a API ainda devolve. Fica fora da transação
+        # porque reativar vínculo enfileira workers por aluno, e a transação seguraria os locks
+        # até o commit enquanto os jobs já leem o banco.
+        synced_classrooms_grades.each(&:undiscard) if classroom_record.deleted_at.blank?
 
         remove_current_classroom_id_in_user_selectors(classroom.id) if classroom_record.deleted_at.present?
       end
@@ -120,10 +121,6 @@ class ClassroomsSynchronizer < BaseSynchronizer
     rule_changed = classrooms_grade.persisted? && classrooms_grade.exam_rule_id_changed?
     classrooms_grade.save!
     [classrooms_grade, rule_changed]
-  end
-
-  def undiscard_classrooms_grades(classrooms_grades)
-    classrooms_grades.each { |classrooms_grade| classrooms_grade.discard_or_undiscard(false) }
   end
 
   # Exclui os pareceres órfãos da turma: opinion_type que não bate com nenhuma regra atual

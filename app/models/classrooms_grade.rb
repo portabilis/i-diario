@@ -9,7 +9,8 @@ class ClassroomsGrade < ApplicationRecord
 
   has_many :student_enrollment_classrooms
   has_many :student_enrollments, through: :student_enrollment_classrooms
-  has_one :lessons_board
+  # Turma de período integral tem um quadro de aulas por turno.
+  has_many :lessons_boards
 
   default_scope -> { kept }
 
@@ -25,17 +26,16 @@ class ClassroomsGrade < ApplicationRecord
   }
   scope :order_by_grade_description, -> { joins(:grade).merge(Grade.ordered) }
 
-  # Turma de período integral pode ter um quadro de aulas por turno, por isso os quadros são
-  # consultados pela chave e não pelo `has_one`.
   after_discard do
     student_enrollment_classrooms.discard_all
-    LessonsBoard.where(classrooms_grade_id: id).discard_all
+    lessons_boards.discard_all
   end
 
-  # As enturmações ficam de fora da reativação: quem manda nelas é o
-  # StudentEnrollmentClassroomSynchronizer, que decide uma a uma pelo `deleted_at` do i-Educar.
-  # O quadro de aulas não tem outro dono, então volta aqui.
+  # As enturmações também não são alcançadas pela sincronização parcial: o i-Educar filtra as
+  # matrículas por `updated_at` próprio, e reativar a turma não toca nesse campo. Sem isso a
+  # turma volta sem aluno nenhum até a próxima sincronização completa.
   after_undiscard do
-    undiscard_dependents_discarded_with(LessonsBoard.where(classrooms_grade_id: id))
+    undiscard_dependents_discarded_with(lessons_boards)
+    undiscard_dependents_discarded_with(student_enrollment_classrooms)
   end
 end
