@@ -49,7 +49,8 @@ module IndividualizedEducationalPlanScoping
   # Planos que o usuário enxerga, do ANO LETIVO CORRENTE: aluno cursando uma turma dele, OU turma
   # dele que já publicou alguma versão do plano (autoria).
   def accessible_plans
-    IndividualizedEducationalPlan.where(year: current_school_year)
+    IndividualizedEducationalPlan.kept
+                                 .where(year: current_school_year)
                                  .by_classroom_id(accessible_classroom_ids)
   end
 

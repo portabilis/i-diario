@@ -251,6 +251,69 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     end
   end
 
+  # Excluir um PEI pela tela é arquivar: o snapshot imutável de cada versão publicada é o
+  # documento em si e não pode se perder junto com o plano.
+  describe 'archiving' do
+    it 'keeps the versions and the section records when the plan is archived' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+      evaluation = create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date,
+                                                    acquired_skills: 'Habilidades')
+      version = create(:iep_version, :current, iep: plan)
+
+      expect(plan.discard).to eq(true)
+
+      expect(plan.reload).to be_discarded
+      expect(IepVersion.where(id: version.id)).to exist
+      expect(IepReviewDate.where(id: review_date.id)).to exist
+      expect(IepCurricularPlanning.where(id: planning.id)).to exist
+      expect(IepPeriodicEvaluation.where(id: evaluation.id)).to exist
+    end
+
+    it 'leaves the archived plan out of kept' do
+      archived = create(:individualized_educational_plan)
+      archived.discard
+      live = create(:individualized_educational_plan)
+
+      expect(described_class.kept).to contain_exactly(live)
+      expect(described_class.discarded).to contain_exactly(archived)
+    end
+
+    # O save! passar é o que prova o índice único PARCIAL no banco: com o índice total o
+    # plano arquivado continuaria ocupando o par (student_id, year) e isto levantaria RecordNotUnique.
+    it 'allows a new plan for the same student and year after archiving' do
+      archived = create(:individualized_educational_plan)
+      archived.discard
+
+      replacement = build(:individualized_educational_plan, student: archived.student, year: archived.year,
+                                                            elaborated_at: archived.elaborated_at)
+
+      expect(replacement).to be_valid
+      expect { replacement.save! }.to change(described_class, :count).by(1)
+    end
+  end
+
+  # O destroy real (fora da tela) ainda cascateia. A ordem de declaração das has_many é o que
+  # faz as linhas das seções saírem antes das revisões que elas apontam.
+  describe 'hard destroy' do
+    it 'destroys the plan with data in sections 4 and 5' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+      create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date, acquired_skills: 'Habilidades')
+
+      # Recarrega antes de destruir: a validação do plano carrega iep_review_dates quando ainda
+      # está vazia, e o cascade sobre esse cache vazio não apagaria as revisões.
+      expect {
+        plan.reload.destroy
+      }.to change(described_class, :count).by(-1)
+        .and change(IepReviewDate, :count).by(-1)
+        .and change(IepCurricularPlanning, :count).by(-1)
+        .and change(IepPeriodicEvaluation, :count).by(-1)
+    end
+  end
+
   # Filtro/cascata do index: turma filtrada = aluno cursando hoje ∪ turma autora. Enturmação
   # encerrada (ou de um dia) numa turma que não contribuiu NÃO deve trazer o aluno.
   describe '.by_classroom_id' do

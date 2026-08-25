@@ -53,7 +53,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     # Escopado ao ano letivo, como o accessible_plans que alimenta a listagem: sem isto, um aluno
     # cujo único PEI na turma é de ano anterior vira opção do dropdown que resulta em lista vazia.
-    student_ids = IndividualizedEducationalPlan.where(year: current_school_year)
+    student_ids = IndividualizedEducationalPlan.kept
+                                               .where(year: current_school_year)
                                                .by_classroom_id(params[:classroom_id])
                                                .select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
@@ -254,7 +255,13 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
 
-    @individualized_educational_plan.destroy
+    # Arquiva em vez de apagar: o cascade não roda e as versões publicadas ficam preservadas.
+    # O discard salva com validação, então plano inválido devolve false — sem tratar, a tela
+    # redirecionaria anunciando uma exclusão que não aconteceu.
+    unless @individualized_educational_plan.discard
+      return redirect_to individualized_educational_plans_path,
+                         alert: t('individualized_educational_plans.flash.destroy_failed')
+    end
 
     respond_with @individualized_educational_plan, location: individualized_educational_plans_path
   end
@@ -380,8 +387,10 @@ class IndividualizedEducationalPlansController < ApplicationController
     prefill_student_fields
   end
 
+  # Só entre os vivos: o plano arquivado não ocupa o par aluno/ano, senão a exclusão travaria
+  # a criação de um plano novo para o mesmo aluno no mesmo ano.
   def plan_exists_for_student?(student_id)
-    scope = IndividualizedEducationalPlan.where(student_id: student_id, year: current_school_year)
+    scope = IndividualizedEducationalPlan.kept.where(student_id: student_id, year: current_school_year)
     scope = scope.where.not(id: params[:plan_id]) if params[:plan_id].present?
     scope.exists?
   end

@@ -1,5 +1,6 @@
 class IndividualizedEducationalPlan < ApplicationRecord
   include Audit
+  include Discardable
   include IepMultiSelectable
 
   # Campos apenas de exibição no formulário (prefill do i-Educar), não persistidos.
@@ -21,6 +22,8 @@ class IndividualizedEducationalPlan < ApplicationRecord
   has_many :iep_periodic_evaluations, dependent: :destroy
   has_many :iep_review_dates, dependent: :destroy
 
+  # A exclusão pela tela é arquivamento (discard), que não dispara o cascade: as versões
+  # publicadas — onde mora o snapshot imutável do documento — sobrevivem ao plano arquivado.
   has_many :iep_versions, dependent: :destroy
 
   accepts_nested_attributes_for :iep_selected_options, allow_destroy: true
@@ -58,8 +61,9 @@ class IndividualizedEducationalPlan < ApplicationRecord
 
   validates :student_id, :year, :elaborated_at, presence: true
 
-  # Unicidade 1 PEI por aluno/ano: índice único no banco + esta validação para a mensagem amigável.
-  validates :student_id, uniqueness: { scope: :year }
+  # Unicidade 1 PEI por aluno/ano: índice único parcial no banco + esta validação para a mensagem
+  # amigável. Ambos valem só entre os planos vivos — plano arquivado não ocupa o par aluno/ano.
+  validates :student_id, uniqueness: { scope: :year, conditions: -> { kept } }
 
   # Existe alguma versão ativa para este PEI? Usado pelos scopes finalized/draft.
   # SQL literal (não arel) para evitar o bind param que quebra o EXISTS no Rails 5.0.

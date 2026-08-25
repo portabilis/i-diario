@@ -46,6 +46,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
       end
 
+      it 'omits archived plans' do
+        target = plan_enrolled_in(classroom)
+        archived = plan_enrolled_in(classroom)
+        archived.discard
+
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
+      end
+
       it 'filters by student' do
         target = plan_enrolled_in(classroom)
         plan_enrolled_in(classroom)
@@ -263,52 +273,66 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:plan_editable?).and_return(true)
     end
 
-    it 'destroys the plan and redirects to the index' do
+    it 'archives the plan and redirects to the index' do
       plan = create(:individualized_educational_plan)
 
       expect {
         delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.to change(IndividualizedEducationalPlan, :count).by(-1)
+      }.not_to change(IndividualizedEducationalPlan, :count)
 
+      expect(plan.reload).to be_discarded
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
 
-    it 'destroys the plan even with data in sections 4 and 5 (regression: cascade order blocked deletion)' do
+    it 'preserves the published versions and the section records when archiving' do
       plan = create(:individualized_educational_plan)
       review_date = create(:iep_review_date, iep: plan)
-      create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
-      create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date, acquired_skills: 'Habilidades')
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+      evaluation = create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date,
+                                                    acquired_skills: 'Habilidades')
+      version = create(:iep_version, :current, iep: plan)
 
-      expect {
-        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.to change(IndividualizedEducationalPlan, :count).by(-1)
-        .and change(IepReviewDate, :count).by(-1)
-        .and change(IepCurricularPlanning, :count).by(-1)
-        .and change(IepPeriodicEvaluation, :count).by(-1)
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
 
+      expect(plan.reload).to be_discarded
+      expect(IepVersion.where(id: version.id)).to exist
+      expect(IepReviewDate.where(id: review_date.id)).to exist
+      expect(IepCurricularPlanning.where(id: planning.id)).to exist
+      expect(IepPeriodicEvaluation.where(id: evaluation.id)).to exist
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
 
-    it 'does not destroy a plan from a classroom the user is not linked to' do
+    it 'does not archive a plan from a classroom the user is not linked to' do
       allow(controller).to receive(:accessible_plans).and_call_original
       plan = create(:individualized_educational_plan)
 
-      expect {
-        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.not_to change(IndividualizedEducationalPlan, :count)
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
 
+      expect(plan.reload).not_to be_discarded
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
 
-    it 'does not destroy a plan the user can no longer edit (visible only by authorship)' do
+    it 'does not archive a plan the user can no longer edit (visible only by authorship)' do
       allow(controller).to receive(:plan_editable?).and_return(false)
       plan = create(:individualized_educational_plan)
 
-      expect {
-        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.not_to change(IndividualizedEducationalPlan, :count)
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
 
+      expect(plan.reload).not_to be_discarded
       expect(response).to redirect_to(individualized_educational_plan_path(plan))
+    end
+
+    # O discard salva com validação: plano inválido devolve false e a tela precisa dizer isso,
+    # em vez de redirecionar anunciando uma exclusão que não aconteceu.
+    it 'warns instead of announcing an archiving that did not happen' do
+      plan = create(:individualized_educational_plan)
+      allow_any_instance_of(IndividualizedEducationalPlan).to receive(:discard).and_return(false)
+
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(plan.reload).not_to be_discarded
+      expect(flash[:alert]).to eq(I18n.t('individualized_educational_plans.flash.destroy_failed'))
+      expect(response).to redirect_to(individualized_educational_plans_path)
     end
   end
 
