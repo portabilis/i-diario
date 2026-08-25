@@ -37,15 +37,17 @@ RSpec.describe AttendanceRecordReport, type: :report do
   end
 
   describe 'columns order' do
-    # Segunda-feira da semana corrente: dia letivo dentro da etapa do calendário
-    let(:frequency_date) { Date.current.beginning_of_week }
+    # Segunda e terça da semana anterior: dias letivos já passados e dentro da mesma etapa do calendário
+    let(:first_date) { Date.current.beginning_of_week - 1.week }
+    let(:second_date) { first_date + 1.day }
     let(:entity_configuration) { create(:entity_configuration) }
     let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
     let(:classrooms_grade) { create(:classrooms_grade, classroom: classroom) }
     let(:school_calendar) { classroom.calendar.school_calendar }
     let(:discipline) { create(:discipline) }
     let(:teacher) { create(:teacher) }
-    let(:student) { create(:student) }
+    # Nome curto: um nome longo quebra em duas linhas e o Prawn emite cada metade como um fragmento próprio
+    let(:student) { create(:student, name: 'Aluno Teste') }
     let(:student_enrollment) { create(:student_enrollment, student: student) }
     let(:student_enrollment_classroom) {
       create(
@@ -66,10 +68,10 @@ RSpec.describe AttendanceRecordReport, type: :report do
     let(:current_user) { double(:current_user, current_role_is_admin_or_employee?: false) }
     let(:events) { [] }
     # Aulas do mesmo dia lançadas fora de ordem numérica
-    let(:daily_frequencies) { [7, 9, 1, 3].map { |class_number| create_daily_frequency(class_number) } }
+    let(:daily_frequencies) { [7, 9, 1, 3].map { |class_number| create_daily_frequency(first_date, class_number) } }
 
     before do
-      # O marcador de presença vem do dicionário de termos da entidade corrente, que não existe fora da requisição
+      # Entity.current não está definido fora da requisição, e é dele que o dicionário de termos depende
       allow(TermsDictionary).to receive(:cached_current).and_return(
         TermsDictionary.new(presence_identifier_character: '.')
       )
@@ -84,22 +86,33 @@ RSpec.describe AttendanceRecordReport, type: :report do
     end
 
     context 'when the day also has a calendar event' do
-      let(:events) {
+      let(:events) { [calendar_event(first_date)] }
+
+      it 'prints the event after the lessons of the day' do
+        # A célula "Aula" do evento é impressa vazia, então a posição dele só aparece na linha do aluno:
+        # as aulas marcam presença e o evento marca a legenda
+        expect(student_attendance_cells(render_report)).to eq(['.', '.', '.', '.', 'E'])
+      end
+    end
+
+    context 'when the report covers more than one day' do
+      let(:events) { [calendar_event(first_date)] }
+      let(:daily_frequencies) {
         [
-          {
-            date: frequency_date,
-            legend: 'E',
-            description: 'Evento',
-            type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY,
-            coverage: 'by_classroom'
-          }
+          create_daily_frequency(first_date, 3),
+          create_daily_frequency(first_date, 1),
+          create_daily_frequency(second_date, 4),
+          create_daily_frequency(second_date, 2)
         ]
       }
 
-      it 'prints the event after the lessons of the day' do
-        # A célula "Aula" do evento sai vazia, então a posição dele só aparece na linha do aluno:
-        # as aulas marcam presença e o evento marca a legenda
-        expect(student_attendance_cells(render_report, 5)).to eq(['.', '.', '.', '.', 'E'])
+      it 'keeps every column of a day together, with the event after the lessons of its own day' do
+        rendered_pdf = render_report
+
+        expect(class_number_cells(rendered_pdf)).to eq(%w[1 3 2 4])
+        expect(day_cells(rendered_pdf)).to eq(
+          [first_date, first_date, first_date, second_date, second_date].map { |date| date.day.to_s }
+        )
       end
     end
 
@@ -108,8 +121,8 @@ RSpec.describe AttendanceRecordReport, type: :report do
         entity_configuration,
         teacher,
         school_calendar.year,
-        frequency_date.strftime('%d/%m/%Y'),
-        frequency_date.strftime('%d/%m/%Y'),
+        first_date.strftime('%d/%m/%Y'),
+        second_date.strftime('%d/%m/%Y'),
         daily_frequencies,
         enrollment_classrooms_list,
         events,
@@ -121,12 +134,12 @@ RSpec.describe AttendanceRecordReport, type: :report do
       ).render
     end
 
-    def create_daily_frequency(class_number)
+    def create_daily_frequency(date, class_number)
       daily_frequency = create(
         :daily_frequency,
         classroom: classroom,
         discipline: discipline,
-        frequency_date: frequency_date,
+        frequency_date: date,
         class_number: class_number,
         period: Periods::MATUTINAL
       )
@@ -135,23 +148,42 @@ RSpec.describe AttendanceRecordReport, type: :report do
       daily_frequency.reload
     end
 
+    def calendar_event(date)
+      {
+        date: date,
+        legend: 'E',
+        description: 'Evento',
+        type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY,
+        coverage: 'by_classroom'
+      }
+    end
+
     def general_configuration
       GeneralConfiguration.first || GeneralConfiguration.create!
     end
 
-    # Linha de cabeçalho "Aula": as células entre "Aula" e "Faltas" são os números das aulas impressas
+    # Linha de cabeçalho "Aula": as células entre "Aula" e "Faltas" são os números das aulas impressas.
+    # As células de preenchimento não emitem texto, e o evento entra sem número de aula.
+    # `index` para na primeira ocorrência: com mais de uma página, só a primeira é inspecionada.
     def class_number_cells(rendered_pdf)
       strings = pdf_strings(rendered_pdf)
 
       strings[(strings.index('Aula') + 1)...strings.index('Faltas')]
     end
 
+    # Linha de cabeçalho "Dia": um número de dia por coluna impressa, incluindo a do evento
+    def day_cells(rendered_pdf)
+      strings = pdf_strings(rendered_pdf)
+
+      strings[(strings.index('Dia') + 1)...strings.index('Mês')]
+    end
+
     # Linha do aluno: as células logo após o nome são as colunas do dia, na mesma ordem do cabeçalho
-    def student_attendance_cells(rendered_pdf, columns_count)
+    def student_attendance_cells(rendered_pdf)
       strings = pdf_strings(rendered_pdf)
       first_column = strings.index(student.to_s) + 1
 
-      strings[first_column, columns_count]
+      strings[first_column, daily_frequencies.size + events.size]
     end
 
     def pdf_strings(rendered_pdf)

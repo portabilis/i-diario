@@ -7,7 +7,7 @@ class DailyFrequencyQuery
       .by_discipline_id(filters[:discipline_id], filters[:all_students_frequencies])
       .by_class_number(filters[:class_numbers], filters[:all_students_frequencies])
       .includes([students: :student], :school_calendar, :discipline, :classroom, :unity)
-      .order(:frequency_date, :class_number, :id)
+      .order(:frequency_date, :period, :class_number, :id)
   end
 
   module Scopes

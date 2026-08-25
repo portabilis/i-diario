@@ -7,7 +7,7 @@ class AttendanceRecordReport < BaseReport
   # Fator que representa a quantidade de alunos com nome social necessária para reduzir 1 aluno por página
   SOCIAL_NAME_REDUCTION_FACTOR = 2
 
-  # Prioridade da coluna dentro do mesmo dia: as aulas são impressas antes dos eventos do calendário
+  # Prioridade da coluna dentro do mesmo dia: o menor valor é impresso primeiro
   FREQUENCY_COLUMN_PRIORITY = 0
   EVENT_COLUMN_PRIORITY = 1
 
@@ -476,13 +476,20 @@ class AttendanceRecordReport < BaseReport
     record.is_a? DailyFrequency
   end
 
-  # Evento do calendário não tem número de aula — a célula "Aula" dele sai vazia (`class_numbers`), então ocupa o fim
-  # do dia. `class_number` é NULL na frequência geral e pode se repetir no dia quando o mesmo número de aula é lançado
-  # em turnos diferentes; nesses empates o id preserva a ordem de criação.
+  # Colunas do dia: turno, número da aula e o id como desempate final. O turno vem antes porque em turma de período
+  # integral o filtro traz os quatro turnos, e o mesmo número de aula pode existir em mais de um deles.
+  # Evento de calendário não tem número de aula — a célula "Aula" dele é impressa vazia — e vai após as aulas do dia.
+  # O `to_i` é obrigatório: `class_number` e `period` são NULL na frequência geral, e `nil <=> Integer` estoura o sort.
   def column_sort_key(record)
-    return [record[:date], EVENT_COLUMN_PRIORITY, 0, 0] unless daily_frequency?(record)
+    return [record[:date], EVENT_COLUMN_PRIORITY, 0, 0, 0] unless daily_frequency?(record)
 
-    [record.frequency_date, FREQUENCY_COLUMN_PRIORITY, record.class_number.to_i, record.id]
+    [
+      record.frequency_date,
+      FREQUENCY_COLUMN_PRIORITY,
+      record.period.to_i,
+      record.class_number.to_i,
+      record.id
+    ]
   end
 
   def student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
