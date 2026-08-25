@@ -70,14 +70,11 @@ class Classroom < ApplicationRecord
   scope :by_id, ->(id) { where(id: id) }
   scope :with_grade, -> { joins(:classrooms_grades).where.not(classrooms_grades: { grade: nil }) }
 
+  # Sem par `after_undiscard`: a reativação dos vínculos é decidida pela sincronização,
+  # registro a registro, pelo `deleted_at` do i-Educar.
   after_discard do
     teacher_discipline_classrooms.discard_all
     classrooms_grades.discard_all
-  end
-
-  after_undiscard do
-    teacher_discipline_classrooms.undiscard_all
-    classrooms_grades.undiscard_all
   end
 
   def to_s

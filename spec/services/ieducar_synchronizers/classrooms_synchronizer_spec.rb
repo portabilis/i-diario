@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ClassroomsSynchronizer do
+RSpec.describe ClassroomsSynchronizer, type: :service do
   describe '#should_destroy_old_grades?' do
     let(:synchronization) { create(:ieducar_api_synchronization, full_synchronization: full_synchronization) }
     let(:worker_batch) { create(:worker_batch) }
@@ -371,6 +371,69 @@ RSpec.describe ClassroomsSynchronizer do
 
       expect(DescriptiveExam.exists?(orphan.id)).to be true
       expect(DescriptiveExam.exists?(kept.id)).to be true
+    end
+  end
+
+  describe '#update_classrooms keeping the grade link in sync with the classroom' do
+    let(:unity) { create(:unity, api_code: '111') }
+    let(:grade) { create(:grade, api_code: '22') }
+    let!(:exam_rule) { create(:exam_rule, api_code: '33') }
+    let!(:classroom) { create(:classroom, api_code: '999', unity: unity, period: Periods::MATUTINAL) }
+    let!(:classrooms_grade) do
+      create(:classrooms_grade, classroom: classroom, grade: grade, exam_rule: exam_rule)
+    end
+
+    let(:synchronizer) do
+      described_class.new(
+        synchronization: create(:ieducar_api_synchronization, full_synchronization: true),
+        worker_batch: nil,
+        worker_state: nil,
+        entity_id: (Entity.first || create(:entity)).id,
+        year: Date.current.year,
+        unity_api_code: unity.api_code
+      )
+    end
+
+    def payload(deleted_at)
+      HashDecorator.new(
+        [{
+          'id' => '999', 'nome' => classroom.description, 'ano' => Date.current.year,
+          'escola_id' => '111', 'turno_id' => 1, 'max_aluno' => 30, 'ref_cod_regente' => nil,
+          'series_regras' => [{ 'serie_id' => '22', 'regra_avaliacao_id' => '33' }],
+          'updated_at' => Date.current.to_s, 'deleted_at' => deleted_at
+        }]
+      )
+    end
+
+    context 'when the classroom comes back active in i-Educar' do
+      # Reproduz o estado deixado pelo descarte: turma e vínculo descartados juntos.
+      before { classroom.discard }
+
+      it 'reactivates the classroom and its grade link' do
+        expect(ClassroomsGrade.with_discarded.find(classrooms_grade.id)).to be_discarded
+
+        synchronizer.send(:update_classrooms, payload(nil))
+
+        expect(Classroom.with_discarded.find(classroom.id)).to be_kept
+        expect(ClassroomsGrade.with_discarded.find(classrooms_grade.id)).to be_kept
+      end
+
+      it 'lists the classroom again when filtering by grade' do
+        expect(Classroom.by_grade(grade.id)).to be_empty
+
+        synchronizer.send(:update_classrooms, payload(nil))
+
+        expect(Classroom.by_grade(grade.id).pluck(:id)).to eq([classroom.id])
+      end
+    end
+
+    context 'when the classroom is excluded in i-Educar' do
+      it 'discards the classroom and its grade link' do
+        synchronizer.send(:update_classrooms, payload('2025-12-14 00:00:00'))
+
+        expect(Classroom.with_discarded.find(classroom.id)).to be_discarded
+        expect(ClassroomsGrade.with_discarded.find(classrooms_grade.id)).to be_discarded
+      end
     end
   end
 end

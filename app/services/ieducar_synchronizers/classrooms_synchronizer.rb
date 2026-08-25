@@ -62,6 +62,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
         preload_classrooms_grades(classroom.id)
 
         grades_ids = []
+        synced_classrooms_grades = []
         exam_rule_changed = false
 
         # Transação: se a limpeza de pareceres órfãos falhar, o reapontamento (exam_rule_id)
@@ -75,7 +76,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
             grades_ids << grade.id
 
-            exam_rule_changed ||= upsert_classrooms_grade(classroom.id, grade.id, exam_rule.id)
+            classrooms_grade, rule_changed = upsert_classrooms_grade(classroom.id, grade.id, exam_rule.id)
+            synced_classrooms_grades << classrooms_grade
+            exam_rule_changed ||= rule_changed
           end
 
           destroy_old_grades(grades_ids, classroom.classrooms_grades, classroom_record.updated_at)
@@ -92,6 +95,11 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
         classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
 
+        # O descarte dos vínculos vem em cascata pelo after_discard da turma. A reativação
+        # precisa ser explícita e só das séries que a API ainda devolve. Fica depois da
+        # transação: a limpeza de pareceres órfãos só considera vínculos ativos.
+        undiscard_classrooms_grades(synced_classrooms_grades) if classroom_record.deleted_at.blank?
+
         remove_current_classroom_id_in_user_selectors(classroom.id) if classroom_record.deleted_at.present?
       end
     end
@@ -103,15 +111,19 @@ class ClassroomsSynchronizer < BaseSynchronizer
     classroom_grades.where.not(grade_id: grades_ids).destroy_all
   end
 
-  # Cria/atualiza o ClassroomsGrade da série e devolve true se uma série JÁ EXISTENTE
-  # trocou de regra (série nova retorna false — não tinha regra anterior).
+  # Cria/atualiza o ClassroomsGrade da série. Devolve o vínculo e se uma série JÁ EXISTENTE
+  # trocou de regra (série nova conta como não trocada — não tinha regra anterior).
   def upsert_classrooms_grade(classroom_id, grade_id, exam_rule_id)
     classrooms_grade = classrooms_grade(classroom_id, grade_id) ||
                        ClassroomsGrade.new(classroom_id: classroom_id, grade_id: grade_id)
     classrooms_grade.exam_rule_id = exam_rule_id
     rule_changed = classrooms_grade.persisted? && classrooms_grade.exam_rule_id_changed?
     classrooms_grade.save!
-    rule_changed
+    [classrooms_grade, rule_changed]
+  end
+
+  def undiscard_classrooms_grades(classrooms_grades)
+    classrooms_grades.each { |classrooms_grade| classrooms_grade.discard_or_undiscard(false) }
   end
 
   # Exclui os pareceres órfãos da turma: opinion_type que não bate com nenhuma regra atual
