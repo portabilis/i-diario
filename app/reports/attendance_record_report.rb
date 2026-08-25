@@ -7,6 +7,10 @@ class AttendanceRecordReport < BaseReport
   # Fator que representa a quantidade de alunos com nome social necessária para reduzir 1 aluno por página
   SOCIAL_NAME_REDUCTION_FACTOR = 2
 
+  # Prioridade da coluna dentro do mesmo dia: as aulas são impressas antes dos eventos do calendário
+  FREQUENCY_COLUMN_PRIORITY = 0
+  EVENT_COLUMN_PRIORITY = 1
+
   def self.build(
     entity_configuration,
     teacher,
@@ -150,9 +154,7 @@ class AttendanceRecordReport < BaseReport
       [daily_frequency_student.daily_frequency_id, daily_frequency_student.student_id]
     end
 
-    frequencies_and_events = frequencies_and_events.sort_by do |obj|
-      daily_frequency?(obj) ? obj.frequency_date : obj[:date]
-    end
+    frequencies_and_events = frequencies_and_events.sort_by { |record| column_sort_key(record) }
 
     unless @show_inactive_enrollments
       @enrollment_classrooms= @enrollment_classrooms.uniq { |enrollment_classroom| enrollment_classroom[:student].id }
@@ -472,6 +474,15 @@ class AttendanceRecordReport < BaseReport
 
   def daily_frequency?(record)
     record.is_a? DailyFrequency
+  end
+
+  # Evento do calendário não tem número de aula — a célula "Aula" dele sai vazia (`class_numbers`), então ocupa o fim
+  # do dia. `class_number` é NULL na frequência geral e pode se repetir no dia quando o mesmo número de aula é lançado
+  # em turnos diferentes; nesses empates o id preserva a ordem de criação.
+  def column_sort_key(record)
+    return [record[:date], EVENT_COLUMN_PRIORITY, 0, 0] unless daily_frequency?(record)
+
+    [record.frequency_date, FREQUENCY_COLUMN_PRIORITY, record.class_number.to_i, record.id]
   end
 
   def student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
