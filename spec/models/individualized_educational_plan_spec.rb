@@ -251,8 +251,7 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     end
   end
 
-  # Excluir um PEI pela tela é arquivar: o snapshot imutável de cada versão publicada é o
-  # documento em si e não pode se perder junto com o plano.
+  # O snapshot imutável de cada versão publicada é o documento em si: arquivar não pode levá-lo.
   describe 'archiving' do
     it 'keeps the versions and the section records when the plan is archived' do
       plan = create(:individualized_educational_plan)
@@ -265,10 +264,10 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       expect(plan.discard).to eq(true)
 
       expect(plan.reload).to be_discarded
-      expect(IepVersion.where(id: version.id)).to exist
-      expect(IepReviewDate.where(id: review_date.id)).to exist
-      expect(IepCurricularPlanning.where(id: planning.id)).to exist
-      expect(IepPeriodicEvaluation.where(id: evaluation.id)).to exist
+      expect(plan.iep_versions).to contain_exactly(version)
+      expect(plan.iep_review_dates).to contain_exactly(review_date)
+      expect(plan.iep_curricular_plannings).to contain_exactly(planning)
+      expect(plan.iep_periodic_evaluations).to contain_exactly(evaluation)
     end
 
     it 'leaves the archived plan out of kept' do
@@ -280,8 +279,8 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       expect(described_class.discarded).to contain_exactly(archived)
     end
 
-    # O save! passar é o que prova o índice único PARCIAL no banco: com o índice total o
-    # plano arquivado continuaria ocupando o par (student_id, year) e isto levantaria RecordNotUnique.
+    # be_valid cobre a validação (conditions: kept); o save! é o que exercita o índice único
+    # parcial no banco (WHERE discarded_at IS NULL).
     it 'allows a new plan for the same student and year after archiving' do
       archived = create(:individualized_educational_plan)
       archived.discard
@@ -292,10 +291,33 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       expect(replacement).to be_valid
       expect { replacement.save! }.to change(described_class, :count).by(1)
     end
+
+    # A outra direção da constraint: entre os vivos o índice continua barrando. save(validate: false)
+    # aqui não é para "fazer passar" — é o único jeito de chegar ao banco sem a validação de modelo,
+    # que é justamente a camada que este exemplo NÃO quer exercitar.
+    it 'still blocks a second live plan for the same student and year' do
+      existing = create(:individualized_educational_plan)
+      duplicate = build(:individualized_educational_plan, student: existing.student, year: existing.year,
+                                                          elaborated_at: existing.elaborated_at)
+
+      expect {
+        duplicate.save(validate: false)
+      }.to raise_error(ActiveRecord::RecordNotUnique)
+    end
+
+    it 'records the archiving in the audit trail' do
+      plan = create(:individualized_educational_plan)
+
+      plan.discard
+
+      audit = plan.audits.reload.last
+      expect(audit.action).to eq('update')
+      expect(audit.audited_changes.keys).to eq(['discarded_at'])
+    end
   end
 
-  # O destroy real (fora da tela) ainda cascateia. A ordem de declaração das has_many é o que
-  # faz as linhas das seções saírem antes das revisões que elas apontam.
+  # O cascade de destroy só é exercitado aqui. A ordem de declaração das has_many é o que faz as
+  # linhas das seções saírem antes das revisões para as quais elas apontam.
   describe 'hard destroy' do
     it 'destroys the plan with data in sections 4 and 5' do
       plan = create(:individualized_educational_plan)
@@ -303,10 +325,10 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
       create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date, acquired_skills: 'Habilidades')
 
-      # Recarrega antes de destruir: a validação do plano carrega iep_review_dates quando ainda
-      # está vazia, e o cascade sobre esse cache vazio não apagaria as revisões.
+      # Instância buscada do banco: numa instância cujas validações já rodaram, iep_review_dates
+      # foi carregada ainda vazia e o cascade sobre esse cache não apagaria as revisões.
       expect {
-        plan.reload.destroy
+        described_class.find(plan.id).destroy
       }.to change(described_class, :count).by(-1)
         .and change(IepReviewDate, :count).by(-1)
         .and change(IepCurricularPlanning, :count).by(-1)

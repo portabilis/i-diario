@@ -57,7 +57,8 @@ pt-BR:
       medical_report_gone: "Este laudo não está mais no cadastro do aluno no i-Educar."
       read_only_transferred: "Este PEI está em modo somente leitura: o aluno não está mais enturmado nesta turma."
       already_exists_editing: "Este aluno já possui um PEI neste ano. Abrindo o plano existente para continuar."
-      destroy_failed: "Não foi possível excluir este PEI. Verifique os dados do plano e tente novamente."
+      archived: "Plano Educacional Individualizado excluído com sucesso."
+      archive_failed: "Não foi possível excluir este PEI: %{reasons}. Se o problema persistir, entre em contato com a Secretaria de Educação do seu município."
     show:
       back: "Voltar"
       history: "Histórico de versões"
