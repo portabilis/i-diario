@@ -50,35 +50,61 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
     end
   end
 
-  # Ids reais dos registros de origem, gravados ao lado dos nomes/descrições para eventual
-  # restauração operacional. São aditivos: não substituem nem alteram os campos exibidos.
   describe '.build record ids' do
     it 'records the ids of the identification records next to their names' do
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
       unity = create(:unity)
       regent = create(:teacher)
       classroom = create(:classroom, unity: unity, regent_api_code: regent.api_code)
       plan = create(:individualized_educational_plan, :with_aee_teacher)
       review_date = create(:iep_review_date, iep: plan, review_date: Date.current)
 
-      identification = described_class.build(plan, student_data: {}, classroom: classroom)['identification']
+      identification = described_class.build(plan, classroom: classroom)['identification']
 
-      expect(identification['plan_id']).to eq(plan.id)
       expect(identification['student_id']).to eq(plan.student_id)
       expect(identification['unity_id']).to eq(unity.id)
       expect(identification['classroom_id']).to eq(classroom.id)
+      expect(identification['teacher_api_code']).to eq(regent.api_code)
       expect(identification['teacher_id']).to eq(regent.id)
       expect(identification['aee_teacher_id']).to eq(plan.aee_teacher_id)
       expect(identification['review_date_ids']).to eq([review_date.id])
     end
 
+    # include (e não be_nil) para a asserção falhar também quando a chave não existe: um erro de
+    # digitação no nome passaria batido, já que nenhum leitor consome estes ids.
     it 'leaves the context ids empty when the plan is opened without a classroom' do
       plan = create(:individualized_educational_plan)
 
       identification = described_class.build(plan, student_data: {})['identification']
 
-      expect(identification['unity_id']).to be_nil
-      expect(identification['classroom_id']).to be_nil
-      expect(identification['teacher_id']).to be_nil
+      expect(identification).to include('unity_id' => nil, 'classroom_id' => nil,
+                                        'teacher_id' => nil, 'teacher_api_code' => nil)
+    end
+
+    # Turma com regente cadastrado no i-Educar cujo Teacher ainda não sincronizou: id e nome saem
+    # vazios, e só o api_code preserva que existe regente.
+    it 'keeps the regent api code when the teacher has not been synced yet' do
+      classroom = create(:classroom, regent_api_code: 'regente-sem-professor')
+      plan = create(:individualized_educational_plan)
+
+      identification = described_class.build(plan, student_data: {}, classroom: classroom)['identification']
+
+      expect(identification['teacher_api_code']).to eq('regente-sem-professor')
+      expect(identification).to include('teacher_id' => nil, 'teacher_name' => nil)
+    end
+
+    # O Restorer remonta as linhas das seções 4/5 casando revisão por POSIÇÃO, então as duas
+    # arrays têm de concordar índice a índice na ordem cronológica.
+    it 'keeps the review date ids aligned with the dates in chronological order' do
+      plan = create(:individualized_educational_plan)
+      later = create(:iep_review_date, iep: plan, review_date: Date.current + 30)
+      earlier = create(:iep_review_date, iep: plan, review_date: Date.current + 10)
+
+      identification = described_class.build(plan, student_data: {})['identification']
+
+      expect(identification['review_dates']).to eq([earlier.review_date, later.review_date])
+      expect(identification['review_date_ids']).to eq([earlier.id, later.id])
     end
 
     # Cada multi-select tem a própria chave de ids: sem isso não dá para saber a que categoria
@@ -99,6 +125,21 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
       expect(characterization['social_interaction_profile_option_ids']).to eq([])
     end
 
+    # Duas opções na mesma categoria: com uma só, um filtro a mais de um dos lados manteria o
+    # exemplo verde e o desalinhamento entre descrição e id ficaria congelado no documento.
+    it 'pairs every description with the id of the same option' do
+      plan = create(:individualized_educational_plan)
+      verbal = create(:iep_option, :communication_profile, description: 'Verbal')
+      signed = create(:iep_option, :communication_profile, description: 'Sinalizada')
+      create(:iep_selected_option, iep: plan, iep_option: verbal)
+      create(:iep_selected_option, iep: plan, iep_option: signed)
+
+      characterization = described_class.build(plan, student_data: {})['characterization']
+
+      pairs = characterization['communication_profile'].zip(characterization['communication_profile_option_ids'])
+      expect(pairs).to match_array([['Verbal', verbal.id], ['Sinalizada', signed.id]])
+    end
+
     it 'records the support team option ids by category' do
       plan = create(:individualized_educational_plan)
       accompaniment = create(:iep_option, kind: IepOptionKinds::ACCOMPANIMENT, description: 'Fonoaudiólogo')
@@ -110,6 +151,23 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
 
       expect(support_team['accompaniment_option_ids']).to eq([accompaniment.id])
       expect(support_team['support_type_option_ids']).to eq([support_type.id])
+    end
+
+    # O id gravado é o da OPÇÃO, não o da linha de junção. As junções descartáveis abaixo afastam
+    # as duas sequences: com os ids coincidindo por acaso, o exemplo não distinguiria os dois.
+    it 'records the option id and not the id of the join row' do
+      plan = create(:individualized_educational_plan)
+      shared = create(:iep_option, :communication_profile)
+      create_list(:iep_selected_option, 3, iep_option: shared)
+      option = create(:iep_option, :communication_profile, description: 'Verbal')
+      join_row = create(:iep_selected_option, iep: plan, iep_option: option)
+
+      expect(join_row.id).not_to eq(option.id)
+
+      characterization = described_class.build(plan, student_data: {})['characterization']
+
+      expect(characterization['communication_profile_option_ids']).to eq([option.id])
+      expect(characterization['communication_profile_option_ids']).not_to include(join_row.id)
     end
 
     it 'records the ids of a curricular planning line and of its accommodations by category' do
@@ -126,7 +184,7 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
 
       line = described_class.build(plan, student_data: {})['curricular_plannings'].first
 
-      expect(line['id']).to eq(planning.id)
+      expect(line['iep_curricular_planning_id']).to eq(planning.id)
       expect(line['iep_review_date_id']).to eq(review_date.id)
       expect(line['discipline_id']).to eq(discipline.id)
       expect(line['knowledge_area_id']).to be_nil
@@ -146,7 +204,7 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
 
       line = described_class.build(plan, student_data: {})['periodic_evaluations'].first
 
-      expect(line['id']).to eq(evaluation.id)
+      expect(line['iep_periodic_evaluation_id']).to eq(evaluation.id)
       expect(line['knowledge_area_id']).to eq(knowledge_area.id)
       expect(line['discipline_id']).to be_nil
     end

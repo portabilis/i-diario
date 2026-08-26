@@ -4,13 +4,24 @@
 #   - pela visualização/PDF, para renderizar tanto o plano vivo quanto uma versão
 #     (mesma estrutura => mesma renderização).
 #
-# Junto de cada nome/descrição vai o ID REAL do registro que o originou, como metadado para
-# eventual restauração operacional. Nada os lê de volta — o Restorer reconstrói a versão com ids
-# sintéticos e o PDF renderiza por lista fixa de campos —, então são sempre chaves ADITIVAS:
-# versão publicada antes deles continua renderizando igual.
+# Cada nome/descrição resolvido de um registro LOCAL vem acompanhado do id desse registro, como
+# metadado de restauração (os campos vindos do i-Educar — responsáveis, diagnóstico, turno,
+# nascimento — não têm registro local nem id). São sempre chaves ADITIVAS: versão sem elas
+# continua renderizando igual, e a coluna guarda jsonb de formatos heterogêneos.
 #
-# O id não substitui o nome congelado: resolver disciplina/opção por id na leitura faria a versão
-# exibir o nome ATUAL do registro, quebrando a imutabilidade que é o motivo de existir o snapshot.
+# Regras a manter em quem consumir o snapshot:
+#
+# - NÃO resolver nome por id na leitura: devolveria o nome ATUAL do registro e quebraria a
+#   imutabilidade que é o motivo de existir o snapshot. O cuidado é concreto porque as chaves de
+#   opção têm o mesmo nome dos setters de IepMultiSelectable — um assign_attributes(section) no
+#   Restorer as pegaria e reataria a IepOption viva.
+# - `component_type` é o ÚNICO discriminador entre disciplina e área de conhecimento. Em snapshot
+#   sem essas chaves, discipline_id é nil por ausência; em linha por área, é nil por ser área —
+#   os dois estados são indistinguíveis, e trocar por `if line['discipline_id']` reclassificaria
+#   toda linha antiga de disciplina.
+# - Os ids são LOCAIS À ENTITY e são pista de restauração, não referência garantida: resolvê-los
+#   fora de entity.using_connection acha um registro diferente e válido em outra rede, e o alvo
+#   pode ter sido descartado depois. A descrição gravada ao lado é o critério de conferência.
 class IndividualizedEducationalPlanSnapshot
   def initialize(plan, student_data: nil, classroom: nil)
     @plan = plan
@@ -27,11 +38,11 @@ class IndividualizedEducationalPlanSnapshot
       'identification' => identification,
       'characterization' => characterization,
       'support_team' => support_team,
-      'curricular_plannings' => section_lines(curricular_plannings) { |line|
+      'curricular_plannings' => section_lines(curricular_plannings, 'iep_curricular_planning_id') { |line|
         line.slice('long_term_goal', 'stage_objectives', 'skills_to_develop', 'methodologies')
             .merge(accommodations(line))
       },
-      'periodic_evaluations' => section_lines(periodic_evaluations) { |line|
+      'periodic_evaluations' => section_lines(periodic_evaluations, 'iep_periodic_evaluation_id') { |line|
         line.slice('acquired_skills', 'in_progress_skills', 'not_acquired_skills',
                    'period_report', 'next_stage_adjustments')
       },
@@ -47,10 +58,12 @@ class IndividualizedEducationalPlanSnapshot
   def identification
     data = @student_data ||
            IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: @classroom)
+    # regent_api_code é a identidade durável do regente: Classroom#regent resolve pelo api_code e
+    # devolve nil enquanto o professor não veio do i-Educar, deixando id e nome vazios numa turma
+    # que tem regente.
     regent = @classroom&.regent
 
     {
-      'plan_id' => plan.id,
       'student_id' => plan.student_id,
       'student_name' => plan.student.name,
       'birth_date' => data[:birth_date],
@@ -62,6 +75,7 @@ class IndividualizedEducationalPlanSnapshot
       'unity_name' => @classroom&.unity&.name,
       'classroom_id' => @classroom&.id,
       'classroom_name' => @classroom&.description,
+      'teacher_api_code' => @classroom&.regent_api_code,
       'teacher_id' => regent&.id,
       'teacher_name' => regent&.name,
       'aee_teacher_id' => plan.aee_teacher_id,
@@ -96,12 +110,12 @@ class IndividualizedEducationalPlanSnapshot
     )
   end
 
-  # Linhas das seções 4/5 com a revisão e o componente resolvidos por nome, cada um precedido
-  # pelo id do registro de origem.
-  def section_lines(lines)
+  # Linhas das seções 4/5 com a revisão e o componente resolvidos por nome. id_key nomeia a tabela
+  # de origem da linha (as duas seções passam por aqui), para a chave não ficar ambígua no documento.
+  def section_lines(lines, id_key)
     lines.map do |line|
       {
-        'id' => line.id,
+        id_key => line.id,
         'iep_review_date_id' => line.iep_review_date_id,
         'review_number' => review_number(line.iep_review_date_id),
         'review_date' => line.iep_review_date.review_date,
@@ -158,6 +172,9 @@ class IndividualizedEducationalPlanSnapshot
     options_of_kind(options, kind).map(&:id)
   end
 
+  # Fonte ÚNICA das descrições e dos ids de uma categoria: as duas arrays são lidas por posição,
+  # então precisam sair desta mesma seleção. Filtrar de um lado só desalinharia o par sem que nada
+  # reclame — o desalinhamento ficaria congelado no documento e não há leitor para acusá-lo.
   def options_of_kind(options, kind)
     kind_value = IepOptionKinds.value_of(kind)
 

@@ -56,8 +56,12 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
     restored = IndividualizedEducationalPlanSnapshotRestorer.restore(version.reload.content).plan
 
     expect(restored.iep_curricular_plannings.first.discipline.description).to eq('Matemática')
-    # O id da disciplina está no snapshot, mas é metadado de restauração: resolver o nome por ele
-    # na leitura devolveria 'Matemática I' e quebraria a imutabilidade da versão.
-    expect(version.content['curricular_plannings'].first['discipline_id']).to eq(discipline.id)
+
+    # O id da disciplina está gravado e continua apontando para a linha renomeada: é metadado de
+    # restauração, e resolver o nome por ele na leitura devolveria o valor atual, não o congelado.
+    snapshot_line = version.content['curricular_plannings'].first
+    expect(snapshot_line['discipline_id']).to eq(discipline.id)
+    expect(snapshot_line['component_name']).to eq('Matemática')
+    expect(Discipline.find(snapshot_line['discipline_id']).description).to eq('Matemática I')
   end
 end
