@@ -50,6 +50,11 @@ Rails.application.routes.draw do
           end
         end
         resources :teaching_plans, only: [:index]
+        resources :infrequency_trackings, only: [:index]
+        resources :student_absences, only: [:index]
+        resource :general_configuration, only: [:show]
+        resources :unity_school_days, only: [:index]
+        resources :frequency_record_completeness, only: [:index]
         resources :daily_physical_frequencies, only: [:create, :index]
         resources :ieducar_api_student_transfers, only: [:create]
         resources :discipline_records, only: [] do
