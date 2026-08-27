@@ -39,6 +39,6 @@ class LessonsBoard < ActiveRecord::Base
   end
 
   after_undiscard do
-    lessons_board_lessons.undiscard_all
+    undiscard_dependents_discarded_with(lessons_board_lessons)
   end
 end

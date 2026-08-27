@@ -9,7 +9,8 @@ class ClassroomsGrade < ApplicationRecord
 
   has_many :student_enrollment_classrooms
   has_many :student_enrollments, through: :student_enrollment_classrooms
-  has_one :lessons_board
+  # Turma de período integral tem um quadro de aulas por turno.
+  has_many :lessons_boards
 
   default_scope -> { kept }
 
@@ -27,11 +28,14 @@ class ClassroomsGrade < ApplicationRecord
 
   after_discard do
     student_enrollment_classrooms.discard_all
-    lessons_board&.discard
+    lessons_boards.discard_all
   end
 
+  # As enturmações também não são alcançadas pela sincronização parcial: o i-Educar filtra as
+  # matrículas por `updated_at` próprio, e reativar a turma não toca nesse campo. Sem isso a
+  # turma volta sem aluno nenhum até a próxima sincronização completa.
   after_undiscard do
-    student_enrollment_classrooms.undiscard_all
-    lessons_board&.undiscard
+    undiscard_dependents_discarded_with(lessons_boards)
+    undiscard_dependents_discarded_with(student_enrollment_classrooms)
   end
 end
