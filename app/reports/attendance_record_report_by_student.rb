@@ -74,7 +74,7 @@ class AttendanceRecordReportByStudent < BaseReport
       period: period,
       frequency_date: start_at..end_at,
       all_students_frequencies: true
-    ).order(:classroom_id).group_by(&:classroom_id)
+    ).reorder(:classroom_id).group_by(&:classroom_id)
   end
 
   def calculate_percentage_of_presence

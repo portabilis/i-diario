@@ -15,7 +15,9 @@ class LessonsBoardLesson < ActiveRecord::Base
     lessons_board_lesson_weekdays.discard_all
   end
 
+  # Dia da semana também é descartado isoladamente, quando o horário deixa de ter aquele slot.
+  # Esse não volta junto com a aula.
   after_undiscard do
-    lessons_board_lesson_weekdays.undiscard_all
+    undiscard_dependents_discarded_with(lessons_board_lesson_weekdays)
   end
 end
