@@ -1,30 +1,14 @@
 module Api
   module V2
     class StudentAbsencesController < Api::V2::BaseController
+      include Api::V2::UnityPeriodParams
+
       before_action :authenticate_api!
       respond_to :json
 
       def index
-        return if missing_required_params?
-
-        render json: Api::StudentAbsencesService.call(
-          unity_api_code: params[:unity_api_code],
-          start_at: params[:start_at],
-          end_at: params[:end_at]
-        ), root: false
-      end
-
-      private
-
-      def missing_required_params?
-        required_params = %i[unity_api_code start_at end_at]
-        missing = required_params.select { |param| params[param].blank? }
-
-        return false if missing.empty?
-
-        render json: { error: "Os seguintes parâmetros são obrigatórios: #{missing.join(', ')}" },
-               status: :unprocessable_entity
-        true
+        render json: Api::StudentAbsencesService.call(unities: unities, start_at: start_at, end_at: end_at),
+               root: false
       end
     end
   end

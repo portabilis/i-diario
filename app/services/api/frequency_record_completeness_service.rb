@@ -9,15 +9,20 @@ module Api
   # partir da turma; o caminho contrário não existe. Turma sem nenhum
   # lançamento entra na lista com zero — some-la seria esconder justamente o
   # caso que motiva o indicador.
+  #
+  # O denominador (`school_days`) é o calendário da UNIDADE da turma, não o da
+  # turma: evento por turma, série ou curso não mexe nos dias letivos da
+  # unidade, e turma com calendário próprio recebe aqui o corte da rede. É a
+  # régua do Acompanhamento Pedagógico, e quem lê precisa saber que é ela.
   class FrequencyRecordCompletenessService
-    attr_reader :unity_api_code, :start_at, :end_at
+    attr_reader :unities, :start_at, :end_at
 
-    def self.call(unity_api_code:, start_at:, end_at:)
-      new(unity_api_code: unity_api_code, start_at: start_at, end_at: end_at).call
+    def self.call(unities:, start_at:, end_at:)
+      new(unities: unities, start_at: start_at, end_at: end_at).call
     end
 
-    def initialize(unity_api_code:, start_at:, end_at:)
-      @unity_api_code = unity_api_code
+    def initialize(unities:, start_at:, end_at:)
+      @unities = unities
       @start_at = start_at
       @end_at = end_at
     end
@@ -27,8 +32,8 @@ module Api
         {
           classroom_api_code: classroom.api_code,
           classroom_name: classroom.description,
-          unity_api_code: unity_api_code,
-          school_days: school_days_count,
+          unity_api_code: unity_api_codes[classroom.unity_id],
+          school_days: school_days.fetch([classroom.unity_id, classroom.year], 0),
           days_with_record: days_with_record.fetch(classroom.id, 0),
           active_enrollments: active_enrollments.fetch(classroom.id, 0)
         }
@@ -37,24 +42,31 @@ module Api
 
     private
 
-    def unity
-      @unity ||= Unity.find_by(api_code: unity_api_code)
+    def unity_ids
+      @unity_ids ||= unities.map(&:id)
     end
 
+    def unity_api_codes
+      @unity_api_codes ||= unities.map { |unity| [unity.id, unity.api_code] }.to_h
+    end
+
+    # Turma é do ano letivo: um período que cruza o ano traz as turmas dos dois
+    # anos, cada uma com os dias letivos do seu próprio ano.
     def classrooms
-      @classrooms ||= unity ? Classroom.where(unity_id: unity.id, year: year) : Classroom.none
+      @classrooms ||= Classroom.where(unity_id: unity_ids, year: start_at.year..end_at.year).to_a
     end
 
-    # O ano vem do próprio período pedido: turma é do ano letivo.
-    def year
-      @year ||= start_at.to_date.year
-    end
-
-    # O denominador: os dias letivos que a unidade tem no período.
-    def school_days_count
-      @school_days_count ||= UnitySchoolDay.by_unity_id(unity&.id)
-                                           .by_date_between(start_at, end_at)
-                                           .count
+    # Os dias letivos do período por unidade e ano — o denominador de cada
+    # turma sai daqui pela dupla (unidade da turma, ano da turma).
+    def school_days
+      @school_days ||=
+        UnitySchoolDay.where(unity_id: unity_ids)
+                      .by_date_between(start_at, end_at)
+                      .group(:unity_id, 'EXTRACT(year FROM school_day)')
+                      .count
+                      .each_with_object({}) do |((unity_id, year), total), map|
+                        map[[unity_id, year.to_i]] = total
+                      end
     end
 
     # Dias distintos em que a turma teve ao menos um lançamento — qualquer
@@ -69,13 +81,18 @@ module Api
 
     # Existe para quem lê descartar turma fantasma do cálculo: turma sem
     # matrícula em 0% derrubaria a escola inteira abaixo do corte.
+    #
+    # Conta as matrículas com enturmação vigente em algum dia do período, uma
+    # vez cada: turma multisseriada tem um `classrooms_grade` por série, e a
+    # mesma matrícula apareceria em mais de um.
     def active_enrollments
       @active_enrollments ||=
-        StudentEnrollmentClassroom.joins(:classrooms_grade)
-                                  .where(classrooms_grades: { classroom_id: classrooms.map(&:id) })
-                                  .where(discarded_at: nil)
+        StudentEnrollmentClassroom.by_classroom(classrooms.map(&:id))
+                                  .where('student_enrollment_classrooms.joined_at <= ?', end_at)
+                                  .by_left_at_date(start_at)
                                   .group('classrooms_grades.classroom_id')
-                                  .count
+                                  .distinct
+                                  .count(:student_enrollment_id)
     end
   end
 end

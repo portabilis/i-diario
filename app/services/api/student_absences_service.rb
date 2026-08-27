@@ -13,24 +13,27 @@ module Api
   # do dia. Quando um dia tem três faltas lançadas e só uma justificada, o fato
   # vai cru: decidir se esse dia conta como justificado é régua de quem lê.
   class StudentAbsencesService
-    attr_reader :unity_api_code, :start_at, :end_at
+    attr_reader :unities, :start_at, :end_at
 
-    def self.call(unity_api_code:, start_at:, end_at:)
-      new(unity_api_code: unity_api_code, start_at: start_at, end_at: end_at).call
+    def self.call(unities:, start_at:, end_at:)
+      new(unities: unities, start_at: start_at, end_at: end_at).call
     end
 
-    def initialize(unity_api_code:, start_at:, end_at:)
-      @unity_api_code = unity_api_code
+    def initialize(unities:, start_at:, end_at:)
+      @unities = unities
       @start_at = start_at
       @end_at = end_at
     end
 
+    # O agrupamento é pelos IDS, não pelos api_codes: estudante cadastrado
+    # localmente não tem api_code, e dois deles na mesma turma colapsariam numa
+    # entrada só, com as faltas somadas.
     def call
-      consolidated_days.group_by { |row| row[0..2] }.map do |(student, classroom, unity), days|
+      consolidated_days.group_by { |row| [row[4], row[5]] }.map do |_ids, days|
         {
-          student_api_code: student,
-          classroom_api_code: classroom,
-          unity_api_code: unity,
+          student_api_code: days.first[0],
+          classroom_api_code: days.first[1],
+          unity_api_code: days.first[2],
           absences: days.map { |row| day(row) }.sort_by { |absence| absence[:date] }
         }
       end
@@ -38,13 +41,17 @@ module Api
 
     private
 
+    def unity_ids
+      @unity_ids ||= unities.map(&:id)
+    end
+
     # Os dias que a consolidação marcou como falta, no recorte pedido.
     def consolidated_days
       @consolidated_days ||=
         UniqueDailyFrequencyStudent.where(present: false)
                                    .joins(:student)
                                    .joins(classroom: :unity)
-                                   .where(unities: { api_code: unity_api_code })
+                                   .where(classrooms: { unity_id: unity_ids })
                                    .where(frequency_date: start_at..end_at)
                                    .pluck(
                                      'students.api_code',
@@ -57,23 +64,26 @@ module Api
     end
 
     def day(row)
-      chave = [row[4], row[5], row[3]]
+      key = [row[4], row[5], row[3]]
 
       {
         date: row[3].to_s,
-        entries_count: entries.fetch(chave, [0, 0])[0],
-        justified_entries_count: entries.fetch(chave, [0, 0])[1]
+        entries_count: entries.fetch(key, [0, 0])[0],
+        justified_entries_count: entries.fetch(key, [0, 0])[1]
       }
     end
 
     # Os lançamentos de falta do diário, contados de uma vez para todo o
-    # recorte: COUNT da coluna de justificativa ignora nulo, que é exatamente
-    # a falta sem vínculo.
+    # recorte. Só os lançamentos ativos, como faz a consolidação: aluno que
+    # saiu da turma fica com `present` nulo no lançamento, e `absences` o
+    # contaria como falta. COUNT da coluna de justificativa ignora nulo, que é
+    # exatamente a falta sem vínculo.
     def entries
       @entries ||=
-        DailyFrequencyStudent.absences
-                             .joins(daily_frequency: { classroom: :unity })
-                             .where(unities: { api_code: unity_api_code })
+        DailyFrequencyStudent.active
+                             .absences
+                             .joins(daily_frequency: :classroom)
+                             .where(classrooms: { unity_id: unity_ids })
                              .where(daily_frequencies: { frequency_date: start_at..end_at })
                              .group(
                                'daily_frequency_students.student_id',
@@ -87,8 +97,8 @@ module Api
                                'COUNT(*)',
                                'COUNT(daily_frequency_students.absence_justification_student_id)'
                              )
-                             .each_with_object({}) do |(student_id, classroom_id, date, total, justified), mapa|
-                               mapa[[student_id, classroom_id, date]] = [total, justified]
+                             .each_with_object({}) do |(student_id, classroom_id, date, total, justified), map|
+                               map[[student_id, classroom_id, date]] = [total, justified]
                              end
     end
   end

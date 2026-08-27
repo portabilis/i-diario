@@ -7,14 +7,21 @@ module Api
   # (pela régua das seguidas e pela das alternadas). Com as datas, quem consome
   # une, deduplica e agrupa em episódios.
   class InfrequencyTrackingsService
-    attr_reader :unity_api_code, :start_at, :end_at
-
-    def self.call(unity_api_code:, start_at:, end_at:)
-      new(unity_api_code: unity_api_code, start_at: start_at, end_at: end_at).call
+    Enrollment = Struct.new(:student_id, :classroom_id, :api_code, :joined_at, :left_at) do
+      # As datas da enturmação são texto AAAA-MM-DD, vazio quando em aberto.
+      def covers?(date)
+        joined_at.present? && joined_at.to_date <= date && (left_at.blank? || left_at.to_date > date)
+      end
     end
 
-    def initialize(unity_api_code:, start_at:, end_at:)
-      @unity_api_code = unity_api_code
+    attr_reader :unities, :start_at, :end_at
+
+    def self.call(unities:, start_at:, end_at:)
+      new(unities: unities, start_at: start_at, end_at: end_at).call
+    end
+
+    def initialize(unities:, start_at:, end_at:)
+      @unities = unities
       @start_at = start_at
       @end_at = end_at
     end
@@ -26,53 +33,66 @@ module Api
     private
 
     def trackings
-      @trackings ||= InfrequencyTracking.includes(:student, classroom: :unity)
-                                        .joins(classroom: :unity)
-                                        .where(unities: { api_code: unity_api_code })
+      @trackings ||= InfrequencyTracking.includes(classroom: :unity)
+                                        .joins(:classroom)
+                                        .where(classrooms: { unity_id: unities.map(&:id) })
                                         .where(notification_date: start_at..end_at)
                                         .ordered
     end
 
     def payload(tracking)
-      absences = absence_dates(tracking)
+      absences = tracking.absence_dates
 
       {
-        student_api_code: tracking.student&.api_code,
-        registration_api_code: registration_api_codes[[tracking.student_id, tracking.classroom_id]],
-        classroom_api_code: tracking.classroom&.api_code,
-        unity_api_code: tracking.classroom&.unity&.api_code,
+        student_api_code: student_api_codes[tracking.student_id],
+        registration_api_code: registration_api_code(tracking),
+        classroom_api_code: tracking.classroom.api_code,
+        unity_api_code: tracking.classroom.unity.api_code,
         notification_type: tracking.notification_type,
-        notification_date: tracking.notification_date&.iso8601,
+        notification_date: tracking.notification_date.iso8601,
         absence_dates: absences,
         absences_count: absences.size
       }
     end
 
-    # O mesmo dia aparece uma vez por professor que registrou a falta.
-    def absence_dates(tracking)
-      Array(tracking.notification_data)
-        .flat_map { |registro| registro['absences'] || registro[:absences] || [] }
-        .uniq
-        .sort
+    # Sem o escopo padrão de Student (`kept`): a notificação de um aluno depois
+    # unificado continua na tela do i-Diário e continua aqui, com o api_code
+    # dele — e não com um nulo que ninguém consegue atribuir.
+    def student_api_codes
+      @student_api_codes ||= Student.unscoped
+                                    .where(id: trackings.map(&:student_id).uniq)
+                                    .pluck(:id, :api_code)
+                                    .to_h
     end
 
-    # ref_cod_matricula do i-Educar = api_code da matrícula do estudante
-    # naquela turma. Resolvido de uma vez: por linha, seria uma consulta por
-    # notificação.
-    #
-    # A ordem é explícita porque o mesmo estudante pode ter mais de uma
-    # matrícula viva na mesma turma; sem ela, qual delas vence dependeria da
-    # ordem que o banco devolvesse, e a resposta mudaria entre chamadas iguais.
-    def registration_api_codes
-      @registration_api_codes ||=
+    # A matrícula (`matricula_id` no i-Educar) do estudante naquela turma. O
+    # mesmo estudante pode ter mais de uma na mesma turma (saiu e voltou):
+    # vence a enturmação vigente na data da notificação; sem nenhuma vigente,
+    # a mais recente.
+    def registration_api_code(tracking)
+      candidates = enrollments.fetch([tracking.student_id, tracking.classroom_id], [])
+      chosen = candidates.find { |enrollment| enrollment.covers?(tracking.notification_date) } || candidates.last
+
+      chosen&.api_code
+    end
+
+    # Resolvido de uma vez: por linha, seria uma consulta por notificação. A
+    # ordem por `joined_at` é o que torna "a mais recente" determinístico.
+    def enrollments
+      @enrollments ||=
         StudentEnrollment.joins(student_enrollment_classrooms: :classrooms_grade)
                          .where(student_id: trackings.map(&:student_id).uniq)
                          .where(classrooms_grades: { classroom_id: trackings.map(&:classroom_id).uniq })
-                         .order('student_enrollments.id')
-                         .pluck(:student_id, 'classrooms_grades.classroom_id', 'student_enrollments.api_code')
-                         .each_with_object({}) do |(student_id, classroom_id, api_code), mapa|
-                           mapa[[student_id, classroom_id]] ||= api_code
-                         end
+                         .order('student_enrollment_classrooms.joined_at', 'student_enrollments.id')
+                         .pluck(
+                           :student_id,
+                           'classrooms_grades.classroom_id',
+                           'student_enrollments.api_code',
+                           'student_enrollment_classrooms.joined_at',
+                           'student_enrollment_classrooms.left_at'
+                         )
+                         .map { |row| Enrollment.new(*row) }
+                         .group_by { |enrollment| [enrollment.student_id, enrollment.classroom_id] }
     end
   end
 end
