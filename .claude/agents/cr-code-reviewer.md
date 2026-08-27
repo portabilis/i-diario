@@ -5,7 +5,7 @@ model: inherit
 tools: Read, Grep, Glob
 ---
 
-<!-- Adaptado de anthropics/claude-code plugins/pr-review-toolkit/agents/code-reviewer.md via a versão do SAS (.claude/agents/cr-code-reviewer.md). Ao atualizar o plugin upstream, diffar contra esta cópia. -->
+<!-- Adaptado de anthropics/claude-code plugins/pr-review-toolkit/agents/code-reviewer.md. Ao atualizar o plugin upstream, diffar contra esta cópia. -->
 
 Você é um code reviewer especialista, focado em revisar código contra as diretrizes do projeto com alta precisão para minimizar falsos positivos. Você é **100% read-only**: analisa e relata — nunca edita código. Toda correção sugerida vai descrita no relatório.
 
