@@ -20,14 +20,11 @@ class AutomaticAbsencePostingEnqueuer
     @force_posting = force_posting
   end
 
-  # A janela de lançamento da etapa (start_date_for_posting/end_date_for_posting) não é consultada
-  # de propósito: o registro já passou pelas validações de gravação, e o objetivo é o total no
-  # i-Educar refletir o que está no i-Diário. Só a configuração da entidade liga e desliga o envio.
   def call
     return unless GeneralConfiguration.current.automatic_absence_posting
     return if scope_incomplete?
 
-    step_numbers.each { |step_number| enqueue(step_number) }
+    postable_steps.each { |step| enqueue(step.to_number) }
   end
 
   private
@@ -53,10 +50,10 @@ class AutomaticAbsencePostingEnqueuer
 
   # Uma única resolução de turma e de calendário para todas as datas: no lançamento em lote a
   # alternativa é repetir esse trabalho por dia letivo do intervalo.
-  def step_numbers
-    @step_numbers ||= begin
+  def steps
+    @steps ||= begin
       steps_fetcher = StepsFetcher.new(classroom)
-      steps_by_date = frequency_dates.uniq.map { |date| [date, steps_fetcher.step_by_date(date).try(:to_number)] }
+      steps_by_date = frequency_dates.uniq.map { |date| [date, steps_fetcher.step_by_date(date)] }
 
       log_dates_without_step(steps_by_date)
 
@@ -64,9 +61,44 @@ class AutomaticAbsencePostingEnqueuer
     end
   end
 
+  # Mesmas duas regras da tela de envio (IeducarApiExamPostingsController#require_current_posting_step
+  # e #steps): a etapa só é enviada com a janela de lançamento aberta hoje, e a permissão de envio
+  # sem restrição de data é o que libera fora dela.
+  def postable_steps
+    return steps if posting_without_restrictions?
+
+    open_steps, closed_steps = steps.partition { |step| posting_window_open?(step) }
+
+    log_closed_steps(closed_steps)
+
+    open_steps
+  end
+
+  def posting_without_restrictions?
+    User.current.try(:can_change?, Features::IEDUCAR_API_EXAM_POSTING_WITHOUT_RESTRICTIONS).present?
+  end
+
+  def posting_window_open?(step)
+    return false if step.start_date_for_posting.blank? || step.end_date_for_posting.blank?
+
+    (step.start_date_for_posting.to_date..step.end_date_for_posting.to_date).cover?(Time.zone.today)
+  end
+
+  def log_closed_steps(steps)
+    return if steps.empty?
+
+    Rails.logger.info(
+      key: 'AutomaticAbsencePostingEnqueuer#call',
+      message: 'etapas fora da janela de lançamento ignoradas no envio automático de faltas',
+      entity_id: entity_id,
+      classroom_id: classroom_id,
+      step_numbers: steps.map(&:to_number)
+    )
+  end
+
   # Data fora de qualquer etapa não tem envio possível: o total de faltas é sempre por etapa.
   def log_dates_without_step(steps_by_date)
-    dates = steps_by_date.select { |_date, step_number| step_number.blank? }.map(&:first)
+    dates = steps_by_date.select { |_date, step| step.blank? }.map(&:first)
     return if dates.empty?
 
     Rails.logger.warn(
