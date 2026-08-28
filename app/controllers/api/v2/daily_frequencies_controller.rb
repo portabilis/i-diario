@@ -42,7 +42,7 @@ module Api
           AutomaticAbsencePostingEnqueuer.call(
             entity_id: current_entity.id,
             classroom_id: daily_frequency.classroom_id,
-            frequency_date: daily_frequency.frequency_date,
+            frequency_dates: [daily_frequency.frequency_date],
             teacher_id: current_teacher_id || current_user.teacher_id
           )
         end

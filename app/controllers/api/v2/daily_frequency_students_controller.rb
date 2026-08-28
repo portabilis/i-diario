@@ -5,20 +5,23 @@ module Api
 
       def update
         daily_frequency_student = DailyFrequencyStudent.find(params[:id])
-        daily_frequency_student.update(
+        updated = daily_frequency_student.update(
           present: params[:present],
           active: daily_frequency_student.enrolled_in_classroom?
         )
 
         daily_frequency = daily_frequency_student.daily_frequency
 
-        # Este endpoint não recebe o professor; o dono do diário responde pelo envio.
-        AutomaticAbsencePostingEnqueuer.call(
-          entity_id: current_entity.id,
-          classroom_id: daily_frequency.classroom_id,
-          frequency_date: daily_frequency.frequency_date,
-          teacher_id: daily_frequency.owner_teacher_id
-        )
+        # Este endpoint não recebe o professor; o dono do diário responde pelo envio. A coluna é
+        # nullable: diário sem dono não tem envio automático, e o enqueuer registra isso no log.
+        if updated
+          AutomaticAbsencePostingEnqueuer.call(
+            entity_id: current_entity.id,
+            classroom_id: daily_frequency.classroom_id,
+            frequency_dates: [daily_frequency.frequency_date],
+            teacher_id: daily_frequency.owner_teacher_id
+          )
+        end
 
         respond_with daily_frequency_student
       end
@@ -82,7 +85,7 @@ module Api
           AutomaticAbsencePostingEnqueuer.call(
             entity_id: current_entity.id,
             classroom_id: daily_frequency.classroom_id,
-            frequency_date: daily_frequency.frequency_date,
+            frequency_dates: [daily_frequency.frequency_date],
             teacher_id: current_teacher_id || current_user.teacher_id
           )
 

@@ -34,7 +34,7 @@ RSpec.describe AutomaticAbsencePostingWorker, type: :worker do
         school_calendar_step: nil,
         school_calendar_classroom_step: step
       }.merge(attributes)
-    )
+    ).tap { |posting| posting.worker_batch.update_columns(total_workers: 1) }
   end
 
   it 'creates an automatic absence posting restricted to the classroom and enqueues the exam posting worker' do

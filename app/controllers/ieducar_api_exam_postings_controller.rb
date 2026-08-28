@@ -53,6 +53,8 @@ class IeducarApiExamPostingsController < ApplicationController
 
     @steps.each do |step|
       ApiPostingTypes.each_value do |value|
+        # O envio automático não tem autor, então o filtro por author_id já o excluiria; o .manual
+        # mantém a tela correta caso o envio automático passe a registrar um autor.
         ieducar_api_exam_posting = IeducarApiExamPosting.manual
                                                         .where(step_column => step.id, author_id: current_user.id)
                                                         .send(value)

@@ -8,9 +8,14 @@ class IeducarExamPostingLauncher
   end
 
   def initialize(attributes:, entity_id:, force_posting: false, queue: nil)
+    # Sem a chave, o registro nasceria manual (default da coluna) e a busca pelo último envio
+    # deixaria de separar as duas populações — um envio automático de uma turma só viraria base do
+    # manual, que passaria a pular as demais turmas.
+    raise ArgumentError, 'attributes precisa informar automatic' unless attributes.key?(:automatic)
+
     @attributes = attributes
     @entity_id = entity_id
-    @force_posting = force_posting
+    @force_posting = ActiveModel::Type::Boolean.new.cast(force_posting) || false
     @queue = queue
   end
 
@@ -40,9 +45,14 @@ class IeducarExamPostingLauncher
     queue.present? ? IeducarExamPostingWorker.set(queue: queue) : IeducarExamPostingWorker
   end
 
+  # Envio que não gerou nenhuma requisição não pode virar a marca d'água: como o corte é a data de
+  # criação dele, tudo que foi lançado antes ficaria abaixo da linha e nunca mais seria enviado.
+  # Turma sem vínculo ativo do professor (estado por onde a sincronização passa) cai nesse caso.
   def last_completed_posting_id
-    IeducarApiExamPosting.where(attributes)
+    IeducarApiExamPosting.joins(:worker_batch)
+                         .where(attributes)
                          .where(status: ApiSynchronizationStatus::COMPLETED)
+                         .where('worker_batches.total_workers > 0')
                          .last
                          .try(:id)
   end

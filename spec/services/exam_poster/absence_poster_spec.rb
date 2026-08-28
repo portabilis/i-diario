@@ -228,6 +228,55 @@ RSpec.describe ExamPoster::AbsencePoster, type: :service do
       )
     end
 
+    context 'when the posting is restricted to one classroom' do
+      let!(:other_classroom) do
+        create(
+          :classroom,
+          :with_classroom_semester_steps,
+          :by_discipline_create_rule,
+          unity: classroom.unity,
+          school_calendar: classroom.calendar.school_calendar,
+          period: Periods::MATUTINAL
+        )
+      end
+      let(:other_student) { create(:student) }
+      let(:exam_posting) do
+        create(
+          :ieducar_api_exam_posting,
+          post_type: ApiPostingTypes::ABSENCE,
+          school_calendar_classroom_step: step,
+          teacher: teacher,
+          classroom: other_classroom,
+          automatic: true
+        )
+      end
+
+      before do
+        create(:teacher_discipline_classroom, classroom: other_classroom, discipline: discipline, teacher: teacher)
+
+        other_daily_frequency = create(
+          :daily_frequency,
+          classroom: other_classroom,
+          discipline: discipline,
+          unity: other_classroom.unity,
+          frequency_date: step.start_at + 1.day
+        )
+        create(
+          :daily_frequency_student,
+          daily_frequency: other_daily_frequency,
+          student: other_student,
+          present: false
+        )
+      end
+
+      it 'sends only the students of the posting classroom' do
+        subject.post!
+
+        expect(subject.requests.map { |request| request[:info][:classroom] }.uniq).to eq([other_classroom.api_code])
+        expect(subject.requests.map { |request| request[:info][:student] }).to eq([other_student.api_code])
+      end
+    end
+
     # Este é o formato do qual o Ieducar::SendPostWorker depende para rotear à API legada: se ele
     # for achatado junto com o das faltas gerais, o envio por componente quebra.
     it 'keeps the nested legacy payload, with resource and without turma_id' do

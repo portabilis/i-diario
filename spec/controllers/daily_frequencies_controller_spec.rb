@@ -162,12 +162,36 @@ RSpec.describe DailyFrequenciesController, type: :controller do
       expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
         entity_id: entity.id,
         classroom_id: daily_frequency_1.classroom_id,
-        frequency_date: daily_frequency_1.frequency_date,
+        frequency_dates: [daily_frequency_1.frequency_date],
         teacher_id: current_teacher.id,
         force_posting: true
       )
 
       delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: [daily_frequency_1.id] }
+    end
+
+    it 'covers every classroom and date of the deleted frequencies' do
+      allow(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker)
+
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        hash_including(
+          classroom_id: daily_frequency_1.classroom_id,
+          frequency_dates: [daily_frequency_1.frequency_date],
+          force_posting: true
+        )
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        hash_including(
+          classroom_id: daily_frequency_2.classroom_id,
+          frequency_dates: [daily_frequency_2.frequency_date],
+          force_posting: true
+        )
+      )
+
+      delete :destroy_multiple, params: {
+        locale: 'pt-BR',
+        daily_frequencies_ids: [daily_frequency_1.id, daily_frequency_2.id]
+      }
     end
   end
 

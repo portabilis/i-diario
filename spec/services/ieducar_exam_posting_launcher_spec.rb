@@ -23,6 +23,14 @@ RSpec.describe IeducarExamPostingLauncher, type: :service do
 
   before { Sidekiq::Worker.clear_all }
 
+  # Envio concluído que gerou requisições — é o que o launcher aceita como base incremental.
+  def create_completed_posting(extra_attributes = {})
+    create(:ieducar_api_exam_posting, attributes.merge(status: ApiSynchronizationStatus::COMPLETED)
+                                                .merge(extra_attributes)).tap do |posting|
+      posting.worker_batch.update_columns(total_workers: 1)
+    end
+  end
+
   def call(force_posting: false)
     described_class.call(attributes: attributes, entity_id: entity.id, force_posting: force_posting)
   end
@@ -51,20 +59,37 @@ RSpec.describe IeducarExamPostingLauncher, type: :service do
   end
 
   it 'uses the last completed posting with the same attributes as the incremental base' do
-    create(:ieducar_api_exam_posting, attributes.merge(status: ApiSynchronizationStatus::COMPLETED))
-    last_completed = create(:ieducar_api_exam_posting, attributes.merge(status: ApiSynchronizationStatus::COMPLETED))
+    create_completed_posting
+    last_completed = create_completed_posting
     create(:ieducar_api_exam_posting, attributes.merge(status: ApiSynchronizationStatus::ERROR))
 
+    posting = call
+
+    expect(IeducarExamPostingWorker).to have_enqueued_sidekiq_job(entity.id, posting.id, last_completed.id, false)
+  end
+
+  it 'ignores a completed posting that sent nothing' do
+    create(:ieducar_api_exam_posting, attributes.merge(status: ApiSynchronizationStatus::COMPLETED))
+
+    posting = call
+
+    expect(IeducarExamPostingWorker).to have_enqueued_sidekiq_job(entity.id, posting.id, nil, false)
+  end
+
+  it 'normalizes the force posting flag sent by the screen' do
     posting = call(force_posting: 'true')
 
-    expect(IeducarExamPostingWorker).to have_enqueued_sidekiq_job(entity.id, posting.id, last_completed.id, 'true')
+    expect(IeducarExamPostingWorker).to have_enqueued_sidekiq_job(entity.id, posting.id, nil, true)
+  end
+
+  it 'refuses attributes without the automatic flag' do
+    expect {
+      described_class.call(attributes: attributes.except(:automatic), entity_id: entity.id)
+    }.to raise_error(ArgumentError, 'attributes precisa informar automatic')
   end
 
   it 'ignores completed postings with a different automatic flag' do
-    create(
-      :ieducar_api_exam_posting,
-      attributes.merge(status: ApiSynchronizationStatus::COMPLETED, automatic: true, classroom: create(:classroom))
-    )
+    create_completed_posting(automatic: true, classroom: create(:classroom))
 
     posting = call
 

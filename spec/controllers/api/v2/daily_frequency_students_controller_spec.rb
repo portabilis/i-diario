@@ -26,9 +26,9 @@ RSpec.describe Api::V2::DailyFrequencyStudentsController, type: :controller do
     it 'enqueues the automatic absence posting on behalf of the diary owner' do
       expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
         entity_id: entity.id,
-        classroom_id: daily_frequency.classroom_id,
-        frequency_date: daily_frequency.frequency_date,
-        teacher_id: daily_frequency.owner_teacher_id
+        classroom_id: classroom.id,
+        frequency_dates: [daily_frequency.frequency_date],
+        teacher_id: teacher.id
       )
 
       put :update, params: {

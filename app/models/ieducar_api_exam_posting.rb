@@ -18,6 +18,9 @@ class IeducarApiExamPosting < ApplicationRecord
   has_many :notices, as: :noticeable
 
   validates :ieducar_api_configuration, presence: true
+  # O escopo do envio automático é a turma; sem ela o poster cai no ramo do envio manual e mandaria
+  # as faltas de todas as turmas do professor.
+  validates :classroom, presence: true, if: :automatic?
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
