@@ -10,6 +10,16 @@ module Api
           active: daily_frequency_student.enrolled_in_classroom?
         )
 
+        daily_frequency = daily_frequency_student.daily_frequency
+
+        # Este endpoint não recebe o professor; o dono do diário responde pelo envio.
+        AutomaticAbsencePostingEnqueuer.call(
+          entity_id: current_entity.id,
+          classroom_id: daily_frequency.classroom_id,
+          frequency_date: daily_frequency.frequency_date,
+          teacher_id: daily_frequency.owner_teacher_id
+        )
+
         respond_with daily_frequency_student
       end
 
@@ -67,6 +77,13 @@ module Api
             daily_frequency.classroom_id,
             daily_frequency.frequency_date,
             current_teacher_id || current_user.teacher_id
+          )
+
+          AutomaticAbsencePostingEnqueuer.call(
+            entity_id: current_entity.id,
+            classroom_id: daily_frequency.classroom_id,
+            frequency_date: daily_frequency.frequency_date,
+            teacher_id: current_teacher_id || current_user.teacher_id
           )
 
           respond_with daily_frequency_student

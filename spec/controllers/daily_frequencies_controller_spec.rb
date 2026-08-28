@@ -157,6 +157,18 @@ RSpec.describe DailyFrequenciesController, type: :controller do
 
       it_behaves_like 'delete_all_frequencies'
     end
+
+    it 'enqueues the automatic absence posting of the classroom forcing the resend' do
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: daily_frequency_1.classroom_id,
+        frequency_date: daily_frequency_1.frequency_date,
+        teacher_id: current_teacher.id,
+        force_posting: true
+      )
+
+      delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: [daily_frequency_1.id] }
+    end
   end
 
   describe '#check_and_preserve_existing_justifications' do

@@ -215,6 +215,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
           worker_call[:frequency_date],
           worker_call[:teacher_id]
         )
+
+        AutomaticAbsencePostingEnqueuer.call(
+          entity_id: worker_call[:entity_id],
+          classroom_id: worker_call[:classroom_id],
+          frequency_date: worker_call[:frequency_date],
+          teacher_id: worker_call[:teacher_id]
+        )
       end
     end
 
@@ -277,7 +284,29 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
+      classroom_dates = @daily_frequencies.map { |daily_frequency|
+        [daily_frequency.classroom_id, daily_frequency.frequency_date]
+      }.uniq
+
       @daily_frequencies.each(&:destroy)
+
+      classroom_dates.each do |classroom_id, frequency_date|
+        UniqueDailyFrequencyStudentsCreator.call_worker(
+          current_entity.id,
+          classroom_id,
+          frequency_date,
+          current_teacher_id
+        )
+
+        # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+        AutomaticAbsencePostingEnqueuer.call(
+          entity_id: current_entity.id,
+          classroom_id: classroom_id,
+          frequency_date: frequency_date,
+          teacher_id: current_teacher_id,
+          force_posting: true
+        )
+      end
 
       flash[:success] = t('.success')
 

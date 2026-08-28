@@ -75,12 +75,22 @@ module ExamPoster
       @teacher ||= @post_data.teacher || @post_data.author.current_teacher
     end
 
+    # Com classroom_id no posting (envio automático) o escopo é uma única turma; sem ele,
+    # todas as turmas do professor (envio manual).
     def classrooms
-      @classrooms ||= teacher.classrooms.uniq
+      @classrooms ||= begin
+        teacher_classrooms = teacher.classrooms.uniq
+
+        if @post_data.classroom_id.present?
+          teacher_classrooms.select { |classroom| classroom.id == @post_data.classroom_id }
+        else
+          teacher_classrooms
+        end
+      end
     end
 
     def classroom_ids
-      @classroom_ids ||= teacher.classrooms.pluck(:id).uniq
+      @classroom_ids ||= classrooms.map(&:id)
     end
 
     def discipline_ids

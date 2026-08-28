@@ -275,6 +275,13 @@ class DailyFrequenciesController < ApplicationController
       current_teacher_id
     )
 
+    AutomaticAbsencePostingEnqueuer.call(
+      entity_id: current_entity.id,
+      classroom_id: daily_frequency_record.classroom_id,
+      frequency_date: daily_frequency_record.frequency_date,
+      teacher_id: current_teacher_id
+    )
+
     if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = daily_frequency_record.classroom.description
       unity = daily_frequency_record.unity.name
@@ -309,6 +316,15 @@ class DailyFrequenciesController < ApplicationController
         classroom_id,
         frequency_date,
         current_teacher_id
+      )
+
+      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+      AutomaticAbsencePostingEnqueuer.call(
+        entity_id: current_entity.id,
+        classroom_id: classroom_id,
+        frequency_date: frequency_date,
+        teacher_id: current_teacher_id,
+        force_posting: true
       )
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path

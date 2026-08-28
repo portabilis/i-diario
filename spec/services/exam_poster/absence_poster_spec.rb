@@ -132,6 +132,63 @@ RSpec.describe ExamPoster::AbsencePoster, type: :service do
 
       expect(subject.requests.map { |request| request[:request][:faltas] }).to eq([0, 0])
     end
+
+    context 'when the teacher has another classroom in the same calendar' do
+      let!(:other_classroom) do
+        create(
+          :classroom,
+          :with_classroom_semester_steps,
+          :score_type_numeric,
+          unity: classroom.unity,
+          school_calendar: classroom.calendar.school_calendar,
+          period: Periods::MATUTINAL
+        )
+      end
+      let(:other_student) { create(:student) }
+
+      before do
+        create(:teacher_discipline_classroom, classroom: other_classroom, teacher: teacher)
+
+        other_daily_frequency = create(
+          :daily_frequency,
+          :without_discipline,
+          classroom: other_classroom,
+          unity: other_classroom.unity,
+          frequency_date: step.start_at + 1.day
+        )
+        create(:daily_frequency_student, daily_frequency: other_daily_frequency, student: other_student, present: false)
+      end
+
+      def requested_classrooms
+        subject.requests.map { |request| request[:info][:classroom] }.uniq
+      end
+
+      it 'sends every classroom of the teacher when the posting has no classroom' do
+        subject.post!
+
+        expect(requested_classrooms).to contain_exactly(classroom.api_code, other_classroom.api_code)
+      end
+
+      context 'and the posting is restricted to one classroom' do
+        let(:exam_posting) do
+          create(
+            :ieducar_api_exam_posting,
+            post_type: ApiPostingTypes::ABSENCE,
+            school_calendar_classroom_step: step,
+            teacher: teacher,
+            classroom: other_classroom,
+            automatic: true
+          )
+        end
+
+        it 'sends only the students of that classroom' do
+          subject.post!
+
+          expect(requested_classrooms).to eq([other_classroom.api_code])
+          expect(subject.requests.map { |request| request[:info][:student] }).to eq([other_student.api_code])
+        end
+      end
+    end
   end
 
   describe '#post! with frequency by discipline' do

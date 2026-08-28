@@ -11,21 +11,17 @@ class IeducarApiExamPostingsController < ApplicationController
   def create
     authorize(IeducarApiExamPosting.new)
 
-    new_permitted_attributes = permitted_attributes.merge!({ author: current_user })
-    new_permitted_attributes = new_permitted_attributes.merge!({ teacher: current_user.current_teacher })
-    new_permitted_attributes = new_permitted_attributes.merge!({ ieducar_api_configuration: IeducarApiConfiguration.current })
-    new_permitted_attributes = new_permitted_attributes.merge!({ status: ApiSynchronizationStatus::STARTED })
+    posting_attributes = permitted_attributes.to_h.merge(
+      author: current_user,
+      teacher: current_user.current_teacher,
+      ieducar_api_configuration: IeducarApiConfiguration.current,
+      automatic: false
+    )
 
-    ieducar_api_exam_posting = IeducarApiExamPosting.create!(new_permitted_attributes)
-
-    ieducar_api_exam_posting_last = IeducarApiExamPosting.where(new_permitted_attributes.merge({status: ApiSynchronizationStatus::COMPLETED })).last
-
-    jid = IeducarExamPostingWorker.perform_in(5.seconds, current_entity.id, ieducar_api_exam_posting.id, ieducar_api_exam_posting_last.try(:id), params[:force_posting])
-
-    WorkerBatch.create!(
-      main_job_class: 'IeducarExamPostingWorker',
-      main_job_id: jid,
-      stateable: ieducar_api_exam_posting
+    IeducarExamPostingLauncher.call(
+      attributes: posting_attributes,
+      entity_id: current_entity.id,
+      force_posting: params[:force_posting]
     )
 
     redirect_to ieducar_api_exam_postings_path
@@ -57,7 +53,10 @@ class IeducarApiExamPostingsController < ApplicationController
 
     @steps.each do |step|
       ApiPostingTypes.each_value do |value|
-        ieducar_api_exam_posting = IeducarApiExamPosting.where(step_column => step.id, author_id: current_user.id).send(value).last
+        ieducar_api_exam_posting = IeducarApiExamPosting.manual
+                                                        .where(step_column => step.id, author_id: current_user.id)
+                                                        .send(value)
+                                                        .last
 
         instance_variable_set("@step_#{step.id}_#{value}_posting", ieducar_api_exam_posting)
       end

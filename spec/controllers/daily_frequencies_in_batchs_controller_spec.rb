@@ -389,6 +389,32 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
   end
 
+  describe 'DELETE #destroy_multiple' do
+    let!(:daily_frequency) { create(:daily_frequency, :with_students) }
+
+    it 'deletes the daily frequencies and enqueues the frequency hooks of the classroom forcing the resend' do
+      expect(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker).with(
+        entity.id,
+        daily_frequency.classroom_id,
+        daily_frequency.frequency_date,
+        current_teacher.id
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: daily_frequency.classroom_id,
+        frequency_date: daily_frequency.frequency_date,
+        teacher_id: current_teacher.id,
+        force_posting: true
+      )
+
+      expect {
+        delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: [daily_frequency.id] }
+      }.to change(DailyFrequency, :count).by(-1)
+
+      expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
+    end
+  end
+
   describe 'private methods' do
     describe '#parse_json_frequency_attributes' do
       let(:json_data) do

@@ -12,6 +12,7 @@ class IeducarApiExamPosting < ApplicationRecord
   belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
   belongs_to :author, class_name: 'User'
   belongs_to :teacher
+  belongs_to :classroom
 
   has_one :worker_batch, as: :stateable
   has_many :notices, as: :noticeable
@@ -22,6 +23,8 @@ class IeducarApiExamPosting < ApplicationRecord
 
   delegate :to_api, to: :ieducar_api_configuration
 
+  scope :automatic, -> { where(automatic: true) }
+  scope :manual, -> { where(automatic: false) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:teacher).where(teacher_id: teacher_id) }
   scope :by_school_calendar_classroom_steps,
         lambda { |step_number|
