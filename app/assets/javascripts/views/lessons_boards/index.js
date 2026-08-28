@@ -33,14 +33,27 @@ window.lessonsBoardsIndex = {
 $(function () {
   var flashMessages = new FlashMessages();
 
-  // Quando a requisição remota falha nada é reescrito e a tela segue exibindo o resultado
-  // anterior como se fosse o novo. O handler mora no arquivo desta tela, então o aviso vale só
-  // para o quadro de aulas.
-  $(document).ajaxError(function (event, jqxhr) {
+  function pathOf(url) {
+    var link = document.createElement('a');
+
+    link.href = url || '';
+
+    return link.pathname;
+  }
+
+  // Quando a requisição que atualiza a listagem falha, nada na tela é reescrito e o resultado
+  // anterior continua exibido como se fosse o do filtro recém-aplicado.
+  //
+  // O aviso é restrito ao endereço da própria listagem: o evento de erro do jQuery é disparado por
+  // qualquer requisição da página, e anunciar falha de listagem quando quem falhou foi outra coisa
+  // — as notificações, por exemplo — aponta o usuário para o lugar errado.
+  $(document).ajaxError(function (event, jqxhr, settings) {
     if (jqxhr && jqxhr.statusText === 'abort') { return; }
+    if (!settings) { return; }
+    if (pathOf(settings.url) !== pathOf($('form.filterable_search_form').attr('action'))) { return; }
 
     flashMessages.error(
-      'Não foi possível atualizar a listagem. Verifique sua conexão e tente novamente.'
+      'Não foi possível atualizar a lista de quadros de aula. Verifique sua conexão e tente novamente.'
     );
   });
 });

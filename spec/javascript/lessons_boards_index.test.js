@@ -149,20 +149,56 @@ describe('lessonsBoardsIndex.refreshFilter', () => {
 });
 
 describe('the warning when the remote request fails', () => {
+  const LISTING_PATH = '/quadro-de-aulas';
+
   // Sem o aviso a tela mantém a listagem anterior como se fosse o resultado do novo filtro
   beforeEach(() => {
-    setup('<input id="search_by_unity" class="select2" type="hidden">');
+    setup(
+      `<form class="filterable_search_form" action="${LISTING_PATH}"></form>` +
+      '<input id="search_by_unity" class="select2" type="hidden">'
+    );
   });
 
-  it('shows an error message when an ajax request fails', () => {
-    window.jQuery(document).trigger('ajaxError', [{ statusText: 'error', status: 500 }]);
+  function failRequest(url, statusText) {
+    window.jQuery(document).trigger('ajaxError', [
+      { statusText: statusText || 'error', status: 500 },
+      { url: url }
+    ]);
+  }
 
-    expect(document.getElementById('flash-messages').innerHTML).toContain('Não foi possível atualizar');
+  function warning() {
+    return document.getElementById('flash-messages').innerHTML;
+  }
+
+  it('warns when the listing request fails', () => {
+    failRequest(`${LISTING_PATH}?search%5Bby_year%5D=2026`);
+
+    expect(warning()).toContain('Não foi possível atualizar a lista de quadros de aula');
+  });
+
+  it('warns when the pagination request fails', () => {
+    failRequest(`http://test.host${LISTING_PATH}?page=2`);
+
+    expect(warning()).toContain('Não foi possível atualizar a lista de quadros de aula');
+  });
+
+  // O evento de erro do jQuery é disparado por qualquer requisição da página: sem o recorte por
+  // endereço, uma falha nas notificações anunciaria falha da listagem.
+  it('stays quiet when another request of the page fails', () => {
+    failRequest('/notificacoes-do-sistema/read_all');
+
+    expect(warning()).toBe('');
   });
 
   it('stays quiet when the request was aborted', () => {
-    window.jQuery(document).trigger('ajaxError', [{ statusText: 'abort' }]);
+    failRequest(`${LISTING_PATH}?page=2`, 'abort');
 
-    expect(document.getElementById('flash-messages').innerHTML).toBe('');
+    expect(warning()).toBe('');
+  });
+
+  it('stays quiet when the request has no settings', () => {
+    window.jQuery(document).trigger('ajaxError', [{ statusText: 'error' }]);
+
+    expect(warning()).toBe('');
   });
 });
