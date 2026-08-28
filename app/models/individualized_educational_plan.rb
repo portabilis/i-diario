@@ -61,15 +61,6 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # Unicidade 1 PEI por aluno/ano: índice único no banco + esta validação para a mensagem amigável.
   validates :student_id, uniqueness: { scope: :year }
 
-  # Existe alguma versão ativa para este PEI? Usado pelos scopes finalized/draft.
-  # SQL literal (não arel) para evitar o bind param que quebra o EXISTS no Rails 5.0.
-  ACTIVE_VERSION_EXISTS_SQL =
-    'EXISTS (SELECT 1 FROM iep_versions ' \
-    'WHERE iep_versions.individualized_educational_plan_id = individualized_educational_plans.id ' \
-    'AND iep_versions.active)'.freeze
-
-  scope :finalized, -> { where(ACTIVE_VERSION_EXISTS_SQL) }
-  scope :draft, -> { where("NOT #{ACTIVE_VERSION_EXISTS_SQL}") }
   # PEIs ligados à turma, para o filtro/cascata do index: aluno CURSANDO a turma hoje, ou turma que
   # publicou versão (autoria) — mesma regra do accessible_plans, só que restrita a uma turma. Sem o
   # attending_on, uma enturmação encerrada sem contribuição no PEI faria o aluno aparecer ao filtrar.

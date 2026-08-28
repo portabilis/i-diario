@@ -121,16 +121,6 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
 
       expect(plan.reload.active_version).to eq(active)
     end
-
-    describe 'finalized/draft scopes' do
-      it 'partitions plans by the existence of an active version' do
-        finalized_plan = create(:individualized_educational_plan, :finalized)
-        draft_plan = create(:individualized_educational_plan)
-
-        expect(described_class.finalized).to contain_exactly(finalized_plan)
-        expect(described_class.draft).to contain_exactly(draft_plan)
-      end
-    end
   end
 
   describe 'multi-select by kind' do
