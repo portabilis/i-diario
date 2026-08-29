@@ -1,4 +1,7 @@
 class LessonsBoardsController < ApplicationController
+  # Índice único parcial que garante um quadro por turma/série e turno mesmo sob envios simultâneos.
+  UNIQUE_INDEX_NAME = 'idx_lessons_boards_unique_kept'.freeze
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -38,6 +41,8 @@ class LessonsBoardsController < ApplicationController
     else
       render :new
     end
+  rescue ActiveRecord::RecordNotUnique => e
+    handle_duplicated_lessons_board(e)
   end
 
   def edit
@@ -59,6 +64,8 @@ class LessonsBoardsController < ApplicationController
     else
       render :edit
     end
+  rescue ActiveRecord::RecordNotUnique => e
+    handle_duplicated_lessons_board(e)
   end
 
   def destroy
@@ -266,6 +273,12 @@ role_id: roles_ids).pluck(:unity_id)
   end
 
   private
+
+  def handle_duplicated_lessons_board(error)
+    raise error unless error.message.include?(UNIQUE_INDEX_NAME)
+
+    redirect_to lessons_boards_path, alert: t('lessons_boards.form.already_exists')
+  end
 
   def validate_lessons_number
     classroom_lessons = resource.classroom.number_of_classes

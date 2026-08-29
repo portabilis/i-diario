@@ -7,6 +7,8 @@ class LessonsBoard < ActiveRecord::Base
 
   validates :period, :classrooms_grade_id, presence: true
 
+  validate :uniqueness_of_classrooms_grade_and_period
+
   belongs_to :classrooms_grade
   has_many :lessons_board_lessons
 
@@ -40,5 +42,20 @@ class LessonsBoard < ActiveRecord::Base
 
   after_undiscard do
     undiscard_dependents_discarded_with(lessons_board_lessons)
+  end
+
+  private
+
+  # Um quadro por turma/série e turno: turma de período integral tem um quadro por turno e
+  # multisseriada tem um por série, e as duas dimensões estão em `classrooms_grade_id` + `period`.
+  def uniqueness_of_classrooms_grade_and_period
+    return if classrooms_grade_id.blank? || period.blank?
+
+    relation = LessonsBoard.where(classrooms_grade_id: classrooms_grade_id, period: period)
+    relation = relation.where.not(id: id) if persisted?
+
+    return unless relation.exists?
+
+    errors.add(:classrooms_grade_id, :uniqueness_of_classrooms_grade_and_period)
   end
 end

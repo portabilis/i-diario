@@ -21,6 +21,9 @@ $(function () {
         return
       }
     }
+    // O envio só é interrompido pelo redirecionamento: sem desabilitar aqui, cada clique
+    // durante a espera dispara um envio próprio.
+    $('#btn-submit').attr('disabled', true);
     $('#form-submit').submit();
   })
 

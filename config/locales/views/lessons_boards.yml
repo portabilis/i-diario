@@ -15,6 +15,8 @@ pt-BR:
         lessons_board:
           attributes:
             lessons_boards_types:
+            classrooms_grade_id:
+              uniqueness_of_classrooms_grade_and_period: "já existe um quadro de aulas cadastrado para a turma, série e turno informados"
 
   lessons_boards:
     index:
@@ -31,3 +33,4 @@ pt-BR:
       period: "Período"
       no_item_found: "Nenhum período informado"
       add_period: "Adicionar período de aula"
+      already_exists: "Já existe um quadro de aulas cadastrado para a turma, série e turno informados."

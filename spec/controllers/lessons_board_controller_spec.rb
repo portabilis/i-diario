@@ -87,6 +87,18 @@ RSpec.describe LessonsBoardsController, type: :controller do
           post :create, params: {  locale: 'pt-BR', lessons_board: params }
         )}.to_not change(LessonsBoard, :count)
       end
+
+      it 'repeated submit for the same classrooms grade and period' do
+        params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+                   .merge('classrooms_grade_id' => classroom_grade.id.to_s,
+                          'period' => lessons_board_1.period)
+
+        expect {(
+          post :create, params: { locale: 'pt-BR', lessons_board: params }
+        )}.to_not change(LessonsBoard, :count)
+
+        expect(response).to render_template(:new)
+      end
     end
   end
 
