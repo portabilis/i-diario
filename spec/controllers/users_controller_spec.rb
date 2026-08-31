@@ -120,5 +120,48 @@ RSpec.describe UsersController, :type => :controller do
         expect(response).to redirect_to(users_path)
       end
     end
+
+    describe "DELETE #destroy" do
+      let(:deleted_user) { create(:user_with_user_role) }
+
+      def destroy_params(search)
+        { locale: 'pt-BR', id: deleted_user.id, search: search }
+      end
+
+      it "keeps the filled search filters in the redirect" do
+        delete :destroy, params: destroy_params(by_name: 'Maria', status: '1')
+
+        expect(response).to redirect_to(users_path(search: { by_name: 'Maria', status: '1' }))
+      end
+
+      it "drops the blank search filters from the redirect" do
+        delete :destroy, params: destroy_params(by_name: 'Maria', by_cpf: '', email: '', login: '')
+
+        expect(response).to redirect_to(users_path(search: { by_name: 'Maria' }))
+      end
+
+      it "redirects to the plain index when every filter is blank" do
+        delete :destroy, params: destroy_params(by_name: '', by_cpf: '', email: '', login: '', status: '')
+
+        expect(response).to redirect_to(users_path)
+      end
+
+      it "redirects to the plain index when search is not a hash" do
+        delete :destroy, params: destroy_params('abc')
+
+        expect(response).to redirect_to(users_path)
+      end
+
+      it "keeps the user and flashes the alert when it still has links" do
+        create(:ieducar_api_synchronization, author: deleted_user)
+
+        delete :destroy, params: destroy_params(by_name: 'Maria')
+
+        expect(User.where(id: deleted_user.id)).to exist
+        expect(flash[:alert]).to eq(
+          I18n.t('flash.users.destroy.alert', resource_name: User.model_name.human)
+        )
+      end
+    end
   end
 end

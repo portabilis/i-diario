@@ -43,7 +43,7 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
-      redirect_to users_path
+      respond_with @user, location: users_path
     else
       @teachers = Teacher.active.order_by_name
       @active_user_tab = true
@@ -70,9 +70,12 @@ class UsersController < ApplicationController
 
     @user.destroy
 
-    search_params = build_search_params
+    search = build_search_params
 
-    respond_with @user, location: users_path(search_params)
+    # respond_with é obrigatório aqui: as associações `restrict_with_error` do User fazem
+    # o destroy falhar quando ele tem vínculos, e é o FlashResponder que traduz esse erro
+    # na mensagem de `flash.users.destroy.alert`. Um redirect_to falharia em silêncio.
+    respond_with @user, location: users_path(search.present? ? { search: search } : {})
   end
 
   def history
@@ -170,6 +173,7 @@ class UsersController < ApplicationController
 
   def valid_search_params?(params_search)
     return true if params_search.blank?
+    return false unless params_search.respond_to?(:values)
 
     params_search.values.any?(&:present?)
   end
@@ -185,11 +189,14 @@ class UsersController < ApplicationController
     @permissions = @user.permissions
   end
 
-  # Monta os parâmetros de busca, incluindo apenas os filtros presentes
+  # Filtros de busca presentes na requisição, para preservar a listagem após a exclusão.
+  # `search` chega como escalar quando a URL é montada à mão (ex.: ?search=abc) — aí não há filtro.
   def build_search_params
-    %i[by_name by_cpf email login status].each_with_object({}) do |field, search_params|
+    return {} unless params[:search].respond_to?(:dig)
+
+    %i[by_name by_cpf email login status].each_with_object({}) do |field, filters|
       value = params.dig(:search, field)
-      search_params["search[#{field}]"] = value if value.present?
+      filters[field] = value if value.present?
     end
   end
 end

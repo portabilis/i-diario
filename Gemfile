@@ -24,6 +24,9 @@ gem 'devise', '>= 4.7.1'
 gem 'discard', '1.0.0'
 gem 'ejs', '1.1.1'
 gem 'enumerate_it', '1.3.1'
+# Pin de efeito global: o Bundler resolve uma única versão por gem para todos os
+# grupos, então esta vale também fora do teste (listen/rb-inotify usam ffi).
+gem 'ffi', '1.15.5', require: false
 gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.7.2'
 gem 'honeybadger', '5.5.0'
@@ -34,6 +37,9 @@ gem 'kaminari', '>= 1.2.1'
 gem 'loofah', '2.20.0'
 gem 'mask_validator', '0.2.1'
 gem 'momentjs-rails', '>= 2.9.0'
+# Última série compatível com Ruby 2.7 (a 1.16 exige >= 3.0). Pin de efeito global:
+# loofah, rails-dom-testing e mimemagic carregam nokogiri em runtime.
+gem 'nokogiri', '1.15.7', require: false
 gem 'non-stupid-digest-assets', '1.0.9'
 gem 'pg', '~> 1.5'
 gem 'pg_query', '1.2.0'
@@ -85,11 +91,9 @@ group :test do
   gem 'database_cleaner', '1.5.1'
   gem 'factory_girl_rails', '4.5.0'
   gem 'faker', '1.9.1'
-  gem 'ffi', '1.15.5'
   gem 'gherkin', '2.12.2'
   gem 'mock_redis', '0.36.0'
   gem 'net-http', '0.4.1'
-  gem 'nokogiri', '1.14.0'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
   gem 'rails-controller-testing', '~> 1.0.5'
