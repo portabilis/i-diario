@@ -1,5 +1,7 @@
 class LessonsBoardsController < ApplicationController
-  # Índice único parcial que garante um quadro por turma/série e turno mesmo sob envios simultâneos.
+  # O adaptador do PostgreSQL embute o nome da constraint violada na mensagem do RecordNotUnique,
+  # e é por ele que a violação do quadro duplicado se distingue de qualquer outra. O mesmo nome é
+  # declarado literalmente na migration que cria o índice — migration não referencia constante de app/.
   UNIQUE_INDEX_NAME = 'idx_lessons_boards_unique_kept'.freeze
 
   has_scope :page, default: 1
@@ -31,6 +33,10 @@ class LessonsBoardsController < ApplicationController
     authorize resource
   end
 
+  # O quadro duplicado sai pela listagem, e não pelo formulário: o erro fica em `classrooms_grade_id`,
+  # que a view renderiza como hidden e o simple_form não acompanha de mensagem, e o `new.js` esvazia a
+  # grade e desabilita o Salvar ao recarregar. Como o quadro pedido já existe, o destino útil é a
+  # listagem, de onde ele é editado.
   def create
     resource.assign_attributes(resource_params.to_h)
 
@@ -38,6 +44,8 @@ class LessonsBoardsController < ApplicationController
 
     if resource.save
       respond_with resource, location: lessons_boards_path
+    elsif resource.duplicated?
+      redirect_to lessons_boards_path, alert: t('lessons_boards.form.already_exists')
     else
       render :new
     end
@@ -61,6 +69,8 @@ class LessonsBoardsController < ApplicationController
 
     if resource.save
       respond_with resource, location: lessons_boards_path
+    elsif resource.duplicated?
+      redirect_to lessons_boards_path, alert: t('lessons_boards.form.already_exists')
     else
       render :edit
     end

@@ -26,8 +26,8 @@ RSpec.describe LessonsBoard, type: :model do
       duplicated = build(:lessons_board, classrooms_grade: classrooms_grade, period: Periods::MATUTINAL)
 
       expect(duplicated).to_not be_valid
-      expect(duplicated.errors[:classrooms_grade_id]).to eq(
-        ['já existe um quadro de aulas cadastrado para a turma, série e turno informados']
+      expect(duplicated.errors.details[:classrooms_grade_id]).to eq(
+        [{ error: :uniqueness_of_classrooms_grade_and_period }]
       )
     end
 

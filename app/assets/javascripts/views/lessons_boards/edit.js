@@ -21,8 +21,8 @@ $(function () {
         return
       }
     }
-    // O envio só é interrompido pelo redirecionamento: sem desabilitar aqui, cada clique
-    // durante a espera dispara um envio próprio.
+    // O botão continua clicável enquanto a resposta do envio não chega, e cada clique
+    // dispara um envio próprio.
     $('#btn-submit').attr('disabled', true);
     $('#form-submit').submit();
   })

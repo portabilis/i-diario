@@ -44,6 +44,10 @@ class LessonsBoard < ActiveRecord::Base
     undiscard_dependents_discarded_with(lessons_board_lessons)
   end
 
+  def duplicated?
+    errors.added?(:classrooms_grade_id, :uniqueness_of_classrooms_grade_and_period)
+  end
+
   private
 
   # Um quadro por turma/série e turno: turma de período integral tem um quadro por turno e

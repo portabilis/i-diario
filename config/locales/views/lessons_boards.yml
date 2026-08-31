@@ -8,6 +8,7 @@ pt-BR:
     attributes:
       lessons_board:
         classroom_id: "Turma"
+        classrooms_grade_id: "Turma e série"
         period: "Período"
 
     errors:

@@ -71,7 +71,9 @@ RSpec.describe LessonsBoardsController, type: :controller do
   describe '#create' do
     context 'with success' do
       it 'valid params' do
+        free_classroom_grade = create(:classrooms_grade, classroom: classroom)
         params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+                   .merge('classrooms_grade_id' => free_classroom_grade.id.to_s)
 
         expect{(
           post :create, params: {  locale: 'pt-BR', lessons_board: params }
@@ -97,7 +99,65 @@ RSpec.describe LessonsBoardsController, type: :controller do
           post :create, params: { locale: 'pt-BR', lessons_board: params }
         )}.to_not change(LessonsBoard, :count)
 
-        expect(response).to render_template(:new)
+        expect(response).to redirect_to(lessons_boards_path)
+        expect(flash[:alert]).to eq(I18n.t('lessons_boards.form.already_exists'))
+      end
+    end
+
+    context 'when the database rejects a simultaneous submit' do
+      let(:params) do
+        json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
+          .merge('classrooms_grade_id' => classroom_grade.id.to_s,
+                 'period' => lessons_board_1.period)
+      end
+
+      # Deixa o INSERT chegar ao banco com a chave já ocupada: é o estado de dois envios
+      # simultâneos, em que ambos passam pela validação antes de qualquer um gravar.
+      def skip_uniqueness_validation
+        allow_any_instance_of(LessonsBoard).to receive(:uniqueness_of_classrooms_grade_and_period)
+      end
+
+      it 'redirects with an alert when the unique index rejects the insert' do
+        skip_uniqueness_validation
+
+        expect {(
+          post :create, params: { locale: 'pt-BR', lessons_board: params }
+        )}.to_not change(LessonsBoard, :count)
+
+        expect(response).to redirect_to(lessons_boards_path)
+        expect(flash[:alert]).to eq(I18n.t('lessons_boards.form.already_exists'))
+      end
+
+      it 'reraises a violation of another constraint' do
+        error = ActiveRecord::RecordNotUnique.new(
+          'PG::UniqueViolation: duplicate key value violates unique constraint "index_on_another_table"'
+        )
+
+        expect {
+          controller.send(:handle_duplicated_lessons_board, error)
+        }.to raise_error(ActiveRecord::RecordNotUnique)
+      end
+
+      it 'redirects with an alert when the update hits the unique index' do
+        allow_any_instance_of(LessonsBoard).to receive(:save).and_raise(
+          ActiveRecord::RecordNotUnique.new(
+            "PG::UniqueViolation: duplicate key value violates unique constraint " \
+            "\"#{LessonsBoardsController::UNIQUE_INDEX_NAME}\""
+          )
+        )
+
+        put :update, params: { locale: 'pt-BR', id: lessons_board_1.id, lessons_board: params }
+
+        expect(response).to redirect_to(lessons_boards_path)
+        expect(flash[:alert]).to eq(I18n.t('lessons_boards.form.already_exists'))
+      end
+    end
+
+    context 'unique index' do
+      it 'is the one the controller matches by name' do
+        index_names = ActiveRecord::Base.connection.indexes(:lessons_boards).map(&:name)
+
+        expect(index_names).to include(LessonsBoardsController::UNIQUE_INDEX_NAME)
       end
     end
   end
