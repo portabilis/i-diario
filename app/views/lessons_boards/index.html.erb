@@ -9,10 +9,14 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <th scope="col"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></th>
-            <th scope="col"><%= f.input :by_unity, as: :select2, elements: lesson_unities, label: false, placeholder: t('.by_unity') %></th>
-            <th scope="col"><%= f.input :by_grade, as: :select2, elements: lesson_grades, label: false, placeholder: t('.by_grade') %></th>
-            <th scope="col"><%= f.input :by_classroom, as: :select2, elements: lesson_classrooms, label: false, placeholder: t('.by_classroom') %></th>
+            <th scope="col"><%= f.input :by_year, label: false, placeholder: t('.by_year'),
+                                        input_html: { value: @filtering_params[:by_year], maxlength: 4 } %></th>
+            <th scope="col"><%= f.input :by_unity, as: :select2, elements: @unities_options, label: false,
+                                        placeholder: t('.by_unity'), input_html: { value: @filtering_params[:by_unity] } %></th>
+            <th scope="col"><%= f.input :by_grade, as: :select2, elements: @grades_options, label: false,
+                                        placeholder: t('.by_grade'), input_html: { value: @filtering_params[:by_grade] } %></th>
+            <th scope="col"><%= f.input :by_classroom, as: :select2, elements: @classrooms_options, label: false,
+                                        placeholder: t('.by_classroom'), input_html: { value: @filtering_params[:by_classroom] } %></th>
             <th scope="col"></th>
             <th scope="col"><%= link_to t('.new_html'), new_lessons_board_path, class: "btn btn-primary pull-right" %></th>
           </tr>
@@ -29,13 +33,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="6">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @lessons_boards %>
-            </div>
-            <div class="pull-right">
-              <%= paginate @lessons_boards %>
-            </div>
+          <td id="pagination-tfoot" colspan="6">
+            <%= render 'shared/pagination', records: @lessons_boards %>
           </td>
         </tfoot>
       </table>

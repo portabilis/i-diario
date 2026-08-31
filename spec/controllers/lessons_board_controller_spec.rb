@@ -14,8 +14,9 @@ RSpec.describe LessonsBoardsController, type: :controller do
     )
   end
 
+  # com ano no perfil para o exemplo de acesso chegar na listagem, e não parar no before_action
   let(:other_user) do
-    create(:user)
+    create(:user, current_school_year: classroom.year)
   end
 
   let(:user_role) { user.user_roles.first }
@@ -49,11 +50,16 @@ RSpec.describe LessonsBoardsController, type: :controller do
   end
 
   describe '#index' do
+    let(:previous_year_classroom) { create(:classroom, unity: classroom.unity, year: classroom.year - 1) }
+    let!(:lessons_board_previous_year) do
+      create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: previous_year_classroom))
+    end
+
     context 'when user have access' do
       it 'list all lessons board' do
-        get :index, params: { locale: 'pt-BR' }
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
 
-        expect(assigns(:lessons_boards).size).to eq(2)
+        expect(assigns(:lessons_boards).size).to eq(3)
       end
     end
 
@@ -64,6 +70,283 @@ RSpec.describe LessonsBoardsController, type: :controller do
         get :index, params: { locale: 'pt-BR' }
 
         expect(assigns(:lessons_boards)).to be_empty
+      end
+    end
+
+    context 'when the profile has no school year' do
+      # usuário próprio: alterar o usuário compartilhado dos demais exemplos deixaria o estado
+      # dependente da ordem de execução
+      let(:user_without_school_year) { create(:user, :with_user_role_administrator, admin: true) }
+
+      it 'redirects instead of listing' do
+        sign_in(user_without_school_year)
+
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to eq(I18n.t('errors.general.require_current_year'))
+      end
+    end
+
+    context 'when there is no search param' do
+      it 'filters by the school year selected on the user profile' do
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq(classroom.year.to_s)
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_1, lessons_board_2])
+      end
+
+      it 'falls back to the profile year when the search param is malformed' do
+        get :index, params: { locale: 'pt-BR', search: 'invalid' }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq(classroom.year.to_s)
+      end
+    end
+
+    context 'when the year filter is cleared' do
+      it 'lists lessons boards of every year' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
+
+        expect(assigns(:lessons_boards)).to match_array(
+          [lessons_board_1, lessons_board_2, lessons_board_previous_year]
+        )
+      end
+
+      it 'includes the year on the classroom options' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
+
+        expect(assigns(:classrooms_options).map(&:name)).to include(
+          "#{classroom.description} - #{classroom.year}"
+        )
+      end
+    end
+
+    context 'when the year filter is not a valid year' do
+      it 'keeps an incomplete year on the field and lists nothing' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '20' } }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq('20')
+        expect(assigns(:lessons_boards).to_a).to eq([])
+      end
+
+      it 'lists nothing without raising when the year is not a number' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: 'abc' } }
+
+        expect(assigns(:filtering_params)[:by_year]).to eq('abc')
+        expect(assigns(:lessons_boards).to_a).to eq([])
+      end
+    end
+
+    context 'when a filter is not valid anymore' do
+      it 'treats the empty value of select2 as no filter' do
+        get :index, params: { locale: 'pt-BR', search: { by_unity: 'empty' } }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq('')
+      end
+
+      it 'keeps the selected unity when it has no lessons board on the filtered year' do
+        get :index, params: {
+          locale: 'pt-BR', search: { by_year: '1999', by_unity: classroom.unity.id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq(classroom.unity.id.to_s)
+        expect(assigns(:unities_options).map(&:id)).to include(classroom.unity_id)
+        expect(assigns(:lessons_boards).to_a).to eq([])
+      end
+
+      # sem `by_year` no formulário o filtro de ano fica vazio, então lista todos os anos
+      it 'discards a unity the user has no access to' do
+        get :index, params: { locale: 'pt-BR', search: { by_unity: unity.id.to_s } }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq('')
+        expect(assigns(:lessons_boards)).to match_array(
+          [lessons_board_1, lessons_board_2, lessons_board_previous_year]
+        )
+      end
+
+      # `permit` recusa o array e a chave some, então o filtro fica vazio em vez de chegar cru
+      it 'ignores a filter sent as a list' do
+        get :index, params: { locale: 'pt-BR', search: { by_unity: [unity.id.to_s] } }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq('')
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'discards a grade without lessons boards' do
+        grade_without_lessons_board = create(:grade)
+
+        get :index, params: { locale: 'pt-BR', search: { by_grade: grade_without_lessons_board.id.to_s } }
+
+        expect(assigns(:filtering_params)[:by_grade]).to eq('')
+      end
+
+      it 'discards a classroom without lessons boards' do
+        classroom_without_lessons_board = create(:classroom, unity: classroom.unity, year: classroom.year)
+
+        get :index, params: {
+          locale: 'pt-BR', search: { by_classroom: classroom_without_lessons_board.id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_classroom]).to eq('')
+      end
+    end
+
+    context 'when a filter is valid' do
+      let(:grade) { classroom_grade.grade }
+
+      it 'keeps the selected unity and narrows the listing' do
+        get :index, params: {
+          locale: 'pt-BR', search: { by_year: classroom.year.to_s, by_unity: classroom.unity_id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_unity]).to eq(classroom.unity_id.to_s)
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_1, lessons_board_2])
+      end
+
+      it 'keeps the selected grade and narrows the listing' do
+        get :index, params: {
+          locale: 'pt-BR', search: { by_year: classroom.year.to_s, by_grade: grade.id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_grade]).to eq(grade.id.to_s)
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_1])
+      end
+
+      it 'keeps the selected classroom and narrows the listing' do
+        get :index, params: {
+          locale: 'pt-BR', search: { by_year: classroom.year.to_s, by_classroom: classroom.id.to_s }
+        }
+
+        expect(assigns(:filtering_params)[:by_classroom]).to eq(classroom.id.to_s)
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_1, lessons_board_2])
+      end
+
+      it 'narrows the listing to nothing when the classroom has no lessons board on the year' do
+        get :index, params: {
+          locale: 'pt-BR',
+          search: { by_year: previous_year_classroom.year.to_s, by_classroom: previous_year_classroom.id.to_s }
+        }
+
+        expect(assigns(:lessons_boards)).to match_array([lessons_board_previous_year])
+      end
+    end
+
+    context 'ordering' do
+      let(:first_classroom) { create(:classroom, unity: classroom.unity, year: classroom.year, description: 'AAA') }
+      let(:last_classroom) { create(:classroom, unity: classroom.unity, year: classroom.year, description: 'ZZZ') }
+      let!(:first_lessons_board) do
+        create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: first_classroom))
+      end
+      let!(:last_lessons_board) do
+        create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: last_classroom))
+      end
+
+      it 'orders by the classroom description' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }
+
+        expect(assigns(:lessons_boards).to_a.first).to eq(first_lessons_board)
+        expect(assigns(:lessons_boards).to_a.last).to eq(last_lessons_board)
+      end
+
+      # Descrições repetem entre escolas e anos: sem desempate a mesma linha pode cair em duas
+      # páginas e outra em nenhuma.
+      it 'falls back to the record identifier when descriptions tie' do
+        tied = create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: first_classroom))
+
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }
+
+        listed = assigns(:lessons_boards).to_a
+        expect(listed.index(first_lessons_board)).to be < listed.index(tied)
+      end
+    end
+
+    context 'pagination' do
+      # `apply_scopes` aplica o LIMIT/OFFSET antes de `filter_from_params` acrescentar os WHERE,
+      # então o total precisa refletir o conjunto filtrado, não o pré-filtro.
+      let!(:extra_lessons_boards) do
+        create_list(:lessons_board, 12, classrooms_grade: classroom_grade)
+      end
+
+      it 'returns the first page with the default page size' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }
+
+        expect(assigns(:lessons_boards).size).to eq(10)
+      end
+
+      it 'returns the remaining records on the second page' do
+        get :index, params: { locale: 'pt-BR', page: 2, search: { by_year: classroom.year.to_s } }
+
+        expect(assigns(:lessons_boards).size).to eq(4)
+      end
+
+      it 'counts only the filtered records' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }
+
+        expect(assigns(:lessons_boards).total_count).to eq(14)
+      end
+
+      it 'counts every year when the year filter is cleared' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }
+
+        expect(assigns(:lessons_boards).total_count).to eq(15)
+      end
+    end
+
+    context 'when rendering the views' do
+      render_views
+
+      # O layout referencia os pacotes do webpack, que não são compilados no ambiente de teste.
+      # Sem isso a renderização estoura, o tratamento genérico de erro assume e a requisição
+      # redireciona antes de a listagem chegar à resposta.
+      before do
+        allow_any_instance_of(ActionView::Base).to receive(:javascript_pack_tag).and_return('')
+        allow_any_instance_of(ActionView::Base).to receive(:stylesheet_pack_tag).and_return('')
+      end
+
+      it 'renders the listing' do
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(response.body).to include(classroom.description)
+      end
+
+      it 'rebuilds every filter on the remote response' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: classroom.year.to_s } }, xhr: true, format: :js
+
+        expect(response.body.scan('lessonsBoardsIndex.refreshFilter').size).to eq(3)
+      end
+
+      it 'rebuilds the filters when the year is blank' do
+        get :index, params: { locale: 'pt-BR', search: { by_year: '' } }, xhr: true, format: :js
+
+        expect(response.body.scan('lessonsBoardsIndex.refreshFilter').size).to eq(3)
+        expect(response.body).to include("#{classroom.description} - #{classroom.year}")
+      end
+
+      # Reemitir as opções num clique de paginação trafegaria listas que podem ter milhares de turmas
+      it 'does not rebuild the filters when only the page changed' do
+        get :index, params: { locale: 'pt-BR', page: 2, search: { by_year: '' } }, xhr: true, format: :js
+
+        expect(response.body).to_not include('lessonsBoardsIndex.refreshFilter')
+        expect(response.body).to include('pagination-tfoot')
+      end
+
+      # O preload é a linha mais frágil do index: sem ele cada linha da tabela dispara consultas.
+      # A medição usa a resposta remota porque ela renderiza só as linhas e a paginação — o render
+      # completo carrega layout, menu e notificações, cujo custo varia e mascararia a diferença.
+      it 'does not run more queries when the page has more records' do
+        remote_index = lambda do
+          get :index, params: { locale: 'pt-BR', search: { by_year: '' } }, xhr: true, format: :js
+        end
+
+        remote_index.call # aquece o carregamento de colunas, que só acontece na primeira consulta
+        queries_with_three_records = count_queries(&remote_index)
+
+        create_list(:lessons_board, 7, classrooms_grade: classroom_grade_2)
+
+        # Sem o preload cada linha renderizada dispara consultas próprias (turma, escola e série),
+        # então as 7 linhas adicionadas custariam dezenas de consultas extras. Com ele o custo é
+        # fixo; a folga de 1 absorve variação do grafo de fixtures sem cegar a asserção.
+        expect(count_queries(&remote_index)).to be <= queries_with_three_records + 1
       end
     end
   end

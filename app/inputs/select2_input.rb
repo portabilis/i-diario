@@ -1,4 +1,6 @@
 class Select2Input < SimpleForm::Inputs::StringInput
+  EMPTY_ELEMENT_ID = 'empty'.freeze
+
   def input(_wrapper_options)
     input_html_options[:type] = 'hidden'
     input_html_options[:style] = 'width: 100%;' + (input_html_options[:style] || '')
@@ -25,7 +27,7 @@ class Select2Input < SimpleForm::Inputs::StringInput
   end
 
   def insert_empty_element(elements)
-    options[:empty_element_id] ||= 'empty'
+    options[:empty_element_id] ||= EMPTY_ELEMENT_ID
     options[:empty_element_name] ||= '<option></option>'
 
     empty_element = { id: options[:empty_element_id], name: options[:empty_element_name], text: '' }
