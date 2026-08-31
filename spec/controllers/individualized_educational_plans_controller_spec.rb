@@ -46,6 +46,16 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
       end
 
+      it 'omits archived plans' do
+        target = plan_enrolled_in(classroom)
+        archived = plan_enrolled_in(classroom)
+        archived.discard
+
+        get :index, params: { locale: 'pt-BR' }
+
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
+      end
+
       it 'filters by student' do
         target = plan_enrolled_in(classroom)
         plan_enrolled_in(classroom)
@@ -259,56 +269,84 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   describe 'DELETE #destroy' do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
       allow(controller).to receive(:plan_editable?).and_return(true)
     end
 
-    it 'destroys the plan and redirects to the index' do
+    it 'archives the plan and redirects to the index' do
       plan = create(:individualized_educational_plan)
 
       expect {
         delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.to change(IndividualizedEducationalPlan, :count).by(-1)
+      }.not_to change(IndividualizedEducationalPlan, :count)
 
+      expect(plan.reload).to be_discarded
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
 
-    it 'destroys the plan even with data in sections 4 and 5 (regression: cascade order blocked deletion)' do
+    it 'preserves the published versions and the section records when archiving' do
       plan = create(:individualized_educational_plan)
       review_date = create(:iep_review_date, iep: plan)
-      create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
-      create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date, acquired_skills: 'Habilidades')
+      planning = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date, long_term_goal: 'Meta')
+      evaluation = create(:iep_periodic_evaluation, iep: plan, iep_review_date: review_date,
+                                                    acquired_skills: 'Habilidades')
+      version = create(:iep_version, :current, iep: plan)
 
-      expect {
-        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.to change(IndividualizedEducationalPlan, :count).by(-1)
-        .and change(IepReviewDate, :count).by(-1)
-        .and change(IepCurricularPlanning, :count).by(-1)
-        .and change(IepPeriodicEvaluation, :count).by(-1)
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
 
+      expect(plan.reload).to be_discarded
+      expect(plan.iep_versions).to contain_exactly(version)
+      expect(plan.iep_review_dates).to contain_exactly(review_date)
+      expect(plan.iep_curricular_plannings).to contain_exactly(planning)
+      expect(plan.iep_periodic_evaluations).to contain_exactly(evaluation)
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
 
-    it 'does not destroy a plan from a classroom the user is not linked to' do
+    # A poda de linhas vazias é do save do formulário; no arquivamento ela apagaria de vez a linha
+    # que o arquivamento existe para preservar.
+    it 'preserves a section line without content when archiving' do
+      plan = create(:individualized_educational_plan)
+      review_date = create(:iep_review_date, iep: plan)
+      empty_line = create(:iep_curricular_planning, iep: plan, iep_review_date: review_date)
+
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(plan.reload).to be_discarded
+      expect(plan.iep_curricular_plannings).to contain_exactly(empty_line)
+    end
+
+    it 'does not archive a plan from a classroom the user is not linked to' do
       allow(controller).to receive(:accessible_plans).and_call_original
       plan = create(:individualized_educational_plan)
 
-      expect {
-        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.not_to change(IndividualizedEducationalPlan, :count)
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
 
+      expect(plan.reload).not_to be_discarded
       expect(response).to redirect_to(individualized_educational_plans_path)
     end
 
-    it 'does not destroy a plan the user can no longer edit (visible only by authorship)' do
+    it 'does not archive a plan the user can no longer edit (visible only by authorship)' do
       allow(controller).to receive(:plan_editable?).and_return(false)
       plan = create(:individualized_educational_plan)
 
-      expect {
-        delete :destroy, params: { locale: 'pt-BR', id: plan.id }
-      }.not_to change(IndividualizedEducationalPlan, :count)
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
 
+      expect(plan.reload).not_to be_discarded
       expect(response).to redirect_to(individualized_educational_plan_path(plan))
+    end
+
+    # O discard salva com validação. update_column (e não save(validate: false)) para produzir a
+    # linha inválida sem passar pelas validações que justamente impedem esse estado pela tela.
+    it 'warns with the reason instead of announcing an archiving that did not happen' do
+      plan = create(:individualized_educational_plan)
+      plan.update_column(:elaborated_at, Date.new(plan.year - 1, 3, 10))
+
+      delete :destroy, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(plan.reload).not_to be_discarded
+      expect(flash[:alert]).to start_with('Não foi possível excluir este PEI:')
+      expect(flash[:alert]).to include('Data de elaboração', "ano letivo do plano (#{plan.year})")
+      expect(response).to redirect_to(individualized_educational_plans_path)
     end
   end
 
@@ -327,6 +365,20 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       previous = create(:individualized_educational_plan, year: Date.current.year - 1,
                                                           elaborated_at: Date.new(Date.current.year - 1, 3, 10))
       enroll(previous.student, classroom)
+
+      get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
+
+      expect(JSON.parse(response.body)).to contain_exactly(
+        'id' => current.student_id, 'name' => current.student.name
+      )
+    end
+
+    it 'excludes a student whose only plan in the classroom was archived' do
+      current = create(:individualized_educational_plan)
+      enroll(current.student, classroom)
+      archived = create(:individualized_educational_plan)
+      enroll(archived.student, classroom)
+      archived.discard
 
       get :fetch_students_by_classroom, params: { locale: 'pt-BR', classroom_id: classroom.id, format: :json }
 
@@ -820,6 +872,17 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(JSON.parse(response.body)['has_existing_plan']).to eq(true)
     end
 
+    it 'does not flag an archived plan as existing' do
+      allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
+      plan = create(:individualized_educational_plan, year: Date.current.year)
+      enroll(plan.student, classroom)
+      plan.discard
+
+      get :student_data, params: { locale: 'pt-BR', student_id: plan.student_id, format: :json }
+
+      expect(JSON.parse(response.body)['has_existing_plan']).to eq(false)
+    end
+
     it 'ignores the plan being edited when flagging (plan_id)' do
       allow(IndividualizedEducationalPlanPrefill).to receive(:student_data).and_return({})
       plan = create(:individualized_educational_plan, year: Date.current.year)
@@ -934,6 +997,19 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(assigns(:individualized_educational_plan).characterization).to eq('Perfil')
     end
 
+    it 'does not open an archived plan' do
+      plan = create(:individualized_educational_plan, year: Date.current.year)
+      create(:student_enrollment_classroom,
+             student_enrollment: create(:student_enrollment, student: plan.student),
+             classrooms_grade: create(:classrooms_grade, classroom: classroom))
+      plan.discard
+
+      get :show, params: { locale: 'pt-BR', id: plan.id }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(assigns(:individualized_educational_plan)).to be_nil
+    end
+
     it 'does not open a plan from a classroom the user is not linked to' do
       plan = create(:individualized_educational_plan)
 
@@ -949,7 +1025,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
       allow(controller).to receive(:plan_editable?).and_return(true)
       allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
       allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
@@ -1066,7 +1142,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       # alguns exemplos deste bloco exercitam o fluxo real de update das seções 4/5 (patch :update),
       # que passa por plan_with_components → accessible_plans.
-      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
       allow(controller).to receive(:plan_editable?).and_return(true)
       # Aluno permitido: a fronteira server-side do create é exercida em teste próprio.
       allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
@@ -1138,6 +1214,24 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to redirect_to(edit_individualized_educational_plan_path(existing))
       expect(flash[:notice]).to eq(I18n.t('individualized_educational_plans.flash.already_exists_editing'))
+    end
+
+    # O par completo da feature: o arquivado não pode nem ser reaberto no lugar do novo, nem
+    # impedir a criação. É aqui que a validação e o índice parcial se encontram com a tela.
+    it 'creates a new plan for a student whose previous plan was archived' do
+      student = create(:student)
+      archived = create(:individualized_educational_plan, student: student, year: Date.current.year)
+      archived.discard
+
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1',
+          individualized_educational_plan: valid_params.merge(student_id: student.id)
+        }
+      end.to change(IndividualizedEducationalPlan, :count).by(1)
+
+      expect(response).not_to redirect_to(edit_individualized_educational_plan_path(archived))
+      expect(archived.reload).to be_discarded
     end
 
     it 'creates the plan and publishes the first version' do
@@ -1275,7 +1369,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   describe 'PATCH #update' do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
       allow(controller).to receive(:plan_editable?).and_return(true)
     end
 
@@ -1418,7 +1512,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
   describe 'finalization (save + publish in the same submit)' do
     before do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
-      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.all)
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
       allow(controller).to receive(:plan_editable?).and_return(true)
       allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
       allow(controller).to receive(:current_school_year).and_return(Date.current.year)
