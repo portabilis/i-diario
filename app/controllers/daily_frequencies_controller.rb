@@ -275,6 +275,13 @@ class DailyFrequenciesController < ApplicationController
       current_teacher_id
     )
 
+    AutomaticAbsencePostingEnqueuer.call(
+      entity_id: current_entity.id,
+      classroom_id: daily_frequency_record.classroom_id,
+      frequency_dates: [daily_frequency_record.frequency_date],
+      teacher_id: current_teacher_id
+    )
+
     if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = daily_frequency_record.classroom.description
       unity = daily_frequency_record.unity.name
@@ -296,20 +303,33 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
-      daily_frequency = @daily_frequencies.first
-      classroom_id = daily_frequency.classroom_id
-      frequency_date = daily_frequency.frequency_date
+      authorize @daily_frequencies.first
 
-      authorize daily_frequency
+      classroom_dates = @daily_frequencies.map { |daily_frequency|
+        [daily_frequency.classroom_id, daily_frequency.frequency_date]
+      }.uniq
 
       @daily_frequencies.each(&:destroy)
 
-      UniqueDailyFrequencyStudentsCreator.call_worker(
-        current_entity.id,
-        classroom_id,
-        frequency_date,
-        current_teacher_id
-      )
+      classroom_dates.each do |classroom_id, frequency_date|
+        UniqueDailyFrequencyStudentsCreator.call_worker(
+          current_entity.id,
+          classroom_id,
+          frequency_date,
+          current_teacher_id
+        )
+      end
+
+      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+      classroom_dates.group_by(&:first).each do |classroom_id, dates|
+        AutomaticAbsencePostingEnqueuer.call(
+          entity_id: current_entity.id,
+          classroom_id: classroom_id,
+          frequency_dates: dates.map(&:last),
+          teacher_id: current_teacher_id,
+          force_posting: true
+        )
+      end
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path
     else

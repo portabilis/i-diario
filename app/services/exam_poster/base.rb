@@ -75,12 +75,18 @@ module ExamPoster
       @teacher ||= @post_data.teacher || @post_data.author.current_teacher
     end
 
+    # classroom_id no posting restringe o escopo a uma turma (hoje só o envio automático o
+    # preenche); sem ele, todas as turmas do professor.
     def classrooms
-      @classrooms ||= teacher.classrooms.uniq
+      @classrooms ||= begin
+        scope = teacher.classrooms
+        scope = scope.where(id: @post_data.classroom_id) if @post_data.classroom_id.present?
+        scope.uniq
+      end
     end
 
     def classroom_ids
-      @classroom_ids ||= teacher.classrooms.pluck(:id).uniq
+      @classroom_ids ||= classrooms.map(&:id)
     end
 
     def discipline_ids

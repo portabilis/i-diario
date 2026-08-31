@@ -12,16 +12,22 @@ class IeducarApiExamPosting < ApplicationRecord
   belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
   belongs_to :author, class_name: 'User'
   belongs_to :teacher
+  belongs_to :classroom
 
   has_one :worker_batch, as: :stateable
   has_many :notices, as: :noticeable
 
   validates :ieducar_api_configuration, presence: true
+  # O escopo do envio automático é a turma; sem ela o poster cai no ramo do envio manual e mandaria
+  # as faltas de todas as turmas do professor.
+  validates :classroom, presence: true, if: :automatic?
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   delegate :to_api, to: :ieducar_api_configuration
 
+  scope :automatic, -> { where(automatic: true) }
+  scope :manual, -> { where(automatic: false) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:teacher).where(teacher_id: teacher_id) }
   scope :by_school_calendar_classroom_steps,
         lambda { |step_number|

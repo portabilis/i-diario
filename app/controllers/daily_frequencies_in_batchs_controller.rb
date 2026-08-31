@@ -90,11 +90,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                    )
                                  end
     dates = []
+    worker_calls = []
 
     ActiveRecord::Base.transaction do
       daily_frequency_students_to_save = []
       absence_justifications_to_save = []
-      worker_calls = []
 
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
         daily_frequency_data = daily_frequency_attributes
@@ -207,16 +207,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
         dfs.save!
       end
 
-      unique_worker_calls = worker_calls.uniq { |call| [call[:classroom_id], call[:frequency_date]] }
-      unique_worker_calls.each do |worker_call|
-        UniqueDailyFrequencyStudentsCreator.call_worker(
-          worker_call[:entity_id],
-          worker_call[:classroom_id],
-          worker_call[:frequency_date],
-          worker_call[:teacher_id]
-        )
-      end
     end
+
+    # Enfileiramento depois do COMMIT: dentro da transação o job pode rodar antes dela terminar e
+    # ler o estado anterior, e um rollback deixaria os jobs enfileirados assim mesmo.
+    enqueue_frequency_hooks(worker_calls)
 
     if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = Classroom.find(daily_frequency_attributes[:classroom_id])
@@ -277,7 +272,21 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
+      authorize @daily_frequencies.first
+
+      worker_calls = @daily_frequencies.map { |daily_frequency|
+        {
+          entity_id: current_entity.id,
+          classroom_id: daily_frequency.classroom_id,
+          frequency_date: daily_frequency.frequency_date,
+          teacher_id: current_teacher_id
+        }
+      }
+
       @daily_frequencies.each(&:destroy)
+
+      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+      enqueue_frequency_hooks(worker_calls, force_posting: true)
 
       flash[:success] = t('.success')
 
@@ -301,6 +310,30 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     respond_with @daily_frequencies
+  end
+
+  # Cada turma recebe uma única chamada com todas as suas datas: o envio é por etapa, então datas
+  # da mesma etapa viram um envio só, sem repetir a resolução de turma e calendário por dia.
+  def enqueue_frequency_hooks(worker_calls, force_posting: false)
+    worker_calls.uniq { |call| [call[:classroom_id], call[:frequency_date]] }.each do |worker_call|
+      UniqueDailyFrequencyStudentsCreator.call_worker(
+        worker_call[:entity_id],
+        worker_call[:classroom_id],
+        worker_call[:frequency_date],
+        worker_call[:teacher_id]
+      )
+    end
+
+    worker_calls.group_by { |call| [call[:classroom_id], call[:teacher_id]] }
+                .each do |(classroom_id, teacher_id), calls|
+      AutomaticAbsencePostingEnqueuer.call(
+        entity_id: current_entity.id,
+        classroom_id: classroom_id,
+        frequency_dates: calls.map { |call| call[:frequency_date] },
+        teacher_id: teacher_id,
+        force_posting: force_posting
+      )
+    end
   end
 
   def fetch_frequency_type
