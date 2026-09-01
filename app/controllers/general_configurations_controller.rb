@@ -66,7 +66,8 @@ class GeneralConfigurationsController < ApplicationController
       :allow_class_number_on_content_records,
       :allow_automatic_avaliation_recovery,
       :always_send_email_on_daily_frequency_registration,
-      :allow_active_search_frequency
+      :allow_active_search_frequency,
+      :hide_no_school_events_on_attendance_record_report
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')
