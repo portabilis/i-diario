@@ -102,7 +102,9 @@ class IndividualizedEducationalPlanSnapshot
   end
 
   def support_team
-    plan.slice('family_guidelines', 'external_professionals_guidelines').merge(
+    plan.slice('family_guidelines', 'external_professionals_guidelines',
+               'uses_medication', 'medication_name', 'medication_dosage',
+               'medication_schedule', 'medication_notes', 'family_environment_characteristics').merge(
       'accompaniment' => selected_option_descriptions(:accompaniment),
       'accompaniment_option_ids' => selected_option_ids(:accompaniment),
       'support_type' => selected_option_descriptions(:support_type),

@@ -153,6 +153,25 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
       expect(support_team['support_type_option_ids']).to eq([support_type.id])
     end
 
+    # false é resposta ("Não"), não ausência: precisa sobreviver ao slice e ao jsonb — um
+    # consumidor que use present? no lugar de nil? faria o "Não" sumir do documento.
+    it 'freezes the medication and family environment fields keeping a "no" answer' do
+      plan = create(:individualized_educational_plan,
+                    uses_medication: false, medication_name: 'Medicamento A',
+                    medication_dosage: '5mg', medication_schedule: '08:00',
+                    medication_notes: 'Apos o almoco',
+                    family_environment_characteristics: 'Rotina estruturada')
+
+      support_team = described_class.build(plan, student_data: {})['support_team']
+
+      expect(support_team['uses_medication']).to eq(false)
+      expect(support_team['medication_name']).to eq('Medicamento A')
+      expect(support_team['medication_dosage']).to eq('5mg')
+      expect(support_team['medication_schedule']).to eq('08:00')
+      expect(support_team['medication_notes']).to eq('Apos o almoco')
+      expect(support_team['family_environment_characteristics']).to eq('Rotina estruturada')
+    end
+
     # O id gravado é o da OPÇÃO, não o da linha de junção. As junções descartáveis abaixo afastam
     # as duas sequences: com os ids coincidindo por acaso, o exemplo não distinguiria os dois.
     it 'records the option id and not the id of the join row' do

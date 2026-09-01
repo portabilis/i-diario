@@ -5,7 +5,40 @@
   <%= render 'multi_select', f: f, attribute: :support_type, view_only: view_only,
         kind: IepOptionKinds::SUPPORT_TYPE, label: t('.support_type') %>
 
-  <% %i[family_guidelines external_professionals_guidelines].each do |field| %>
-    <%= render 'textarea', f: f, attribute: field, label: t(".#{field}"), view_only: view_only %>
-  <% end %>
+  <%= render 'textarea', f: f, attribute: :family_guidelines, label: t('.family_guidelines'),
+        view_only: view_only, placeholder: t('.family_guidelines_placeholder') %>
+
+  <%# spaced-row: linha sem textarea fica colada na de cima (ver a regra em educacao.scss). %>
+  <div class="row spaced-row">
+    <div class="col col-sm-3">
+      <%# collection explícita: sem ela o input_field de coluna boolean renderiza checkbox, não select. %>
+      <%= f.input :uses_medication, label: t('.uses_medication') do %>
+        <%= f.input_field :uses_medication,
+              collection: [[t('boolean.yes'), true], [t('boolean.no'), false]],
+              include_blank: true, disabled: view_only %>
+        <i></i>
+      <% end %>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :medication_name, label: t('.medication_name'),
+                  input_html: { readonly: view_only } %>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :medication_dosage, label: t('.medication_dosage'),
+                  input_html: { readonly: view_only } %>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :medication_schedule, label: t('.medication_schedule'),
+                  input_html: { readonly: view_only } %>
+    </div>
+  </div>
+  <%= render 'textarea', f: f, attribute: :medication_notes, label: t('.medication_notes'),
+        view_only: view_only %>
+
+  <%= render 'textarea', f: f, attribute: :family_environment_characteristics,
+        label: t('.family_environment_characteristics'), view_only: view_only,
+        placeholder: t('.family_environment_characteristics_placeholder') %>
+
+  <%= render 'textarea', f: f, attribute: :external_professionals_guidelines,
+        label: t('.external_professionals_guidelines'), view_only: view_only %>
 </fieldset>
