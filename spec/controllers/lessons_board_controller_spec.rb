@@ -263,8 +263,12 @@ RSpec.describe LessonsBoardsController, type: :controller do
     context 'pagination' do
       # `apply_scopes` aplica o LIMIT/OFFSET antes de `filter_from_params` acrescentar os WHERE,
       # então o total precisa refletir o conjunto filtrado, não o pré-filtro.
+      # Um quadro por turma/série e turno: o volume da paginação vem de séries distintas da
+      # mesma turma, não de repetir a mesma chave.
       let!(:extra_lessons_boards) do
-        create_list(:lessons_board, 12, classrooms_grade: classroom_grade)
+        Array.new(12) do
+          create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: classroom))
+        end
       end
 
       it 'returns the first page with the default page size' do
@@ -341,7 +345,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
         remote_index.call # aquece o carregamento de colunas, que só acontece na primeira consulta
         queries_with_three_records = count_queries(&remote_index)
 
-        create_list(:lessons_board, 7, classrooms_grade: classroom_grade_2)
+        7.times { create(:lessons_board, classrooms_grade: create(:classrooms_grade, classroom: classroom)) }
 
         # Sem o preload cada linha renderizada dispara consultas próprias (turma, escola e série),
         # então as 7 linhas adicionadas custariam dezenas de consultas extras. Com ele o custo é
@@ -373,10 +377,13 @@ RSpec.describe LessonsBoardsController, type: :controller do
         )}.to_not change(LessonsBoard, :count)
       end
 
-      it 'repeated submit for the same classrooms grade and period' do
+      # A regra em si é do model (spec/models/lessons_board_spec.rb); aqui prova-se para onde a
+      # action leva o usuário quando o quadro é recusado por já existir.
+      it 'sends the duplicate to the listing with an alert' do
         params = json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
-                   .merge('classrooms_grade_id' => classroom_grade.id.to_s,
-                          'period' => lessons_board_1.period)
+                   .merge('classrooms_grade_id' => classroom_grade.id.to_s)
+        allow_any_instance_of(LessonsBoard).to receive(:save).and_return(false)
+        allow_any_instance_of(LessonsBoard).to receive(:duplicated?).and_return(true)
 
         expect {(
           post :create, params: { locale: 'pt-BR', lessons_board: params }
@@ -390,18 +397,21 @@ RSpec.describe LessonsBoardsController, type: :controller do
     context 'when the database rejects a simultaneous submit' do
       let(:params) do
         json_file_fixture('/spec/fixtures/files/full_lessons_board.json')
-          .merge('classrooms_grade_id' => classroom_grade.id.to_s,
-                 'period' => lessons_board_1.period)
+          .merge('classrooms_grade_id' => create(:classrooms_grade, classroom: classroom).id.to_s)
       end
 
-      # Deixa o INSERT chegar ao banco com a chave já ocupada: é o estado de dois envios
-      # simultâneos, em que ambos passam pela validação antes de qualquer um gravar.
-      def skip_uniqueness_validation
-        allow_any_instance_of(LessonsBoard).to receive(:uniqueness_of_classrooms_grade_and_period)
+      # Envios simultâneos passam os dois pela validação antes de qualquer um gravar, e é o índice
+      # único que recusa o segundo INSERT.
+      def raise_unique_violation(constraint)
+        allow_any_instance_of(LessonsBoard).to receive(:save).and_raise(
+          ActiveRecord::RecordNotUnique.new(
+            "PG::UniqueViolation: duplicate key value violates unique constraint \"#{constraint}\""
+          )
+        )
       end
 
       it 'redirects with an alert when the unique index rejects the insert' do
-        skip_uniqueness_validation
+        raise_unique_violation(LessonsBoardsController::UNIQUE_INDEX_NAME)
 
         expect {(
           post :create, params: { locale: 'pt-BR', lessons_board: params }
@@ -422,12 +432,7 @@ RSpec.describe LessonsBoardsController, type: :controller do
       end
 
       it 'redirects with an alert when the update hits the unique index' do
-        allow_any_instance_of(LessonsBoard).to receive(:save).and_raise(
-          ActiveRecord::RecordNotUnique.new(
-            "PG::UniqueViolation: duplicate key value violates unique constraint " \
-            "\"#{LessonsBoardsController::UNIQUE_INDEX_NAME}\""
-          )
-        )
+        raise_unique_violation(LessonsBoardsController::UNIQUE_INDEX_NAME)
 
         put :update, params: { locale: 'pt-BR', id: lessons_board_1.id, lessons_board: params }
 

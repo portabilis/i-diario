@@ -44,8 +44,12 @@ class LessonsBoard < ActiveRecord::Base
     undiscard_dependents_discarded_with(lessons_board_lessons)
   end
 
+  # `errors.details` guarda o símbolo do erro; `added?` compararia a mensagem já traduzida,
+  # que depende do locale vigente no momento da checagem.
   def duplicated?
-    errors.added?(:classrooms_grade_id, :uniqueness_of_classrooms_grade_and_period)
+    errors.details[:classrooms_grade_id].any? do |error|
+      error[:error] == :uniqueness_of_classrooms_grade_and_period
+    end
   end
 
   private
