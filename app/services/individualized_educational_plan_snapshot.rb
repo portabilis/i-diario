@@ -22,6 +22,9 @@
 # - Os ids são LOCAIS À ENTITY e são pista de restauração, não referência garantida: resolvê-los
 #   fora de entity.using_connection acha um registro diferente e válido em outra rede, e o alvo
 #   pode ter sido descartado depois. A descrição gravada ao lado é o critério de conferência.
+# - `uses_medication` é o único booleano do documento e é TRI-STATE: false ("Não") é resposta e
+#   null é "não respondido". Podar o support_team por present?/compact/reject(&:blank?) apagaria
+#   um "Não" de uma versão publicada e imutável, sem erro nenhum.
 class IndividualizedEducationalPlanSnapshot
   def initialize(plan, student_data: nil, classroom: nil)
     @plan = plan

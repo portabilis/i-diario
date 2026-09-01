@@ -8,14 +8,22 @@
   <%= render 'textarea', f: f, attribute: :family_guidelines, label: t('.family_guidelines'),
         view_only: view_only, placeholder: t('.family_guidelines_placeholder') %>
 
-  <%# spaced-row: linha sem textarea fica colada na de cima (ver a regra em educacao.scss). %>
+  <%# spaced-row: iguala o respiro desta linha ao das linhas de textarea (regra em educacao.scss). %>
   <div class="row spaced-row">
     <div class="col col-sm-3">
-      <%# collection explícita: sem ela o input_field de coluna boolean renderiza checkbox, não select. %>
+      <%# Armadilha do input_field com :collection: ele repassa as opções ao collection_select,
+          onde :disabled significa "desabilite a option com ESTE value" — e Array(false) casa com
+          o value da option "Não". Por isso f.select, com o disabled do campo no 4º argumento
+          (html_options). include_blank é o terceiro estado do tri-state ("não respondido"):
+          removê-lo impede deixar/voltar a pergunta sem resposta. %>
+      <%# As classes reproduzem as que o patch do SimpleForm injeta nos selects de collection
+          (lib/portabilis/inputs/collection_select_input.rb) — form-control é o que dá a largura
+          total da coluna; sem elas o select encolhe à largura do texto. %>
       <%= f.input :uses_medication, label: t('.uses_medication') do %>
-        <%= f.input_field :uses_medication,
-              collection: [[t('boolean.yes'), true], [t('boolean.no'), false]],
-              include_blank: true, disabled: view_only %>
+        <%= f.select :uses_medication,
+              [[t('boolean.yes'), true], [t('boolean.no'), false]],
+              { include_blank: true },
+              { disabled: view_only, class: 'form-control input-sm select optional' } %>
         <i></i>
       <% end %>
     </div>

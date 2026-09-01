@@ -16,7 +16,8 @@
                      medication_notes family_environment_characteristics
                      external_professionals_guidelines]
   # Boolean tri-state: false é resposta ("Não") e precisa aparecer, mas false.present? é false —
-  # por isso o campo vira rótulo ("Sim"/"Não") ANTES do filled?, com guard de nil (não respondido).
+  # por isso o campo vira rótulo ("Sim"/"Não") ANTES do filled?. O guard de nil é obrigatório:
+  # t_boolean devolve "Não" também para nil, imprimindo resposta onde ninguém respondeu.
   uses_medication = support_team['uses_medication']
   support_rows = support_texts.map { |field| [field, support_team[field]] }
   # Mesma posição do formulário: entre as orientações da família e o nome do medicamento.
@@ -143,6 +144,9 @@
     <tr><th class="section-title">3. <%= t('individualized_educational_plans.form.sections.support_team') %></th></tr>
   </thead>
   <tbody>
+    <%# Condição em duas pernas: support_rows carrega o booleano já como rótulo ("Não" passa no
+        filled?), fora do hash cru que o any_filled? lê — juntar as duas apagaria a seção quando
+        a única resposta for "Não". %>
     <% if presenter.any_filled?(support_team, support_badges) || support_rows.any? { |_, value| presenter.filled?(value) } %>
       <% support_badges.each do |field| %>
         <% next unless presenter.filled?(support_team[field]) %>

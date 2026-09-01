@@ -53,9 +53,7 @@ form .disabled label {
 .textarea{
   padding-top: 15px
 }
-// O respiro entre linhas do smart-form vem de padding-top na linha de BAIXO (a margem dos
-// control-groups é engolida pelo float das colunas) — a regra .textarea acima cobre as linhas
-// de textarea; spaced-row é o equivalente para uma linha de qualquer outro tipo de campo.
+// Iguala o respiro de uma linha de campos ao das linhas de textarea (regra .textarea acima).
 .row.spaced-row {
   padding-top: 15px;
 }

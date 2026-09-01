@@ -79,6 +79,9 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
 
     expect(plan.uses_medication).to be_nil
     expect(plan.medication_name).to be_nil
+    expect(plan.medication_dosage).to be_nil
+    expect(plan.medication_schedule).to be_nil
+    expect(plan.medication_notes).to be_nil
     expect(plan.family_environment_characteristics).to be_nil
     expect(plan.family_guidelines).to eq('Orientacoes')
   end

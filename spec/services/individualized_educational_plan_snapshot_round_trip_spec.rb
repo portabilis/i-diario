@@ -53,6 +53,11 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
 
     restored = publish_and_restore(plan)
 
+    # No jsonb o false tem que ser BOOLEANO: uma string "false" é truthy para quem ler o conteúdo
+    # bruto do documento imutável (o cast do plano restaurado esconderia essa diferença).
+    frozen = plan.iep_versions.find_by(active: true).content['support_team']['uses_medication']
+    expect(frozen).to eq(false)
+
     expect(restored.uses_medication).to eq(false)
     expect(restored.medication_name).to eq('Medicamento A')
     expect(restored.medication_dosage).to eq('5mg')

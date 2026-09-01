@@ -39,6 +39,23 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
     expect(rendered).not_to include('translation_missing')
   end
 
+  # Tri-state de medicação: as 3 opções (em branco/Sim/Não) selecionáveis na edição. Passar
+  # :disabled junto da collection desabilitaria a OPTION de value correspondente — é a regressão
+  # que a asserção de "nenhuma option disabled" pega.
+  it 'renders the medication select with the three states selectable and the stored answer chosen' do
+    plan = build(:individualized_educational_plan, uses_medication: false)
+    3.times { plan.iep_review_dates.build }
+    assign_form_options(plan)
+
+    render partial: 'individualized_educational_plans/form'
+
+    select_html = rendered[%r{<select[^>]*uses_medication[^>]*>.*?</select>}m]
+    expect(select_html).to include('<option value=""></option>')
+    expect(select_html).to include('<option value="true">Sim</option>')
+    expect(select_html).to include('<option selected="selected" value="false">Não</option>')
+    expect(select_html).not_to include('disabled')
+  end
+
   # Modo leitura (view_only): mesmo formulário, sem controles de edição.
   context 'in view_only mode' do
     it 'renders read-only without edit controls and blocks submit' do
@@ -58,6 +75,8 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
       expect(rendered).not_to include('pei-wizard-finish')
       expect(rendered).not_to include('iep-finalize-modal')
       expect(rendered).not_to include('iep-add-component')
+      # Em leitura o select de medicação inteiro fica desabilitado (o submit já é bloqueado).
+      expect(rendered[%r{<select[^>]*uses_medication[^>]*>}]).to include('disabled')
     end
   end
 

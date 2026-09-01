@@ -153,8 +153,9 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
       expect(support_team['support_type_option_ids']).to eq([support_type.id])
     end
 
-    # false é resposta ("Não"), não ausência: precisa sobreviver ao slice e ao jsonb — um
-    # consumidor que use present? no lugar de nil? faria o "Não" sumir do documento.
+    # false é resposta ("Não"), não ausência: precisa sobreviver ao slice — um consumidor que
+    # use present? no lugar de nil? faria o "Não" sumir do documento. A ida e volta pelo jsonb
+    # é provada no spec de round-trip, não aqui (este exemplo fica em memória).
     it 'freezes the medication and family environment fields keeping a "no" answer' do
       plan = create(:individualized_educational_plan,
                     uses_medication: false, medication_name: 'Medicamento A',
