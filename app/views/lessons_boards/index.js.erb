@@ -1,3 +1,18 @@
 $('#resources-tbody').replaceWith('<%= escape_javascript(render("resources")) %>');
-$('#paginator .pagination').html('<%= escape_javascript(paginate(@lessons_boards, :remote => true).to_s) %>');
-$('#page_entries_info').html('<%= escape_javascript(page_entries_info(@lessons_boards).to_s) %>');
+$('#pagination-tfoot').html(
+  "<%=
+    escape_javascript(render(partial: 'shared/pagination', locals: { records: @lessons_boards }))
+  %>"
+);
+
+<%# Trocar de página não altera nenhum nível da cascata, e reemitir as opções custaria trafegar e
+    reconstruir listas com milhares de turmas. %>
+<% unless params[:page].present? %>
+  <%# Cada filtro recebe as opções válidas e o valor já saneado pelo servidor %>
+  lessonsBoardsIndex.refreshFilter('search_by_unity',
+    <%= raw select2_elements_json(@unities_options) %>, '<%= escape_javascript(@filtering_params[:by_unity].to_s) %>');
+  lessonsBoardsIndex.refreshFilter('search_by_grade',
+    <%= raw select2_elements_json(@grades_options) %>, '<%= escape_javascript(@filtering_params[:by_grade].to_s) %>');
+  lessonsBoardsIndex.refreshFilter('search_by_classroom',
+    <%= raw select2_elements_json(@classrooms_options) %>, '<%= escape_javascript(@filtering_params[:by_classroom].to_s) %>');
+<% end %>

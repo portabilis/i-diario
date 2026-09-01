@@ -5,6 +5,33 @@ RSpec.describe IeducarApiExamPosting, :type => :model do
     it { should belong_to :ieducar_api_configuration }
     it { should belong_to :school_calendar_step }
     it { should belong_to :author }
+    it { should belong_to :classroom }
+  end
+
+  describe 'automatic postings' do
+    it 'requires a classroom' do
+      posting = build(:ieducar_api_exam_posting, automatic: true, classroom: nil)
+
+      expect(posting).not_to be_valid
+      expect(posting.errors[:classroom]).to be_present
+    end
+
+    it 'accepts a manual posting without a classroom' do
+      expect(build(:ieducar_api_exam_posting, automatic: false, classroom: nil)).to be_valid
+    end
+  end
+
+  describe 'scopes' do
+    let!(:manual_posting) { create(:ieducar_api_exam_posting, automatic: false) }
+    let!(:automatic_posting) { create(:ieducar_api_exam_posting, automatic: true, classroom: create(:classroom)) }
+
+    it '.automatic returns only the postings triggered by the frequency registration' do
+      expect(described_class.automatic).to contain_exactly(automatic_posting)
+    end
+
+    it '.manual returns only the postings triggered from the screen' do
+      expect(described_class.manual).to contain_exactly(manual_posting)
+    end
   end
 
   context "Validations" do

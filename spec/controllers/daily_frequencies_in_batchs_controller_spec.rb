@@ -389,6 +389,83 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
   end
 
+  describe 'DELETE #destroy_multiple' do
+    let!(:daily_frequency) { create(:daily_frequency, :with_students) }
+
+    it 'deletes the daily frequencies and enqueues the frequency hooks of the classroom forcing the resend' do
+      expect(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker).with(
+        entity.id,
+        daily_frequency.classroom_id,
+        daily_frequency.frequency_date,
+        current_teacher.id
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: daily_frequency.classroom_id,
+        frequency_dates: [daily_frequency.frequency_date],
+        teacher_id: current_teacher.id,
+        force_posting: true
+      )
+
+      expect {
+        delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: [daily_frequency.id] }
+      }.to change(DailyFrequency, :count).by(-1)
+
+      expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
+    end
+  end
+
+  describe '#enqueue_frequency_hooks' do
+    let(:other_classroom) { create(:classroom, unity: unity) }
+    let(:worker_calls) do
+      [
+        { entity_id: entity.id, classroom_id: classroom.id, frequency_date: '2017-02-01'.to_date,
+          teacher_id: current_teacher.id },
+        { entity_id: entity.id, classroom_id: classroom.id, frequency_date: '2017-02-02'.to_date,
+          teacher_id: current_teacher.id },
+        { entity_id: entity.id, classroom_id: other_classroom.id, frequency_date: '2017-02-01'.to_date,
+          teacher_id: current_teacher.id }
+      ]
+    end
+
+    before { allow(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker) }
+
+    # Uma chamada por turma com todas as datas: o envio é por etapa, então repetir a chamada por dia
+    # repetiria a resolução de turma e calendário para produzir o mesmo envio.
+    it 'groups the dates of each classroom into a single call' do
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: classroom.id,
+        frequency_dates: ['2017-02-01'.to_date, '2017-02-02'.to_date],
+        teacher_id: current_teacher.id,
+        force_posting: false
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: other_classroom.id,
+        frequency_dates: ['2017-02-01'.to_date],
+        teacher_id: current_teacher.id,
+        force_posting: false
+      )
+
+      controller.send(:enqueue_frequency_hooks, worker_calls)
+    end
+
+    it 'forwards the force posting flag used by the deletion' do
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call)
+        .twice.with(hash_including(force_posting: true))
+
+      controller.send(:enqueue_frequency_hooks, worker_calls, force_posting: true)
+    end
+
+    it 'keeps one unique frequency student call per classroom and date' do
+      expect(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker).exactly(3).times
+      allow(AutomaticAbsencePostingEnqueuer).to receive(:call)
+
+      controller.send(:enqueue_frequency_hooks, worker_calls + [worker_calls.first])
+    end
+  end
+
   describe 'private methods' do
     describe '#parse_json_frequency_attributes' do
       let(:json_data) do

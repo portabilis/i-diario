@@ -3,6 +3,25 @@
 #   - pelo publisher, para congelar a versão publicada (jsonb imutável);
 #   - pela visualização/PDF, para renderizar tanto o plano vivo quanto uma versão
 #     (mesma estrutura => mesma renderização).
+#
+# Cada nome/descrição resolvido de um registro LOCAL vem acompanhado do id desse registro, como
+# metadado de restauração (os campos vindos do i-Educar — responsáveis, diagnóstico, turno,
+# nascimento — não têm registro local nem id). São sempre chaves ADITIVAS: versão sem elas
+# continua renderizando igual, e a coluna guarda jsonb de formatos heterogêneos.
+#
+# Regras a manter em quem consumir o snapshot:
+#
+# - NÃO resolver nome por id na leitura: devolveria o nome ATUAL do registro e quebraria a
+#   imutabilidade que é o motivo de existir o snapshot. O cuidado é concreto porque as chaves de
+#   opção têm o mesmo nome dos setters de IepMultiSelectable — um assign_attributes(section) no
+#   Restorer as pegaria e reataria a IepOption viva.
+# - `component_type` é o ÚNICO discriminador entre disciplina e área de conhecimento. Em snapshot
+#   sem essas chaves, discipline_id é nil por ausência; em linha por área, é nil por ser área —
+#   os dois estados são indistinguíveis, e trocar por `if line['discipline_id']` reclassificaria
+#   toda linha antiga de disciplina.
+# - Os ids são LOCAIS À ENTITY e são pista de restauração, não referência garantida: resolvê-los
+#   fora de entity.using_connection acha um registro diferente e válido em outra rede, e o alvo
+#   pode ter sido descartado depois. A descrição gravada ao lado é o critério de conferência.
 class IndividualizedEducationalPlanSnapshot
   def initialize(plan, student_data: nil, classroom: nil)
     @plan = plan
@@ -19,11 +38,11 @@ class IndividualizedEducationalPlanSnapshot
       'identification' => identification,
       'characterization' => characterization,
       'support_team' => support_team,
-      'curricular_plannings' => section_lines(curricular_plannings) { |line|
+      'curricular_plannings' => section_lines(curricular_plannings, 'iep_curricular_planning_id') { |line|
         line.slice('long_term_goal', 'stage_objectives', 'skills_to_develop', 'methodologies')
             .merge(accommodations(line))
       },
-      'periodic_evaluations' => section_lines(periodic_evaluations) { |line|
+      'periodic_evaluations' => section_lines(periodic_evaluations, 'iep_periodic_evaluation_id') { |line|
         line.slice('acquired_skills', 'in_progress_skills', 'not_acquired_skills',
                    'period_report', 'next_stage_adjustments')
       },
@@ -39,21 +58,32 @@ class IndividualizedEducationalPlanSnapshot
   def identification
     data = @student_data ||
            IndividualizedEducationalPlanPrefill.student_data(plan.student, classroom: @classroom)
+    # regent_api_code é a identidade durável do regente: Classroom#regent resolve pelo api_code e
+    # devolve nil enquanto o professor não veio do i-Educar, deixando id e nome vazios numa turma
+    # que tem regente.
+    regent = @classroom&.regent
 
     {
+      'student_id' => plan.student_id,
       'student_name' => plan.student.name,
       'birth_date' => data[:birth_date],
       'guardians' => data[:guardians],
       'guardians_unavailable' => data[:guardians_unavailable],
       'diagnosis' => data[:diagnosis],
       'shift' => data[:shift],
+      'unity_id' => @classroom&.unity_id,
       'unity_name' => @classroom&.unity&.name,
+      'classroom_id' => @classroom&.id,
       'classroom_name' => @classroom&.description,
-      'teacher_name' => @classroom&.regent&.name,
+      'teacher_api_code' => @classroom&.regent_api_code,
+      'teacher_id' => regent&.id,
+      'teacher_name' => regent&.name,
+      'aee_teacher_id' => plan.aee_teacher_id,
       'aee_teacher_name' => plan.aee_teacher&.name,
       'support_professional' => plan.support_professional,
       'year' => plan.year,
       'elaborated_at' => plan.elaborated_at,
+      'review_date_ids' => ordered_review_dates.map(&:id),
       'review_dates' => ordered_review_dates.map(&:review_date)
     }
   end
@@ -63,24 +93,34 @@ class IndividualizedEducationalPlanSnapshot
                'potentialities', 'difficulties', 'preferences_interests', 'effective_strategies')
         .merge(
           'communication_profile' => selected_option_descriptions(:communication_profile),
+          'communication_profile_option_ids' => selected_option_ids(:communication_profile),
           'social_interaction_profile' => selected_option_descriptions(:social_interaction_profile),
-          'autonomy' => selected_option_descriptions(:autonomy)
+          'social_interaction_profile_option_ids' => selected_option_ids(:social_interaction_profile),
+          'autonomy' => selected_option_descriptions(:autonomy),
+          'autonomy_option_ids' => selected_option_ids(:autonomy)
         )
   end
 
   def support_team
     plan.slice('family_guidelines', 'external_professionals_guidelines').merge(
       'accompaniment' => selected_option_descriptions(:accompaniment),
-      'support_type' => selected_option_descriptions(:support_type)
+      'accompaniment_option_ids' => selected_option_ids(:accompaniment),
+      'support_type' => selected_option_descriptions(:support_type),
+      'support_type_option_ids' => selected_option_ids(:support_type)
     )
   end
 
-  # Linhas das seções 4/5 com a revisão e o componente resolvidos por nome.
-  def section_lines(lines)
+  # Linhas das seções 4/5 com a revisão e o componente resolvidos por nome. id_key nomeia a tabela
+  # de origem da linha (as duas seções passam por aqui), para a chave não ficar ambígua no documento.
+  def section_lines(lines, id_key)
     lines.map do |line|
       {
+        id_key => line.id,
+        'iep_review_date_id' => line.iep_review_date_id,
         'review_number' => review_number(line.iep_review_date_id),
         'review_date' => line.iep_review_date.review_date,
+        'discipline_id' => line.discipline_id,
+        'knowledge_area_id' => line.knowledge_area_id,
         'component_type' => line.discipline_id.present? ? 'discipline' : 'knowledge_area',
         'component_name' => line.discipline&.description || line.knowledge_area&.description
       }.merge(yield(line))
@@ -92,8 +132,11 @@ class IndividualizedEducationalPlanSnapshot
 
     {
       'instructional_accommodations' => option_descriptions(options, :instructional_accommodation),
+      'instructional_accommodation_option_ids' => option_ids(options, :instructional_accommodation),
       'environmental_accommodations' => option_descriptions(options, :environmental_accommodation),
-      'assessment_accommodations' => option_descriptions(options, :assessment_accommodation)
+      'environmental_accommodation_option_ids' => option_ids(options, :environmental_accommodation),
+      'assessment_accommodations' => option_descriptions(options, :assessment_accommodation),
+      'assessment_accommodation_option_ids' => option_ids(options, :assessment_accommodation)
     }
   end
 
@@ -111,13 +154,31 @@ class IndividualizedEducationalPlanSnapshot
     option_descriptions(selected_options, kind)
   end
 
+  def selected_option_ids(kind)
+    option_ids(selected_options, kind)
+  end
+
   def selected_options
     @selected_options ||= plan.iep_selected_options.includes(:iep_option).map(&:iep_option)
   end
 
   def option_descriptions(options, kind)
+    options_of_kind(options, kind).map(&:description)
+  end
+
+  # Id da OPÇÃO (iep_options), não o da linha de junção: a junção é surrogate descartável, recriar
+  # a seleção gera outro id. Alinhado por posição com as descrições da mesma categoria.
+  def option_ids(options, kind)
+    options_of_kind(options, kind).map(&:id)
+  end
+
+  # Fonte ÚNICA das descrições e dos ids de uma categoria: as duas arrays são lidas por posição,
+  # então precisam sair desta mesma seleção. Filtrar de um lado só desalinharia o par sem que nada
+  # reclame — o desalinhamento ficaria congelado no documento e não há leitor para acusá-lo.
+  def options_of_kind(options, kind)
     kind_value = IepOptionKinds.value_of(kind)
-    options.select { |option| option.kind == kind_value }.map(&:description)
+
+    options.select { |option| option.kind == kind_value }
   end
 
   # Query fresca (ordena no SQL) + memoização: a associação em memória pode estar

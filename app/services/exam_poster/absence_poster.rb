@@ -59,7 +59,7 @@ module ExamPoster
         GeneralConfiguration.current.do_not_send_justified_absence
       )
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         next unless can_post?(classroom)
         next if frequency_by_discipline?(classroom)
 
@@ -91,7 +91,7 @@ module ExamPoster
         GeneralConfiguration.current.do_not_send_justified_absence
       )
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|

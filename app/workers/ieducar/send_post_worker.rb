@@ -47,7 +47,12 @@ module Ieducar
         begin
           response = IeducarResponseDecorator.new(api(posting, params).send_post(params))
 
-          posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
+          if response.any_error_message?
+            message = response.full_error_message(information)
+
+            posting.add_warning!(message)
+            notify_automatic_posting_rejection(posting, message) if posting.automatic?
+          end
         rescue StandardError => error
           if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
             Rails.logger.info(
@@ -83,6 +88,27 @@ module Ieducar
         params, info,
         queue,
         retry_count + 1
+      )
+    end
+
+    # O i-Educar devolve erro de negócio dentro de HTTP 200, e o aviso gravado no posting só é
+    # exibido na tela de envio manual — para o envio automático ele não teria nenhum leitor.
+    def notify_automatic_posting_rejection(posting, message)
+      Rails.logger.error(
+        key: 'Ieducar::SendPostWorker#perform',
+        message: message,
+        posting_id: posting.id,
+        classroom_id: posting.classroom_id,
+        teacher_id: posting.teacher_id
+      )
+      Honeybadger.notify(
+        'Envio automático de faltas rejeitado pelo i-Educar',
+        context: {
+          posting_id: posting.id,
+          classroom_id: posting.classroom_id,
+          teacher_id: posting.teacher_id,
+          message: message
+        }
       )
     end
 

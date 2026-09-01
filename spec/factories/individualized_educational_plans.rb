@@ -7,11 +7,5 @@ FactoryGirl.define do
     trait :with_aee_teacher do
       association :aee_teacher, factory: :teacher
     end
-
-    trait :finalized do
-      after(:create) do |iep|
-        create(:iep_version, :current, iep: iep)
-      end
-    end
   end
 end

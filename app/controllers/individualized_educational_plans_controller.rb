@@ -53,7 +53,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     # Escopado ao ano letivo, como o accessible_plans que alimenta a listagem: sem isto, um aluno
     # cujo único PEI na turma é de ano anterior vira opção do dropdown que resulta em lista vazia.
-    student_ids = IndividualizedEducationalPlan.where(year: current_school_year)
+    student_ids = IndividualizedEducationalPlan.kept
+                                               .where(year: current_school_year)
                                                .by_classroom_id(params[:classroom_id])
                                                .select(:student_id)
     students = Student.where(id: student_ids).order(:name).pluck(:id, :name)
@@ -254,12 +255,31 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
 
-    @individualized_educational_plan.destroy
+    # Arquiva em vez de apagar: o cascade não roda e as versões publicadas ficam preservadas.
+    # discard grava com validação e devolve falsey de duas formas — false quando a validação
+    # reprova e nil quando o plano já está arquivado. Sem tratar, a tela redirecionaria
+    # anunciando uma exclusão que não aconteceu.
+    unless @individualized_educational_plan.discarded? || @individualized_educational_plan.discard
+      return archiving_failed(@individualized_educational_plan)
+    end
 
-    respond_with @individualized_educational_plan, location: individualized_educational_plans_path
+    redirect_to individualized_educational_plans_path,
+                notice: t('individualized_educational_plans.flash.archived')
   end
 
   private
+
+  # Falha de arquivamento é sempre de validação, portanto determinística: repetir dá no mesmo, e a
+  # mensagem precisa carregar o motivo. O plano em memória fica com discarded_at preenchido mesmo
+  # sem ter gravado, então nada além dos errors deve ser lido dele daqui em diante.
+  def archiving_failed(plan)
+    reasons = plan.errors.full_messages.to_sentence
+    Rails.logger.error("PEI: falha ao arquivar o plano #{plan.id}: #{reasons}")
+    Honeybadger.notify('PEI archiving failed', context: { plan_id: plan.id, reasons: reasons })
+
+    redirect_to individualized_educational_plans_path,
+                alert: t('individualized_educational_plans.flash.archive_failed', reasons: reasons)
+  end
 
   # Salva o plano e publica uma versão na mesma transação. version_name é obrigatório:
   # sem ele, registra erro e retorna false para re-renderizar o formulário.
@@ -380,8 +400,11 @@ class IndividualizedEducationalPlansController < ApplicationController
     prefill_student_fields
   end
 
+  # Só entre os vivos: o retorno alimenta o aviso de "aluno já possui PEI" no formulário, que
+  # ficaria obsoleto apontando um plano arquivado. Quem barra a criação em si é accessible_plans
+  # com o índice único parcial, não este método.
   def plan_exists_for_student?(student_id)
-    scope = IndividualizedEducationalPlan.where(student_id: student_id, year: current_school_year)
+    scope = IndividualizedEducationalPlan.kept.where(student_id: student_id, year: current_school_year)
     scope = scope.where.not(id: params[:plan_id]) if params[:plan_id].present?
     scope.exists?
   end
