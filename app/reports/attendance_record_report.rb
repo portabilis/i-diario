@@ -255,6 +255,7 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
+            students[student_enrollment_classroom.id][:social_name] = student.social_name
             students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance

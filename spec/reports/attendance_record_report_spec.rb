@@ -237,13 +237,15 @@ RSpec.describe AttendanceRecordReport, type: :report do
         expect(pdf_strings(rendered_pdf).join).not_to include('E - Feriado')
       end
 
-      it 'keeps school events visible' do
-        events << calendar_event(first_date)
+      context 'when the period also has a school event' do
+        let(:events) { [no_school_event, calendar_event(first_date)] }
 
-        rendered_pdf = render_report
+        it 'keeps school events visible' do
+          rendered_pdf = render_report
 
-        # A coluna do evento letivo permanece após a aula do próprio dia; só o dia não letivo some
-        expect(day_cells(rendered_pdf)).to eq([first_date.day.to_s, first_date.day.to_s])
+          # A coluna do evento letivo permanece após a aula do próprio dia; só o dia não letivo some
+          expect(day_cells(rendered_pdf)).to eq([first_date.day.to_s, first_date.day.to_s])
+        end
       end
 
       context 'when a frequency was recorded on the no-school day' do
@@ -259,6 +261,40 @@ RSpec.describe AttendanceRecordReport, type: :report do
           expect(day_cells(render_report)).to eq([first_date.day.to_s])
         end
       end
+    end
+  end
+
+  describe 'students per page' do
+    include_context 'attendance record report'
+
+    let(:daily_frequencies) { [create_daily_frequency(first_date, 1)] }
+    # Nome social faz a célula do nome quebrar em duas linhas, então cada dois alunos com nome social
+    # tiram um aluno da página. A contagem precisa valer também quando o período não tem coluna de evento.
+    let(:enrollment_classrooms_list) {
+      4.times.map { |index|
+        listed_student = create(
+          :student,
+          name: "Aluno #{index}",
+          social_name: index < 2 ? "Social #{index}" : nil
+        )
+        listed_enrollment = create(:student_enrollment, student: listed_student)
+
+        {
+          student_enrollment: listed_enrollment,
+          student_enrollment_classroom: create(
+            :student_enrollment_classroom,
+            student_enrollment: listed_enrollment,
+            classrooms_grade: classrooms_grade
+          ),
+          student: listed_student
+        }
+      }
+    }
+
+    it 'reduces the students per page for social names on a period without any event column' do
+      stub_const('AttendanceRecordReport::STUDENT_BY_PAGE_COUNT', 4)
+
+      expect(PDF::Inspector::Page.analyze(render_report).pages.size).to eq(2)
     end
   end
 end

@@ -26,3 +26,4 @@ pt-BR:
               must_be_a_valid_date: "deve ser uma data válida"
             daily_frequencies:
               must_have_daily_frequencies: "Nenhum resultado foi encontrado para os dados informados"
+              must_have_displayable_school_days: "Nenhum dia letivo no período informado"

@@ -42,7 +42,7 @@ pt-BR:
         allow_automatic_avaliation_recovery: "Habilitar checkbox (Criar recuperação desta avaliação?) no cadastro de avaliações numéricas"
         always_send_email_on_daily_frequency_registration: "Enviar e-mail de confirmação do registro para todos os lançamentos de frequência"
         allow_active_search_frequency: "Permitir lançamento de frequência para alunos em busca ativa"
-        hide_no_school_events_on_attendance_record_report: "Ocultar dias não letivos (feriados e recessos) no Registro de frequência"
+        hide_no_school_events_on_attendance_record_report: "Ocultar do Registro de frequência os dias não letivos que não permitem lançamentos (feriados e recessos)"
         sso_enabled: "Habilitar login via SSO"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
