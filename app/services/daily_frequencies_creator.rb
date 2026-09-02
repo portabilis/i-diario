@@ -1,4 +1,6 @@
 class DailyFrequenciesCreator
+  DAILY_FREQUENCY_KEY_COLUMNS = %w[classroom_id frequency_date period discipline_id class_number].freeze
+
   attr_reader :daily_frequencies
 
   def initialize(params)
@@ -13,19 +15,41 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create!
-    find_or_create_daily_frequencies
-    find_or_create_daily_frequency_students
+    @daily_frequencies = @class_numbers.map do |class_number|
+      find_or_create_daily_frequency_with_students(@params.merge(class_number: class_number))
+    end.compact
+
     true
   end
 
   private
 
-  def find_or_create_daily_frequencies
-    @daily_frequencies =
-      @class_numbers.map do |class_number|
-        daily_frequency = find_or_create_daily_frequency(@params.merge({class_number: class_number}))
-        daily_frequency if daily_frequency.persisted?
-      end.compact
+  # Requisições simultâneas para o mesmo diário (o aplicativo dispara uma por aluno) disputariam o
+  # INSERT do diário e o de cada aluno, e as perdedoras violariam os índices únicos. O lock pela chave
+  # natural do diário faz a segunda esperar a primeira terminar e encontrar as linhas já criadas.
+  # O retry cobre escrita concorrente feita fora deste lock (diário pela web): a transação é desfeita
+  # e a nova tentativa encontra o registro.
+  def find_or_create_daily_frequency_with_students(params)
+    daily_frequency = DailyFrequency.transaction do
+      AdvisoryTransactionLock.call(daily_frequency_lock_key(params))
+
+      find_or_create_daily_frequency(params).tap do |record|
+        find_or_create_daily_frequency_students(record) if record.persisted?
+      end
+    end
+
+    daily_frequency if daily_frequency.persisted?
+  rescue ActiveRecord::RecordNotUnique
+    retry
+  end
+
+  # Os valores passam pelo cast das colunas para que "2026-03-09" e Date, ou "1" e 1, gerem a mesma chave.
+  def daily_frequency_lock_key(params)
+    values = DAILY_FREQUENCY_KEY_COLUMNS.map do |column|
+      DailyFrequency.type_for_attribute(column).cast(params[column.to_sym])
+    end
+
+    ['daily_frequency', *values].join(':')
   end
 
   def find_or_create_daily_frequency(params)
@@ -46,27 +70,26 @@ class DailyFrequenciesCreator
         :class_number
       )
     )
-  rescue ActiveRecord::RecordNotUnique
-    retry
   end
 
-  def find_or_create_daily_frequency_students
-    @daily_frequencies.each do |daily_frequency|
-      not_student_ids = daily_frequency.students.map(&:student_id)
-      student_enrollments = student_enrollments(not_student_ids)
-      student_ids = student_enrollments.map(&:student_id)
+  def find_or_create_daily_frequency_students(daily_frequency)
+    existing_student_ids = daily_frequency.students.map(&:student_id)
+    student_enrollments = student_enrollments(daily_frequency).reject do |student_enrollment|
+      existing_student_ids.include?(student_enrollment.student_id)
+    end
 
-      absence_justifications = AbsenceJustifiedOnDate.call(
-        students: student_ids,
-        date: daily_frequency.frequency_date,
-        end_date: daily_frequency.frequency_date,
-        classroom: daily_frequency.classroom_id,
-        period: daily_frequency.period
-      )
+    return if student_enrollments.empty?
 
-      student_enrollments.each do |student_enrollment|
-        find_or_create_daily_frequency_student(daily_frequency, student_enrollment, absence_justifications)
-      end
+    absence_justifications = AbsenceJustifiedOnDate.call(
+      students: student_enrollments.map(&:student_id),
+      date: daily_frequency.frequency_date,
+      end_date: daily_frequency.frequency_date,
+      classroom: daily_frequency.classroom_id,
+      period: daily_frequency.period
+    )
+
+    student_enrollments.each do |student_enrollment|
+      find_or_create_daily_frequency_student(daily_frequency, student_enrollment, absence_justifications)
     end
   end
 
@@ -79,43 +102,34 @@ class DailyFrequenciesCreator
       if absence_justification_student_id
         daily_frequency_student.present = false
         daily_frequency_student.absence_justification_student_id = absence_justification_student_id
-      elsif
+      else
         daily_frequency_student.present = true
       end
 
-      daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
+      daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, daily_frequency.discipline_id)
       daily_frequency_student.active = true
     end
-  rescue ActiveRecord::RecordNotUnique
-    retry
   end
 
-  def student_enrollments(not_student_ids)
+  # A lista é a mesma para todas as aulas do diário (turma, disciplina e data não mudam entre elas);
+  # quem já tem registro em cada aula é filtrado por aula, em find_or_create_daily_frequency_students.
+  def student_enrollments(daily_frequency)
     @student_enrollments ||= begin
-      if first_daily_frequency.blank?
-        student_enrollments = []
-      else
-        student_enrollments = StudentEnrollment.includes(:student)
-                                               .where.not(student_id: not_student_ids)
-                                               .by_classroom(first_daily_frequency.classroom)
-                                               .by_discipline(first_daily_frequency.discipline)
-                                               .by_date(@params[:frequency_date])
-                                               .exclude_exempted_disciplines(
-                                                 first_daily_frequency.discipline_id,
-                                                 step_number
-                                               )
-                                               .active
-                                               .ordered
+      student_enrollments = StudentEnrollment.includes(:student)
+                                             .by_classroom(daily_frequency.classroom)
+                                             .by_discipline(daily_frequency.discipline)
+                                             .by_date(@params[:frequency_date])
+                                             .exclude_exempted_disciplines(
+                                               daily_frequency.discipline_id,
+                                               step_number(daily_frequency)
+                                             )
+                                             .active
+                                             .ordered
 
-        student_enrollments.by_period(student_period) if student_period
-      end
+      student_enrollments.by_period(student_period) if student_period
 
-      student_enrollments
+      student_enrollments.to_a
     end
-  end
-
-  def first_daily_frequency
-    @first_daily_frequency ||= @daily_frequencies[0]
   end
 
   def student_has_dependence?(student_enrollment_id, discipline_id)
@@ -124,12 +138,10 @@ class DailyFrequenciesCreator
                                .any?
   end
 
-  def step_number
-    @step_number ||= steps_fetcher.step_by_date(first_daily_frequency.frequency_date).try(:to_number) || 0
-  end
-
-  def steps_fetcher
-    @steps_fetcher ||= StepsFetcher.new(first_daily_frequency.classroom)
+  def step_number(daily_frequency)
+    @step_number ||= StepsFetcher.new(daily_frequency.classroom)
+                                 .step_by_date(daily_frequency.frequency_date)
+                                 .try(:to_number) || 0
   end
 
   def student_period

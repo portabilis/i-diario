@@ -28,7 +28,7 @@ module Api
 
       def update_or_create
         creator = DailyFrequenciesCreator.new(
-          unity: unity,
+          unity_id: unity.id,
           classroom_id: params[:classroom_id],
           frequency_date: params[:frequency_date],
           class_numbers: [params[:class_number]],

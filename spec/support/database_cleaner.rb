@@ -1,9 +1,19 @@
+# Grupo com threads (cada uma na própria conexão) só enxerga dado commitado: sai da transação de teste
+# do rspec-rails e limpa por truncation. Marcar o grupo (describe/context) com `concurrent: true`.
+module ConcurrentExampleGroup
+  extend ActiveSupport::Concern
+
+  included { self.use_transactional_tests = false }
+end
+
 RSpec.configure do |config|
   config.before(:suite) { DatabaseCleaner.clean_with(:truncation) }
 
   config.before(:each) { DatabaseCleaner.strategy = :transaction }
   config.before(:each) { User.current = create(:user_with_user_role) }
   config.before(:each, js: true) { DatabaseCleaner.strategy = :truncation }
+  config.include ConcurrentExampleGroup, concurrent: true
+  config.before(:each, concurrent: true) { DatabaseCleaner.strategy = :truncation }
 
   config.before(:each, type: :model) { DatabaseCleaner.start }
   config.before(:each, type: :form) { DatabaseCleaner.start }

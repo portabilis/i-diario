@@ -42,4 +42,34 @@ RSpec.describe Api::V2::DailyFrequencyStudentsController, type: :controller do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe 'POST #update_or_create' do
+    before do
+      allow(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker)
+      allow(AutomaticAbsencePostingEnqueuer).to receive(:call)
+    end
+
+    it 'creates the daily frequency when it does not exist yet' do
+      classrooms_grade = create(:classrooms_grade, classroom: classroom)
+      student = create(:student_enrollment_classroom, classrooms_grade: classrooms_grade).student_enrollment.student
+
+      post :update_or_create, params: {
+        user_id: user.id,
+        teacher_id: teacher.id,
+        classroom_id: classroom.id,
+        discipline_id: discipline.id,
+        class_number: 1,
+        frequency_date: Date.current.to_s,
+        student_id: student.id,
+        present: false,
+        format: 'json',
+        locale: 'en'
+      }
+
+      expect(response).to have_http_status(:success)
+      daily_frequency = DailyFrequency.find_by(classroom_id: classroom.id, discipline_id: discipline.id, class_number: 1)
+      expect(daily_frequency.unity_id).to eq(classroom.unity_id)
+      expect(daily_frequency.students.pluck(:student_id, :present, :active)).to eq([[student.id, false, true]])
+    end
+  end
 end
