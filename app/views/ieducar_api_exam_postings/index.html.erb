@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/ieducar_api_exam_posting/last_step_absence_warning' %>
+<% end %>
+
 <div class="widget-body">
   <% if current_user.admin? || current_user.employee? || current_user.administrator? %>
     <div class="alert fade in alert-warning">
@@ -25,6 +29,8 @@
     </div>
   <% end %>
 </div>
+
+<%= render 'last_step_absence_warning_modal' if last_step_by_year %>
 
 <% content_for :js do %>
   <%= render 'percentage_refresh' %>

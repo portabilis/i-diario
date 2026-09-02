@@ -6,6 +6,8 @@
 <% ApiPostingTypes.to_a.each_with_index do |value, index| %>
   <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != @steps.to_a.last %>
 
+  <% posting_link_data = last_step_absence_warning?(step, value.last) ? { last_step_absence_warning: true } : {} %>
+
   <tr>
     <td>
       <%= value.first %>
@@ -70,6 +72,7 @@
                       method: 'post',
                       onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
                       class: 'btn',
+                      data: posting_link_data,
                       style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
             <div style="display: flex; justify-content: space-between; gap: 1rem">
               <%= image_tag 'repetir_envio.svg', "data-svg-fallback" => asset_path('repetir_envio.svg') %>
@@ -89,7 +92,7 @@
                       step_column => step.id, post_type: value.last
                     ),
                     id: 'send-button', method: 'post', class: 'btn bg-color-red txt-color-white',
-                    data: { disable_with: 'Enviando...' }  %>
+                    data: posting_link_data.merge(disable_with: 'Enviando...') %>
       <% end %>
     </td>
   </tr>
