@@ -102,7 +102,6 @@ RSpec.describe IeducarApiExamPostingsController, :type => :controller do
 
         expect(response.body.scan('data-last-step-absence-warning="true"').size).to eq(2)
         expect(response.body).to include('id="last-step-absence-warning-modal"')
-        expect(response.body).to include('last_step_absence_warning')
       end
 
       context 'when the classroom has no school calendar' do

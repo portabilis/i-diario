@@ -14,6 +14,11 @@ $(function () {
     event.stopImmediatePropagation();
     if (event.originalEvent) event.originalEvent.stopImmediatePropagation();
 
+    // Link já enviado: o disableElement do ujs guarda o estado anterior em `ujs:enable-with` e
+    // barra novos cliques por um handler próprio. Como este aqui roda antes dele e interrompe a
+    // fila, a marca precisa ser respeitada aqui também — senão a modal reabre e envia de novo.
+    if ($(this).data('ujs:enable-with') !== undefined) return;
+
     $pendingLink = $(this);
     $modal.modal('show');
   });
@@ -24,7 +29,21 @@ $(function () {
 
     $modal.modal('hide');
 
-    if ($link) $.rails.handleMethod($link);
+    if (!$link) return;
+
+    // O "Repetir envio" com aviso troca o onclick inline por data-resend-*: o marcador de
+    // cooldown do force_posting.js só pode valer para um envio que de fato acontece.
+    // O índice pode ser 0, então a ausência se testa por undefined, não por falsy.
+    if ($link.data('resend-index') !== undefined) {
+      resend_posting($link.data('resend-index'), $link.data('resend-step-id'));
+    }
+
+    // Quem aplica o data-disable-with é o handler de clique do jquery_ujs, que a interceptação
+    // pula; handleMethod só monta e submete o form. Sem esta linha o botão não vira "Enviando..."
+    // e continua aceitando um segundo envio.
+    if ($link.is($.rails.linkDisableSelector)) $.rails.disableElement($link);
+
+    $.rails.handleMethod($link);
   });
 
   $modal.on('hidden.bs.modal', function () {
