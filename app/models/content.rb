@@ -35,9 +35,13 @@ class Content < ApplicationRecord
     joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
   }
 
+  # `= ANY(ARRAY(subquery))` em vez de `IN (subquery)`: o array dos ids do professor vira um InitPlan e o
+  # planner passa a buscar os conteúdos pela chave primária, aplicando o filtro de texto só neles. Com o `IN`,
+  # o planner tende a partir do filtro de texto e ler todos os conteúdos da rede que casam com o termo
+  # (dezenas de milhares num prefixo comum) para só depois cruzar com os do professor.
   scope :by_teacher_id, lambda { |teacher_id|
     where(
-      "contents.id IN (" \
+      "contents.id = ANY (ARRAY(" \
         "SELECT crc.content_id FROM content_records_contents crc " \
         "INNER JOIN content_records cr ON cr.id = crc.content_record_id " \
         "WHERE cr.teacher_id = :teacher_id " \
@@ -49,7 +53,7 @@ class Content < ApplicationRecord
         "SELECT clp.content_id FROM contents_lesson_plans clp " \
         "INNER JOIN lesson_plans lp ON lp.id = clp.lesson_plan_id " \
         "WHERE lp.teacher_id = :teacher_id" \
-      ")",
+      "))",
       teacher_id: teacher_id
     )
   }
