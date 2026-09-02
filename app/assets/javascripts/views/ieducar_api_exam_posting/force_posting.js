@@ -40,7 +40,7 @@ function resend_posting(index, stepId) {
         } else {
           trackingFromStorage[key].paid += 1000;
         }
-        localStorage.setItem('click-tracking', JSON.stringify(aux));
+        localStorage.setItem('click-tracking', JSON.stringify(trackingFromStorage));
       }, 1000);
 
       if (button) button.style.pointerEvents = 'none';
