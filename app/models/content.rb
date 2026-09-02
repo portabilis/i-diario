@@ -35,10 +35,10 @@ class Content < ApplicationRecord
     joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
   }
 
-  # `= ANY(ARRAY(subquery))` em vez de `IN (subquery)`: o array dos ids do professor vira um InitPlan e o
-  # planner passa a buscar os conteúdos pela chave primária, aplicando o filtro de texto só neles. Com o `IN`,
-  # o planner tende a partir do filtro de texto e ler todos os conteúdos da rede que casam com o termo
-  # (dezenas de milhares num prefixo comum) para só depois cruzar com os do professor.
+  # O `ARRAY(subquery)` materializa os ids do professor num InitPlan e força a busca dos conteúdos pela chave
+  # primária, aplicando o filtro de texto só neles. Não trocar por `IN (subquery)`: assim o planner parte do
+  # filtro de texto e lê todos os conteúdos da rede que casam com o termo — dezenas de milhares num prefixo
+  # comum — para só depois cruzar com os do professor.
   scope :by_teacher_id, lambda { |teacher_id|
     where(
       "contents.id = ANY (ARRAY(" \

@@ -1,9 +1,16 @@
 # Índices que cobrem a busca dos conteúdos de um professor (Content.by_teacher_id) com Index Only Scan.
 #
-# A busca parte do professor e percorre content_records(teacher_id) -> content_records_contents(content_record_id)
-# -> content_id, e o equivalente em contents_lesson_plans. Com índice só na chave estrangeira, o Postgres precisa
-# visitar o heap de cada tabela para ler o id/content_id e, quando o professor tem milhares de registros, prefere
-# varrer content_records_contents inteira. Com (fk, id) o percurso inteiro sai do índice.
+# O scope tem três caminhos até contents: content_records -> content_records_contents,
+# teaching_plans -> contents_teaching_plans e lesson_plans -> contents_lesson_plans. Com índice só na chave
+# estrangeira, o Postgres visita o heap de cada tabela para ler o id/content_id; com (fk, id) esse acesso sai
+# do índice.
+#
+# Só os dois caminhos mais pesados são cobertos: content_records nas duas pontas e a tabela de junção de
+# contents_lesson_plans. O caminho de teaching_plans responde por uma fração pequena do custo e continua no
+# heap, assim como lesson_plans(teacher_id).
+#
+# O índice composto cobre o professor comum, não o extremo: com muitos content_records o planner ainda pode
+# preferir varrer content_records_contents inteira a percorrer o índice.
 #
 # Os índices de coluna única substituídos ficam redundantes (o composto atende as mesmas consultas pelo prefixo)
 # e são removidos para não pagar a escrita em dobro.

@@ -14,6 +14,8 @@ RSpec.describe Content, type: :model do
       create(:teaching_plan, :with_teacher_discipline_classroom, teacher: teacher, contents: [teaching_plan_content])
       create(:lesson_plan, :with_teacher_discipline_classroom, teacher: teacher, contents: [lesson_plan_content])
       create(:content_record, :with_teacher_discipline_classroom, teacher: other_teacher, contents: [create(:content)])
+      create(:teaching_plan, :with_teacher_discipline_classroom, teacher: other_teacher, contents: [create(:content)])
+      create(:lesson_plan, :with_teacher_discipline_classroom, teacher: other_teacher, contents: [create(:content)])
       create(:content)
     end
 
@@ -33,6 +35,10 @@ RSpec.describe Content, type: :model do
         teaching_plan_content,
         lesson_plan_content
       )
+    end
+
+    it 'filters by an array of ids so the planner starts from the primary key' do
+      expect(Content.by_teacher_id(teacher.id).to_sql).to include('= ANY (ARRAY(')
     end
 
     it 'returns nothing for a teacher without contents' do
