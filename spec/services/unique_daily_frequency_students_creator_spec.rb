@@ -108,13 +108,30 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
       )
     }
 
+    # o aquecimento precisa passar pelo mesmo caminho da disputa: num dia sem frequência o serviço
+    # sai pelo ramo que só remove registros e não carrega as constantes que a disputa usa
+    let!(:daily_frequency_of_another_day) {
+      create(
+        :daily_frequency,
+        :with_teacher,
+        :with_students,
+        classroom: classroom,
+        teacher: teacher,
+        class_number: nil,
+        discipline_id: nil,
+        frequency_date: '2024-03-28'
+      )
+    }
+
     it 'creates each unique record once, without failed inserts, and keeps both teachers in absences_by' do
       daily_frequency.students.each { |student| student.update!(present: false) }
-      # aquece o autoloader clássico (não é thread-safe) num dia sem frequência, que não entra na disputa
-      described_class.create!(classroom.id, '2024-04-02', teacher.id)
+      # aquece o autoloader clássico (não é thread-safe) num dia que não entra na disputa
+      described_class.create!(classroom.id, '2024-03-28', teacher.id)
 
-      # alarga a janela entre o SELECT do find_or_initialize_by e o INSERT, para os dois workers
-      # disputarem os mesmos registros sempre que não estiverem serializados pelo lock
+      # Alarga a janela entre o SELECT do find_or_initialize_by e o INSERT, para os dois workers
+      # disputarem os mesmos registros sempre que não estiverem serializados pelo lock. rspec-mocks
+      # não é thread-safe: o stub é montado antes das threads e só envolve o save!, mas uma falha
+      # rara aqui aparece como erro do mock, não como contagem errada.
       allow_any_instance_of(UniqueDailyFrequencyStudent).to receive(:save!).and_wrap_original do |original, *args|
         sleep(0.1)
         original.call(*args)
@@ -128,19 +145,24 @@ RSpec.describe UniqueDailyFrequencyStudentsCreator, type: :service do
         counter_lock.synchronize { insert_attempts += 1 }
       end
 
-      start_at = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 0.2
-      # o worker recebe a data como texto; a outra thread manda Date para provar que a chave do lock casa
-      runs = { teacher.id => '2024-04-01', other_teacher.id => Date.new(2024, 4, 1) }
-      threads = runs.map do |teacher_id, frequency_date|
-        Thread.new do
-          ActiveRecord::Base.connection_pool.with_connection do
-            sleep(0.01) while Process.clock_gettime(Process::CLOCK_MONOTONIC) < start_at
-            described_class.create!(classroom.id, frequency_date, teacher_id)
+      begin
+        start_at = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 0.2
+        # o worker recebe os argumentos serializados em JSON; a outra thread manda Date e inteiro
+        # para provar que as duas formas geram a mesma chave de lock
+        runs = [[teacher.id, classroom.id.to_s, '2024-04-01'], [other_teacher.id, classroom.id, Date.new(2024, 4, 1)]]
+        threads = runs.map do |teacher_id, classroom_id, frequency_date|
+          Thread.new do
+            ActiveRecord::Base.connection_pool.with_connection do
+              sleep(0.01) while Process.clock_gettime(Process::CLOCK_MONOTONIC) < start_at
+              described_class.create!(classroom_id, frequency_date, teacher_id)
+            end
           end
         end
+        # sem teto, uma regressão no lock penduraria a suíte inteira em vez de falhar
+        Timeout.timeout(30) { threads.each(&:join) }
+      ensure
+        ActiveSupport::Notifications.unsubscribe(subscriber)
       end
-      threads.each(&:join)
-      ActiveSupport::Notifications.unsubscribe(subscriber)
 
       unique_records = UniqueDailyFrequencyStudent.frequency_date('2024-04-01')
       expect(unique_records.count).to eq(4)

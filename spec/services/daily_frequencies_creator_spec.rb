@@ -147,11 +147,50 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
 
       second_class = DailyFrequency.find_by(class_number: 2)
       expect(second_class.students.pluck(:student_id)).to eq([student_enrollment.student_id])
+      expect(DailyFrequency.find_by(class_number: 1).students.count).to eq(1)
+    end
+  end
+
+  describe 'lock key' do
+    let(:key_for) do
+      lambda { |attributes|
+        creator = described_class.new(unity_id: classroom.unity.id, classroom_id: classroom.id)
+        creator.send(:daily_frequency_lock_key, attributes)
+      }
+    end
+
+    # O controller da API monta os valores a partir de params (texto) e o worker a partir do próprio
+    # diário (Date e inteiro): sem o cast os dois tomariam locks diferentes para o mesmo diário.
+    it 'is the same whether the values arrive as text or already typed' do
+      as_text = key_for.call(
+        classroom_id: '7', frequency_date: '2026-03-09', period: '1', discipline_id: '3', class_number: '2'
+      )
+      as_typed = key_for.call(
+        classroom_id: 7, frequency_date: Date.new(2026, 3, 9), period: 1, discipline_id: 3, class_number: 2
+      )
+
+      expect(as_text).to eq(as_typed)
+    end
+
+    it 'differs for diaries that must not serialize against each other' do
+      base = { classroom_id: 7, frequency_date: Date.new(2026, 3, 9), period: 1, discipline_id: 3, class_number: 2 }
+
+      keys = [
+        key_for.call(base),
+        key_for.call(base.merge(classroom_id: 8)),
+        key_for.call(base.merge(class_number: 3)),
+        key_for.call(base.merge(period: 2))
+      ]
+
+      expect(keys.uniq.size).to eq(4)
     end
   end
 
   describe 'concurrent requests for the same new daily frequency', concurrent: true do
     let(:students_count) { 4 }
+    # User.current é Thread.current[:user] e cada thread do Puma seta o seu; sem isso as threads do
+    # spec rodam com um estado que a requisição real nunca tem.
+    let(:current_user) { User.current }
     let(:params) do
       {
         unity_id: classroom.unity.id,
@@ -174,8 +213,9 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       # aquece o autoloader clássico (não é thread-safe) numa aula que não entra na disputa
       described_class.find_or_create!(params.merge(class_numbers: ['9']))
 
-      # alarga a janela entre ler quem já tem registro e inserir, para toda thread que não estiver
-      # serializada pelo lock enxergar o diário vazio e disputar os mesmos INSERTs
+      # Alarga a janela entre ler quem já tem registro e inserir, para toda thread que não estiver
+      # serializada pelo lock enxergar o diário vazio e disputar os mesmos INSERTs. Se esta chamada
+      # sair de onde está, o spec continua verde mas deixa de exercer a disputa.
       allow(AbsenceJustifiedOnDate).to receive(:call).and_wrap_original do |original, *args|
         sleep(0.3)
         original.call(*args)
@@ -190,17 +230,22 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
         counter_lock.synchronize { insert_attempts += 1 }
       end
 
-      start_at = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 0.2
-      threads = Array.new(3) do
-        Thread.new do
-          ActiveRecord::Base.connection_pool.with_connection do
-            sleep(0.01) while Process.clock_gettime(Process::CLOCK_MONOTONIC) < start_at
-            described_class.find_or_create!(params.merge(class_numbers: ['1']))
+      begin
+        start_at = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 0.2
+        threads = Array.new(3) do
+          Thread.new do
+            ActiveRecord::Base.connection_pool.with_connection do
+              User.current = current_user
+              sleep(0.01) while Process.clock_gettime(Process::CLOCK_MONOTONIC) < start_at
+              described_class.find_or_create!(params.merge(class_numbers: ['1']))
+            end
           end
         end
+        # sem teto, uma regressão no lock penduraria a suíte inteira em vez de falhar
+        Timeout.timeout(30) { threads.each(&:join) }
+      ensure
+        ActiveSupport::Notifications.unsubscribe(subscriber)
       end
-      threads.each(&:join)
-      ActiveSupport::Notifications.unsubscribe(subscriber)
 
       daily_frequencies = DailyFrequency.where(class_number: 1)
       expect(daily_frequencies.count).to eq(1)

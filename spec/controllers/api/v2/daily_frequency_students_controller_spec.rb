@@ -67,8 +67,15 @@ RSpec.describe Api::V2::DailyFrequencyStudentsController, type: :controller do
       }
 
       expect(response).to have_http_status(:success)
-      daily_frequency = DailyFrequency.find_by(classroom_id: classroom.id, discipline_id: discipline.id, class_number: 1)
+      expect(response.body).not_to eq('[]')
+
+      daily_frequency = DailyFrequency.find_by(
+        classroom_id: classroom.id, discipline_id: discipline.id, class_number: 1
+      )
+
+      expect(daily_frequency).to be_present
       expect(daily_frequency.unity_id).to eq(classroom.unity_id)
+      expect(daily_frequency.owner_teacher_id).to eq(teacher.id)
       expect(daily_frequency.students.pluck(:student_id, :present, :active)).to eq([[student.id, false, true]])
     end
   end

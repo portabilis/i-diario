@@ -1,5 +1,8 @@
 class DailyFrequenciesCreator
-  DAILY_FREQUENCY_KEY_COLUMNS = %w[classroom_id frequency_date period discipline_id class_number].freeze
+  # Chave natural do diário: as mesmas colunas do índice único e as mesmas usadas no find_or_create_by.
+  # Uma lista só porque chave do lock e condição da busca precisam casar — divergindo, o lock protege
+  # uma linha diferente da que a busca resolve.
+  DAILY_FREQUENCY_KEY_COLUMNS = %i[classroom_id frequency_date period discipline_id class_number].freeze
 
   attr_reader :daily_frequencies
 
@@ -18,41 +21,52 @@ class DailyFrequenciesCreator
     @daily_frequencies = @class_numbers.map do |class_number|
       find_or_create_daily_frequency_with_students(@params.merge(class_number: class_number))
     end.compact
-
-    true
   end
 
   private
 
-  # Requisições simultâneas para o mesmo diário (o aplicativo dispara uma por aluno) disputariam o
-  # INSERT do diário e o de cada aluno, e as perdedoras violariam os índices únicos. O lock pela chave
-  # natural do diário faz a segunda esperar a primeira terminar e encontrar as linhas já criadas.
-  # O retry cobre escrita concorrente feita fora deste lock (diário pela web): a transação é desfeita
-  # e a nova tentativa encontra o registro.
+  # Requisições simultâneas para o mesmo diário (o endpoint da API recebe um aluno por requisição)
+  # disputariam o INSERT do diário e o de cada aluno, e as perdedoras violariam os índices únicos.
+  # O lock pela chave natural faz a segunda esperar a primeira terminar e encontrar as linhas prontas.
+  # Escritas que não passam por aqui — o diário pela web e a gravação do aluno feita pelo próprio
+  # controller da API depois deste retorno — continuam cobertas pelo retry do lock.
   def find_or_create_daily_frequency_with_students(params)
-    daily_frequency = DailyFrequency.transaction do
-      AdvisoryTransactionLock.call(daily_frequency_lock_key(params))
+    key_attributes = params.slice(*DAILY_FREQUENCY_KEY_COLUMNS)
 
-      find_or_create_daily_frequency(params).tap do |record|
+    daily_frequency = AdvisoryTransactionLock.call(daily_frequency_lock_key(key_attributes)) do
+      find_or_create_daily_frequency(params, key_attributes).tap do |record|
         find_or_create_daily_frequency_students(record) if record.persisted?
       end
     end
 
-    daily_frequency if daily_frequency.persisted?
-  rescue ActiveRecord::RecordNotUnique
-    retry
+    return daily_frequency if daily_frequency && daily_frequency.persisted?
+
+    log_unpersisted_daily_frequency(daily_frequency, params)
+    nil
   end
 
-  # Os valores passam pelo cast das colunas para que "2026-03-09" e Date, ou "1" e 1, gerem a mesma chave.
-  def daily_frequency_lock_key(params)
+  # Os valores passam pelo cast das colunas para que texto e Date, ou texto e inteiro, gerem a mesma
+  # chave: o worker manda Date e inteiro, o controller da API manda os dois como texto.
+  def daily_frequency_lock_key(key_attributes)
     values = DAILY_FREQUENCY_KEY_COLUMNS.map do |column|
-      DailyFrequency.type_for_attribute(column).cast(params[column.to_sym])
+      DailyFrequency.type_for_attribute(column.to_s).cast(key_attributes[column])
     end
 
     ['daily_frequency', *values].join(':')
   end
 
-  def find_or_create_daily_frequency(params)
+  # As validações do diário reprovam de rotina (etapa fechada, dia não letivo, data futura por relógio
+  # errado do aparelho) e o objeto de erros é a única coisa que diz qual delas foi.
+  def log_unpersisted_daily_frequency(daily_frequency, params)
+    reason = daily_frequency ? daily_frequency.errors.full_messages.to_sentence : 'transação desfeita'
+
+    Rails.logger.error(
+      "[#{self.class}] diário não criado (turma: #{params[:classroom_id]}, " \
+      "data: #{params[:frequency_date]}, aula: #{params[:class_number]}): #{reason}"
+    )
+  end
+
+  def find_or_create_daily_frequency(params, key_attributes)
     DailyFrequency.create_with(
       params.slice(
         :unity_id,
@@ -61,15 +75,7 @@ class DailyFrequenciesCreator
       ).merge(
         origin: @origin
       )
-    ).find_or_create_by(
-      params.slice(
-        :classroom_id,
-        :frequency_date,
-        :period,
-        :discipline_id,
-        :class_number
-      )
-    )
+    ).find_or_create_by(key_attributes)
   end
 
   def find_or_create_daily_frequency_students(daily_frequency)
