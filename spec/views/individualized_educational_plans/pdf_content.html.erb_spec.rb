@@ -111,4 +111,35 @@ RSpec.describe 'individualized_educational_plans/_pdf_content', type: :view do
     expect(field_cells.count).to eq(26)
     expect(unwrapped).to be_empty
   end
+
+  # O comportamento na quebra de página é metade markup (aqui) e metade CSS (no layout), e o
+  # render de partial não carrega layout — sem este guarda, renomear uma classe ou remover uma
+  # das regras de quebra deixa a suíte verde e o PDF regride em silêncio.
+  it 'backs every class of the partial with a rule in the pdf layout' do
+    presenter = IndividualizedEducationalPlanReportPresenter.from_snapshot(filled_snapshot)
+    render partial: 'individualized_educational_plans/pdf_content', locals: { presenter: presenter }
+
+    used = Nokogiri::HTML.fragment(rendered).css('[class]').flat_map { |node| node['class'].split }.uniq
+
+    expect(used).to include('continuation-rule', 'field-cell', 'field', 'section-title', 'field-label')
+    # (?![\w-]) evita que a regra .field-cell sirva de fiadora para a classe field.
+    expect(used.reject { |name| pdf_layout.match?(/\.#{Regexp.escape(name)}(?![\w-])/) }).to be_empty
+  end
+
+  # As três regras que sustentam a correção da quebra de página: fechar a caixa no fim da página,
+  # manter o valor junto do seu rótulo e impedir que o título fique sozinho no rodapé.
+  it 'declares the three page-break rules the pdf layout depends on' do
+    # Recorta o bloco da regra para que renomear .field não passe pelo seletor .field .field-label,
+    # e ancora no início da linha para que a versão -webkit- não responda pela não prefixada.
+    field_rule = pdf_layout[/^\s*\.field \{(.*?)\}/m, 1].to_s
+
+    expect(field_rule).to match(/^\s*-webkit-box-decoration-break: clone;/)
+    expect(field_rule).to match(/^\s*box-decoration-break: clone;/)
+    expect(pdf_layout).to match(/\.field \.field-label \+ p,\s*\.field \.field-label \+ ul \{[^}]*break-before: avoid/m)
+    expect(pdf_layout).to match(/\.section-title \{[^}]*break-after: avoid/m)
+  end
+
+  def pdf_layout
+    Rails.root.join('app/views/layouts/pdf_individualized_educational_plan.html.erb').read
+  end
 end

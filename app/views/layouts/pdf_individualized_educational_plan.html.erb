@@ -58,11 +58,25 @@
         box-decoration-break: clone;
       }
 
+      /* Rótulo e valor são irmãos de nível de bloco e a quebra entre eles é livre: sem isto o
+         rótulo fecha a caixa sozinho no rodapé, com a cara de campo terminado, e o valor abre a
+         página seguinte sem identificação. Escopado em .field porque na seção 1 o mesmo rótulo é
+         inline, seguido de <br>, e não deve virar ponto de decisão de quebra. */
+      .field .field-label + p,
+      .field .field-label + ul {
+        page-break-before: avoid;
+        break-before: avoid;
+      }
+
+      /* O título é uma linha comum do <tbody> e não repete a cada página: sem o avoid ele pode
+         ficar sozinho no rodapé, com os campos abrindo a página seguinte sem identificação. */
       .section-title {
         text-align: center;
         font-size: 15px;
         background-color: #DEDEDE;
         font-weight: bold;
+        page-break-after: avoid;
+        break-after: avoid;
       }
 
       .field-label {
