@@ -3,9 +3,7 @@ source 'https://rubygems.org'
 ruby '2.6.6'
 
 gem 'active_model_serializers', '0.9.12'
-# TODO Voltar para a master depois que portabilis/activerecord-connections#1 for mergeado
-gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git',
-                                branch: 'fix/release-tenant-connections'
+gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
 gem 'activerecord-tablefree', '~> 3.0'
 gem 'audited', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
