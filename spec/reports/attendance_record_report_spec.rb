@@ -36,7 +36,7 @@ RSpec.describe AttendanceRecordReport, type: :report do
     expect(subject).to be_truthy
   end
 
-  describe 'columns order' do
+  shared_context 'attendance record report' do
     # Segunda e terça da semana anterior: dias letivos já passados e dentro da mesma etapa do calendário
     let(:first_date) { Date.current.beginning_of_week - 1.week }
     let(:second_date) { first_date + 1.day }
@@ -67,8 +67,6 @@ RSpec.describe AttendanceRecordReport, type: :report do
     }
     let(:current_user) { double(:current_user, current_role_is_admin_or_employee?: false) }
     let(:events) { [] }
-    # Aulas do mesmo dia lançadas fora de ordem numérica
-    let(:daily_frequencies) { [7, 9, 1, 3].map { |class_number| create_daily_frequency(first_date, class_number) } }
 
     before do
       # Entity.current não está definido fora da requisição, e é dele que o dicionário de termos depende
@@ -79,41 +77,6 @@ RSpec.describe AttendanceRecordReport, type: :report do
         show_percentage_on_attendance_record_report: false,
         show_inactive_enrollments: false
       )
-    end
-
-    it 'prints the lessons of the same day in ascending order of class number' do
-      expect(class_number_cells(render_report)).to eq(%w[1 3 7 9])
-    end
-
-    context 'when the day also has a calendar event' do
-      let(:events) { [calendar_event(first_date)] }
-
-      it 'prints the event after the lessons of the day' do
-        # A célula "Aula" do evento é impressa vazia, então a posição dele só aparece na linha do aluno:
-        # as aulas marcam presença e o evento marca a legenda
-        expect(student_attendance_cells(render_report)).to eq(['.', '.', '.', '.', 'E'])
-      end
-    end
-
-    context 'when the report covers more than one day' do
-      let(:events) { [calendar_event(first_date)] }
-      let(:daily_frequencies) {
-        [
-          create_daily_frequency(first_date, 3),
-          create_daily_frequency(first_date, 1),
-          create_daily_frequency(second_date, 4),
-          create_daily_frequency(second_date, 2)
-        ]
-      }
-
-      it 'keeps every column of a day together, with the event after the lessons of its own day' do
-        rendered_pdf = render_report
-
-        expect(class_number_cells(rendered_pdf)).to eq(%w[1 3 2 4])
-        expect(day_cells(rendered_pdf)).to eq(
-          [first_date, first_date, first_date, second_date, second_date].map { |date| date.day.to_s }
-        )
-      end
     end
 
     def render_report
@@ -188,6 +151,150 @@ RSpec.describe AttendanceRecordReport, type: :report do
 
     def pdf_strings(rendered_pdf)
       PDF::Inspector::Text.analyze(rendered_pdf).strings
+    end
+  end
+
+  describe 'columns order' do
+    include_context 'attendance record report'
+
+    # Aulas do mesmo dia lançadas fora de ordem numérica
+    let(:daily_frequencies) { [7, 9, 1, 3].map { |class_number| create_daily_frequency(first_date, class_number) } }
+
+    it 'prints the lessons of the same day in ascending order of class number' do
+      expect(class_number_cells(render_report)).to eq(%w[1 3 7 9])
+    end
+
+    context 'when the day also has a calendar event' do
+      let(:events) { [calendar_event(first_date)] }
+
+      it 'prints the event after the lessons of the day' do
+        # A célula "Aula" do evento é impressa vazia, então a posição dele só aparece na linha do aluno:
+        # as aulas marcam presença e o evento marca a legenda
+        expect(student_attendance_cells(render_report)).to eq(['.', '.', '.', '.', 'E'])
+      end
+    end
+
+    context 'when the report covers more than one day' do
+      let(:events) { [calendar_event(first_date)] }
+      let(:daily_frequencies) {
+        [
+          create_daily_frequency(first_date, 3),
+          create_daily_frequency(first_date, 1),
+          create_daily_frequency(second_date, 4),
+          create_daily_frequency(second_date, 2)
+        ]
+      }
+
+      it 'keeps every column of a day together, with the event after the lessons of its own day' do
+        rendered_pdf = render_report
+
+        expect(class_number_cells(rendered_pdf)).to eq(%w[1 3 2 4])
+        expect(day_cells(rendered_pdf)).to eq(
+          [first_date, first_date, first_date, second_date, second_date].map { |date| date.day.to_s }
+        )
+      end
+    end
+  end
+
+  describe 'no-school days hiding' do
+    include_context 'attendance record report'
+
+    let(:no_school_event) {
+      {
+        date: second_date,
+        legend: 'E',
+        description: 'Feriado',
+        type: EventTypes::NO_SCHOOL,
+        coverage: 'by_classroom'
+      }
+    }
+    let(:events) { [no_school_event] }
+    let(:daily_frequencies) { [create_daily_frequency(first_date, 1)] }
+
+    context 'when the configuration keeps no-school days visible' do
+      before do
+        general_configuration.update!(hide_no_school_events_on_attendance_record_report: false)
+      end
+
+      it 'prints the no-school event column and its legend' do
+        rendered_pdf = render_report
+
+        expect(day_cells(rendered_pdf)).to eq([first_date.day.to_s, second_date.day.to_s])
+        expect(student_attendance_cells(rendered_pdf)).to eq(['.', 'E'])
+        expect(pdf_strings(rendered_pdf).join).to include('E - Feriado')
+      end
+    end
+
+    context 'when the configuration hides no-school days' do
+      before do
+        general_configuration.update!(hide_no_school_events_on_attendance_record_report: true)
+      end
+
+      it 'removes the no-school day column and its legend from the report' do
+        rendered_pdf = render_report
+
+        expect(day_cells(rendered_pdf)).to eq([first_date.day.to_s])
+        expect(pdf_strings(rendered_pdf).join).not_to include('E - Feriado')
+      end
+
+      context 'when the period also has a school event' do
+        let(:events) { [no_school_event, calendar_event(first_date)] }
+
+        it 'keeps school events visible' do
+          rendered_pdf = render_report
+
+          # A coluna do evento letivo permanece após a aula do próprio dia; só o dia não letivo some
+          expect(day_cells(rendered_pdf)).to eq([first_date.day.to_s, first_date.day.to_s])
+        end
+      end
+
+      context 'when a frequency was recorded on the no-school day' do
+        let(:daily_frequencies) {
+          [
+            create_daily_frequency(first_date, 1),
+            create_daily_frequency(second_date, 1)
+          ]
+        }
+
+        it 'keeps the whole day hidden' do
+          # O dia não letivo some por inteiro: nem a coluna do evento, nem a frequência lançada nele
+          expect(day_cells(render_report)).to eq([first_date.day.to_s])
+        end
+      end
+    end
+  end
+
+  describe 'students per page' do
+    include_context 'attendance record report'
+
+    let(:daily_frequencies) { [create_daily_frequency(first_date, 1)] }
+    # Nome social faz a célula do nome quebrar em duas linhas, então cada dois alunos com nome social
+    # tiram um aluno da página. A contagem precisa valer também quando o período não tem coluna de evento.
+    let(:enrollment_classrooms_list) {
+      4.times.map { |index|
+        listed_student = create(
+          :student,
+          name: "Aluno #{index}",
+          social_name: index < 2 ? "Social #{index}" : nil
+        )
+        listed_enrollment = create(:student_enrollment, student: listed_student)
+
+        {
+          student_enrollment: listed_enrollment,
+          student_enrollment_classroom: create(
+            :student_enrollment_classroom,
+            student_enrollment: listed_enrollment,
+            classrooms_grade: classrooms_grade
+          ),
+          student: listed_student
+        }
+      }
+    }
+
+    it 'reduces the students per page for social names on a period without any event column' do
+      stub_const('AttendanceRecordReport::STUDENT_BY_PAGE_COUNT', 4)
+
+      expect(PDF::Inspector::Page.analyze(render_report).pages.size).to eq(2)
     end
   end
 end

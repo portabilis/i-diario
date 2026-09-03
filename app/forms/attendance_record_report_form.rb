@@ -29,6 +29,7 @@ class AttendanceRecordReportForm
   validates :school_calendar_year, presence: true
   validates :school_calendar, presence: true
   validate :must_have_daily_frequencies
+  validate :must_have_displayable_school_days
 
   def daily_frequencies
     @daily_frequencies ||= fetch_daily_frequencies
@@ -52,6 +53,8 @@ class AttendanceRecordReportForm
   end
 
   def school_calendar_events
+    return @school_calendar_events if @school_calendar_events
+
     events_by_day = {}
     events = school_calendar.events
                             .events_to_report
@@ -81,7 +84,7 @@ class AttendanceRecordReportForm
       end
     end
 
-    events_by_day.values
+    @school_calendar_events = events_by_day.values
   end
 
   def more_specific_event?(new_event, existing_event)
@@ -180,6 +183,30 @@ class AttendanceRecordReportForm
     return if errors.present?
 
     errors.add(:daily_frequencies, :must_have_daily_frequencies) if daily_frequencies.count.zero?
+  end
+
+  # Com a ocultação de dias não letivos ligada, o relatório fica sem nenhuma coluna quando todo dia do período
+  # tem evento não letivo: o evento não é impresso e as frequências lançadas nele são descartadas pelo relatório.
+  def must_have_displayable_school_days
+    return if errors.present?
+    return unless hide_no_school_events?
+    return if report_has_displayable_column?
+
+    errors.add(:daily_frequencies, :must_have_displayable_school_days)
+  end
+
+  def report_has_displayable_column?
+    events = school_calendar_events
+    return true if events.any? { |event| event[:type] != EventTypes::NO_SCHOOL }
+
+    no_school_dates = events.map { |event| event[:date] }
+    frequency_dates = daily_frequencies.map { |daily_frequency| daily_frequency.frequency_date.to_date }
+
+    (frequency_dates - no_school_dates).any?
+  end
+
+  def hide_no_school_events?
+    GeneralConfiguration.current.hide_no_school_events_on_attendance_record_report
   end
 
   def classroom

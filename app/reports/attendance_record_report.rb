@@ -85,6 +85,7 @@ class AttendanceRecordReport < BaseReport
     @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
     @do_not_send_justified_absence = @general_configuration.do_not_send_justified_absence
     @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
+    @hide_no_school_events = @general_configuration.hide_no_school_events_on_attendance_record_report
 
     header
     content
@@ -143,7 +144,7 @@ class AttendanceRecordReport < BaseReport
     self.any_student_with_dependence = false
 
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
-    frequencies_and_events = daily_frequencies.to_a + @events.to_a
+    frequencies_and_events = daily_frequencies.to_a + displayable_events
 
     @daily_frequency_students = DailyFrequencyStudent
                                 .includes(:student)
@@ -254,6 +255,7 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
+            students[student_enrollment_classroom.id][:social_name] = student.social_name
             students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
@@ -642,6 +644,14 @@ class AttendanceRecordReport < BaseReport
       @show_legend_remote = true
       'R'
     end
+  end
+
+  # A ocultação vale só para as colunas exibidas: @events precisa continuar íntegro para o is_school_day?,
+  # que suprime frequências lançadas em dia não letivo — sem isso elas seriam impressas no lugar do evento oculto.
+  def displayable_events
+    return @events.to_a unless @hide_no_school_events
+
+    @events.to_a.reject { |event| event[:type].eql?(EventTypes::NO_SCHOOL) }
   end
 
   def is_school_day?(date)
