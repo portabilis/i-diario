@@ -32,9 +32,10 @@
 
 <table>
   <thead>
-    <tr><th colspan="3" class="section-title">1. <%= t('individualized_educational_plans.form.sections.identification') %></th></tr>
+    <tr class="continuation-rule"><td colspan="3"></td></tr>
   </thead>
   <tbody>
+    <tr><th colspan="3" class="section-title">1. <%= t('individualized_educational_plans.form.sections.identification') %></th></tr>
     <tr>
       <td style="width: 40%">
         <span class="field-label"><%= id_label.call('student') %></span>
@@ -107,29 +108,34 @@
 
 <table>
   <thead>
-    <tr><th class="section-title">2. <%= t('individualized_educational_plans.form.sections.characterization') %></th></tr>
+    <tr class="continuation-rule"><td></td></tr>
   </thead>
   <tbody>
+    <tr><th class="section-title">2. <%= t('individualized_educational_plans.form.sections.characterization') %></th></tr>
     <% if presenter.any_filled?(characterization, characterization_texts + characterization_badges) %>
       <% characterization_texts.each do |field| %>
         <% next unless presenter.filled?(characterization[field]) %>
         <tr>
-          <td>
-            <span class="field-label"><%= t("individualized_educational_plans.section_characterization.#{field}") %></span>
-            <%= simple_format(characterization[field]) %>
+          <td class="field-cell">
+            <div class="field">
+              <span class="field-label"><%= t("individualized_educational_plans.section_characterization.#{field}") %></span>
+              <%= simple_format(characterization[field]) %>
+            </div>
           </td>
         </tr>
       <% end %>
       <% characterization_badges.each do |field| %>
         <% next unless presenter.filled?(characterization[field]) %>
         <tr>
-          <td>
-            <span class="field-label"><%= t("individualized_educational_plans.section_characterization.#{field}") %></span>
-            <ul>
-              <% characterization[field].each do |description| %>
-                <li><%= description %></li>
-              <% end %>
-            </ul>
+          <td class="field-cell">
+            <div class="field">
+              <span class="field-label"><%= t("individualized_educational_plans.section_characterization.#{field}") %></span>
+              <ul>
+                <% characterization[field].each do |description| %>
+                  <li><%= description %></li>
+                <% end %>
+              </ul>
+            </div>
           </td>
         </tr>
       <% end %>
@@ -141,9 +147,10 @@
 
 <table>
   <thead>
-    <tr><th class="section-title">3. <%= t('individualized_educational_plans.form.sections.support_team') %></th></tr>
+    <tr class="continuation-rule"><td></td></tr>
   </thead>
   <tbody>
+    <tr><th class="section-title">3. <%= t('individualized_educational_plans.form.sections.support_team') %></th></tr>
     <%# Condição em duas pernas: support_rows carrega o booleano já como rótulo ("Não" passa no
         filled?), fora do hash cru que o any_filled? lê — juntar as duas apagaria a seção quando
         a única resposta for "Não". %>
@@ -151,22 +158,26 @@
       <% support_badges.each do |field| %>
         <% next unless presenter.filled?(support_team[field]) %>
         <tr>
-          <td>
-            <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
-            <ul>
-              <% support_team[field].each do |description| %>
-                <li><%= description %></li>
-              <% end %>
-            </ul>
+          <td class="field-cell">
+            <div class="field">
+              <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
+              <ul>
+                <% support_team[field].each do |description| %>
+                  <li><%= description %></li>
+                <% end %>
+              </ul>
+            </div>
           </td>
         </tr>
       <% end %>
       <% support_rows.each do |field, value| %>
         <% next unless presenter.filled?(value) %>
         <tr>
-          <td>
-            <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
-            <%= simple_format(value) %>
+          <td class="field-cell">
+            <div class="field">
+              <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
+              <%= simple_format(value) %>
+            </div>
           </td>
         </tr>
       <% end %>
@@ -178,9 +189,10 @@
 
 <table>
   <thead>
-    <tr><th class="section-title">4. <%= t('individualized_educational_plans.form.sections.curricular_planning') %></th></tr>
+    <tr class="continuation-rule"><td></td></tr>
   </thead>
   <tbody>
+    <tr><th class="section-title">4. <%= t('individualized_educational_plans.form.sections.curricular_planning') %></th></tr>
     <% if presenter.curricular_plannings_by_review.any? %>
       <% presenter.curricular_plannings_by_review.each do |(review_number, review_date), lines| %>
         <tr>
@@ -191,22 +203,24 @@
         </tr>
         <% lines.each do |line| %>
           <tr>
-            <td>
-              <b><%= line['component_name'] %></b>
-              <% section4_texts.each do |field| %>
-                <% next unless presenter.filled?(line[field]) %>
-                <br><span class="field-label"><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></span>
-                <%= simple_format(line[field]) %>
-              <% end %>
-              <% section4_badges.each do |field| %>
-                <% next unless presenter.filled?(line[field]) %>
-                <br><span class="field-label"><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></span>
-                <ul>
-                  <% line[field].each do |description| %>
-                    <li><%= description %></li>
-                  <% end %>
-                </ul>
-              <% end %>
+            <td class="field-cell">
+              <div class="field">
+                <b><%= line['component_name'] %></b>
+                <% section4_texts.each do |field| %>
+                  <% next unless presenter.filled?(line[field]) %>
+                  <br><span class="field-label"><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></span>
+                  <%= simple_format(line[field]) %>
+                <% end %>
+                <% section4_badges.each do |field| %>
+                  <% next unless presenter.filled?(line[field]) %>
+                  <br><span class="field-label"><%= t("individualized_educational_plans.iep_curricular_planning_fields.#{field}") %></span>
+                  <ul>
+                    <% line[field].each do |description| %>
+                      <li><%= description %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </div>
             </td>
           </tr>
         <% end %>
@@ -219,9 +233,10 @@
 
 <table>
   <thead>
-    <tr><th class="section-title">5. <%= t('individualized_educational_plans.form.sections.periodic_evaluation') %></th></tr>
+    <tr class="continuation-rule"><td></td></tr>
   </thead>
   <tbody>
+    <tr><th class="section-title">5. <%= t('individualized_educational_plans.form.sections.periodic_evaluation') %></th></tr>
     <% if presenter.periodic_evaluations_by_review.any? %>
       <% presenter.periodic_evaluations_by_review.each do |(review_number, review_date), lines| %>
         <tr>
@@ -232,13 +247,15 @@
         </tr>
         <% lines.each do |line| %>
           <tr>
-            <td>
-              <b><%= line['component_name'] %></b>
-              <% section5_texts.each do |field| %>
-                <% next unless presenter.filled?(line[field]) %>
-                <br><span class="field-label"><%= t("individualized_educational_plans.iep_periodic_evaluation_fields.#{field}") %></span>
-                <%= simple_format(line[field]) %>
-              <% end %>
+            <td class="field-cell">
+              <div class="field">
+                <b><%= line['component_name'] %></b>
+                <% section5_texts.each do |field| %>
+                  <% next unless presenter.filled?(line[field]) %>
+                  <br><span class="field-label"><%= t("individualized_educational_plans.iep_periodic_evaluation_fields.#{field}") %></span>
+                  <%= simple_format(line[field]) %>
+                <% end %>
+              </div>
             </td>
           </tr>
         <% end %>
@@ -251,16 +268,19 @@
 
 <table>
   <thead>
-    <tr><th class="section-title">6. <%= t('individualized_educational_plans.form.sections.final_evaluation') %></th></tr>
+    <tr class="continuation-rule"><td></td></tr>
   </thead>
   <tbody>
+    <tr><th class="section-title">6. <%= t('individualized_educational_plans.form.sections.final_evaluation') %></th></tr>
     <% if presenter.any_filled?(final_evaluation, final_texts) %>
       <% final_texts.each do |field| %>
         <% next unless presenter.filled?(final_evaluation[field]) %>
         <tr>
-          <td>
-            <span class="field-label"><%= t("individualized_educational_plans.section_final_evaluation.#{field}") %></span>
-            <%= simple_format(final_evaluation[field]) %>
+          <td class="field-cell">
+            <div class="field">
+              <span class="field-label"><%= t("individualized_educational_plans.section_final_evaluation.#{field}") %></span>
+              <%= simple_format(final_evaluation[field]) %>
+            </div>
           </td>
         </tr>
       <% end %>

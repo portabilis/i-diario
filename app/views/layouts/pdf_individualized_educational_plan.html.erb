@@ -29,6 +29,35 @@
         font-weight: bold;
       }
 
+      /* O Chrome repete o <thead> a cada página: ele guarda só a régua, que fecha o topo do
+         fragmento na continuação. O título da seção fica no <tbody> para não repetir. */
+      .continuation-rule td {
+        height: 0;
+        padding: 0;
+        font-size: 0;
+        line-height: 0;
+        border: none;
+        border-bottom: 1px solid #000000;
+      }
+
+      /* box-decoration-break é ignorado em célula de tabela com borda colapsada, então padding
+         e linhas horizontais vão para o .field. Mantê-los na célula dobraria a linha. */
+      .field-cell {
+        padding: 0;
+        border-top: none;
+        border-bottom: none;
+      }
+
+      /* clone repete padding e borda em cada fragmento: a página que quebra fecha a caixa e a
+         continuação não encosta na margem. Sem borda de topo — com ela o Chrome inicia a caixa
+         mesmo sem caber uma linha, deixando um fragmento vazio no rodapé. */
+      .field {
+        padding: 8px;
+        border-bottom: 1px solid #000000;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+      }
+
       .section-title {
         text-align: center;
         font-size: 15px;
