@@ -1,13 +1,21 @@
+<style>
+  @media (max-width: 767px) {
+    #<%= modal_id %> .grades {
+      margin-left: 0 !important;
+    }
+  }
+</style>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="<%= modal_id %>" aria-hidden="true">
-  <div class="modal-dialog" style="<%= 'width: 800px;' if type != 'disciplines' %>">
-    <div class="modal-content">
-      <div class="modal-header">
+  <div class="modal-dialog" style="<%= 'width: 800px;' if type != 'disciplines' %> max-width: 95%; margin: 10px auto;">
+    <div class="modal-content" style="max-height: 95vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
         <button type="button" class="close" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
           <span class="sr-only">Fechar</span>
         </button>
-
-        <div class="modal-body smart-form">
+      </div>
+      <div class="modal-body smart-form" style="flex: 1; overflow-y: auto; min-height: 0;">
           <ul class="nav nav-tabs bordered">
             <li id='li-general' class="<%= 'active' %>">
               <a id='a-general' href="#general" data-toggle="tab">
@@ -89,9 +97,8 @@
               </fieldset>
             </div>
           </div>
-        </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="flex-shrink: 0;">
         <button type="button" class="btn btn-default" data-dismiss="modal">
           Cancelar
         </button>
