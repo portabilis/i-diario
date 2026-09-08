@@ -2,8 +2,11 @@
     Locals: f, attribute, label, placeholder (opcional), view_only (opcional) %>
 <div class="row textarea">
   <div class="col col-sm-12">
+    <%# O placeholder é instrução de preenchimento: em leitura o campo vazio fica vazio, senão a
+        dica passa por resposta do usuário. %>
     <%= f.input attribute, label: label,
-                input_html: { rows: 4, class: 'form-control', placeholder: local_assigns[:placeholder],
+                input_html: { rows: 4, class: 'form-control',
+                              placeholder: (local_assigns[:placeholder] unless local_assigns[:view_only]),
                               readonly: local_assigns[:view_only] } %>
   </div>
 </div>

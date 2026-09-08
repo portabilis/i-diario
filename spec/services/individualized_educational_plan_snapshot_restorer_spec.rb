@@ -24,7 +24,10 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
         'social_interaction_profile' => [], 'autonomy' => ['Autonomia parcial']
       },
       'support_team' => {
-        'family_guidelines' => 'Orientacoes', 'accompaniment' => ['Fonoaudiologia'], 'support_type' => []
+        'family_guidelines' => 'Orientacoes', 'accompaniment' => ['Fonoaudiologia'], 'support_type' => [],
+        'uses_medication' => false, 'medication_name' => 'Medicamento A', 'medication_dosage' => '5mg',
+        'medication_schedule' => '08:00', 'medication_notes' => 'Apos o almoco',
+        'family_environment_characteristics' => 'Rotina estruturada'
       },
       'curricular_plannings' => [
         { 'review_number' => 1, 'review_date' => '2026-04-01',
@@ -54,6 +57,33 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
     expect(plan.guardians).to eq('Mãe X')
     expect(plan.year).to eq(2026)
     expect(plan.elaborated_at).to eq(Date.new(2026, 2, 1))
+  end
+
+  # false congelado tem que voltar como false (resposta "Não"), não como campo vazio.
+  it 'restores the medication and family environment frozen values' do
+    plan = result.plan
+
+    expect(plan.uses_medication).to eq(false)
+    expect(plan.medication_name).to eq('Medicamento A')
+    expect(plan.medication_dosage).to eq('5mg')
+    expect(plan.medication_schedule).to eq('08:00')
+    expect(plan.medication_notes).to eq('Apos o almoco')
+    expect(plan.family_environment_characteristics).to eq('Rotina estruturada')
+  end
+
+  # Versão publicada antes de os campos existirem: as chaves ausentes viram nil, sem erro.
+  it 'leaves the medication fields empty for a snapshot published before they existed' do
+    content['support_team'] = { 'family_guidelines' => 'Orientacoes' }
+
+    plan = described_class.restore(content).plan
+
+    expect(plan.uses_medication).to be_nil
+    expect(plan.medication_name).to be_nil
+    expect(plan.medication_dosage).to be_nil
+    expect(plan.medication_schedule).to be_nil
+    expect(plan.medication_notes).to be_nil
+    expect(plan.family_environment_characteristics).to be_nil
+    expect(plan.family_guidelines).to eq('Orientacoes')
   end
 
   it 'restores student and aee_teacher stand-ins with frozen names' do

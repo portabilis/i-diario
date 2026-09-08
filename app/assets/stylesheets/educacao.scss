@@ -53,6 +53,10 @@ form .disabled label {
 .textarea{
   padding-top: 15px
 }
+// Iguala o respiro de uma linha de campos ao das linhas de textarea (regra .textarea acima).
+.row.spaced-row {
+  padding-top: 15px;
+}
 .smart-form .textarea textarea {
   resize: vertical;
 }

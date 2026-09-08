@@ -42,6 +42,30 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
     expect(restored_planning.instructional_accommodation_option_ids.size).to eq(1)
   end
 
+  # uses_medication: false atravessa publish (slice) → jsonb → restore como resposta "Não";
+  # perder o false em qualquer um dos lados apagaria a resposta do documento imutável.
+  it 'restores the frozen support team fields including a "no" medication answer' do
+    plan = create(:individualized_educational_plan,
+                  uses_medication: false, medication_name: 'Medicamento A',
+                  medication_dosage: '5mg', medication_schedule: '08:00',
+                  medication_notes: 'Apos o almoco',
+                  family_environment_characteristics: 'Rotina estruturada')
+
+    restored = publish_and_restore(plan)
+
+    # No jsonb o false tem que ser BOOLEANO: uma string "false" é truthy para quem ler o conteúdo
+    # bruto do documento imutável (o cast do plano restaurado esconderia essa diferença).
+    frozen = plan.iep_versions.find_by(active: true).content['support_team']['uses_medication']
+    expect(frozen).to eq(false)
+
+    expect(restored.uses_medication).to eq(false)
+    expect(restored.medication_name).to eq('Medicamento A')
+    expect(restored.medication_dosage).to eq('5mg')
+    expect(restored.medication_schedule).to eq('08:00')
+    expect(restored.medication_notes).to eq('Apos o almoco')
+    expect(restored.family_environment_characteristics).to eq('Rotina estruturada')
+  end
+
   it 'keeps the frozen value even after the source discipline is renamed later' do
     plan = create(:individualized_educational_plan)
     review_date = create(:iep_review_date, iep: plan, review_date: Date.current)

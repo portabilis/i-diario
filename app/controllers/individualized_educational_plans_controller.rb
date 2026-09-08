@@ -625,6 +625,8 @@ class IndividualizedEducationalPlansController < ApplicationController
       :characterization, :clinical_diagnosis_justification, :school_history,
       :potentialities, :difficulties, :preferences_interests, :effective_strategies,
       :family_guidelines, :external_professionals_guidelines,
+      :uses_medication, :medication_name, :medication_dosage, :medication_schedule,
+      :medication_notes, :family_environment_characteristics,
       :annual_report, :overall_evolution, :next_year_recommendations, :referrals_made,
       :communication_profile_option_ids, :social_interaction_profile_option_ids,
       :autonomy_option_ids, :accompaniment_option_ids, :support_type_option_ids,

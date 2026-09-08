@@ -221,11 +221,13 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           characterization: 'Invadido',
+          medication_name: 'Invadido',
           iep_curricular_plannings_attributes: { '0' => { id: own_line.id, long_term_goal: 'Meta ok' } }
         }
       }
 
       expect(plan.reload.characterization).to eq('Original')
+      expect(plan.medication_name).to be_nil
       expect(own_line.reload.long_term_goal).to eq('Meta ok')
     end
 
@@ -1214,6 +1216,46 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
       expect(response).to redirect_to(edit_individualized_educational_plan_path(existing))
       expect(flash[:notice]).to eq(I18n.t('individualized_educational_plans.flash.already_exists_editing'))
+    end
+
+    # 'false' como string, igual ao submit do select: prova o permit + cast do boolean tri-state.
+    it 'persists the medication and family environment fields' do
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: valid_params.merge(
+          uses_medication: 'false', medication_name: 'Medicamento A', medication_dosage: '5mg',
+          medication_schedule: '08:00', medication_notes: 'Apos o almoco',
+          family_environment_characteristics: 'Rotina estruturada'
+        )
+      }
+
+      plan = assigns(:individualized_educational_plan).reload
+      expect(plan.uses_medication).to eq(false)
+      expect(plan.medication_name).to eq('Medicamento A')
+      expect(plan.medication_dosage).to eq('5mg')
+      expect(plan.medication_schedule).to eq('08:00')
+      expect(plan.medication_notes).to eq('Apos o almoco')
+      expect(plan.family_environment_characteristics).to eq('Rotina estruturada')
+    end
+
+    # '' (select em branco) tem que virar nil — o "não respondido" do tri-state. Um default na
+    # coluna, ou um cast diferente, transformaria silêncio em resposta.
+    it 'keeps an unanswered medication select as nil' do
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: valid_params.merge(uses_medication: '')
+      }
+
+      expect(assigns(:individualized_educational_plan).reload.uses_medication).to be_nil
+    end
+
+    it 'casts a "true" medication answer to the boolean true' do
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: valid_params.merge(uses_medication: 'true')
+      }
+
+      expect(assigns(:individualized_educational_plan).reload.uses_medication).to eq(true)
     end
 
     # O par completo da feature: o arquivado não pode nem ser reaberto no lugar do novo, nem
