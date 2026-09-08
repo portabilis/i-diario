@@ -4,7 +4,7 @@ pt-BR:
       title: "Atenção ao enviar as faltas da última etapa"
       intro_html: "Você está enviando as faltas da <strong>última etapa do ano letivo</strong>. Assim que o i-Educar recebe essa informação, ele processa a situação final dos alunos."
       early_approval_html: "Enviar antes do encerramento do período letivo pode <strong>aprovar alunos antes da hora</strong>."
-      when_to_send: "Faça esse envio somente em caso de necessidade, preferencialmente após o encerramento do período letivo."
+      when_to_send: "Faça esse envio somente quando os alunos já puderem receber suas situações finais, como no fechamento do ano ou na entrega de boletins de quem já concluiu a etapa."
       transfer_html: "Em casos de <strong>transferência não é necessário enviar</strong>. O i-Educar já solicita as notas e faltas automaticamente quando a nova matrícula é criada."
       ask_secretary: "Em caso de dúvida, procure o secretário ou o diretor escolar antes de continuar."
       question: "Deseja continuar mesmo assim?"
