@@ -27,14 +27,18 @@ module Api
       end
 
       def update_or_create
+        # owner_teacher_id só é gravado na criação: sem ele aqui, o diário criado por este endpoint
+        # nasce sem dono e fica sem envio automático de faltas e fora dos ajustes de faltas, que
+        # casam o diário com o vínculo pelo professor dono.
         creator = DailyFrequenciesCreator.new(
-          unity: unity,
+          unity_id: unity.id,
           classroom_id: params[:classroom_id],
           frequency_date: params[:frequency_date],
           class_numbers: [params[:class_number]],
           discipline_id: params[:discipline_id],
           school_calendar: current_school_calendar,
-          period: period
+          period: period,
+          owner_teacher_id: params[:teacher_id] || current_user.teacher_id
         )
         creator.find_or_create!
 
