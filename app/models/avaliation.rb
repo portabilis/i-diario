@@ -224,7 +224,8 @@ class Avaliation < ApplicationRecord
   end
 
   def test_setting_test_weight_available
-    return unless step && weight
+    return unless weight
+    return weight_not_greater_than_test_setting_test_weight if step.blank?
 
     avaliations = Avaliation.by_classroom_id(classroom_id)
                             .by_grade_id(grade_ids)
@@ -243,6 +244,14 @@ class Avaliation < ApplicationRecord
     elsif (weight <= 0)
       errors.add(:weight, :greater_than, count: 0.0)
     end
+  end
+
+  # Quanto ainda cabe na etapa depende da data, mas o teto do tipo de avaliação vale sempre — sem
+  # ele o professor só descobre que passou do limite depois de acertar a data.
+  def weight_not_greater_than_test_setting_test_weight
+    return if weight <= test_setting_test.weight
+
+    errors.add(:weight, :less_than_or_equal_to, count: test_setting_test.weight)
   end
 
   def valid_for_destruction?

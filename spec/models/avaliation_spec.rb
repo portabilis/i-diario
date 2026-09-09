@@ -131,6 +131,16 @@ RSpec.describe Avaliation, type: :model do
         expect(subject.errors[:weight]).to include("deve ser menor ou igual a #{subject.test_setting_test.weight}")
       end
 
+      # Sem data não há etapa, e sem etapa não dá para somar o que já foi lançado; o teto do tipo
+      # de avaliação continua valendo.
+      it 'should validate that weight is less than or equal to test_setting_test.weight without test_date' do
+        subject.test_date = nil
+        subject.weight = subject.test_setting_test.weight + 1
+
+        expect(subject).to_not be_valid
+        expect(subject.errors[:weight]).to include("deve ser menor ou igual a #{subject.test_setting_test.weight}")
+      end
+
       it 'should validate that weight plus the weight of other avaliations with same test_setting_test is less than or equal to test_setting_test.weight' do
         another_avaliation = create(
           :avaliation,

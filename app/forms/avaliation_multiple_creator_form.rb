@@ -2,6 +2,11 @@ class AvaliationMultipleCreatorForm
   include ActiveModel::Model
   include I18n::Alchemy
 
+  # A coluna Turma resume o que só aquela turma explica: vínculo do professor com a turma ou com a
+  # disciplina, série sem a disciplina na grade, e o peso e o tipo de avaliação ainda disponíveis
+  # na etapa, que dependem do que já foi lançado naquela turma. Data e Série ficam de fora porque
+  # têm campo na própria linha, e os campos do topo porque o formulário já os valida.
+  CLASSROOM_ROW_ERROR_ATTRIBUTES = %i[classroom_id discipline_id grades weight test_setting_test].freeze
 
   attr_accessor :test_setting_id, :unity_id, :discipline_id, :test_setting_test_id,
                 :description, :weight, :observations, :school_calendar_id, :avaliations, :teacher_id
@@ -21,8 +26,13 @@ class AvaliationMultipleCreatorForm
     super
   end
 
+  # Os dois lados precisam rodar: o && curto-circuitaria a checagem por turma sempre que um campo
+  # do topo estivesse inválido, e a linha da turma ficaria sem apontar o próprio erro.
   def valid?
-    super && add_avaliations_errors_to_classrooms
+    form_valid = super
+    avaliations_valid = add_avaliations_errors_to_classrooms
+
+    form_valid && avaliations_valid
   end
 
   def save
@@ -162,10 +172,18 @@ class AvaliationMultipleCreatorForm
 
   private
 
+  # A mensagem que já saiu num campo do topo não se repete na linha: sobra para a linha o que só
+  # aquela turma explica.
   def avaliation_error(avaliation)
-    avaliation.errors.full_messages.reject { |msg|
-      msg.include?('Data da avaliação') || msg.include?('Aulas') ||
-        msg.include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
-    }.first
+    attributes = avaliation.errors.keys & CLASSROOM_ROW_ERROR_ATTRIBUTES
+    messages = attributes.flat_map { |attribute| avaliation.errors.full_messages_for(attribute) }
+
+    (messages - form_field_messages).first
+  end
+
+  # O :base acumula a mensagem de cada turma já processada — comparar com ele apagaria a mensagem
+  # da segunda turma em diante.
+  def form_field_messages
+    (errors.keys - [:base]).flat_map { |attribute| errors.full_messages_for(attribute) }
   end
 end
