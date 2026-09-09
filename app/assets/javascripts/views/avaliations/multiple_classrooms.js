@@ -26,6 +26,7 @@ $(function () {
           $('.avaliation_multiple_creator_form_test_setting_test_id').show();
           $('.avaliation_multiple_creator_form_description').hide();
           $('.avaliation_multiple_creator_form_weight').hide();
+          updateFieldsBaseOnTestSettingTest();
           break;
 
         case "arithmetic":
@@ -183,13 +184,13 @@ $(function () {
     $selectAll.prop('checked', $checkboxes.length === $checkboxes.filter(':checked').length);
   }
 
+  // updateFieldsBaseOnTestSettingTest exibe Descrição e Peso quando o tipo de avaliação é quebrável,
+  // e updateFieldsBasedOnTestSetting esconde os dois no cálculo por soma. Os dois dependem de resposta
+  // HTTP, então o segundo precisa ser encadeado no primeiro — em paralelo quem decide a tela é a
+  // resposta que chegar por último.
   function initFields() {
     if (!!document.getElementById('avaliation_multiple_creator_form_test_setting_id')) {
       updateFieldsBasedOnTestSetting();
-    }
-
-    if (!!document.getElementById('avaliation_multiple_creator_form_weight')) {
-      updateFieldsBaseOnTestSettingTest();
     }
   }
 
