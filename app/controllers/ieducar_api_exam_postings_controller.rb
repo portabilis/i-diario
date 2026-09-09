@@ -70,6 +70,20 @@ class IeducarApiExamPostingsController < ApplicationController
   end
   helper_method :step_column
 
+  # As faltas da última etapa fecham a situação final do aluno no i-Educar, então só essa
+  # linha pede confirmação antes do envio.
+  def last_step_absence_warning?(step, post_type)
+    post_type == ApiPostingTypes::ABSENCE && step.id == last_step_by_year&.id
+  end
+  helper_method :last_step_absence_warning?
+
+  def last_step_by_year
+    return @last_step_by_year if defined?(@last_step_by_year)
+
+    @last_step_by_year = steps_fetcher.last_step_by_year
+  end
+  helper_method :last_step_by_year
+
   def require_current_posting_step
     return unless current_school_calendar
 
