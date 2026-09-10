@@ -28,13 +28,23 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:classroom) }
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:school_calendar) }
-    it {
-      allow_any_instance_of(Avaliation).to receive(:grades_belongs_to_test_setting).and_return(true)
-
-      expect(subject).to validate_presence_of(:test_setting)
-    }
+    it { expect(subject).to validate_presence_of(:test_setting) }
     it { expect(subject).to validate_presence_of(:test_date) }
     it { expect(subject).to validate_school_calendar_day_of(:test_date) }
+
+    # Configuração por etapa confere o dia letivo no calendário; sem calendário, quem acusa é a presença.
+    it 'reports the missing school calendar when the test setting is by school term' do
+      subject.test_setting = create(
+        :test_setting,
+        exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM,
+        school_term_type_step: create(:school_term_type_step, school_term_type: create(:school_term_type),
+                                                              step_number: 1)
+      )
+      subject.school_calendar = nil
+
+      expect(subject).not_to be_valid
+      expect(subject.errors[:school_calendar]).to eq(['não pode ficar em branco'])
+    end
 
     context 'when classroom present' do
       let(:exam_rule) { create(:exam_rule, score_type: ScoreTypes::CONCEPT) }
@@ -139,6 +149,14 @@ RSpec.describe Avaliation, type: :model do
 
         expect(subject).to_not be_valid
         expect(subject.errors[:weight]).to include("deve ser menor ou igual a #{subject.test_setting_test.weight}")
+      end
+
+      it 'should validate that weight is greater than zero without test_date' do
+        subject.test_date = nil
+        subject.weight = 0
+
+        expect(subject).to_not be_valid
+        expect(subject.errors[:weight]).to include('deve ser maior que 0.0')
       end
 
       it 'should validate that weight plus the weight of other avaliations with same test_setting_test is less than or equal to test_setting_test.weight' do

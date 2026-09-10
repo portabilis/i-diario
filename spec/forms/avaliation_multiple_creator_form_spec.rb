@@ -31,12 +31,12 @@ RSpec.describe AvaliationMultipleCreatorForm, type: :form do
     end
   end
 
-  def build_form(test_date:, weight:)
+  def build_form(test_date:, weight:, test_setting_id: test_setting.id)
     described_class.new(
       'unity_id' => classroom.unity_id,
       'discipline_id' => discipline.id,
       'school_calendar_id' => school_calendar.id,
-      'test_setting_id' => test_setting.id,
+      'test_setting_id' => test_setting_id,
       'description' => 'Prova',
       'weight' => weight,
       'avaliations_attributes' => {
@@ -136,6 +136,14 @@ RSpec.describe AvaliationMultipleCreatorForm, type: :form do
     expect(form).not_to be_valid
     expect(form.errors[:description]).to eq(['não pode ficar em branco'])
     expect(form.avaliations.first.errors[:test_date]).to be_present
+  end
+
+  # A validação de cada turma roda mesmo com o topo inválido, então precisa tolerar campo do topo vazio.
+  it 'reports the blank test setting when a classroom is selected' do
+    form = build_form(test_date: '10/03/2026', weight: '5', test_setting_id: '')
+
+    expect(form).not_to be_valid
+    expect(form.errors[:test_setting_id]).to eq(['não pode ficar em branco'])
   end
 
   it 'does not repeat the date error on the classroom row' do

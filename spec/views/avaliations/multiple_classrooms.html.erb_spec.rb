@@ -122,6 +122,15 @@ RSpec.describe 'avaliations/multiple_classrooms', type: :view do
     expect(rendered_test_setting_id).to eq(first_test_setting.id.to_s)
   end
 
+  it 'falls back to the first test setting of the list when the submitted value is blank' do
+    listed = [first_test_setting, submitted_test_setting]
+    assign_form_options(AvaliationMultipleCreatorForm.new(test_setting_id: ''), listed)
+
+    render template: 'avaliations/multiple_classrooms'
+
+    expect(rendered_test_setting_id).to eq(first_test_setting.id.to_s)
+  end
+
   it 'renders no value when nothing was submitted and the list is empty' do
     assign_form_options(AvaliationMultipleCreatorForm.new, [])
 
