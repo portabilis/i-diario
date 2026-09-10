@@ -50,7 +50,8 @@ module TestSettingValidations
   def uniqueness_of_by_general_by_school_test_setting
     test_settings = TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
     test_settings = test_settings.where.not(id: id) if persisted?
-    test_settings = test_settings.by_unities(unities)
+    # basta uma unidade em comum para uma turma ficar com duas configurações candidatas
+    test_settings = test_settings.by_intersecting_unities(unities)
     test_settings = test_settings.where("grades && ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
 
     return unless test_settings.any?

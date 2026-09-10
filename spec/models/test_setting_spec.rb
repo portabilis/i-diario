@@ -82,6 +82,78 @@ RSpec.describe TestSetting, type: :model do
       end
     end
 
+    context 'when #exam_setting_type equals to general_by_school' do
+      let(:shared_unity) { create(:unity) }
+      let(:shared_grade) { create(:grade) }
+      let(:other_unity) { create(:unity) }
+      let(:other_grade) { create(:grade) }
+
+      let!(:existing_test_setting) do
+        create(:test_setting, :general_by_school,
+               year: 2026,
+               unities: [shared_unity.id],
+               grades: [shared_grade.id])
+      end
+
+      it 'does not allow another setting covering the same unity and grade' do
+        test_setting = build(:test_setting, :general_by_school,
+                             year: 2026,
+                             unities: [shared_unity.id],
+                             grades: [shared_grade.id])
+
+        expect(test_setting).to_not be_valid
+        expect(test_setting.errors[:grades]).to include('já existe uma configuração para esses dados')
+      end
+
+      it 'does not allow another setting whose unities only partially overlap' do
+        test_setting = build(:test_setting, :general_by_school,
+                             year: 2026,
+                             unities: [shared_unity.id, other_unity.id],
+                             grades: [shared_grade.id])
+
+        expect(test_setting).to_not be_valid
+        expect(test_setting.errors[:unities]).to include('já existe uma configuração para esses dados')
+      end
+
+      it 'allows another setting for the same unity with a different grade' do
+        test_setting = build(:test_setting, :general_by_school,
+                             year: 2026,
+                             unities: [shared_unity.id],
+                             grades: [other_grade.id])
+
+        expect(test_setting).to be_valid
+      end
+
+      it 'allows another setting for a different unity with the same grade' do
+        test_setting = build(:test_setting, :general_by_school,
+                             year: 2026,
+                             unities: [other_unity.id],
+                             grades: [shared_grade.id])
+
+        expect(test_setting).to be_valid
+      end
+
+      it 'allows another setting for the same unity and grade in a different year' do
+        test_setting = build(:test_setting, :general_by_school,
+                             year: 2027,
+                             unities: [shared_unity.id],
+                             grades: [shared_grade.id])
+
+        expect(test_setting).to be_valid
+      end
+
+      # grades vazio significa "todas as séries": qualquer série da mesma unidade colide
+      it 'does not allow another setting covering all grades of the same unity' do
+        test_setting = build(:test_setting, :general_by_school,
+                             year: 2026,
+                             unities: [shared_unity.id],
+                             grades: [])
+
+        expect(test_setting).to_not be_valid
+        expect(test_setting.errors[:unities]).to include('já existe uma configuração para esses dados')
+      end
+    end
+
     context 'when sum calculation type' do
       before { subject.average_calculation_type = AverageCalculationTypes::SUM }
 
