@@ -239,8 +239,8 @@ RSpec.describe IeducarApiExamPostingsController, :type => :controller do
       end
     end
 
-    # Sem calendário para a unidade e o ano da turma não há janela a conferir, e a tela segue liberada.
-    context 'when there is no school calendar for the classroom unity and year' do
+    # Sem calendário na unidade corrente do usuário para o ano não há janela a conferir, e a tela segue liberada.
+    context 'when there is no school calendar for the current unity and year' do
       let(:other_unity) { create(:unity) }
       let(:classroom) { create(:classroom, unity: other_unity, year: today.year) }
       let(:user) do
