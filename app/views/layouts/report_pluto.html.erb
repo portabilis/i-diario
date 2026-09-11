@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title><%= content_for?(:report_title) ? yield(:report_title) : 'Relatório' %></title>
+
+<style>
+/* Layout para o driver pluto (PlutoBook). A numeração de página vive aqui no
+   CSS, como margin box do @page; o cabeçalho fica no fluxo do documento e sai
+   só na primeira página. Ver docs/relatorios-html-plutobook.md. */
+@page {
+  size: A4 portrait;
+  margin: 12mm 10mm 16mm 10mm;
+
+  /* A margem inferior é o único gap entre texto e rodapé: o pluto deixa o
+     conteúdo descer até a borda da margem, e a numeração é desenhada dentro
+     dela. Margem = folga de 4.2mm + numeração a 11.8mm da borda.
+     vertical-align: top + padding-top posicionam; com bottom o texto encosta
+     na borda física da folha e cai na área que impressora comum não imprime. */
+  @bottom-right {
+    content: "Página " counter(page) " de " counter(pages);
+    font-size: 8pt;
+    vertical-align: top;
+    padding-top: 4.2mm;
+  }
+}
+
+/* Corpos de fonte do relatório, em mm. O conteúdo de célula é declarado maior
+   que o texto corrido porque a métrica da célula sai visualmente menor para o
+   mesmo tamanho declarado.
+
+   Relatório que precise dos próprios corpos de fonte deve declarar em mm a
+   partir daqui, e conferir o resultado no PDF: o pluto imprime no tamanho
+   declarado e não encolhe a página para o conteúdo caber. */
+:root {
+  --fs-body: 3.22mm;
+  --fs-cell: 3.58mm;
+  /* 3.97mm = os 15px que o cabeçalho dos relatórios já usava. */
+  --fs-title: 3.97mm;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  font-size: var(--fs-body);
+}
+
+/* O pluto NÃO encolhe a página para caber: qualquer elemento mais largo que a
+   área útil (190mm com as margens acima) vaza para fora do papel. */
+table {
+  width: 100%;
+  margin-bottom: 1mm;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #000;
+  padding: 0 5px;
+  font-size: var(--fs-body);
+  /* Sem quebra dentro da palavra o conteúdo vaza para a célula vizinha:
+     o pluto não reflui a coluna para acomodar o texto longo. */
+  overflow-wrap: break-word;
+}
+
+td {
+  font-size: var(--fs-cell);
+}
+
+/* table-row-group desliga a repetição do cabeçalho na quebra de página: com
+   table-header-group, quando uma célula atravessa a quebra o pluto desenha o
+   cabeçalho por cima da continuação do texto. Um relatório de listagem que
+   precise repetir o cabeçalho da tabela pode reverter para table-header-group
+   no próprio content_for :head, ciente da sobreposição em célula longa. */
+thead { display: table-row-group; }
+
+/* Cabeçalho padrão dos relatórios: o título do relatório sobre o brasão e a
+   identificação da rede. Só entidade e órgão — é o que os relatórios do
+   i-Diário identificam. */
+/* A folga das células do cabeçalho é a mesma dos demais relatórios, para que a
+   faixa do título saia na mesma altura em todos. */
+.report-header th,
+.report-header td {
+  padding: 8px;
+}
+
+/* A posição vertical vai declarada na classe: regra `table { margin }` do
+   próprio relatório deslocaria o cabeçalho, e ele precisa sair na mesma altura
+   em todos. As laterais seguem a regra de tabela do relatório, para o
+   cabeçalho alinhar com as tabelas dele. */
+.report-header {
+  margin-top: 2%;
+  margin-bottom: 4mm;
+}
+
+.report-header__title {
+  text-align: center;
+  font-size: var(--fs-title);
+  background-color: #DEDEDE;
+  font-weight: bold;
+}
+
+.report-header__logo {
+  text-align: center;
+  width: 50px;
+  height: 50px;
+}
+
+/* O corpo de fonte vai declarado na classe para o cabeçalho sair igual em todos
+   os relatórios: regra de `td` do próprio relatório, em content_for :head, é
+   injetada depois do CSS base e venceria a herança. */
+.report-header__entity {
+  text-align: center;
+  font-size: var(--fs-cell);
+}
+</style>
+<%= yield :head if content_for?(:head) %>
+</head>
+<body>
+  <% entity_configuration = current_entity_configuration %>
+
+  <table class="report-header">
+    <thead>
+      <tr>
+        <th colspan="2" class="report-header__title"><%= yield(:report_title) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="report-header__logo">
+          <%# base64: o serviço de renderização não resolve URL de app/S3 %>
+          <% if (logo_uri = entity_configuration&.logo_base64_data_uri) %>
+            <img src="<%= logo_uri %>" width="50" height="50">
+          <% end %>
+        </td>
+        <td class="report-header__entity">
+          <br><%= entity_configuration&.entity_name %>
+          <br><%= entity_configuration&.organ_name %>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <%= yield %>
+</body>
+</html>

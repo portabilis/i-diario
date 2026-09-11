@@ -1,4 +1,51 @@
-<h1>Quadro de Aulas</h1>
+<%# O título, o brasão e a identificação da rede vêm do cabeçalho do report_pluto. %>
+<% content_for :report_title, 'Quadro de Aulas' %>
+
+<% content_for :head do %>
+  <style>
+    /* As tabelas ocupam a largura útil inteira, com folga só na vertical entre
+       as seções: cada célula de aula guarda nome de professor e disciplina, e
+       coluna estreita multiplica as linhas de cada aula. */
+    table {
+      width: 100%;
+      margin: 0 0 4mm;
+    }
+
+    /* 11.2px é o tamanho impresso no motor anterior, medido no PDF: o layout
+       antigo declarava 12px, mas a página excedia a área imprimível e o chrome
+       a reduzia por inteiro (fator 0,935). */
+    th,
+    td {
+      padding: 8px;
+      font-size: 11.2px;
+    }
+
+    /* Fundo das linhas de cabeçalho das duas tabelas. O report_pluto deixa th
+       sem cor de fundo, e este relatório distingue cabeçalho de conteúdo por
+       ele. */
+    .info-table .info-header th,
+    .lessons-table th {
+      background-color: #DEDEDE;
+      text-align: center;
+    }
+
+    /* A linha de identificação sai em negrito, destacada do corpo da tabela. */
+    .info-table td {
+      font-weight: bold;
+    }
+
+    .lessons-table td {
+      text-align: center;
+    }
+
+    /* A coluna do número da aula guarda só um dígito; o que sobra dela vai
+       para as colunas dos dias da semana. */
+    .lessons-table th:first-child,
+    .lessons-table td:first-child {
+      width: 10%;
+    }
+  </style>
+<% end %>
 
 <table class="info-table">
   <thead>
