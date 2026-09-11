@@ -96,6 +96,25 @@ RSpec.describe TestSetting, type: :model do
                grades: [shared_grade.id])
       end
 
+      it 'allows widening a persisted setting without conflicting with itself' do
+        existing_test_setting.grades += [other_grade.id]
+
+        expect(existing_test_setting).to be_valid
+      end
+
+      it 'does not allow widening a persisted setting into another setting' do
+        create(:test_setting, :general_by_school, year: 2026, unities: [other_unity.id], grades: [other_grade.id])
+        existing_test_setting.assign_attributes(
+          unities: existing_test_setting.unities + [other_unity.id],
+          grades: existing_test_setting.grades + [other_grade.id]
+        )
+
+        expect(existing_test_setting).to_not be_valid
+        expect(existing_test_setting.errors[:grades]).to eq(
+          ['A série 2º ano - Ensino Fundamental já está em outra configuração de 2026 para a escola Escola Norte']
+        )
+      end
+
       it 'does not allow another setting covering the same unity and grade' do
         test_setting = build(:test_setting, :general_by_school,
                              year: 2026,
