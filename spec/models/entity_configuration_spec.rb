@@ -159,6 +159,15 @@ RSpec.describe EntityConfiguration, :type => :model do
 
           expect(memory_store.read(other_key)).to eq('other')
         end
+
+        it 'skips the invalidation when there is no current entity' do
+          cached_key = "entity_logo_data:10:#{entity_configuration.id}:logo.png"
+          memory_store.write(cached_key, 'cached')
+          Entity.current = nil
+
+          expect { entity_configuration.send(:invalidate_logo_cache) }.not_to raise_error
+          expect(memory_store.read(cached_key)).to eq('cached')
+        end
       end
     end
 
