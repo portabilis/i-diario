@@ -27,6 +27,8 @@ module TestSettingValidations
     validate :ensure_can_destroy_test_settings
   end
 
+  OVERLAPPING_LABELS_LIMIT = 3
+
   private
 
   def uniqueness_of_general_test_setting
@@ -48,16 +50,71 @@ module TestSettingValidations
   end
 
   def uniqueness_of_by_general_by_school_test_setting
+    overlapping_test_settings = overlapping_general_by_school_test_settings
+    return if overlapping_test_settings.empty?
+
+    overlapping_grade_ids = overlapping_grade_ids(overlapping_test_settings)
+    message_options = { year: year, unities: overlapping_unities_label(overlapping_test_settings) }
+    return errors.add(:grades, :all_grades_in_another_test_setting, message_options) if overlapping_grade_ids.nil?
+
+    message_options.update(count: overlapping_grade_ids.size, grades: grades_label(overlapping_grade_ids))
+    errors.add(:grades, :in_another_test_setting, message_options)
+  end
+
+  def overlapping_general_by_school_test_settings
     test_settings = TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
     test_settings = test_settings.where.not(id: id) if persisted?
     # basta uma unidade em comum para uma turma ficar com duas configurações candidatas
     test_settings = test_settings.by_intersecting_unities(unities)
     test_settings = test_settings.where("grades && ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
 
-    return unless test_settings.any?
+    test_settings.to_a
+  end
 
-    errors.add(:unities, :taken)
-    errors.add(:grades, :taken)
+  # grades vazio significa "todas as séries"; retorna nil quando as duas configurações cobrem todas.
+  # A coluna aceita NULL, que a busca só retorna quando esta configuração cobre todas as séries.
+  def overlapping_grade_ids(overlapping_test_settings)
+    other_grade_ids = overlapping_test_settings.map { |test_setting| test_setting.grades.to_a }
+    other_covers_all_grades = other_grade_ids.any?(&:empty?)
+
+    if grades.blank?
+      other_grade_ids.flatten.uniq unless other_covers_all_grades
+    elsif other_covers_all_grades
+      grades.uniq
+    else
+      other_grade_ids.flat_map { |grade_ids| grades & grade_ids }.uniq
+    end
+  end
+
+  def overlapping_unities_label(overlapping_test_settings)
+    unity_ids = overlapping_test_settings.flat_map { |test_setting| unities & test_setting.unities }.uniq
+    unity_names = Unity.with_discarded.where(id: unity_ids).map(&:to_s)
+
+    I18n.t(
+      'activerecord.errors.models.test_setting.overlapping_unities',
+      count: unity_names.size,
+      unities: summarized_labels(unity_names)
+    )
+  end
+
+  # o curso é carregado à parte porque o includes aplicaria o default_scope e esconderia curso descartado
+  def grades_label(grade_ids)
+    overlapping_grades = Grade.with_discarded.where(id: grade_ids).to_a
+    courses = Course.with_discarded.where(id: overlapping_grades.map(&:course_id)).index_by(&:id)
+
+    summarized_labels(overlapping_grades.map { |grade| "#{grade} - #{courses[grade.course_id]}" })
+  end
+
+  def summarized_labels(labels)
+    sorted_labels = labels.sort
+    summarized = sorted_labels.first(OVERLAPPING_LABELS_LIMIT)
+    remaining_count = sorted_labels.size - summarized.size
+
+    if remaining_count.positive?
+      summarized << I18n.t('activerecord.errors.models.test_setting.remaining_labels', count: remaining_count)
+    end
+
+    summarized.to_sentence
   end
 
   def at_least_one_assigned_test

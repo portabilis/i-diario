@@ -27,13 +27,18 @@ pt-BR:
             tests:
               at_least_one_assigned_test: "É necessário pelo menos uma avaliação"
               tests_weight_less_or_equal_maximum_score: "A soma dos pesos das avaliações deve resultar em um valor menor ou igual da nota máxima"
-            unities:
-              taken: 'já existe uma configuração para esses dados'
             grades:
-              taken: 'já existe uma configuração para esses dados'
+              in_another_test_setting:
+                one: 'A série %{grades} já está em outra configuração de %{year} para %{unities}'
+                other: 'As séries %{grades} já estão em outra configuração de %{year} para %{unities}'
+              all_grades_in_another_test_setting: 'Todas as séries já estão em outra configuração de %{year} para %{unities}'
             base:
               has_avaliation_associated: "Não é possível modificar as configurações de Avaliações numéricas pois existem avaliações vinculadas"
               check_minimum_score: "A nota mínima deve ser menor que a nota máxima"
+          overlapping_unities:
+            one: 'a escola %{unities}'
+            other: 'as escolas %{unities}'
+          remaining_labels: 'mais %{count}'
 
   test_settings:
     form:
