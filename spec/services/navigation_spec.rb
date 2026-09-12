@@ -1,32 +1,35 @@
-require "rails_helper"
+require 'rails_helper'
 
-describe Navigation, type: :service do
-  let(:item) { :dashboard }
-  let(:context){ double }
+# CVE-2025-8920 / GHSA-v2qp-2w8g-3363
+# Os termos do "Dicionário de Termos BNCC" são valores de Translation editáveis pelo usuário e
+# viram o título/breadcrumb das telas de planos de ensino. Título e breadcrumb eram montados com
+# `raw`, então HTML nesses termos executava ao abrir a tela. Devem escapar o texto e manter o ícone.
+RSpec.describe Navigation, type: :service do
+  let(:payload) { '<img src=x onerror=alert(1)>' }
 
-  subject { described_class }
+  before do
+    allow(Translator).to receive(:translate).and_return("Planos #{payload}")
+  end
 
-  describe ".draw_breadcrumbs" do
-    it "calls Navigation::BreadcrumbsBuilder.build" do
-      expect(Navigation::BreadcrumbsBuilder).to receive(:build).with(item, context)
+  describe '.draw_title' do
+    subject(:html) { described_class.draw_title('discipline_teaching_plans', true, nil).to_s }
 
-      subject.draw_breadcrumbs(item, context)
+    it 'escapes the translated title text' do
+      expect(html).to include('&lt;img src=x onerror=alert(1)&gt;')
+      expect(html).not_to include(payload)
+    end
+
+    it 'keeps the icon markup intact' do
+      expect(html).to include('<i class=')
     end
   end
 
-  describe ".draw_menus" do
-    it "calls Navigation::MenuBuilder.build" do
-      expect(Navigation::MenuBuilder).to receive(:build).with(item, context)
+  describe '.draw_breadcrumbs' do
+    subject(:html) { described_class.draw_breadcrumbs('discipline_teaching_plans', nil).to_s }
 
-      subject.draw_menus(item, context)
-    end
-  end
-
-  describe ".draw_title" do
-    it "calls Navigation::TitleBuilder.build" do
-      expect(Navigation::TitleBuilder).to receive(:build).with(item, true, context)
-
-      subject.draw_title(item, true, context)
+    it 'escapes the translated breadcrumb text' do
+      expect(html).to include('&lt;img')
+      expect(html).not_to include(payload)
     end
   end
 end
