@@ -28,9 +28,11 @@ jobs:
         run: gem install brakeman -v 5.4.1 --no-document
 
       # O baseline (config/brakeman.ignore) ignora os achados pré-existentes: o CI falha apenas
-      # em avisos novos introduzidos pela alteração.
+      # em avisos novos introduzidos pela alteração. Os checks de versão do framework (EOLRails,
+      # EOLRuby, CSRFTokenForgeryCVE) ficam de fora — dependem do Gemfile.lock (não versionado) e
+      # já são cobertos pelo bundler-audit.
       - name: Run Brakeman
-        run: brakeman --no-pager --quiet --ignore-config config/brakeman.ignore --exit-on-warn
+        run: brakeman --no-pager --quiet --except EOLRails,EOLRuby,CSRFTokenForgeryCVE --ignore-config config/brakeman.ignore --exit-on-warn
 
   bundler-audit:
     name: Bundler Audit (dependências)
