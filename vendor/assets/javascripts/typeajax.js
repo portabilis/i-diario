@@ -1,4 +1,15 @@
 (function ($, _) {
+  // O termo digitado é devolvido dentro do markup do dropdown, que o Bootstrap Typeahead injeta
+  // via `.html()`. Sem escape, `<img src=x onerror=...>` no termo executa no contexto do usuário.
+  var escapeHtml = function (text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+  };
+
   var Typeajax = function (element) {
     this.$element = $(element);
     this.$hidden = this.$element.prev('input[type=hidden]');
@@ -71,7 +82,7 @@
 
           process(data);
         } else {
-          process([JSON.stringify({ value: '<i class="icon-thumbs-down"></i> Desculpe, mas nada foi encontrado com o termo "' + query + '"', ignoreClick: true })]);
+          process([JSON.stringify({ value: '<i class="icon-thumbs-down"></i> Desculpe, mas nada foi encontrado com o termo "' + escapeHtml(query) + '"', ignoreClick: true })]);
         }
       });
 
