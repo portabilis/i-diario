@@ -15,6 +15,7 @@ pt-BR:
       weak_password: 'Sua senha deve conter uma combinação de letras maiúsculas e minúsculas, números e símbolos (!@#$%*)'
     messages:
       extension_whitelist_error: Tipo de arquivo não suportado
+      content_type_blacklist_error: Tipo de arquivo não suportado
   ieducar_api:
     error:
       messages:
