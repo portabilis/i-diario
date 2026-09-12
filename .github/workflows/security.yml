@@ -1,0 +1,67 @@
+name: Security
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  brakeman:
+    name: Brakeman (análise estática)
+
+    if: "! github.event.pull_request.draft"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.6.6"
+
+      - name: Install Brakeman
+        run: gem install brakeman -v 5.4.1 --no-document
+
+      # O baseline (config/brakeman.ignore) ignora os achados pré-existentes: o CI falha apenas
+      # em avisos novos introduzidos pela alteração.
+      - name: Run Brakeman
+        run: brakeman --no-pager --quiet --ignore-config config/brakeman.ignore --exit-on-warn
+
+  bundler-audit:
+    name: Bundler Audit (dependências)
+
+    if: "! github.event.pull_request.draft"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.6.6"
+
+      - name: Install bundler-audit
+        run: gem install bundler-audit --no-document
+
+      # Gemfile.lock não é versionado; resolve para gerar o lock que o audit inspeciona.
+      - name: Resolve dependencies
+        run: bundle lock
+
+      - name: Update advisory database
+        run: bundle-audit update
+
+      # Informativo: o baseline (.bundler-audit.yml) ignora os advisories conhecidos da stack
+      # legada. A redução real depende de atualizar o framework, fora do escopo deste baseline.
+      # continue-on-error mantém o resultado visível no CI sem bloquear PRs por conta do backlog.
+      - name: Run bundler-audit
+        continue-on-error: true
+        run: bundle-audit check --config .bundler-audit.yml
