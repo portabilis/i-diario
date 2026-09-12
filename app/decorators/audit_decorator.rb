@@ -57,8 +57,19 @@ class AuditDecorator
         value
       end
     else
-      value
+      sanitize_html(value)
     end
+  end
+
+  private
+
+  # Os valores de texto livre e de campos rich-text (Summernote) aparecem no histórico
+  # renderizados com `raw`. Sanitiza na saída mantendo só a formatação básica, para que
+  # `<script>`/`<img onerror>` colados no editor não executem ao abrir o histórico.
+  def sanitize_html(value)
+    return value unless value.is_a?(String)
+
+    ApplicationController.helpers.sanitize(value, tags: %w[div p b i u br], attributes: [])
   end
 
   protected
