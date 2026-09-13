@@ -14,7 +14,27 @@ class ClassroomsGrade < ApplicationRecord
   default_scope -> { kept }
 
   scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
-  scope :by_score_type, ->(score_type) { joins(:exam_rule).where(exam_rules: { score_type: score_type }) }
+  scope :by_score_type, lambda { |score_type|
+    joins(:exam_rule)
+      .joins(
+        'LEFT JOIN exam_rules differentiated_exam_rules ' \
+        'ON differentiated_exam_rules.id = exam_rules.differentiated_exam_rule_id'
+      )
+      .where(
+        'exam_rules.score_type IN (:score_type) OR (
+           differentiated_exam_rules.score_type IN (:score_type) AND EXISTS (
+             SELECT 1
+             FROM student_enrollment_classrooms
+             JOIN student_enrollments
+               ON student_enrollments.id = student_enrollment_classrooms.student_enrollment_id
+             JOIN students ON students.id = student_enrollments.student_id
+             WHERE student_enrollment_classrooms.classrooms_grade_id = classrooms_grades.id
+               AND students.uses_differentiated_exam_rule = TRUE
+           )
+         )',
+        score_type: Array(score_type)
+      )
+  }
   scope :by_grade_id, ->(grade_id) { where(grade_id: grade_id) }
   scope :by_opinion_type, ->(opinion_type) { joins(:exam_rule).where(exam_rules: { opinion_type: opinion_type }) }
   scope :by_exam_rule, ->(exam_rule_id) { joins(:exam_rule).where(exam_rules: { id: exam_rule_id }) }
