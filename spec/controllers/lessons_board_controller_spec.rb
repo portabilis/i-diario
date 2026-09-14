@@ -494,4 +494,30 @@ RSpec.describe LessonsBoardsController, type: :controller do
       end
     end
   end
+
+  describe '#generate_lesson_board_pdf' do
+    before do
+      allow(ReportGenerator).to receive(:call).and_return(double(body: '%PDF-fake'))
+    end
+
+    # O PDF sai do motor PlutoBook com o layout de paged media compartilhado.
+    # Cabeçalho, rodapé e numeração vivem no CSS do report_pluto, então trocar
+    # layout ou driver aqui muda o documento entregue ao usuário.
+    it 'renders through the pluto engine with the report_pluto layout' do
+      expect(controller).to receive(:render_to_string).with(
+        action: :generate_lesson_board_pdf, layout: 'report_pluto', formats: [:html]
+      ).and_return('<html></html>')
+
+      get :generate_lesson_board_pdf, params: { locale: 'pt-BR', id: lessons_board_1.id }
+
+      expect(ReportGenerator).to have_received(:call).with('<html></html>', driver: :pluto)
+    end
+
+    it 'sends the generated pdf inline' do
+      get :generate_lesson_board_pdf, params: { locale: 'pt-BR', id: lessons_board_1.id }
+
+      expect(response.body).to eq('%PDF-fake')
+      expect(response.header['Content-Type']).to include('application/pdf')
+    end
+  end
 end
