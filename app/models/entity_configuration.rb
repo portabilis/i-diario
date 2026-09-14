@@ -27,6 +27,8 @@ class EntityConfiguration < ApplicationRecord
 
   def cached_logo_data
     return nil if logo.blank? || logo.url.blank?
+    # Sem a rede corrente a chave não distingue tenant; lê direto do arquivo.
+    return fetch_logo_data if Entity.current.nil?
 
     Rails.cache.fetch(logo_cache_key, expires_in: 1.day) { fetch_logo_data }
   rescue StandardError => e
@@ -69,8 +71,11 @@ class EntityConfiguration < ApplicationRecord
     self.cnpj = cnpj.upcase if cnpj.present?
   end
 
-  def logo_cache_key
-    "entity_logo_data:#{id}:#{logo.identifier}"
+  # O Rails.cache é um só para todas as redes e esta tabela tem uma linha por
+  # banco, então o id é o mesmo em toda rede: a chave precisa da rede corrente,
+  # senão redes com brasão de mesmo nome de arquivo recebem a imagem uma da outra.
+  def logo_cache_key(identifier = logo.identifier)
+    "entity_logo_data:#{Entity.current.id}:#{id}:#{identifier}"
   end
 
   def fetch_logo_data
@@ -82,8 +87,10 @@ class EntityConfiguration < ApplicationRecord
   end
 
   def invalidate_logo_cache
+    return if Entity.current.nil?
+
     old_identifier = logo_was&.identifier
-    Rails.cache.delete("entity_logo_data:#{id}:#{old_identifier}") if old_identifier
-    Rails.cache.delete("entity_logo_data:#{id}:#{logo.identifier}") if logo.identifier
+    Rails.cache.delete(logo_cache_key(old_identifier)) if old_identifier
+    Rails.cache.delete(logo_cache_key) if logo.identifier
   end
 end
