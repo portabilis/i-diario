@@ -1,12 +1,15 @@
 -- Status do diário de avaliação numérica, calculado em tempo de consulta (a view não é materializada).
--- 1. `incomplete` quando existe linha de aluno sem nota que conta como pendente: linha ativa e não descartada,
---    sem nota de transferência, sem dispensa da avaliação, aluno enturmado na data da avaliação e fora de busca ativa.
+-- 1. `incomplete` quando existe linha de aluno sem nota que conta como pendente: linha ativa e não descartada, sem nota
+--    de transferência, aluno sem registro de dispensa da avaliação (este filtro também considera dispensa descartada),
+--    com enturmação na turma de `left_at` vazio (sem conferir `joined_at`) ou com a data da avaliação entre a entrada e
+--    a saída, matrícula ativa e fora de busca ativa.
 -- 2. `complete` quando o diário tem linhas e nenhuma delas está pendente.
 -- 3. Diário sem nenhuma linha de aluno não descartada, de turma com ano letivo a partir de 2026, fica
 --    `incomplete` quando existe aluno que a lista do diário mostraria como pendente: enturmado numa série da avaliação
---    na data, matrícula ativa, tipo de nota numérico pelo mesmo critério de StudentEnrollmentClassroom.by_score_type_query
---    (inclusive regra diferenciada), fora de busca ativa e sem dispensa da avaliação. Turmas de anos letivos anteriores
---    sem linha ficam `complete`.
+--    na data, matrícula ativa sem dependência ou com dependência na disciplina da avaliação (mesmo critério de
+--    StudentEnrollmentClassroom.by_discipline_query), tipo de nota numérico pelo mesmo critério de
+--    StudentEnrollmentClassroom.by_score_type_query (inclusive regra diferenciada), fora de busca ativa e sem dispensa
+--    da avaliação. Turmas de anos letivos anteriores sem linha ficam `complete`.
 -- A dispensa da disciplina por etapa não entra na regra 3, porque o número da etapa é resolvido em Ruby (StepsFetcher).
 SELECT outer_daily_notes.id AS daily_note_id,
   CASE
@@ -149,6 +152,19 @@ SELECT outer_daily_notes.id AS daily_note_id,
                       AND differentiated_rules.score_type IN ('1', '3')
                  )
                )
+             )
+           )
+           AND (
+             NOT EXISTS (
+               SELECT 1
+                 FROM student_enrollment_dependences
+                WHERE student_enrollment_dependences.student_enrollment_id = student_enrollments.id
+             )
+             OR EXISTS (
+               SELECT 1
+                 FROM student_enrollment_dependences
+                WHERE student_enrollment_dependences.student_enrollment_id = student_enrollments.id
+                  AND student_enrollment_dependences.discipline_id = avaliations.discipline_id
              )
            )
            AND NOT EXISTS (

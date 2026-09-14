@@ -199,7 +199,6 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is incomplete when a student is enrolled on the test date' do
-        daily_note
         enroll_student_in_classroom
 
         expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
@@ -214,13 +213,10 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is complete when no student is enrolled in the classroom' do
-        daily_note
-
         expect(status).to eq(DailyNoteStatuses::COMPLETE)
       end
 
       it 'is complete when the classroom school year is before 2026' do
-        daily_note
         enroll_student_in_classroom
         classroom.update_column(:year, 2025)
 
@@ -228,35 +224,30 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is complete when the only student joins the classroom after the test date' do
-        daily_note
         enroll_student_in_classroom(joined_at: (test_date + 1.day).to_s)
 
         expect(status).to eq(DailyNoteStatuses::COMPLETE)
       end
 
       it 'is complete when the only student left the classroom on the test date' do
-        daily_note
         enroll_student_in_classroom(left_at: test_date.to_s)
 
         expect(status).to eq(DailyNoteStatuses::COMPLETE)
       end
 
       it 'is complete when the only student is enrolled in a grade outside the avaliation' do
-        daily_note
         enroll_student_in_classroom(grade: create(:classrooms_grade, classroom: classroom))
 
         expect(status).to eq(DailyNoteStatuses::COMPLETE)
       end
 
       it 'is complete when the only student enrollment is inactive' do
-        daily_note
         enroll_student_in_classroom.update_column(:active, IeducarBooleanState::INACTIVE)
 
         expect(status).to eq(DailyNoteStatuses::COMPLETE)
       end
 
       it 'is complete when the only student is in active search on the test date' do
-        daily_note
         create(:active_search, student_enrollment: enroll_student_in_classroom,
                                start_date: test_date - 10.days, end_date: nil)
 
@@ -264,14 +255,12 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is complete when the only student is exempted from the avaliation' do
-        daily_note
         exempt_from_avaliation(enroll_student_in_classroom.student)
 
         expect(status).to eq(DailyNoteStatuses::COMPLETE)
       end
 
       it 'is incomplete when the exemption from the avaliation is discarded' do
-        daily_note
         exempt_from_avaliation(enroll_student_in_classroom.student).update_column(:discarded_at, Time.current)
 
         expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
@@ -279,7 +268,6 @@ RSpec.describe DailyNote, type: :model do
 
       # A lista do diário filtra por tipo de nota como StudentEnrollmentClassroom.by_score_type_query.
       it 'is complete when the student grade uses a concept exam rule and the classroom has a numeric grade' do
-        daily_note
         concept_grade = create(:classrooms_grade, :score_type_concept, classroom: classroom,
                                                                        grade_id: avaliation.grade_ids.first)
         create(:classrooms_grade, classroom: classroom)
@@ -289,7 +277,6 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is incomplete when no classroom grade uses a numeric exam rule' do
-        daily_note
         concept_grade = create(:classrooms_grade, :score_type_concept, classroom: classroom,
                                                                        grade_id: avaliation.grade_ids.first)
         enroll_student_in_classroom(grade: concept_grade)
@@ -298,7 +285,6 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is complete when the student uses a differentiated concept exam rule' do
-        daily_note
         classrooms_grade.exam_rule.update!(differentiated_exam_rule: create(:exam_rule, :score_type_concept))
         enroll_student_in_classroom.student.update_column(:uses_differentiated_exam_rule, true)
 
@@ -306,9 +292,59 @@ RSpec.describe DailyNote, type: :model do
       end
 
       it 'is incomplete when the student uses a differentiated numeric exam rule' do
-        daily_note
         classrooms_grade.exam_rule.update!(differentiated_exam_rule: create(:exam_rule))
         enroll_student_in_classroom.student.update_column(:uses_differentiated_exam_rule, true)
+
+        expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
+      end
+
+      # A lista do diário tira a matrícula com dependência só em outra disciplina, como by_discipline_query.
+      it 'is complete when the only student is a dependence student of another discipline' do
+        create(:student_enrollment_dependence, student_enrollment: enroll_student_in_classroom,
+                                               discipline: create(:discipline))
+
+        expect(status).to eq(DailyNoteStatuses::COMPLETE)
+      end
+
+      it 'is incomplete when the only student is a dependence student of the avaliation discipline' do
+        create(:student_enrollment_dependence, student_enrollment: enroll_student_in_classroom,
+                                               discipline: avaliation.discipline)
+
+        expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
+      end
+
+      it 'is complete when the only student enrollment classroom is discarded' do
+        enroll_student_in_classroom.student_enrollment_classrooms.first.update_column(:discarded_at, Time.current)
+
+        expect(status).to eq(DailyNoteStatuses::COMPLETE)
+      end
+
+      it 'is complete when the only student enrollment is discarded' do
+        enroll_student_in_classroom.update_column(:discarded_at, Time.current)
+
+        expect(status).to eq(DailyNoteStatuses::COMPLETE)
+      end
+
+      it 'is complete when the student classroom grade is discarded' do
+        enroll_student_in_classroom
+        classrooms_grade.update_column(:discarded_at, Time.current)
+
+        expect(status).to eq(DailyNoteStatuses::COMPLETE)
+      end
+
+      it 'is incomplete when the only numeric grade of the classroom is discarded' do
+        concept_grade = create(:classrooms_grade, :score_type_concept, classroom: classroom,
+                                                                       grade_id: avaliation.grade_ids.first)
+        create(:classrooms_grade, classroom: classroom).update_column(:discarded_at, Time.current)
+        enroll_student_in_classroom(grade: concept_grade)
+
+        expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
+      end
+
+      it 'is incomplete when the active search on the test date is discarded' do
+        create(:active_search, student_enrollment: enroll_student_in_classroom,
+                               start_date: test_date - 10.days, end_date: nil)
+          .update_column(:discarded_at, Time.current)
 
         expect(status).to eq(DailyNoteStatuses::INCOMPLETE)
       end
