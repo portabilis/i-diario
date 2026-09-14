@@ -26,6 +26,10 @@ $(function () {
           $('.avaliation_multiple_creator_form_test_setting_test_id').show();
           $('.avaliation_multiple_creator_form_description').hide();
           $('.avaliation_multiple_creator_form_weight').hide();
+          // Esta resposta esconde Descrição e Peso; a do tipo de avaliação volta a exibi-los quando ele
+          // é quebrável. Por isso ela só é pedida depois desta — em paralelo, a tela ficaria com a
+          // resposta que chegasse por último.
+          updateFieldsBaseOnTestSettingTest();
           break;
 
         case "arithmetic":
@@ -186,10 +190,6 @@ $(function () {
   function initFields() {
     if (!!document.getElementById('avaliation_multiple_creator_form_test_setting_id')) {
       updateFieldsBasedOnTestSetting();
-    }
-
-    if (!!document.getElementById('avaliation_multiple_creator_form_weight')) {
-      updateFieldsBaseOnTestSettingTest();
     }
   }
 
