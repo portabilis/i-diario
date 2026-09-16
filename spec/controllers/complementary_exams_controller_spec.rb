@@ -60,6 +60,7 @@ RSpec.describe ComplementaryExamsController, type: :controller do
     let(:classrooms_grade) { create(:classrooms_grade, :score_type_numeric, classroom: classroom) }
     let(:discipline) { create(:discipline) }
     let(:student) { create(:student) }
+    let(:other_student) { create(:student) }
     let(:year) { classroom.year.to_i }
     let(:recorded_at) { Date.new(year, 8, 1) }
     let(:teacher_discipline_classroom) do
@@ -94,6 +95,7 @@ RSpec.describe ComplementaryExamsController, type: :controller do
         teacher_discipline_classroom
         previous_enrollment_classroom
         last_enrollment_classroom
+        GeneralConfiguration.current.update(show_inactive_enrollments: true)
 
         sign_in(user)
 
@@ -123,17 +125,15 @@ RSpec.describe ComplementaryExamsController, type: :controller do
       end
 
       context 'when the entity shows inactive enrollments and none of them covers the date' do
-        before do
-          entity.using_connection { GeneralConfiguration.current.update(show_inactive_enrollments: true) }
-        end
-
-        it 'returns the student once, marked as not in the classroom on the date' do
+        it 'returns one row per enrollment, both not in the classroom on the date' do
           entity.using_connection do
             students = fetched_students
 
-            expect(students.map { |student_row| student_row['student']['id'] }).to eq([student.id])
-            expect(students.first['id']).to eq(previous_enrollment_classroom.student_enrollment_id)
-            expect(students.first['inactive_on_date']).to eq(true)
+            expect(students.map { |student_row| student_row['id'] }).to eq(
+              [previous_enrollment_classroom.student_enrollment_id, last_enrollment_classroom.student_enrollment_id]
+            )
+            expect(students.map { |student_row| student_row['student']['id'] }).to eq([student.id, student.id])
+            expect(students.map { |student_row| student_row['inactive_on_date'] }).to eq([true, true])
           end
         end
       end
@@ -147,70 +147,127 @@ RSpec.describe ComplementaryExamsController, type: :controller do
           end
         end
 
-        it 'returns the enrollment that is in the classroom on the date' do
+        it 'returns both enrollments, only the one in the classroom on the date as active' do
           entity.using_connection do
             students = fetched_students
 
-            expect(students.map { |student_row| student_row['student']['id'] }).to eq([student.id])
-            expect(students.first['id']).to eq(last_enrollment_classroom.student_enrollment_id)
-            expect(students.first['inactive_on_date']).to eq(false)
+            expect(students.map { |student_row| student_row['id'] }).to eq(
+              [previous_enrollment_classroom.student_enrollment_id, last_enrollment_classroom.student_enrollment_id]
+            )
+            expect(students.map { |student_row| student_row['inactive_on_date'] }).to eq([true, false])
           end
         end
       end
     end
 
-    describe '#create' do
-      before do
-        entity.using_connection { GeneralConfiguration.current.update(show_inactive_enrollments: true) }
-      end
-
-      it 'lists the student once when the record is invalid' do
-        entity.using_connection do
-          post :create, params: {
-            locale: 'pt-BR',
-            complementary_exam: {
-              unity_id: unity.id,
-              classroom_id: classroom.id,
-              discipline_id: discipline.id,
-              complementary_exam_setting_id: complementary_exam_setting.id,
-              step_id: StepsFetcher.new(classroom).step_by_date(recorded_at).try(:id),
-              recorded_at: recorded_at.strftime('%d/%m/%Y'),
-              students_attributes: { '0' => { student_id: student.id, score: '' } }
-            }
-          }
-
-          expect(assigns(:complementary_exam)).not_to be_persisted
-          expect(assigns(:students).map(&:student_id)).to eq([student.id])
-        end
-      end
-    end
-
-    describe '#edit' do
+    context 'when saving' do
       # O PostingDateChecker só libera a gravação quando a etapa da data do lançamento é a mesma
-      # etapa de hoje, então o lançamento já salvo precisa nascer na data corrente.
+      # etapa de hoje, então o lançamento nasce na data corrente.
       let(:recorded_at) { Date.current }
-      let(:complementary_exam) do
-        create(:complementary_exam, unity: unity, classroom: classroom, discipline: discipline,
-                                    complementary_exam_setting: complementary_exam_setting,
-                                    recorded_at: recorded_at, teacher_id: teacher.id)
-      end
-      let(:exam_student) do
-        complementary_exam.students.first.tap { |exam_student_record| exam_student_record.update!(student: student) }
+
+      def exam_params(students_attributes)
+        {
+          unity_id: unity.id,
+          classroom_id: classroom.id,
+          discipline_id: discipline.id,
+          complementary_exam_setting_id: complementary_exam_setting.id,
+          step_id: StepsFetcher.new(classroom).step_by_date(recorded_at).try(:id),
+          recorded_at: recorded_at.strftime('%d/%m/%Y'),
+          students_attributes: students_attributes
+        }
       end
 
-      before do
-        entity.using_connection do
-          GeneralConfiguration.current.update(show_inactive_enrollments: true)
-          exam_student
+      describe '#create' do
+        it 'saves the exam without recording the rows of enrollments not in the classroom on the date' do
+          entity.using_connection do
+            post :create, params: {
+              locale: 'pt-BR',
+              complementary_exam: exam_params(
+                '0' => { student_id: other_student.id, score: '1', active: 'true' },
+                '1' => { student_id: student.id, score: '', active: 'false' },
+                '2' => { student_id: student.id, score: '', active: 'false' }
+              )
+            }
+
+            complementary_exam = assigns(:complementary_exam)
+
+            expect(complementary_exam).to be_persisted
+            expect(complementary_exam.students.reload.map(&:student_id)).to eq([other_student.id])
+          end
+        end
+
+        it 'lists one row per enrollment when the record is invalid' do
+          entity.using_connection do
+            post :create, params: {
+              locale: 'pt-BR',
+              complementary_exam: exam_params(
+                '0' => { student_id: student.id, score: '', active: 'false' },
+                '1' => { student_id: student.id, score: '', active: 'false' }
+              )
+            }
+
+            listed_students = assigns(:students)
+
+            expect(assigns(:complementary_exam)).not_to be_persisted
+            expect(listed_students.map(&:student_id)).to eq([student.id, student.id])
+            expect(listed_students.map(&:object_id).uniq.size).to eq(2)
+          end
         end
       end
 
-      it 'lists the student once, reusing the record already saved' do
-        entity.using_connection do
-          get :edit, params: { locale: 'pt-BR', id: complementary_exam.id }
+      context 'with the exam already saved' do
+        let(:complementary_exam) do
+          create(:complementary_exam, unity: unity, classroom: classroom, discipline: discipline,
+                                      complementary_exam_setting: complementary_exam_setting,
+                                      recorded_at: recorded_at, teacher_id: teacher.id)
+        end
+        let(:exam_student) do
+          complementary_exam.students.first.tap { |exam_student_record| exam_student_record.update!(student: student) }
+        end
 
-          expect(assigns(:students).map(&:student_id)).to eq([student.id])
-          expect(assigns(:students).map(&:id)).to eq([exam_student.id])
+        before do
+          entity.using_connection { exam_student }
+        end
+
+        describe '#edit' do
+          it 'lists one row per enrollment, with the saved record in a single row' do
+            entity.using_connection do
+              get :edit, params: { locale: 'pt-BR', id: complementary_exam.id }
+
+              listed_students = assigns(:students)
+
+              expect(listed_students.map(&:student_id)).to eq([student.id, student.id])
+              expect(listed_students.map(&:id)).to eq([exam_student.id, nil])
+            end
+          end
+        end
+
+        describe '#update' do
+          # A trava de colunas por perfil compara turma e disciplina do lançamento com as do usuário.
+          before do
+            entity.using_connection do
+              user.update_columns(current_classroom_id: classroom.id, current_discipline_id: discipline.id)
+            end
+          end
+
+          it 'saves the exam keeping a single record for the student' do
+            entity.using_connection do
+              patch :update, params: {
+                locale: 'pt-BR',
+                id: complementary_exam.id,
+                complementary_exam: exam_params(
+                  '0' => {
+                    id: exam_student.id, student_id: student.id, score: exam_student.score.to_s, active: 'false'
+                  },
+                  '1' => { student_id: student.id, score: '', active: 'false' }
+                )
+              }
+
+              expect(response).to redirect_to(complementary_exams_path)
+              expect(ComplementaryExamStudent.where(complementary_exam_id: complementary_exam.id).pluck(:id))
+                .to eq([exam_student.id])
+            end
+          end
         end
       end
     end
