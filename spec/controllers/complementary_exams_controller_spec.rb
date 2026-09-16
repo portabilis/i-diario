@@ -132,6 +132,7 @@ RSpec.describe ComplementaryExamsController, type: :controller do
             students = fetched_students
 
             expect(students.map { |student_row| student_row['student']['id'] }).to eq([student.id])
+            expect(students.first['id']).to eq(previous_enrollment_classroom.student_enrollment_id)
             expect(students.first['inactive_on_date']).to eq(true)
           end
         end
@@ -180,6 +181,36 @@ RSpec.describe ComplementaryExamsController, type: :controller do
 
           expect(assigns(:complementary_exam)).not_to be_persisted
           expect(assigns(:students).map(&:student_id)).to eq([student.id])
+        end
+      end
+    end
+
+    describe '#edit' do
+      # O PostingDateChecker só libera a gravação quando a etapa da data do lançamento é a mesma
+      # etapa de hoje, então o lançamento já salvo precisa nascer na data corrente.
+      let(:recorded_at) { Date.current }
+      let(:complementary_exam) do
+        create(:complementary_exam, unity: unity, classroom: classroom, discipline: discipline,
+                                    complementary_exam_setting: complementary_exam_setting,
+                                    recorded_at: recorded_at, teacher_id: teacher.id)
+      end
+      let(:exam_student) do
+        complementary_exam.students.first.tap { |exam_student_record| exam_student_record.update!(student: student) }
+      end
+
+      before do
+        entity.using_connection do
+          GeneralConfiguration.current.update(show_inactive_enrollments: true)
+          exam_student
+        end
+      end
+
+      it 'lists the student once, reusing the record already saved' do
+        entity.using_connection do
+          get :edit, params: { locale: 'pt-BR', id: complementary_exam.id }
+
+          expect(assigns(:students).map(&:student_id)).to eq([student.id])
+          expect(assigns(:students).map(&:id)).to eq([exam_student.id])
         end
       end
     end
