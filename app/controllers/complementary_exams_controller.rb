@@ -154,7 +154,7 @@ class ComplementaryExamsController < ApplicationController
       date: date
     )
 
-    students = one_enrollment_per_student(student_enrollments, situations[:active_on_date_ids]).map do |enrollment|
+    students = student_enrollments.map do |enrollment|
       {
         id: enrollment.id,
         student: { id: enrollment.student_id, name: enrollment.student.name },
@@ -182,6 +182,7 @@ class ComplementaryExamsController < ApplicationController
         :id,
         :student_id,
         :score,
+        :active,
         :_destroy
       ]
     )
@@ -241,19 +242,6 @@ class ComplementaryExamsController < ApplicationController
     ).student_enrollments
   end
 
-  # A nota complementar é uma por aluno (índice único em complementary_exam_students) e o registro não
-  # guarda a matrícula. Aluno com mais de uma matrícula na turma rende uma linha só, a da matrícula
-  # enturmada na data do lançamento — é ela que libera o campo de nota.
-  def one_enrollment_per_student(student_enrollments, active_on_date_ids)
-    chosen_ids = student_enrollments.group_by(&:student_id).values.map do |enrollments|
-      enrollment = enrollments.find { |candidate| active_on_date_ids.include?(candidate.id) }
-
-      (enrollment || enrollments.first).id
-    end
-
-    student_enrollments.select { |enrollment| chosen_ids.include?(enrollment.id) }
-  end
-
   def reload_students_list
     return unless (student_enrollments = fetch_student_enrollments)
     return unless @complementary_exam.recorded_at
@@ -266,17 +254,25 @@ class ComplementaryExamsController < ApplicationController
       date: @complementary_exam.recorded_at
     )
 
-    existing_by_student_id = @complementary_exam.students.index_by(&:student_id)
+    active_on_date_ids = situations[:active_on_date_ids]
+    existing_by_student_id = @complementary_exam.students.group_by(&:student_id)
+    active_enrollments = student_enrollments.select { |enrollment| active_on_date_ids.include?(enrollment.id) }
+    student_ids_with_active_enrollment = active_enrollments.map(&:student_id)
 
     enrolled_student_ids = []
     @students = []
 
-    one_enrollment_per_student(student_enrollments, situations[:active_on_date_ids]).each do |student_enrollment|
+    student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by_id(student_enrollment.student_id))
 
-      exam_student = existing_by_student_id[student.id] ||
-                     @complementary_exam.students.build(student_id: student.id)
-      exam_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+      active_on_date = active_on_date_ids.include?(student_enrollment.id)
+      exam_student = fetch_exam_student(
+        existing_by_student_id: existing_by_student_id,
+        student_id: student.id,
+        active_on_date: active_on_date,
+        student_has_active_enrollment: student_ids_with_active_enrollment.include?(student.id)
+      )
+      exam_student.active = active_on_date
       exam_student.dependence = situations[:dependencies][student_enrollment.id].present?
       exam_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
       exam_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
@@ -288,6 +284,23 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exam.students.select { |student| !enrolled_student_ids.include?(student.student_id) }.each(&:mark_for_destruction)
 
     StudentsDisplaySequencer.call(@students)
+  end
+
+  # Registro da linha desta matrícula: reaproveita o salvo do aluno ou constrói um novo. A matrícula não
+  # enturmada na data, de aluno que tem outra enturmada, recebe sempre registro novo — assim o salvo, com a
+  # nota, fica na linha que grava. Mesma regra de DailyNotesController#fetch_note_student.
+  def fetch_exam_student(existing_by_student_id:, student_id:, active_on_date:, student_has_active_enrollment:)
+    if !active_on_date && student_has_active_enrollment
+      return @complementary_exam.students.build(student_id: student_id)
+    end
+
+    existing_exam_students = (existing_by_student_id[student_id] ||= [])
+    exam_student = existing_exam_students.find { |existing| existing.active == active_on_date } ||
+                   existing_exam_students.first
+
+    return @complementary_exam.students.build(student_id: student_id) unless exam_student
+
+    existing_exam_students.delete(exam_student)
   end
 
   def mark_students_not_found_for_destruction
