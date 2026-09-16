@@ -24,8 +24,8 @@ class ComplementaryExam < ApplicationRecord
     dependent: :destroy
 
   # A lista traz uma linha por matrícula e só a linha da matrícula enturmada na data grava, como no diário de
-  # avaliações numéricas. Linha marcada com _destroy não passa pelo reject_if (will_be_destroyed? do Rails),
-  # então a remoção de aluno que saiu da turma continua valendo.
+  # avaliações numéricas. Linha marcada com _destroy não passa pelo reject_if (will_be_destroyed? do Rails): o
+  # aluno removido da lista é excluído mesmo com a linha fora da data.
   accepts_nested_attributes_for :students, allow_destroy: true, reject_if: proc { |attributes|
     !ActiveRecord::Type::Boolean.new.cast(attributes[:active])
   }

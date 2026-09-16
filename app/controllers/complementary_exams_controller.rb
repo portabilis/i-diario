@@ -286,21 +286,16 @@ class ComplementaryExamsController < ApplicationController
     StudentsDisplaySequencer.call(@students)
   end
 
-  # Registro da linha desta matrícula: reaproveita o salvo do aluno ou constrói um novo. A matrícula não
-  # enturmada na data, de aluno que tem outra enturmada, recebe sempre registro novo — assim o salvo, com a
-  # nota, fica na linha que grava. Mesma regra de DailyNotesController#fetch_note_student.
+  # Registro da linha desta matrícula. O aluno tem no máximo um registro salvo (índice único por aluno): a
+  # primeira linha que o pede fica com ele e as demais recebem registro novo. A matrícula não enturmada na data,
+  # de aluno que tem outra enturmada, recebe sempre registro novo — assim o salvo, com a nota, fica na linha
+  # que grava.
   def fetch_exam_student(existing_by_student_id:, student_id:, active_on_date:, student_has_active_enrollment:)
     if !active_on_date && student_has_active_enrollment
       return @complementary_exam.students.build(student_id: student_id)
     end
 
-    existing_exam_students = (existing_by_student_id[student_id] ||= [])
-    exam_student = existing_exam_students.find { |existing| existing.active == active_on_date } ||
-                   existing_exam_students.first
-
-    return @complementary_exam.students.build(student_id: student_id) unless exam_student
-
-    existing_exam_students.delete(exam_student)
+    existing_by_student_id.fetch(student_id, []).shift || @complementary_exam.students.build(student_id: student_id)
   end
 
   def mark_students_not_found_for_destruction
