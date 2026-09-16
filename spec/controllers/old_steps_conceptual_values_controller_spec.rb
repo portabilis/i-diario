@@ -160,6 +160,9 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
       end
     end
 
+    # O rescue_from Exception da ApplicationController também redireciona para a raiz, e sem
+    # flash[:error]: os exemplos de negação conferem o flash para não passar quando a action
+    # estoura em vez de negar
     context 'when the current teacher has no link to the classroom' do
       it 'denies the request instead of returning the conceptual values' do
         sign_in_as(teacher_user(create(:teacher)))
@@ -167,6 +170,7 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
         request_old_steps
 
         expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(I18n.t('pundit.default'))
       end
     end
 
@@ -180,6 +184,21 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
         request_old_steps
 
         expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(I18n.t('pundit.default'))
+      end
+    end
+
+    context 'when the link to the classroom was deactivated' do
+      # `active` e `discarded_at` são predicados independentes do default_scope de
+      # TeacherDisciplineClassroom; um exemplo por predicado
+      it 'denies the request' do
+        sign_in_as(teacher_user(owner_teacher))
+        owner_link.update!(active: false)
+
+        request_old_steps
+
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(I18n.t('pundit.default'))
       end
     end
 
@@ -193,6 +212,7 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
         request_old_steps
 
         expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(I18n.t('pundit.default'))
       end
     end
 
@@ -203,6 +223,7 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
         request_old_steps
 
         expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(I18n.t('pundit.default'))
       end
     end
 
