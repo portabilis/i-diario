@@ -86,4 +86,144 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
       end
     end
   end
+
+  describe 'GET #index authorization' do
+    let(:discipline) { create(:discipline) }
+    let(:owner_teacher) { create(:teacher) }
+    let(:previous_step) { steps[0] }
+    let(:current_step) { steps[1] }
+    let(:released_value) { '8.0' }
+
+    let!(:owner_link) do
+      create(
+        :teacher_discipline_classroom,
+        classroom: classroom,
+        teacher: owner_teacher,
+        discipline: discipline
+      )
+    end
+
+    let!(:conceptual_exam) do
+      exam = build(
+        :conceptual_exam,
+        :with_student_enrollment_classroom,
+        classroom: classroom,
+        student: student,
+        teacher_id: owner_teacher.id,
+        step_number: previous_step.step_number,
+        step_id: previous_step.id
+      )
+      exam.conceptual_exam_values.build(discipline: discipline, value: 8)
+      exam.save!
+      exam
+    end
+
+    def sign_in_as(other_user)
+      sign_out(user)
+      sign_in(other_user)
+    end
+
+    def allow_conceptual_exams(role)
+      create(
+        :role_permission,
+        role: role,
+        feature: 'conceptual_exams',
+        permission: Permissions::READ
+      )
+    end
+
+    def teacher_user(teacher)
+      create(:user, :with_user_role_teacher, admin: false, teacher: teacher).tap do |created_user|
+        allow_conceptual_exams(created_user.current_user_role.role)
+      end
+    end
+
+    def request_old_steps
+      get :index, params: {
+        locale: 'pt-BR',
+        classroom_id: classroom.id,
+        student_id: student.id,
+        step_id: current_step.id
+      }, format: :json
+    end
+
+    context 'when the current teacher is linked to the classroom' do
+      it 'returns the conceptual values of the previous steps' do
+        sign_in_as(teacher_user(owner_teacher))
+
+        request_old_steps
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['old_steps_conceptual_values'].first['values']).to eq(
+          discipline.id.to_s => released_value
+        )
+      end
+    end
+
+    context 'when the current teacher has no link to the classroom' do
+      it 'denies the request instead of returning the conceptual values' do
+        sign_in_as(teacher_user(create(:teacher)))
+
+        request_old_steps
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when the link to the classroom was discarded' do
+      # Vínculo descartado tira a turma das telas do professor; a leitura dos
+      # conceitos das etapas anteriores acompanha
+      it 'denies the request' do
+        sign_in_as(teacher_user(owner_teacher))
+        owner_link.discard
+
+        request_old_steps
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when the user has a teacher role without a teacher record' do
+      it 'denies the request' do
+        user_without_teacher = create(:user, :with_user_role_teacher, admin: false)
+        allow_conceptual_exams(user_without_teacher.current_user_role.role)
+
+        sign_in_as(user_without_teacher)
+
+        request_old_steps
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when the role has no permission on conceptual exams' do
+      it 'denies the request even for a teacher linked to the classroom' do
+        sign_in_as(create(:user, :with_user_role_teacher, admin: false, teacher: owner_teacher))
+
+        request_old_steps
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context 'when the user is an employee' do
+      it 'returns the conceptual values of a classroom outside the session' do
+        employee = create(:user, admin: false)
+        employee_role = create(:user_role, role: create(:role, access_level: AccessLevel::EMPLOYEE))
+        employee.user_roles << employee_role
+        employee.current_user_role = employee_role
+        employee.save!
+        allow_conceptual_exams(employee_role.role)
+
+        sign_in_as(employee)
+
+        request_old_steps
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['old_steps_conceptual_values'].first['values']).to eq(
+          discipline.id.to_s => released_value
+        )
+      end
+    end
+  end
 end
