@@ -283,12 +283,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
         }
       }
 
-      @daily_frequencies.each(&:destroy)
+      # Fora da janela de lançamento da etapa o model interrompe o destroy; nada foi apagado, então
+      # não há consolidado a refazer nem reenvio a forçar.
+      if @daily_frequencies.map(&:destroy).all?
+        # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+        enqueue_frequency_hooks(worker_calls, force_posting: true)
 
-      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
-      enqueue_frequency_hooks(worker_calls, force_posting: true)
-
-      flash[:success] = t('.success')
+        flash[:success] = t('.success')
+      else
+        flash[:alert] = t('.out_of_posting_period')
+      end
 
       redirect_to new_daily_frequencies_in_batch_path
     else
