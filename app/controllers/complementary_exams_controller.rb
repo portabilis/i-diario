@@ -154,7 +154,7 @@ class ComplementaryExamsController < ApplicationController
       date: date
     )
 
-    students = student_enrollments.map do |enrollment|
+    students = one_enrollment_per_student(student_enrollments, situations[:active_on_date_ids]).map do |enrollment|
       {
         id: enrollment.id,
         student: { id: enrollment.student_id, name: enrollment.student.name },
@@ -241,6 +241,19 @@ class ComplementaryExamsController < ApplicationController
     ).student_enrollments
   end
 
+  # A nota complementar é uma por aluno (índice único em complementary_exam_students) e o registro não
+  # guarda a matrícula. Aluno com mais de uma matrícula na turma rende uma linha só, a da matrícula
+  # enturmada na data do lançamento — é ela que libera o campo de nota.
+  def one_enrollment_per_student(student_enrollments, active_on_date_ids)
+    chosen_ids = student_enrollments.group_by(&:student_id).values.map do |enrollments|
+      enrollment = enrollments.find { |candidate| active_on_date_ids.include?(candidate.id) }
+
+      (enrollment || enrollments.first).id
+    end
+
+    student_enrollments.select { |enrollment| chosen_ids.include?(enrollment.id) }
+  end
+
   def reload_students_list
     return unless (student_enrollments = fetch_student_enrollments)
     return unless @complementary_exam.recorded_at
@@ -258,7 +271,7 @@ class ComplementaryExamsController < ApplicationController
     enrolled_student_ids = []
     @students = []
 
-    student_enrollments.each do |student_enrollment|
+    one_enrollment_per_student(student_enrollments, situations[:active_on_date_ids]).each do |student_enrollment|
       next unless (student = Student.find_by_id(student_enrollment.student_id))
 
       exam_student = existing_by_student_id[student.id] ||
