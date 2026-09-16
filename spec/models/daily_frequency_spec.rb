@@ -47,7 +47,7 @@ RSpec.describe DailyFrequency, :type => :model do
 
       it 'destroys the daily frequency and its students' do
         expect {
-          expect(daily_frequency.destroy).to be_truthy
+          expect(daily_frequency.destroy).to eq(daily_frequency)
         }.to change(DailyFrequency, :count).by(-1)
 
         expect(DailyFrequencyStudent.with_discarded.by_daily_frequency_id(daily_frequency.id).count).to eq(0)
@@ -88,20 +88,20 @@ RSpec.describe DailyFrequency, :type => :model do
         User.current = nil
 
         expect {
-          expect(daily_frequency.destroy).to be_truthy
+          expect(daily_frequency.destroy).to eq(daily_frequency)
         }.to change(DailyFrequency, :count).by(-1)
 
         expect(DailyFrequencyStudent.with_discarded.by_daily_frequency_id(daily_frequency.id).count).to eq(0)
       end
     end
 
-    context 'when the current user can post without date restrictions' do
+    context 'when the current user is an admin' do
       let(:user) { create(:user, admin: true) }
       let(:frequency_date) { Date.new(current_date.year, 5, 15) }
 
       it 'destroys the daily frequency and its students' do
         expect {
-          expect(daily_frequency.destroy).to be_truthy
+          expect(daily_frequency.destroy).to eq(daily_frequency)
         }.to change(DailyFrequency, :count).by(-1)
 
         expect(DailyFrequencyStudent.with_discarded.by_daily_frequency_id(daily_frequency.id).count).to eq(0)

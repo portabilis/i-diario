@@ -412,6 +412,7 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
       }.to change(DailyFrequency, :count).by(-1)
 
       expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
+      expect(flash[:success]).to eq('Frequências apagadas com sucesso')
     end
 
     context 'when the posting period of the step is over' do
@@ -449,6 +450,38 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
         ).to eq(2)
         expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
         expect(flash[:alert]).to eq('Não é possível apagar registros fora das datas de lançamento da etapa.')
+      end
+
+      # A tela monta o intervalo de datas, que pode cruzar etapas: a exclusão é tudo-ou-nada para
+      # não deixar data apagada sem o consolidado de infrequência e sem o reenvio de faltas.
+      context 'and another selected frequency is inside the posting period' do
+        let!(:allowed_daily_frequency) do
+          create(
+            :daily_frequency,
+            :with_students,
+            students_count: 2,
+            classroom: blocked_classroom,
+            frequency_date: current_date
+          )
+        end
+
+        it 'keeps every daily frequency, skips the workers and warns the user' do
+          expect(UniqueDailyFrequencyStudentsCreator).to_not receive(:call_worker)
+          expect(AutomaticAbsencePostingEnqueuer).to_not receive(:call)
+
+          expect {
+            delete :destroy_multiple, params: {
+              locale: 'pt-BR',
+              daily_frequencies_ids: [blocked_daily_frequency.id, allowed_daily_frequency.id]
+            }
+          }.to_not change(DailyFrequency, :count)
+
+          expect(DailyFrequency.exists?(allowed_daily_frequency.id)).to eq(true)
+          expect(
+            DailyFrequencyStudent.with_discarded.by_daily_frequency_id(allowed_daily_frequency.id).count
+          ).to eq(2)
+          expect(flash[:alert]).to eq('Não é possível apagar registros fora das datas de lançamento da etapa.')
+        end
       end
     end
   end
