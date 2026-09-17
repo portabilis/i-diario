@@ -90,3 +90,34 @@ describe('the "not found" message', () => {
     expect(notFound.value).toContain('termo "Maria"');
   });
 });
+
+describe('the result items', () => {
+  function renderResult(query, value) {
+    const { $el } = setupInput();
+    const typeahead = $el.data('typeahead');
+    typeahead.query = query;
+    typeahead.render([JSON.stringify({ id: 1, value: value })]);
+
+    return typeahead.$menu.find('a');
+  }
+
+  it('renders an HTML payload in the student name as text', () => {
+    const $link = renderResult('Ana', 'Ana <img src=x onerror=alert(1)>');
+
+    expect($link.find('img').length).toEqual(0);
+    expect($link.text()).toEqual('Ana <img src=x onerror=alert(1)>');
+  });
+
+  it('highlights the searched term', () => {
+    const $link = renderResult('ana', 'Ana Paula Santana');
+
+    expect($link.html()).toEqual('<strong>Ana</strong> Paula Sant<strong>ana</strong>');
+  });
+
+  it('highlights a term with characters that need escaping', () => {
+    const $link = renderResult("d'a", "Maria D'Avila");
+
+    expect($link.html()).toEqual("Maria <strong>D'A</strong>vila");
+    expect($link.text()).toEqual("Maria D'Avila");
+  });
+});
