@@ -280,6 +280,27 @@ RSpec.describe Api::EnrollmentDailyFrequencyStatusesService, type: :service do
       end
     end
 
+    context 'when limit is given' do
+      before do
+        [monday, tuesday, wednesday].each do |date|
+          daily_frequency = create_general_daily_frequency(date)
+          create(:daily_frequency_student, daily_frequency: daily_frequency, student: student, present: true)
+        end
+      end
+
+      it 'returns only the most recent days up to the limit' do
+        result = described_class.call(
+          student_enrollment_api_code: student_enrollment.api_code,
+          limit: 2
+        )
+
+        expect(result).to eq(
+          wednesday.iso8601 => 'presence',
+          tuesday.iso8601 => 'presence'
+        )
+      end
+    end
+
     context 'when only start_at is given' do
       before do
         [Date.new(year, 2, 2), monday].each do |date|

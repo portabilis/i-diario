@@ -1,19 +1,21 @@
 module Api
   class EnrollmentDailyFrequencyStatusesService
-    attr_reader :student_enrollment_api_code, :start_at, :end_at
+    attr_reader :student_enrollment_api_code, :start_at, :end_at, :limit
 
-    def self.call(student_enrollment_api_code:, start_at: nil, end_at: nil)
+    def self.call(student_enrollment_api_code:, start_at: nil, end_at: nil, limit: nil)
       new(
         student_enrollment_api_code: student_enrollment_api_code,
         start_at: start_at,
-        end_at: end_at
+        end_at: end_at,
+        limit: limit
       ).call
     end
 
-    def initialize(student_enrollment_api_code:, start_at: nil, end_at: nil)
+    def initialize(student_enrollment_api_code:, start_at: nil, end_at: nil, limit: nil)
       @student_enrollment_api_code = student_enrollment_api_code.to_s
       @start_at = start_at
       @end_at = end_at
+      @limit = limit
     end
 
     def call
@@ -37,6 +39,7 @@ module Api
       scope = base_scope
       scope = scope.where('daily_frequencies.frequency_date >= ?', start_at) if start_at
       scope = scope.where('daily_frequencies.frequency_date <= ?', end_at) if end_at
+      scope = scope.limit(limit) if limit
 
       scope
         .group('daily_frequencies.frequency_date')

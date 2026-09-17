@@ -62,7 +62,8 @@ RSpec.describe Api::V2::EnrollmentDailyFrequencyStatusesController, type: :contr
       expect(Api::EnrollmentDailyFrequencyStatusesService).to receive(:call).with(
         student_enrollment_api_code: enrollment_api_code,
         start_at: nil,
-        end_at: nil
+        end_at: nil,
+        limit: nil
       ).and_return(service_payload)
 
       get :index, params: valid_params.except(:start_at, :end_at)
@@ -74,7 +75,8 @@ RSpec.describe Api::V2::EnrollmentDailyFrequencyStatusesController, type: :contr
       expect(Api::EnrollmentDailyFrequencyStatusesService).to receive(:call).with(
         student_enrollment_api_code: enrollment_api_code,
         start_at: Date.new(2026, 3, 1),
-        end_at: nil
+        end_at: nil,
+        limit: nil
       ).and_return(service_payload)
 
       get :index, params: valid_params.except(:end_at)
@@ -103,11 +105,31 @@ RSpec.describe Api::V2::EnrollmentDailyFrequencyStatusesController, type: :contr
       expect(JSON.parse(response.body)['error']).to include('start_at')
     end
 
+    %w[abc 0 -1 1.5].each do |invalid_limit|
+      it "returns 422 when limit is '#{invalid_limit}'" do
+        get :index, params: valid_params.merge(limit: invalid_limit)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)['error']).to include('limit')
+      end
+    end
+
+    it 'delegates limit as an integer to the service' do
+      expect(Api::EnrollmentDailyFrequencyStatusesService).to receive(:call).with(
+        hash_including(limit: 10)
+      ).and_return(service_payload)
+
+      get :index, params: valid_params.merge(limit: '10')
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it 'delegates to the service and renders its result as JSON' do
       expect(Api::EnrollmentDailyFrequencyStatusesService).to receive(:call).with(
         student_enrollment_api_code: enrollment_api_code,
         start_at: Date.new(2026, 3, 1),
-        end_at: Date.new(2026, 3, 31)
+        end_at: Date.new(2026, 3, 31),
+        limit: nil
       ).and_return(service_payload)
 
       get :index, params: valid_params
