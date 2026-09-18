@@ -15,23 +15,76 @@ RSpec.describe 'rack-attack throttling', type: :request do
     Rack::Attack.cache.store = @original_store
   end
 
-  it 'throttles password reset requests by IP after 5 per minute' do
-    6.times { post '/usuarios/senha', params: { user: { email: 'atacante@example.com' } } }
-
-    expect(response).to have_http_status(:too_many_requests)
+  def request_password_reset(path, times)
+    times.times { post path, params: { user: { email: 'atacante@example.com' } } }
   end
 
-  it 'does not throttle password reset under the limit' do
-    3.times { post '/usuarios/senha', params: { user: { email: 'atacante@example.com' } } }
-
-    expect(response).not_to have_http_status(:too_many_requests)
+  def attempt_login(path, times, credentials: 'alvo@example.com')
+    times.times { post path, params: { user: { credentials: credentials, password: 'errada' } } }
   end
 
-  it 'throttles login attempts by credential after 10 per minute' do
-    11.times do
-      post '/usuarios/logar', params: { user: { credentials: 'alvo@example.com', password: 'errada' } }
+  context 'with password reset' do
+    %w[/usuarios/senha /users/password /usuarios/senha.html].each do |path|
+      it "throttles #{path} by IP after 5 per minute" do
+        request_password_reset(path, 6)
+
+        expect(response).to have_http_status(:too_many_requests)
+      end
     end
 
-    expect(response).to have_http_status(:too_many_requests)
+    it 'does not throttle under the limit' do
+      request_password_reset('/usuarios/senha', 5)
+
+      expect(response).not_to have_http_status(:too_many_requests)
+    end
+
+    it 'answers the throttled request with a page in Portuguese' do
+      request_password_reset('/usuarios/senha', 6)
+
+      expect(response.content_type).to eq('text/html')
+      expect(response.body).to include(I18n.t('rack_attack.throttled'))
+      expect(response.headers['Retry-After'].to_i).to be_between(1, 60)
+    end
+  end
+
+  context 'with login' do
+    %w[/usuarios/logar /users/sign_in /usuarios/logar.html].each do |path|
+      it "throttles #{path} by credential after 10 per minute" do
+        attempt_login(path, 11)
+
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+
+    it 'does not throttle under the limit' do
+      attempt_login('/usuarios/logar', 10)
+
+      expect(response).not_to have_http_status(:too_many_requests)
+    end
+
+    it 'counts credentials regardless of case and surrounding spaces' do
+      attempt_login('/usuarios/logar', 10, credentials: 'Alvo@Example.com ')
+      attempt_login('/usuarios/logar', 1)
+
+      expect(response).to have_http_status(:too_many_requests)
+    end
+
+    it 'does not share the counter between credentials' do
+      attempt_login('/usuarios/logar', 10)
+      attempt_login('/usuarios/logar', 1, credentials: 'outro@example.com')
+
+      expect(response).not_to have_http_status(:too_many_requests)
+    end
+  end
+
+  context 'with login in more than one entity' do
+    it 'does not share the counter between entities with the same credential' do
+      host! 'rede-a.host'
+      attempt_login('/usuarios/logar', 10, credentials: 'admin')
+      host! 'rede-b.host'
+      attempt_login('/usuarios/logar', 1, credentials: 'admin')
+
+      expect(response).not_to have_http_status(:too_many_requests)
+    end
   end
 end
