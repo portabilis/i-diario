@@ -1,9 +1,10 @@
 # Limita tentativas em endpoints sensíveis de autenticação.
 #
-# Escolha das chaves: escolas costumam acessar por trás de um único IP público, então limitar
-# login por IP bloquearia a escola inteira. O login é limitado pela credencial informada (freia
-# força bruta em uma conta sem punir o IP compartilhado). A recuperação de senha, de volume
-# legítimo baixo, é limitada por IP.
+# Escolha das chaves: escolas costumam acessar por trás de um único IP público, então um limite
+# apertado por IP bloquearia a escola inteira. Login e recuperação de senha são limitados pela
+# conta informada (freia o abuso contra uma conta sem punir o IP compartilhado); o limite por IP
+# da recuperação de senha é folgado o bastante para um laboratório em uso e só segura quem
+# varre muitos e-mails.
 #
 # A gem registra o middleware sozinha pelo Railtie; não há `middleware.use` aqui.
 class Rack::Attack
@@ -27,8 +28,17 @@ class Rack::Attack
     end
   end
 
-  # Recuperação de senha: no máximo 5 pedidos por IP a cada minuto.
-  throttle('password-reset/ip', limit: 5, period: 60) do |req|
+  # Recuperação de senha: no máximo 5 pedidos por e-mail a cada minuto. Como no login, o host
+  # entra na chave porque cada rede tem o próprio cadastro de usuários.
+  throttle('password-reset/email', limit: 5, period: 60) do |req|
+    next unless req.routed_to?('users/passwords#create')
+
+    email = req.params.dig('user', 'email').to_s.downcase.strip.presence
+    "#{req.host}:#{email}" if email
+  end
+
+  # Recuperação de senha: no máximo 30 pedidos por IP a cada minuto.
+  throttle('password-reset/ip', limit: 30, period: 60) do |req|
     req.ip if req.routed_to?('users/passwords#create')
   end
 
