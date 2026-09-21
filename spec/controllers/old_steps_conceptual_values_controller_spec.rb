@@ -138,6 +138,17 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
       end
     end
 
+    def employee_user(unity)
+      employee_role = create(:user_role, unity: unity, role: create(:role, access_level: AccessLevel::EMPLOYEE))
+      allow_conceptual_exams(employee_role.role)
+
+      create(:user, admin: false).tap do |employee|
+        employee.user_roles << employee_role
+        employee.current_user_role = employee_role
+        employee.save!
+      end
+    end
+
     def request_old_steps
       get :index, params: {
         locale: 'pt-BR',
@@ -227,19 +238,43 @@ RSpec.describe OldStepsConceptualValuesController, type: :controller do
       end
     end
 
-    context 'when the user is an employee' do
+    context 'when the user is an employee of the classroom unity' do
       it 'returns the conceptual values of a classroom outside the session' do
-        employee = create(:user, admin: false)
-        employee_role = create(:user_role, role: create(:role, access_level: AccessLevel::EMPLOYEE))
-        employee.user_roles << employee_role
-        employee.current_user_role = employee_role
-        employee.save!
-        allow_conceptual_exams(employee_role.role)
-
-        sign_in_as(employee)
+        sign_in_as(employee_user(classroom.unity))
 
         request_old_steps
 
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['old_steps_conceptual_values'].first['values']).to eq(
+          discipline.id.to_s => released_value
+        )
+      end
+    end
+
+    context 'when the user is an employee of another unity' do
+      # O seletor de perfil só oferece ao servidor a unidade do papel; a leitura pelo
+      # endereço segue o mesmo alcance
+      it 'denies the request' do
+        sign_in_as(employee_user(create(:unity)))
+
+        request_old_steps
+
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq(I18n.t('pundit.default'))
+      end
+    end
+
+    context 'when the user is an administrator of another unity' do
+      # Administrador escolhe qualquer unidade no seletor de perfil
+      it 'returns the conceptual values' do
+        administrator = create(:user, :with_user_role_administrator, admin: false)
+        allow_conceptual_exams(administrator.current_user_role.role)
+
+        sign_in_as(administrator)
+
+        request_old_steps
+
+        expect(administrator.current_user_role.unity_id).not_to eq(classroom.unity_id)
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['old_steps_conceptual_values'].first['values']).to eq(
           discipline.id.to_s => released_value
