@@ -8,4 +8,11 @@ config/secrets.yml
 config/puma.rb
 docker-compose.override.yml
 Gemfile.plugins
+Gemfile.lock
 .bundle/config
+vendor/assets/javascripts/plugins.js
+public/404.html
+public/500.html
+# Marca o setup inicial como feito. Sem ele o script/start sobrescreve config/database.yml e
+# config/secrets.yml e roda db:migrate, entity:setup e entity:admin:create no banco compartilhado.
+.setup
