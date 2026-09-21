@@ -27,6 +27,13 @@ Guia completo para os testes end-to-end:
 - Como criar novos testes
 - Boas práticas e troubleshooting
 
+### [Relatórios HTML → PDF: motor PlutoBook](./relatorios-html-plutobook.md)
+Guia para relatórios que geram PDF a partir de HTML pelo `ReportGenerator`:
+- Escolha do driver (`pluto` para relatório novo, `chrome` nos legados)
+- Layout `report_pluto`: cabeçalho, rodapé, numeração e margens no CSS `@page`
+- Armadilhas do motor (escala de fonte, quebra de página, tabelas, imagens CMYK)
+- Compressão gzip do corpo acima de 1 MB
+
 ## Como Contribuir
 
 Para adicionar nova documentação:
@@ -60,4 +67,4 @@ Esta documentação deve ser atualizada sempre que:
 - Bugs recorrentes precisarem de documentação
 
 ---
-*Última atualização: Janeiro 2025*
+*Última atualização: Setembro 2026*

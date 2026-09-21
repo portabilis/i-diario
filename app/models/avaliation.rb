@@ -179,7 +179,7 @@ class Avaliation < ApplicationRecord
   end
 
   def is_school_term_day?
-    return if test_setting.nil? ||
+    return if test_setting.nil? || school_calendar.nil? ||
               [ExamSettingTypes::GENERAL,
                ExamSettingTypes::GENERAL_BY_SCHOOL
               ].include?(test_setting.exam_setting_type)
@@ -224,7 +224,8 @@ class Avaliation < ApplicationRecord
   end
 
   def test_setting_test_weight_available
-    return unless step && weight
+    return unless weight
+    return weight_within_test_setting_test_limits if step.blank?
 
     avaliations = Avaliation.by_classroom_id(classroom_id)
                             .by_grade_id(grade_ids)
@@ -241,6 +242,16 @@ class Avaliation < ApplicationRecord
     elsif (total_weight_of_existing_avaliations + weight) > test_setting_test.weight
       errors.add(:weight, :less_than_or_equal_to, count: test_setting_test.weight - total_weight_of_existing_avaliations)
     elsif (weight <= 0)
+      errors.add(:weight, :greater_than, count: 0.0)
+    end
+  end
+
+  # Quanto ainda cabe na etapa depende da data, mas os limites do tipo de avaliação valem sempre — sem
+  # eles o professor só descobre que o peso é inválido depois de acertar a data.
+  def weight_within_test_setting_test_limits
+    if weight > test_setting_test.weight
+      errors.add(:weight, :less_than_or_equal_to, count: test_setting_test.weight)
+    elsif weight <= 0
       errors.add(:weight, :greater_than, count: 0.0)
     end
   end
@@ -270,7 +281,7 @@ class Avaliation < ApplicationRecord
   end
 
   def grades_belongs_to_test_setting
-    return unless test_setting.general_by_school?
+    return unless test_setting&.general_by_school?
     return if (grade_ids - test_setting.grades).empty?
 
     general = TestSetting.find_by(year: test_setting.year, exam_setting_type: ExamSettingTypes::GENERAL)

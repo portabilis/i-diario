@@ -98,9 +98,9 @@ class LessonsBoardsController < ApplicationController
   def generate_lesson_board_pdf
     @lesson_board = LessonsBoard.find(params[:id])
     html_content = render_to_string(
-      action: :generate_lesson_board_pdf, layout: "pdf_lesson_board", formats: [:html]
+      action: :generate_lesson_board_pdf, layout: "report_pluto", formats: [:html]
     )
-    response = ReportGenerator.call(html_content)
+    response = ReportGenerator.call(html_content, driver: :pluto)
 
     send_data response.body,
               filename: "quadro_de_aulas_#{@lesson_board.id}.pdf",

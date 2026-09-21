@@ -3,11 +3,13 @@
   <% classroom_id, classroom_info = classroom %>
   <table>
     <thead>
+      <%# Série e Turma numa única célula: o motor não quebra página dentro de
+          uma linha de tabela, então as duas faixas nunca se separam. %>
       <tr>
-        <th scope="col" style='text-align: center' colspan='5'><%= "Série: #{classroom_info[:grade_name]}" %></th>
-      </tr>
-      <tr>
-        <th scope="col" style='text-align: center' colspan='5'><%= "Turma: #{classroom_info[:classroom_name]}" %></th>
+        <th scope="col" style='text-align: center' colspan='3'>
+          <div><%= "Série: #{classroom_info[:grade_name]}" %></div>
+          <div class="classroom-name"><%= "Turma: #{classroom_info[:classroom_name]}" %></div>
+        </th>
       </tr>
     </thead>
     <thead>
