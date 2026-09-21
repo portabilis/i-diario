@@ -10,6 +10,7 @@
       <% end %>
 
       <%= f.input :student_id, as: :hidden %>
+      <%= f.hidden_field :active %>
       <span class="multiline"><%= student %></span>
       <%= student_status_badge(student.status_badge) if student.status_badge %>
     </td>

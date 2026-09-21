@@ -180,16 +180,28 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os alunos.');
   };
 
+  // Aluno com mais de uma matrícula na turma tem uma linha por matrícula, todas com o id do aluno;
+  // $('#id') pegaria só a primeira.
+  function studentRows(id) {
+    return $('#complementary-exam-students tr.nested-fields').filter(function () {
+      return this.id === String(id);
+    });
+  }
+
   function removeStudent(id) {
-    $('#' + id).hide();
-    $('#' + id).addClass('destroy');
-    $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
+    var $rows = studentRows(id);
+
+    $rows.hide();
+    $rows.addClass('destroy');
+    $rows.find('[id$=_destroy]').val(true);
   }
 
   function restoreStudent(id) {
-    $('#' + id).show();
-    $('#' + id).removeClass('destroy');
-    $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
+    var $rows = studentRows(id);
+
+    $rows.show();
+    $rows.removeClass('destroy');
+    $rows.find('[id$=_destroy]').val(false);
   }
 
   // Revela na legenda apenas as situações com badge presente na tabela.

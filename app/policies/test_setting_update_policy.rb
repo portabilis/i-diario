@@ -24,7 +24,24 @@ class TestSettingUpdatePolicy
   end
 
   def has_disallowed_changes?
-    changed.any? { |changed_field| !allowed_fields_to_change_on_test_setting.include?(changed_field) }
+    changed.any? { |changed_field| !allowed_change?(changed_field) }
+  end
+
+  def allowed_change?(field)
+    return true if allowed_fields_to_change_on_test_setting.include?(field)
+    return scope_widening?(field) if scope_fields.include?(field)
+
+    false
+  end
+
+  # A abrangência pode crescer mesmo com avaliações lançadas: incluir série ou unidade não altera a
+  # régua das avaliações existentes. Encolher deixaria turma já lançada sem configuração vigente.
+  # grades vazio significa "todas as séries", então sair desse estado é restrição, não ampliação.
+  def scope_widening?(field)
+    previous_scope, current_scope = test_setting.changes[field]
+    return false if previous_scope.blank?
+
+    (previous_scope - current_scope).empty?
   end
 
   def invalid_minimum_score_change?
@@ -74,5 +91,9 @@ class TestSettingUpdatePolicy
 
   def allowed_fields_to_change_on_test_setting
     ['maximum_score', 'updated_at', 'minimum_score']
+  end
+
+  def scope_fields
+    %w[grades unities]
   end
 end

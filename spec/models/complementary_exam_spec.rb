@@ -92,4 +92,77 @@ RSpec.describe ComplementaryExam, type: :model do
       end
     end
   end
+
+  # A lista do diário traz uma linha por matrícula; a nota é uma por aluno.
+  describe '#students_attributes=' do
+    let(:student) { create(:student) }
+
+    def rows_of(exam, student_id)
+      exam.students.select { |exam_student| exam_student.student_id == student_id }
+    end
+
+    context 'with a new exam' do
+      subject(:complementary_exam) { build(:complementary_exam, :with_teacher_discipline_classroom) }
+
+      it 'does not build the row of an enrollment that is not in the classroom on the date' do
+        complementary_exam.students_attributes = {
+          '0' => { student_id: student.id, score: '', active: 'false' },
+          '1' => { student_id: student.id, score: '', active: 'false' }
+        }
+
+        expect(rows_of(complementary_exam, student.id)).to eq([])
+      end
+
+      it 'builds the row of the enrollment that is in the classroom on the date' do
+        complementary_exam.students_attributes = {
+          '0' => { student_id: student.id, score: '', active: 'false' },
+          '1' => { student_id: student.id, score: '2', active: 'true' }
+        }
+
+        expect(rows_of(complementary_exam, student.id).map(&:score)).to eq([2])
+      end
+
+      it 'builds a single row, the one with score, when two enrollments are in the classroom on the date' do
+        complementary_exam.students_attributes = {
+          '0' => { student_id: student.id, score: '', active: 'true' },
+          '1' => { student_id: student.id, score: '2', active: 'true' }
+        }
+
+        expect(rows_of(complementary_exam, student.id).map(&:score)).to eq([2])
+      end
+
+      it 'builds a single row when the two active rows of the student are blank' do
+        complementary_exam.students_attributes = {
+          '0' => { student_id: student.id, score: '', active: 'true' },
+          '1' => { student_id: student.id, score: '', active: 'true' }
+        }
+
+        expect(rows_of(complementary_exam, student.id).size).to eq(1)
+      end
+    end
+
+    context 'with a saved exam' do
+      subject(:complementary_exam) { create(:complementary_exam, :with_teacher_discipline_classroom) }
+
+      let(:exam_student) { complementary_exam.students.first }
+
+      it 'keeps the saved record instead of a new active row of the same student' do
+        complementary_exam.students_attributes = {
+          '0' => { student_id: exam_student.student_id, score: '2', active: 'true' },
+          '1' => { id: exam_student.id, student_id: exam_student.student_id, score: '3', active: 'true' }
+        }
+
+        rows = rows_of(complementary_exam, exam_student.student_id)
+
+        expect(rows.map(&:id)).to eq([exam_student.id])
+        expect(rows.map(&:score)).to eq([3])
+      end
+
+      it 'destroys the saved record marked for destruction even when its row is not active' do
+        complementary_exam.students_attributes = { '0' => { id: exam_student.id, _destroy: '1', active: '' } }
+
+        expect(rows_of(complementary_exam, exam_student.student_id).map(&:marked_for_destruction?)).to eq([true])
+      end
+    end
+  end
 end
