@@ -114,6 +114,28 @@ RSpec.describe ExamRecordReportController, type: :controller do
 
       expect(response_ids('disciplines')).to eq([])
     end
+
+    context 'when the user has the teacher role' do
+      let(:teacher_user) do
+        create(
+          :user,
+          :with_user_role_teacher,
+          teacher_id: teacher.id,
+          current_unity_id: unity.id,
+          current_school_year: classroom.year,
+          current_classroom_id: classroom.id,
+          current_discipline_id: teacher_discipline.id
+        )
+      end
+
+      before { sign_in(teacher_user) }
+
+      it 'returns only the disciplines the teacher teaches in the classroom' do
+        get :disciplines, params: { locale: 'pt-BR', format: 'json', classroom_id: classroom.id }
+
+        expect(response_ids('disciplines')).to eq([teacher_discipline.id])
+      end
+    end
   end
 
   describe 'POST #report' do
