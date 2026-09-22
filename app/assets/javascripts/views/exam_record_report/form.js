@@ -81,9 +81,7 @@ $(document).ready(function () {
       return { id: step['id'], text: step['description'] };
     });
 
-    $step.select2({ data: selectedSteps });
-    // Define a primeira opção como selecionada por padrão
-    $step.val(selectedSteps[0].id).trigger('change');
+    $step.val('').select2({ data: selectedSteps });
   };
 
   function handleFetchStepByClassroomError() {
