@@ -65,10 +65,14 @@ public/500.html
 - `.env.e2e` — credenciais e configuração dos testes Playwright (E2E).
 - `Gemfile.plugins` — declaração de gems adicionais (plugins) usadas localmente.
 - `.bundle/config` — configuração local do Bundler (caminhos e flags de install).
-- `Gemfile.lock`: está no `.gitignore` deste projeto. Sem ele, o Bundler resolve as dependências de novo e o worktree roda com versões de gems diferentes das do checkout principal.
-- `vendor/assets/javascripts/plugins.js`: ponto de entrada do JS dos plugins. O `application.js.erb` só inclui o arquivo se ele existir, então sem ele o JS dos plugins fica fora do bundle sem nenhum erro.
-- `public/404.html` e `public/500.html`: gerados pelo `script/start` a partir dos `.sample`. Sem eles, o redirecionamento para `/404` cai num `RoutingError` em vez da página estática.
-- `.setup`: marca o setup inicial como feito. Sem ele, o `script/start` (serviço `ruby`, do qual os outros dependem) sobrescreve `config/database.yml` e `config/secrets.yml` e roda `db:migrate`, `entity:setup` e `entity:admin:create` no banco compartilhado com o checkout principal.
+- `Gemfile.lock`: está no `.gitignore` deste projeto.
+  Sem ele, o Bundler resolve as dependências de novo e o worktree roda com versões de gems diferentes das do checkout principal.
+- `vendor/assets/javascripts/plugins.js`: ponto de entrada do JS dos plugins.
+  O `application.js.erb` só inclui o arquivo se ele existir, então sem ele o JS dos plugins fica fora do bundle sem nenhum erro.
+- `public/404.html` e `public/500.html`: gerados pelo `script/start` a partir dos `.sample`.
+  Sem eles, o redirecionamento para `/404` cai num `RoutingError` em vez da página estática.
+- `.setup`: marca o setup inicial como feito.
+  Sem ele, o `script/start` (serviço `ruby`, do qual os outros dependem) sobrescreve `config/database.yml` e `config/secrets.yml` e roda `db:migrate`, `entity:setup` e `entity:admin:create` no banco compartilhado com o checkout principal.
 
 Se um novo arquivo gitignored de config virar dependência (ex.: `config/google_drive.json`, um initializer ignorado), adicionar a linha aqui.
 
@@ -103,7 +107,8 @@ git worktree remove .claude/worktrees/<nome>
 
 **Worktree que já rodou a aplicação.** Os containers gravam como root no diretório montado (`node_modules`, `tmp`, `log`, `coverage`).
 O `git worktree remove` falha por permissão nesses arquivos depois de já ter desregistrado o worktree, e deixa a pasta pela metade.
-Antes de remover, devolva a posse dos arquivos ao seu usuário:
+Antes de remover, devolva a posse dos arquivos ao seu usuário.
+Os dois comandos abaixo rodam a partir do checkout principal, não de dentro do worktree:
 
 ```bash
 docker run --rm -v "$PWD/.claude/worktrees/<nome>:/w" alpine chown -R "$(id -u):$(id -g)" /w
