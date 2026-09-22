@@ -20,7 +20,10 @@ class ExamRecordReportForm
   # O cabeçalho do relatório imprime o professor do perfil, então só entram as
   # disciplinas que ele leciona na turma.
   def self.teacher_disciplines(teacher_id, classroom_id)
-    Discipline.by_teacher_and_classroom(teacher_id, classroom_id).not_descriptor.ordered
+    Discipline.includes(:knowledge_area)
+              .by_teacher_and_classroom(teacher_id, classroom_id)
+              .not_descriptor
+              .ordered
   end
 
   def daily_notes
