@@ -3,8 +3,8 @@
  */
 
 // Testes de app/assets/javascripts/views/exam_record_report/form.js: a troca de escola e a troca
-// de turma recarregam as listas pelas actions do próprio relatório, e a disciplina só é
-// pré-selecionada quando é a única da turma.
+// de turma recarregam as listas pelas actions do próprio relatório, a disciplina só é
+// pré-selecionada quando é a única da turma e a etapa fica em branco para o usuário escolher.
 
 const fs = require('fs');
 const path = require('path');
@@ -137,6 +137,19 @@ describe('classroom change', () => {
 
     expect($('#exam_record_report_form_discipline_id').val()).toBe('');
     expect($('#exam_record_report_form_discipline_id').data('options')).toEqual(disciplines);
+  });
+});
+
+describe('step on classroom change', () => {
+  it('loads the steps of the new classroom and leaves the step blank', async () => {
+    $('#exam_record_report_form_school_calendar_step_id').val('1');
+
+    await changeClassroom([{ id: 200, name: 'Matemática', text: 'Matemática' }]);
+
+    expect($('#exam_record_report_form_school_calendar_step_id').val()).toBe('');
+    expect($('#exam_record_report_form_school_calendar_step_id').data('options')).toEqual([
+      { id: 1, text: '1º Bimestre' }
+    ]);
   });
 });
 

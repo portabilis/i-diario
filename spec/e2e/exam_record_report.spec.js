@@ -4,6 +4,7 @@ const { test, expect } = require('@playwright/test');
 // turma na escola do perfil; sem isso a troca de turma não tem o que exercitar.
 const CLASSROOM = 'exam_record_report_form_classroom_id';
 const DISCIPLINE = 'exam_record_report_form_discipline_id';
+const STEP = 'exam_record_report_form_school_calendar_step_id';
 
 const chosen = (page, id) => page.locator(`#s2id_${id} .select2-chosen`);
 
@@ -54,5 +55,17 @@ test.describe('Registro de avaliações numéricas', () => {
     const expected = disciplines.length === 1 ? disciplines[0] : '';
 
     await expect(chosen(page, DISCIPLINE)).toHaveText(expected);
+  });
+
+  test('a troca de turma deixa a etapa em branco', async ({ page }) => {
+    const initialClassroom = (await chosen(page, CLASSROOM).textContent()).trim();
+    const otherClassrooms = (await listOptions(page, CLASSROOM)).filter((name) => name !== initialClassroom);
+
+    test.skip(otherClassrooms.length === 0, 'o professor do perfil tem uma turma só nesta escola');
+
+    await selectClassroom(page, otherClassrooms[0]);
+
+    await expect(chosen(page, STEP)).toHaveText('');
+    expect((await listOptions(page, STEP)).length).toBeGreaterThan(0);
   });
 });
