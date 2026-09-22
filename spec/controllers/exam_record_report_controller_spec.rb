@@ -69,6 +69,23 @@ RSpec.describe ExamRecordReportController, type: :controller do
     JSON.parse(response.body)[key].map { |element| element['id'] }
   end
 
+  describe 'GET #form' do
+    it 'lists only the unities where the profile teacher has classrooms' do
+      create(
+        :classroom,
+        :with_teacher_discipline_classroom,
+        teacher: other_teacher,
+        discipline: other_discipline,
+        unity: create(:unity)
+      )
+
+      get :form, params: { locale: 'pt-BR' }
+
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:unities)).to eq([unity])
+    end
+  end
+
   describe 'GET #classrooms' do
     it 'returns only the classrooms of the profile teacher in the unity' do
       other_classroom
