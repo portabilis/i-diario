@@ -84,6 +84,36 @@ RSpec.describe ExamRecordReportController, type: :controller do
       expect(response).to have_http_status(:ok)
       expect(assigns(:unities)).to eq([unity])
     end
+
+    context 'when the user is not an administrator' do
+      let(:employee_user) do
+        create(
+          :user,
+          :with_user_role_administrator,
+          admin: false,
+          assumed_teacher_id: teacher.id,
+          current_unity_id: unity.id,
+          current_school_year: classroom.year,
+          current_classroom_id: classroom.id,
+          current_discipline_id: teacher_discipline.id
+        )
+      end
+
+      it 'lists the unity of the profile, which is the only one the user can use' do
+        create(
+          :classroom,
+          :with_teacher_discipline_classroom,
+          teacher: teacher,
+          discipline: teacher_discipline,
+          unity: create(:unity)
+        )
+        sign_in(employee_user)
+
+        get :form, params: { locale: 'pt-BR' }
+
+        expect(assigns(:unities)).to eq([unity])
+      end
+    end
   end
 
   describe 'GET #classrooms' do
