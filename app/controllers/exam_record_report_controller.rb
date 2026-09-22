@@ -92,6 +92,10 @@ class ExamRecordReportController < ApplicationController
     )
   end
 
+  def teacher_unities
+    Unity.by_teacher(current_teacher.id).by_year(current_school_year).ordered
+  end
+
   def teacher_classrooms(unity_id)
     Classroom.by_unity_and_teacher(unity_id, current_teacher.id).by_year(current_school_year).ordered
   end
@@ -111,7 +115,7 @@ class ExamRecordReportController < ApplicationController
 
   def set_options_by_user
     @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
-    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+    @unities ||= @admin_or_teacher ? teacher_unities : [current_user_unity]
 
     @classrooms = teacher_classrooms(@exam_record_report_form.unity_id)
     @disciplines = teacher_disciplines(@exam_record_report_form.classroom_id)
