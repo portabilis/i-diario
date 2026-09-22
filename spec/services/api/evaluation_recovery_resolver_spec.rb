@@ -71,7 +71,14 @@ RSpec.describe Api::EvaluationRecoveryResolver do
   end
 
   describe '.title_for' do
-    it 'combines the type label with the discipline name' do
+    it 'returns the name of the recovered avaliation for a parallel recovery' do
+      avaliation_recovery = build_avaliation_recovery_diary_record
+      record = avaliation_recovery.recovery_diary_record.reload
+
+      expect(described_class.title_for(record)).to eq(avaliation_recovery.avaliation.to_s)
+    end
+
+    it 'combines the type label with the discipline name for a school term recovery' do
       school_term_recovery = create(:school_term_recovery_diary_record)
       record = school_term_recovery.recovery_diary_record.reload
 
