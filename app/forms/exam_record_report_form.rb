@@ -5,7 +5,8 @@ class ExamRecordReportForm
                 :classroom_id,
                 :discipline_id,
                 :school_calendar_step_id,
-                :school_calendar_classroom_step_id
+                :school_calendar_classroom_step_id,
+                :teacher_id
 
   validates :unity_id,      presence: true
   validates :classroom_id,  presence: true
@@ -13,7 +14,14 @@ class ExamRecordReportForm
   validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
   validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
 
+  validate :discipline_must_be_taught_by_teacher
   validate :must_have_daily_notes
+
+  # O cabeçalho do relatório imprime o professor do perfil, então só entram as
+  # disciplinas que ele leciona na turma.
+  def self.teacher_disciplines(teacher_id, classroom_id)
+    Discipline.by_teacher_and_classroom(teacher_id, classroom_id).not_descriptor.ordered
+  end
 
   def daily_notes
     return if step.blank?
@@ -118,6 +126,13 @@ class ExamRecordReportForm
   end
 
   private
+
+  def discipline_must_be_taught_by_teacher
+    return if classroom_id.blank? || discipline_id.blank?
+    return if self.class.teacher_disciplines(teacher_id, classroom_id).exists?(discipline_id)
+
+    errors.add(:discipline_id, :not_taught_by_teacher)
+  end
 
   def must_have_daily_notes
     return if errors.present?
