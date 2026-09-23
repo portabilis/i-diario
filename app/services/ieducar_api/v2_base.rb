@@ -10,9 +10,7 @@ module IeducarApi
   # A resposta é traduzida para o formato do IeducarResponseDecorator. As exceções continuam vindo
   # de Base porque o Ieducar::SendPostWorker decide o retry por Base::NetworkException.
   class V2Base
-    # 201 é o status de gravação; 202 é o que i-Educar sem a versão atual do endpoint de falta
-    # geral devolve, e continua valendo enquanto houver município nas duas versões.
-    SAVED_STATUSES = [201, 202].freeze
+    SAVED_STATUS = 201
     OPEN_TIMEOUT = 10
     READ_TIMEOUT = 240
     RETRYABLE_STATUSES = [408, 429, 502, 503, 504].freeze
@@ -131,27 +129,23 @@ module IeducarApi
       "#{configuration.url}#{self.class::POST_PATH}"
     end
 
+    # Fora do 201, nenhuma resposta 2xx faz parte do contrato: pode ser um intermediário
+    # respondendo no lugar do i-Educar, e tratá-la como gravação esconderia a falta não gravada.
     def handle_success(response, params)
       parsed = parse_body(response.body)
 
-      return unrecognized_response!('2xx', response.body, params) if parsed.nil?
+      return unrecognized_response!(response.code, response.body, params) if
+        parsed.nil? || response.code != SAVED_STATUS
 
       message = message_from(parsed)
-      saved = SAVED_STATUSES.include?(response.code)
-
-      # Fora do status de gravação, o corpo é a única prova de que foi o i-Educar respondendo:
-      # sem mensagem, pode ser um intermediário devolvendo 200 vazio.
-      return unrecognized_response!(response.code, response.body, params) if !saved && message.blank?
-
-      return not_saved(message, params, response.code) unless saved
 
       log_debug("Response: #{message || SUCCESS_MESSAGE}")
 
       success(message || SUCCESS_MESSAGE)
     end
 
-    # Matrícula fora das situações que o i-Educar aceita - tipicamente aluno que deixou de
-    # frequentar. É desfecho esperado e o professor não tem o que fazer, então fica só no log.
+    # Aluno sem matrícula ativa na turma - tipicamente o que deixou de frequentar. É desfecho
+    # esperado e o professor não tem o que fazer, então fica só no log.
     def not_saved(message, params, status)
       log(:warn, 'matrícula recusada pelo i-Educar', params, status: status, detail: message)
 
@@ -172,13 +166,6 @@ module IeducarApi
       message = message_from(parsed)
 
       case status
-      when 404
-        # Hoje 404 é a rota não existir - i-Educar do município sem o endpoint publicado - e
-        # precisa falhar alto. Versões anteriores do endpoint de falta geral o usavam para
-        # matrícula inelegível, com mensagem identificando o caso: daí o corpo ser considerado antes.
-        return unrecognized_response!(status, body, params) if message.blank?
-
-        not_saved(message, params, status)
       when 422
         return unrecognized_response!(status, body, params) if message.blank?
         return not_saved(message, params, status) if registration_refused?(parsed)
