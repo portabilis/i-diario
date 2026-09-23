@@ -7,8 +7,10 @@ module IeducarApi
   class PostDisciplineAbsences < V2Base
     POST_PATH = '/api/v2/falta-componente'.freeze
     LOG_PREFIX = '[falta-componente]'.freeze
-    FIELDS = V2Base::FIELDS.merge(componente_id: 'o componente curricular').freeze
-    LOG_LABELS = V2Base::LOG_LABELS.merge(
+    SUCCESS_MESSAGE = 'Faltas postadas com sucesso!'.freeze
+    FIELDS = STUDENT_FIELDS.merge(faltas: 'as faltas', componente_id: 'o componente curricular').freeze
+    LOG_LABELS = STUDENT_LOG_LABELS.merge(
+      faltas: 'faltas',
       componente_id: 'componente',
       area_do_conhecimento_id: 'área do conhecimento'
     ).freeze

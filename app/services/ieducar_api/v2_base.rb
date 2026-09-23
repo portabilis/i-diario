@@ -1,7 +1,8 @@
 module IeducarApi
-  # Base dos envios de faltas pelos endpoints da API v2 do i-Educar: um aluno por requisição,
-  # payload achatado em JSON. As subclasses definem POST_PATH, LOG_PREFIX e, quando o endpoint
-  # pede mais que turma, aluno, etapa e faltas, FIELDS e LOG_LABELS.
+  # Base dos envios de lançamentos do aluno pelos endpoints da API v2 do i-Educar: um aluno por
+  # requisição, payload achatado em JSON. As subclasses definem POST_PATH, LOG_PREFIX,
+  # SUCCESS_MESSAGE, FIELDS (obrigatórios, na ordem do payload) e LOG_LABELS, e sobrescrevem
+  # `payload_for` quando algum campo não é inteiro.
   #
   # Não herda de IeducarApi::Base: aquela fala com a API legada, que autentica por chaves na query
   # string e devolve erro de negócio dentro de um HTTP 200. Esta autentica pelo header `token` - o
@@ -23,20 +24,17 @@ module IeducarApi
       SocketError,
       SystemCallError
     ].freeze
-    # Campos obrigatórios comuns, na ordem do payload, com o complemento das mensagens de erro.
-    FIELDS = {
+    # Identificação comum a todo endpoint, com o complemento das mensagens de erro.
+    STUDENT_FIELDS = {
       turma_id: 'a turma',
       aluno_id: 'o aluno',
-      etapa: 'a etapa',
-      faltas: 'as faltas'
+      etapa: 'a etapa'
     }.freeze
-    LOG_LABELS = {
+    STUDENT_LOG_LABELS = {
       turma_id: 'turma',
       aluno_id: 'aluno',
-      etapa: 'etapa',
-      faltas: 'faltas'
+      etapa: 'etapa'
     }.freeze
-    SUCCESS_MESSAGE = 'Faltas postadas com sucesso!'.freeze
     UNAUTHORIZED_MESSAGE = 'Token de segurança divergente entre o i-Diário e o i-Educar.'.freeze
     UNRECOGNIZED_RESPONSE_MESSAGE = 'O i-Educar devolveu uma resposta não reconhecida.'.freeze
     MAX_LOGGED_BODY = 500
@@ -139,9 +137,11 @@ module IeducarApi
 
       message = message_from(parsed)
 
-      log_debug("Response: #{message || SUCCESS_MESSAGE}")
+      message ||= self.class::SUCCESS_MESSAGE
 
-      success(message || SUCCESS_MESSAGE)
+      log_debug("Response: #{message}")
+
+      success(message)
     end
 
     # Aluno sem matrícula ativa na turma - tipicamente o que deixou de frequentar. É desfecho
