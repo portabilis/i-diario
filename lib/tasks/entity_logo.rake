@@ -13,7 +13,8 @@ namespace :entity_logo do
 
         puts "#{entity.name}: #{result}"
       rescue StandardError => e
-        puts "#{entity.name}: erro - #{e.message}"
+        puts "#{entity.name}: erro - #{e.class}: #{e.message}"
+        Rails.logger.error("entity_logo:optimize entity_id=#{entity.id} #{e.class}: #{e.message}")
       end
     end
   end
