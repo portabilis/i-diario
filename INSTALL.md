@@ -233,3 +233,13 @@ Após configurada a integração, será exibido dois botões:
   Este botão apenas é exibido para o usuário `admin`.
 
 _Nota: é recomendada que a sincronização seja executada diariamente para manter o i-Diário atualizado com o i-Educar_
+
+### Brasão da instituição
+
+O brasão enviado em `Configurações > Entidade` é gravado em WebP, limitado a 400 px no maior lado, com uma versão PNG do mesmo tamanho para os relatórios em PDF.
+Brasões enviados antes dessa otimização continuam funcionando com o arquivo original; para convertê-los, rode:
+
+```bash
+bundle exec rake entity_logo:optimize             # todas as entidades
+bundle exec rake entity_logo:optimize TENANT=nome # só a entidade com esse nome
+```
