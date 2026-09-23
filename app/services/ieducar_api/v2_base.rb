@@ -10,8 +10,9 @@ module IeducarApi
   # A resposta é traduzida para o formato do IeducarResponseDecorator. As exceções continuam vindo
   # de Base porque o Ieducar::SendPostWorker decide o retry por Base::NetworkException.
   class V2Base
-    # O endpoint responde 202 quando gravou e 200 quando não havia matrícula elegível.
-    SAVED_STATUSES = [202].freeze
+    # 201 é o status de gravação; 202 é o que i-Educar sem a versão atual do endpoint de falta
+    # geral devolve, e continua valendo enquanto houver município nas duas versões.
+    SAVED_STATUSES = [201, 202].freeze
     OPEN_TIMEOUT = 10
     READ_TIMEOUT = 240
     RETRYABLE_STATUSES = [408, 429, 502, 503, 504].freeze
@@ -173,18 +174,20 @@ module IeducarApi
       case status
       when 404
         # Hoje 404 é a rota não existir - i-Educar do município sem o endpoint publicado - e
-        # precisa falhar alto. Versões anteriores o usavam para matrícula inelegível, com mensagem
-        # identificando o caso: daí o corpo ser considerado antes.
+        # precisa falhar alto. Versões anteriores do endpoint de falta geral o usavam para
+        # matrícula inelegível, com mensagem identificando o caso: daí o corpo ser considerado antes.
         return unrecognized_response!(status, body, params) if message.blank?
 
         not_saved(message, params, status)
       when 422
         return unrecognized_response!(status, body, params) if message.blank?
+        return not_saved(message, params, status) if registration_refused?(parsed)
 
         # Vira aviso, nos dois casos, para não derrubar o envio dos demais alunos da turma. Mas só
         # a recusa de validação é reportada: ela significa que nós enviamos algo fora do contrato.
-        # A recusa de negócio - regra da turma que não permite falta geral - se repete a cada aluno
-        # enquanto a divergência existir, e notificá-la afogaria o tracker.
+        # A recusa de negócio - regra da turma que não permite o tipo de falta, componente fora da
+        # turma - se repete a cada aluno enquanto a divergência existir, e notificá-la afogaria o
+        # tracker.
         if validation_errors?(parsed)
           notify(error, params, status, message)
         else
@@ -207,6 +210,13 @@ module IeducarApi
         # por eles que o worker classifica o erro e decide refazer a requisição sozinho.
         raise Base::GenericError, [error.message, message].reject(&:blank?).join(' - ')
       end
+    end
+
+    # O i-Educar valida a matrícula do aluno na turma junto com o formato do payload, e a recusa
+    # chega como erro de validação só em `aluno_id`. O aluno sempre sai daqui como inteiro
+    # (`payload_for`), então esse erro isolado é a matrícula, não o contrato.
+    def registration_refused?(parsed)
+      validation_errors?(parsed) && parsed['errors'].keys == ['aluno_id']
     end
 
     def unrecognized_response!(status, body, params)
