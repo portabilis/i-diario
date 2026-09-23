@@ -103,10 +103,12 @@ current_school_year)
     fetch_linked_by_teacher
   end
 
+  # Roda antes da validação do formulário: escola ou turma em branco precisam chegar à
+  # validação de presença, então a busca não pode levantar RecordNotFound
   def set_school_calendars
     school_calendar = CurrentSchoolCalendarFetcher.new(
-      Unity.find(@exam_record_report_form.unity_id),
-      Classroom.find(@exam_record_report_form.classroom_id),
+      Unity.find_by(id: @exam_record_report_form.unity_id),
+      Classroom.find_by(id: @exam_record_report_form.classroom_id),
       current_school_year
     ).fetch
 
