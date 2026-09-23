@@ -53,6 +53,16 @@ class EntityConfiguration < ApplicationRecord
     "data:#{cached[:content_type]};base64,#{Base64.strict_encode64(cached[:data])}"
   end
 
+  # O diretório do brasão não separa as redes e o arquivo legado guarda o nome enviado,
+  # então outra rede pode apontar para o mesmo arquivo: só o otimizado, cujo nome é único,
+  # é apagado na troca.
+  def remove_previously_stored_logo
+    previous_identifier = previous_changes.fetch('logo', []).first
+    return unless EntityLogoUploader.optimized_identifier?(previous_identifier)
+
+    super
+  end
+
   def create_logo_audit
     return unless logo_changed?
 
