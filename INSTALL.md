@@ -18,6 +18,7 @@ Para executar o projeto é necessário a utilização de alguns softwares.
 - [Postgres](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
 - [Git](https://git-scm.com/downloads)
+- [ImageMagick](https://imagemagick.org/) com suporte a WebP, que redimensiona e converte o brasão da instituição
 
 ### Docker
 
@@ -81,7 +82,7 @@ Instale as dependências:
 
 ```bash
 apt update
-apt install -y curl wget git build-essential libpq-dev shared-mime-info rbenv postgresql postgresql-contrib redis
+apt install -y curl wget git build-essential libpq-dev shared-mime-info imagemagick rbenv postgresql postgresql-contrib redis
 ```
 
 Instale e configure o OpenSSL, é necessária uma configuração especial devido a versão do Ruby:
