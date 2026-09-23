@@ -100,7 +100,7 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
           read_timeout: described_class::READ_TIMEOUT,
           payload: { turma_id: 4502, aluno_id: 1234, etapa: 1, faltas: 7 }.to_json,
           headers: { token: token, content_type: :json, accept: :json }
-        ).and_return(double(code: 202, body: '{"message":"Faltas gerais salvas com sucesso."}'))
+        ).and_return(double(code: 201, body: '{"message":"Faltas gerais salvas com sucesso."}'))
 
         result = service.send_post(params)
 
@@ -111,20 +111,32 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         expect(IeducarResponseDecorator.new(result).any_error_message?).to eq(false)
       end
 
+      # 202 é o status de gravação do i-Educar sem a versão atual do endpoint.
+      it 'also treats a 202 as saved, without logging a refused registration' do
+        allow(RestClient::Request).to receive(:execute).and_return(
+          double(code: 202, body: '{"message":"Faltas gerais salvas com sucesso."}')
+        )
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = service.send_post(params)
+
+        expect(result['msgs']).to eq([{ 'msg' => 'Faltas gerais salvas com sucesso.' }])
+      end
+
       it 'sends zero absences instead of skipping the student' do
         expect(RestClient::Request).to receive(:execute).with(
           hash_including(payload: { turma_id: 4502, aluno_id: 1234, etapa: 1, faltas: 0 }.to_json)
-        ).and_return(double(code: 202, body: '{}'))
+        ).and_return(double(code: 201, body: '{}'))
 
         result = service.send_post(params.merge(faltas: 0))
 
         expect(result['msgs']).to eq([{ 'msg' => 'Faltas postadas com sucesso!' }])
       end
 
-      # O endpoint separa "gravou" (202) de "não havia matrícula elegível" (200). O segundo caso é
-      # o aluno que deixou de frequentar: desfecho esperado, sobre o qual o professor não tem o
-      # que fazer, então não gera aviso na tela — só log.
-      it 'does not notify the teacher when there was no eligible registration' do
+      # i-Educar sem a versão atual do endpoint responde 200 quando não havia matrícula elegível: o
+      # aluno que deixou de frequentar. Desfecho esperado, sobre o qual o professor não tem o que
+      # fazer, então não gera aviso na tela, só log.
+      it 'does not notify the teacher when an older i-Educar finds no eligible registration' do
         allow(RestClient::Request).to receive(:execute).and_return(
           double(code: 200, body: '{"message":"Matrícula não encontrada para o aluno e turma informados."}')
         )
@@ -149,7 +161,7 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
 
       it 'refuses to treat a non JSON body as a successful post' do
         allow(RestClient::Request).to receive(:execute).and_return(
-          double(code: 202, body: '<html><body>502 Bad Gateway</body></html>')
+          double(code: 201, body: '<html><body>502 Bad Gateway</body></html>')
         )
         expect(Honeybadger).to receive(:notify).with(
           instance_of(IeducarApi::Base::GenericError),
@@ -214,6 +226,24 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
           'any_error_msg' => true,
           'error' => { 'message' => 'A regra da turma 9240 não permite lançamento de faltas geral.' }
         )
+      end
+    end
+
+    context 'when the i-Educar finds no eligible registration (422 on aluno_id)' do
+      it 'logs it without a notice for the teacher and without reporting an incident' do
+        allow(RestClient::Request).to receive(:execute).and_raise(
+          http_error(
+            RestClient::UnprocessableEntity, 422,
+            '{"message":"Matrícula não encontrada para o aluno e turma informados.",' \
+            '"errors":{"aluno_id":["Matrícula não encontrada para o aluno e turma informados."]}}'
+          )
+        )
+        expect(Honeybadger).not_to receive(:notify)
+        expect(Rails.logger).to receive(:warn).with(/matrícula recusada pelo i-Educar.*status: 422/)
+
+        result = service.send_post(params)
+
+        expect(result).to eq('msgs' => [], 'any_error_msg' => false)
       end
     end
 
