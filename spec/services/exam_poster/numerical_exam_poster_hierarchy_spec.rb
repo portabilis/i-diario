@@ -65,16 +65,12 @@ RSpec.describe ExamPoster::NumericalExamPoster do
   end
 
   def expected_score_request(scenario)
-    classroom = scenario[:classroom]
-    student = scenario[:daily_note_student].student
-    discipline_api_code = scenario[:teacher_discipline_classroom].discipline.api_code
-    scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
-    scores[classroom.api_code][student.api_code][discipline_api_code]['nota'] = scenario[:daily_note_student].note.to_f
-
     {
       'etapa' => scenario[:avaliation].current_step.to_number,
-      'resource' => 'notas',
-      'notas' => scores
+      'turma_id' => scenario[:classroom].api_code,
+      'aluno_id' => scenario[:daily_note_student].student.api_code,
+      'componente_id' => scenario[:teacher_discipline_classroom].discipline.api_code,
+      'nota' => scenario[:daily_note_student].note.to_f
     }
   end
 
