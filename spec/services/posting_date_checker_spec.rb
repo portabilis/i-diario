@@ -27,10 +27,6 @@ RSpec.describe PostingDateChecker, type: :service do
     end
 
     it { expect(subject.check).to be(true) }
-
-    after do
-      Thread.current[:origin_type] = nil
-    end
   end
 
   context 'current user is admin' do
