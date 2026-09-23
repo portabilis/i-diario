@@ -29,7 +29,7 @@ $(document).ready(function () {
 
     if (!_.isEmpty(unity_id)) {
       $.ajax({
-        url: Routes.by_unity_classrooms_pt_br_path({
+        url: Routes.exam_record_report_classrooms_pt_br_path({
           unity_id: unity_id,
           format: 'json'
         }),
@@ -40,13 +40,7 @@ $(document).ready(function () {
   }
 
   function handleFetchClassroomsSuccess(data) {
-    let classrooms = _.map(data.classrooms, function (classroom) {
-      return { id: classroom.table.id, name: classroom.table.name, text: classroom.table.text };
-    });
-
-    classrooms.unshift({ id: 'all', name: '<option>Todas</option>', text: 'Todas' });
-
-    $classroom.select2({ data: classrooms })
+    $classroom.select2({ data: data.classrooms });
   }
 
   function handleFetchClassroomsError() {
@@ -87,9 +81,7 @@ $(document).ready(function () {
       return { id: step['id'], text: step['description'] };
     });
 
-    $step.select2({ data: selectedSteps });
-    // Define a primeira opção como selecionada por padrão
-    $step.val(selectedSteps[0].id).trigger('change');
+    $step.val('').select2({ data: selectedSteps });
   };
 
   function handleFetchStepByClassroomError() {
@@ -98,26 +90,23 @@ $(document).ready(function () {
 
   function fetchDisciplines(classroom_id) {
     $.ajax({
-      url: Routes.by_classroom_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      url: Routes.exam_record_report_disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
       success: handleFetchDisciplinesSuccess,
       error: handleFetchDisciplinesError
     });
   };
 
   function handleFetchDisciplinesSuccess(data) {
-
-    if (_.isEmpty(data)) {
+    if (_.isEmpty(data.disciplines)) {
       flashMessages.error('Não existem disciplinas para a turma selecionada.');
       return;
-    } else {
-      var selectedDisciplines = data.disciplines.map(function (discipline) {
-        return { id: discipline.table.id, name: discipline.table.name, text: discipline.table.text };
-      });
+    }
 
-      $discipline.select2({ data: selectedDisciplines });
+    $discipline.select2({ data: data.disciplines });
 
-      // Define a primeira opção como selecionada por padrão
-      $discipline.val(selectedDisciplines[0].id).trigger('change');
+    // Com mais de uma disciplina, a escolha fica com o usuário
+    if (data.disciplines.length === 1) {
+      $discipline.val(data.disciplines[0].id).trigger('change');
     }
   };
 
