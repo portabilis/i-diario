@@ -44,6 +44,16 @@ RSpec.describe ExamRecordReportController, type: :controller do
   end
 
   describe 'POST #report' do
+    render_views
+
+    # O layout referencia os pacotes do webpack, que não são compilados no ambiente de teste.
+    # Sem isso a renderização estoura, o tratamento genérico de erro assume e a requisição
+    # redireciona antes de o formulário chegar à resposta.
+    before do
+      allow_any_instance_of(ActionView::Base).to receive(:javascript_pack_tag).and_return('')
+      allow_any_instance_of(ActionView::Base).to receive(:stylesheet_pack_tag).and_return('')
+    end
+
     def post_report(form_params)
       post :report, params: { locale: 'pt-BR', exam_record_report_form: form_params }
     end
@@ -53,6 +63,7 @@ RSpec.describe ExamRecordReportController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       expect(response).to render_template(:form)
+      expect(response.body).to include('não pode ficar em branco')
       expect(assigns(:exam_record_report_form).errors).to include(:classroom_id, :discipline_id)
       expect(assigns(:school_calendar_steps)).to match_array(school_calendar.steps)
     end
@@ -62,6 +73,7 @@ RSpec.describe ExamRecordReportController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       expect(response).to render_template(:form)
+      expect(response.body).to include('não pode ficar em branco')
       expect(assigns(:exam_record_report_form).errors).to include(:unity_id, :classroom_id)
       expect(assigns(:school_calendar_steps)).to be_empty
     end
