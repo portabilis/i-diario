@@ -231,6 +231,41 @@ RSpec.describe EntityConfiguration, :type => :model do
     end
   end
 
+  describe "replacing the logo" do
+    include_context 'entity logo storage'
+
+    subject(:entity_configuration) { EntityConfiguration.create! }
+
+    def upload(path)
+      entity_configuration.instance_variable_set(:@logo_secure_token, nil)
+      File.open(path) { |file| entity_configuration.update!(logo: file) }
+      entity_configuration.reload
+    end
+
+    it "removes both files of the previous optimized logo" do
+      upload(build_logo_image('brasao.png'))
+      previous_paths = [entity_configuration.logo.path, entity_configuration.logo.pdf.path]
+
+      upload(build_logo_image('novo.png'))
+
+      previous_paths.each { |path| expect(File).not_to exist(path) }
+      expect(File).to exist(entity_configuration.logo.path)
+    end
+
+    # O arquivo legado fica num diretório comum às redes, com o nome enviado.
+    it "keeps the previous legacy file, which another entity may point to" do
+      upload(build_logo_image('brasao.png'))
+      legacy_path = File.join(File.dirname(entity_configuration.logo.path), 'brasao.png')
+      FileUtils.cp(build_logo_image('brasao.png', size: '100x80'), legacy_path)
+      entity_configuration.update_column(:logo, 'brasao.png')
+      entity_configuration.reload
+
+      upload(build_logo_image('novo.png'))
+
+      expect(File).to exist(legacy_path)
+    end
+  end
+
   describe "#cached_logo" do
     subject(:entity_configuration) { EntityConfiguration.create }
 
