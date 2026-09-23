@@ -86,6 +86,7 @@ RSpec.describe EntityConfiguration, :type => :model do
         allow(entity_configuration.logo).to receive(:blank?).and_return(false)
         allow(entity_configuration.logo).to receive(:url).and_return('http://example.com/logo.png')
         allow(entity_configuration.logo).to receive(:identifier).and_return('logo.png')
+        allow(entity_configuration.logo).to receive(:path).and_return('/uploads/logo.png')
         allow(entity_configuration.logo).to receive(:read).and_return(image_data)
       end
 
@@ -100,8 +101,15 @@ RSpec.describe EntityConfiguration, :type => :model do
       it "caches the result in Rails.cache under the current entity" do
         entity_configuration.cached_logo_data
 
-        cache_key = "entity_logo_data:10:#{entity_configuration.id}:logo.png"
+        cache_key = "entity_logo_data:10:#{entity_configuration.id}:pdf:logo.png"
         expect(memory_store.read(cache_key)).to eq(data: image_data, content_type: 'image/png')
+      end
+
+      it "caches the screen and the PDF variants under separate keys" do
+        entity_configuration.cached_logo_data(:web)
+
+        expect(memory_store.read("entity_logo_data:10:#{entity_configuration.id}:web:logo.png")).to be_present
+        expect(memory_store.read("entity_logo_data:10:#{entity_configuration.id}:pdf:logo.png")).to be_nil
       end
 
       it "uses cache on second call without fetching again" do
@@ -121,8 +129,8 @@ RSpec.describe EntityConfiguration, :type => :model do
         Entity.current = build(:entity, id: 20)
 
         expect(entity_configuration.cached_logo_data[:data]).to eq(other_image)
-        expect(memory_store.read("entity_logo_data:10:#{entity_configuration.id}:logo.png")[:data]).to eq(image_data)
-        expect(memory_store.read("entity_logo_data:20:#{entity_configuration.id}:logo.png")[:data]).to eq(other_image)
+        expect(memory_store.read("entity_logo_data:10:#{entity_configuration.id}:pdf:logo.png")[:data]).to eq(image_data)
+        expect(memory_store.read("entity_logo_data:20:#{entity_configuration.id}:pdf:logo.png")[:data]).to eq(other_image)
       end
 
       context "when there is no current entity" do
@@ -137,21 +145,20 @@ RSpec.describe EntityConfiguration, :type => :model do
       end
 
       describe "cache invalidation" do
-        it "removes the current and the previous logo of the current entity" do
-          old_key = "entity_logo_data:10:#{entity_configuration.id}:old.png"
-          new_key = "entity_logo_data:10:#{entity_configuration.id}:logo.png"
-          memory_store.write(old_key, 'old')
-          memory_store.write(new_key, 'new')
+        it "removes both variants of the current and the previous logo of the current entity" do
+          keys = %w(pdf web).product(%w(old.png logo.png)).map do |variant, identifier|
+            "entity_logo_data:10:#{entity_configuration.id}:#{variant}:#{identifier}"
+          end
+          keys.each { |key| memory_store.write(key, 'cached') }
           allow(entity_configuration).to receive(:logo_was).and_return(double(identifier: 'old.png'))
 
           entity_configuration.send(:invalidate_logo_cache)
 
-          expect(memory_store.read(old_key)).to be_nil
-          expect(memory_store.read(new_key)).to be_nil
+          keys.each { |key| expect(memory_store.read(key)).to be_nil }
         end
 
         it "leaves the cache of other entities untouched" do
-          other_key = "entity_logo_data:20:#{entity_configuration.id}:logo.png"
+          other_key = "entity_logo_data:20:#{entity_configuration.id}:pdf:logo.png"
           memory_store.write(other_key, 'other')
           allow(entity_configuration).to receive(:logo_was).and_return(nil)
 
@@ -161,7 +168,7 @@ RSpec.describe EntityConfiguration, :type => :model do
         end
 
         it 'skips the invalidation when there is no current entity' do
-          cached_key = "entity_logo_data:10:#{entity_configuration.id}:logo.png"
+          cached_key = "entity_logo_data:10:#{entity_configuration.id}:pdf:logo.png"
           memory_store.write(cached_key, 'cached')
           Entity.current = nil
 
@@ -181,6 +188,45 @@ RSpec.describe EntityConfiguration, :type => :model do
 
       it "returns nil" do
         expect(entity_configuration.cached_logo_data).to be_nil
+      end
+    end
+  end
+
+  describe "#cached_logo_data with an uploaded logo" do
+    include_context 'entity logo storage'
+
+    subject(:entity_configuration) { EntityConfiguration.create! }
+
+    before do
+      File.open(build_logo_image('brasao.png')) { |file| entity_configuration.update!(logo: file) }
+      entity_configuration.reload
+    end
+
+    it "returns the PNG version for the PDFs by default" do
+      result = entity_configuration.cached_logo_data
+
+      expect(result[:content_type]).to eq('image/png')
+      expect(result[:data]).to eq(File.binread(entity_configuration.logo.pdf.path))
+    end
+
+    it "returns the WebP file for the screen" do
+      result = entity_configuration.cached_logo_data(:web)
+
+      expect(result[:content_type]).to eq('image/webp')
+      expect(result[:data]).to eq(File.binread(entity_configuration.logo.path))
+    end
+
+    it "returns the original file for both variants when the logo was stored before the optimization" do
+      legacy_path = File.join(File.dirname(entity_configuration.logo.path), 'brasao.jpg')
+      FileUtils.cp(build_logo_image('brasao.jpg', size: '100x80'), legacy_path)
+      entity_configuration.update_column(:logo, 'brasao.jpg')
+      entity_configuration.reload
+
+      [:pdf, :web].each do |variant|
+        result = entity_configuration.cached_logo_data(variant)
+
+        expect(result[:content_type]).to eq('image/jpeg')
+        expect(result[:data]).to eq(File.binread(legacy_path))
       end
     end
   end
