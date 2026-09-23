@@ -102,8 +102,10 @@ class IeducarStudentTransferDataFetcher
     @steps ||= StepsFetcher.new(classroom).steps
   end
 
+  # A associação passa pelos vínculos de professor: um componente com mais de um professor na
+  # turma viria repetido, e cada nota, parecer e falta dele seria enviada mais de uma vez.
   def disciplines
-    @disciplines ||= classroom.disciplines
+    @disciplines ||= classroom.disciplines.distinct
   end
 
   def school_calendar
