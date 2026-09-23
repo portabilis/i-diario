@@ -266,7 +266,7 @@ class IeducarStudentTransferDataFetcher
         etapa: step.to_number,
         turma_id: classroom.api_code,
         aluno_id: student.api_code,
-        componente_id: discipline.api_code,
+        componente_id: discipline.absence_posting_api_code,
         faltas: value,
         area_do_conhecimento_id: knowledge_area
       }.compact

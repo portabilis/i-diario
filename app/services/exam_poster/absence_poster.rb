@@ -35,7 +35,7 @@ module ExamPoster
                 etapa: @post_data.step.to_number,
                 turma_id: classroom_id,
                 aluno_id: student_id,
-                componente_id: discipline_id,
+                componente_id: discipline_absence[:componente_id],
                 faltas: discipline_absence[:faltas],
                 area_do_conhecimento_id: discipline_absence[:area_do_conhecimento_id]
               }.compact
@@ -117,6 +117,7 @@ module ExamPoster
             knowledge_area = knowledge_area.eql?(0) ? nil : knowledge_area
 
             absences[classroom.api_code][student.api_code][discipline.api_code] = {
+              componente_id: discipline.absence_posting_api_code,
               faltas: value,
               area_do_conhecimento_id: knowledge_area
             }
