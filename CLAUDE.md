@@ -279,7 +279,7 @@ Regras explícitas que os agentes de code review devem aplicar. Mudanças que vi
 - O cabeçalho é do layout: título do relatório (via `content_for :report_title`), brasão, entidade e órgão — só isso, como nos demais relatórios. Relatório que repita esses dados na própria view sai com o bloco duplicado no PDF
 - Estilo próprio do relatório vai em `content_for :head`, que o layout injeta depois do CSS base
 - O pluto não encolhe a página para caber; elemento mais largo que a área útil (190mm) vaza para fora do papel — os layouts legados declaram `width: 210mm`, que é a folha inteira
-- O pluto não converte JPEG CMYK: `EntityConfiguration#logo_base64_data_uri` repassa os bytes originais sem normalizar colorspace, então brasão CMYK sai com as cores trocadas
+- O pluto não converte JPEG CMYK: o brasão chega a ele como PNG sRGB pela versão `pdf` do `EntityLogoUploader`, mas brasão gravado antes dessa versão existir sai com os bytes originais até passar pelo `rake entity_logo:optimize`
 - O gzip do corpo é automático no `ReportGenerator` acima de 1 MB — é o que evita 413/502 em relatório grande; header e corpo comprimido são obrigatórios juntos (um sem o outro devolve 400)
 - Migração de layout deve ser validada com PDF gerado de dados reais, não só com o HTML — e conferindo a **segunda** página, não só a primeira: cabeçalho, folgas e quebra se comportam diferente a partir dela
 
