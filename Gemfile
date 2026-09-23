@@ -35,6 +35,9 @@ gem 'honeybadger', '5.5.0'
 gem 'i18n_alchemy', '0.3.1'
 gem 'jbuilder', '2.9.1'
 gem 'js-routes', '1.4.9'
+# O json 3 recusa as opções quirks_mode e create_additions que o multi_json 1.15 (última
+# série para Ruby 2.7, carregada pelo gherkin do turnip) passa ao JSON.parse.
+gem 'json', '< 3'
 gem 'kaminari', '>= 1.2.1'
 gem 'loofah', '2.20.0'
 gem 'mask_validator', '0.2.1'
