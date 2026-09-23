@@ -162,7 +162,7 @@ class IeducarStudentTransferDataFetcher
       recovery_value = fetch_school_term_recovery_score(discipline, step)
       score_data['recuperacao'] = recovery_value if recovery_value.present?
 
-      send_score_to_ieducar(step, discipline, score_data, ApiPostingTypes::NUMERICAL_EXAM)
+      send_score_to_ieducar(step.to_number, discipline, score_data)
     end
   end
 
@@ -196,20 +196,17 @@ class IeducarStudentTransferDataFetcher
     ).round(adjusted_score)
   end
 
-  def send_score_to_ieducar(step, discipline, score_data, post_type)
+  def send_score_to_ieducar(step_number, discipline, score_data)
     params = {
-      etapa: step.to_number,
-      resource: 'notas',
-      notas: {
-        classroom.api_code => {
-          student.api_code => {
-            discipline.api_code => score_data
-          }
-        }
-      }
-    }
+      etapa: step_number,
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      componente_id: discipline.api_code,
+      nota: score_data['nota'],
+      recuperacao: score_data['recuperacao']
+    }.compact
 
-    send_to_ieducar(post_type, params)
+    send_v2_to_ieducar(IeducarApi::PostScores, params, "nota (componente: #{params[:componente_id]})")
   end
 
   # Conceptual scores
@@ -229,7 +226,7 @@ class IeducarStudentTransferDataFetcher
       next if exempted_discipline?(exam_value.discipline, step)
 
       score_data = { 'nota' => exam_value.value }
-      send_score_to_ieducar(step, exam_value.discipline, score_data, ApiPostingTypes::CONCEPTUAL_EXAM)
+      send_score_to_ieducar(step.to_number, exam_value.discipline, score_data)
     end
   end
 
@@ -311,7 +308,7 @@ class IeducarStudentTransferDataFetcher
       }
     }
 
-    send_to_ieducar(ApiPostingTypes::DESCRIPTIVE_EXAM, params)
+    send_descriptive_exams_to_ieducar(params)
   end
 
   def post_descriptive_by_step_and_discipline(step)
@@ -342,7 +339,7 @@ class IeducarStudentTransferDataFetcher
         }
       }
 
-      send_to_ieducar(ApiPostingTypes::DESCRIPTIVE_EXAM, params)
+      send_descriptive_exams_to_ieducar(params)
     end
   end
 
@@ -365,7 +362,7 @@ class IeducarStudentTransferDataFetcher
       }
     }
 
-    send_to_ieducar(ApiPostingTypes::DESCRIPTIVE_EXAM, params)
+    send_descriptive_exams_to_ieducar(params)
   end
 
   def post_descriptive_by_year_and_discipline
@@ -392,7 +389,7 @@ class IeducarStudentTransferDataFetcher
         }
       }
 
-      send_to_ieducar(ApiPostingTypes::DESCRIPTIVE_EXAM, params)
+      send_descriptive_exams_to_ieducar(params)
     end
   end
 
@@ -425,17 +422,7 @@ class IeducarStudentTransferDataFetcher
       value = score_rounder.round(recovery_student.score)
       next if value.blank?
 
-      params = {
-        notas: {
-          classroom.api_code => {
-            student.api_code => {
-              discipline.api_code => { 'nota' => value }
-            }
-          }
-        }
-      }
-
-      send_final_recovery_to_ieducar(params)
+      send_score_to_ieducar(IeducarApi::PostScores::FINAL_RECOVERY_STEP, discipline, 'nota' => value)
     end
   end
 
@@ -451,25 +438,18 @@ class IeducarStudentTransferDataFetcher
     ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number).include?(discipline.id)
   end
 
-  def send_to_ieducar(post_type, params)
-    api_class = case post_type
-                when ApiPostingTypes::NUMERICAL_EXAM, ApiPostingTypes::CONCEPTUAL_EXAM
-                  IeducarApi::PostExams
-                when ApiPostingTypes::DESCRIPTIVE_EXAM
-                  IeducarApi::PostDescriptiveExams
-    end
-
-    api = api_class.new(ieducar_api.to_api)
+  def send_descriptive_exams_to_ieducar(params)
+    api = IeducarApi::PostDescriptiveExams.new(ieducar_api.to_api)
     response = IeducarResponseDecorator.new(api.send_post(params))
     @all_postings_sent = false if response.any_error_message?
   end
 
   def send_general_absences_to_ieducar(params)
-    send_v2_absences_to_ieducar(IeducarApi::PostGeneralAbsences, params, 'falta geral')
+    send_v2_to_ieducar(IeducarApi::PostGeneralAbsences, params, 'falta geral')
   end
 
   def send_discipline_absences_to_ieducar(params)
-    send_v2_absences_to_ieducar(
+    send_v2_to_ieducar(
       IeducarApi::PostDisciplineAbsences,
       params,
       "falta por componente (componente: #{params[:componente_id]})"
@@ -478,7 +458,7 @@ class IeducarStudentTransferDataFetcher
 
   # Recebe a configuration, e não o `to_api` dos métodos vizinhos: o hash legado não expõe o
   # api_security_token, que é como a API v2 autentica.
-  def send_v2_absences_to_ieducar(api_class, params, description)
+  def send_v2_to_ieducar(api_class, params, description)
     api = api_class.new(ieducar_api)
     response = IeducarResponseDecorator.new(api.send_post(params))
 
@@ -492,11 +472,5 @@ class IeducarStudentTransferDataFetcher
     )
 
     @all_postings_sent = false
-  end
-
-  def send_final_recovery_to_ieducar(params)
-    api = IeducarApi::FinalRecoveries.new(ieducar_api.to_api)
-    response = IeducarResponseDecorator.new(api.send_post(params))
-    @all_postings_sent = false if response.any_error_message?
   end
 end
