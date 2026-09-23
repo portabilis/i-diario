@@ -277,9 +277,9 @@ RSpec.describe ExamPoster::AbsencePoster, type: :service do
       end
     end
 
-    # Este é o formato do qual o Ieducar::SendPostWorker depende para rotear à API legada: se ele
-    # for achatado junto com o das faltas gerais, o envio por componente quebra.
-    it 'keeps the nested legacy payload, with resource and without turma_id' do
+    # Este é o formato do qual o Ieducar::SendPostWorker depende para rotear ao endpoint de faltas
+    # por componente da API v2: achatado, com `turma_id` e `componente_id`.
+    it 'builds one flat request per student and discipline, with the discipline id' do
       subject.post!
 
       expect(subject.requests).to eq(
@@ -292,19 +292,26 @@ RSpec.describe ExamPoster::AbsencePoster, type: :service do
             },
             request: {
               etapa: step.to_number,
-              resource: 'faltas-por-componente',
-              faltas: {
-                classroom.api_code => {
-                  student.api_code => {
-                    discipline.api_code => { 'valor' => 1, 'area_do_conhecimento' => nil }
-                  }
-                }
-              }
+              turma_id: classroom.api_code,
+              aluno_id: student.api_code,
+              componente_id: discipline.api_code,
+              faltas: 1
             }
           }
         ]
       )
-      expect(subject.requests.map { |request| request[:request][:turma_id] }).to eq([nil])
+    end
+
+    context 'when the discipline is grouped by its knowledge area' do
+      let(:knowledge_area) { create(:knowledge_area) }
+      let(:discipline) { create(:discipline, grouper: true, knowledge_area: knowledge_area) }
+
+      it 'sends the knowledge area so the i-Educar spreads the absences over the group' do
+        subject.post!
+
+        expect(subject.requests.map { |request| request[:request][:area_do_conhecimento_id] })
+          .to eq([knowledge_area.api_code.to_i])
+      end
     end
   end
 end
