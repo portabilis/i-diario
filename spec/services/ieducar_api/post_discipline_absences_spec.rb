@@ -144,19 +144,19 @@ RSpec.describe IeducarApi::PostDisciplineAbsences, type: :service do
       end
     end
 
-    context 'when the i-Educar does not publish the endpoint yet (404 without a body)' do
+    context 'when the i-Educar does not publish the endpoint yet (404)' do
       it 'fails hard' do
         allow(RestClient::Request).to receive(:execute).and_raise(
           http_error(RestClient::NotFound, 404, '<html>404 Not Found</html>')
         )
         expect(Honeybadger).to receive(:notify).with(
-          instance_of(IeducarApi::Base::GenericError),
+          instance_of(RestClient::NotFound),
           hash_including(context: hash_including(endpoint: 'https://ieducar.example.com/api/v2/falta-componente'))
         )
 
         expect {
           service.send_post(params)
-        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
+        }.to raise_error(IeducarApi::Base::GenericError, '404 Not Found')
       end
     end
 

@@ -111,18 +111,6 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         expect(IeducarResponseDecorator.new(result).any_error_message?).to eq(false)
       end
 
-      # 202 é o status de gravação do i-Educar sem a versão atual do endpoint.
-      it 'also treats a 202 as saved, without logging a refused registration' do
-        allow(RestClient::Request).to receive(:execute).and_return(
-          double(code: 202, body: '{"message":"Faltas gerais salvas com sucesso."}')
-        )
-        expect(Rails.logger).not_to receive(:warn)
-
-        result = service.send_post(params)
-
-        expect(result['msgs']).to eq([{ 'msg' => 'Faltas gerais salvas com sucesso.' }])
-      end
-
       it 'sends zero absences instead of skipping the student' do
         expect(RestClient::Request).to receive(:execute).with(
           hash_including(payload: { turma_id: 4502, aluno_id: 1234, etapa: 1, faltas: 0 }.to_json)
@@ -133,30 +121,21 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
         expect(result['msgs']).to eq([{ 'msg' => 'Faltas postadas com sucesso!' }])
       end
 
-      # i-Educar sem a versão atual do endpoint responde 200 quando não havia matrícula elegível: o
-      # aluno que deixou de frequentar. Desfecho esperado, sobre o qual o professor não tem o que
-      # fazer, então não gera aviso na tela, só log.
-      it 'does not notify the teacher when an older i-Educar finds no eligible registration' do
-        allow(RestClient::Request).to receive(:execute).and_return(
-          double(code: 200, body: '{"message":"Matrícula não encontrada para o aluno e turma informados."}')
-        )
-        expect(Honeybadger).not_to receive(:notify)
-        expect(Rails.logger).to receive(:warn).with(/matrícula recusada pelo i-Educar/)
+      # Fora do 201, nenhuma resposta 2xx é do contrato: tratá-la como gravação esconderia a falta
+      # não gravada.
+      [
+        [200, '{"message":"Matrícula não encontrada para o aluno e turma informados."}'],
+        [200, '{}'],
+        [202, '{"message":"Faltas gerais salvas com sucesso."}']
+      ].each do |status, body|
+        it "fails hard on a #{status} with body #{body}" do
+          allow(RestClient::Request).to receive(:execute).and_return(double(code: status, body: body))
+          expect(Honeybadger).to receive(:notify)
 
-        result = service.send_post(params)
-
-        expect(result).to eq('msgs' => [], 'any_error_msg' => false)
-        expect(IeducarResponseDecorator.new(result).any_error_message?).to eq(false)
-      end
-
-      # Fora do status de gravação, corpo sem mensagem não prova que foi o i-Educar respondendo.
-      it 'fails hard on a 200 whose body carries no message' do
-        allow(RestClient::Request).to receive(:execute).and_return(double(code: 200, body: '{}'))
-        expect(Honeybadger).to receive(:notify)
-
-        expect {
-          service.send_post(params)
-        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
+          expect {
+            service.send_post(params)
+          }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida\. \(HTTP #{status}\)/)
+        end
       end
 
       it 'refuses to treat a non JSON body as a successful post' do
@@ -174,35 +153,19 @@ RSpec.describe IeducarApi::PostGeneralAbsences, type: :service do
       end
     end
 
-    context 'when an older i-Educar answers 404 for a registration it does not accept' do
-      it 'behaves the same as the 200: log only, no notice' do
-        allow(RestClient::Request).to receive(:execute).and_raise(
-          http_error(
-            RestClient::NotFound, 404,
-            '{"message":"Matrícula não encontrada para o aluno e turma informados."}'
-          )
-        )
-        expect(Honeybadger).not_to receive(:notify)
-
-        result = service.send_post(params)
-
-        expect(result).to eq('msgs' => [], 'any_error_msg' => false)
-      end
-    end
-
-    context 'when the i-Educar does not publish the endpoint yet (404 without a body)' do
-      it 'fails hard instead of reporting a missing registration' do
+    context 'when the i-Educar does not publish the endpoint yet (404)' do
+      it 'fails hard' do
         allow(RestClient::Request).to receive(:execute).and_raise(
           http_error(RestClient::NotFound, 404, '<html>404 Not Found</html>')
         )
         expect(Honeybadger).to receive(:notify).with(
-          instance_of(IeducarApi::Base::GenericError),
+          instance_of(RestClient::NotFound),
           hash_including(context: hash_including(status: 404))
         )
 
         expect {
           service.send_post(params)
-        }.to raise_error(IeducarApi::Base::GenericError, /resposta não reconhecida/)
+        }.to raise_error(IeducarApi::Base::GenericError, '404 Not Found')
       end
     end
 
