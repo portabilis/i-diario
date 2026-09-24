@@ -32,13 +32,13 @@ RSpec.describe SynchronizationOrchestrator, type: :service do
     )
   end
 
-  def enqueue_next_after(klass, year)
+  def enqueue_next_after(klass, year, unity_api_code = unities)
     described_class.new(
       worker_batch,
       klass,
       entity_id: entity.id,
       year: year,
-      unity_api_code: unities,
+      unity_api_code: unity_api_code,
       current_years: true,
       synchronization: synchronization
     ).enqueue_next
@@ -78,6 +78,17 @@ RSpec.describe SynchronizationOrchestrator, type: :service do
         enqueue_next_after('SchoolCalendarDisciplineGradesSynchronizer', '2027,2026')
 
         expect(enqueued_years(dependent)).to eq([['2027']])
+      end
+
+      it 'checks the dependency of each year in the same unity when the synchronization runs by unity' do
+        complete_worker('ClassroomsSynchronizer', year: '2027', unity_api_code: '1')
+        complete_worker('ClassroomsSynchronizer', year: '2026', unity_api_code: '2')
+        complete_worker('SchoolCalendarDisciplineGradesSynchronizer', unity_api_code: '1')
+
+        enqueue_next_after('SchoolCalendarDisciplineGradesSynchronizer', '2027,2026', '1')
+
+        tdc = enqueued.select { |params| params[:klass] == dependent }
+        expect(tdc.map { |params| [params[:years], params[:unities_api_code]] }).to eq([[['2027'], ['1']]])
       end
     end
 
