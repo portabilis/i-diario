@@ -10,9 +10,9 @@ class SynchronizationOrchestrator
     by_year = config[:by_year]
     by_unity = config[:by_unity]
 
-    return false if worker_initialized?(current_worker_name, by_year, by_unity, params[:year])
+    return false if worker_initialized?(current_worker_name, by_year: by_year, by_unity: by_unity, year: params[:year])
 
-    dependencies_solved?(current_worker_name, by_year, by_unity, params[:year])
+    dependencies_solved?(current_worker_name, by_year: by_year, by_unity: by_unity, year: params[:year])
   end
 
   def enqueue_next
@@ -33,7 +33,9 @@ class SynchronizationOrchestrator
     return if by_unity && params[:unity_api_code].blank?
 
     years_to_enqueue(by_year).each do |year|
-      enqueue_job(config, year) if dependencies_solved?(config[:klass], by_year, by_unity, year)
+      next unless dependencies_solved?(config[:klass], by_year: by_year, by_unity: by_unity, year: year)
+
+      enqueue_job(config, year)
     end
   end
 
@@ -46,33 +48,36 @@ class SynchronizationOrchestrator
     params[:year].to_s.split(',')
   end
 
-  def dependencies_solved?(worker_name, by_year, by_unity, year)
+  def dependencies_solved?(worker_name, by_year:, by_unity:, year:)
     dependencies_count = SynchronizationConfigs.dependencies_by_klass(worker_name).size
 
-    completed_dependencies_count(worker_name, by_year, by_unity, year) == dependencies_count
+    completed_dependencies_count(worker_name, by_year: by_year, by_unity: by_unity, year: year) == dependencies_count
   end
 
-  def completed_dependencies_count(worker_name, current_worker_by_year, current_worker_by_unity, year)
+  def completed_dependencies_count(worker_name, by_year:, by_unity:, year:)
     SynchronizationConfigs.dependencies_by_klass(worker_name).select do |klass|
       config = SynchronizationConfigs.find(klass)
-      by_year = config[:by_year] && current_worker_by_year
-      by_unity = config[:by_unity] && current_worker_by_unity
 
-      worker_completed?(klass, by_year, by_unity, year)
+      worker_completed?(
+        klass,
+        by_year: config[:by_year] && by_year,
+        by_unity: config[:by_unity] && by_unity,
+        year: year
+      )
     end.size
   end
 
-  def worker_completed?(worker_name, by_year, by_unity, year)
-    worker_states = initialized_worker_states_by(worker_name, by_year, by_unity, year)
+  def worker_completed?(worker_name, by_year:, by_unity:, year:)
+    worker_states = initialized_worker_states_by(worker_name, by_year: by_year, by_unity: by_unity, year: year)
 
     worker_states.by_status(ApiSynchronizationStatus::COMPLETED).exists?
   end
 
-  def worker_initialized?(worker_name, by_year, by_unity, year)
-    initialized_worker_states_by(worker_name, by_year, by_unity, year).exists?
+  def worker_initialized?(worker_name, by_year:, by_unity:, year:)
+    initialized_worker_states_by(worker_name, by_year: by_year, by_unity: by_unity, year: year).exists?
   end
 
-  def initialized_worker_states_by(worker_name, by_year, by_unity, year)
+  def initialized_worker_states_by(worker_name, by_year:, by_unity:, year:)
     worker_states = WorkerState.by_worker_batch_id(worker_batch.id)
                                .by_kind(worker_name)
     worker_states = worker_states.by_meta_data(:year, year) if by_year && year.present?
