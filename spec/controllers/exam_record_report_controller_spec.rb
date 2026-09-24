@@ -212,5 +212,41 @@ RSpec.describe ExamRecordReportController, type: :controller do
 
       expect(assigns(:exam_record_report_form).errors[:discipline_id]).to be_empty
     end
+
+    context 'when the unity or the classroom is blank' do
+      render_views
+
+      # O layout referencia os pacotes do webpack, que não são compilados no ambiente de teste.
+      # Sem isso a renderização estoura, o tratamento genérico de erro assume e a requisição
+      # redireciona antes de o formulário chegar à resposta.
+      before do
+        allow_any_instance_of(ActionView::Base).to receive(:javascript_pack_tag).and_return('')
+        allow_any_instance_of(ActionView::Base).to receive(:stylesheet_pack_tag).and_return('')
+      end
+
+      def post_blank_report(form_params)
+        post :report, params: { locale: 'pt-BR', exam_record_report_form: form_params }
+      end
+
+      it 'renders the form with validation errors when the classroom is blank' do
+        post_blank_report(unity_id: unity.id, classroom_id: '', discipline_id: '', school_calendar_step_id: '')
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to render_template(:form)
+        expect(response.body).to include('não pode ficar em branco')
+        expect(assigns(:exam_record_report_form).errors).to include(:classroom_id, :discipline_id)
+        expect(assigns(:school_calendar_steps)).to match_array(school_calendar.steps)
+      end
+
+      it 'renders the form with validation errors when the unity and the classroom are blank' do
+        post_blank_report(unity_id: '', classroom_id: '', discipline_id: '', school_calendar_step_id: '')
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to render_template(:form)
+        expect(response.body).to include('não pode ficar em branco')
+        expect(assigns(:exam_record_report_form).errors).to include(:unity_id, :classroom_id)
+        expect(assigns(:school_calendar_steps)).to be_empty
+      end
+    end
   end
 end
