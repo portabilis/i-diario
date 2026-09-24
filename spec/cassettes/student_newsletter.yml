@@ -1,0 +1,130 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Report?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola_id=133305&etapa&instituicao_id=1&matricula_id=29118&modified=2017-02-19%2000:00:00%20-0300&oper=get&resource=boletim&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.6.6p146
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Date:
+      - Fri, 21 Aug 2026 22:12:58 GMT
+      Content-Type:
+      - text/html; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Report?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1&resource=boletim&matricula_id=29118&escola_id=133305&etapa&modified=2017-02-19+00%3A00%3A00+-0300&oper=get
+      X-Content-Type-Options:
+      - nosniff
+      Vary:
+      - accept-encoding
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Bho%2FTQGhTUSJbjxmtZU01pyIYvOv6VMwWU4sN3Mx00c2gNSeklD%2F%2Fpshcd9SubtumDK2hjrmjMUqNjswxxNPX4VGcvSYWXCiFNgVQIIjiGh5JqUzjBAKsG4rXJGyijyWuF%2BwnAU%3D"}]}'
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Expect-Ct:
+      - max-age=86400, enforce
+      Referrer-Policy:
+      - same-origin
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - a2ecfb7719e90294-GRU
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body>\r\n<center><h1>301
+        Moved Permanently</h1></center>\r\n<hr><center>cloudflare</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 00:00:30 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Report?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola_id=133305&etapa&instituicao_id=1&matricula_id=29118&modified=2017-02-19%2000:00:00%20-0300&oper=get&resource=boletim&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.6.6p146
+      Host:
+      - test.ieducar.com.br
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 21 Aug 2026 22:12:58 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - frame-ancestors 'self'
+      Set-Cookie:
+      - i_educar_session=ADwy33BFY4FK56AdDPwTu6J8I9HMDl3wHKovvrg6; expires=Sat, 22
+        Aug 2026 00:12:58 GMT; Max-Age=7200; path=/; secure; httponly; samesite=lax
+      Content-Encoding:
+      - gzip
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=2592000; includeSubDomains; preload
+      Cf-Cache-Status:
+      - DYNAMIC
+      Referrer-Policy:
+      - same-origin
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=VPlm5LH5eH%2BeOmzTp8oBTRRInIDMaWvmDPHNq%2FF8cpUGNXepvJ6dSsrYA0%2BrUHm4%2FaZ2UhWIV6OeAlkyQHnvD0eWivu6mtRHfUBwUhUDqecu30iKz11etjL9eDFIE3Dpn9shna8%3D"}]}'
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Expect-Ct:
+      - max-age=86400, enforce
+      Cf-Ray:
+      - a2ecfb79dd9ca542-MIA
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MwQ5AMBBEf6X27MDV1WcgUkxo0lrZbSUi/l25zbyZvJv4gFBDKyKVJFBOMiODiT2iCxkGXZWa7v5CHtrNnjALjJ2hysbtZ5+qCrV3iy3yP17HJ4AICz1DSXa/xr+NvyFKwvMCdGs/r3kAAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 00:00:30 GMT
+recorded_with: VCR 3.0.0

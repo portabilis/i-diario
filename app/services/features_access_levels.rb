@@ -30,6 +30,7 @@ class FeaturesAccessLevels
       :exam_record_report,
       :final_recovery_diary_records,
       :ieducar_api_exam_postings,
+      :individualized_educational_plans,
       :knowledge_area_content_records,
       :knowledge_area_lesson_plan_report,
       :knowledge_area_lesson_plans,

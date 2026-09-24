@@ -66,19 +66,15 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           end
         end
 
-        if teacher_discipline_classroom_record.disciplinas.blank?
-          links_fake_disciplines = teacher_discipline_classroom_record
-        end
-
-        create_or_destroy_teacher_disciplines_classrooms(
-          created_linked_teachers, teacher_id, classroom_id, links_fake_disciplines
-        )
+        create_grouper_links(created_linked_teachers)
 
         teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
           teacher_discipline_classroom_record,
           existing_discipline_api_codes
         )
         discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)
+
+        destroy_grouped_links(classroom_id, teacher_id)
       end
     end
 
@@ -95,11 +91,23 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   )
     discipline_id = discipline(discipline_api_code).try(:id)
 
-    return if discipline_id.blank?
+    if discipline_id.blank?
+      Rails.logger.warn(
+        "[TeacherDisciplineClassroomsSynchronizer] vínculo ignorado: disciplina #{discipline_api_code} " \
+        "ainda não sincronizada (teacher_id: #{teacher_id}, classroom_id: #{classroom_id}, year: #{year})"
+      )
+      return
+    end
 
     grade_id = grade(grade_api_code).try(:id)
 
-    return if grade_id.blank?
+    if grade_id.blank?
+      Rails.logger.warn(
+        "[TeacherDisciplineClassroomsSynchronizer] vínculo ignorado: série #{grade_api_code} " \
+        "ainda não sincronizada (teacher_id: #{teacher_id}, classroom_id: #{classroom_id}, year: #{year})"
+      )
+      return
+    end
 
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
@@ -198,21 +206,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     )
   end
 
-  def create_or_destroy_teacher_disciplines_classrooms(
-    linked_teachers,
-    teacher_id,
-    classroom_id,
-    links_fake_disciplines = nil
-  )
-    if links_fake_disciplines.present? && links_fake_disciplines.deleted_at.present?
-      link_fake = TeacherDisciplineClassroom.find_by(teacher_id: teacher_id, classroom_id: classroom_id)
-
-      return if link_fake.nil?
-
-      link_fake.api_code.include?('grouper') ? link_fake.discard : return
-    end
-
-    teacher_discipline_classrooms_ids = linked_teachers.map(&:id)
+  def create_grouper_links(linked_teachers)
+    # compact porque create_or_update_teacher_discipline_classrooms devolve nil quando a
+    # disciplina ou a série do i-Educar ainda não existem no i-Diário
+    teacher_discipline_classrooms_ids = linked_teachers.compact.map(&:id)
 
     TeacherDisciplineClassroom.includes(discipline: { knowledge_area: :disciplines })
                               .where(id: teacher_discipline_classrooms_ids)
@@ -223,7 +220,9 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         grouper: true
       )
 
-      return if fake_discipline.nil?
+      # next (não return): a área pode ainda não ter disciplina agrupadora criada, e abortar o
+      # loop deixaria os vínculos das demais áreas do lote sem o agrupador
+      next if fake_discipline.nil?
 
       link_teacher = TeacherDisciplineClassroom.with_discarded.find_or_initialize_by(
         api_code: "grouper:#{fake_discipline.id}",
@@ -246,7 +245,6 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
       link_teacher.save! if link_teacher.new_record? || link_teacher.changed?
     end
-    destroy_grouped_links(classroom_id, teacher_id)
   end
 
   def destroy_grouped_links(classroom_id, teacher_id)
@@ -255,6 +253,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       classroom_id: classroom_id
     ).map(&:link_id)
 
-    TeacherDisciplineClassroom.where(id: grouped_link_id).each(&:destroy)
+    TeacherDisciplineClassroom.where(id: grouped_link_id).each do |link|
+      next if link.destroy
+
+      Rails.logger.error(
+        "[TeacherDisciplineClassroomsSynchronizer] falha ao remover vínculo agrupador órfão " \
+        "(id: #{link.id}, erros: #{link.errors.full_messages.join('; ')})"
+      )
+    end
   end
 end

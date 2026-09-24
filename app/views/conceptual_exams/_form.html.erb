@@ -23,7 +23,7 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+        <%= f.input :step_id, as: :select2_step, classroom: form_classroom,
                     readonly: @conceptual_exam.persisted?, required: true %>
       </div>
     </div>
@@ -41,6 +41,16 @@
   </fieldset>
 
   <fieldset>
+    <div class="student-status-legend <%= 'hidden' unless any_student_exempted_from_discipline? || any_student_in_dependence? %>">
+      <strong class="student-status-legend__label">Situação do aluno:</strong>
+      <div class="student-status-legend__item exempted_students_from_discipline_legend <%= 'hidden' unless any_student_exempted_from_discipline? %>">
+        <%= student_status_badge(:exempted_from_discipline) %><%= t('.exempted_students_from_discipline_legend') %>
+      </div>
+      <div class="student-status-legend__item dependence_students_legend <%= 'hidden' unless any_student_in_dependence? %>">
+        <%= student_status_badge(:dependence) %><%= t('.dependence_students_legend') %>
+      </div>
+    </div>
+
     <table class="table table-bordered table-condensed" id="conceptual_exam_values_table">
       <thead>
         <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
@@ -65,16 +75,6 @@
             <%= render 'conceptual_exam_value_fields', f: conceptual_exam_value_form %>
           <% end %>
         <% end %>
-
-        <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless any_student_exempted_from_discipline? %>'>
-          <tr>
-            <td colspan="<%= old_values.count + 2 %>">
-              <span class="conceptual-exam-student-legend">
-                <%= t('.exempted_students_from_discipline_legend') %>
-              </span>
-            </td>
-          </tr>
-        </tfoot>
       </tbody>
     </table>
   </fieldset>

@@ -30,6 +30,7 @@ class TransferNote < ApplicationRecord
   before_validation :set_transfer_date, on: [:create, :update]
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
+  validate :unique_transfer_note_per_student_and_step
 
   default_scope -> { kept }
 
@@ -44,6 +45,14 @@ class TransferNote < ApplicationRecord
       "(unaccent(students.name) ILIKE unaccent(:student_name) or
         unaccent(students.social_name) ILIKE unaccent(:student_name))",
       student_name: "%#{student_name}%"
+    )
+  }
+  scope :for_student_in_step, lambda { |classroom_id, discipline_id, student_id, step_number|
+    where(
+      classroom_id: classroom_id,
+      discipline_id: discipline_id,
+      student_id: student_id,
+      step_number: step_number
     )
   }
   scope :by_transfer_date, lambda { |transfer_date| where(transfer_date: transfer_date.to_date) }
@@ -73,6 +82,19 @@ class TransferNote < ApplicationRecord
 
   def set_transfer_date
     self.transfer_date = recorded_at
+  end
+
+  # Impede mais de um registro de nota de transferência para o mesmo aluno na mesma turma,
+  # disciplina e etapa. Vale no create e no update (where.not(:id) é no-op no create, pois
+  # id é nil). O default_scope (kept) ignora registros descartados.
+  def unique_transfer_note_per_student_and_step
+    return if classroom_id.blank? || discipline_id.blank? || student_id.blank? || step_number.blank?
+
+    duplicate = TransferNote.for_student_in_step(classroom_id, discipline_id, student_id, step_number)
+                            .where.not(id: id)
+                            .exists?
+
+    errors.add(:base, :transfer_note_already_exists) if duplicate
   end
 
   def valid_for_destruction?

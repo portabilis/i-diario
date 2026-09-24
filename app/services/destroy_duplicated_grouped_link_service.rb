@@ -20,7 +20,6 @@ class DestroyDuplicatedGroupedLinkService
         INNER JOIN knowledge_areas ka ON ka.id = d.knowledge_area_id
         WHERE true
           AND tdc.discarded_at IS NULL
-          AND ka.group_descriptors = true
           AND d.grouper = true
         GROUP BY tdc.teacher_id, tdc.classroom_id, tdc.grade_id, ka.id
         HAVING COUNT(*) > 1

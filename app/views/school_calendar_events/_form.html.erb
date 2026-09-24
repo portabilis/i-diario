@@ -6,6 +6,7 @@
   <%= f.input :school_calendar_id, as: :hidden %>
   <%= f.input :unity_id, as: :hidden %>
   <%= f.input :coverage, as: :hidden %>
+  <%= hidden_field_tag :frequency_deletion_confirmed, false, id: 'frequency-deletion-confirmed' %>
   <input id="year" type="hidden" name="year" value="<%= @school_calendar.year %>" >
 
   <fieldset>

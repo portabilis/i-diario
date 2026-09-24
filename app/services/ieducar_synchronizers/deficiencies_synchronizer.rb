@@ -1,4 +1,6 @@
 class DeficienciesSynchronizer < BaseSynchronizer
+  UNIQUE_INDEX = 'idx_deficiency_students_unique_kept'.freeze
+
   def synchronize!
     update_deficiencies(
       HashDecorator.new(
@@ -56,20 +58,65 @@ class DeficienciesSynchronizer < BaseSynchronizer
 
       student_ids << student_id
 
-      DeficiencyStudent.with_discarded.find_or_initialize_by(
-        deficiency_id: deficiency_id,
-        student_id: student_id,
-        unity_id: unity_id
-      ).tap do |deficiency_student|
-        deficiency_student.unity_id = student_unities(student_id)[0] if deficiency_student.unity_id.nil?
-        deficiency_student.save! if deficiency_student.changed?
-        deficiency_student.discard_or_undiscard(false)
-      end
+      sync_deficiency_student(deficiency_id, student_id)
 
       update_students_uses_differentiated_exam_rule(student_id: student_id)
     end
 
     discard_inexisting_deficiency_students(deficiency_id, student_ids)
+  end
+
+  # Cria ou reaproveita o vínculo do aluno com a deficiência e o reativa quando estiver
+  # descartado. O índice único parcial permite corrida entre workers da mesma sincronização:
+  # nesse caso o save! levanta RecordNotUnique e a nova tentativa reencontra o registro
+  # criado pelo outro worker.
+  def sync_deficiency_student(deficiency_id, student_id)
+    retries = 0
+
+    begin
+      deficiency_student = existing_deficiency_student(deficiency_id, student_id) ||
+                           DeficiencyStudent.new(deficiency_id: deficiency_id, student_id: student_id)
+
+      deficiency_student.unity_id ||= target_unity_id(student_id)
+      deficiency_student.save! if deficiency_student.changed?
+      deficiency_student.discard_or_undiscard(false)
+    rescue ActiveRecord::RecordNotUnique => error
+      raise error unless error.message.include?(UNIQUE_INDEX)
+
+      retries += 1
+      raise error if retries > MAX_RECORD_RETRIES
+
+      Rails.logger.warn(
+        "#{self.class.name}: corrida em deficiency_id=#{deficiency_id} student_id=#{student_id} " \
+        "entity_id=#{entity_id} (tentativa #{retries}/#{MAX_RECORD_RETRIES})"
+      )
+
+      retry
+    end
+  end
+
+  # Procura o vínculo entre as escolas desta execução e também entre os sem escola, que são
+  # reaproveitados em vez de virarem cópia. Prefere o candidato ativo — reativar um descartado
+  # havendo outro ativo violaria o índice único — e, entre os ativos, o que já tem escola.
+  def existing_deficiency_student(deficiency_id, student_id)
+    DeficiencyStudent.with_discarded
+                     .by_deficiency_id(deficiency_id)
+                     .by_student_id(student_id)
+                     .by_unity_id([unity_id, nil].flatten)
+                     .order(Arel.sql('discarded_at IS NOT NULL, unity_id IS NULL, id'))
+                     .first
+  end
+
+  # Escola a gravar no vínculo, sempre uma das escolas desta execução — do contrário o vínculo
+  # não seria reencontrado e cada execução criaria uma cópia. Na sincronização parcial o worker
+  # recebe todas de uma vez e não há como saber qual informou o aluno: desempata pela enturmação
+  # ativa mais recente entre elas, ou fica sem escola, que a busca também considera.
+  def target_unity_id(student_id)
+    unity_ids = unity_id.compact.uniq
+
+    return unity_ids.first if unity_ids.one?
+
+    student_unities(student_id).find { |id| unity_ids.include?(id) }
   end
 
   def discard_inexisting_deficiency_students(deficiency_id, student_ids)
@@ -100,10 +147,11 @@ class DeficienciesSynchronizer < BaseSynchronizer
   end
 
   def student_unities(student_id)
-    Unity.joins(classrooms: [student_enrollment_classrooms: :student_enrollment])
-         .where(student_enrollments: { student_id: student_id, active: 1 })
-         .order('student_enrollment_classrooms.joined_at desc')
-         .ids
-         .uniq
+    @student_unities ||= {}
+    @student_unities[student_id] ||= Unity.joins(classrooms: [student_enrollment_classrooms: :student_enrollment])
+                                          .where(student_enrollments: { student_id: student_id, active: 1 })
+                                          .order('student_enrollment_classrooms.joined_at desc')
+                                          .ids
+                                          .uniq
   end
 end

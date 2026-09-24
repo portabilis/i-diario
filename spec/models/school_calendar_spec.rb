@@ -107,4 +107,23 @@ RSpec.describe SchoolCalendar, type: :model do
       end
     end
   end
+
+  describe '#step' do
+    let(:school_calendar) { create(:school_calendar, :with_one_step) }
+
+    it 'returns the step of the informed date' do
+      step = school_calendar.steps.first
+
+      expect(school_calendar.step(step.start_at)).to eq(step)
+    end
+
+    # Uma data em branco chega aqui quando o formulário é salvo sem preencher o campo.
+    # Antes o método quebrava com NoMethodError ao chamar to_date sobre nil.
+    context 'when the date is blank' do
+      it 'returns nil' do
+        expect(school_calendar.step(nil)).to be_nil
+        expect(school_calendar.step('')).to be_nil
+      end
+    end
+  end
 end

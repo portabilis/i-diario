@@ -47,15 +47,60 @@ class InfrequencyTrackingNotifier
 
     UniqueDailyFrequencyStudent.frequency_date_between(start_at, end_at)
                                .where(present: false)
-                               .includes(:classroom)
   end
 
   def classrooms_with_absences
-    @students_with_absences ||= students_with_absences_query.map(&:classroom).compact.uniq
+    @classrooms_with_absences ||= Classroom.where(
+      id: students_with_absences_query.select(:classroom_id).distinct
+    )
   end
 
   def students_with_absences(classroom_id, start_at)
-    students_with_absences_query(start_at).by_classroom_id(classroom_id).pluck(:student_id).uniq
+    student_ids = students_with_absences_query(start_at).by_classroom_id(classroom_id).pluck(:student_id).uniq
+    return student_ids if student_ids.empty?
+
+    active_enrollments = active_enrollment_pairs(student_ids)
+    absences = absence_pairs(student_ids, start_at)
+
+    enrolled_here = students_enrolled_in(active_enrollments, classroom_id)
+    with_absence_in_active_classroom = students_with_absence_in_active_classroom(active_enrollments, absences)
+    most_recent_absence_classroom = most_recent_absence_classroom_by_student(absences)
+
+    student_ids.select do |student_id|
+      enrolled_here.include?(student_id) ||
+        # Sem turma atual que dispare (transferido sem falta na turma nova, ou limbo): notifica
+        # apenas a turma da falta mais recente, para não notificar várias origens passadas.
+        (with_absence_in_active_classroom.exclude?(student_id) &&
+          most_recent_absence_classroom[student_id] == classroom_id)
+    end
+  end
+
+  def students_enrolled_in(active_enrollments, classroom_id)
+    active_enrollments.select { |_student_id, id| id == classroom_id }.map(&:first).to_set
+  end
+
+  def students_with_absence_in_active_classroom(active_enrollments, absences)
+    (active_enrollments & absences).map(&:first).to_set
+  end
+
+  def most_recent_absence_classroom_by_student(absences)
+    absences.each_with_object({}) { |(student_id, id), hash| hash[student_id] = id }
+  end
+
+  def active_enrollment_pairs(student_ids)
+    StudentEnrollmentClassroom.by_date(end_at)
+                              .joins(classrooms_grade: :classroom)
+                              .joins(student_enrollment: :student)
+                              .where(students: { id: student_ids })
+                              .where(student_enrollments: { active: IeducarBooleanState::ACTIVE })
+                              .pluck('students.id', 'classrooms_grades.classroom_id')
+  end
+
+  def absence_pairs(student_ids, start_at)
+    students_with_absences_query(start_at)
+      .where(student_id: student_ids)
+      .order(:frequency_date)
+      .pluck(:student_id, :classroom_id)
   end
 
   def last_notification_date(classroom_id, student_id, type)
@@ -87,7 +132,7 @@ class InfrequencyTrackingNotifier
 
   def consecutive_absences?(school_dates, absence_dates)
     max_days = general_configuration.max_consecutive_absence_days
-    consecutive_absences = absence_dates.reverse.slice(0, max_days)
+    consecutive_absences = absence_dates.uniq.reverse.slice(0, max_days)
 
     consecutive_school_dates(school_dates) == consecutive_absences
   end
@@ -95,7 +140,7 @@ class InfrequencyTrackingNotifier
   def alternating_absences?(absence_dates)
     max_days = general_configuration.max_alternate_absence_days
 
-    absence_dates.count >= max_days
+    absence_dates.uniq.count >= max_days
   end
 
   def create_infrequency_tracking(student_id, classroom_id, notification_data, infrequency_tracking_type)

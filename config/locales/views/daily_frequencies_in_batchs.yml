@@ -15,7 +15,6 @@ pt-BR:
       save: "Salvar"
       daily_frequency_error: "Ocorreu um erro com o lançamento de frequência em lote, tente novamente mais tarde."
       daily_frequency_success: "Seu lançamento de frequência em lote foi salvo com sucesso!"
-      blank_dates: "O período de datas deve ser informado."
       future_date: "As datas devem ser menores ou igual a data de hoje"
       start_date_greater_end_date: "A Data inicial deve ser menor ou igual a Data final"
       initial_date_no_school_day: "Data inicial deve ser um dia letivo."

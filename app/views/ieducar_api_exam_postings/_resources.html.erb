@@ -6,6 +6,14 @@
 <% ApiPostingTypes.to_a.each_with_index do |value, index| %>
   <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != @steps.to_a.last %>
 
+  <% last_step_absence = last_step_absence_warning?(step, value.last) %>
+  <% posting_link_data = last_step_absence ? { last_step_absence_warning: true } : {} %>
+  <%# Com o aviso, o marcador de cooldown do force_posting.js só pode ser gravado depois da
+      confirmação: os argumentos vão em data- e o JS da modal chama o resend_posting. %>
+  <% resend_posting_args = { resend_index: index, resend_step_id: step.id } %>
+  <% resend_posting_data = last_step_absence ? posting_link_data.merge(resend_posting_args) : posting_link_data %>
+  <% resend_posting_onclick = last_step_absence ? nil : 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')' %>
+
   <tr>
     <td>
       <%= value.first %>
@@ -68,8 +76,9 @@
           <%= link_to ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last, force_posting: true),
                       id: 'btn-posting-' + index.to_s + '-' + step.id.to_s,
                       method: 'post',
-                      onclick: 'resend_posting(' + index.to_s + ',' + step.id.to_s + ')',
+                      onclick: resend_posting_onclick,
                       class: 'btn',
+                      data: resend_posting_data,
                       style: 'color: #717171; background-color: #f0f0f0; border-radius: 4px; border: 1px solid #c3c3c3' do %>
             <div style="display: flex; justify-content: space-between; gap: 1rem">
               <%= image_tag 'repetir_envio.svg', "data-svg-fallback" => asset_path('repetir_envio.svg') %>
@@ -89,7 +98,7 @@
                       step_column => step.id, post_type: value.last
                     ),
                     id: 'send-button', method: 'post', class: 'btn bg-color-red txt-color-white',
-                    data: { disable_with: 'Enviando...' }  %>
+                    data: posting_link_data.merge(disable_with: 'Enviando...') %>
       <% end %>
     </td>
   </tr>

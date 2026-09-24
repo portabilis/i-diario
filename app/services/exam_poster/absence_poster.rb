@@ -3,6 +3,8 @@ module ExamPoster
     private
 
     def generate_requests
+      # O formato do payload é contrato: o Ieducar::SendPostWorker escolhe entre a API v2 e a
+      # legada pela presença de `turma_id` (achatado) ou de `resource` (aninhado).
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           requests << {
@@ -12,17 +14,16 @@ module ExamPoster
             },
             request: {
               etapa: @post_data.step.to_number,
-              resource: 'faltas-geral',
-              faltas: {
-                classroom_id => {
-                  student_id => student_absence
-                }
-              }
+              turma_id: classroom_id,
+              aluno_id: student_id,
+              faltas: student_absence
             }
           }
         end
       end
 
+      # Aninhado e com `resource`: faltas por componente não têm endpoint na API v2 e continuam
+      # sendo enviadas pela API legada.
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
@@ -58,7 +59,7 @@ module ExamPoster
         GeneralConfiguration.current.do_not_send_justified_absence
       )
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         next unless can_post?(classroom)
         next if frequency_by_discipline?(classroom)
 
@@ -76,7 +77,7 @@ module ExamPoster
 
           value = absence_count_service.count(student, classroom, start_date, end_date)
 
-          absences[classroom.api_code][student.api_code]['valor'] = value
+          absences[classroom.api_code][student.api_code] = value
         end
       end
 
@@ -90,7 +91,7 @@ module ExamPoster
         GeneralConfiguration.current.do_not_send_justified_absence
       )
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|

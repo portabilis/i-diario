@@ -45,7 +45,7 @@ class IeducarStudentTransferPostingWorker
     Honeybadger.notify(exception)
   end
 
-  def perform(entity_id, student_id, classroom_id, callback_url)
+  def perform(entity_id, student_id, classroom_id, callback_url, transfer_date = nil)
     @callback_url = callback_url
     @student_enrollment_api_code = nil
     @student_name = nil
@@ -61,13 +61,15 @@ class IeducarStudentTransferPostingWorker
 
       fetcher = IeducarStudentTransferDataFetcher.new(
         student: student,
-        classroom: classroom
+        classroom: classroom,
+        transfer_date: transfer_date
       )
 
       fetcher.post_to_ieducar!
 
       if fetcher.all_postings_sent
-        send_confirmation_webhook(status: 'success', message_key: 'success')
+        message_key = fetcher.last_step_skipped ? 'success_last_step_open' : 'success'
+        send_confirmation_webhook(status: 'success', message_key: message_key)
       else
         send_confirmation_webhook(status: 'error', message_key: 'partial_failure')
       end

@@ -4,11 +4,15 @@
   </td>
   <td>
     <% allow_active_search_freq = @allow_active_search_frequency %>
-    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline, in_active_search, allow_active_search_freq) %>
-    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search, allow_active_search_freq) %>
-    <span class="<%= name_class %>"><%= student_name %></span>
-    <% if in_active_search && allow_active_search_freq %>
-      <span class="badge-active-search" title="Aluno em busca ativa">Busca Ativa</span>
+    <span class="multiline"><%= student %></span>
+    <% if !active %>
+      <%= student_status_badge(:inactive) %>
+    <% elsif dependence %>
+      <%= student_status_badge(:dependence) %>
+    <% elsif exempted_from_discipline %>
+      <%= student_status_badge(:exempted_from_discipline) %>
+    <% elsif in_active_search %>
+      <%= student_status_badge(:active_search) %>
     <% end %>
   </td>
 

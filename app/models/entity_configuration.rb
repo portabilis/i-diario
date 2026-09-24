@@ -11,7 +11,9 @@ class EntityConfiguration < ApplicationRecord
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
-  validates :cnpj, mask: { with: "99.999.999/9999-99", message: :incorrect_format }, allow_blank: true
+  before_validation :upcase_cnpj
+
+  validates :cnpj, alphanumeric_cnpj: true, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
 
   mount_uploader :logo, EntityLogoUploader
@@ -25,6 +27,8 @@ class EntityConfiguration < ApplicationRecord
 
   def cached_logo_data
     return nil if logo.blank? || logo.url.blank?
+    # Sem a rede corrente a chave não distingue tenant; lê direto do arquivo.
+    return fetch_logo_data if Entity.current.nil?
 
     Rails.cache.fetch(logo_cache_key, expires_in: 1.day) { fetch_logo_data }
   rescue StandardError => e
@@ -61,8 +65,17 @@ class EntityConfiguration < ApplicationRecord
 
   private
 
-  def logo_cache_key
-    "entity_logo_data:#{id}:#{logo.identifier}"
+  # Grava o CNPJ sempre em maiúsculas para consistência no banco/exibição
+  # (o formato alfanumérico usa letras A-Z). A validação já é case-insensitive.
+  def upcase_cnpj
+    self.cnpj = cnpj.upcase if cnpj.present?
+  end
+
+  # O Rails.cache é um só para todas as redes e esta tabela tem uma linha por
+  # banco, então o id é o mesmo em toda rede: a chave precisa da rede corrente,
+  # senão redes com brasão de mesmo nome de arquivo recebem a imagem uma da outra.
+  def logo_cache_key(identifier = logo.identifier)
+    "entity_logo_data:#{Entity.current.id}:#{id}:#{identifier}"
   end
 
   def fetch_logo_data
@@ -74,8 +87,10 @@ class EntityConfiguration < ApplicationRecord
   end
 
   def invalidate_logo_cache
+    return if Entity.current.nil?
+
     old_identifier = logo_was&.identifier
-    Rails.cache.delete("entity_logo_data:#{id}:#{old_identifier}") if old_identifier
-    Rails.cache.delete("entity_logo_data:#{id}:#{logo.identifier}") if logo.identifier
+    Rails.cache.delete(logo_cache_key(old_identifier)) if old_identifier
+    Rails.cache.delete(logo_cache_key) if logo.identifier
   end
 end

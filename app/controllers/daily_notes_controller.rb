@@ -191,11 +191,18 @@ class DailyNotesController < ApplicationController
     set_students_and_info
     set_student_enrollments_data
 
+    existing_students_by_id = @daily_note.students.group_by(&:student_id)
+    active_student_ids = set_enrollment_classrooms
+                           .select { |ec| @active.include?(ec[:student_enrollment_classroom].id) }
+                           .map { |ec| ec[:student].id }
+
     set_enrollment_classrooms.each do |enrollment_classroom|
       student = enrollment_classroom[:student]
       student_enrollment_id = enrollment_classroom[:student_enrollment].id
-      note_student = @daily_note.students.find_or_initialize_by(student_id: student.id)
-      note_student.active = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
+      active_on_test_date = @active.include?(enrollment_classroom[:student_enrollment_classroom].id)
+      note_student = fetch_note_student(existing_students_by_id, student, active_on_test_date,
+                                        active_student_ids.include?(student.id))
+      note_student.active = active_on_test_date
       note_student.dependence = @dependencies[student_enrollment_id] ? true : false
       note_student.exempted = @exempted_from_avaliation.map(&:student_id).include?(student.id) ? true : false
       note_student.exempted_from_discipline = @exempted_from_discipline[student_enrollment_id] ? true : false
@@ -210,6 +217,25 @@ class DailyNotesController < ApplicationController
     @any_inactive_student = @students.reject(&:active).any?
     @any_student_exempted_from_discipline = @students.select(&:exempted_from_discipline).any?
     @any_in_active_search = @students.select(&:in_active_search).any?
+  end
+
+  # Retorna o DailyNoteStudent desta enturmação: reaproveita um registro salvo do aluno (consumindo no
+  # máximo um por enturmação, priorizando o de mesmo status) ou constrói um novo. A enturmação inativa
+  # de um aluno com enturmação ativa recebe sempre um registro novo, para o registro salvo (com a nota)
+  # ficar na linha ativa.
+  def fetch_note_student(existing_students_by_id, student, active_on_test_date, student_has_active_enrollment)
+    return @daily_note.students.build(student_id: student.id) if !active_on_test_date && student_has_active_enrollment
+
+    existing_note_students = (existing_students_by_id[student.id] ||= [])
+    note_student = existing_note_students.find { |existing| existing.active == active_on_test_date } ||
+                   existing_note_students.first
+
+    if note_student
+      existing_note_students.delete(note_student)
+      note_student
+    else
+      @daily_note.students.build(student_id: student.id)
+    end
   end
 
   def resource_params
@@ -372,16 +398,22 @@ disciplines: @discipline)
     params[:filter][:by_discipline_id] ||= current_user_discipline.id
   end
 
+  def to_date_or_nil(value)
+    value.present? ? value.to_date : nil
+  end
+
   def check_duplicate_enrolled_students
     test_date = @daily_note.test_date
 
     enrolled_students = set_enrollment_classrooms
                           .select { |ec|
-                            left_at = ec[:student_enrollment_classroom].left_at
-                            left_at_date = left_at.present? ? left_at.to_date : nil
+                            enrollment_classroom = ec[:student_enrollment_classroom]
+                            joined_at_date = to_date_or_nil(enrollment_classroom.joined_at)
+                            left_at_date = to_date_or_nil(enrollment_classroom.left_at)
 
                             ec[:student_enrollment].status == 3 &&
                               ec[:student_enrollment].active == 1 &&
+                              (joined_at_date.nil? || joined_at_date <= test_date) &&
                               (left_at_date.nil? || left_at_date >= test_date)
                           }
                           .map { |ec| ec[:student] }

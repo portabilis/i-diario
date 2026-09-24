@@ -1,4 +1,6 @@
 class DailyFrequenciesInBatchsController < ApplicationController
+  include DateValidation
+
   before_action :require_current_classroom
   before_action :require_teacher
   before_action :require_allocation_on_lessons_board
@@ -26,9 +28,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    start_date = params[:frequency_in_batch_form][:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date
+    start_date = parse_date(params[:frequency_in_batch_form][:start_date])
+    end_date = parse_date(params[:frequency_in_batch_form][:end_date])
     classroom_id = params[:frequency_in_batch_form][:classroom_id]
+
+    return render_invalid_dates if start_date.blank? || end_date.blank?
+
     grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id).grade_id
 
     if invalid_dates?(start_date, end_date, classroom_id, grade_id)
@@ -85,11 +90,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                    )
                                  end
     dates = []
+    worker_calls = []
 
     ActiveRecord::Base.transaction do
       daily_frequency_students_to_save = []
       absence_justifications_to_save = []
-      worker_calls = []
 
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
         daily_frequency_data = daily_frequency_attributes
@@ -202,16 +207,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
         dfs.save!
       end
 
-      unique_worker_calls = worker_calls.uniq { |call| [call[:classroom_id], call[:frequency_date]] }
-      unique_worker_calls.each do |worker_call|
-        UniqueDailyFrequencyStudentsCreator.call_worker(
-          worker_call[:entity_id],
-          worker_call[:classroom_id],
-          worker_call[:frequency_date],
-          worker_call[:teacher_id]
-        )
-      end
     end
+
+    # Enfileiramento depois do COMMIT: dentro da transação o job pode rodar antes dela terminar e
+    # ler o estado anterior, e um rollback deixaria os jobs enfileirados assim mesmo.
+    enqueue_frequency_hooks(worker_calls)
 
     if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = Classroom.find(daily_frequency_attributes[:classroom_id])
@@ -272,7 +272,21 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
+      authorize @daily_frequencies.first
+
+      worker_calls = @daily_frequencies.map { |daily_frequency|
+        {
+          entity_id: current_entity.id,
+          classroom_id: daily_frequency.classroom_id,
+          frequency_date: daily_frequency.frequency_date,
+          teacher_id: current_teacher_id
+        }
+      }
+
       @daily_frequencies.each(&:destroy)
+
+      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+      enqueue_frequency_hooks(worker_calls, force_posting: true)
 
       flash[:success] = t('.success')
 
@@ -296,6 +310,30 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     respond_with @daily_frequencies
+  end
+
+  # Cada turma recebe uma única chamada com todas as suas datas: o envio é por etapa, então datas
+  # da mesma etapa viram um envio só, sem repetir a resolução de turma e calendário por dia.
+  def enqueue_frequency_hooks(worker_calls, force_posting: false)
+    worker_calls.uniq { |call| [call[:classroom_id], call[:frequency_date]] }.each do |worker_call|
+      UniqueDailyFrequencyStudentsCreator.call_worker(
+        worker_call[:entity_id],
+        worker_call[:classroom_id],
+        worker_call[:frequency_date],
+        worker_call[:teacher_id]
+      )
+    end
+
+    worker_calls.group_by { |call| [call[:classroom_id], call[:teacher_id]] }
+                .each do |(classroom_id, teacher_id), calls|
+      AutomaticAbsencePostingEnqueuer.call(
+        entity_id: current_entity.id,
+        classroom_id: classroom_id,
+        frequency_dates: calls.map { |call| call[:frequency_date] },
+        teacher_id: teacher_id,
+        force_posting: force_posting
+      )
+    end
   end
 
   def fetch_frequency_type
@@ -335,6 +373,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @absence_justification.school_calendar = current_school_calendar
     @students = []
     @students_list = []
+    @normal_students = []
+    @dependence_students = []
 
     student_enrollments_ids = []
     student_ids = []
@@ -371,7 +411,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       }
     end
 
-    if @students.blank?
+    if @students.blank? || all_students_inactive?(enrollment_classrooms, dates)
       flash[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
 
       redirect_to new_daily_frequencies_in_batch_path
@@ -408,12 +448,22 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     @additional_data = additional_data(dates, student_ids, dependences,
                                        inactives_on_date, exempteds_from_discipline, active_searchs)
+
+    dependence_student_ids = dependences.flat_map { |d| d[:student_ids] }.uniq
+    @students.each do |student_data|
+      if dependence_student_ids.include?(student_data[:student].id)
+        @dependence_students << student_data
+      else
+        @normal_students << student_data
+      end
+    end
   end
 
   def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline,
                       active_searchs)
     additional_data = []
     dates.each do |date|
+      date_step_number = current_school_calendar.step(date.to_date).try(:to_number)
       student_ids.each do |student_id|
         if active_searchs.any?
           active_searchs.each do |active_search|
@@ -422,12 +472,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
             if @allow_active_search_frequency
               additional_data << { date: active_search[:date], student_id: student_id,
                                    additional_class: nil, tooltip: nil,
-                                   in_active_search_active: true }
+                                   in_active_search_active: true, status: :active_search }
             else
               additional_class = 'in-active-search'
               tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
               additional_data << { date: active_search[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip: tooltip }
+                                   additional_class: additional_class, tooltip: tooltip,
+                                   status: :active_search }
             end
           end
         end
@@ -437,17 +488,22 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.dependence_students_tooltip')
             additional_data << { date: dependence[:date], student_id: student_id,
-                                 additional_class: '', tooltip:  tooltip }
+                                 additional_class: nil, tooltip:  tooltip,
+                                 status: :dependence }
           end
         end
         if exempteds_from_discipline.any?
+          # A dispensa da disciplina é por ETAPA (não por dia): por isso o casamento usa o
+          # step_number da data, marcando o aluno dispensado em todos os dias daquela etapa.
           exempteds_from_discipline.each do |exempted_from_discipline|
-            next if exempted_from_discipline[:date] != date || !exempted_from_discipline[:student_ids].include?(student_id)
+            next if exempted_from_discipline[:step_number] != date_step_number ||
+                    !exempted_from_discipline[:student_ids].include?(student_id)
 
             additional_class = 'exempted'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.exempted_students_from_discipline_tooltip')
-            additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+            additional_data << { date: date, student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip,
+                                 status: :exempted_from_discipline }
           end
         end
         if inactives_on_date.any?
@@ -457,7 +513,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
             additional_class = 'inactive'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.inactive_students_tooltip')
             additional_data << { date: inactive_on_date[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip }
+                                 additional_class: additional_class, tooltip:  tooltip,
+                                 status: :inactive }
           end
         end
       end
@@ -632,12 +689,20 @@ nil, @period)
     )
   end
 
+  def all_students_inactive?(enrollment_classrooms, dates)
+    enrollment_classrooms.none? do |enrollment|
+      enrollment_classroom = enrollment[:student_enrollment_classroom]
+
+      dates.any? { |date| enrollment_classroom.active_on_date?(date) }
+    end
+  end
+
   def students_inactive_on_range(enrollment_classrooms, dates)
     inactives = []
 
     dates.each do |date|
       active_enrollments_classroom_ids = enrollment_classrooms.select do |enrollment|
-        enrollment.joined_at.to_date <= date && (enrollment.left_at.blank? || enrollment.left_at.to_date > date)
+        enrollment.active_on_date?(date)
       end.pluck(:id)
 
       next if active_enrollments_classroom_ids.sort == enrollment_classrooms.pluck(:id).sort
@@ -686,7 +751,10 @@ nil, @period)
   end
 
   def student_exempted_from_discipline_in_range(student_enrollments_ids, frequency_dates)
-    return if @discipline.blank?
+    return [] if student_enrollments_ids.blank?
+
+    discipline = @frequency_type == FrequencyTypes::GENERAL ? nil : @discipline
+    enrollment_to_student = StudentEnrollment.where(id: student_enrollments_ids).pluck(:id, :student_id).to_h
 
     exempteds = []
     steps = []
@@ -696,12 +764,14 @@ nil, @period)
     end
 
     steps.uniq.compact.each do |step_number|
-      students_exempteds = StudentEnrollmentExemptedDiscipline.where(student_enrollment_id: student_enrollments_ids)
-                                                              .by_discipline(@discipline.id)
-                                                              .by_step_number(step_number)
-                                                              .includes(student_enrollment: [:student])
-                                                              .pluck('students.id')
-      next if students_exempteds&.empty?
+      exempt_hash = StudentsExemptFromDiscipline.call(
+        student_enrollments: student_enrollments_ids,
+        discipline: discipline,
+        step: step_number,
+        classroom_id: @classroom.id
+      )
+      students_exempteds = exempt_hash.keys.map { |id| enrollment_to_student[id] }.compact
+      next if students_exempteds.empty?
 
       exempteds << { step_number: step_number, student_ids: students_exempteds }
     end
@@ -751,12 +821,31 @@ nil, @period)
     end
   end
 
-  def invalid_dates?(start_date, end_date, classroom_id, grade_id)
-    if start_date.nil? || end_date.nil?
-      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.blank_dates')
-      return true
+  # Mostra o erro no próprio campo, em vez de devolver o usuário ao formulário vazio.
+  def render_invalid_dates
+    form_params = params[:frequency_in_batch_form]
+
+    @frequency_in_batch_form = FrequencyInBatchForm.new(
+      unity_id: form_params[:unity_id],
+      classroom_id: form_params[:classroom_id],
+      discipline_id: form_params[:discipline_id],
+      start_date: form_params[:start_date],
+      end_date: form_params[:end_date]
+    )
+
+    %i[start_date end_date].each do |field|
+      next if valid_date?(form_params[field])
+
+      @frequency_in_batch_form.errors.add(field, form_params[field].blank? ? :blank : :invalid_date)
     end
 
+    @frequency_type = current_frequency_type(current_user_classroom)
+    set_options_by_user
+
+    render :new, status: :unprocessable_entity
+  end
+
+  def invalid_dates?(start_date, end_date, classroom_id, grade_id)
     unless SchoolDayChecker.new(current_school_calendar, start_date, grade_id, classroom_id, nil).school_day?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.initial_date_no_school_day')
       return true

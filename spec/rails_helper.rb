@@ -16,6 +16,11 @@ SimpleCov.start
 # option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
+# Mantém o socket do tenant aberto ao sair de using_connection: o rollback dos
+# fixtures transacionais só alcança a conexão enquanto ela está viva — fechá-la
+# no meio do example faria os writes commitarem e vazarem entre specs.
+ActiveRecord::Connections.close_idle_on_release = false
+
 # Checks for pending migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!

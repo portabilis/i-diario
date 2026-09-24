@@ -78,9 +78,9 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @school_calendar_steps = steps_fetcher.steps
     @avaliations = fetch_avaliations
     reload_students_list
+    @existing_recovery_scores = existing_recovery_scores_map
 
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def update
@@ -88,6 +88,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     # Reorganiza resource_params quando temos alunos com enturmacoes ativas e inativas
     reload_resource_params = list_students_by_active(resource_params.to_h)
+    reload_resource_params = reuse_existing_student_ids(reload_resource_params)
 
     @avaliation_recovery_diary_record.assign_attributes(reload_resource_params)
     @avaliation_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
@@ -190,12 +191,17 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def mark_not_existing_students_for_destruction
     current_students.each do |current_student|
-      is_student_in_recovery = daily_note_students.students.any? do |daily_note_student|
-        current_student.student.id == daily_note_student.student.id
-      end
-
-      current_student.mark_for_destruction unless is_student_in_recovery
+      current_student.mark_for_destruction unless student_belongs_to_recovery?(current_student.student.id)
     end
+  end
+
+  def student_belongs_to_recovery?(student_id)
+    has_daily_note = daily_note_students.students.any? do |daily_note_student|
+      daily_note_student.student.id == student_id
+    end
+    return true if has_daily_note
+
+    (fetch_student_enrollments || []).any? { |enrollment| enrollment.student_id == student_id }
   end
 
   def missing_students
@@ -239,13 +245,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return unless @avaliation_recovery_diary_record.avaliation
     return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
 
-    StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
-                               grade: @avaliation_recovery_diary_record.avaliation.grade_ids,
-                               discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               date: @avaliation_recovery_diary_record.recovery_diary_record.recorded_at,
-                               search_type: :by_date)
-                          .student_enrollments
+    @fetch_student_enrollments ||=
+      StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
+                                 grade: @avaliation_recovery_diary_record.avaliation.grade_ids,
+                                 discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
+                                 score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+                                 date: @avaliation_recovery_diary_record.recovery_diary_record.recorded_at,
+                                 search_type: :by_date)
+                            .student_enrollments
   end
 
   def reload_students_list
@@ -255,68 +262,51 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
     return unless recovery_diary_record.recorded_at
 
+    step_number = fetch_step_number(
+      @avaliation_recovery_diary_record,
+      recovery_diary_record.classroom_id,
+      @avaliation_recovery_diary_record.avaliation.test_date
+    )
+
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: recovery_diary_record.classroom,
+      discipline: recovery_diary_record.discipline,
+      step_number: step_number,
+      date: recovery_diary_record.recorded_at
+    )
+
+    # Aluno com linhas duplicadas: exibe a de maior updated_at (última nota lançada) —
+    # a mesma que reuse_existing_student_ids atualiza no save.
+    existing_by_student_id = recovery_diary_record.students
+                                                  .group_by(&:student_id)
+                                                  .transform_values { |records| records.max_by(&:updated_at) }
+
     @students = []
     student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        recovery_student = recovery_diary_record.students.find_by(student_id: student.id)
-        note_student = recovery_student || recovery_diary_record.students.build(student_id: student.id, student: student)
-        note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
-        note_student.active = student_active_on_date?(student_enrollment)
-        note_student.exempted_from_discipline = student_exempted_from_discipline?(
-          student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record
-        )
+      next unless (student = Student.find_by_id(student_enrollment.student_id))
+
+        note_student = existing_by_student_id[student.id] ||
+                       recovery_diary_record.students.build(student_id: student.id, student: student)
+        note_student.dependence = situations[:dependencies][student_enrollment.id].present?
+        note_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+        note_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
+        note_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
 
         @students << note_student
-      end
     end
 
-    @normal_students = []
-    @dependence_students = []
-    @any_inactive_student = any_inactive_student?
+    StudentsDisplaySequencer.call(@students)
+  end
 
-    @students.each do |student|
-      @normal_students << student if !student.dependence
-      @dependence_students << student if student.dependence
+  # Mapa student_id => nota de recuperação já salva, para pré-preencher ao trocar a data.
+  def existing_recovery_scores_map
+    @avaliation_recovery_diary_record.recovery_diary_record.students
+                                     .group_by(&:student_id)
+                                     .each_with_object({}) do |(student_id, records), map|
+      score = records.max_by(&:updated_at).score
+      map[student_id] = score.to_f if score.present?
     end
-  end
-
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
-  end
-
-  def student_active_on_date?(student_enrollment)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom)
-      .by_date(@avaliation_recovery_diary_record.recovery_diary_record.recorded_at)
-      .any?
-  end
-
-  def any_inactive_student?
-    any_inactive_student = false
-    if @students
-      @students.each do |student|
-        any_inactive_student = true if !student.active
-      end
-    end
-    any_inactive_student
-  end
-
-  def student_exempted_from_discipline?(student_enrollment, recovery_diary_record, avaliation_recovery_diary_record)
-    return if recovery_diary_record.discipline.blank?
-
-    discipline_id = recovery_diary_record.discipline.id
-    test_date = avaliation_recovery_diary_record.avaliation.test_date
-
-    step_number = fetch_step_number(avaliation_recovery_diary_record, recovery_diary_record.classroom_id, test_date)
-
-    student_enrollment.exempted_disciplines
-                      .by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
   end
 
   def fetch_step_number(avaliation_recovery_diary_record, classroom_id, date)
@@ -327,10 +317,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return school_calendar_classroom.classroom_step(date) if school_calendar_classroom.present?
 
     school_calendar.step(date).to_number
-  end
-
-  def any_student_exempted_from_discipline?
-    (@students || []).any?(&:exempted_from_discipline)
   end
 
   def list_students_by_active(resource_params_hash)
@@ -349,6 +335,61 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     resource_params_hash['recovery_diary_record_attributes']['students_attributes'] = note_students_uniq.flatten
 
     resource_params_hash
+  end
+
+  # Trava anti-duplicação no save. Um aluno já salvo reenviado sem id (double-submit,
+  # form adulterado) viraria INSERT em vez de UPDATE. Preenche o id pelo student_id
+  # para o save atualizar a linha existente. Cada id é usado uma vez; a linha
+  # excedente vai para neutralize_duplicate_student_row.
+  def reuse_existing_student_ids(resource_params_hash)
+    students_attributes = resource_params_hash.dig('recovery_diary_record_attributes', 'students_attributes')
+
+    return resource_params_hash if students_attributes.blank?
+
+    existing_id_by_student = @avaliation_recovery_diary_record
+                             .recovery_diary_record
+                             .students
+                             .group_by(&:student_id)
+                             .transform_values { |records| records.max_by(&:updated_at).id }
+
+    # Ids que já vieram preenchidos no form; nenhuma linha sem id pode reaproveitá-los.
+    reused_ids = students_attributes.map { |attrs| attrs['id'].presence&.to_i }.compact
+
+    students_attributes.each do |student_attributes|
+      next if student_attributes['id'].present?
+      next if ActiveModel::Type::Boolean.new.cast(student_attributes['_destroy'])
+
+      student_id = student_attributes['student_id'].presence
+      next if student_id.blank?
+
+      existing_id = existing_id_by_student[student_id.to_i]
+      next if existing_id.blank?
+
+      if reused_ids.include?(existing_id)
+        neutralize_duplicate_student_row(student_attributes, student_id.to_i, existing_id)
+        next
+      end
+
+      student_attributes['id'] = existing_id
+      reused_ids << existing_id
+    end
+
+    resource_params_hash
+  end
+
+  # O id do aluno já foi usado por outra linha. Marca esta como _destroy — sem id, o
+  # nested attributes só a descarta (não apaga nada existente) — e avisa o Honeybadger.
+  def neutralize_duplicate_student_row(student_attributes, student_id, existing_id)
+    student_attributes['_destroy'] = '1'
+
+    Honeybadger.notify(
+      'Duplicata de recovery_diary_record_student neutralizada no update de recuperação de avaliação',
+      context: {
+        recovery_diary_record_id: @avaliation_recovery_diary_record.recovery_diary_record.id,
+        student_id: student_id,
+        reused_recovery_diary_record_student_id: existing_id
+      }
+    )
   end
 
   def set_options_by_user

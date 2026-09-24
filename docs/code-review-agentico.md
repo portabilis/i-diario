@@ -38,7 +38,7 @@ flowchart TD
 
     subgraph paralelo ["Instâncias Claude limpas — paralelizáveis"]
         direction LR
-        B["/cr-1 &lt;PR&gt;<br/><sub>skill code-review xhigh<br/>fan-out 5 agentes</sub>"] --> B1[("./tmp/cr_1_&lt;PR&gt;.md")]
+        B["/cr-1 &lt;PR&gt;<br/><sub>skill code-review high<br/>fan-out 5 agentes</sub>"] --> B1[("./tmp/cr_1_&lt;PR&gt;.md")]
         C["/cr-2 &lt;PR&gt;<br/><sub>pr-review-toolkit<br/>errors/tests/types/comments</sub>"] --> C1[("./tmp/cr_2_&lt;PR&gt;.md")]
     end
 
@@ -67,8 +67,8 @@ flowchart TD
 
 | Comando | O que faz |
 |---|---|
-| `/cr-1 <PR>` | Invoca `/code-review xhigh <PR>` (built-in do Claude Code, fan-out 5 agentes). Salva output em `./tmp/cr_1_<PR>.md`. |
-| `/cr-2 <PR>` | Invoca `/pr-review-toolkit:review-pr <PR>` (plugin oficial). O LLM decide quais aspects rodar com base no diff. Salva output em `./tmp/cr_2_<PR>.md`. |
+| `/cr-1 <PR>` | Invoca `/code-review high <PR>` (built-in do Claude Code, fan-out 5 agentes). Salva output em `./tmp/cr_1_<PR>.md`. |
+| `/cr-2 <PR>` | Invoca `/pr-review-toolkit:review-pr <PR>` (plugin oficial) com aspectos explícitos entre `code`/`tests`/`errors`/`comments`/`types`, conforme o diff. Nunca `all` nem `simplify` (ver [Por que `simplify` fica de fora](#por-que-simplify-fica-de-fora)). Salva output em `./tmp/cr_2_<PR>.md`. |
 | `/cr-consolidate <PR>` | Lê os 2 outputs em `./tmp/`, deduplica por `(file, line, descrição)`, categoriza por severidade (CRITICAL/HIGH/MEDIUM/LOW), posta UM comment consolidado no PR. |
 
 **Pré-requisitos:**
@@ -116,7 +116,7 @@ gh pr create
 > /cr-1 1234
 ```
 
-Pipeline faz checkout do PR, invoca a skill `code-review`, salva output em `./tmp/cr_1_1234.md`. Fecha essa instância.
+A skill lê o diff de onde você já está (sem checkout — quem roda o review costuma estar na branch do PR), invoca a skill `code-review` e salva o output em `./tmp/cr_1_1234.md`. Fecha essa instância.
 
 ### 3. Abre instância Claude 2 (limpa) e roda `/cr-2`
 
@@ -126,7 +126,7 @@ Pipeline faz checkout do PR, invoca a skill `code-review`, salva output em `./tm
 
 **Dica:** `/cr-1` e `/cr-2` são independentes — você pode rodar os dois **em paralelo** em duas janelas/abas do terminal pra economizar tempo. Só não rode o `/cr-consolidate` antes dos dois terminarem.
 
-Pipeline faz checkout do PR, detecta aspectos no diff (errors/tests/types/comments), invoca `pr-review-toolkit:review-pr` por aspecto, salva consolidado em `./tmp/cr_2_1234.md`. Fecha essa instância.
+A skill lê o diff de onde você já está (sem checkout), escolhe os aspectos aplicáveis entre `code`/`tests`/`errors`/`comments`/`types`, invoca `pr-review-toolkit:review-pr` com eles e salva em `./tmp/cr_2_1234.md`. Fecha essa instância.
 
 ### 4. Abre instância Claude 3 (limpa) e roda `/cr-consolidate`
 
@@ -193,20 +193,22 @@ gh pr review 1234 --request @username
 | Level | Comportamento |
 |---|---|
 | `low`/`medium` | Poucos findings, alta confiança |
-| `high`→`max` | Cobertura mais ampla, pode incluir findings menos certeiros |
-| **`xhigh`** | Nível que usamos no `/cr-1` (alta cobertura, balanceia entre `high` e `max`) |
+| **`high`** | Nível que usamos no `/cr-1` — cobertura ampla, pode incluir findings menos certeiros |
+| `xhigh`/`max` | Cobertura maior ainda, mas **exigem modo de pensamento estendido ativo** — sem ele a skill não roda nesse nível |
 | `ultra` | Deep multi-agent review na cloud (mais caro e lento) |
 
-Usamos `xhigh` porque rodamos só quando dev chama (não em CI) — trade-off de mais ruído vs. mais cobertura é aceitável.
+`high` é o teto que roda sem depender do modo de pensamento estar ligado na sessão. Como o CR é chamado pelo dev (não em CI), o trade-off de mais ruído vs. mais cobertura é aceitável nesse nível.
 
 ### `/cr-2` — Plugin `pr-review-toolkit`
 
-| Agente | Quando dispara | Foco |
-|---|---|---|
-| `silent-failure-hunter` | `rescue`/`begin`/`catch` no diff | Catch blocks vazios, fallbacks ocultos |
-| `pr-test-analyzer` | Spec modificado | Coverage, edge cases, qualidade de assertions |
-| `type-design-analyzer` | Classe/módulo novo | Encapsulation, invariants |
-| `comment-analyzer` | ≥3 comentários novos não-magic | Accuracy vs código, comment rot |
+| Aspecto | Agente | Quando dispara | Foco |
+|---|---|---|---|
+| `code` | `code-reviewer` | sempre | Aderência ao CLAUDE.md, bugs, qualidade geral |
+| `errors` | `silent-failure-hunter` | `rescue`/`begin`/`catch` no diff | Catch blocks vazios, fallbacks ocultos |
+| `tests` | `pr-test-analyzer` | Spec modificado | Coverage, edge cases, qualidade de assertions |
+| `types` | `type-design-analyzer` | Classe/módulo novo | Encapsulation, invariants |
+| `comments` | `comment-analyzer` | Comentário/docstring/`/docs` no diff | Accuracy vs código, comment rot |
+| ~~`simplify`~~ | ~~`code-simplifier`~~ | **nunca** | Edita arquivos — ver [decisão abaixo](#por-que-simplify-fica-de-fora) |
 
 A skill **não posta no PR** — devolve texto que o `/cr-2` captura.
 
@@ -242,6 +244,16 @@ Por dois motivos principais:
 1. **Agentic fatigue** — dev shippa código que não escreveu, perde noção do que está em produção.
 2. **Awareness > velocidade** — aplicar fixes manualmente força o dev a entender cada change. Pode pedir ao Claude pra ajudar, mas a decisão de aceitar/recusar fica explícita.
 
+### Por que `simplify` fica de fora
+
+O `pr-review-toolkit` oferece um aspecto `simplify`, e o aspecto `all` o inclui. Ele dispara o sub-agente `code-simplifier`, cujo prompt manda agir *"autonomously and proactively, refining code immediately... without requiring explicit requests"*. Ou seja: **ele edita arquivos do repositório durante o que deveria ser um review.**
+
+O estrago não é só a edição. Ao detectar arquivos modificados, o toolkit faz **rollback da working tree** para o SHA do PR — levando junto qualquer alteração não-commitada de quem está na sessão. Já aconteceu de verdade: fixes prontos, ainda não commitados, apagados por um comando de review.
+
+Por isso o `/cr-2` passa os aspectos **explicitamente** e nunca usa `all`. Os cinco aspectos de review cobrem o mesmo terreno sem invocar o editor.
+
+Vale saber que **só o `comment-analyzer` declara ser read-only** no próprio prompt; os outros quatro herdam acesso a Edit/Write, mesmo sem pedirem para editar. Por isso o `/cr-2` fecha exigindo `git status --porcelain` vazio: se algo escapar, a skill reverte e registra no relatório em vez de deixar passar.
+
 ### Por que sem aprovação automática?
 
 Aprovação formal de PR é decisão humana, sempre. O comment consolidado diz "esses são os findings" — não diz "aprovado".
@@ -272,7 +284,7 @@ Você esqueceu de rodar `/cr-1 <PR>` antes. Os 3 comandos são sequenciais.
 
 ### `/cr-1` aborta com "working tree sujo"
 
-Commit, stash ou descarte mudanças locais antes. O comando faz `gh pr checkout` e precisa de árvore limpa pra não revisar mudanças não relacionadas.
+Commit ou descarte as mudanças locais antes. A skill não faz checkout, mas exige árvore limpa por dois motivos: não revisar mudanças não relacionadas, e porque o `pr-review-toolkit` faz rollback da working tree ao detectar arquivos modificados — levando junto o que estava pendente.
 
 ### Skill `code-review` não postou comment
 

@@ -49,6 +49,7 @@ class GeneralConfigurationsController < ApplicationController
       :days_to_consider_alternate_absences,
       :create_users_for_students_when_synchronize,
       :allows_copy_lesson_plans_to_other_grades,
+      :sso_enabled,
       :type_of_teaching,
       :types_of_teaching,
       :days_to_expire_password,
@@ -56,6 +57,7 @@ class GeneralConfigurationsController < ApplicationController
       :show_inactive_enrollments,
       :show_percentage_on_attendance_record_report,
       :do_not_send_justified_absence,
+      :automatic_absence_posting,
       :require_daily_activities_record,
       :remove_lesson_plan_objectives,
       :show_experience_fields,
@@ -64,7 +66,8 @@ class GeneralConfigurationsController < ApplicationController
       :allow_class_number_on_content_records,
       :allow_automatic_avaliation_recovery,
       :always_send_email_on_daily_frequency_registration,
-      :allow_active_search_frequency
+      :allow_active_search_frequency,
+      :hide_no_school_events_on_attendance_record_report
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')

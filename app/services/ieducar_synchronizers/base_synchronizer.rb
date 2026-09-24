@@ -219,7 +219,8 @@ class BaseSynchronizer
   end
 
   # Executa o bloco tratando a race condition de criação concorrente do mesmo
-  # api_code. Concentra em um único lugar o retry limitado (MAX_RECORD_RETRIES).
+  # api_code, com retry limitado (MAX_RECORD_RETRIES). Registros com índice
+  # único próprio tratam o RecordNotUnique no seu próprio sincronizador.
   def retrying_on_race_condition(cache_ivar, api_code)
     retries = 0
 

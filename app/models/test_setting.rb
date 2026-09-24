@@ -19,6 +19,7 @@ class TestSetting < ApplicationRecord
   scope :ordered, -> { order(year: :desc) }
   scope :by_unities, ->(unities) { where('unities @> ARRAY[?]::integer[]', unities) }
   scope :by_grades, ->(grades) { where('grades @> ARRAY[?]::integer[]', grades) }
+  scope :by_intersecting_unities, ->(unities) { where('unities && ARRAY[?]::integer[]', unities) }
 
   validates :minimum_score, :maximum_score, presence: true
   validate :check_minimum_score

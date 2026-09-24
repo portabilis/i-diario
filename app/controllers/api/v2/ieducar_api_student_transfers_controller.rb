@@ -3,10 +3,13 @@
 module Api
   module V2
     class IeducarApiStudentTransfersController < Api::V2::BaseController
+      class InvalidParamsError < StandardError; end
+
       respond_to :json
 
       def create
         validate_params!
+        transfer_date = parse_transfer_date!
 
         assignments = active_classroom_assignments
         raise ActiveRecord::RecordNotFound if assignments.empty?
@@ -16,14 +19,15 @@ module Api
             current_entity.id,
             student_id,
             classroom_id,
-            params[:callback_url]
+            params[:callback_url],
+            transfer_date
           )
         end
 
         render json: { status: 'processing' }, status: :accepted
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Matrícula não encontrada' }, status: :not_found
-      rescue ArgumentError => e
+      rescue InvalidParamsError => e
         render json: { error: e.message }, status: :bad_request
       end
 
@@ -35,7 +39,21 @@ module Api
 
         return if missing.empty?
 
-        raise ArgumentError, "Parâmetros obrigatórios: #{missing.join(', ')}"
+        raise InvalidParamsError, "Parâmetros obrigatórios: #{missing.join(', ')}"
+      end
+
+      # transfer_date é opcional, mas quando informado precisa estar em ISO-8601
+      # (YYYY-MM-DD). A validação é feita de forma síncrona para que uma data
+      # inválida vire um 400 explícito, em vez de ser descoberta só no worker
+      # assíncrono — onde a falha desabilitaria silenciosamente o filtro da
+      # última etapa. Parse estrito evita datas ambíguas (ex.: "07/06/2026").
+      def parse_transfer_date!
+        raw = params[:transfer_date]
+        return if raw.blank?
+
+        Date.iso8601(raw.to_s).iso8601
+      rescue ArgumentError
+        raise InvalidParamsError, 'transfer_date inválida: utilize o formato ISO-8601 (YYYY-MM-DD)'
       end
 
       def active_classroom_assignments

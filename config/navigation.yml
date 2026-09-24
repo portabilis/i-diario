@@ -113,6 +113,10 @@ navigation:
             type: "knowledge_area_teaching_plans"
             path: "knowledge_area_teaching_plans_path"
   - menu:
+      type: "individualized_educational_plans"
+      icon: "fa-user-md"
+      path: "individualized_educational_plans_path"
+  - menu:
       type: "lesson_plans_menu"
       icon: "fa-pencil"
       shortcut: true

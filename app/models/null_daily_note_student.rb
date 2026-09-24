@@ -6,11 +6,11 @@ class NullDailyNoteStudent
   end
 
   def note
-    'N'
+    StudentSituationMarkers::NOT_ENROLLED
   end
 
   def recovery_note
-    @recovery_note || 'N'
+    @recovery_note || StudentSituationMarkers::NOT_ENROLLED
   end
 
   def has_recovery?

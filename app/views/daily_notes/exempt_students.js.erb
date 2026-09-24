@@ -8,15 +8,14 @@ $('.exempt_student_check_all').prop('checked', false).change();
 $.each(students_ids, function(i, student_id){
   $('#exempt_student_check_' + student_id).attr('disabled', 'disabled');
 
-  var studentName = $('#student_name_' + student_id);
-  var studentNameLabel = studentName.text();
+  var $row = $('#tr_student_' + student_id);
+  var $badges = $('#student_status_badges_' + student_id);
 
-  if(!studentNameLabel.startsWith('**')) {
-    studentName.text('**'+studentNameLabel);
-    studentName.addClass('exempted-student');
+  if ($badges.find('.badge-status--exempted').length === 0) {
+    $badges.append(renderStudentStatusBadge('exempted'));
   }
 
-  var noteInput = $("#tr_student_" + student_id + " input[id ^='daily_note_students_attributes'][id $='note']")[0];
+  var noteInput = $row.find("input[id ^='daily_note_students_attributes'][id $='note']")[0];
   $(noteInput).val('');
   $(noteInput).addClass('exempted-student');
 
@@ -34,7 +33,7 @@ $.each(students_ids, function(i, student_id){
   undo_exemption_button.attr('href', undo_url);
   undo_exemption_button.attr('title', 'Desfazer');
 
-  if (!studentName.hasClass('in-active-search')) {
+  if (!$row.data('in-active-search')) {
     $(noteInput).attr('readonly', 'readonly');
     $(noteInput).attr('placeholder', 'Dispensado');
   }

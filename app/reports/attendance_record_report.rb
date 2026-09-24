@@ -1,9 +1,15 @@
 class AttendanceRecordReport < BaseReport
+  include StudentSituationMarkers
+
   # Número de alunos impressos por página
   STUDENT_BY_PAGE_COUNT = 29
 
   # Fator que representa a quantidade de alunos com nome social necessária para reduzir 1 aluno por página
   SOCIAL_NAME_REDUCTION_FACTOR = 2
+
+  # Prioridade da coluna dentro do mesmo dia: o menor valor é impresso primeiro
+  FREQUENCY_COLUMN_PRIORITY = 0
+  EVENT_COLUMN_PRIORITY = 1
 
   def self.build(
     entity_configuration,
@@ -72,13 +78,14 @@ class AttendanceRecordReport < BaseReport
       @classrooms[df.classroom_id] = df.classroom if df.classroom
     end
 
-    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
+    self.legend = "Legenda: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da disciplina, FJ - Falta justificada"
 
     @general_configuration = GeneralConfiguration.first
     @show_percentage_on_attendance = @general_configuration.show_percentage_on_attendance_record_report
     @show_inactive_enrollments = @general_configuration.show_inactive_enrollments
     @do_not_send_justified_absence = @general_configuration.do_not_send_justified_absence
     @allow_active_search_frequency = @general_configuration.allow_active_search_frequency
+    @hide_no_school_events = @general_configuration.hide_no_school_events_on_attendance_record_report
 
     header
     content
@@ -137,7 +144,7 @@ class AttendanceRecordReport < BaseReport
     self.any_student_with_dependence = false
 
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
-    frequencies_and_events = daily_frequencies.to_a + @events.to_a
+    frequencies_and_events = daily_frequencies.to_a + displayable_events
 
     @daily_frequency_students = DailyFrequencyStudent
                                 .includes(:student)
@@ -148,9 +155,7 @@ class AttendanceRecordReport < BaseReport
       [daily_frequency_student.daily_frequency_id, daily_frequency_student.student_id]
     end
 
-    frequencies_and_events = frequencies_and_events.sort_by do |obj|
-      daily_frequency?(obj) ? obj.frequency_date : obj[:date]
-    end
+    frequencies_and_events = frequencies_and_events.sort_by { |record| column_sort_key(record) }
 
     unless @show_inactive_enrollments
       @enrollment_classrooms= @enrollment_classrooms.uniq { |enrollment_classroom| enrollment_classroom[:student].id }
@@ -242,7 +247,7 @@ class AttendanceRecordReport < BaseReport
 
             if @show_legend_active_search && !@exists_active_search
               @exists_active_search = true
-              self.legend += ', B - Busca ativa'
+              self.legend += ", #{ACTIVE_SEARCH} - Aluno em Busca Ativa"
             end
 
             (students[student_enrollment_classroom.id] ||= {})[:name] = student.to_s
@@ -250,6 +255,7 @@ class AttendanceRecordReport < BaseReport
             students[student_enrollment_classroom.id][:dependence] = students[student_enrollment_classroom.id][:dependence] || student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_enrollment_classroom.id][:dependence]
             students[student_enrollment_classroom.id][:absences] ||= 0
+            students[student_enrollment_classroom.id][:social_name] = student.social_name
             students[student_enrollment_classroom.id][:sequence] ||= sequence if @show_inactive_enrollments
 
             if @show_percentage_on_attendance
@@ -341,15 +347,13 @@ class AttendanceRecordReport < BaseReport
       students_cells = []
       students = students.sort_by { |(_key, value)| value[:dependence] ? 1 : 0 }
       sequence = 1 unless @show_inactive_enrollments
-      sequence_reseted = false
+      dependence_sequence = 0
 
       students.each do |_key, value|
-        if !sequence_reseted && value[:dependence]
-          sequence = 1
-          sequence_reseted = true
-        end
-
-        if @show_inactive_enrollments
+        if value[:dependence]
+          dependence_sequence += 1
+          sequence_cell = make_cell(content: dependence_sequence.to_s, align: :center)
+        elsif @show_inactive_enrollments
           sequence_cell = make_cell(content: value[:sequence].to_s, align: :center)
         else
           sequence_cell = make_cell(content: sequence.to_s, align: :center)
@@ -395,6 +399,7 @@ class AttendanceRecordReport < BaseReport
           table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] },
                       column_widths: column_widths, width: bounds.width) do |t|
             t.cells.border_width = 0.25
+            t.columns(3..42).padding = [2, 0, 2, 0]
 
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
@@ -412,7 +417,7 @@ class AttendanceRecordReport < BaseReport
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina, FJ - Falta justificada'
+      self.legend = "Legenda: #{NOT_ENROLLED} - Não enturmado, #{EXEMPTED} - Dispensado da disciplina, FJ - Falta justificada"
 
       if index < sliced_frequencies_and_events.count - 1
         start_new_page
@@ -471,6 +476,22 @@ class AttendanceRecordReport < BaseReport
 
   def daily_frequency?(record)
     record.is_a? DailyFrequency
+  end
+
+  # Colunas do dia: turno, número da aula e o id como desempate final. O turno vem antes porque em turma de período
+  # integral o filtro traz os quatro turnos, e o mesmo número de aula pode existir em mais de um deles.
+  # Evento de calendário não tem número de aula — a célula "Aula" dele é impressa vazia — e vai após as aulas do dia.
+  # O `to_i` é obrigatório: `class_number` e `period` são NULL na frequência geral, e `nil <=> Integer` estoura o sort.
+  def column_sort_key(record)
+    return [record[:date], EVENT_COLUMN_PRIORITY, 0, 0, 0] unless daily_frequency?(record)
+
+    [
+      record.frequency_date,
+      FREQUENCY_COLUMN_PRIORITY,
+      record.period.to_i,
+      record.class_number.to_i,
+      record.id
+    ]
   end
 
   def student_has_dependence?(dependences_hash, student_enrollment, daily_frequency)
@@ -623,6 +644,14 @@ class AttendanceRecordReport < BaseReport
       @show_legend_remote = true
       'R'
     end
+  end
+
+  # A ocultação vale só para as colunas exibidas: @events precisa continuar íntegro para o is_school_day?,
+  # que suprime frequências lançadas em dia não letivo — sem isso elas seriam impressas no lugar do evento oculto.
+  def displayable_events
+    return @events.to_a unless @hide_no_school_events
+
+    @events.to_a.reject { |event| event[:type].eql?(EventTypes::NO_SCHOOL) }
   end
 
   def is_school_day?(date)

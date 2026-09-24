@@ -45,9 +45,14 @@ module Ieducar
         information = info_message(info)
 
         begin
-          response = IeducarResponseDecorator.new(api(posting).send_post(params))
+          response = IeducarResponseDecorator.new(api(posting, params).send_post(params))
 
-          posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
+          if response.any_error_message?
+            message = response.full_error_message(information)
+
+            posting.add_warning!(message)
+            notify_automatic_posting_rejection(posting, message) if posting.automatic?
+          end
         rescue StandardError => error
           if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
             Rails.logger.info(
@@ -86,6 +91,27 @@ module Ieducar
       )
     end
 
+    # O i-Educar devolve erro de negócio dentro de HTTP 200, e o aviso gravado no posting só é
+    # exibido na tela de envio manual — para o envio automático ele não teria nenhum leitor.
+    def notify_automatic_posting_rejection(posting, message)
+      Rails.logger.error(
+        key: 'Ieducar::SendPostWorker#perform',
+        message: message,
+        posting_id: posting.id,
+        classroom_id: posting.classroom_id,
+        teacher_id: posting.teacher_id
+      )
+      Honeybadger.notify(
+        'Envio automático de faltas rejeitado pelo i-Educar',
+        context: {
+          posting_id: posting.id,
+          classroom_id: posting.classroom_id,
+          teacher_id: posting.teacher_id,
+          message: message
+        }
+      )
+    end
+
     def info_message(info)
       message = ''
 
@@ -115,7 +141,15 @@ module Ieducar
       params[:faltas] || params[:notas] || params[:pareceres]
     end
 
-    def api(posting)
+    # Faltas por componente também chegam como ABSENCE, e os jobs enfileirados antes da migração
+    # ainda vão chegar até a fila drenar. Os dois carregam `resource`; só a v2 é achatada.
+    def general_absence_payload?(params)
+      params = params.with_indifferent_access
+
+      params[:resource].blank? && params[:turma_id].present?
+    end
+
+    def api(posting, params)
       case posting.post_type
       when ApiPostingTypes::NUMERICAL_EXAM
         IeducarApi::PostExams.new(posting.to_api)
@@ -124,7 +158,13 @@ module Ieducar
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         IeducarApi::PostDescriptiveExams.new(posting.to_api)
       when ApiPostingTypes::ABSENCE
-        IeducarApi::PostAbsences.new(posting.to_api)
+        if general_absence_payload?(params)
+          # Recebe a configuration, e não o `to_api` dos demais ramos: o hash legado não expõe o
+          # api_security_token, que é como a API v2 autentica.
+          IeducarApi::PostGeneralAbsences.new(posting.ieducar_api_configuration)
+        else
+          IeducarApi::PostAbsences.new(posting.to_api)
+        end
       when ApiPostingTypes::FINAL_RECOVERY
         IeducarApi::FinalRecoveries.new(posting.to_api)
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY

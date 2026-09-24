@@ -1,0 +1,33 @@
+class IepCurricularPlanning < ApplicationRecord
+  include IepMultiSelectable
+  include IepComponentSelectable
+
+  audited associated_with: :iep
+
+  # touch: mantém o updated_at do plano (coluna "Última edição" do index) atualizado
+  # quando o usuário edita só a seção 4, sem mexer em colunas do próprio plano.
+  belongs_to :iep, class_name: 'IndividualizedEducationalPlan',
+             foreign_key: :individualized_educational_plan_id, touch: true
+  belongs_to :iep_review_date                          # revisão (1ª, 2ª...) a que o planejamento pertence
+
+  validates :iep_review_date_id, presence: true
+
+  # class_name e foreign_key inferidos: a associação casa com o model
+  # (IepCurricularPlanningOption) e a coluna com a convenção (iep_curricular_planning_id).
+  has_many :iep_curricular_planning_options, dependent: :destroy
+
+  accepts_nested_attributes_for :iep_curricular_planning_options, allow_destroy: true
+
+  # Acomodações da seção 4 — mesma mecânica de multi-select por tipo das seções 2/3
+  iep_multi_select :iep_curricular_planning_options,
+                   :instructional_accommodation, :environmental_accommodation,
+                   :assessment_accommodation
+
+  # Sem nenhum conteúdo preenchido (textos e acomodações) — usado para remover a
+  # linha quando o usuário esvazia o formulário do componente.
+  def empty_content?
+    long_term_goal.blank? && stage_objectives.blank? &&
+      skills_to_develop.blank? && methodologies.blank? &&
+      iep_curricular_planning_options.reject(&:marked_for_destruction?).empty?
+  end
+end

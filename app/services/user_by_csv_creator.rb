@@ -44,7 +44,9 @@ class UserByCsvCreator
 
     ActiveRecord::Base.transaction do
       CSV.foreach(file, col_sep: ',', skip_blanks: true) do |new_user|
-        User.find_or_initialize_by(login: new_user[3]).tap do |user|
+        next if new_user[2].blank?
+
+        User.find_or_initialize_by(email: new_user[2]).tap do |user|
           if new_user[5] == '0'
             user.destroy
             next
@@ -74,7 +76,9 @@ class UserByCsvCreator
       true
     end
     errors.empty? || puts(errors.join("\n"))
-  rescue ActiveRecord::RecordInvalid
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+    # A transação da entidade sofre rollback, mas as demais entidades seguem.
+    puts entity_error(entity, e)
     false
   end
 
@@ -147,5 +151,10 @@ class UserByCsvCreator
 
   def invalid_user_error(user)
     "Não foi possivel criar o usuário #{user.login} devido ao erro: #{user.errors.messages}"
+  end
+
+  def entity_error(entity, exception)
+    "Não foi possivel criar os usuários no ambiente #{entity.name} devido ao erro: " \
+      "#{exception.message.lines.first.strip}"
   end
 end

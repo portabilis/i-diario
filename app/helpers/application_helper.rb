@@ -29,8 +29,14 @@ module ApplicationHelper
     transliterate(value).tr(' ', '_').underscore
   end
 
+  # Item do menu que a tela representa. Controllers aninhados (sem nó próprio no
+  # navigation.yml) definem @navigation_item com o type do menu correspondente.
+  def navigation_item
+    @navigation_item.presence || controller_name
+  end
+
   def breadcrumbs
-    Navigation.draw_breadcrumbs(controller_name, self)
+    Navigation.draw_breadcrumbs(navigation_item, self)
   end
 
   def menus
@@ -38,14 +44,14 @@ module ApplicationHelper
     user_role_cache = role&.cache_key.to_s + role&.id.to_s
     key = [
       'Menus',
-      controller_name,
+      navigation_item,
       user_role_cache || current_user.cache_key,
       Translation.cache_key,
       current_user.updated_at.to_i
     ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
-      Navigation.draw_menus(controller_name, current_user)
+      Navigation.draw_menus(navigation_item, current_user)
     end
   end
 
@@ -62,11 +68,11 @@ module ApplicationHelper
   end
 
   def title
-    Navigation.draw_title(controller_name, false, self)
+    Navigation.draw_title(navigation_item, false, self)
   end
 
   def title_with_icon
-    Navigation.draw_title(controller_name, true, self)
+    Navigation.draw_title(navigation_item, true, self)
   end
 
   def simple_form_for(object, *args, &block)

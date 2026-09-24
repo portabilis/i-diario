@@ -1,5 +1,6 @@
 pt-BR:
   school_calendar_events:
+    frequency_deletion_not_confirmed: "É necessário confirmar a ciência de que as frequências registradas para esta data serão excluídas."
     index:
       by_date: "Filtrar data"
       by_description: "Filtrar descrição"

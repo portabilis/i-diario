@@ -75,13 +75,25 @@ class Classroom < ApplicationRecord
     classrooms_grades.discard_all
   end
 
+  # Os vínculos de professor voltam aqui porque a sincronização parcial não os alcança: o
+  # i-Educar filtra os vínculos por `updated_at` próprio, e reativar a turma não toca nesse
+  # campo. Sem isso a turma volta e o quadro de aulas fica sem professor até a próxima
+  # sincronização completa.
+  #
+  # Os vínculos de série ficam de fora: quem os reativa é o ClassroomsSynchronizer, restrito às
+  # séries que a API ainda devolve. Aqui voltariam também as séries que saíram da turma.
   after_undiscard do
-    teacher_discipline_classrooms.undiscard_all
-    classrooms_grades.undiscard_all
+    undiscard_dependents_discarded_with(teacher_discipline_classrooms)
   end
 
   def to_s
     description
+  end
+
+  def regent
+    return if regent_api_code.blank?
+
+    @regent ||= Teacher.find_by(api_code: regent_api_code)
   end
 
   def period_humanized

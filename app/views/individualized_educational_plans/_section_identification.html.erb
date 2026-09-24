@@ -1,0 +1,185 @@
+<% view_only = local_assigns[:view_only] %>
+<fieldset>
+  <%# Data de elaboração vem ANTES do aluno: escolher a data primeiro filtra o select de alunos
+      pelos que estavam enturmados na turma NAQUELA data. %>
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :elaborated_at, as: :date, label: t('.elaborated_at'),
+                  input_html: { readonly: view_only, class: 'iep-elaborated-at',
+                                value: @individualized_educational_plan.elaborated_at.try(:strftime, '%d/%m/%Y') } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :student_id, as: :select2, elements: @students, label: t('.student'),
+                  placeholder: t('.select_student'),
+                  input_html: { class: 'iep-student-select',
+                                disabled: (@individualized_educational_plan.persisted? || view_only) } %>
+      <% if @individualized_educational_plan.persisted? %>
+        <%= f.hidden_field :student_id %>
+      <% end %>
+      <div class="alert alert-warning iep-existing-plan-warning"
+           style="display: none; margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+        <i class="fa-fw fa fa-warning"></i> <%= t('.existing_plan_warning') %>
+      </div>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :birth_date, label: t('.birth_date'), input_html: { readonly: true, class: 'iep-birth-date' } %>
+    </div>
+    <div class="col col-sm-3">
+      <%= f.input :year, label: t('.year'), input_html: { readonly: true } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :guardians, label: t('.guardians'), input_html: { readonly: true, class: 'iep-guardians' } %>
+      <% guardians_unavailable_frozen = view_only && f.object.guardians_unavailable %>
+      <div class="alert alert-warning iep-guardians-warning"
+           style="<%= 'display: none;' unless guardians_unavailable_frozen %> margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+        <i class="fa-fw fa fa-warning"></i> <%= t('.guardians_unavailable') %>
+      </div>
+    </div>
+    <div class="col col-sm-6">
+      <%= f.input :diagnosis, label: t('.diagnosis'), input_html: { readonly: true, class: 'iep-diagnosis' } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :unity_name, label: t('.unity'), input_html: { readonly: true } %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :classroom_name, label: t('.classroom'), input_html: { readonly: true } %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :shift, label: t('.shift'), input_html: { readonly: true, class: 'iep-shift' } %>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :teacher_name, label: t('.teacher'), input_html: { readonly: true } %>
+      <% if @individualized_educational_plan.teacher_name.blank? && !view_only %>
+        <div class="alert alert-warning" style="margin-top: 2px; margin-bottom: 0; padding: 6px 12px;">
+          <i class="fa-fw fa fa-warning"></i> <%= t('.no_regent_warning') %>
+        </div>
+      <% end %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :aee_teacher_id, as: :select2, elements: @aee_teachers, label: t('.aee_teacher'),
+                  placeholder: (t('.select_aee_teacher') unless view_only),
+                  input_html: { disabled: view_only } %>
+    </div>
+    <div class="col col-sm-4">
+      <%= f.input :support_professional, label: t('.support_professional'),
+                  input_html: { readonly: view_only } %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <legend><%= t('.review_dates') %></legend>
+    </div>
+  </div>
+
+  <div class="row" id="iep-review-dates">
+    <%= f.simple_fields_for :iep_review_dates do |review_date| %>
+      <%= render 'iep_review_date_fields', f: review_date, view_only: view_only %>
+    <% end %>
+  </div>
+
+  <% unless view_only %>
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= link_to_add_association t('.add_review_date'), f, :iep_review_dates,
+              class: 'btn btn-success btn-sm',
+              data: { association_insertion_node: '#iep-review-dates', association_insertion_method: 'append' } %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <legend><%= t('.medical_reports') %></legend>
+
+      <%# O laudo é documento do cadastro do aluno no i-Educar (fonte da verdade): o PEI exibe
+          sempre o estado ATUAL — inclusive ao abrir uma versão publicada — e, para quem edita a
+          seção 1, também envia laudo novo direto para o cadastro. %>
+      <div class="alert alert-info fade in">
+        <i class="fa-fw fa fa-info"></i>
+        <%= view_only ? t('.medical_reports_source')
+                      : t('.medical_reports_source_uploadable') + ' ' + t('.medical_report_upload_hint') %>
+      </div>
+      <br>
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th scope="col"><%= t('.medical_report_file') %></th>
+            <th scope="col" style="width: 160px"><%= t('.medical_report_sent_at') %></th>
+          </tr>
+        </thead>
+        <tbody id="iep-medical-reports"
+               data-pending-text="<%= t('.medical_reports_pending') %>"
+               data-empty-text="<%= t('.medical_reports_empty') %>"
+               data-unavailable-text="<%= t('.medical_reports_unavailable') %>">
+          <tr>
+            <td colspan="2" class="text-muted"><%= t('.medical_reports_loading') %></td>
+          </tr>
+        </tbody>
+        <% unless view_only %>
+          <tbody id="iep-medical-reports-pending"
+                 data-remove-text="<%= t('.medical_report_remove') %>"
+                 data-not-sent-text="<%= t('.medical_report_not_sent') %>"></tbody>
+          <tfoot class="links">
+            <tr>
+              <td colspan="2">
+                <input type="file" id="iep-medical-report-file" accept=".jpg,.jpeg,.png,.pdf,.doc"
+                       style="display: none;">
+                <button type="button" id="iep-medical-report-add-button" class="btn btn-success btn-sm">
+                  <%= t('.medical_report_upload_button') %>
+                </button>
+                <button type="button" id="iep-medical-report-send-button" class="btn btn-primary btn-sm"
+                        disabled="disabled" data-sending-text="<%= t('.medical_report_upload_sending') %>">
+                  <%= t('.medical_report_send_button') %>
+                </button>
+              </td>
+            </tr>
+          </tfoot>
+        <% end %>
+      </table>
+
+      <% unless view_only %>
+        <%# Modal de confirmação do envio do laudo %>
+        <div class="modal fade" id="iep-medical-report-send-modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+                <h4 class="modal-title"><%= t('.medical_report_send_modal_title') %></h4>
+              </div>
+              <div class="modal-body">
+                <p class="iep-medical-report-send-student" style="display: none;">
+                  <strong><%= t('.student') %>:</strong> <span></span>
+                </p>
+                <p><%= t('.medical_report_send_modal_text') %></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  <%= t('individualized_educational_plans.form.modal_cancel') %>
+                </button>
+                <button type="button" class="btn btn-success" id="iep-medical-report-send-confirm">
+                  <%= t('.medical_report_send_modal_confirm') %>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</fieldset>

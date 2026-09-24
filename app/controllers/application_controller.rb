@@ -91,11 +91,21 @@ class ApplicationController < ActionController::Base
   helper_method :policy
 
   def handle_customer(&block)
+    # current_entity seta Entity.current antes do using_connection capturar o
+    # valor anterior, então o restore de lá devolve a própria entidade — daí a
+    # captura acontecer aqui, antes de qualquer atribuição. A fronteira da
+    # request em si é o ThreadContextResetRackMiddleware (que cobre inclusive
+    # quem pula este around_action); este restore mantém o escopo aninhado
+    # correto dentro da request e preserva o using_connection externo nos specs.
+    previous_entity = Entity.current
+
     if current_entity
       current_entity.using_connection(&block)
     else
       redirect_to '/404'
     end
+  ensure
+    Entity.current = previous_entity
   end
 
   def check_entity_status

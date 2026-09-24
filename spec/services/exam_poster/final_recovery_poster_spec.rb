@@ -47,6 +47,27 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
 
   subject { described_class.new(exam_posting, Entity.first.id) }
 
+  # Os alunos da recuperação precisam estar enturmados na turma na data do registro:
+  # o before_save do RecoveryDiaryRecordStudent zera a nota de aluno não enturmado
+  # (proteção contra lançamento para quem não está mais na turma). Em produção esses
+  # alunos estão enturmados; aqui montamos a enturmação e repomos a nota.
+  before do
+    classrooms_grade = create(:classrooms_grade, classroom: classroom)
+
+    recovery_diary_record.students.each do |recovery_student|
+      enrollment = create(:student_enrollment, student: recovery_student.student)
+      create(
+        :student_enrollment_classroom,
+        classrooms_grade: classrooms_grade,
+        student_enrollment: enrollment,
+        joined_at: recovery_diary_record.recorded_at.beginning_of_year,
+        left_at: ''
+      )
+
+      recovery_student.update(score: 7.0)
+    end
+  end
+
   it 'expects to call score_rounder with correct params' do
     score_rounder = double(:score_rounder)
 

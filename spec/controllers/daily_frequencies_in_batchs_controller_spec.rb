@@ -91,6 +91,104 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
   end
 
+  describe 'POST #create' do
+    def post_create(start_date:, end_date:)
+      classrooms_grade
+
+      post :create, params: {
+        locale: 'pt-BR',
+        frequency_in_batch_form: {
+          unity_id: unity.id,
+          classroom_id: classroom.id,
+          discipline_id: discipline.id,
+          start_date: start_date,
+          end_date: end_date
+        }
+      }
+    end
+
+    # Datas inexistentes ("31/06") faziam o to_date levantar Date::Error. Como o
+    # ApplicationController tem um rescue_from Exception, o usuário era jogado na home
+    # com um alerta genérico em vez de ver o erro no próprio formulário.
+    context 'when the end date does not exist' do
+      it 'renders the form pointing the error at the end date' do
+        post_create(start_date: '01/06/2026', end_date: '31/06/2026')
+
+        expect(response).to render_template(:new)
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to eq(
+          [I18n.t('errors.messages.invalid_date')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to be_empty
+      end
+
+      it 'keeps the dates typed by the user' do
+        post_create(start_date: '01/06/2026', end_date: '31/06/2026')
+
+        expect(assigns(:frequency_in_batch_form).start_date).to eq('01/06/2026')
+        expect(assigns(:frequency_in_batch_form).end_date).to eq('31/06/2026')
+      end
+    end
+
+    context 'when the start date does not exist' do
+      it 'renders the form pointing the error at the start date' do
+        post_create(start_date: '31/06/2026', end_date: '30/06/2026')
+
+        expect(response).to render_template(:new)
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to eq(
+          [I18n.t('errors.messages.invalid_date')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to be_empty
+      end
+    end
+
+    context 'when the date is blank' do
+      it 'renders the form pointing the error at both date fields' do
+        post_create(start_date: '', end_date: '')
+
+        expect(response).to render_template(:new)
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to eq(
+          [I18n.t('errors.messages.blank')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to eq(
+          [I18n.t('errors.messages.blank')]
+        )
+      end
+    end
+
+    # Um campo em branco e outro inexistente exercitam os dois lados da distinção na
+    # mesma requisição.
+    context 'when one date is blank and the other does not exist' do
+      it 'reports each field with its own reason' do
+        post_create(start_date: '', end_date: '31/06/2026')
+
+        expect(assigns(:frequency_in_batch_form).errors[:start_date]).to eq(
+          [I18n.t('errors.messages.blank')]
+        )
+        expect(assigns(:frequency_in_batch_form).errors[:end_date]).to eq(
+          [I18n.t('errors.messages.invalid_date')]
+        )
+      end
+    end
+
+    # Garante que a verificação de data nova não engoliu o caminho feliz.
+    context 'when both dates exist' do
+      it 'moves on to the frequency screen' do
+        post_create(start_date: Date.current.strftime('%d/%m/%Y'),
+                    end_date: Date.current.strftime('%d/%m/%Y'))
+
+        expect(response).to redirect_to(
+          create_or_update_multiple_daily_frequencies_in_batchs_path(
+            start_date: Date.current,
+            end_date: Date.current,
+            classroom_id: classroom.id,
+            discipline_id: discipline.id
+          )
+        )
+      end
+    end
+  end
+
   describe 'POST #create_or_update_multiple' do
     let(:frequency_date) { school_calendar.steps.first.start_at }
     let(:form_params) do
@@ -291,6 +389,83 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
     end
   end
 
+  describe 'DELETE #destroy_multiple' do
+    let!(:daily_frequency) { create(:daily_frequency, :with_students) }
+
+    it 'deletes the daily frequencies and enqueues the frequency hooks of the classroom forcing the resend' do
+      expect(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker).with(
+        entity.id,
+        daily_frequency.classroom_id,
+        daily_frequency.frequency_date,
+        current_teacher.id
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: daily_frequency.classroom_id,
+        frequency_dates: [daily_frequency.frequency_date],
+        teacher_id: current_teacher.id,
+        force_posting: true
+      )
+
+      expect {
+        delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: [daily_frequency.id] }
+      }.to change(DailyFrequency, :count).by(-1)
+
+      expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
+    end
+  end
+
+  describe '#enqueue_frequency_hooks' do
+    let(:other_classroom) { create(:classroom, unity: unity) }
+    let(:worker_calls) do
+      [
+        { entity_id: entity.id, classroom_id: classroom.id, frequency_date: '2017-02-01'.to_date,
+          teacher_id: current_teacher.id },
+        { entity_id: entity.id, classroom_id: classroom.id, frequency_date: '2017-02-02'.to_date,
+          teacher_id: current_teacher.id },
+        { entity_id: entity.id, classroom_id: other_classroom.id, frequency_date: '2017-02-01'.to_date,
+          teacher_id: current_teacher.id }
+      ]
+    end
+
+    before { allow(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker) }
+
+    # Uma chamada por turma com todas as datas: o envio é por etapa, então repetir a chamada por dia
+    # repetiria a resolução de turma e calendário para produzir o mesmo envio.
+    it 'groups the dates of each classroom into a single call' do
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: classroom.id,
+        frequency_dates: ['2017-02-01'.to_date, '2017-02-02'.to_date],
+        teacher_id: current_teacher.id,
+        force_posting: false
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: other_classroom.id,
+        frequency_dates: ['2017-02-01'.to_date],
+        teacher_id: current_teacher.id,
+        force_posting: false
+      )
+
+      controller.send(:enqueue_frequency_hooks, worker_calls)
+    end
+
+    it 'forwards the force posting flag used by the deletion' do
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call)
+        .twice.with(hash_including(force_posting: true))
+
+      controller.send(:enqueue_frequency_hooks, worker_calls, force_posting: true)
+    end
+
+    it 'keeps one unique frequency student call per classroom and date' do
+      expect(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker).exactly(3).times
+      allow(AutomaticAbsencePostingEnqueuer).to receive(:call)
+
+      controller.send(:enqueue_frequency_hooks, worker_calls + [worker_calls.first])
+    end
+  end
+
   describe 'private methods' do
     describe '#parse_json_frequency_attributes' do
       let(:json_data) do
@@ -444,6 +619,186 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
              params: { locale: 'pt-BR' },
              body: malformed_json
       }.to raise_error(ActionDispatch::ParamsParser::ParseError)
+    end
+  end
+
+  describe '#student_exempted_from_discipline_in_range' do
+    let(:discipline_extra1) { create(:discipline) }
+    let(:discipline_extra2) { create(:discipline) }
+    let(:student_exempt_from_all) { create(:student) }
+    let(:student_exempt_from_some) { create(:student) }
+    let(:student_not_exempt) { create(:student) }
+    let(:enrollment_all) { create(:student_enrollment, student: student_exempt_from_all) }
+    let(:enrollment_some) { create(:student_enrollment, student: student_exempt_from_some) }
+    let(:enrollment_none) { create(:student_enrollment, student: student_not_exempt) }
+    let(:enrollment_ids) { [enrollment_all.id, enrollment_some.id, enrollment_none.id] }
+    let(:frequency_dates) { [school_calendar.steps.first.start_at.to_s] }
+
+    before do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra1)
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra2)
+
+      # student_exempt_from_all: dispensado de todas as disciplinas da turma
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_all, discipline: discipline)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_all, discipline: discipline_extra1)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_all, discipline: discipline_extra2)
+
+      # student_exempt_from_some: dispensado apenas de duas (não todas)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_some, discipline: discipline)
+      create(:student_enrollment_exempted_discipline,
+             student_enrollment: enrollment_some, discipline: discipline_extra1)
+
+      controller.instance_variable_set(:@classroom, classroom)
+    end
+
+    context 'when using general frequency' do
+      before do
+        controller.instance_variable_set(:@discipline, nil)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::GENERAL)
+      end
+
+      it 'returns only students exempt from all disciplines of the classroom' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        student_ids = result.flat_map { |r| r[:student_ids] }
+        expect(student_ids).to contain_exactly(student_exempt_from_all.id)
+      end
+
+      it 'returns hash entries keyed by step_number' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        expect(result).to match_array(
+          [{ step_number: 1, student_ids: [student_exempt_from_all.id] }]
+        )
+      end
+    end
+
+    context 'when using by-discipline frequency for a discipline with exemptions' do
+      before do
+        controller.instance_variable_set(:@discipline, discipline)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::BY_DISCIPLINE)
+      end
+
+      it 'returns students exempt from the specific discipline' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        student_ids = result.flat_map { |r| r[:student_ids] }
+        expect(student_ids).to contain_exactly(student_exempt_from_all.id, student_exempt_from_some.id)
+      end
+    end
+
+    context 'when using by-discipline frequency for a discipline without exemptions' do
+      let(:discipline_without_exemptions) { create(:discipline) }
+
+      before do
+        create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_without_exemptions)
+        controller.instance_variable_set(:@discipline, discipline_without_exemptions)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::BY_DISCIPLINE)
+      end
+
+      it 'returns an empty list' do
+        result = controller.send(:student_exempted_from_discipline_in_range, enrollment_ids, frequency_dates)
+
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when no enrollments are passed' do
+      before do
+        controller.instance_variable_set(:@discipline, nil)
+        controller.instance_variable_set(:@frequency_type, FrequencyTypes::GENERAL)
+      end
+
+      it 'returns an empty list' do
+        result = controller.send(:student_exempted_from_discipline_in_range, [], frequency_dates)
+
+        expect(result).to eq([])
+      end
+    end
+  end
+
+  describe '#additional_data' do
+    let(:discipline_extra1) { create(:discipline) }
+    let(:discipline_extra2) { create(:discipline) }
+    let(:student_exempt_from_all) { create(:student) }
+    let(:enrollment_all) { create(:student_enrollment, student: student_exempt_from_all) }
+    let(:frequency_date) { school_calendar.steps.first.start_at.to_date }
+
+    before do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra1)
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline_extra2)
+
+      [discipline, discipline_extra1, discipline_extra2].each do |disc|
+        create(:student_enrollment_exempted_discipline,
+               student_enrollment: enrollment_all, discipline: disc)
+      end
+
+      controller.instance_variable_set(:@classroom, classroom)
+      controller.instance_variable_set(:@discipline, nil)
+      controller.instance_variable_set(:@frequency_type, FrequencyTypes::GENERAL)
+      controller.instance_variable_set(:@allow_active_search_frequency, false)
+    end
+
+    it 'marks students exempt from all disciplines with status :exempted_from_discipline in general frequency' do
+      exempteds = controller.send(
+        :student_exempted_from_discipline_in_range,
+        [enrollment_all.id],
+        [frequency_date]
+      )
+
+      result = controller.send(
+        :additional_data,
+        [frequency_date],
+        [student_exempt_from_all.id],
+        [],
+        [],
+        exempteds,
+        []
+      )
+
+      expect(result).to include(
+        hash_including(
+          date: frequency_date,
+          student_id: student_exempt_from_all.id,
+          status: :exempted_from_discipline
+        )
+      )
+    end
+  end
+
+  describe '#all_students_inactive?' do
+    let(:dates) { [Date.new(2026, 1, 12), Date.new(2026, 1, 13)] }
+
+    context 'when no enrollment is active on any of the dates' do
+      it 'returns true' do
+        enrollment_classrooms = [
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-02-01', left_at: '') },
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-03-01', left_at: '') }
+        ]
+
+        expect(controller.send(:all_students_inactive?, enrollment_classrooms, dates)).to eq(true)
+      end
+    end
+
+    context 'when at least one enrollment is active on a date' do
+      it 'returns false' do
+        enrollment_classrooms = [
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-02-01', left_at: '') },
+          { student_enrollment_classroom: StudentEnrollmentClassroom.new(joined_at: '2026-01-01', left_at: '') }
+        ]
+
+        expect(controller.send(:all_students_inactive?, enrollment_classrooms, dates)).to eq(false)
+      end
+    end
+
+    context 'when there are no enrollments' do
+      it 'returns true' do
+        expect(controller.send(:all_students_inactive?, [], dates)).to eq(true)
+      end
     end
   end
 

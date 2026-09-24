@@ -97,8 +97,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-      fetch_disciplines_by_classroom
+      disciplines_for_multiple_classrooms
 
       render :multiple_classrooms
     end

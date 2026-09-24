@@ -8,6 +8,6 @@ class ExemptedDailyFrequencyStudent
   end
 
   def to_s
-    'D'
+    StudentSituationMarkers::EXEMPTED
   end
 end

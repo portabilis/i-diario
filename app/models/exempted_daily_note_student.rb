@@ -6,11 +6,11 @@ class ExemptedDailyNoteStudent
   end
 
   def note
-    'D'
+    StudentSituationMarkers::EXEMPTED
   end
 
   def recovery_note
-    @recovery_note || 'D'
+    @recovery_note || StudentSituationMarkers::EXEMPTED
   end
 
   def has_recovery?

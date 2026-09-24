@@ -101,7 +101,17 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :hide_no_school_events_on_attendance_record_report, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :do_not_send_justified_absence, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :automatic_absence_posting, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row">
@@ -171,6 +181,15 @@
           <% end %>
         </div>
       </div>
+      <fieldset class="fieldset">
+        <legend><%= t('.sso_legend') %></legend>
+
+        <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :sso_enabled, label: false, inline_label: true %>
+          </div>
+        </div>
+      </fieldset>
       <fieldset id="notify_consecutive_or_alternate_absences_fields" class="fieldset">
         <legend><%= t('.infrequency_tracking_configurations') %></legend>
           <div class="row">
