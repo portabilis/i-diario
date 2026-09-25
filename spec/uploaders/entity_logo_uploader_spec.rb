@@ -93,7 +93,19 @@ RSpec.describe EntityLogoUploader, type: :model do
     File.open(path) { |file| entity_configuration.logo = file }
 
     expect(entity_configuration).not_to be_valid
-    expect(entity_configuration.errors[:logo]).to be_present
+    expect(entity_configuration.errors[:logo]).to eq(['Tipo de arquivo não suportado'])
+  end
+
+  it 'rejects a file with an image extension that is not an image' do
+    path = File.join(logo_source_dir, 'brasao.png')
+    File.write(path, 'not an image')
+
+    File.open(path) { |file| entity_configuration.logo = file }
+
+    expect(entity_configuration).not_to be_valid
+    expect(entity_configuration.errors[:logo]).to eq(
+      ['não pôde ser processado, envie uma imagem PNG, JPG, GIF ou WebP válida']
+    )
   end
 
   describe '#for_pdf' do
