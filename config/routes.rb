@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
+  get 'entity_logo', to: 'entity_logos#show', as: :entity_logo
 
   devise_for :users, only: :omniauth_callbacks, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
 

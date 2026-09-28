@@ -19,6 +19,7 @@ RUN apt-get install -y \
     git \
     libpq-dev \
     shared-mime-info \
+    imagemagick \
     curl
 
 # Install Node.js 22 LTS via NodeSource (replaces Debian's outdated Node 10.x)

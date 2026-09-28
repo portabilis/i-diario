@@ -9,6 +9,19 @@ RSpec.describe Users::OmniauthCallbacksController, type: :controller do
     end
   end
 
+  # Um plugin carregado pelo Gemfile.plugins pode assinar o evento de usuário não encontrado
+  # e criar o usuário; um notifier próprio deixa o spec só com os assinantes que ele registra.
+  around(:each) do |example|
+    original_notifier = ActiveSupport::Notifications.notifier
+    ActiveSupport::Notifications.notifier = ActiveSupport::Notifications::Fanout.new
+
+    begin
+      example.run
+    ensure
+      ActiveSupport::Notifications.notifier = original_notifier
+    end
+  end
+
   before do
     request.env['devise.mapping'] = Devise.mappings[:user]
     request.env['omniauth.auth'] = {
