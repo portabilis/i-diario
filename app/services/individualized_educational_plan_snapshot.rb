@@ -131,7 +131,11 @@ class IndividualizedEducationalPlanSnapshot
   end
 
   # Linha removida no formulário (ainda em memória) não entra: o snapshot reflete o que vai ser salvo.
+  # Com "Não" a lista fica vazia: a migração do campo único preservou linhas de planos com "Não",
+  # que só são descartadas no próximo salvamento.
   def medications
+    return [] if plan.uses_medication == false
+
     plan.iep_medications.reject(&:marked_for_destruction?).map do |medication|
       { 'iep_medication_id' => medication.id }.merge(medication.slice('name', 'dosage', 'schedule'))
     end
