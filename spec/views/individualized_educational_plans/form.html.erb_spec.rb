@@ -123,6 +123,16 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
       expect(rendered[%r{<select[^>]*uses_medication[^>]*>}]).to include('disabled')
     end
 
+    it 'hides the medications of a plan answered "no"' do
+      plan = create(:individualized_educational_plan, uses_medication: false)
+      create(:iep_medication, iep: plan)
+      assign_form_options(plan.reload)
+
+      render partial: 'individualized_educational_plans/form', locals: { view_only: true }
+
+      expect(medications_block['class']).to include('hidden')
+    end
+
     it 'lists the medications read-only, without add or remove buttons' do
       plan = create(:individualized_educational_plan, uses_medication: true,
                                                       iep_medications_attributes: [{ name: 'Metilfenidato' }])
