@@ -167,6 +167,7 @@ module Ieducar
       configuration = posting.ieducar_api_configuration
 
       return IeducarApi::PostScores.new(configuration) if SCORE_POSTING_TYPES.include?(posting.post_type)
+      return IeducarApi::PostOpinions.for_payload(configuration, params) if descriptive_exam?(posting)
       return unless posting.post_type == ApiPostingTypes::ABSENCE
 
       if params.with_indifferent_access[:componente_id].present?
@@ -174,6 +175,10 @@ module Ieducar
       else
         IeducarApi::PostGeneralAbsences.new(configuration)
       end
+    end
+
+    def descriptive_exam?(posting)
+      posting.post_type == ApiPostingTypes::DESCRIPTIVE_EXAM
     end
 
     def legacy_api(posting)
