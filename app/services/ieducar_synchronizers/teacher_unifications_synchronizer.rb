@@ -16,7 +16,10 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
   end
 
   def update_teacher_unifications(unifications)
-    preload_teachers(unifications.map(&:main_id).compact)
+    main_ids = unifications.map(&:main_id).compact
+    duplicate_ids = unifications.flat_map { |unification| convert_struct_to_array(unification) }.compact
+
+    preload_teachers(main_ids + duplicate_ids)
 
     errors = []
 
@@ -80,7 +83,7 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
 
   # Unificação ativa com professor secundário ainda não descartado ficou pela metade.
   def pending_unification?(unification, secondary_teachers)
-    unification.active && secondary_teachers.any?(&:kept?)
+    teacher_unification.active && secondary_teachers.any?(&:kept?)
   end
 
   def convert_struct_to_array(unification)
