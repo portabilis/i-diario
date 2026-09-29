@@ -107,6 +107,21 @@ RSpec.describe TeacherUnificationsSynchronizer, type: :service do
     end
   end
 
+  context 'when a recorded unification is inactive' do
+    before do
+      TeacherUnification.create!(teacher: main_teacher, unified_at: unified_at, active: false)
+      stub_unifications(unification_payload(main_teacher, secondary_teacher).merge('active' => false))
+    end
+
+    it 'does not unify the teachers' do
+      expect(TeacherUnification::UnificationService).not_to receive(:new)
+
+      synchronizer.synchronize!
+
+      expect(secondary_teacher.reload).not_to be_discarded
+    end
+  end
+
   context 'when one unification fails' do
     let!(:other_main_teacher) { create(:teacher) }
     let!(:other_secondary_teacher) { create(:teacher) }
