@@ -221,14 +221,31 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
         individualized_educational_plan: {
           characterization: 'Invadido',
-          medication_name: 'Invadido',
+          uses_medication: 'true',
+          iep_medications_attributes: { '0' => { name: 'Invadido' } },
           iep_curricular_plannings_attributes: { '0' => { id: own_line.id, long_term_goal: 'Meta ok' } }
         }
       }
 
       expect(plan.reload.characterization).to eq('Original')
-      expect(plan.medication_name).to be_nil
+      expect(plan.uses_medication).to be_nil
+      expect(plan.iep_medications).to be_empty
       expect(own_line.reload.long_term_goal).to eq('Meta ok')
+    end
+
+    # O professor não edita a etapa 3: um "Sim" salvo sem medicamento não pode travar o save dele.
+    it 'saves the own line even when the plan has a "yes" medication answer without medications' do
+      plan.update_column(:uses_medication, true)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => { id: own_line.id, long_term_goal: 'Meta revisada' } }
+        }
+      }
+
+      expect(response).to redirect_to(individualized_educational_plans_path)
+      expect(own_line.reload.long_term_goal).to eq('Meta revisada')
     end
 
     it 'blocks editing a line of another component and does not persist it' do
@@ -1219,23 +1236,51 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     end
 
     # 'false' como string, igual ao submit do select: prova o permit + cast do boolean tri-state.
-    it 'persists the medication and family environment fields' do
+    it 'persists the medication answer, notes and family environment fields' do
       post :create, params: {
         locale: 'pt-BR', version_name: 'Versão 1',
         individualized_educational_plan: valid_params.merge(
-          uses_medication: 'false', medication_name: 'Medicamento A', medication_dosage: '5mg',
-          medication_schedule: '08:00', medication_notes: 'Apos o almoco',
+          uses_medication: 'false', medication_notes: 'Apos o almoco',
           family_environment_characteristics: 'Rotina estruturada'
         )
       }
 
       plan = assigns(:individualized_educational_plan).reload
       expect(plan.uses_medication).to eq(false)
-      expect(plan.medication_name).to eq('Medicamento A')
-      expect(plan.medication_dosage).to eq('5mg')
-      expect(plan.medication_schedule).to eq('08:00')
       expect(plan.medication_notes).to eq('Apos o almoco')
       expect(plan.family_environment_characteristics).to eq('Rotina estruturada')
+    end
+
+    it 'persists several medications in the submitted order, skipping blank rows' do
+      post :create, params: {
+        locale: 'pt-BR', version_name: 'Versão 1',
+        individualized_educational_plan: valid_params.merge(
+          uses_medication: 'true',
+          iep_medications_attributes: {
+            '0' => { name: 'Metilfenidato', dosage: '10 mg', schedule: '07h30' },
+            '1' => { name: '', dosage: '', schedule: '' },
+            '2' => { name: 'Risperidona', dosage: '1 mg', schedule: '20h00' }
+          }
+        )
+      }
+
+      medications = assigns(:individualized_educational_plan).reload.iep_medications
+      expect(medications.map { |medication| [medication.name, medication.dosage, medication.schedule] })
+        .to eq([['Metilfenidato', '10 mg', '07h30'], ['Risperidona', '1 mg', '20h00']])
+    end
+
+    it 'rejects a "yes" medication answer without a named medication' do
+      expect do
+        post :create, params: {
+          locale: 'pt-BR', version_name: 'Versão 1',
+          individualized_educational_plan: valid_params.merge(
+            uses_medication: 'true',
+            iep_medications_attributes: { '0' => { name: '', dosage: '5 mg', schedule: '' } }
+          )
+        }
+      end.not_to change(IndividualizedEducationalPlan, :count)
+
+      expect(response).to render_template(:new)
     end
 
     # '' (select em branco) tem que virar nil — o "não respondido" do tri-state. Um default na
@@ -1252,7 +1297,9 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
     it 'casts a "true" medication answer to the boolean true' do
       post :create, params: {
         locale: 'pt-BR', version_name: 'Versão 1',
-        individualized_educational_plan: valid_params.merge(uses_medication: 'true')
+        individualized_educational_plan: valid_params.merge(
+          uses_medication: 'true', iep_medications_attributes: { '0' => { name: 'Metilfenidato' } }
+        )
       }
 
       expect(assigns(:individualized_educational_plan).reload.uses_medication).to eq(true)
@@ -1413,6 +1460,42 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
       allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
       allow(controller).to receive(:plan_editable?).and_return(true)
+    end
+
+    it 'removes a saved medication marked for destruction' do
+      plan = create(:individualized_educational_plan, uses_medication: true,
+                                                      iep_medications_attributes: [{ name: 'Metilfenidato' },
+                                                                                   { name: 'Risperidona' }])
+      kept, removed = plan.iep_medications
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: {
+          iep_medications_attributes: {
+            '0' => { id: kept.id, name: 'Metilfenidato' },
+            '1' => { id: removed.id, name: 'Risperidona', _destroy: '1' }
+          }
+        }
+      }
+
+      expect(plan.reload.iep_medications).to eq([kept])
+    end
+
+    it 'discards the medications when the answer changes to "no"' do
+      plan = create(:individualized_educational_plan, uses_medication: true,
+                                                      iep_medications_attributes: [{ name: 'Metilfenidato' }])
+      medication = plan.iep_medications.first
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+        individualized_educational_plan: {
+          uses_medication: 'false',
+          iep_medications_attributes: { '0' => { id: medication.id, name: medication.name } }
+        }
+      }
+
+      expect(plan.reload.uses_medication).to eq(false)
+      expect(plan.iep_medications).to be_empty
     end
 
     it 'renders edit with a friendly error when removing a review that has section data' do
