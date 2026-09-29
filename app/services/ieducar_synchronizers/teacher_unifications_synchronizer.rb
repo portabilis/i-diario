@@ -60,7 +60,7 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
         main_teacher: teacher,
         secondary_teachers: secondary_teachers
       )
-    elsif pending_unification?(unification, secondary_teachers)
+    elsif pending_unification?(teacher_unification, secondary_teachers)
       TeacherUnification::UnificationService.new(teacher, secondary_teachers).run!
     end
   end
@@ -82,7 +82,7 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
   end
 
   # Unificação ativa com professor secundário ainda não descartado ficou pela metade.
-  def pending_unification?(unification, secondary_teachers)
+  def pending_unification?(teacher_unification, secondary_teachers)
     teacher_unification.active && secondary_teachers.any?(&:kept?)
   end
 
