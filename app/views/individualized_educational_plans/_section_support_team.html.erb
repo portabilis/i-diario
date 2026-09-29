@@ -32,9 +32,10 @@
   <%# Lista de medicamentos: só aparece com "Sim". O JS (form.js) mostra/esconde o bloco ao trocar
       a resposta; o servidor descarta as linhas de um plano salvo sem "Sim". %>
   <% medications = f.object.iep_medications.reject(&:marked_for_destruction?) %>
-  <%# Em leitura a lista aparece sempre que existir: versão publicada antes da lista pode ter
-      medicamento sem resposta na pergunta. %>
-  <% show_medications = f.object.uses_medication || (view_only && medications.any?) %>
+  <%# Em leitura a lista também aparece com a pergunta sem resposta: versão publicada antes da
+      lista pode ter medicamento sem resposta. Com "Não" nunca aparece. %>
+  <% show_medications = f.object.uses_medication ||
+                         (view_only && f.object.uses_medication.nil? && medications.any?) %>
   <div id="iep-medications-block" class="<%= 'hidden' unless show_medications %>">
     <div class="row hidden-xs iep-medications-header <%= 'hidden' if medications.empty? %>">
       <div class="col col-sm-4"><label><%= t('.medication_name') %></label></div>
