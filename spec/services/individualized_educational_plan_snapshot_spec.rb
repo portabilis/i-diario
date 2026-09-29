@@ -169,6 +169,16 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
       expect(support_team['family_environment_characteristics']).to eq('Rotina estruturada')
     end
 
+    # Linha migrada do campo único num plano com "Não": fica no banco até o próximo salvamento.
+    it 'freezes no medication when the answer is "no"' do
+      plan = create(:individualized_educational_plan, uses_medication: false)
+      create(:iep_medication, iep: plan)
+
+      support_team = described_class.build(plan.reload, student_data: {})['support_team']
+
+      expect(support_team['medications']).to eq([])
+    end
+
     it 'freezes every medication in the order they were added' do
       plan = create(:individualized_educational_plan, uses_medication: true, iep_medications_attributes: [
                       { name: 'Risperidona', dosage: '1 mg', schedule: '20h00' },
