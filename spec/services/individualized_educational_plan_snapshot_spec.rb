@@ -158,19 +158,30 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
     # é provada no spec de round-trip, não aqui (este exemplo fica em memória).
     it 'freezes the medication and family environment fields keeping a "no" answer' do
       plan = create(:individualized_educational_plan,
-                    uses_medication: false, medication_name: 'Medicamento A',
-                    medication_dosage: '5mg', medication_schedule: '08:00',
-                    medication_notes: 'Apos o almoco',
+                    uses_medication: false, medication_notes: 'Apos o almoco',
                     family_environment_characteristics: 'Rotina estruturada')
 
       support_team = described_class.build(plan, student_data: {})['support_team']
 
       expect(support_team['uses_medication']).to eq(false)
-      expect(support_team['medication_name']).to eq('Medicamento A')
-      expect(support_team['medication_dosage']).to eq('5mg')
-      expect(support_team['medication_schedule']).to eq('08:00')
+      expect(support_team['medications']).to eq([])
       expect(support_team['medication_notes']).to eq('Apos o almoco')
       expect(support_team['family_environment_characteristics']).to eq('Rotina estruturada')
+    end
+
+    it 'freezes every medication in the order they were added' do
+      plan = create(:individualized_educational_plan, uses_medication: true, iep_medications_attributes: [
+                      { name: 'Risperidona', dosage: '1 mg', schedule: '20h00' },
+                      { name: 'Metilfenidato', dosage: '10 mg', schedule: '07h30' }
+                    ])
+      first, second = plan.iep_medications
+
+      support_team = described_class.build(plan.reload, student_data: {})['support_team']
+
+      expect(support_team['medications']).to eq([
+        { 'iep_medication_id' => first.id, 'name' => 'Risperidona', 'dosage' => '1 mg', 'schedule' => '20h00' },
+        { 'iep_medication_id' => second.id, 'name' => 'Metilfenidato', 'dosage' => '10 mg', 'schedule' => '07h30' }
+      ])
     end
 
     # O id gravado é o da OPÇÃO, não o da linha de junção. As junções descartáveis abaixo afastam
@@ -227,6 +238,28 @@ RSpec.describe IndividualizedEducationalPlanSnapshot, type: :service do
       expect(line['iep_periodic_evaluation_id']).to eq(evaluation.id)
       expect(line['knowledge_area_id']).to eq(knowledge_area.id)
       expect(line['discipline_id']).to be_nil
+    end
+  end
+
+  describe '.medications_from' do
+    it 'reads the medications list' do
+      rows = [{ 'name' => 'Metilfenidato', 'dosage' => '10 mg', 'schedule' => '07h30' }]
+
+      expect(described_class.medications_from('medications' => rows)).to eq(rows)
+    end
+
+    # Versão publicada com o campo único: continua mostrando o medicamento, como uma linha.
+    it 'turns the single medication fields of an older snapshot into one row' do
+      support_team = { 'medication_name' => 'Metilfenidato', 'medication_dosage' => '10 mg',
+                       'medication_schedule' => nil }
+
+      expect(described_class.medications_from(support_team))
+        .to eq([{ 'name' => 'Metilfenidato', 'dosage' => '10 mg', 'schedule' => nil }])
+    end
+
+    it 'returns no rows when an older snapshot has no medication filled' do
+      expect(described_class.medications_from('medication_name' => '', 'uses_medication' => false)).to eq([])
+      expect(described_class.medications_from(nil)).to eq([])
     end
   end
 end
