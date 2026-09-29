@@ -7,6 +7,10 @@ class IndividualizedEducationalPlan < ApplicationRecord
   attr_accessor :birth_date, :guardians, :guardians_unavailable, :diagnosis, :shift,
                 :unity_name, :teacher_name, :classroom_name
 
+  # Substituídas por iep_medications; saem do schema numa migration posterior, depois que
+  # nenhum processo em execução ainda as leia.
+  self.ignored_columns = %w[medication_name medication_dosage medication_schedule]
+
   audited
   has_associated_audits
 
@@ -22,6 +26,10 @@ class IndividualizedEducationalPlan < ApplicationRecord
   has_many :iep_periodic_evaluations, dependent: :destroy
   has_many :iep_review_dates, dependent: :destroy
 
+  # Ordem de cadastro: é a ordem exibida no formulário, no PDF e na versão publicada.
+  has_many :iep_medications, -> { order(:id) }, dependent: :destroy,
+           foreign_key: :individualized_educational_plan_id, inverse_of: :iep
+
   # O snapshot imutável de cada versão publicada é o documento em si — o arquivamento preserva
   # essas linhas, e só um destroy real as leva junto.
   has_many :iep_versions, dependent: :destroy
@@ -32,6 +40,10 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # linhas novas em branco são descartadas (não viram registro nem disparam a validação de presença).
   accepts_nested_attributes_for :iep_review_dates, allow_destroy: true,
                                 reject_if: ->(attrs) { attrs['id'].blank? && attrs['review_date'].blank? }
+
+  # Linha nova totalmente vazia (a que o formulário insere ao responder "Sim") é descartada.
+  accepts_nested_attributes_for :iep_medications, allow_destroy: true,
+                                reject_if: ->(attrs) { attrs['id'].blank? && attrs.except('_destroy').values.all?(&:blank?) }
 
   # Linha nova (sem id) totalmente vazia é descartada. A régua de "vazio" é UMA só: o
   # empty_content? de cada model (o mesmo usado pelo prune de linhas salvas), evitando
@@ -48,10 +60,18 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # linha de seção que o arquivamento existe para preservar.
   before_validation :prune_empty_section_lines, unless: :discarded_at_changed?
 
+  # Medicamento só existe com "Sim": com "Não" ou sem resposta as linhas são removidas no save,
+  # inclusive as que o formulário apenas escondeu. Fora do arquivamento pelo mesmo motivo da poda acima.
+  before_validation :discard_medications_unless_used, unless: :discarded_at_changed?
+
   # Bloqueia remover uma revisão que ainda tem conteúdo (não removido) nas seções 4/5.
   # Validado aqui (coleção em memória, já podada) para cobrir todas as revisões do submit
   # e preservar as demais edições do usuário ao exibir o erro.
   validate :prevent_removing_review_dates_in_use
+
+  # Só quando a seção de medicação foi mexida: o professor salva o plano inteiro sem poder editar
+  # a seção 3, e um "Sim" antigo sem medicamento não pode travar o salvamento dele.
+  validate :medication_required_when_used, if: :medication_changed?
 
   validates :elaborated_at, not_in_future: true
   validate :elaborated_at_within_year
@@ -102,6 +122,35 @@ class IndividualizedEducationalPlan < ApplicationRecord
     (iep_curricular_plannings + iep_periodic_evaluations).each do |line|
       line.mark_for_destruction if line.persisted? && !line.marked_for_destruction? && line.empty_content?
     end
+  end
+
+  def discard_medications_unless_used
+    return if uses_medication
+
+    iep_medications.each(&:mark_for_destruction)
+  end
+
+  def medication_changed?
+    uses_medication_changed? || iep_medications.any?(&:changed_for_autosave?)
+  end
+
+  def medication_required_when_used
+    return unless uses_medication
+
+    live_medications = iep_medications.reject(&:marked_for_destruction?)
+    return if live_medications.any? { |medication| medication.name.present? }
+
+    # Em :base porque o erro aparece no topo do formulário, visível em qualquer etapa do wizard.
+    errors.add(:base, I18n.t('activerecord.errors.models.individualized_educational_plan.medication_required'))
+    highlight_missing_medication_name(live_medications)
+  end
+
+  # Marca o nome da primeira linha para o formulário destacar o campo e abrir a etapa 3. Sem linha
+  # (a vazia é descartada pelo reject_if), constrói uma: o save já falhou, então ela não é gravada.
+  # O autosave valida as linhas antes deste validate, por isso o erro é adicionado aqui.
+  def highlight_missing_medication_name(live_medications)
+    medication = live_medications.first || iep_medications.build
+    medication.errors.add(:name, :blank) if medication.errors[:name].empty?
   end
 
   # Usa a coleção em memória (já podada), não o banco, para enxergar linhas esvaziadas no mesmo submit.
