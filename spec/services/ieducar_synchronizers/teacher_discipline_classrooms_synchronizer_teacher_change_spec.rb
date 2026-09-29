@@ -72,4 +72,29 @@ RSpec.describe TeacherDisciplineClassroomsSynchronizer, type: :service do
 
     expect(TeacherDisciplineClassroom.kept.where(api_code: api_code, teacher_id: current_teacher.id).count).to eq(1)
   end
+
+  context 'when the discipline belongs to a grouped knowledge area' do
+    let!(:knowledge_area) { create(:knowledge_area, group_descriptors: true) }
+    let!(:discipline) { create(:discipline, knowledge_area: knowledge_area) }
+    let!(:grouper_discipline) do
+      create(:discipline, knowledge_area: knowledge_area, grouper: true, api_code: "grouper:#{knowledge_area.id}")
+    end
+
+    def grouper_links(teacher)
+      TeacherDisciplineClassroom.unscoped.where(discipline_id: grouper_discipline.id, teacher_id: teacher.id)
+    end
+
+    it 'removes the grouper link of the previous teacher' do
+      stub_link(previous_teacher)
+      synchronizer.synchronize!
+
+      expect(grouper_links(previous_teacher).count).to eq(1)
+
+      stub_link(current_teacher)
+      synchronizer.synchronize!
+
+      expect(grouper_links(previous_teacher)).to be_empty
+      expect(grouper_links(current_teacher).kept.count).to eq(1)
+    end
+  end
 end
