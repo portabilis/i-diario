@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ExamPoster::DescriptiveExamPoster do
+RSpec.describe ExamPoster::DescriptiveExamPoster, type: :service do
   let(:rule_without_descriptive) { create(:exam_rule, opinion_type: OpinionTypes::DONT_USE) }
 
   let(:exam_posting) do
@@ -63,16 +63,10 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'pareceres-por-etapa-e-componente',
-          pareceres: {
-            classroom.api_code => {
-              student.api_code => {
-                discipline.api_code => {
-                  'valor' => descriptive_exam_student.value
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          componente_id: discipline.api_code,
+          parecer: descriptive_exam_student.value
         }
       }
 
@@ -119,14 +113,9 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'pareceres-por-etapa-geral',
-          pareceres: {
-            classroom.api_code => {
-              student.api_code => {
-                'valor' => descriptive_exam_student.value
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          parecer: descriptive_exam_student.value
         }
       }
 
@@ -178,16 +167,10 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'pareceres-por-etapa-e-componente',
-          pareceres: {
-            classroom.api_code => {
-              student.api_code => {
-                discipline.api_code => {
-                  'valor' => descriptive_exam_student.value
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          componente_id: discipline.api_code,
+          parecer: descriptive_exam_student.value
         }
       }
 
