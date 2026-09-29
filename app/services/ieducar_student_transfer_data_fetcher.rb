@@ -300,15 +300,12 @@ class IeducarStudentTransferDataFetcher
 
     params = {
       etapa: step.to_number,
-      resource: 'pareceres-por-etapa-geral',
-      pareceres: {
-        classroom.api_code => {
-          student.api_code => { 'valor' => exam.value }
-        }
-      }
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      parecer: exam.value
     }
 
-    send_descriptive_exams_to_ieducar(params)
+    send_v2_to_ieducar(IeducarApi::PostOpinionsByStep, params, 'avaliação descritiva da etapa')
   end
 
   def post_descriptive_by_step_and_discipline(step)
@@ -329,17 +326,17 @@ class IeducarStudentTransferDataFetcher
 
       params = {
         etapa: step.to_number,
-        resource: 'pareceres-por-etapa-e-componente',
-        pareceres: {
-          classroom.api_code => {
-            student.api_code => {
-              discipline.api_code => { 'valor' => exam.value }
-            }
-          }
-        }
+        turma_id: classroom.api_code,
+        aluno_id: student.api_code,
+        componente_id: discipline.api_code,
+        parecer: exam.value
       }
 
-      send_descriptive_exams_to_ieducar(params)
+      send_v2_to_ieducar(
+        IeducarApi::PostOpinionsByStepAndDiscipline,
+        params,
+        "avaliação descritiva da etapa (componente: #{params[:componente_id]})"
+      )
     end
   end
 
@@ -354,15 +351,12 @@ class IeducarStudentTransferDataFetcher
     return unless exam&.value.present?
 
     params = {
-      resource: 'pareceres-anual-geral',
-      pareceres: {
-        classroom.api_code => {
-          student.api_code => { 'valor' => exam.value }
-        }
-      }
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      parecer: exam.value
     }
 
-    send_descriptive_exams_to_ieducar(params)
+    send_v2_to_ieducar(IeducarApi::PostOpinionsByYear, params, 'avaliação descritiva anual')
   end
 
   def post_descriptive_by_year_and_discipline
@@ -379,17 +373,17 @@ class IeducarStudentTransferDataFetcher
       next unless exam&.value.present?
 
       params = {
-        resource: 'pareceres-anual-por-componente',
-        pareceres: {
-          classroom.api_code => {
-            student.api_code => {
-              discipline.api_code => { 'valor' => exam.value }
-            }
-          }
-        }
+        turma_id: classroom.api_code,
+        aluno_id: student.api_code,
+        componente_id: discipline.api_code,
+        parecer: exam.value
       }
 
-      send_descriptive_exams_to_ieducar(params)
+      send_v2_to_ieducar(
+        IeducarApi::PostOpinionsByYearAndDiscipline,
+        params,
+        "avaliação descritiva anual (componente: #{params[:componente_id]})"
+      )
     end
   end
 
@@ -436,12 +430,6 @@ class IeducarStudentTransferDataFetcher
 
   def exempted_discipline?(discipline, step)
     ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number).include?(discipline.id)
-  end
-
-  def send_descriptive_exams_to_ieducar(params)
-    api = IeducarApi::PostDescriptiveExams.new(ieducar_api.to_api)
-    response = IeducarResponseDecorator.new(api.send_post(params))
-    @all_postings_sent = false if response.any_error_message?
   end
 
   def send_general_absences_to_ieducar(params)
