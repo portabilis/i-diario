@@ -21,6 +21,13 @@ class DailyFrequenciesController < ApplicationController
       @disciplines = @disciplines.by_classroom(classroom).not_descriptor
     end
 
+    # Embutido na página pra filtrar a "Aula" instantaneamente no JS (sem
+    # round-trip ao servidor a cada troca de turma/componente/data): as
+    # aulas que o professor logado realmente tem, por turma/dia da
+    # semana/componente, segundo o quadro de aulas.
+    @lessons_board_allocations = current_teacher_lessons_board_allocations
+    @classroom_ids_with_lessons_board = LessonsBoard.joins(:classrooms_grade).pluck('classrooms_grades.classroom_id').uniq
+
     authorize @daily_frequency
   end
 
@@ -484,6 +491,23 @@ class DailyFrequenciesController < ApplicationController
 
   def set_number_of_classes
     @number_of_classes = current_school_calendar.number_of_classes
+  end
+
+  # Todas as aulas (turma/componente/dia da semana/nº da aula) que o professor
+  # logado tem em algum quadro de aulas — pequeno o suficiente pra embutir na
+  # página inteiro e filtrar no JS sem round-trip ao servidor.
+  def current_teacher_lessons_board_allocations
+    LessonsBoardLessonWeekday.includes(:lessons_board_lesson, :teacher_discipline_classroom)
+                              .by_teacher(current_teacher_id)
+                              .map do |allocation|
+      tdc = allocation.teacher_discipline_classroom
+      {
+        classroom_id: tdc.classroom_id,
+        discipline_id: tdc.discipline_id,
+        weekday: allocation.weekday,
+        lesson_number: allocation.lessons_board_lesson.lesson_number.to_i
+      }
+    end
   end
 
   def require_teacher

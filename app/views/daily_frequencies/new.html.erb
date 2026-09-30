@@ -52,8 +52,13 @@
                   data:{
                     multiple: true,
                     elements: number_of_classes_elements(@number_of_classes),
-                    placeholder: 'Selecione uma ou mais aulas'
+                    placeholder: 'Selecione uma ou mais aulas',
+                    lessons_board_allocations: @lessons_board_allocations.to_json,
+                    classroom_ids_with_board: @classroom_ids_with_lessons_board.to_json
                   } %>
+            <span class="help-block hidden" id="class-numbers-empty-warning">
+              Não há aula alocada para o(a) professor(a) nesse dia, segundo o quadro de aulas da turma.
+            </span>
           </div>
         </div>
       </div>

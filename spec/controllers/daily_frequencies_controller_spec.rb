@@ -74,6 +74,56 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     request.env['REQUEST_PATH'] = ''
   end
 
+  describe 'GET #new' do
+    context 'when the classroom has a lessons board (quadro de aulas)' do
+      let(:teacher_discipline_classroom) do
+        TeacherDisciplineClassroom.find_by!(classroom: classroom, teacher: current_teacher, discipline: discipline)
+      end
+      let(:lessons_board) { create(:lessons_board, classrooms_grade: classrooms_grade) }
+      let(:lesson) { create(:lessons_board_lesson, lessons_board: lessons_board, lesson_number: 3) }
+
+      before do
+        create(
+          :lessons_board_lesson_weekday,
+          lessons_board_lesson: lesson,
+          teacher_discipline_classroom: teacher_discipline_classroom,
+          weekday: :thursday
+        )
+      end
+
+      it 'embeds the teacher lessons board allocations for JS to filter "Aula" instantly' do
+        get :new, params: { locale: 'pt-BR' }
+
+        expect(assigns(:lessons_board_allocations)).to include(
+          classroom_id: classroom.id,
+          discipline_id: discipline.id,
+          weekday: 'thursday',
+          lesson_number: lesson.lesson_number.to_i
+        )
+      end
+
+      it 'includes the classroom in classroom_ids_with_lessons_board' do
+        get :new, params: { locale: 'pt-BR' }
+
+        expect(assigns(:classroom_ids_with_lessons_board)).to include(classroom.id)
+      end
+    end
+
+    context 'when the classroom has no lessons board' do
+      it 'does not include the classroom in classroom_ids_with_lessons_board (JS keeps the old full list)' do
+        get :new, params: { locale: 'pt-BR' }
+
+        expect(assigns(:classroom_ids_with_lessons_board)).not_to include(classroom.id)
+      end
+
+      it 'has no allocations for a teacher with no lessons board at all' do
+        get :new, params: { locale: 'pt-BR' }
+
+        expect(assigns(:lessons_board_allocations)).to eq([])
+      end
+    end
+  end
+
   describe 'POST #create' do
     context 'without success' do
       it 'fails to create and renders the new template' do
