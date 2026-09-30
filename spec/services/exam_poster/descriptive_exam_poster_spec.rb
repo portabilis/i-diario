@@ -125,6 +125,92 @@ RSpec.describe ExamPoster::DescriptiveExamPoster, type: :service do
     end
   end
 
+  # Os pareceres anuais não têm etapa: é a ausência de `etapa` no payload que leva o
+  # Ieducar::SendPostWorker aos endpoints anuais.
+  context 'when opinion type is by_year (general, without discipline)' do
+    let(:rule_with_descriptive) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_YEAR)
+    end
+
+    let!(:classroom) do
+      create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
+        create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_with_descriptive)
+      end
+    end
+
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: nil, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_YEAR)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'enqueues the yearly request without a step' do
+      subject.post!
+
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        { turma_id: classroom.api_code, aluno_id: student.api_code, parecer: descriptive_exam_student.value },
+        { classroom: classroom.api_code, student: student.api_code },
+        'critical',
+        0
+      )
+    end
+  end
+
+  context 'when opinion type is by_year_and_discipline' do
+    let(:discipline) { create(:discipline) }
+    let(:rule_with_descriptive) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE)
+    end
+
+    let!(:classroom) do
+      create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
+        create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_with_descriptive)
+      end
+    end
+
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: discipline, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'enqueues the yearly request with the discipline and without a step' do
+      subject.post!
+
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        {
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          componente_id: discipline.api_code,
+          parecer: descriptive_exam_student.value
+        },
+        { classroom: classroom.api_code, student: student.api_code, discipline: discipline.api_code },
+        'critical',
+        0
+      )
+    end
+  end
+
   # Aluno que usa regra diferenciada: a regra base não usa parecer, mas a
   # diferenciada sim. Cobre o ramo `if differentiated` do valid_opinion_type?.
   context 'when the student uses a differentiated exam rule' do
