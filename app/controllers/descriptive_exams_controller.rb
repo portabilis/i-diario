@@ -182,13 +182,12 @@ class DescriptiveExamsController < ApplicationController
   def recorded_at_by_step
     @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
 
-    date = if @descriptive_exam.step_id.present?
-             steps_fetcher.step_by_id(@descriptive_exam.step_id).end_at
-           else
-             Date.current
-           end
+    step = steps_fetcher.step_by_id(@descriptive_exam.step_id) if @descriptive_exam.step_id.present?
 
-    Date.current > date ? date : Date.current
+    # Etapa que não pertence à turma é barrada na validação do model; aqui só não há data de etapa para usar.
+    return Date.current if step.blank?
+
+    [Date.current, step.end_at].min
   end
 
   def fetch_dates_for_opinion_type_by_year
