@@ -184,7 +184,7 @@ class DescriptiveExamsController < ApplicationController
 
     step = steps_fetcher.step_by_id(@descriptive_exam.step_id) if @descriptive_exam.step_id.present?
 
-    # Etapa que não pertence à turma é barrada na validação do model; aqui só não há data de etapa para usar.
+    # Etapa em branco ou de outro calendário não tem data de fim; a validação do model barra o registro.
     return Date.current if step.blank?
 
     [Date.current, step.end_at].min
