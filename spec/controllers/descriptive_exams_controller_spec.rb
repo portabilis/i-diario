@@ -178,6 +178,31 @@ RSpec.describe DescriptiveExamsController, type: :controller do
       end
     end
 
+    context 'when a teacher fails to create for a classroom other than the profile one' do
+      let(:teacher_user) { create(:user, :with_user_role_teacher) }
+      let(:other_classroom_exam_rule) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP) }
+      let(:params_without_step) do
+        {
+          locale: 'pt-BR',
+          descriptive_exam: { classroom_id: other_classroom.id, opinion_type: OpinionTypes::BY_STEP, step_id: '' }
+        }
+      end
+
+      before do
+        classrooms_grade
+        sign_in(teacher_user)
+        allow(controller).to receive(:current_unity).and_return(unity)
+        allow(controller).to receive(:current_school_year).and_return(classroom.year)
+      end
+
+      it 'offers the opinion type of the selected classroom' do
+        post :create, params: params_without_step
+
+        expect(response).to render_template(:new)
+        expect(assigns(:opinion_types).map(&:id)).to eq([OpinionTypes::BY_STEP])
+      end
+    end
+
     context "with invalid params" do
       let(:invalid_params) do
         {
