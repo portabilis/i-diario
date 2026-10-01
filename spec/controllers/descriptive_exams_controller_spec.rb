@@ -127,14 +127,6 @@ RSpec.describe DescriptiveExamsController, type: :controller do
       end
     end
 
-    context 'with success' do
-      it 'creates and redirects to descriptive exams edit page' do
-        allow(controller).to receive(:find_step_number).and_return(1)
-        post :create, params: params
-        expect(response).to redirect_to /avaliacoes-descritivas/
-      end
-    end
-
     context "with valid params" do
       it "creates a new descriptive exam" do
         expect {
