@@ -66,3 +66,33 @@ label.checkbox-frequency.justified input[type=checkbox]:not(:checked) + i::after
 .frequency-legend-button {
   margin-left: 15px;
 }
+
+/* Cabeçalho da tabela de frequência em lote fixo ao rolar a página, pra não
+   perder de vista qual dia/coluna corresponde a cada checkbox conforme a
+   lista de alunos desce.
+
+   Duas pegadinhas do CSS neutralizadas, só nesta página (este arquivo só é
+   carregado aqui):
+   1. border-collapse: collapse (herdado de .table-bordered) quebra
+      position: sticky em th/td no Chrome — trocamos pra separate, com
+      border-spacing: 0 pra não abrir espaço entre as células.
+   2. #content-page (wrapper global do layout) tem overflow: auto, o que já
+      basta pro Chrome tratá-lo como o "container de rolagem" do sticky —
+      mesmo ele nunca rolando de fato (quem rola é a página toda), isso
+      prende o cálculo do sticky nele e o cabeçalho nunca gruda. Zeramos o
+      overflow aqui pra o sticky calcular relativo à janela mesmo. */
+#content-page {
+  overflow: visible;
+}
+
+.frequency-in-batch-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.frequency-in-batch-table thead th {
+  position: sticky;
+  top: 77px;
+  z-index: 10;
+  background-color: #fff;
+  box-shadow: 0 1px 0 0 #ddd;
+}
