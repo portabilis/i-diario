@@ -150,6 +150,20 @@ RSpec.describe DescriptiveExamsController, type: :controller do
         post :create, params: valid_params
         expect(response).to redirect_to(edit_descriptive_exam_path(DescriptiveExam.last))
       end
+
+      it 'records the current date while the step is in progress' do
+        post :create, params: valid_params
+
+        expect(DescriptiveExam.last.recorded_at).to eq(Date.current)
+      end
+
+      it 'records the last day of the step when it has already ended' do
+        step_end = SchoolCalendarClassroomStep.first.end_at
+
+        Timecop.travel(step_end + 10.days) { post :create, params: valid_params }
+
+        expect(DescriptiveExam.last.recorded_at).to eq(step_end)
+      end
     end
 
     context 'when the step does not belong to the selected classroom' do
@@ -166,15 +180,11 @@ RSpec.describe DescriptiveExamsController, type: :controller do
         }
       end
 
-      it 're-renders the form with an error on the step' do
-        post :create, params: foreign_step_params
+      it 're-renders the form with an error on the step and creates nothing' do
+        expect { post :create, params: foreign_step_params }.not_to change(DescriptiveExam, :count)
 
         expect(response).to render_template(:new)
         expect(assigns(:descriptive_exam).errors[:step_id]).to include('não pertence à turma selecionada')
-      end
-
-      it 'does not create a descriptive exam' do
-        expect { post :create, params: foreign_step_params }.not_to change(DescriptiveExam, :count)
       end
     end
 
