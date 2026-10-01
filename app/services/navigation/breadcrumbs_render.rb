@@ -23,7 +23,8 @@ module Navigation
 
           html << Translator.t("navigation.#{params[:type]}")
 
-          raw html.join(" ")
+          # safe_join escapa o texto (valor de Translation editável pelo usuário) e mantém o <i> do ícone.
+          safe_join(html, " ")
         end
       end
     end
