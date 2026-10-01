@@ -11,6 +11,8 @@ module IeducarApi
   # A resposta é traduzida para o formato do IeducarResponseDecorator. As exceções continuam vindo
   # de Base porque o Ieducar::SendPostWorker decide o retry por Base::NetworkException.
   class V2Base
+    # Status de sucesso dos endpoints de lançamento; a subclasse declara outro quando o endpoint
+    # responde diferente.
     SAVED_STATUS = 201
     OPEN_TIMEOUT = 10
     READ_TIMEOUT = 240
@@ -127,13 +129,14 @@ module IeducarApi
       "#{configuration.url}#{self.class::POST_PATH}"
     end
 
-    # Fora do 201, nenhuma resposta 2xx faz parte do contrato: pode ser um intermediário
-    # respondendo no lugar do i-Educar, e tratá-la como gravação esconderia a falta não gravada.
+    # Fora do status de sucesso do endpoint, nenhuma resposta 2xx faz parte do contrato: pode ser um
+    # intermediário respondendo no lugar do i-Educar, e tratá-la como sucesso esconderia o lançamento
+    # não gravado.
     def handle_success(response, params)
       parsed = parse_body(response.body)
 
       return unrecognized_response!(response.code, response.body, params) if
-        parsed.nil? || response.code != SAVED_STATUS
+        parsed.nil? || response.code != self.class::SAVED_STATUS
 
       message = message_from(parsed)
 
