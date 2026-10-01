@@ -57,7 +57,6 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     allow(controller).to receive(:current_user_discipline).and_return(discipline)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
     allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
-    allow(controller).to receive(:recorded_at_by_step).and_return('2017-03-01')
     request.env['REQUEST_PATH'] = ''
   end
 
@@ -119,6 +118,19 @@ RSpec.describe DescriptiveExamsController, type: :controller do
         locale: 'pt-BR'
       }
     end
+    let(:other_classroom_exam_rule) { exam_rule }
+    let(:other_classroom) do
+      create(
+        :classroom,
+        :with_teacher_discipline_classroom,
+        :with_classroom_semester_steps,
+        unity: unity,
+        school_calendar: school_calendar,
+        teacher: current_teacher,
+        discipline: discipline,
+        exam_rule: other_classroom_exam_rule
+      ).tap { |other| create(:classrooms_grade, classroom: other, exam_rule: other_classroom_exam_rule) }
+    end
 
     context 'without success' do
       it 'fails to create and renders the new template' do
@@ -137,6 +149,32 @@ RSpec.describe DescriptiveExamsController, type: :controller do
       it "redirects to the edit path for the created exam" do
         post :create, params: valid_params
         expect(response).to redirect_to(edit_descriptive_exam_path(DescriptiveExam.last))
+      end
+    end
+
+    context 'when the step does not belong to the selected classroom' do
+      let(:step_of_current_classroom) { classroom.calendar.classroom_steps.first }
+      let(:foreign_step_params) do
+        {
+          locale: 'pt-BR',
+          descriptive_exam: {
+            classroom_id: other_classroom.id,
+            discipline_id: discipline.id,
+            opinion_type: classrooms_grade.exam_rule.opinion_type,
+            step_id: step_of_current_classroom.id
+          }
+        }
+      end
+
+      it 're-renders the form with an error on the step' do
+        post :create, params: foreign_step_params
+
+        expect(response).to render_template(:new)
+        expect(assigns(:descriptive_exam).errors[:step_id]).to include('não pertence à turma selecionada')
+      end
+
+      it 'does not create a descriptive exam' do
+        expect { post :create, params: foreign_step_params }.not_to change(DescriptiveExam, :count)
       end
     end
 
