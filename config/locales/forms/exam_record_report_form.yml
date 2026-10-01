@@ -14,3 +14,5 @@ pt-BR:
           attributes:
             daily_notes:
               must_have_daily_notes: "Nenhum resultado foi encontrado para os dados informados"
+            discipline_id:
+              not_taught_by_teacher: "não é lecionada pelo professor do perfil nesta turma"

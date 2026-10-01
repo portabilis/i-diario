@@ -15,7 +15,8 @@
     <fieldset>
         <div class="row">
           <div class="col col-sm-4">
-            <%= f.input :test_setting_id, as: :select2, elements: @test_settings, hide_empty_element: true, input_html: { value: @test_settings.first&.id } %>
+            <%= f.input :test_setting_id, as: :select2, elements: @test_settings, hide_empty_element: true,
+                        input_html: { value: f.object.test_setting_id.presence || @test_settings.first&.id } %>
           </div>
         </div>
 
@@ -29,14 +30,12 @@
         <div class="col col-sm-4">
           <%= f.input :test_setting_test_id, as: :select2, elements: [], required: true %>
         </div>
-        <div class="col col-sm-4">
-          <%= f.input :description, required: true %>
-        </div>
       </div>
 
       <div class="row">
-
-
+        <div class="col col-sm-4">
+          <%= f.input :description, required: true %>
+        </div>
         <div class="col col-sm-4">
           <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': 0" } } %>
         </div>

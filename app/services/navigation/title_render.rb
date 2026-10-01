@@ -7,7 +7,8 @@ module Navigation
 
       html << render_title(params)
 
-      raw html.join(" ")
+      # safe_join escapa o texto (valor de Translation editável pelo usuário) e mantém o <i> do ícone.
+      safe_join(html, " ")
     end
 
     protected

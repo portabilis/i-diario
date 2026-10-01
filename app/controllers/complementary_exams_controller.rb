@@ -182,6 +182,7 @@ class ComplementaryExamsController < ApplicationController
         :id,
         :student_id,
         :score,
+        :active,
         :_destroy
       ]
     )
@@ -253,7 +254,10 @@ class ComplementaryExamsController < ApplicationController
       date: @complementary_exam.recorded_at
     )
 
-    existing_by_student_id = @complementary_exam.students.index_by(&:student_id)
+    active_on_date_ids = situations[:active_on_date_ids]
+    existing_by_student_id = @complementary_exam.students.group_by(&:student_id)
+    active_enrollments = student_enrollments.select { |enrollment| active_on_date_ids.include?(enrollment.id) }
+    student_ids_with_active_enrollment = active_enrollments.map(&:student_id)
 
     enrolled_student_ids = []
     @students = []
@@ -261,9 +265,14 @@ class ComplementaryExamsController < ApplicationController
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by_id(student_enrollment.student_id))
 
-      exam_student = existing_by_student_id[student.id] ||
-                     @complementary_exam.students.build(student_id: student.id)
-      exam_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+      active_on_date = active_on_date_ids.include?(student_enrollment.id)
+      exam_student = fetch_exam_student(
+        existing_by_student_id: existing_by_student_id,
+        student_id: student.id,
+        active_on_date: active_on_date,
+        student_has_active_enrollment: student_ids_with_active_enrollment.include?(student.id)
+      )
+      exam_student.active = active_on_date
       exam_student.dependence = situations[:dependencies][student_enrollment.id].present?
       exam_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
       exam_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
@@ -275,6 +284,18 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exam.students.select { |student| !enrolled_student_ids.include?(student.student_id) }.each(&:mark_for_destruction)
 
     StudentsDisplaySequencer.call(@students)
+  end
+
+  # Registro da linha desta matrícula. O aluno tem no máximo um registro salvo (índice único por aluno): a
+  # primeira linha que o pede fica com ele e as demais recebem registro novo. A matrícula não enturmada na data,
+  # de aluno que tem outra enturmada, recebe sempre registro novo — assim o salvo, com a nota, fica na linha
+  # que grava.
+  def fetch_exam_student(existing_by_student_id:, student_id:, active_on_date:, student_has_active_enrollment:)
+    if !active_on_date && student_has_active_enrollment
+      return @complementary_exam.students.build(student_id: student_id)
+    end
+
+    existing_by_student_id.fetch(student_id, []).shift || @complementary_exam.students.build(student_id: student_id)
   end
 
   def mark_students_not_found_for_destruction

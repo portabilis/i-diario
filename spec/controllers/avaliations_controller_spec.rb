@@ -284,6 +284,52 @@ RSpec.describe AvaliationsController, type: :controller do
     end
   end
 
+  # A lista de disciplinas do re-render precisa vir do mesmo metodo da tela inicial: admin e
+  # funcionario nao tem vinculo de professor, entao um filtro por turma devolve lista vazia e o
+  # campo Disciplina fica sem opcoes.
+  describe '#create_multiple_classrooms' do
+    # Os dados precisam ser criados dentro da mesma conexao (entity) usada pela action.
+    before do
+      entity.using_connection do
+        @mc_unity = create(:unity)
+        @mc_teacher = create(:teacher)
+        @mc_discipline = create(:discipline)
+        mc_school_calendar = create(:school_calendar, :with_one_step, unity: @mc_unity)
+        @mc_classroom = create(:classroom, unity: @mc_unity, school_calendar: mc_school_calendar)
+        create(:teacher_discipline_classroom,
+               teacher: @mc_teacher,
+               discipline: @mc_discipline,
+               classroom: @mc_classroom)
+
+        allow(controller).to receive(:current_teacher).and_return(@mc_teacher)
+        allow(controller).to receive(:current_teacher_id).and_return(@mc_teacher.id)
+        allow(controller).to receive(:current_unity).and_return(@mc_unity)
+        allow(controller).to receive(:current_school_year).and_return(@mc_classroom.year)
+        allow(controller).to receive(:current_school_calendar).and_return(mc_school_calendar)
+        allow(controller).to receive(:current_user_classroom).and_return(@mc_classroom)
+        allow(controller).to receive(:current_user_discipline).and_return(@mc_discipline)
+      end
+    end
+
+    context 'when the form is invalid and the user is an administrator' do
+      it 'assigns the disciplines of the current unity and teacher' do
+        entity.using_connection do
+          post :create_multiple_classrooms, params: {
+            locale: 'pt-BR',
+            avaliation_multiple_creator_form: {
+              unity_id: @mc_unity.id,
+              discipline_id: @mc_discipline.id,
+              test_setting_id: ''
+            }
+          }
+
+          expect(assigns(:avaliation_multiple_creator_form)).not_to be_valid
+          expect(assigns(:disciplines)).to contain_exactly(@mc_discipline)
+        end
+      end
+    end
+  end
+
   describe '#multiple_classrooms' do
     # Os dados precisam ser criados dentro da mesma conexao (entity) usada pela
     # action, caso contrario load_avaliations! nao enxerga os registros.

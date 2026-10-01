@@ -1,0 +1,4 @@
+pt-BR:
+  rack_attack:
+    throttled: "Muitas tentativas em pouco tempo. Aguarde um minuto e tente novamente."
+    back: "Voltar para o início"

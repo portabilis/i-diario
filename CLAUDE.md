@@ -269,6 +269,20 @@ Regras explícitas que os agentes de code review devem aplicar. Mudanças que vi
 - Informação privada em código, comentário, spec ou commit (cliente, entidade, issue interna, link interno) deve ser sinalizada como **Critical** — o repositório é público
 - Ver [Comentários e Documentação](#comentários-e-documentação-high) para o que fica e o que sai
 
+#### Relatórios HTML → PDF (High)
+
+**⚠️ Ao criar ou alterar relatório que gere PDF a partir de HTML (`ReportGenerator`), ler [docs/relatorios-html-plutobook.md](docs/relatorios-html-plutobook.md).**
+
+- Relatório novo nasce no driver `pluto` (PlutoBook) com o layout `report_pluto` — `chrome` é o default do service e só serve aos ainda não migrados (hoje só o PEI)
+- Numeração de página e margens vivem no CSS `@page` do layout, não em parâmetro da requisição
+- Não repetir `thead` entre páginas no pluto: ele ignora regras de quebra em linha de tabela e desenha o cabeçalho duas vezes quando a tabela começa em página nova. Linhas que precisam sair juntas vão numa única célula
+- O cabeçalho é do layout: título do relatório (via `content_for :report_title`), brasão, entidade e órgão — só isso, como nos demais relatórios. Relatório que repita esses dados na própria view sai com o bloco duplicado no PDF
+- Estilo próprio do relatório vai em `content_for :head`, que o layout injeta depois do CSS base
+- O pluto não encolhe a página para caber; elemento mais largo que a área útil (190mm) vaza para fora do papel — os layouts legados declaram `width: 210mm`, que é a folha inteira
+- O pluto não converte JPEG CMYK: o brasão chega a ele como PNG sRGB pela versão `pdf` do `EntityLogoUploader`, mas brasão gravado antes dessa versão existir sai com os bytes originais até passar pelo `rake entity_logo:optimize`
+- O gzip do corpo é automático no `ReportGenerator` acima de 1 MB — é o que evita 413/502 em relatório grande; header e corpo comprimido são obrigatórios juntos (um sem o outro devolve 400)
+- Migração de layout deve ser validada com PDF gerado de dados reais, não só com o HTML — e conferindo a **segunda** página, não só a primeira: cabeçalho, folgas e quebra se comportam diferente a partir dela
+
 ### Database Notes
 - Uses `structure.sql` instead of `schema.rb` — `db/structure.sql` is gitignored (not versioned); generated locally per environment
 - Multi-tenant architecture with Entity-specific databases
