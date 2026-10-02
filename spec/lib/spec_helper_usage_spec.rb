@@ -8,10 +8,14 @@ require 'rails_helper'
 # Quem não precisa do Rails usa `spec_helper_lite` ou `spec_helper_form`.
 RSpec.describe 'spec helper' do
   it 'does not have a spec that requires only the spec_helper' do
+    # Casa só linha de require (inclusive require_relative e caminho relativo); helper citado em comentário não conta.
+    spec_helper_require = /^\s*require(_relative)?\b.*\bspec_helper['"]/
+    rails_helper_require = /^\s*require(_relative)?\b.*\brails_helper['"]/
+
     specs_without_rails_helper = Dir[Rails.root.join('spec/**/*_spec.rb').to_s].select do |spec_file|
       source = File.read(spec_file)
 
-      source.match?(/require ['"]spec_helper['"]/) && !source.match?(/require ['"]rails_helper['"]/)
+      source.match?(spec_helper_require) && !source.match?(rails_helper_require)
     end
 
     expect(specs_without_rails_helper).to be_empty
