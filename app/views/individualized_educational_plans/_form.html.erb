@@ -10,6 +10,9 @@
 <% student_fetch = local_assigns.fetch(:student_fetch, true) %>
 <% medical_reports_plan_id = local_assigns.fetch(:medical_reports_plan_id,
                                                  @individualized_educational_plan.id) %>
+<%# Salvamento automático do rascunho a cada troca de etapa (draft_autosave.js). Desligado em
+    leitura e quando o controller já sabe que o rascunho não se aplica a este aluno. %>
+<% autosave = !view_only && !@draft_unavailable %>
 <%# Em modo leitura (view_only) o submit é bloqueado: campos disabled não seriam enviados
     e um submit acidental (Enter) apagaria o que já está preenchido. A tela é só visualização. %>
 <%= simple_form_for @individualized_educational_plan,
@@ -35,10 +38,17 @@
     #pei-wizard .fuelux .wizard { overflow-x: auto; overflow-y: hidden; }
     #pei-wizard .fuelux .wizard ul.steps { width: auto; display: flex; }
     #pei-wizard .fuelux .wizard ul.steps > li { float: none; flex: 0 0 auto; }
+    #pei-wizard .iep-locked-notice, #pei-wizard .iep-no-draft-notice { margin: 15px 14px 0; }
+    #pei-wizard fieldset[disabled] textarea,
+    #pei-wizard fieldset[disabled] input,
+    #pei-wizard fieldset[disabled] select { background-color: #eee; cursor: not-allowed; }
+    .iep-save-status { float: left; margin: 10px 0 0 15px; line-height: 31px; color: #666; }
+    .iep-save-status.iep-save-failed { color: #b94a48; }
   </style>
 
   <div id="pei-wizard" data-plan-id="<%= @individualized_educational_plan.id %>"
        data-student-fetch="<%= student_fetch ? 'on' : 'off' %>"
+       data-autosave="<%= autosave ? 'on' : 'off' %>"
        data-medical-reports-plan-id="<%= medical_reports_plan_id %>">
     <div class="fuelux">
       <div class="wizard">
@@ -53,6 +63,20 @@
         </ul>
       </div>
     </div>
+
+    <% unless view_only %>
+      <%# Sem plano gravado as etapas 2 a 6 ficam travadas (form.js): o aviso explica o motivo. %>
+      <div class="alert alert-warning iep-locked-notice" style="display: none;">
+        <i class="fa-fw fa fa-warning"></i> <%= t('.locked_notice') %>
+        <button type="button" class="btn btn-default btn-xs iep-go-to-identification">
+          <%= t('.go_to_identification') %>
+        </button>
+      </div>
+      <div class="alert alert-info iep-no-draft-notice"
+           style="<%= 'display: none;' unless @draft_unavailable %>">
+        <i class="fa-fw fa fa-info"></i> <%= t('individualized_educational_plans.draft.unavailable') %>
+      </div>
+    <% end %>
 
     <div class="tab-content">
       <div class="tab-pane active" id="pei-step-1">
@@ -98,6 +122,16 @@
   <footer>
     <% unless view_only %>
       <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default pull-left' %>
+
+      <span class="iep-save-status" aria-live="polite"
+            data-saving-text="<%= t('.save_status_saving') %>"
+            data-saved-text="<%= t('.save_status_saved') %>"
+            data-unpublished-text="<%= t('.save_status_unpublished') %>"
+            data-failed-text="<%= t('.save_status_failed') %>"
+            data-existing-plan-text="<%= t('.open_existing_plan') %>">
+        <span class="iep-save-status-text"></span>
+        <a href="javascript:void(0)" class="iep-save-retry" style="display: none;"><%= t('.save_retry') %></a>
+      </span>
 
       <button type="button" class="btn btn-success pei-wizard-finish" data-toggle="modal" data-target="#iep-finalize-modal">
         <%= t('.finalize') %>

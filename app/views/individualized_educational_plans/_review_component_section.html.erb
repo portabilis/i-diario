@@ -7,6 +7,12 @@
   <div class="alert alert-info fade in">
     <i class="fa-fw fa fa-info"></i>
     <%= t('individualized_educational_plans.form.no_reviews_hint') %>
+    <%# O atalho só aparece para quem edita a seção 1: o professor (escopo de componente) não a altera. %>
+    <% if !view_only && @editable_component_scope.blank? %>
+      <button type="button" class="btn btn-default btn-xs iep-go-to-identification">
+        <%= t('individualized_educational_plans.form.go_to_identification') %>
+      </button>
+    <% end %>
   </div>
 <% else %>
   <div class="btn-group iep-review-buttons" style="margin-bottom: 15px;">
