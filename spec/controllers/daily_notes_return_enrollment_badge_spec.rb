@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 # Com a configuração "apresentar enturmações inativas" ligada, um aluno que saiu e retornou à MESMA
 # turma aparece em duas linhas — a enturmação ativa na data da avaliação e a de retorno (inativa na

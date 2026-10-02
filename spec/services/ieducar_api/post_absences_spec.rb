@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe IeducarApi::PostAbsences, type: :service do
   let(:url) { 'https://test.ieducar.com.br' }
