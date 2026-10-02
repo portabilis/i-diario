@@ -299,6 +299,22 @@ describe('saved plan', () => {
     expect(modals).toHaveLength(0);
   });
 
+  it('keeps the open review after the saved form replaces the content of sections 4/5', () => {
+    $('#pei-step-4 .iep-review-buttons button').last().trigger('click');
+    $(`[name="${PLAN}[characterization]"]`).val('Perfil');
+    $('.pei-wizard-next').trigger('click');
+
+    draftRequests()[0].deferred.resolve({
+      id: 5,
+      form_html: `<form><div id="pei-step-4"><fieldset>${reviewSection([2, 3], {})}</fieldset></div></form>`
+    });
+
+    expect($('#pei-step-4 .iep-component-panel')).toHaveLength(0);
+    expect($('#pei-step-4 .iep-review-buttons button').last().hasClass('active')).toBe(true);
+    expect($('#pei-step-4 .iep-review-panel').first().css('display')).toBe('none');
+    expect($('#pei-step-4 .iep-review-panel').last().css('display')).not.toBe('none');
+  });
+
   // O conteúdo das seções 4/5 é trocado a cada rascunho salvo: o clique da revisão não pode
   // depender dos botões que existiam na carga.
   it('switches the review panel on buttons that arrived after the page was loaded', () => {
