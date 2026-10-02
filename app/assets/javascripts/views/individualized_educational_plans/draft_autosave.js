@@ -31,6 +31,8 @@ window.IepDraftAutosave = function(options) {
   var LINE_PANEL = '.iep-component-panel';
   var LINE_BASELINE = 'iepDraftBaseline';
   var IGNORED_NAMES = ['utf8', 'authenticity_token', '_method', 'version_name'];
+  var PARAM = 'individualized_educational_plan';
+  var FIELD_ERROR = 'iep-draft-field-error';
   var NAVIGATION = '.pei-wizard-next, .pei-wizard-prev, .pei-wizard-finish';
 
   var enabled = $wizard.data('autosave') === 'on';
@@ -54,13 +56,21 @@ window.IepDraftAutosave = function(options) {
     return $panel.find(':input').serialize();
   }
 
+  // Prefixo do name que identifica um registro aninhado: "...[assoc_attributes][chave]".
+  function nestedPrefix(name) {
+    var match = (name || '').match(/^(.+?_attributes\]\[[^\]]+\])/);
+
+    return match ? match[1] : null;
+  }
+
+  function nestedInput(prefix, field) {
+    return prefix ? $form.find('input[name="' + prefix + '[' + field + ']"]') : $();
+  }
+
   // O hidden de id de uma linha salva é emitido pelo fields_for fora do painel dela; é achado
   // pelo prefixo do name dos campos da linha.
   function lineIdInput($panel) {
-    var name = $panel.find(':input[name]').first().attr('name') || '';
-    var match = name.match(/^(.+?_attributes\]\[[^\]]+\])/);
-
-    return match ? $form.find('input[name="' + match[1] + '[id]"]') : $();
+    return nestedInput(nestedPrefix($panel.find(':input[name]').first().attr('name')), 'id');
   }
 
   function markBaseline() {
@@ -106,6 +116,56 @@ window.IepDraftAutosave = function(options) {
     $statusText.text(text || '');
     $alert.hide();
     $retry.hide();
+    clearFieldErrors();
+  }
+
+  // ---- Destaque do campo recusado, com a mesma marcação que o simple_form usa no erro ----
+  function clearFieldErrors() {
+    $form.find('.' + FIELD_ERROR).removeClass('error ' + FIELD_ERROR)
+      .find('.' + FIELD_ERROR + '-message').remove();
+  }
+
+  // Campos do formulário a que o erro se refere. Registro aninhado gravado é achado pelo id;
+  // o que ainda não foi gravado não tem como ser identificado, então valem as linhas novas, não
+  // removidas, em que o campo está vazio.
+  function fieldErrorInputs(fieldError) {
+    if (!fieldError.association) {
+      return $form.find(':input[name="' + PARAM + '[' + fieldError.attribute + ']"]');
+    }
+
+    var start = PARAM + '[' + fieldError.association + '_attributes][';
+    var end = '][' + fieldError.attribute + ']';
+
+    return $form.find(':input[name]').filter(function() {
+      var name = this.name;
+      if (name.indexOf(start) !== 0 || name.slice(-end.length) !== end) { return false; }
+
+      var prefix = nestedPrefix(name);
+      var destroy = nestedInput(prefix, '_destroy').val();
+      if (destroy === '1' || destroy === 'true') { return false; }
+
+      var id = nestedInput(prefix, 'id').val();
+
+      return fieldError.id ? String(id) === String(fieldError.id) : !id && $.trim($(this).val()) === '';
+    });
+  }
+
+  function showFieldErrors(fieldErrors) {
+    $.each(fieldErrors || [], function(_index, fieldError) {
+      fieldErrorInputs(fieldError).each(function() {
+        var $group = $(this).closest('.control-group');
+        if ($group.length === 0 || $group.hasClass('error')) { return; }
+
+        $group.addClass('error ' + FIELD_ERROR)
+          .append($('<span class="help-inline">').addClass(FIELD_ERROR + '-message').text(fieldError.message));
+      });
+    });
+
+    // Como na finalização: se o campo recusado está em outra etapa, é ela que abre.
+    var $panes = $wizard.children('.tab-content').children('.tab-pane');
+    var $withError = $panes.has('.' + FIELD_ERROR);
+
+    if ($withError.length && !$withError.is('.active')) { options.showStep($panes.index($withError.first())); }
   }
 
   function showFailure(message, retryable) {
@@ -131,6 +191,7 @@ window.IepDraftAutosave = function(options) {
 
   function showRefused(body) {
     showFailure((body.errors || []).join(' '), false);
+    showFieldErrors(body.field_errors);
 
     if (body.existing_plan_url) {
       $alertText.append(' ').append(
@@ -298,6 +359,12 @@ window.IepDraftAutosave = function(options) {
       }
     );
   }
+
+  // Campo destacado que o usuário voltou a editar deixa de ficar em vermelho.
+  $form.on('input change', '.' + FIELD_ERROR + ' :input', function() {
+    $(this).closest('.' + FIELD_ERROR).removeClass('error ' + FIELD_ERROR)
+      .find('.' + FIELD_ERROR + '-message').remove();
+  });
 
   $retry.on('click', function() {
     if (busy || !shouldSave()) { return; }

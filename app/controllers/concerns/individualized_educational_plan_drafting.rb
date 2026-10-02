@@ -7,6 +7,11 @@
 module IndividualizedEducationalPlanDrafting
   extend ActiveSupport::Concern
 
+  # Associações aninhadas do formulário cujos registros podem voltar com erro de validação.
+  DRAFT_NESTED_ASSOCIATIONS = %i[
+    iep_review_dates iep_medications iep_curricular_plannings iep_periodic_evaluations
+  ].freeze
+
   included do
     rescue_from Pundit::NotAuthorizedError, with: :draft_aware_not_authorized
   end
@@ -55,7 +60,7 @@ module IndividualizedEducationalPlanDrafting
     plan = @individualized_educational_plan
     return render_draft_saved if elaboration_day_valid? && plan.save_draft
 
-    render_draft_error(plan.errors.full_messages)
+    render_draft_error(plan.errors.full_messages, field_errors: draft_field_errors(plan))
   rescue ActiveRecord::RecordNotUnique => e
     Honeybadger.notify(e, context: { plan_id: plan.id, student_id: plan.student_id })
     render_draft_error(t('individualized_educational_plans.draft.conflict'))
@@ -80,6 +85,30 @@ module IndividualizedEducationalPlanDrafting
       edit_url: edit_individualized_educational_plan_path(plan),
       form_html: render_to_string(partial: 'form', formats: [:html])
     }
+  end
+
+  # Onde cada erro de validação está no formulário, para a tela destacar o campo como faz a
+  # re-renderização da finalização. O registro aninhado é identificado pelo id; o que ainda não
+  # foi gravado vai sem id e a tela o procura entre as linhas novas.
+  def draft_field_errors(plan)
+    # Os erros dos registros aninhados também aparecem no plano, com a chave "associação.campo";
+    # eles saem daqui e entram pelo próprio registro, que é quem diz qual linha errou.
+    fields = draft_attribute_errors(plan).reject { |field| field[:attribute].to_s.include?('.') }
+
+    DRAFT_NESTED_ASSOCIATIONS.each do |association|
+      plan.public_send(association).reject(&:marked_for_destruction?).each do |record|
+        nested = draft_attribute_errors(record).map { |field| field.merge(association: association, id: record.id) }
+        fields.concat(nested)
+      end
+    end
+
+    fields
+  end
+
+  # errors.keys traz também atributo sem mensagem: ler errors[:campo] numa validação cria a chave.
+  def draft_attribute_errors(record)
+    record.errors.keys.reject { |attribute| attribute == :base || record.errors[attribute].empty? }
+          .map { |attribute| { attribute: attribute, message: record.errors[attribute].first } }
   end
 
   def render_draft_error(messages, status: :unprocessable_entity, **extra)
