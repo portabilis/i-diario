@@ -1,0 +1,352 @@
+/**
+ * @jest-environment jsdom
+ */
+
+// Testes de app/assets/javascripts/views/individualized_educational_plans/draft_autosave.js: a
+// troca de etapa do PEI salva o rascunho antes de navegar, só envia quando algo mudou, deixa de
+// fora as linhas das seções 4/5 que o usuário não alterou e troca na tela as regiões com
+// registros filhos pelo formulário que o servidor devolve.
+
+const fs = require('fs');
+const path = require('path');
+
+const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
+const SCRIPT_PATH = path.resolve(
+  __dirname,
+  '../../app/assets/javascripts/views/individualized_educational_plans/draft_autosave.js'
+);
+
+const scriptSource = fs.readFileSync(SCRIPT_PATH, 'utf-8');
+
+const PLAN = 'individualized_educational_plan';
+const LINE = `${PLAN}[iep_curricular_plannings_attributes]`;
+
+let requests;
+let options;
+let autosave;
+
+function loadIntoWindow(file) {
+  window.eval(fs.readFileSync(file, 'utf-8'));
+}
+
+function linePanel(key, goal, id) {
+  return `
+    <div class="iep-component-panel" data-key="${key}">
+      <textarea name="${LINE}[${key}][long_term_goal]">${goal}</textarea>
+    </div>
+    ${id ? `<input type="hidden" name="${LINE}[${key}][id]" value="${id}">` : ''}
+  `;
+}
+
+function formHtml({ planId = '5', autosaveState = 'on', lines = linePanel(7, 'Meta', 7) + linePanel(8, 'Outra', 8) } = {}) {
+  return `
+    <meta name="csrf-token" content="token">
+    <form action="/planos/${planId}">
+      <input type="hidden" name="authenticity_token" value="token">
+      <div id="pei-wizard" data-plan-id="${planId}" data-autosave="${autosaveState}">
+        <textarea name="${PLAN}[characterization]">Perfil</textarea>
+        <input type="text" name="${PLAN}[birth_date]" readonly value="">
+        <div id="iep-review-dates"><input type="text" name="${PLAN}[iep_review_dates_attributes][0][review_date]" value=""></div>
+        <div id="iep-medications"></div>
+        <div id="pei-step-4"><fieldset>${lines}</fieldset></div>
+        <div id="pei-step-5"><fieldset></fieldset></div>
+      </div>
+      <input type="text" name="version_name" value="">
+      <span class="iep-save-status" data-saving-text="Salvando..." data-saved-text="Salvo às"
+            data-unpublished-text="alterações ainda não publicadas" data-failed-text="Não foi possível salvar."
+            data-existing-plan-text="Abrir o PEI existente">
+        <span class="iep-save-status-text"></span>
+        <a class="iep-save-retry" style="display: none;">Tentar novamente</a>
+      </span>
+      <button type="button" class="pei-wizard-next"></button>
+    </form>
+  `;
+}
+
+// Formulário que o servidor devolve depois de gravar: a data de revisão já tem id e aparece
+// como revisão na seção 4.
+function savedFormHtml() {
+  return `
+    <form>
+      <div id="iep-review-dates">
+        <div class="nested-fields" data-review-id="2"></div>
+        <input type="hidden" name="${PLAN}[iep_review_dates_attributes][0][id]" value="2">
+      </div>
+      <div id="iep-medications"></div>
+      <div id="pei-step-4"><fieldset>
+        <div class="iep-review-buttons"><button type="button" data-review-id="2">1ª Revisão</button></div>
+      </fieldset></div>
+      <div id="pei-step-5"><fieldset></fieldset></div>
+    </form>
+  `;
+}
+
+function stubAjax() {
+  const $ = window.jQuery;
+
+  requests = [];
+
+  $.ajax = function (settings) {
+    const deferred = $.Deferred();
+
+    requests.push({ settings: settings, deferred: deferred, params: new URLSearchParams(settings.data) });
+
+    return deferred.promise();
+  };
+}
+
+const $ = (selector) => window.jQuery(selector);
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+const lastRequest = () => requests[requests.length - 1];
+const statusText = () => $('.iep-save-status-text').text();
+
+function saved(data) {
+  lastRequest().deferred.resolve(Object.assign({ id: 5, form_html: savedFormHtml() }, data));
+}
+
+function refused(body, status = 422) {
+  lastRequest().deferred.reject({ status: status, responseJSON: body }, 'error');
+}
+
+function connectionLost() {
+  lastRequest().deferred.reject({ status: 0, responseText: '' }, 'error');
+}
+
+function setup(html) {
+  document.body.innerHTML = html || formHtml();
+  stubAjax();
+
+  options = {
+    $form: $('form'),
+    $wizard: $('#pei-wizard'),
+    showStep: jest.fn(),
+    readyToCreate: jest.fn(() => true),
+    rehydrate: jest.fn(),
+    onCreated: jest.fn((data) => $('#pei-wizard').data('plan-id', data.id)),
+    onUnavailable: jest.fn(),
+    failureMessage: jest.fn(() => null)
+  };
+
+  window.eval(scriptSource);
+  autosave = window.IepDraftAutosave(options);
+  autosave.markBaseline();
+}
+
+beforeAll(async () => {
+  loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
+  loadIntoWindow(path.join(VENDOR_PATH, 'underscore.js'));
+
+  // deixa o `ready` do jQuery resolver; a partir daqui os callbacks rodam na hora
+  await flush();
+});
+
+describe('when nothing changed since the form was loaded', () => {
+  beforeEach(() => setup());
+
+  it('goes to the step without sending anything', () => {
+    autosave.saveThenGo(2);
+
+    expect(requests).toHaveLength(0);
+    expect(options.showStep).toHaveBeenCalledWith(2);
+  });
+
+  // O prefill do i-Educar preenche os campos de exibição depois da carga da página.
+  it('does not take a read-only field filled later as a change', () => {
+    $(`[name="${PLAN}[birth_date]"]`).val('01/02/2015');
+
+    autosave.saveThenGo(2);
+
+    expect(requests).toHaveLength(0);
+  });
+});
+
+describe('when the form changed', () => {
+  beforeEach(() => {
+    setup();
+    $(`[name="${PLAN}[characterization]"]`).val('Perfil novo');
+  });
+
+  it('sends the form as a draft to the form action and only then changes the step', () => {
+    autosave.saveThenGo(2);
+
+    expect(lastRequest().settings.url).toBe('/planos/5');
+    expect(lastRequest().settings.type).toBe('POST');
+    expect(lastRequest().params.get('draft')).toBe('1');
+    expect(lastRequest().params.get(`${PLAN}[characterization]`)).toBe('Perfil novo');
+    expect(lastRequest().params.has('version_name')).toBe(false);
+    expect(options.showStep).not.toHaveBeenCalled();
+    expect(statusText()).toBe('Salvando...');
+
+    saved();
+
+    expect(options.showStep).toHaveBeenCalledWith(2);
+    expect(statusText()).toMatch(/^Salvo às \d{2}:\d{2} - alterações ainda não publicadas$/);
+  });
+
+  it('ignores another navigation while the save is in flight', () => {
+    autosave.saveThenGo(2);
+    autosave.saveThenGo(3);
+
+    expect(requests).toHaveLength(1);
+    expect($('.pei-wizard-next').prop('disabled')).toBe(true);
+
+    saved();
+
+    expect($('.pei-wizard-next').prop('disabled')).toBe(false);
+    expect(options.showStep).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves out the section 4/5 lines the user did not change, with their ids', () => {
+    $(`[name="${LINE}[8][long_term_goal]"]`).val('Outra meta');
+
+    autosave.saveThenGo(2);
+
+    expect(lastRequest().params.has(`${LINE}[7][long_term_goal]`)).toBe(false);
+    expect(lastRequest().params.has(`${LINE}[7][id]`)).toBe(false);
+    expect(lastRequest().params.get(`${LINE}[8][long_term_goal]`)).toBe('Outra meta');
+    expect(lastRequest().params.get(`${LINE}[8][id]`)).toBe('8');
+  });
+
+  it('always sends a line added after the form was loaded', () => {
+    $('#pei-step-4 fieldset').append(linePanel('new_component_1', 'Nova'));
+
+    autosave.saveThenGo(2);
+
+    expect(lastRequest().params.get(`${LINE}[new_component_1][long_term_goal]`)).toBe('Nova');
+  });
+
+  it('replaces the regions with nested records by the form the server returns and rehydrates them', () => {
+    autosave.saveThenGo(3);
+    saved();
+
+    expect($('#iep-review-dates .nested-fields').data('review-id')).toBe(2);
+    expect($('#pei-step-4 .iep-review-buttons button')).toHaveLength(1);
+    expect($('#pei-step-4 .iep-component-panel')).toHaveLength(0);
+    // o que não é região trocada fica como o usuário deixou
+    expect($(`[name="${PLAN}[characterization]"]`).val()).toBe('Perfil novo');
+    expect(options.rehydrate).toHaveBeenCalledTimes(4);
+  });
+
+  it('takes the saved state as the new baseline', () => {
+    autosave.saveThenGo(3);
+    saved();
+
+    autosave.saveThenGo(4);
+
+    expect(requests).toHaveLength(1);
+    expect(options.showStep).toHaveBeenLastCalledWith(4);
+  });
+
+  it('stays on the step and shows the reasons when the server refuses the data', () => {
+    autosave.saveThenGo(2);
+    refused({ errors: ['Data de elaboração não pode ficar em branco'] });
+
+    expect(options.showStep).not.toHaveBeenCalled();
+    expect(statusText()).toBe('Data de elaboração não pode ficar em branco');
+    expect($('.iep-save-status').hasClass('iep-save-failed')).toBe(true);
+    expect($('.iep-save-retry').css('display')).toBe('none');
+  });
+
+  it('keeps what is on the screen, changes the step and offers to retry when the request fails', () => {
+    autosave.saveThenGo(2);
+    connectionLost();
+
+    expect(options.showStep).toHaveBeenCalledWith(2);
+    expect($(`[name="${PLAN}[characterization]"]`).val()).toBe('Perfil novo');
+    expect(statusText()).toBe('Não foi possível salvar.');
+    expect($('.iep-save-retry').css('display')).not.toBe('none');
+
+    $('.iep-save-retry').trigger('click');
+    saved();
+
+    expect(requests).toHaveLength(2);
+    expect(statusText()).toMatch(/^Salvo às/);
+    expect($('.iep-save-retry').css('display')).toBe('none');
+  });
+
+  it('shows the session message when the failure is an expired session', () => {
+    options.failureMessage.mockReturnValue('Sua sessão expirou.');
+
+    autosave.saveThenGo(2);
+    lastRequest().deferred.reject({ status: 401, responseText: '' }, 'error');
+
+    expect(statusText()).toBe('Sua sessão expirou.');
+  });
+
+  it('leaves the unchanged lines out of the native submit too', () => {
+    autosave.disableUnchangedLines();
+
+    expect($(`[name="${LINE}[7][long_term_goal]"]`).prop('disabled')).toBe(true);
+    expect($(`[name="${LINE}[7][id]"]`).prop('disabled')).toBe(true);
+    expect($(`[name="${PLAN}[characterization]"]`).prop('disabled')).toBe(false);
+  });
+});
+
+describe('while the plan does not exist yet', () => {
+  beforeEach(() => setup(formHtml({ planId: '', lines: '' })));
+
+  it('is locked and only navigates while there is no student and elaboration date', () => {
+    options.readyToCreate.mockReturnValue(false);
+
+    autosave.saveThenGo(1);
+
+    expect(autosave.isLocked()).toBe(true);
+    expect(requests).toHaveLength(0);
+    expect(options.showStep).toHaveBeenCalledWith(1);
+  });
+
+  it('creates the plan on the first navigation and hands the new plan to the form', () => {
+    autosave.saveThenGo(1);
+    saved({ id: 9, update_url: '/planos/9', edit_url: '/planos/9/editar' });
+
+    expect(options.onCreated).toHaveBeenCalledWith(expect.objectContaining({ id: 9, update_url: '/planos/9' }));
+    expect(autosave.isLocked()).toBe(false);
+    expect(options.showStep).toHaveBeenCalledWith(1);
+  });
+
+  it('stays on section 1 with a link to the plan the student already has', () => {
+    autosave.saveThenGo(1);
+    refused({ errors: ['Este aluno já possui um PEI neste ano letivo.'], existing_plan_url: '/planos/3/editar' });
+
+    expect(options.showStep).not.toHaveBeenCalled();
+    expect($('.iep-save-status-text a').attr('href')).toBe('/planos/3/editar');
+    expect($('.iep-save-status-text a').text()).toBe('Abrir o PEI existente');
+  });
+
+  // As demais etapas continuam travadas: navegar levaria a uma tela sem nada para preencher.
+  it('stays on section 1 when the request to create fails', () => {
+    autosave.saveThenGo(1);
+    connectionLost();
+
+    expect(options.showStep).not.toHaveBeenCalled();
+    expect(autosave.isLocked()).toBe(true);
+  });
+
+  it('stops saving and unlocks when the draft does not apply to the student', () => {
+    autosave.saveThenGo(1);
+    refused({ errors: ['Só será gravado ao finalizar.'], draft_unavailable: true });
+
+    expect(options.onUnavailable).toHaveBeenCalled();
+    expect(autosave.isLocked()).toBe(false);
+    expect(options.showStep).toHaveBeenCalledWith(1);
+
+    autosave.saveThenGo(2);
+
+    expect(requests).toHaveLength(1);
+    expect(options.showStep).toHaveBeenLastCalledWith(2);
+  });
+});
+
+describe('with the autosave off (read-only screens)', () => {
+  beforeEach(() => setup(formHtml({ autosaveState: 'off' })));
+
+  it('only navigates, even with the form changed', () => {
+    $(`[name="${PLAN}[characterization]"]`).val('Perfil novo');
+
+    autosave.saveThenGo(2);
+
+    expect(requests).toHaveLength(0);
+    expect(autosave.isLocked()).toBe(false);
+    expect(options.showStep).toHaveBeenCalledWith(2);
+  });
+});
