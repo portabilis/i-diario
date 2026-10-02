@@ -18,6 +18,22 @@ RSpec.describe 'individualized_educational_plans/_resources', type: :view do
     render partial: 'individualized_educational_plans/resources'
   end
 
+  it 'shows the plan as in progress while its content is not published' do
+    render_resources(edit: false, destroy: false)
+
+    expect(rendered).to include('label-warning')
+    expect(rendered).to include(IepStatuses.t(IepStatuses::IN_PROGRESS))
+  end
+
+  it 'shows the plan as finalized once its content is published' do
+    plan.update_column(:finalized_at, Time.current)
+
+    render_resources(edit: false, destroy: false)
+
+    expect(rendered).to include('label-success')
+    expect(rendered).to include(IepStatuses.t(IepStatuses::FINALIZED))
+  end
+
   it 'renders the edit link enabled when the student is editable' do
     render_resources(edit: true, destroy: false)
 
