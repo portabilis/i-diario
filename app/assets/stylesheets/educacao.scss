@@ -57,6 +57,15 @@ form .disabled label {
 .row.spaced-row {
   padding-top: 15px;
 }
+// Lista de medicamentos do PEI: no celular os campos empilham (o .smart-form .col vira largura
+// total) e a linha separa um medicamento do seguinte.
+@media (max-width: 767px) {
+  .iep-medication-row {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+}
 .smart-form .textarea textarea {
   resize: vertical;
 }
