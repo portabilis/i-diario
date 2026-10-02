@@ -1864,6 +1864,64 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(body['errors'].join).to include(I18n.t('errors.messages.is_not_between_steps'))
       end
+
+      it 'answers a conflict message when the same plan is created twice at the same time' do
+        allow_any_instance_of(IndividualizedEducationalPlan).to receive(:save_draft)
+          .and_raise(ActiveRecord::RecordNotUnique.new('duplicate student and year'))
+
+        create_draft
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.draft.conflict'))
+      end
+
+      # Sem stub de acesso: a regra sai das enturmações reais do aluno na turma do perfil.
+      context 'with the real enrollments of the student' do
+        let(:classroom) { create(:classroom, year: Date.current.year) }
+        let(:elaborated_at) { Date.new(Date.current.year, 5, 15) }
+
+        around { |example| Timecop.freeze(Time.zone.local(Date.current.year, 6, 15, 12)) { example.run } }
+
+        before do
+          allow(controller).to receive(:current_user_classroom).and_return(classroom)
+          allow(controller).to receive(:accessible_plans).and_call_original
+          allow(controller).to receive(:plan_editable?).and_call_original
+          allow(controller).to receive(:student_permitted_for_creation?).and_call_original
+          allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for).and_return(nil)
+        end
+
+        it 'saves the draft of a student attending the classroom' do
+          enroll(student, classroom)
+
+          expect { create_draft(draft_params.merge(elaborated_at: elaborated_at)) }
+            .to change(IndividualizedEducationalPlan, :count).by(1)
+
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'refuses the draft of a student enrolled on the elaboration date but transferred since' do
+          enrollment = create(:student_enrollment, student: student, status: StudentEnrollmentStatus::TRANSFERRED)
+          create(:student_enrollment_classroom,
+                 student_enrollment: enrollment, classrooms_grade: create(:classrooms_grade, classroom: classroom),
+                 joined_at: "#{Date.current.year}-02-01", left_at: "#{Date.current.year}-06-01")
+
+          expect { create_draft(draft_params.merge(elaborated_at: elaborated_at)) }
+            .not_to change(IndividualizedEducationalPlan, :count)
+
+          expect(body['draft_unavailable']).to eq(true)
+        end
+      end
+    end
+
+    # O formulário novo que volta com erro para um aluno sem rascunho abre com o salvamento
+    # automático desligado.
+    it 'flags the draft as unavailable when the new form is rendered again for such a student' do
+      allow(controller).to receive(:plan_editable?).and_return(false)
+
+      post :create, params: { locale: 'pt-BR', individualized_educational_plan: draft_params }
+
+      expect(response).to render_template(:new)
+      expect(assigns(:draft_unavailable)).to eq(true)
     end
 
     describe 'PATCH #update' do
@@ -1907,6 +1965,21 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(body['errors']).to be_present
+        expect(plan.reload.characterization).to eq('Original')
+      end
+
+      # Outro usuário removeu a linha depois que esta tela foi carregada.
+      it 'answers a conflict, not a missing plan, when a line sent back was removed meanwhile' do
+        review = create(:iep_review_date, iep: plan, review_date: Date.current)
+        line = create(:iep_curricular_planning, iep: plan, iep_review_date: review, long_term_goal: 'Meta')
+        line.destroy
+
+        update_draft(plan, characterization: 'Alterado', iep_curricular_plannings_attributes: {
+                       '0' => { id: line.id, long_term_goal: 'Meta revisada' }
+                     })
+
+        expect(response).to have_http_status(:conflict)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.draft.stale_record'))
         expect(plan.reload.characterization).to eq('Original')
       end
 
