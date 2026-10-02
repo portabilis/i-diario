@@ -100,6 +100,29 @@
               data: { association_insertion_node: '#iep-review-dates', association_insertion_method: 'append' } %>
       </div>
     </div>
+
+    <%# Remover uma revisão que tem conteúdo nas seções 4/5 apaga esse conteúdo junto (form.js). %>
+    <div class="modal fade" id="iep-review-date-removal-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            <h4 class="modal-title"><%= t('.remove_review_date_title') %></h4>
+          </div>
+          <div class="modal-body">
+            <p><%= t('.remove_review_date_text') %></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              <%= t('individualized_educational_plans.form.modal_cancel') %>
+            </button>
+            <button type="button" class="btn btn-danger" id="iep-review-date-removal-confirm">
+              <%= t('.remove_review_date_confirm') %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   <% end %>
 
   <div class="row textarea">

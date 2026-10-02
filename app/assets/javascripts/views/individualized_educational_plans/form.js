@@ -806,6 +806,50 @@ $(function() {
     if ($firstPill.length) { $firstPill.trigger('click'); }
   });
 
+  // ---- Seção 1: remover revisão com conteúdo nas seções 4/5 pede confirmação ----
+  var $reviewRemovalModal = $('#iep-review-date-removal-modal');
+  var $pendingReviewRemoval = null;
+  var reviewRemovalConfirmed = false;
+
+  function reviewLines(reviewId) {
+    return $('.iep-component-panels').filter(function() {
+      return String($(this).data('review-id')) === String(reviewId);
+    }).find('.iep-component-panel').filter(function() {
+      var destroy = $(this).find('input[name$="[_destroy]"]').val();
+      return destroy !== '1' && destroy !== 'true';
+    });
+  }
+
+  $('#iep-review-dates').on('click', '.remove_fields', function(event) {
+    if (reviewRemovalConfirmed) {
+      reviewRemovalConfirmed = false;
+      return;
+    }
+
+    var reviewId = $(this).closest('.nested-fields').data('review-id');
+    if (!reviewId || reviewLines(reviewId).length === 0) { return; }
+
+    // stopPropagation: o cocoon escuta este clique delegado no document e removeria a data já.
+    event.preventDefault();
+    event.stopPropagation();
+    $pendingReviewRemoval = $(this);
+    $reviewRemovalModal.modal('show');
+  });
+
+  // As linhas da revisão saem junto com a data: o servidor recusa remover uma revisão que ainda
+  // tem conteúdo nas seções 4/5.
+  $('#iep-review-date-removal-confirm').on('click', function() {
+    if (!$pendingReviewRemoval) { return; }
+
+    reviewLines($pendingReviewRemoval.closest('.nested-fields').data('review-id'))
+      .find('.remove_fields').trigger('click');
+
+    reviewRemovalConfirmed = true;
+    $pendingReviewRemoval.trigger('click');
+    $pendingReviewRemoval = null;
+    $reviewRemovalModal.modal('hide');
+  });
+
   // ---- Seção 3: lista de medicamentos, visível só com "Faz uso de medicação?" = Sim ----
   var $usesMedication = $('#individualized_educational_plan_uses_medication');
   var $medicationsBlock = $('#iep-medications-block');
