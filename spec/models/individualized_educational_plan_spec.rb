@@ -183,14 +183,65 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
   describe 'finalization' do
     let(:plan) { create(:individualized_educational_plan) }
 
-    it 'is not finalized without an active version' do
-      expect(plan.finalized?).to eq(false)
+    # A publicação congela os responsáveis via i-Educar; a chamada externa é stubada.
+    before do
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
     end
 
-    it 'is finalized when there is an active version' do
-      create(:iep_version, :current, iep: plan)
+    def publish(plan)
+      IndividualizedEducationalPlanPublisher.publish!(
+        plan, name: 'Versão 1', published_by: create(:user), classroom: create(:classroom)
+      )
+    end
+
+    it 'is in progress while it was never published' do
+      expect(plan.finalized?).to eq(false)
+      expect(plan.status).to eq(IepStatuses::IN_PROGRESS)
+    end
+
+    it 'is finalized once a version is published' do
+      publish(plan)
 
       expect(plan.reload.finalized?).to eq(true)
+      expect(plan.status).to eq(IepStatuses::FINALIZED)
+    end
+
+    it 'goes back to in progress when a draft is saved after the publication' do
+      publish(plan)
+      plan.reload.characterization = 'Novo perfil'
+
+      expect(plan.save_draft).to eq(true)
+      expect(plan.reload.finalized?).to eq(false)
+      expect(plan.active_version).to be_present
+    end
+
+    it 'does not save a draft that the publication would refuse' do
+      plan.elaborated_at = nil
+
+      expect(plan.save_draft).to eq(false)
+      expect(plan.errors[:elaborated_at]).to be_present
+    end
+
+    it 'does not create a version when a draft is saved' do
+      expect { plan.save_draft }.not_to change(IepVersion, :count)
+    end
+
+    describe '.by_status' do
+      let!(:in_progress) { create(:individualized_educational_plan) }
+      let!(:finalized) { create(:individualized_educational_plan).tap { |plan| publish(plan) } }
+
+      it 'filters the plans in progress' do
+        expect(described_class.by_status(IepStatuses::IN_PROGRESS)).to contain_exactly(in_progress)
+      end
+
+      it 'filters the finalized plans' do
+        expect(described_class.by_status(IepStatuses::FINALIZED)).to contain_exactly(finalized)
+      end
+
+      it 'returns nothing for a value outside the enumeration' do
+        expect(described_class.by_status('other')).to be_empty
+      end
     end
 
     it 'active_version returns the current version' do
