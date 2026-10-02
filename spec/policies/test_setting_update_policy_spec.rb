@@ -174,6 +174,7 @@ RSpec.describe TestSettingUpdatePolicy do
         create(:test_setting, :general_by_school,
                minimum_score: 5,
                maximum_score: 10,
+               number_of_decimal_places: 2,
                unities: [create(:unity).id, removable_unity.id],
                grades: covered_grade_ids + [removable_grade.id]).tap do |setting|
           # not_validate_columns pula a trava de perfil do ColumnsLockable, que exige current_user

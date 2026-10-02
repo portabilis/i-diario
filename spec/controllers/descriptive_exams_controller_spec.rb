@@ -57,7 +57,6 @@ RSpec.describe DescriptiveExamsController, type: :controller do
     allow(controller).to receive(:current_user_discipline).and_return(discipline)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
     allow(controller).to receive(:current_teacher_id).and_return(current_teacher.id)
-    allow(controller).to receive(:recorded_at_by_step).and_return('2017-03-01')
     request.env['REQUEST_PATH'] = ''
   end
 
@@ -119,19 +118,24 @@ RSpec.describe DescriptiveExamsController, type: :controller do
         locale: 'pt-BR'
       }
     end
+    let(:other_classroom_exam_rule) { exam_rule }
+    let(:other_classroom) do
+      create(
+        :classroom,
+        :with_teacher_discipline_classroom,
+        :with_classroom_semester_steps,
+        unity: unity,
+        school_calendar: school_calendar,
+        teacher: current_teacher,
+        discipline: discipline,
+        exam_rule: other_classroom_exam_rule
+      ).tap { |other| create(:classrooms_grade, classroom: other, exam_rule: other_classroom_exam_rule) }
+    end
 
     context 'without success' do
       it 'fails to create and renders the new template' do
         post :create, params: params
         expect(response).to render_template(:new)
-      end
-    end
-
-    context 'with success' do
-      it 'creates and redirects to descriptive exams edit page' do
-        allow(controller).to receive(:find_step_number).and_return(1)
-        post :create, params: params
-        expect(response).to redirect_to /avaliacoes-descritivas/
       end
     end
 
@@ -145,6 +149,67 @@ RSpec.describe DescriptiveExamsController, type: :controller do
       it "redirects to the edit path for the created exam" do
         post :create, params: valid_params
         expect(response).to redirect_to(edit_descriptive_exam_path(DescriptiveExam.last))
+      end
+
+      it 'records the current date while the step is in progress' do
+        post :create, params: valid_params
+
+        expect(DescriptiveExam.last.recorded_at).to eq(Date.current)
+      end
+
+      it 'records the last day of the step when it has already ended' do
+        step_end = SchoolCalendarClassroomStep.first.end_at
+
+        Timecop.travel(step_end + 10.days) { post :create, params: valid_params }
+
+        expect(DescriptiveExam.last.recorded_at).to eq(step_end)
+      end
+    end
+
+    context 'when the step does not belong to the selected classroom' do
+      let(:step_of_current_classroom) { classroom.calendar.classroom_steps.first }
+      let(:foreign_step_params) do
+        {
+          locale: 'pt-BR',
+          descriptive_exam: {
+            classroom_id: other_classroom.id,
+            discipline_id: discipline.id,
+            opinion_type: classrooms_grade.exam_rule.opinion_type,
+            step_id: step_of_current_classroom.id
+          }
+        }
+      end
+
+      it 're-renders the form with an error on the step and creates nothing' do
+        expect { post :create, params: foreign_step_params }.not_to change(DescriptiveExam, :count)
+
+        expect(response).to render_template(:new)
+        expect(assigns(:descriptive_exam).errors[:step_id]).to include('não pertence à turma selecionada')
+      end
+    end
+
+    context 'when a teacher fails to create for a classroom other than the profile one' do
+      let(:teacher_user) { create(:user, :with_user_role_teacher) }
+      let(:other_classroom_exam_rule) { create(:exam_rule, opinion_type: OpinionTypes::BY_STEP) }
+      let(:params_without_step) do
+        {
+          locale: 'pt-BR',
+          descriptive_exam: { classroom_id: other_classroom.id, opinion_type: OpinionTypes::BY_STEP, step_id: '' }
+        }
+      end
+
+      before do
+        classrooms_grade
+        sign_in(teacher_user)
+        allow(controller).to receive(:current_unity).and_return(unity)
+        allow(controller).to receive(:current_school_year).and_return(classroom.year)
+      end
+
+      it 'offers the opinion type of the selected classroom' do
+        post :create, params: params_without_step
+
+        expect(response).to render_template(:new)
+        expect(assigns(:opinion_types).map(&:id)).to eq([OpinionTypes::BY_STEP])
       end
     end
 
