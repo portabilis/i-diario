@@ -22,7 +22,9 @@ RSpec.describe IeducarApi::PostExams, type: :service do
     it 'returns message' do
       allow(Rails.application.secrets).to receive(:staging_access_key).and_return(access_key)
       allow(Rails.application.secrets).to receive(:staging_secret_key).and_return(secret_key)
-      VCR.use_cassette('post_exams') do
+      # A query string gravada na cassette é de um formato de POST anterior ao que o serviço monta
+      # hoje, então a interação só casa por método e path; sem isso o VCR sai para a rede.
+      VCR.use_cassette('post_exams', match_requests_on: %i[method path]) do
         result = subject.send_post(
           etapa: etapa,
           notas: notas,
