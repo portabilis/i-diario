@@ -39,6 +39,11 @@ pt-BR:
       version_name_required: "Informe um nome para a versão antes de salvar."
     create:
       student_not_permitted: "Selecione um aluno enturmado na turma na data de elaboração informada."
+    draft:
+      already_exists: "Este aluno já possui um PEI neste ano letivo."
+      unavailable: "Este aluno não está mais enturmado nesta turma: o PEI não é salvo automaticamente e só será gravado ao finalizar."
+      conflict: "Outra pessoa gravou este PEI ao mesmo tempo. Recarregue a página para continuar."
+      not_authorized: "Você não tem permissão para alterar este componente do PEI."
     medical_report_upload:
       success: "Laudo enviado para o cadastro do aluno no i-Educar."
       missing_file: "Selecione um arquivo para enviar."
