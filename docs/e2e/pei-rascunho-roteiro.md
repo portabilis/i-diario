@@ -87,6 +87,18 @@ Se um cenário intermediário falhar, o plano criado fica na listagem e precisa 
 **Detalhes Técnicos:**
 - Seletores: `#pei-wizard .steps li`, `.iep-locked-notice`, `.iep-go-to-identification`, `#pei-step-2 textarea`
 
+#### CT-07: "Sim" em medicação sem medicamento mostra o motivo no topo da etapa
+- **Dado que** o rascunho existe e o usuário está na etapa 3
+- **Quando** responde "Sim" em "Faz uso de medicação?" sem informar medicamento e clica em outra etapa
+- **Então** continua na etapa 3 e um alerta no topo da etapa, visível na tela, informa que falta ao menos um medicamento com nome
+- **E quando** desfaz a resposta e clica em outra etapa
+- **Então** a etapa troca e o alerta some
+
+**Detalhes Técnicos:**
+- Seletores: `#individualized_educational_plan_uses_medication`, `.iep-save-error`, `.iep-save-error-text`
+- Wait: resposta 422 do `POST` com `draft=1`
+- Assertion: `await expect(page.locator('.iep-save-error')).toBeInViewport()`
+
 ## Autovalidação do roteiro
 
 | Comportamento | Cenário |
@@ -97,7 +109,7 @@ Se um cenário intermediário falhar, o plano criado fica na listagem e precisa 
 | Salvamentos seguintes não duplicam registros filhos | CT-03 |
 | Datas de revisão da seção 1 aparecem nas seções 4 e 5 sem recarregar | CT-02 |
 | Rascunho "Em elaboração"; finalizado "Finalizado" | CT-04, CT-05 |
-| O indicador de salvamento mostra sucesso | CT-02, CT-03 |
+| O indicador de salvamento mostra sucesso e a recusa aparece em local visível | CT-02, CT-03, CT-07 |
 
 Fora deste roteiro, por serem cobertos por testes de unidade ou por dependerem de condição que a tela não reproduz de forma determinística:
 

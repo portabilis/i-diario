@@ -147,6 +147,30 @@ test.describe('Plano Educacional Individualizado - salvamento de rascunho', () =
       await expect(row.locator('.label')).toHaveText('Em elaboração');
     });
 
+    test('CT-07: "Sim" em medicação sem medicamento mostra o motivo no topo da etapa e não troca de etapa', async ({ page }) => {
+      test.skip(!planPath, 'o rascunho não foi criado');
+      await page.goto(planPath);
+      await expect(page.locator('#left-panel')).toBeVisible({ timeout: 15000 });
+      const usesMedication = page.locator('#individualized_educational_plan_uses_medication');
+
+      await step(page, 3).click();
+      await usesMedication.selectOption('true');
+      const refused = page.waitForResponse(isDraftSave);
+      await step(page, 4).click();
+      expect((await refused).status()).toBe(422);
+
+      await expect(step(page, 3)).toHaveClass(/active/);
+      await expect(page.locator('.iep-save-error')).toBeInViewport();
+      await expect(page.locator('.iep-save-error-text')).toContainText('Informe ao menos um medicamento com nome');
+
+      // Corrigida a resposta, o salvamento passa, o alerta some e a etapa troca.
+      await usesMedication.selectOption('');
+      await step(page, 4).click();
+
+      await expect(step(page, 4)).toHaveClass(/active/);
+      await expect(page.locator('.iep-save-error')).toBeHidden();
+    });
+
     test('CT-05: finalizar publica a versão e a edição seguinte volta para "Em elaboração"', async ({ page }) => {
       test.skip(!planPath, 'o rascunho não foi criado');
       await page.goto(planPath);

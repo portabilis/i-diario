@@ -114,6 +114,7 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
 
       expect(wizard['data-autosave']).to eq('on')
       expect(wizard.at_css('.iep-locked-notice')).to be_present
+      expect(wizard.at_css('.iep-save-error .iep-save-error-text')).to be_present
       expect(wizard.css('#pei-step-4 .iep-go-to-identification').size).to eq(1)
       expect(rendered).to include(I18n.t('individualized_educational_plans.form.no_reviews_hint'))
     end
@@ -148,6 +149,7 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
 
       expect(wizard['data-autosave']).to eq('off')
       expect(wizard.at_css('.iep-locked-notice')).to be_nil
+      expect(wizard.at_css('.iep-save-error')).to be_nil
       expect(rendered).not_to include('iep-save-status-text')
     end
   end

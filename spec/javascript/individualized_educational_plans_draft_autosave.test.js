@@ -44,6 +44,10 @@ function formHtml({ planId = '5', autosaveState = 'on', lines = linePanel(7, 'Me
     <form action="/planos/${planId}">
       <input type="hidden" name="authenticity_token" value="token">
       <div id="pei-wizard" data-plan-id="${planId}" data-autosave="${autosaveState}">
+        <div class="iep-save-error" style="display: none;">
+          <span class="iep-save-error-text"></span>
+          <a class="iep-save-retry" style="display: none;">Tentar novamente</a>
+        </div>
         <textarea name="${PLAN}[characterization]">Perfil</textarea>
         <input type="text" name="${PLAN}[birth_date]" readonly value="">
         <div id="iep-review-dates"><input type="text" name="${PLAN}[iep_review_dates_attributes][0][review_date]" value=""></div>
@@ -99,6 +103,9 @@ const $ = (selector) => window.jQuery(selector);
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 const lastRequest = () => requests[requests.length - 1];
 const statusText = () => $('.iep-save-status-text').text();
+const errorAlert = () => $('.iep-save-error');
+const errorText = () => $('.iep-save-error-text').text();
+const retryLinks = () => $('.iep-save-retry').toArray().map((link) => link.style.display !== 'none');
 
 function saved(data) {
   lastRequest().deferred.resolve(Object.assign({ id: 5, form_html: savedFormHtml() }, data));
@@ -181,6 +188,7 @@ describe('when the form changed', () => {
 
     expect(options.showStep).toHaveBeenCalledWith(2);
     expect(statusText()).toMatch(/^Salvo às \d{2}:\d{2} - alterações ainda não publicadas$/);
+    expect(errorAlert().css('display')).toBe('none');
   });
 
   it('ignores another navigation while the save is in flight', () => {
@@ -237,14 +245,46 @@ describe('when the form changed', () => {
     expect(options.showStep).toHaveBeenLastCalledWith(4);
   });
 
-  it('stays on the step and shows the reasons when the server refuses the data', () => {
+  // O rodapé pode estar fora da tela: o motivo vai num alerta no topo da etapa.
+  it('stays on the step and shows the reasons in the alert above it when the server refuses the data', () => {
+    const scrollIntoView = jest.fn();
+    errorAlert()[0].scrollIntoView = scrollIntoView;
+
     autosave.saveThenGo(2);
-    refused({ errors: ['Data de elaboração não pode ficar em branco'] });
+    refused({ errors: ['Informe ao menos um medicamento com nome'] });
 
     expect(options.showStep).not.toHaveBeenCalled();
-    expect(statusText()).toBe('Data de elaboração não pode ficar em branco');
+    expect(errorAlert().css('display')).not.toBe('none');
+    expect(errorText()).toBe('Informe ao menos um medicamento com nome');
+    expect(scrollIntoView).toHaveBeenCalled();
+    expect(statusText()).toBe('Não foi possível salvar.');
     expect($('.iep-save-status').hasClass('iep-save-failed')).toBe(true);
-    expect($('.iep-save-retry').css('display')).toBe('none');
+    expect(retryLinks()).toEqual([false, false]);
+  });
+
+  it('hides the alert once the corrected data is saved', () => {
+    autosave.saveThenGo(2);
+    refused({ errors: ['Informe ao menos um medicamento com nome'] });
+
+    autosave.saveThenGo(2);
+    saved();
+
+    expect(errorAlert().css('display')).toBe('none');
+    expect($('.iep-save-status').hasClass('iep-save-failed')).toBe(false);
+    expect(options.showStep).toHaveBeenCalledWith(2);
+  });
+
+  it('drops the alert when the user undoes the refused change instead of fixing it', () => {
+    autosave.saveThenGo(2);
+    refused({ errors: ['Informe ao menos um medicamento com nome'] });
+    $(`[name="${PLAN}[characterization]"]`).val('Perfil');
+
+    autosave.saveThenGo(2);
+
+    expect(requests).toHaveLength(1);
+    expect(errorAlert().css('display')).toBe('none');
+    expect(statusText()).toBe('');
+    expect(options.showStep).toHaveBeenCalledWith(2);
   });
 
   it('keeps what is on the screen, changes the step and offers to retry when the request fails', () => {
@@ -254,14 +294,15 @@ describe('when the form changed', () => {
     expect(options.showStep).toHaveBeenCalledWith(2);
     expect($(`[name="${PLAN}[characterization]"]`).val()).toBe('Perfil novo');
     expect(statusText()).toBe('Não foi possível salvar.');
-    expect($('.iep-save-retry').css('display')).not.toBe('none');
+    expect(errorText()).toBe('Não foi possível salvar.');
+    expect(retryLinks()).toEqual([true, true]);
 
-    $('.iep-save-retry').trigger('click');
+    $('.iep-save-error .iep-save-retry').trigger('click');
     saved();
 
     expect(requests).toHaveLength(2);
     expect(statusText()).toMatch(/^Salvo às/);
-    expect($('.iep-save-retry').css('display')).toBe('none');
+    expect(retryLinks()).toEqual([false, false]);
   });
 
   it('shows the session message when the failure is an expired session', () => {
@@ -270,7 +311,7 @@ describe('when the form changed', () => {
     autosave.saveThenGo(2);
     lastRequest().deferred.reject({ status: 401, responseText: '' }, 'error');
 
-    expect(statusText()).toBe('Sua sessão expirou.');
+    expect(errorText()).toBe('Sua sessão expirou.');
   });
 
   it('leaves the unchanged lines out of the native submit too', () => {
@@ -309,8 +350,8 @@ describe('while the plan does not exist yet', () => {
     refused({ errors: ['Este aluno já possui um PEI neste ano letivo.'], existing_plan_url: '/planos/3/editar' });
 
     expect(options.showStep).not.toHaveBeenCalled();
-    expect($('.iep-save-status-text a').attr('href')).toBe('/planos/3/editar');
-    expect($('.iep-save-status-text a').text()).toBe('Abrir o PEI existente');
+    expect($('.iep-save-error-text a').attr('href')).toBe('/planos/3/editar');
+    expect($('.iep-save-error-text a').text()).toBe('Abrir o PEI existente');
   });
 
   // As demais etapas continuam travadas: navegar levaria a uma tela sem nada para preencher.
