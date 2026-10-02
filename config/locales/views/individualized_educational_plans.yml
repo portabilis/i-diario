@@ -4,6 +4,8 @@ pt-BR:
       new_html: "<i class='fa fa-plus'></i> Novo"
       filter_by_classroom: "Filtrar turma"
       filter_by_student: "Filtrar aluno"
+      filter_by_status: "Filtrar situação"
+      status: "Situação"
       last_edit: "Última edição"
       history: "Histórico de versões"
       edit_disabled: "Edição indisponível: o aluno não está mais enturmado nesta turma."

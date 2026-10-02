@@ -13,10 +13,14 @@
                           label: false, placeholder: t('.filter_by_classroom'),
                           input_html: { value: current_user_classroom.id } %>
             </th>
-            <th scope="col" colspan="3">
+            <th scope="col" colspan="2">
               <%= f.input :by_student_id, as: :select2, elements: [],
                           label: false, placeholder: t('.filter_by_student'),
                           input_html: { class: 'iep-student-filter' } %>
+            </th>
+            <th scope="col" colspan="2">
+              <%= f.input :by_status, as: :select2, elements: IepStatuses.to_select.to_json,
+                          label: false, placeholder: t('.filter_by_status') %>
             </th>
             <th scope="col">
               <% if policy(IndividualizedEducationalPlan).new? %>
@@ -31,6 +35,7 @@
             <th scope="col"><%= IndividualizedEducationalPlan.human_attribute_name :unity %></th>
             <th scope="col"><%= IndividualizedEducationalPlan.human_attribute_name :classroom %></th>
             <th scope="col"><%= IndividualizedEducationalPlan.human_attribute_name :student %></th>
+            <th scope="col"><%= t('.status') %></th>
             <th scope="col"><%= t('.last_edit') %></th>
             <th scope="col" style="width: 250px"></th>
           </tr>
@@ -39,7 +44,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td id="pagination-tfoot" colspan="6">
+          <td id="pagination-tfoot" colspan="7">
             <%= render 'shared/pagination', records: @individualized_educational_plans %>
           </td>
         </tfoot>

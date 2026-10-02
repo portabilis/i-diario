@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @individualized_educational_plans.empty? %>
     <tr>
-      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found') %></td>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found') %></td>
     </tr>
   <% else %>
     <%# edit?/destroy? dependem só da feature/perfil, não do registro — calcula uma vez fora do
@@ -15,6 +15,11 @@
         <td><%= classrooms_entry&.unities_label %></td>
         <td><%= classrooms_entry&.classrooms_label %></td>
         <td><%= plan.student %></td>
+        <td>
+          <span class="label <%= plan.finalized? ? 'label-success' : 'label-warning' %>">
+            <%= IepStatuses.t(plan.status) %>
+          </span>
+        </td>
         <td><%= l(plan.updated_at, format: :short) %></td>
         <td class="actions">
           <%= link_to(
