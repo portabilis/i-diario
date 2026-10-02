@@ -94,13 +94,35 @@ class IndividualizedEducationalPlan < ApplicationRecord
       .or(where(student_id: StudentEnrollmentClassroom.attending_student_ids(classroom_id)))
   }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  # Valor fora da enumeração não devolve nada: o filtro vem de params.
+  scope :by_status, lambda { |status|
+    case status.to_s
+    when IepStatuses::FINALIZED then where.not(finalized_at: nil)
+    when IepStatuses::IN_PROGRESS then where(finalized_at: nil)
+    else none
+    end
+  }
 
+  # finalized_at preenchido significa que o conteúdo atual do plano é o da versão ativa. Fica vazio
+  # enquanto o plano nunca foi publicado e volta a ficar vazio a cada rascunho gravado depois da
+  # publicação, então um plano pode ter versão ativa e não estar finalizado.
   def finalized?
-    active_version.present?
+    finalized_at.present?
+  end
+
+  def status
+    finalized? ? IepStatuses::FINALIZED : IepStatuses::IN_PROGRESS
   end
 
   def active_version
     iep_versions.find_by(active: true)
+  end
+
+  # Grava o plano sem publicar versão. As validações são as mesmas da publicação: o rascunho nunca
+  # guarda um estado que a publicação recusaria.
+  def save_draft
+    self.finalized_at = nil
+    save
   end
 
   private

@@ -1,5 +1,5 @@
 # Publica ("finaliza") uma versão do PEI: desativa a versão vigente, grava uma nova
-# versão ativa com o snapshot completo do plano e atualiza o cache finalized_at.
+# versão ativa com o snapshot completo do plano e marca o plano como finalizado (finalized_at).
 class IndividualizedEducationalPlanPublisher
   def initialize(plan, name:, published_by:, student_data: nil, classroom: nil)
     @plan = plan
@@ -27,7 +27,7 @@ class IndividualizedEducationalPlanPublisher
         content: IndividualizedEducationalPlanSnapshot.build(plan, student_data: student_data, classroom: classroom)
       )
 
-      # Cache do estado "finalizado" (a verdade é a existência de versão ativa).
+      # O conteúdo atual passa a ser o da versão ativa; o próximo rascunho gravado zera de novo.
       plan.update_column(:finalized_at, version.published_at)
 
       version
