@@ -20,7 +20,9 @@ window.IepDraftAutosave = function(options) {
   var $wizard = options.$wizard;
   var $status = $form.find('.iep-save-status');
   var $statusText = $status.find('.iep-save-status-text');
-  var $retry = $status.find('.iep-save-retry');
+  var $alert = $form.find('.iep-save-error');
+  var $alertText = $alert.find('.iep-save-error-text');
+  var $retry = $form.find('.iep-save-retry');
 
   // Sempre o conteúdo, nunca o elemento: o form.js guarda referência a estes nós e tem handlers
   // presos neles.
@@ -97,10 +99,23 @@ window.IepDraftAutosave = function(options) {
   }
 
   // ---- Indicador de salvamento ----
-  function setStatus(text, failed, retryable) {
-    $status.toggleClass('iep-save-failed', !!failed);
+  // O andamento e o sucesso ficam no rodapé. A falha também aparece num alerta no topo da etapa,
+  // com o motivo: o rodapé fica fora da tela para quem troca de etapa pelo título, lá em cima.
+  function setStatus(text) {
+    $status.removeClass('iep-save-failed');
     $statusText.text(text || '');
+    $alert.hide();
+    $retry.hide();
+  }
+
+  function showFailure(message, retryable) {
+    $status.addClass('iep-save-failed');
+    $statusText.text($status.data('failed-text'));
+    $alertText.text(message);
+    $alert.show();
     $retry.toggle(!!retryable);
+
+    if ($alert.length && $alert[0].scrollIntoView) { $alert[0].scrollIntoView({ block: 'center' }); }
   }
 
   function currentTime() {
@@ -115,10 +130,10 @@ window.IepDraftAutosave = function(options) {
   }
 
   function showRefused(body) {
-    setStatus((body.errors || []).join(' '), true, false);
+    showFailure((body.errors || []).join(' '), false);
 
     if (body.existing_plan_url) {
-      $statusText.append(' ').append(
+      $alertText.append(' ').append(
         $('<a>').attr('href', body.existing_plan_url).text($status.data('existing-plan-text'))
       );
     }
@@ -215,7 +230,7 @@ window.IepDraftAutosave = function(options) {
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') }
     }).done(function(data) {
       if (!data || !data.id || typeof data.form_html !== 'string') {
-        setStatus($status.data('failed-text'), true, true);
+        showFailure($status.data('failed-text'), true);
         result.reject('failed');
         return;
       }
@@ -238,7 +253,7 @@ window.IepDraftAutosave = function(options) {
         showRefused(body);
         result.reject('refused');
       } else {
-        setStatus(options.failureMessage(jqXHR, textStatus) || $status.data('failed-text'), true, true);
+        showFailure(options.failureMessage(jqXHR, textStatus) || $status.data('failed-text'), true);
         result.reject('failed');
       }
     });
@@ -268,6 +283,8 @@ window.IepDraftAutosave = function(options) {
     if (busy) { return; }
 
     if (!shouldSave()) {
+      // Nada pendente: a falha de um envio anterior já não descreve o que está na tela.
+      if ($status.hasClass('iep-save-failed')) { setStatus(''); }
       options.showStep(index);
       return;
     }

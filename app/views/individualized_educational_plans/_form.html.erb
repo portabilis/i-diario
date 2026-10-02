@@ -38,7 +38,8 @@
     #pei-wizard .fuelux .wizard { overflow-x: auto; overflow-y: hidden; }
     #pei-wizard .fuelux .wizard ul.steps { width: auto; display: flex; }
     #pei-wizard .fuelux .wizard ul.steps > li { float: none; flex: 0 0 auto; }
-    #pei-wizard .iep-locked-notice, #pei-wizard .iep-no-draft-notice { margin: 15px 14px 0; }
+    #pei-wizard .iep-locked-notice, #pei-wizard .iep-no-draft-notice,
+    #pei-wizard .iep-save-error { margin: 15px 14px 0; }
     #pei-wizard fieldset[disabled] textarea,
     #pei-wizard fieldset[disabled] input,
     #pei-wizard fieldset[disabled] select { background-color: #eee; cursor: not-allowed; }
@@ -71,6 +72,12 @@
         <button type="button" class="btn btn-default btn-xs iep-go-to-identification">
           <%= t('.go_to_identification') %>
         </button>
+      </div>
+      <%# Motivo de um rascunho que não foi salvo (draft_autosave.js). No topo da etapa porque o
+          rodapé, onde fica o indicador, pode estar fora da tela. %>
+      <div class="alert alert-danger iep-save-error" role="alert" style="display: none;">
+        <i class="fa-fw fa fa-times"></i> <span class="iep-save-error-text"></span>
+        <a href="javascript:void(0)" class="iep-save-retry" style="display: none;"><%= t('.save_retry') %></a>
       </div>
       <div class="alert alert-info iep-no-draft-notice"
            style="<%= 'display: none;' unless @draft_unavailable %>">
