@@ -8,10 +8,15 @@ class TeacherUnification
 
           secondary_teacher.send(association.name).each do |record|
             begin
-              unify(record, association)
+              ActiveRecord::Base.transaction(requires_new: true) { unify(record, association) }
             rescue ActiveRecord::RecordNotUnique
+              raise unless record.respond_to?(:discarded_at)
+
+              # O principal já tem um registro igual. Os índices únicos valem também para os
+              # descartados, então o repetido não pode ir para o principal nem descartado:
+              # fica descartado no secundário.
+              record.reload
               discard(record)
-              unify(record, association)
             end
           end
         end
