@@ -33,6 +33,24 @@ module IndividualizedEducationalPlanDrafting
     save_draft
   end
 
+  def update_draft
+    return unless assign_draft_attributes
+
+    authorize_teacher_component_scope!
+    save_draft
+  end
+
+  # Uma linha reenviada pode ter sido removida por outro usuário desde a carga da tela: a
+  # atribuição levanta RecordNotFound, que o handler do controller responderia como plano não
+  # encontrado.
+  def assign_draft_attributes
+    @individualized_educational_plan.assign_attributes(update_resource_params)
+    true
+  rescue ActiveRecord::RecordNotFound
+    render_draft_error(t('individualized_educational_plans.draft.stale_record'), status: :conflict)
+    false
+  end
+
   def save_draft
     plan = @individualized_educational_plan
     return render_draft_saved if elaboration_day_valid? && plan.save_draft

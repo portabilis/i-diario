@@ -240,11 +240,11 @@ class IndividualizedEducationalPlansController < ApplicationController
       return draft_request? ? render_draft_read_only : read_only_transferred_redirect
     end
 
+    return update_draft if draft_request?
+
     @individualized_educational_plan.assign_attributes(update_resource_params)
 
     authorize_teacher_component_scope!
-
-    return save_draft if draft_request?
 
     if save_and_publish
       respond_after_save

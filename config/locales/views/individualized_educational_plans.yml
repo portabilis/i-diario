@@ -54,6 +54,7 @@ pt-BR:
       unavailable: "Este aluno não está mais enturmado nesta turma: o PEI não é salvo automaticamente e só será gravado ao finalizar."
       conflict: "Outra pessoa gravou este PEI ao mesmo tempo. Recarregue a página para continuar."
       not_authorized: "Você não tem permissão para alterar este componente do PEI."
+      stale_record: "Um registro deste PEI foi removido por outra pessoa. Recarregue a página para continuar."
     medical_report_upload:
       success: "Laudo enviado para o cadastro do aluno no i-Educar."
       missing_file: "Selecione um arquivo para enviar."
