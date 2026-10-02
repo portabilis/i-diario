@@ -323,6 +323,87 @@ describe('when the form changed', () => {
   });
 });
 
+describe('when the server tells which field was refused', () => {
+  const MEDICATION = `${PLAN}[iep_medications_attributes]`;
+  const group = (name) => $(`[name="${name}"]`).closest('.control-group');
+
+  function fieldsHtml() {
+    return `
+      <form action="/planos/5">
+        <div id="pei-wizard" data-plan-id="5" data-autosave="on">
+          <div class="iep-save-error" style="display: none;"><span class="iep-save-error-text"></span></div>
+          <div class="tab-content">
+            <div class="tab-pane" id="pei-step-1">
+              <div class="control-group"><input type="text" name="${PLAN}[elaborated_at]" value="02/10/2026"></div>
+            </div>
+            <div class="tab-pane active" id="pei-step-3">
+              <div id="iep-medications">
+                <div class="control-group"><input type="text" name="${MEDICATION}[0][name]" value="Salvo"></div>
+                <input type="hidden" name="${MEDICATION}[0][id]" value="12">
+                <div class="control-group"><input type="text" name="${MEDICATION}[1][name]" value=""></div>
+                <input type="hidden" name="${MEDICATION}[1][_destroy]" value="1">
+                <div class="control-group"><input type="text" name="${MEDICATION}[171][name]" value=""></div>
+                <div class="control-group"><input type="text" name="${MEDICATION}[171][dosage]" value=""></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="iep-save-status" data-failed-text="Não foi possível salvar."><span class="iep-save-status-text"></span></span>
+      </form>
+    `;
+  }
+
+  function refuseWith(fieldErrors) {
+    $(`[name="${MEDICATION}[171][dosage]"]`).val('10 mg');
+    autosave.saveThenGo(3);
+    refused({ errors: ['Recusado'], field_errors: fieldErrors });
+  }
+
+  beforeEach(() => setup(fieldsHtml()));
+
+  it('marks the new, empty row of the nested field, with the message next to it', () => {
+    refuseWith([{ association: 'iep_medications', id: null, attribute: 'name', message: 'não pode ficar em branco' }]);
+
+    expect(group(`${MEDICATION}[171][name]`).hasClass('error')).toBe(true);
+    expect(group(`${MEDICATION}[171][name]`).find('.help-inline').text()).toBe('não pode ficar em branco');
+    // linha salva e linha removida não são a linha recusada
+    expect(group(`${MEDICATION}[0][name]`).hasClass('error')).toBe(false);
+    expect(group(`${MEDICATION}[1][name]`).hasClass('error')).toBe(false);
+    expect(options.showStep).not.toHaveBeenCalled();
+  });
+
+  it('marks the saved nested record by its id', () => {
+    refuseWith([{ association: 'iep_medications', id: 12, attribute: 'name', message: 'não pode ficar em branco' }]);
+
+    expect(group(`${MEDICATION}[0][name]`).hasClass('error')).toBe(true);
+    expect(group(`${MEDICATION}[171][name]`).hasClass('error')).toBe(false);
+  });
+
+  it('marks a field of the plan itself and opens its step when it is another one', () => {
+    refuseWith([{ attribute: 'elaborated_at', message: 'não pode ficar em branco' }]);
+
+    expect(group(`${PLAN}[elaborated_at]`).hasClass('error')).toBe(true);
+    expect(options.showStep).toHaveBeenCalledWith(0);
+  });
+
+  it('clears the mark when the user edits the field', () => {
+    refuseWith([{ association: 'iep_medications', id: null, attribute: 'name', message: 'não pode ficar em branco' }]);
+
+    $(`[name="${MEDICATION}[171][name]"]`).val('Metilfenidato').trigger('input');
+
+    expect(group(`${MEDICATION}[171][name]`).hasClass('error')).toBe(false);
+    expect(group(`${MEDICATION}[171][name]`).find('.help-inline')).toHaveLength(0);
+  });
+
+  it('clears the marks on the next save attempt', () => {
+    refuseWith([{ association: 'iep_medications', id: null, attribute: 'name', message: 'não pode ficar em branco' }]);
+
+    autosave.saveThenGo(3);
+
+    expect($('.control-group.error')).toHaveLength(0);
+  });
+});
+
 describe('while the plan does not exist yet', () => {
   beforeEach(() => setup(formHtml({ planId: '', lines: '' })));
 

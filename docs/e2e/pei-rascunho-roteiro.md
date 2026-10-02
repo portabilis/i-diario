@@ -87,15 +87,17 @@ Se um cenário intermediário falhar, o plano criado fica na listagem e precisa 
 **Detalhes Técnicos:**
 - Seletores: `#pei-wizard .steps li`, `.iep-locked-notice`, `.iep-go-to-identification`, `#pei-step-2 textarea`
 
-#### CT-07: "Sim" em medicação sem medicamento mostra o motivo no topo da etapa
+#### CT-07: "Sim" em medicação sem medicamento mostra o motivo no topo da etapa e destaca o campo
 - **Dado que** o rascunho existe e o usuário está na etapa 3
 - **Quando** responde "Sim" em "Faz uso de medicação?" sem informar medicamento e clica em outra etapa
-- **Então** continua na etapa 3 e um alerta no topo da etapa, visível na tela, informa que falta ao menos um medicamento com nome
+- **Então** continua na etapa 3, um alerta no topo da etapa, visível na tela, informa que falta ao menos um medicamento com nome, e o campo "Nome do medicamento" fica em vermelho com a mensagem "não pode ficar em branco"
+- **E quando** digita no campo destacado
+- **Então** o campo deixa de ficar em vermelho
 - **E quando** desfaz a resposta e clica em outra etapa
 - **Então** a etapa troca e o alerta some
 
 **Detalhes Técnicos:**
-- Seletores: `#individualized_educational_plan_uses_medication`, `.iep-save-error`, `.iep-save-error-text`
+- Seletores: `#individualized_educational_plan_uses_medication`, `.iep-save-error`, `.iep-save-error-text`, `#iep-medications .iep-medication-row .control-group.error`
 - Wait: resposta 422 do `POST` com `draft=1`
 - Assertion: `await expect(page.locator('.iep-save-error')).toBeInViewport()`
 

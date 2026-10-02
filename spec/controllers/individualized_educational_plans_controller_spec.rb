@@ -1968,6 +1968,37 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         expect(plan.reload.characterization).to eq('Original')
       end
 
+      # A tela destaca o campo recusado, como a re-renderização da finalização faz.
+      it 'tells which field of the plan each validation error belongs to' do
+        update_draft(plan, elaborated_at: nil)
+
+        expect(body['field_errors']).to include(
+          'attribute' => 'elaborated_at', 'message' => I18n.t('errors.messages.blank')
+        )
+      end
+
+      it 'points to the medication name when the answer is "yes" without a named medication' do
+        update_draft(plan, uses_medication: 'true',
+                           iep_medications_attributes: { '0' => { name: '', dosage: '', schedule: '' } })
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['field_errors']).to contain_exactly(
+          'association' => 'iep_medications', 'id' => nil, 'attribute' => 'name',
+          'message' => I18n.t('errors.messages.blank')
+        )
+      end
+
+      it 'identifies a saved nested record with an error by its id' do
+        review = create(:iep_review_date, iep: plan, review_date: Date.current)
+
+        update_draft(plan, iep_review_dates_attributes: { '0' => { id: review.id, review_date: '' } })
+
+        expect(body['field_errors']).to include(
+          'association' => 'iep_review_dates', 'id' => review.id, 'attribute' => 'review_date',
+          'message' => I18n.t('errors.messages.blank')
+        )
+      end
+
       # Outro usuário removeu a linha depois que esta tela foi carregada.
       it 'answers a conflict, not a missing plan, when a line sent back was removed meanwhile' do
         review = create(:iep_review_date, iep: plan, review_date: Date.current)

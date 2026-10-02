@@ -147,7 +147,7 @@ test.describe('Plano Educacional Individualizado - salvamento de rascunho', () =
       await expect(row.locator('.label')).toHaveText('Em elaboração');
     });
 
-    test('CT-07: "Sim" em medicação sem medicamento mostra o motivo no topo da etapa e não troca de etapa', async ({ page }) => {
+    test('CT-07: "Sim" em medicação sem medicamento mostra o motivo no topo, destaca o campo e não troca de etapa', async ({ page }) => {
       test.skip(!planPath, 'o rascunho não foi criado');
       await page.goto(planPath);
       await expect(page.locator('#left-panel')).toBeVisible({ timeout: 15000 });
@@ -162,6 +162,15 @@ test.describe('Plano Educacional Individualizado - salvamento de rascunho', () =
       await expect(step(page, 3)).toHaveClass(/active/);
       await expect(page.locator('.iep-save-error')).toBeInViewport();
       await expect(page.locator('.iep-save-error-text')).toContainText('Informe ao menos um medicamento com nome');
+      const medicationName = page.locator('#iep-medications .iep-medication-row input[name$="[name]"]').first();
+      const medicationGroup = page.locator('#iep-medications .iep-medication-row .control-group.error');
+      await expect(medicationGroup).toHaveCount(1);
+      await expect(medicationGroup.locator('.help-inline')).toHaveText('não pode ficar em branco');
+
+      // Ao digitar no campo destacado ele deixa de ficar em vermelho.
+      await medicationName.fill('Metilfenidato');
+      await expect(medicationGroup).toHaveCount(0);
+      await medicationName.fill('');
 
       // Corrigida a resposta, o salvamento passa, o alerta some e a etapa troca.
       await usesMedication.selectOption('');
