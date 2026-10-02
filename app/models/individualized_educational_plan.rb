@@ -7,10 +7,6 @@ class IndividualizedEducationalPlan < ApplicationRecord
   attr_accessor :birth_date, :guardians, :guardians_unavailable, :diagnosis, :shift,
                 :unity_name, :teacher_name, :classroom_name
 
-  # Substituídas por iep_medications; saem do schema numa migration posterior, depois que
-  # nenhum processo em execução ainda as leia.
-  self.ignored_columns = %w[medication_name medication_dosage medication_schedule]
-
   audited
   has_associated_audits
 
