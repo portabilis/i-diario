@@ -317,6 +317,9 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
   describe '#post_to_ieducar!' do
     let(:first_step) { classroom.calendar.classroom_steps.first }
+    # O cálculo da média lê a configuração de avaliação do ano da turma. A avaliação da fábrica
+    # nasce com a configuração em outro ano, e sem esta a configuração da turma fica sem registro.
+    let!(:test_setting) { create(:test_setting, year: classroom.year) }
 
     before do
       stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
