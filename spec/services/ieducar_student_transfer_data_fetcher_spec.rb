@@ -46,13 +46,19 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     end
   end
 
-  # As faltas gerais são enviadas pela API v2 do i-Educar, em endpoint e formato próprios. Ela
-  # responde 202 quando grava — 200 significaria que não havia matrícula elegível.
+  # As faltas gerais e por componente são enviadas pela API v2 do i-Educar, em endpoints e formato
+  # próprios. Ela responde 201 quando grava.
   before do
     stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
       .to_return(
-        status: 202,
+        status: 201,
         body: '{"message": "Faltas gerais salvas com sucesso."}',
+        headers: { 'Content-Type' => 'application/json' }
+      )
+    stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+      .to_return(
+        status: 201,
+        body: '{"message": "Falta por componente salva com sucesso."}',
         headers: { 'Content-Type' => 'application/json' }
       )
   end
@@ -487,7 +493,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
             )
           )
           .to_return(
-          status: 202,
+          status: 201,
           body: '{"message": "Faltas gerais salvas com sucesso."}',
           headers: { 'Content-Type' => 'application/json' }
         )
@@ -537,8 +543,11 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'keeps all_postings_sent as true when there was no eligible registration' do
         stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
           .to_return(
-            status: 200,
-            body: '{"message": "Matrícula não encontrada para o aluno e turma informados."}',
+            status: 422,
+            body: {
+              message: 'Matrícula não encontrada para o aluno e turma informados.',
+              errors: { aluno_id: ['Matrícula não encontrada para o aluno e turma informados.'] }
+            }.to_json,
             headers: { 'Content-Type' => 'application/json' }
           )
 
@@ -572,17 +581,56 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         classroom.first_exam_rule.update(frequency_type: FrequencyTypes::BY_DISCIPLINE)
       end
 
-      it 'sends absences grouped by discipline' do
-        absence_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-por-componente.*})
+      it 'sends absences by discipline to i-Educar' do
+        absence_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'faltas' => 1
+            )
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
+            status: 201,
+            body: '{"message": "Falta por componente salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        subject.post_to_ieducar!
+
+        expect(absence_stub).to have_been_requested.once
+      end
+
+      it 'sends each discipline once even when it has more than one teacher in the classroom' do
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: ScoreTypes::NUMERIC
         )
 
         subject.post_to_ieducar!
 
-        expect(absence_stub).to have_been_requested.at_least_once
+        expect(a_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')).to have_been_made.once
+      end
+
+      it 'flips all_postings_sent to false when the i-Educar refuses the absences' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+          .to_return(
+            status: 422,
+            body: { message: "Componente curricular de código #{discipline.api_code} não existe na turma." }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Rails.logger).to receive(:warn)
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(false)
+        expect(Rails.logger).to have_received(:warn)
+          .with(/\[transferência\] falta por componente \(componente: #{discipline.api_code}\) não enviada/)
       end
     end
 

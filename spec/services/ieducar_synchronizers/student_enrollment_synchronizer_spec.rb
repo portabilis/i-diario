@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe StudentEnrollmentSynchronizer, type: :service do
   let(:synchronization) { create(:ieducar_api_synchronization) }

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe AvaliationsController, type: :controller do
   let(:entity) { Entity.find_by(domain: 'test.host') }

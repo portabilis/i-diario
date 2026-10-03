@@ -36,6 +36,7 @@ class DescriptiveExam < ApplicationRecord
   validates :unity, presence: true
   validates :opinion_type, presence: true
   validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
+  validate :step_belongs_to_classroom
   validate :check_posting_date
 
   def mark_students_for_removal
@@ -54,6 +55,14 @@ class DescriptiveExam < ApplicationRecord
     return if opinion_type.blank?
 
     [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type)
+  end
+
+  # As etapas vêm do calendário da turma quando ela tem um, senão do calendário da escola:
+  # turmas da mesma escola podem ter etapas com ids diferentes.
+  def step_belongs_to_classroom
+    return if classroom.blank? || step_id.blank? || step.present?
+
+    errors.add(:step_id, :not_belongs_to_classroom)
   end
 
   def check_posting_date

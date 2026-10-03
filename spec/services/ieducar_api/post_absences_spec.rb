@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe IeducarApi::PostAbsences, type: :service do
   let(:url) { 'https://test.ieducar.com.br' }
@@ -22,8 +22,8 @@ RSpec.describe IeducarApi::PostAbsences, type: :service do
     it 'returns message' do
       allow(Rails.application.secrets).to receive(:staging_access_key).and_return(access_key)
       allow(Rails.application.secrets).to receive(:staging_secret_key).and_return(secret_key)
-      # A query string gravada na cassette é de um formato de POST anterior ao que o serviço monta
-      # hoje, então a interação só casa por método e path.
+      # A URI da cassette leva o payload na query string e não casa com a do POST do serviço, que
+      # manda o payload no corpo: pelo matcher padrão o VCR não acha a interação e sai para a rede.
       VCR.use_cassette('post_absences', match_requests_on: %i[method path]) do
         result = subject.send_post(
           etapa: etapa,

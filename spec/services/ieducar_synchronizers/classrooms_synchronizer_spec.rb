@@ -375,10 +375,10 @@ RSpec.describe ClassroomsSynchronizer, type: :service do
   end
 
   describe '#update_classrooms keeping the grade link in sync with the classroom' do
-    let(:unity) { create(:unity, api_code: '111') }
-    let(:grade) { create(:grade, api_code: '22') }
-    let!(:exam_rule) { create(:exam_rule, api_code: '33') }
-    let!(:classroom) { create(:classroom, api_code: '999', unity: unity, period: Periods::MATUTINAL) }
+    let(:unity) { create(:unity, api_code: 'unity-111') }
+    let(:grade) { create(:grade, api_code: 'grade-22') }
+    let!(:exam_rule) { create(:exam_rule, api_code: 'exam-rule-33') }
+    let!(:classroom) { create(:classroom, api_code: 'classroom-999', unity: unity, period: Periods::MATUTINAL) }
     let!(:classrooms_grade) do
       create(:classrooms_grade, classroom: classroom, grade: grade, exam_rule: exam_rule)
     end
@@ -394,11 +394,11 @@ RSpec.describe ClassroomsSynchronizer, type: :service do
       )
     end
 
-    def payload(deleted_at, series_regras = [{ 'serie_id' => '22', 'regra_avaliacao_id' => '33' }])
+    def payload(deleted_at, series_regras = [{ 'serie_id' => 'grade-22', 'regra_avaliacao_id' => 'exam-rule-33' }])
       HashDecorator.new(
         [{
-          'id' => '999', 'nome' => classroom.description, 'ano' => Date.current.year,
-          'escola_id' => '111', 'turno_id' => 1, 'max_aluno' => 30, 'ref_cod_regente' => nil,
+          'id' => 'classroom-999', 'nome' => classroom.description, 'ano' => Date.current.year,
+          'escola_id' => 'unity-111', 'turno_id' => 1, 'max_aluno' => 30, 'ref_cod_regente' => nil,
           'series_regras' => series_regras,
           'updated_at' => Date.current.to_s, 'deleted_at' => deleted_at
         }]
@@ -451,7 +451,7 @@ RSpec.describe ClassroomsSynchronizer, type: :service do
     end
 
     context 'when the classroom has more than one grade' do
-      let(:other_grade) { create(:grade, api_code: '44') }
+      let(:other_grade) { create(:grade, api_code: 'grade-44') }
       let!(:other_classrooms_grade) do
         create(:classrooms_grade, classroom: classroom, grade: other_grade, exam_rule: exam_rule)
       end
@@ -459,10 +459,12 @@ RSpec.describe ClassroomsSynchronizer, type: :service do
       before { classroom.discard }
 
       it 'reactivates every grade link returned by the API' do
-        synchronizer.send(:update_classrooms, payload(nil, [
-                                                       { 'serie_id' => '22', 'regra_avaliacao_id' => '33' },
-                                                       { 'serie_id' => '44', 'regra_avaliacao_id' => '33' }
-                                                     ]))
+        series_regras = [
+          { 'serie_id' => 'grade-22', 'regra_avaliacao_id' => 'exam-rule-33' },
+          { 'serie_id' => 'grade-44', 'regra_avaliacao_id' => 'exam-rule-33' }
+        ]
+
+        synchronizer.send(:update_classrooms, payload(nil, series_regras))
 
         expect(ClassroomsGrade.where(classroom_id: classroom.id).pluck(:id))
           .to contain_exactly(classrooms_grade.id, other_classrooms_grade.id)
