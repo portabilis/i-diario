@@ -319,7 +319,12 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     let(:first_step) { classroom.calendar.classroom_steps.first }
     # O cálculo da média busca a configuração de avaliação pelo ano da turma, e a :test_setting
     # que a fábrica cria nasce em outro ano; sem o registro do ano da turma, a média quebra com nil.
-    let!(:test_setting) { create(:test_setting, year: classroom.year) }
+    # Só existe uma configuração geral por ano, e o banco da entidade de teste persiste entre
+    # execuções: a do ano da turma é reaproveitada quando já está gravada.
+    let!(:test_setting) do
+      TestSetting.find_by(year: classroom.year, exam_setting_type: ExamSettingTypes::GENERAL) ||
+        create(:test_setting, year: classroom.year)
+    end
 
     before do
       stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
