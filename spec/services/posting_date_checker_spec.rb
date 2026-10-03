@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe PostingDateChecker, type: :service do
   let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
