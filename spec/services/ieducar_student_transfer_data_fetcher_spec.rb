@@ -336,10 +336,12 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     context 'when the test database already holds a configuration for the classroom year' do
       # Semeia o resíduo que outra execução deixa no banco compartilhado: sem reaplicar os atributos
       # da factory, é este registro, e não o da factory, que o exemplo usaria.
+      # O resíduo pode já estar gravado, e um segundo registro geral do mesmo ano é recusado.
       let!(:test_setting) do
-        TestSetting.create!(
+        TestSetting.find_or_initialize_by(
           year: classroom.year,
-          exam_setting_type: ExamSettingTypes::GENERAL,
+          exam_setting_type: ExamSettingTypes::GENERAL
+        ).update!(
           maximum_score: 5,
           number_of_decimal_places: 0,
           average_calculation_type: AverageCalculationTypes::ARITHMETIC
