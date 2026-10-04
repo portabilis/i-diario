@@ -95,11 +95,6 @@ RSpec.describe Entity, :type => :model do
     end
 
     it 'keeps the Honeybadger entity tag of the failing entity when the block raises' do
-      # Materializa fora dos blocos: dentro deles a conexão proxied escreve
-      # fora da transação de teste e o registro persistiria entre runs.
-      entity
-      other_entity
-
       expect do
         entity.using_connection do
           other_entity.using_connection { raise 'boom' }
