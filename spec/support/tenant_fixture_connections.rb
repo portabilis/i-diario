@@ -1,12 +1,11 @@
 # A transação dos fixtures do Rails 5.0 só alcança as conexões dos pools que já existem quando o
 # exemplo começa (ActiveRecord::TestFixtures#setup_fixtures chama enlist_fixture_connections, que lê
-# connection_pool_list). O pool de cada Entity nasce no primeiro using_connection do processo: sem
-# criá-lo antes do enlist, o exemplo que o cria grava fora da transação e o registro fica no banco
-# até o fim da execução. Os fixtures globais já estão carregados neste ponto, então Entity enxerga
-# as entidades de teste e o checkout da conexão é o que materializa o pool no connection handler.
+# connection_pool_list). Por isso as Entities já existentes são materializadas antes do enlist logo
+# abaixo: os fixtures globais já estão carregados neste ponto, então Entity enxerga as entidades de
+# teste e o checkout da conexão é o que materializa o pool no connection handler.
 #
-# Entity criada durante o exemplo escapa dessa lista: o pool dela nasce depois do enlist. Para esse
-# caso o arquivo instrumenta ConnectionHandler#establish_connection com o evento
+# O pool de uma Entity criada durante o exemplo nasce depois do enlist, fora daquela lista. Para
+# esse caso o arquivo instrumenta ConnectionHandler#establish_connection com o evento
 # `!connection.active_record` e assina o evento enquanto o exemplo roda, entrando com a conexão nova
 # na mesma transação. É o comportamento que o Rails 5.1 tem nativamente, transcrito aqui para poder
 # ser removido na subida de versão.
