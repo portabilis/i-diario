@@ -8,23 +8,9 @@
 // encontrado" montada em typeajax.js precisa escapar o termo, senão um payload como
 // `<img src=x onerror=alert(1)>` executa no contexto do usuário.
 
-const fs = require('fs');
-const path = require('path');
+const { loadVendorEnvironment } = require('./support/vendor_environment');
 
-const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
-
-function loadIntoWindow(file) {
-  window.eval(fs.readFileSync(path.join(VENDOR_PATH, file), 'utf-8'));
-}
-
-beforeAll(async () => {
-  loadIntoWindow('jquery.js');
-  loadIntoWindow('underscore.js');
-  loadIntoWindow('bootstrap-typeahead.js');
-  loadIntoWindow('typeajax.js');
-
-  await new Promise((resolve) => setTimeout(resolve, 0));
-});
+beforeAll(() => loadVendorEnvironment());
 
 function setupInput() {
   document.body.innerHTML =

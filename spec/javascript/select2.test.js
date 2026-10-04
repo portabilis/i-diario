@@ -11,16 +11,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
+const { loadVendorEnvironment } = require('./support/vendor_environment');
 const SCRIPT_PATH = path.resolve(__dirname, '../../app/assets/javascripts/select2.js');
 
 const scriptSource = fs.readFileSync(SCRIPT_PATH, 'utf-8');
 
 let select2Calls;
-
-function loadIntoWindow(file) {
-  window.eval(fs.readFileSync(file, 'utf-8'));
-}
 
 // Substitui o plugin real por um espião: o que importa aqui é QUAIS opções o arquivo passa.
 function stubSelect2Plugin() {
@@ -54,13 +50,7 @@ function optionsFor(id) {
   return call && call.args[0];
 }
 
-beforeAll(async () => {
-  loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
-  loadIntoWindow(path.join(VENDOR_PATH, 'underscore.js'));
-
-  // deixa o `ready` do jQuery resolver; a partir daqui os callbacks rodam na hora
-  await new Promise((resolve) => setTimeout(resolve, 0));
-});
+beforeAll(() => loadVendorEnvironment());
 
 describe('which inputs are initialized', () => {
   beforeEach(() => {
