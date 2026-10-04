@@ -6,8 +6,8 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
   around(:each) { |example| entity.using_connection { example.run } }
 
   # Esta é a única linha do sistema que decide com qual das duas APIs do i-Educar um envio de
-  # faltas conversa. Faltas gerais vão para a API v2; faltas por componente e os jobs que já
-  # estavam na fila durante a migração continuam na legada.
+  # faltas conversa. Faltas gerais e por componente vão para a API v2; jobs com o payload legado
+  # que ainda estejam na fila durante um deploy continuam na legada.
   describe '#api' do
     let(:posting) { create(:ieducar_api_exam_posting, post_type: post_type) }
 
@@ -30,6 +30,21 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
     context 'when the payload is a per discipline absence' do
       let(:post_type) { ApiPostingTypes::ABSENCE }
       let(:params) do
+        { 'etapa' => 1, 'turma_id' => '4502', 'aluno_id' => '1234', 'componente_id' => '9', 'faltas' => 3 }
+      end
+
+      it 'uses the v2 discipline client, built from the api configuration record' do
+        expect(IeducarApi::PostDisciplineAbsences).to receive(:new)
+          .with(posting.ieducar_api_configuration)
+          .and_call_original
+
+        expect(subject.send(:api, posting, params)).to be_a(IeducarApi::PostDisciplineAbsences)
+      end
+    end
+
+    context 'when a legacy per discipline payload is still in the queue' do
+      let(:post_type) { ApiPostingTypes::ABSENCE }
+      let(:params) do
         {
           'etapa' => 1,
           'resource' => 'faltas-por-componente',
@@ -44,7 +59,7 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
       end
     end
 
-    context 'when the payload was enqueued before the migration' do
+    context 'when a legacy general payload is still in the queue' do
       let(:post_type) { ApiPostingTypes::ABSENCE }
       let(:params) do
         {

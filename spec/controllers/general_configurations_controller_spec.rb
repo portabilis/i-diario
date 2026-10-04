@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe GeneralConfigurationsController, type: :controller do
   context "pt-BR routes" do

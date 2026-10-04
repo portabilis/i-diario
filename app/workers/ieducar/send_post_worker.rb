@@ -141,12 +141,24 @@ module Ieducar
       params[:faltas] || params[:notas] || params[:pareceres]
     end
 
-    # Faltas por componente também chegam como ABSENCE, e os jobs enfileirados antes da migração
-    # ainda vão chegar até a fila drenar. Os dois carregam `resource`; só a v2 é achatada.
-    def general_absence_payload?(params)
+    # Job com o payload legado (aninhado, com `resource`) pode estar na fila durante um deploy e
+    # segue pela API legada; o payload da v2 é achatado, sem `resource`.
+    def v2_absence_payload?(params)
       params = params.with_indifferent_access
 
       params[:resource].blank? && params[:turma_id].present?
+    end
+
+    # Recebe a configuration, e não o `to_api` dos demais clientes: o hash legado não expõe o
+    # api_security_token, que é como a API v2 autentica.
+    def v2_absence_api(posting, params)
+      configuration = posting.ieducar_api_configuration
+
+      if params.with_indifferent_access[:componente_id].present?
+        IeducarApi::PostDisciplineAbsences.new(configuration)
+      else
+        IeducarApi::PostGeneralAbsences.new(configuration)
+      end
     end
 
     def api(posting, params)
@@ -158,10 +170,8 @@ module Ieducar
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         IeducarApi::PostDescriptiveExams.new(posting.to_api)
       when ApiPostingTypes::ABSENCE
-        if general_absence_payload?(params)
-          # Recebe a configuration, e não o `to_api` dos demais ramos: o hash legado não expõe o
-          # api_security_token, que é como a API v2 autentica.
-          IeducarApi::PostGeneralAbsences.new(posting.ieducar_api_configuration)
+        if v2_absence_payload?(params)
+          v2_absence_api(posting, params)
         else
           IeducarApi::PostAbsences.new(posting.to_api)
         end

@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
+const { loadVendorEnvironment } = require('./support/vendor_environment');
 const SCRIPT_PATH = path.resolve(
   __dirname,
   '../../app/assets/javascripts/views/avaliations/multiple_classrooms.js'
@@ -26,10 +26,6 @@ const SETTING_URL = '/configuracoes-de-avaliacoes-numericas/' + TEST_SETTING_ID;
 const TEST_URL = '/test_setting_tests/' + TEST_SETTING_TEST_ID;
 
 let requests;
-
-function loadIntoWindow(file) {
-  window.eval(fs.readFileSync(file, 'utf-8'));
-}
 
 function formHtml(testSettingTestId) {
   return `
@@ -106,13 +102,7 @@ function displayOf(selector) {
   return document.querySelector(selector).style.display;
 }
 
-beforeAll(async () => {
-  loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
-  loadIntoWindow(path.join(VENDOR_PATH, 'underscore.js'));
-
-  // deixa o `ready` do jQuery resolver; a partir daqui os callbacks rodam na hora
-  await new Promise((resolve) => setTimeout(resolve, 0));
-});
+beforeAll(() => loadVendorEnvironment());
 
 describe('description and weight visibility on load', () => {
   beforeEach(() => {

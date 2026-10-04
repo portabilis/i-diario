@@ -182,13 +182,12 @@ class DescriptiveExamsController < ApplicationController
   def recorded_at_by_step
     @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
 
-    date = if @descriptive_exam.step_id.present?
-             steps_fetcher.step_by_id(@descriptive_exam.step_id).end_at
-           else
-             Date.current
-           end
+    step = steps_fetcher.step_by_id(@descriptive_exam.step_id) if @descriptive_exam.step_id.present?
 
-    Date.current > date ? date : Date.current
+    # Etapa em branco ou de outro calendário não tem data de fim; a validação do model barra o registro.
+    return Date.current if step.blank?
+
+    [Date.current, step.end_at].min
   end
 
   def fetch_dates_for_opinion_type_by_year
@@ -291,8 +290,9 @@ class DescriptiveExamsController < ApplicationController
       end
     end
 
+    # A regra de avaliação é a da turma do formulário; sem turma informada, vale a turma do perfil.
     if action_name.eql?('new') || action_name.eql?('find') || action_name.eql?('create')
-      @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+      @exam_rules ||= current_user_classroom.classrooms_grades.map(&:exam_rule)
     end
   end
 

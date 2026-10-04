@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe EntityCreator, type: :service do
   describe "with correct params" do

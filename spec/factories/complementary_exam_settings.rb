@@ -5,7 +5,7 @@ FactoryGirl.define do
     affected_score { AffectedScoreTypes::STEP_AVERAGE }
     calculation_type { CalculationTypes::SUM }
     maximum_score { rand(1..10) }
-    number_of_decimal_places { rand(0..2) }
+    number_of_decimal_places { 2 }
     year { Date.current.year }
 
     transient do

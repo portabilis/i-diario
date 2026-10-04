@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-RSpec.describe TransferNoteCreator do
+RSpec.describe TransferNoteCreator, type: :service do
   let(:entity) { Entity.find_by(domain: 'test.host') }
 
   around(:each) do |example|

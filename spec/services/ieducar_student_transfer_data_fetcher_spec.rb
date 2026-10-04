@@ -46,13 +46,19 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     end
   end
 
-  # As faltas gerais são enviadas pela API v2 do i-Educar, em endpoint e formato próprios. Ela
-  # responde 202 quando grava — 200 significaria que não havia matrícula elegível.
+  # As faltas gerais e por componente são enviadas pela API v2 do i-Educar, em endpoints e formato
+  # próprios. Ela responde 201 quando grava.
   before do
     stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
       .to_return(
-        status: 202,
+        status: 201,
         body: '{"message": "Faltas gerais salvas com sucesso."}',
+        headers: { 'Content-Type' => 'application/json' }
+      )
+    stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+      .to_return(
+        status: 201,
+        body: '{"message": "Falta por componente salva com sucesso."}',
         headers: { 'Content-Type' => 'application/json' }
       )
   end
@@ -317,6 +323,44 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
   describe '#post_to_ieducar!' do
     let(:first_step) { classroom.calendar.classroom_steps.first }
+    # O cálculo da média busca a configuração de avaliação pelo ano da turma, e a :test_setting
+    # que a fábrica cria nasce em outro ano; sem o registro do ano da turma, a média quebra com nil.
+    # Só existe uma configuração geral por ano, e o banco da entidade de teste persiste entre
+    # execuções: a do ano da turma é reaproveitada quando já está gravada, com os atributos da
+    # factory reaplicados para não herdar os de uma execução anterior.
+    def test_setting_for_classroom_year
+      TestSetting.find_or_initialize_by(
+        year: classroom.year,
+        exam_setting_type: ExamSettingTypes::GENERAL
+      ).tap do |setting|
+        setting.update!(attributes_for(:test_setting).except(:year, :exam_setting_type))
+      end
+    end
+
+    let!(:test_setting) { test_setting_for_classroom_year }
+
+    context 'when the test database already holds a configuration for the classroom year' do
+      # Semeia o resíduo que outra execução deixa no banco compartilhado: sem reaplicar os atributos
+      # da factory, é este registro, e não o da factory, que o exemplo usaria.
+      # O resíduo pode já estar gravado, e um segundo registro geral do mesmo ano é recusado.
+      let!(:test_setting) do
+        TestSetting.find_or_initialize_by(
+          year: classroom.year,
+          exam_setting_type: ExamSettingTypes::GENERAL
+        ).update!(
+          maximum_score: 5,
+          number_of_decimal_places: 0,
+          average_calculation_type: AverageCalculationTypes::ARITHMETIC
+        )
+        test_setting_for_classroom_year
+      end
+
+      it 'reapplies the factory attributes over the stored configuration' do
+        expect(test_setting).to be_persisted
+        expect(test_setting.maximum_score).to eq(10)
+        expect(test_setting.number_of_decimal_places).to eq(2)
+      end
+    end
 
     before do
       stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
@@ -487,7 +531,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
             )
           )
           .to_return(
-          status: 202,
+          status: 201,
           body: '{"message": "Faltas gerais salvas com sucesso."}',
           headers: { 'Content-Type' => 'application/json' }
         )
@@ -537,8 +581,11 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'keeps all_postings_sent as true when there was no eligible registration' do
         stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
           .to_return(
-            status: 200,
-            body: '{"message": "Matrícula não encontrada para o aluno e turma informados."}',
+            status: 422,
+            body: {
+              message: 'Matrícula não encontrada para o aluno e turma informados.',
+              errors: { aluno_id: ['Matrícula não encontrada para o aluno e turma informados.'] }
+            }.to_json,
             headers: { 'Content-Type' => 'application/json' }
           )
 
@@ -572,17 +619,56 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         classroom.first_exam_rule.update(frequency_type: FrequencyTypes::BY_DISCIPLINE)
       end
 
-      it 'sends absences grouped by discipline' do
-        absence_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-por-componente.*})
+      it 'sends absences by discipline to i-Educar' do
+        absence_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'faltas' => 1
+            )
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
+            status: 201,
+            body: '{"message": "Falta por componente salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        subject.post_to_ieducar!
+
+        expect(absence_stub).to have_been_requested.once
+      end
+
+      it 'sends each discipline once even when it has more than one teacher in the classroom' do
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: ScoreTypes::NUMERIC
         )
 
         subject.post_to_ieducar!
 
-        expect(absence_stub).to have_been_requested.at_least_once
+        expect(a_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')).to have_been_made.once
+      end
+
+      it 'flips all_postings_sent to false when the i-Educar refuses the absences' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+          .to_return(
+            status: 422,
+            body: { message: "Componente curricular de código #{discipline.api_code} não existe na turma." }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Rails.logger).to receive(:warn)
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(false)
+        expect(Rails.logger).to have_received(:warn)
+          .with(/\[transferência\] falta por componente \(componente: #{discipline.api_code}\) não enviada/)
       end
     end
 
