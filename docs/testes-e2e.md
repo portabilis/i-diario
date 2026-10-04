@@ -174,8 +174,8 @@ curl -s -o /dev/null -w "%{http_code}" http://entity.localhost:3000
 # Deve retornar 200 ou 302
 ```
 
-O setup de autenticação tolera até 90s para concluir o login, com 60s de espera pelo menu lateral.
-Estouro acima disso indica app fora do ar ou credencial errada, não lentidão.
+O setup de autenticação tem teto próprio: 90s para o teste inteiro e 60s de espera pelo menu lateral, contados a partir do clique em Acessar.
+Se o app responde ao `curl` acima e o teto ainda estoura, a causa costuma ser credencial inválida ou app indisponível, não a lentidão da primeira requisição.
 
 ### Mini-profiler interceptando cliques
 
