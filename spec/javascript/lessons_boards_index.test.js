@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
+const { loadIntoWindow, loadVendorEnvironment } = require('./support/vendor_environment');
 const SELECT2_PATH = path.resolve(__dirname, '../../app/assets/javascripts/select2.js');
 const FLASH_PATH = path.resolve(__dirname, '../../app/assets/javascripts/flash_messages.js');
 const PAGE_PATH = path.resolve(__dirname, '../../app/assets/javascripts/views/lessons_boards/index.js');
@@ -20,10 +20,6 @@ const select2Source = fs.readFileSync(SELECT2_PATH, 'utf-8');
 const pageSource = fs.readFileSync(PAGE_PATH, 'utf-8');
 
 let select2Calls;
-
-function loadIntoWindow(file) {
-  window.eval(fs.readFileSync(file, 'utf-8'));
-}
 
 function stubSelect2Plugin() {
   select2Calls = [];
@@ -61,11 +57,8 @@ const ELEMENTS = [
 ];
 
 beforeAll(async () => {
-  loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
-  loadIntoWindow(path.join(VENDOR_PATH, 'underscore.js'));
+  await loadVendorEnvironment();
   loadIntoWindow(FLASH_PATH);
-
-  await new Promise((resolve) => setTimeout(resolve, 0));
 });
 
 describe('lessonsBoardsIndex.refreshFilter', () => {

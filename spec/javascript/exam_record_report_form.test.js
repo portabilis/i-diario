@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
+const { loadVendorEnvironment } = require('./support/vendor_environment');
 const SCRIPT_PATH = path.resolve(
   __dirname,
   '../../app/assets/javascripts/views/exam_record_report/form.js'
@@ -18,10 +18,6 @@ const SCRIPT_PATH = path.resolve(
 const scriptSource = fs.readFileSync(SCRIPT_PATH, 'utf-8');
 
 let requests;
-
-function loadIntoWindow(file) {
-  window.eval(fs.readFileSync(file, 'utf-8'));
-}
 
 function formHtml() {
   return `
@@ -96,13 +92,7 @@ async function changeClassroom(disciplines) {
   respond('exam_record_report_disciplines', { disciplines: disciplines });
 }
 
-beforeAll(async () => {
-  loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
-  loadIntoWindow(path.join(VENDOR_PATH, 'underscore.js'));
-
-  // deixa o `ready` do jQuery resolver; a partir daqui os callbacks rodam na hora
-  await flush();
-});
+beforeAll(() => loadVendorEnvironment());
 
 beforeEach(() => {
   document.body.innerHTML = formHtml();
