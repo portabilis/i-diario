@@ -5,8 +5,8 @@
 // Testes de caracterização de app/assets/javascripts/select2.js.
 //
 // Esse arquivo inicializa todos os select2 do sistema, então qualquer alteração nele precisa
-// provar que o comportamento observável continua igual. Os testes carregam o jQuery e o underscore
-// vendorizados e espionam `$.fn.select2`.
+// provar que o comportamento observável continua igual. Os testes carregam o ambiente comum de
+// plugins (spec/javascript/support/vendor_environment.js) e espionam `$.fn.select2`.
 
 const fs = require('fs');
 const path = require('path');
