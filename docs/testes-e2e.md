@@ -150,7 +150,7 @@ await page.pause(); // adicione no teste
 O arquivo `playwright.config.js` define:
 
 - **testDir**: `./spec/e2e` — diretório dos testes
-- **timeout**: 30s por teste
+- **timeout**: 30s por teste (o setup de autenticação tem teto próprio de 90s, definido em `auth.setup.js`)
 - **retries**: 1 retry em caso de falha
 - **screenshot**: captura automática em falhas
 - **trace**: captura de trace no primeiro retry
@@ -173,6 +173,9 @@ A aplicação pode estar lenta para responder. Verifique se o Docker está rodan
 curl -s -o /dev/null -w "%{http_code}" http://entity.localhost:3000
 # Deve retornar 200 ou 302
 ```
+
+O setup de autenticação tolera até 90s para concluir o login, com 60s de espera pelo menu lateral.
+Estouro acima disso indica app fora do ar ou credencial errada, não lentidão.
 
 ### Mini-profiler interceptando cliques
 
