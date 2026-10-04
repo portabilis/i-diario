@@ -13,7 +13,8 @@ const {
   NOT_LOADED_ASSETS,
   loadVendor,
   loadVendorEnvironment,
-  manifestExternalRequires
+  manifestExternalRequires,
+  requiredAssets
 } = require('./support/vendor_environment');
 
 function loadedVendor() {
@@ -41,6 +42,17 @@ describe('manifest coverage', () => {
   // classificação) se o guard olhar além dos arquivos vendorizados.
   it('covers the assets the manifest takes from gems, not only the vendored ones', () => {
     expect(manifestExternalRequires()).toContain('bootbox');
+  });
+
+  it('reads require directives with extra whitespace and skips require_tree', () => {
+    const manifest = [
+      '//= require bootbox ',
+      '//=  require\tmoment',
+      '//= require_tree .',
+      '//= require jquery'
+    ].join('\n');
+
+    expect(requiredAssets(manifest)).toEqual(['bootbox', 'moment', 'jquery']);
   });
 
   it('does not list a file as both loaded and not loaded', () => {

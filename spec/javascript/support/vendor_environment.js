@@ -8,6 +8,8 @@ const path = require('path');
 // require do manifesto que não seja arquivo de app/assets/javascripts precisa estar na lista
 // carregada ou em NOT_LOADED_ASSETS, e um plugin novo no manifesto reprova o spec até alguém
 // decidir se o Jest passa a carregá-lo.
+// O vendor/assets/javascripts/plugins.js que o manifesto inclui por bloco ERB fica fora do guard: é
+// opcional, fora do controle de versão e muda de instalação para instalação.
 
 const APP_PATH = path.resolve(__dirname, '../../../app/assets/javascripts');
 const VENDOR_PATH = path.resolve(__dirname, '../../../vendor/assets/javascripts');
@@ -87,13 +89,17 @@ async function loadVendorEnvironment(win = window) {
 // O ambiente comum não carrega o código da aplicação: cada spec carrega o seu pelo caminho. Por isso
 // o guard parte do manifesto e olha só para os requires que não resolvem para app/assets/javascripts,
 // sejam eles vendorizados ou servidos por gem.
-// `//= require_tree` não casa: o separador do require é espaço, e no require_tree vem `_`
-function manifestExternalRequires() {
-  const requires = fs.readFileSync(MANIFEST_PATH, 'utf-8').match(/^\/\/= require (\S+)$/gm) || [];
+// `//= require_tree` não casa: o separador do require é espaço, e no require_tree vem `_`.
+// O Sprockets aceita espaço sobrando na diretiva, então a extração também aceita: um require que
+// escapasse daqui carregaria na aplicação sem passar pelo guard
+function requiredAssets(manifest) {
+  const requires = manifest.match(/^\/\/=[ \t]*require[ \t]+\S+[ \t]*$/gm) || [];
 
-  return requires
-    .map((line) => line.replace('//= require ', ''))
-    .filter((name) => !fs.existsSync(appFile(name)));
+  return requires.map((line) => line.replace(/^\/\/=[ \t]*require[ \t]+/, '').trim());
+}
+
+function manifestExternalRequires() {
+  return requiredAssets(fs.readFileSync(MANIFEST_PATH, 'utf-8')).filter((name) => !fs.existsSync(appFile(name)));
 }
 
 module.exports = {
@@ -103,5 +109,6 @@ module.exports = {
   loadIntoWindow,
   loadVendor,
   loadVendorEnvironment,
-  manifestExternalRequires
+  manifestExternalRequires,
+  requiredAssets
 };
