@@ -320,10 +320,15 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     # O cálculo da média busca a configuração de avaliação pelo ano da turma, e a :test_setting
     # que a fábrica cria nasce em outro ano; sem o registro do ano da turma, a média quebra com nil.
     # Só existe uma configuração geral por ano, e o banco da entidade de teste persiste entre
-    # execuções: a do ano da turma é reaproveitada quando já está gravada.
+    # execuções: a do ano da turma é reaproveitada quando já está gravada, com os atributos da
+    # factory reaplicados para não herdar os de uma execução anterior.
     let!(:test_setting) do
-      TestSetting.find_by(year: classroom.year, exam_setting_type: ExamSettingTypes::GENERAL) ||
-        create(:test_setting, year: classroom.year)
+      setting = TestSetting.find_or_initialize_by(
+        year: classroom.year,
+        exam_setting_type: ExamSettingTypes::GENERAL
+      )
+      setting.update!(attributes_for(:test_setting).except(:year, :exam_setting_type))
+      setting
     end
 
     before do
