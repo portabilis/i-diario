@@ -1,14 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-// Ambiente vendorizado comum aos specs de caracterização: os scripts de produção rodam
-// dentro de um callback de `ready` do jQuery, então um plugin ausente estoura ali e derruba
-// todos os exemplos do arquivo antes de qualquer asserção.
-// A lista carregada é explícita e conferida contra o application.js.erb pelo spec do helper:
-// plugin novo no manifesto reprova até alguém decidir se o Jest passa a carregá-lo.
+// Ambiente de plugins comum aos specs de caracterização: os scripts de produção rodam dentro de um
+// callback de `ready` do jQuery, então um plugin ausente estoura ali e derruba todos os exemplos do
+// arquivo antes de qualquer asserção.
+// A lista carregada é explícita e conferida contra o application.js.erb pelo spec do helper: todo
+// require do manifesto que não seja arquivo de app/assets/javascripts precisa estar na lista
+// carregada ou em NOT_LOADED_ASSETS, e um plugin novo no manifesto reprova o spec até alguém
+// decidir se o Jest passa a carregá-lo.
 
+const APP_PATH = path.resolve(__dirname, '../../../app/assets/javascripts');
 const VENDOR_PATH = path.resolve(__dirname, '../../../vendor/assets/javascripts');
-const MANIFEST_PATH = path.resolve(__dirname, '../../../app/assets/javascripts/application.js.erb');
+const MANIFEST_PATH = path.join(APP_PATH, 'application.js.erb');
 
 const BASE_LIBRARIES = ['jquery', 'underscore'];
 
@@ -23,18 +26,22 @@ const VENDOR_PLUGINS = [
   'jquery-regex-mask'
 ];
 
-// Vendorizados pelo manifesto que ficam fora do ambiente comum
-const NOT_LOADED_VENDOR = {
-  'jquery-ui': 'o datepicker e o tooltip do tema vêm do smart_admin; nenhum script caracterizado chama o jquery-ui direto',
+// Assets que o manifesto carrega de fora da aplicação e que ficam fora do ambiente comum
+const NOT_LOADED_ASSETS = {
+  'jquery-ui': 'nenhum script caracterizado chama o jquery-ui direto; o datepicker-custom.js da aplicação depende dele para o datepicker, então um spec que o exercite precisa carregá-lo aqui',
   jquery_ujs: 'registra handlers delegados em document para todo link data-method; carrega só o spec que exercita o ujs, via loadVendor',
   smart_admin: 'manifesto do tema: roda também o app.js sobre o DOM, e nos specs select2, tooltip e modal são espiões',
   cocktail: 'mixins de Backbone, fora dos scripts caracterizados',
-  backbone: 'a aplicação ainda não é usada por nenhum script caracterizado',
+  backbone: 'nenhum script caracterizado usa o Backbone',
   'backbone.marionette': 'sobre o Backbone, fora dos scripts caracterizados',
   'backbone.server-errors-presenter': 'sobre o Backbone, fora dos scripts caracterizados',
   'backbone-validation': 'sobre o Backbone, fora dos scripts caracterizados',
   'backbone-validation-bootstrap': 'sobre o Backbone, fora dos scripts caracterizados',
+  'backbone-nested-attributes/all': 'sobre o Backbone, fora dos scripts caracterizados',
   'ejs/ejs': 'templates client-side, fora dos scripts caracterizados',
+  'handlebars.runtime': 'templates client-side, fora dos scripts caracterizados',
+  'js-routes': 'rotas do Rails para o cliente, fora dos scripts caracterizados',
+  cocoon: 'formulários aninhados, fora dos scripts caracterizados',
   'jquery-file-upload/vendor/jquery.ui.widget': 'upload de arquivos, fora dos scripts caracterizados',
   'jquery-file-upload/vendor/load-image.all.min': 'upload de arquivos, fora dos scripts caracterizados',
   'jquery-file-upload/vendor/canvas-to-blob.min': 'upload de arquivos, fora dos scripts caracterizados',
@@ -47,8 +54,16 @@ const NOT_LOADED_VENDOR = {
   'raphael.min': 'gráficos, fora dos scripts caracterizados',
   morris: 'gráficos, fora dos scripts caracterizados',
   'summernote.min': 'editor de texto, fora dos scripts caracterizados',
-  'summernote-pt-BR': 'editor de texto, fora dos scripts caracterizados'
+  'summernote-pt-BR': 'editor de texto, fora dos scripts caracterizados',
+  bootbox: 'diálogos, fora dos scripts caracterizados',
+  moment: 'datas, fora dos scripts caracterizados',
+  'moment/pt-br': 'locale do moment, fora dos scripts caracterizados',
+  'bootstrap-datetimepicker': 'seletor de data e hora, fora dos scripts caracterizados'
 };
+
+function appFile(name) {
+  return path.join(APP_PATH, name + '.js');
+}
 
 function vendorFile(name) {
   return path.join(VENDOR_PATH, name + '.js');
@@ -69,23 +84,24 @@ async function loadVendorEnvironment(win = window) {
   await new Promise((resolve) => win.setTimeout(resolve, 0));
 }
 
+// O ambiente comum não carrega o código da aplicação: cada spec carrega o seu pelo caminho. Por isso
+// o guard parte do manifesto e olha só para os requires que não resolvem para app/assets/javascripts,
+// sejam eles vendorizados ou servidos por gem.
 // `//= require_tree` não casa: o separador do require é espaço, e no require_tree vem `_`
-function manifestVendorRequires() {
+function manifestExternalRequires() {
   const requires = fs.readFileSync(MANIFEST_PATH, 'utf-8').match(/^\/\/= require (\S+)$/gm) || [];
 
   return requires
     .map((line) => line.replace('//= require ', ''))
-    .filter((name) => fs.existsSync(vendorFile(name)));
+    .filter((name) => !fs.existsSync(appFile(name)));
 }
 
 module.exports = {
-  VENDOR_PATH,
   BASE_LIBRARIES,
   VENDOR_PLUGINS,
-  NOT_LOADED_VENDOR,
-  vendorFile,
+  NOT_LOADED_ASSETS,
   loadIntoWindow,
   loadVendor,
   loadVendorEnvironment,
-  manifestVendorRequires
+  manifestExternalRequires
 };

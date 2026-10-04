@@ -2,17 +2,18 @@
  * @jest-environment jsdom
  */
 
-// Garante que o ambiente comum de plugins vendorizados (spec/javascript/support/vendor_environment.js)
-// cobre tudo que a aplicação carrega: a lista explícita é confrontada com o application.js.erb, então
-// plugin novo no manifesto reprova aqui até alguém decidir se o Jest passa a carregá-lo.
+// Garante que o ambiente comum de plugins (spec/javascript/support/vendor_environment.js) acompanha o que
+// o application.js.erb carrega: todo require do manifesto que não seja arquivo de app/assets/javascripts
+// precisa estar na lista carregada ou em NOT_LOADED_ASSETS, então plugin novo reprova aqui até alguém
+// decidir se o Jest passa a carregá-lo.
 
 const {
   BASE_LIBRARIES,
   VENDOR_PLUGINS,
-  NOT_LOADED_VENDOR,
+  NOT_LOADED_ASSETS,
   loadVendor,
   loadVendorEnvironment,
-  manifestVendorRequires
+  manifestExternalRequires
 } = require('./support/vendor_environment');
 
 function loadedVendor() {
@@ -21,23 +22,29 @@ function loadedVendor() {
 
 describe('manifest coverage', () => {
   it('loads only files the application manifest requires', () => {
-    const manifest = manifestVendorRequires();
+    const manifest = manifestExternalRequires();
 
     loadedVendor().forEach((name) => {
       expect(manifest).toContain(name);
     });
   });
 
-  it('classifies every vendored file the manifest requires', () => {
-    const classified = loadedVendor().concat(Object.keys(NOT_LOADED_VENDOR));
+  it('classifies every asset the manifest loads from outside the application', () => {
+    const classified = loadedVendor().concat(Object.keys(NOT_LOADED_ASSETS));
 
-    const unclassified = manifestVendorRequires().filter((name) => !classified.includes(name));
+    const unclassified = manifestExternalRequires().filter((name) => !classified.includes(name));
 
     expect(unclassified).toEqual([]);
   });
 
+  // O bootbox vem de gem: não existe em vendor/assets/javascripts, então só entra na lista (e na
+  // classificação) se o guard olhar além dos arquivos vendorizados.
+  it('covers the assets the manifest takes from gems, not only the vendored ones', () => {
+    expect(manifestExternalRequires()).toContain('bootbox');
+  });
+
   it('does not list a file as both loaded and not loaded', () => {
-    const both = VENDOR_PLUGINS.filter((name) => Object.keys(NOT_LOADED_VENDOR).includes(name));
+    const both = VENDOR_PLUGINS.filter((name) => Object.keys(NOT_LOADED_ASSETS).includes(name));
 
     expect(both).toEqual([]);
   });
