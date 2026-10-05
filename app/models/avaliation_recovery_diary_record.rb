@@ -31,6 +31,7 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   scope :by_test_date_between, lambda { |start_at, end_at|
     joins(:avaliation).where(avaliations: { test_date: start_at.to_date..end_at.to_date })
   }
+  scope :by_test_date_after, lambda { |date| joins(:avaliation).where('avaliations.test_date >= ?', date) }
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
 
   validates :avaliation, :recovery_diary_record, presence: true
