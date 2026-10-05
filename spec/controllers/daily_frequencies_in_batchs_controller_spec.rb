@@ -412,6 +412,77 @@ RSpec.describe DailyFrequenciesInBatchsController, type: :controller do
       }.to change(DailyFrequency, :count).by(-1)
 
       expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
+      expect(flash[:success]).to eq('Frequências apagadas com sucesso')
+    end
+
+    context 'when the posting period of the step is over' do
+      # A turma nasce com duas etapas semestrais; a data congelada cai na segunda, então a janela
+      # de lançamento da primeira já venceu.
+      let(:current_date) { Date.new(Date.current.year, 8, 15) }
+      let(:blocked_classroom) { create(:classroom, :with_classroom_semester_steps) }
+      let!(:blocked_daily_frequency) do
+        create(
+          :daily_frequency,
+          :with_students,
+          students_count: 2,
+          classroom: blocked_classroom,
+          frequency_date: Date.new(current_date.year, 5, 15)
+        )
+      end
+
+      around do |example|
+        Timecop.freeze(current_date) { example.run }
+      end
+
+      it 'keeps the daily frequency, skips the workers and warns the user' do
+        expect(UniqueDailyFrequencyStudentsCreator).to_not receive(:call_worker)
+        expect(AutomaticAbsencePostingEnqueuer).to_not receive(:call)
+
+        expect {
+          delete :destroy_multiple, params: {
+            locale: 'pt-BR',
+            daily_frequencies_ids: [blocked_daily_frequency.id]
+          }
+        }.to_not change(DailyFrequency, :count)
+
+        expect(
+          DailyFrequencyStudent.with_discarded.by_daily_frequency_id(blocked_daily_frequency.id).count
+        ).to eq(2)
+        expect(response).to redirect_to(new_daily_frequencies_in_batch_path)
+        expect(flash[:alert]).to eq('Não é possível apagar registros fora das datas de lançamento da etapa.')
+      end
+
+      # A tela monta o intervalo de datas, que pode cruzar etapas: a exclusão é tudo-ou-nada para
+      # não deixar data apagada sem o consolidado de infrequência e sem o reenvio de faltas.
+      context 'and another selected frequency is inside the posting period' do
+        let!(:allowed_daily_frequency) do
+          create(
+            :daily_frequency,
+            :with_students,
+            students_count: 2,
+            classroom: blocked_classroom,
+            frequency_date: current_date
+          )
+        end
+
+        it 'keeps every daily frequency, skips the workers and warns the user' do
+          expect(UniqueDailyFrequencyStudentsCreator).to_not receive(:call_worker)
+          expect(AutomaticAbsencePostingEnqueuer).to_not receive(:call)
+
+          expect {
+            delete :destroy_multiple, params: {
+              locale: 'pt-BR',
+              daily_frequencies_ids: [blocked_daily_frequency.id, allowed_daily_frequency.id]
+            }
+          }.to_not change(DailyFrequency, :count)
+
+          expect(DailyFrequency.exists?(allowed_daily_frequency.id)).to eq(true)
+          expect(
+            DailyFrequencyStudent.with_discarded.by_daily_frequency_id(allowed_daily_frequency.id).count
+          ).to eq(2)
+          expect(flash[:alert]).to eq('Não é possível apagar registros fora das datas de lançamento da etapa.')
+        end
+      end
     end
   end
 

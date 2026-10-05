@@ -2,5 +2,6 @@ pt-BR:
   daily_frequencies_in_batchs:
     destroy_multiple:
       alert: "Registro do diário de frequência que você está tentando apagar não existe."
+      out_of_posting_period: "Não é possível apagar registros fora das datas de lançamento da etapa."
       success: "Frequências apagadas com sucesso"
 
