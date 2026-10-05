@@ -1,7 +1,6 @@
 module Api
   class EvaluationRecoveryResolver
     TYPE_LABELS = {
-      'parallel_recovery' => 'Recuperação Paralela',
       'school_term_recovery' => 'Recuperação de Etapa',
       'final_recovery' => 'Exame Final'
     }.freeze
@@ -42,8 +41,14 @@ module Api
       RecoveryDiaryRecordStudent.new(recovery_diary_record: recovery_diary_record).maximum_score
     end
 
+    # A recuperação paralela é identificada pela avaliação que ela recupera; as demais
+    # não têm avaliação de origem e são identificadas pelo tipo e pela disciplina.
     def self.title_for(recovery_diary_record)
-      "#{TYPE_LABELS[type_for(recovery_diary_record)]} - #{recovery_diary_record.discipline}"
+      type = type_for(recovery_diary_record)
+
+      return recovery_diary_record.avaliation_recovery_diary_record.avaliation.to_s if type == 'parallel_recovery'
+
+      "#{TYPE_LABELS[type]} - #{recovery_diary_record.discipline}"
     end
   end
 end
