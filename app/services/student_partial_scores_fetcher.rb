@@ -11,7 +11,7 @@ class StudentPartialScoresFetcher
     avaliations = Avaliation.by_classroom_id(classroom_id)
                             .by_school_calendar_step(school_calendar_step_id)
                             .ordered
-                            .includes(:discipline, :test_setting, :test_setting_test)
+                            .includes({ discipline: :knowledge_area }, :test_setting, :test_setting_test)
 
     daily_note_students = daily_note_students_by_avaliation_id(avaliations)
 

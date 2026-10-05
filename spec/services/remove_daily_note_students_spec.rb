@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe RemoveDailyNoteStudents, type: :service do
   let!(:school_calendar) {

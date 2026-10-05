@@ -18,9 +18,10 @@ RSpec.describe 'individualized_educational_plans/_pdf_content', type: :view do
         'social_interaction_profile' => ['Atividades solitárias'], 'autonomy' => ['Independente']
       ),
       'support_team' => filled_fields(
-        %w[family_guidelines medication_name medication_dosage medication_schedule medication_notes
-           family_environment_characteristics external_professionals_guidelines],
-        'accompaniment' => ['Psicólogo'], 'support_type' => ['AEE'], 'uses_medication' => true
+        %w[family_guidelines medication_notes family_environment_characteristics
+           external_professionals_guidelines],
+        'accompaniment' => ['Psicólogo'], 'support_type' => ['AEE'], 'uses_medication' => true,
+        'medications' => [{ 'name' => 'Metilfenidato', 'dosage' => '10 mg', 'schedule' => '07h30' }]
       ),
       'curricular_plannings' => [
         review.merge(filled_fields(%w[long_term_goal stage_objectives skills_to_develop methodologies],
@@ -71,8 +72,8 @@ RSpec.describe 'individualized_educational_plans/_pdf_content', type: :view do
   it 'prints the fields in the same order as the form' do
     section = support_section(
       'family_guidelines' => 'ORIENTACOES-FAM', 'uses_medication' => true,
-      'medication_name' => 'MED-NOME', 'medication_dosage' => 'MED-DOSE',
-      'medication_schedule' => 'MED-HORARIO', 'medication_notes' => 'MED-OBS',
+      'medications' => [{ 'name' => 'MED-NOME', 'dosage' => 'MED-DOSE', 'schedule' => 'MED-HORARIO' }],
+      'medication_notes' => 'MED-OBS',
       'family_environment_characteristics' => 'AMBIENTE-FAM',
       'external_professionals_guidelines' => 'PROF-EXT'
     )
@@ -82,6 +83,34 @@ RSpec.describe 'individualized_educational_plans/_pdf_content', type: :view do
 
     expect(positions).to all(be_an(Integer))
     expect(positions).to eq(positions.sort)
+  end
+
+  it 'lists every medication in a name, dosage and schedule table' do
+    section = support_section(
+      'uses_medication' => true,
+      'medications' => [
+        { 'name' => 'Metilfenidato', 'dosage' => '10 mg', 'schedule' => '07h30' },
+        { 'name' => 'Risperidona', 'dosage' => nil, 'schedule' => '20h00' }
+      ]
+    )
+
+    rows = Nokogiri::HTML.fragment(section).css('table.medications-table tr')
+      .map { |row| row.css('th, td').map { |cell| cell.text.strip } }
+
+    expect(rows).to eq([
+      %w[Nome\ do\ medicamento Dosagem Horário],
+      %w[Metilfenidato 10\ mg 07h30],
+      %w[Risperidona - 20h00]
+    ])
+  end
+
+  # Versão publicada com o campo único e a pergunta em branco: o medicamento continua impresso.
+  it 'prints the single medication of an older snapshot as one table row' do
+    section = support_section('medication_name' => 'Medicamento A', 'medication_dosage' => '5mg')
+
+    rows = Nokogiri::HTML.fragment(section).css('table.medications-table tr')
+    expect(rows.last.css('td').map { |cell| cell.text.strip }).to eq(['Medicamento A', '5mg', '-'])
+    expect(section).not_to include(empty_message)
   end
 
   # O <thead> de cada seção carrega só a régua de continuação. Título dentro dele volta a ser
@@ -105,10 +134,10 @@ RSpec.describe 'individualized_educational_plans/_pdf_content', type: :view do
     presenter = IndividualizedEducationalPlanReportPresenter.from_snapshot(filled_snapshot)
     render partial: 'individualized_educational_plans/pdf_content', locals: { presenter: presenter }
 
-    field_cells = Nokogiri::HTML.fragment(rendered).css('td').select { |cell| cell.at_css('p, ul') }
+    field_cells = Nokogiri::HTML.fragment(rendered).css('td').select { |cell| cell.at_css('p, ul, table') }
     unwrapped = field_cells.reject { |cell| cell['class'] == 'field-cell' && cell.at_css('> div.field') }
 
-    expect(field_cells.count).to eq(26)
+    expect(field_cells.count).to eq(24)
     expect(unwrapped).to be_empty
   end
 

@@ -25,7 +25,22 @@
 # - `uses_medication` é o único booleano do documento e é TRI-STATE: false ("Não") é resposta e
 #   null é "não respondido". Podar o support_team por present?/compact/reject(&:blank?) apagaria
 #   um "Não" de uma versão publicada e imutável, sem erro nenhum.
+# - Os medicamentos ficam em `support_team['medications']`, na ordem de cadastro. Versão publicada
+#   antes da lista tem só `medication_name`, `medication_dosage` e `medication_schedule`: ler
+#   sempre por `medications_from`, que converte esse formato numa lista de uma linha.
 class IndividualizedEducationalPlanSnapshot
+  LEGACY_MEDICATION_KEYS = { 'name' => 'medication_name', 'dosage' => 'medication_dosage',
+                             'schedule' => 'medication_schedule' }.freeze
+
+  # Lista de medicamentos ({ 'name', 'dosage', 'schedule' }) de um support_team, nos dois formatos.
+  def self.medications_from(support_team)
+    support_team = support_team.to_h
+    return Array(support_team['medications']) if support_team.key?('medications')
+
+    legacy = LEGACY_MEDICATION_KEYS.each_with_object({}) { |(key, legacy_key), row| row[key] = support_team[legacy_key] }
+    legacy.values.any?(&:present?) ? [legacy] : []
+  end
+
   def initialize(plan, student_data: nil, classroom: nil)
     @plan = plan
     @student_data = student_data
@@ -106,13 +121,24 @@ class IndividualizedEducationalPlanSnapshot
 
   def support_team
     plan.slice('family_guidelines', 'external_professionals_guidelines',
-               'uses_medication', 'medication_name', 'medication_dosage',
-               'medication_schedule', 'medication_notes', 'family_environment_characteristics').merge(
+               'uses_medication', 'medication_notes', 'family_environment_characteristics').merge(
+      'medications' => medications,
       'accompaniment' => selected_option_descriptions(:accompaniment),
       'accompaniment_option_ids' => selected_option_ids(:accompaniment),
       'support_type' => selected_option_descriptions(:support_type),
       'support_type_option_ids' => selected_option_ids(:support_type)
     )
+  end
+
+  # Linha removida no formulário (ainda em memória) não entra: o snapshot reflete o que vai ser salvo.
+  # Com "Não" a lista fica vazia: a migração do campo único preservou linhas de planos com "Não",
+  # que só são descartadas no próximo salvamento.
+  def medications
+    return [] if plan.uses_medication == false
+
+    plan.iep_medications.reject(&:marked_for_destruction?).map do |medication|
+      { 'iep_medication_id' => medication.id }.merge(medication.slice('name', 'dosage', 'schedule'))
+    end
   end
 
   # Linhas das seções 4/5 com a revisão e o componente resolvidos por nome. id_key nomeia a tabela

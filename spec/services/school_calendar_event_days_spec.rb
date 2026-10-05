@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe SchoolCalendarEventDays, type: :service do
   let!(:school_calendars) {

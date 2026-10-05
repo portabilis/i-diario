@@ -15,7 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VENDOR_PATH = path.resolve(__dirname, '../../vendor/assets/javascripts');
+const { loadVendor, loadVendorEnvironment } = require('./support/vendor_environment');
 const PAGE_PATH = path.resolve(
   __dirname,
   '../../app/assets/javascripts/views/ieducar_api_exam_posting/last_step_absence_warning.js'
@@ -41,10 +41,6 @@ const LINKS_HTML =
 let modalCalls;
 let posts;
 let $;
-
-function loadIntoWindow(file) {
-  window.eval(fs.readFileSync(file, 'utf-8'));
-}
 
 function stubModalPlugin() {
   modalCalls = [];
@@ -88,11 +84,9 @@ function continueSending() {
 }
 
 beforeAll(async () => {
-  loadIntoWindow(path.join(VENDOR_PATH, 'jquery.js'));
+  await loadVendorEnvironment();
   $ = window.jQuery;
-  loadIntoWindow(path.join(VENDOR_PATH, 'jquery_ujs.js'));
-
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  loadVendor('jquery_ujs');
 });
 
 afterEach(() => {

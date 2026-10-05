@@ -74,10 +74,6 @@ class SchoolCalendar < ApplicationRecord
     steps.find_by(step_number: step_number)
   end
 
-  def posting_step(date)
-    steps.all.posting_date_after_and_before(date).first
-  end
-
   def school_term_day?(school_term_type_step, date, classroom = nil)
     step = classroom.present? ? StepsFetcher.new(classroom).step_by_date(date) : step(date)
 

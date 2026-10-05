@@ -71,7 +71,7 @@
 
           process(data);
         } else {
-          process([JSON.stringify({ value: '<i class="icon-thumbs-down"></i> Desculpe, mas nada foi encontrado com o termo "' + query + '"', ignoreClick: true })]);
+          process([JSON.stringify({ value: '<i class="icon-thumbs-down"></i> Desculpe, mas nada foi encontrado com o termo "' + _.escape(query) + '"', ignoreClick: true })]);
         }
       });
 
@@ -84,19 +84,22 @@
       });
     },
 
+    // O Bootstrap Typeahead injeta o retorno do highlighter via `.html()`: texto vindo do termo
+    // digitado ou do servidor precisa ser escapado antes de entrar no markup.
     highlighter: function (item) {
       item = JSON.parse(item);
 
-      // Do not highlight loading, not found and error states.
+      // Loading, not found and error states carry their own markup, already escaped in fetch.
       if (!item.id) {
         return item.value;
       }
 
       var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
 
-      return item.value.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-        return '<strong>' + match + '</strong>'
-      });
+      // split com grupo de captura intercala os trechos encontrados nas posições ímpares.
+      return _.map(item.value.split(new RegExp('(' + query + ')', 'ig')), function (part, index) {
+        return index % 2 ? '<strong>' + _.escape(part) + '</strong>' : _.escape(part);
+      }).join('');
     },
 
     updater: function (item) {

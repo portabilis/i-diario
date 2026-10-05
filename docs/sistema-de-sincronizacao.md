@@ -222,15 +222,17 @@ end
 - **WorkerState**: Estado individual de cada worker
 - **Progresso**: Calculado com base nos workers concluídos
 
+O contador de workers concluídos vive no Redis (`WorkerBatch#done`), não na coluna `done_workers`.
+A coluna só recebe o total quando o lote fecha; durante a execução ela fica em 0.
+Para saber o andamento pelo banco, conte os `worker_states` do lote com status `completed`.
+
 ```ruby
-# Cálculo de progresso
+# app/models/worker_batch.rb
 def done_percentage
-  return 0 if worker_batch.blank?
-  
-  total = worker_batch.total_workers
-  completed = worker_batch.completed_workers
-  
-  (completed.to_f / total * 100).round
+  return 0   if total_workers.zero?
+  return 100 if all_workers_finished?
+
+  ((done.to_f / total_workers.to_f) * 100).round(0)
 end
 ```
 
@@ -254,9 +256,27 @@ sidekiq_options retry: 3, dead: false
    - Validações falham: registro é pulado
    - Log de erro é criado
 
-3. **Sincronização Travada**:
-   - Detectada após 2 horas sem atualização
-   - Pode ser cancelada manualmente
+3. **Sincronização Travada**: ver a seção abaixo.
+
+### Sincronização Travada
+
+Uma sincronização `started` é considerada travada (`IeducarApiSynchronization#locked?`) quando as duas condições valem ao mesmo tempo:
+
+- está rodando há mais de 3 vezes o tempo médio, em minutos, das últimas sincronizações concluídas do mesmo tipo (10 simples ou 5 completas, em cache por 24 h); sem histórico, a média é 15 minutos;
+- o `updated_at` do `WorkerBatch` está parado há mais de 30 minutos.
+
+O `updated_at` do lote é o sinal de vida: os workers o atualizam a cada faixa de 10% do total concluída (e a cada worker enquanto o total ainda não foi gravado), então um lote que não progride deixa de atualizá-lo.
+
+A rake `execute_sql:reset_api_synchronizer` percorre as entidades ativas e cancela as sincronizações travadas com a mensagem "Tempo de execução excedido." (`cancel_locked_synchronizations(entity, restart: true)`).
+Com `restart: true`, uma nova sincronização simples é iniciada logo depois do cancelamento.
+O agendamento da rake fica na infraestrutura, fora deste repositório.
+
+Um administrador também pode cancelar pela tela (`AdminSynchronizationsController#cancel`), com a mensagem "Cancelada." e sem reinício.
+
+Nenhum dos dois cancelamentos notifica o Honeybadger, e o lote travado não levanta exceção.
+Para diagnosticar, compare os `worker_states` do lote com os workers esperados: um dependente que nunca foi criado não aparece como pendente, só como ausente.
+
+Como só existe uma sincronização `started` por configuração (índice único parcial), enquanto uma estiver travada as sincronizações agendadas não iniciam: `start_synchronization` devolve a que já está em andamento.
 
 ## Interface de Usuário
 

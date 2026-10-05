@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe Users::OmniauthCallbacksController, type: :controller do
   let(:entity) { Entity.find_by(domain: 'test.host') }
@@ -6,6 +6,19 @@ RSpec.describe Users::OmniauthCallbacksController, type: :controller do
   around(:each) do |example|
     entity.using_connection do
       example.run
+    end
+  end
+
+  # Um plugin carregado pelo Gemfile.plugins pode assinar o evento de usuário não encontrado
+  # e criar o usuário; um notifier próprio deixa o spec só com os assinantes que ele registra.
+  around(:each) do |example|
+    original_notifier = ActiveSupport::Notifications.notifier
+    ActiveSupport::Notifications.notifier = ActiveSupport::Notifications::Fanout.new
+
+    begin
+      example.run
+    ensure
+      ActiveSupport::Notifications.notifier = original_notifier
     end
   end
 

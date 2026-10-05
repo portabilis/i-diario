@@ -3,8 +3,8 @@ module ExamPoster
     private
 
     def generate_requests
-      # O formato do payload é contrato: o Ieducar::SendPostWorker escolhe entre a API v2 e a
-      # legada pela presença de `turma_id` (achatado) ou de `resource` (aninhado).
+      # O formato do payload é contrato: o Ieducar::SendPostWorker manda para a API v2 o payload
+      # achatado, com `turma_id`, e escolhe o endpoint de faltas por componente por `componente_id`.
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           requests << {
@@ -22,8 +22,6 @@ module ExamPoster
         end
       end
 
-      # Aninhado e com `resource`: faltas por componente não têm endpoint na API v2 e continuam
-      # sendo enviadas pela API legada.
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
@@ -35,15 +33,12 @@ module ExamPoster
               },
               request: {
                 etapa: @post_data.step.to_number,
-                resource: 'faltas-por-componente',
-                faltas: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_absence
-                    }
-                  }
-                }
-              }
+                turma_id: classroom_id,
+                aluno_id: student_id,
+                componente_id: discipline_absence[:componente_id],
+                faltas: discipline_absence[:faltas],
+                area_do_conhecimento_id: discipline_absence[:area_do_conhecimento_id]
+              }.compact
             }
           end
         end
@@ -121,8 +116,11 @@ module ExamPoster
             knowledge_area = discipline.grouper? ? discipline.knowledge_area.api_code.to_i : nil
             knowledge_area = knowledge_area.eql?(0) ? nil : knowledge_area
 
-            absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
-            absences[classroom.api_code][student.api_code][discipline.api_code]['area_do_conhecimento'] = knowledge_area
+            absences[classroom.api_code][student.api_code][discipline.api_code] = {
+              componente_id: discipline.absence_posting_api_code,
+              faltas: value,
+              area_do_conhecimento_id: knowledge_area
+            }
           end
         end
       end

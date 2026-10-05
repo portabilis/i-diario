@@ -12,16 +12,17 @@
                               potentialities difficulties preferences_interests effective_strategies]
   characterization_badges = %w[communication_profile social_interaction_profile autonomy]
   support_badges = %w[accompaniment support_type]
-  support_texts = %w[family_guidelines medication_name medication_dosage medication_schedule
-                     medication_notes family_environment_characteristics
+  support_texts = %w[family_guidelines medication_notes family_environment_characteristics
                      external_professionals_guidelines]
   # Boolean tri-state: false é resposta ("Não") e precisa aparecer, mas false.present? é false —
   # por isso o campo vira rótulo ("Sim"/"Não") ANTES do filled?. O guard de nil é obrigatório:
   # t_boolean devolve "Não" também para nil, imprimindo resposta onde ninguém respondeu.
   uses_medication = support_team['uses_medication']
   support_rows = support_texts.map { |field| [field, support_team[field]] }
-  # Mesma posição do formulário: entre as orientações da família e o nome do medicamento.
+  # Mesma posição do formulário: entre as orientações da família e a lista de medicamentos.
   support_rows.insert(1, ['uses_medication', (t_boolean(uses_medication) unless uses_medication.nil?)])
+  medications = presenter.medications
+  medication_label = ->(field) { t("individualized_educational_plans.section_support_team.medication_#{field}") }
   final_texts = %w[annual_report overall_evolution next_year_recommendations referrals_made]
   section4_texts = %w[long_term_goal stage_objectives skills_to_develop methodologies]
   section4_badges = %w[instructional_accommodations environmental_accommodations assessment_accommodations]
@@ -154,7 +155,8 @@
     <%# Condição em duas pernas: support_rows carrega o booleano já como rótulo ("Não" passa no
         filled?), fora do hash cru que o any_filled? lê — juntar as duas apagaria a seção quando
         a única resposta for "Não". %>
-    <% if presenter.any_filled?(support_team, support_badges) || support_rows.any? { |_, value| presenter.filled?(value) } %>
+    <% if presenter.any_filled?(support_team, support_badges) || medications.any? ||
+          support_rows.any? { |_, value| presenter.filled?(value) } %>
       <% support_badges.each do |field| %>
         <% next unless presenter.filled?(support_team[field]) %>
         <tr>
@@ -171,12 +173,36 @@
         </tr>
       <% end %>
       <% support_rows.each do |field, value| %>
-        <% next unless presenter.filled?(value) %>
+        <% if presenter.filled?(value) %>
+          <tr>
+            <td class="field-cell">
+              <div class="field">
+                <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
+                <%= simple_format(value) %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <%# Logo depois da pergunta, mesmo sem resposta: versão publicada antes da lista pode ter
+            medicamento com a pergunta em branco. %>
+        <% next unless field == 'uses_medication' && medications.any? %>
         <tr>
           <td class="field-cell">
             <div class="field">
-              <span class="field-label"><%= t("individualized_educational_plans.section_support_team.#{field}") %></span>
-              <%= simple_format(value) %>
+              <table class="medications-table">
+                <tr>
+                  <% %w[name dosage schedule].each do |column| %>
+                    <th class="field-label"><%= medication_label.call(column) %></th>
+                  <% end %>
+                </tr>
+                <% medications.each do |medication| %>
+                  <tr>
+                    <% %w[name dosage schedule].each do |column| %>
+                      <td><%= display.call(medication[column]) %></td>
+                    <% end %>
+                  </tr>
+                <% end %>
+              </table>
             </div>
           </td>
         </tr>

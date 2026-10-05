@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 PRIVATE_ACCESS_KEY = '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'.freeze
 PRIVATE_SECRET_KEY = '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC'.freeze
