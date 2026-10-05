@@ -11,11 +11,10 @@ class ExamRecordReportController < ApplicationController
 
     set_options_by_user
     fetch_collections
-    fetch_disciplines_by_classroom
   end
 
   def report
-    @exam_record_report_form = ExamRecordReportForm.new(resource_params)
+    @exam_record_report_form = ExamRecordReportForm.new(resource_params.merge(teacher_id: current_teacher.id))
     set_school_calendars
 
     if @exam_record_report_form.valid?
@@ -24,7 +23,6 @@ class ExamRecordReportController < ApplicationController
     else
       set_options_by_user
       set_school_calendars
-      fetch_disciplines_by_classroom
 
       render :form
     end
@@ -38,6 +36,18 @@ class ExamRecordReportController < ApplicationController
     steps = step_numbers.map { |step| { id: step.id, description: step.to_s } }
 
     render json: steps.to_json
+  end
+
+  def classrooms
+    return render json: { classrooms: [] } if params[:unity_id].blank?
+
+    render json: { classrooms: select2_options(teacher_classrooms(params[:unity_id])) }
+  end
+
+  def disciplines
+    return render json: { disciplines: [] } if params[:classroom_id].blank?
+
+    render json: { disciplines: select2_options(teacher_disciplines(params[:classroom_id])) }
   end
 
   private
@@ -82,13 +92,20 @@ class ExamRecordReportController < ApplicationController
     )
   end
 
-  def fetch_linked_by_teacher
-    @fetch_linked_by_teacher ||= TeacherClassroomAndDisciplineFetcher.fetch!(current_teacher.id, current_unity,
-current_school_year)
-    classroom_id = @exam_record_report_form.classroom_id
-    @disciplines ||= @fetch_linked_by_teacher[:disciplines].by_classroom_id(classroom_id)
-                                                           .not_descriptor
-    @classrooms ||= @fetch_linked_by_teacher[:classrooms]
+  def teacher_unities
+    Unity.by_teacher(current_teacher.id).by_year(current_school_year).ordered
+  end
+
+  def teacher_classrooms(unity_id)
+    Classroom.by_unity_and_teacher(unity_id, current_teacher.id).by_year(current_school_year).ordered
+  end
+
+  def teacher_disciplines(classroom_id)
+    ExamRecordReportForm.teacher_disciplines(current_teacher.id, classroom_id)
+  end
+
+  def select2_options(records)
+    records.map { |record| { id: record.id, name: record.to_s, text: record.to_s } }
   end
 
   def fetch_collections
@@ -97,27 +114,23 @@ current_school_year)
   end
 
   def set_options_by_user
-    @admin_or_teacher ||= current_user.current_role_is_admin_or_employee?
-    @unities ||= @admin_or_teacher ? Unity.ordered : [current_user_unity]
+    # O campo Escola só é editável pelo administrador (view), então só ele recebe a lista
+    @unities ||= current_user.admin? ? teacher_unities : [current_user_unity]
 
-    fetch_linked_by_teacher
+    @classrooms = teacher_classrooms(@exam_record_report_form.unity_id)
+    @disciplines = teacher_disciplines(@exam_record_report_form.classroom_id)
   end
 
+  # Roda antes da validação do formulário: escola ou turma em branco precisam chegar à
+  # validação de presença, então a busca não pode levantar RecordNotFound
   def set_school_calendars
     school_calendar = CurrentSchoolCalendarFetcher.new(
-      Unity.find(@exam_record_report_form.unity_id),
-      Classroom.find(@exam_record_report_form.classroom_id),
+      Unity.find_by(id: @exam_record_report_form.unity_id),
+      Classroom.find_by(id: @exam_record_report_form.classroom_id),
       current_school_year
     ).fetch
 
     @school_calendar_steps = SchoolCalendarStep.where(school_calendar: school_calendar).ordered
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(@exam_record_report_form.classroom_id).ordered
-  end
-
-  def fetch_disciplines_by_classroom
-    return if current_user.current_role_is_admin_or_employee?
-
-    classroom_id = @exam_record_report_form.classroom_id
-    @disciplines = @disciplines.by_classroom_id(classroom_id).not_descriptor
   end
 end

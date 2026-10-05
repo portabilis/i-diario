@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:entity) { Entity.find_by(domain: 'test.host') }
@@ -33,7 +33,11 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:other_teacher) { create(:teacher) }
   let(:classroom) { create(:classroom, :score_type_numeric) }
   let(:discipline) { create(:discipline) }
-  let(:school_term_type) { create(:school_term_type, description: 'Anual') }
+  # A migração 20201113124620 grava a etapa 'Anual' em todo banco migrado e o índice de
+  # `description` é único: o exemplo usa a linha que já existe em vez de criar outra.
+  let(:school_term_type) do
+    SchoolTermType.find_by(description: 'Anual') || create(:school_term_type, description: 'Anual')
+  end
   let(:school_term_type_step) { create(:school_term_type_step, school_term_type: school_term_type) }
   let(:current_teacher_teaching_plan) {
     create(

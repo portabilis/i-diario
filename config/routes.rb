@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
+  get 'entity_logo', to: 'entity_logos#show', as: :entity_logo
 
   devise_for :users, only: :omniauth_callbacks, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
 
@@ -491,6 +492,8 @@ Rails.application.routes.draw do
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
     get '/reports/fetch_step', to: 'exam_record_report#fetch_step', as: 'fetch_step_exam_record_report'
+    get '/reports/exam_record/classrooms', to: 'exam_record_report#classrooms', as: 'exam_record_report_classrooms'
+    get '/reports/exam_record/disciplines', to: 'exam_record_report#disciplines', as: 'exam_record_report_disciplines'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
     get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'

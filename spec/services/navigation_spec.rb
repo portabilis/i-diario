@@ -1,32 +1,67 @@
-require "rails_helper"
+require 'rails_helper'
 
-describe Navigation, type: :service do
-  let(:item) { :dashboard }
-  let(:context){ double }
+# CVE-2025-8920 / GHSA-v2qp-2w8g-3363
+# Os termos do "Dicionário de Termos BNCC" são valores de Translation editáveis pelo usuário e
+# alimentam título, breadcrumb, menu lateral e atalhos. Todo texto traduzido precisa ser escapado
+# na renderização, mantendo o ícone, que é markup do próprio projeto e não do usuário.
+RSpec.describe Navigation, type: :service do
+  let(:payload) { '<img src=x onerror=alert(1)>' }
+  let(:escaped_payload) { '&lt;img src=x onerror=alert(1)&gt;' }
+  let(:current_user) { User.new(admin: true) }
 
-  subject { described_class }
+  before do
+    allow(Translator).to receive(:translate).and_return("Planos #{payload}")
+  end
 
-  describe ".draw_breadcrumbs" do
-    it "calls Navigation::BreadcrumbsBuilder.build" do
-      expect(Navigation::BreadcrumbsBuilder).to receive(:build).with(item, context)
+  describe '.draw_title' do
+    subject(:html) { described_class.draw_title('discipline_teaching_plans', true, nil).to_s }
 
-      subject.draw_breadcrumbs(item, context)
+    it 'escapes the translated title text' do
+      expect(html).to include(escaped_payload)
+      expect(html).not_to include(payload)
+    end
+
+    it 'keeps the icon markup intact' do
+      expect(html).to include('<i class=')
     end
   end
 
-  describe ".draw_menus" do
-    it "calls Navigation::MenuBuilder.build" do
-      expect(Navigation::MenuBuilder).to receive(:build).with(item, context)
+  describe '.draw_breadcrumbs' do
+    subject(:html) { described_class.draw_breadcrumbs('discipline_teaching_plans', nil).to_s }
 
-      subject.draw_menus(item, context)
+    it 'escapes the translated breadcrumb text' do
+      expect(html).to include(escaped_payload)
+      expect(html).not_to include(payload)
+    end
+
+    it 'keeps the icon markup intact' do
+      expect(html).to include('<i class=')
     end
   end
 
-  describe ".draw_title" do
-    it "calls Navigation::TitleBuilder.build" do
-      expect(Navigation::TitleBuilder).to receive(:build).with(item, true, context)
+  describe '.draw_menus' do
+    subject(:html) { described_class.draw_menus('dashboard', current_user).to_s }
 
-      subject.draw_title(item, true, context)
+    it 'escapes the translated menu text' do
+      expect(html).to include(escaped_payload)
+      expect(html).not_to include(payload)
+    end
+
+    it 'keeps the icon markup intact' do
+      expect(html).to include('<i class=')
+    end
+  end
+
+  describe '.draw_shortcuts' do
+    subject(:html) { described_class.draw_shortcuts(current_user).to_s }
+
+    it 'escapes the translated shortcut text' do
+      expect(html).to include(escaped_payload)
+      expect(html).not_to include(payload)
+    end
+
+    it 'keeps the icon markup intact' do
+      expect(html).to include('<i class=')
     end
   end
 end

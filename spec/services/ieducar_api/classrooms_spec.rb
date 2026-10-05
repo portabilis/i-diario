@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe IeducarApi::Classrooms, type: :service do
   let(:url) { 'http://test.ieducar.com.br' }

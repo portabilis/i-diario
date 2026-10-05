@@ -150,8 +150,6 @@ $(function() {
 
     if (should_clear_discipline) {
       $discipline.val(null).trigger("change");
-    } else {
-      $discipline.val(discipline_id);
     }
 
     if (should_clear_step) {
