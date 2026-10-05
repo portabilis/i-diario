@@ -66,7 +66,6 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
       end
     end
 
-    # A recuperação final legada não leva `resource`: o que a separa da v2 é não ter `turma_id`.
     context 'when the payload is a flat descriptive exam' do
       let(:post_type) { ApiPostingTypes::DESCRIPTIVE_EXAM }
 
@@ -84,6 +83,5 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
         end
       end
     end
-
   end
 end
