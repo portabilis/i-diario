@@ -195,7 +195,8 @@ window.IepDraftAutosave = function(options) {
 
     if (body.existing_plan_url) {
       $alertText.append(' ').append(
-        $('<a>').attr('href', body.existing_plan_url).text($status.data('existing-plan-text'))
+        $('<a class="btn btn-default btn-sm">').attr('href', body.existing_plan_url)
+          .text($status.data('existing-plan-text') + ' ').append('<i class="fa fa-arrow-right"></i>')
       );
     }
   }

@@ -4,13 +4,15 @@
             fields_partial, dom_prefix ("s4"/"s5"), view_only (opcional) %>
 <% view_only = local_assigns[:view_only] %>
 <% if review_dates.empty? %>
-  <div class="alert alert-info fade in">
-    <i class="fa-fw fa fa-info"></i>
-    <%= t('individualized_educational_plans.form.no_reviews_hint') %>
-    <%# O atalho só aparece para quem edita a seção 1: o professor (escopo de componente) não a altera. %>
-    <% if !view_only && @editable_component_scope.blank? %>
-      <button type="button" class="btn btn-default btn-xs iep-go-to-identification">
-        <%= t('individualized_educational_plans.form.go_to_identification') %>
+  <%# O atalho só aparece para quem edita a seção 1: o professor (escopo de componente) não a altera. %>
+  <% can_edit_review_dates = !view_only && @editable_component_scope.blank? %>
+  <div class="alert alert-info fade in iep-notice-with-action">
+    <i class="fa-fw fa fa-calendar"></i>
+    <strong><%= t('individualized_educational_plans.form.no_reviews_hint_lead') %></strong>
+    <%= t("individualized_educational_plans.form.#{can_edit_review_dates ? 'no_reviews_hint' : 'no_reviews_hint_read_only'}") %>
+    <% if can_edit_review_dates %>
+      <button type="button" class="btn btn-primary btn-sm iep-go-to-identification">
+        <i class="fa fa-arrow-left"></i> <%= t('individualized_educational_plans.form.go_to_identification') %>
       </button>
     <% end %>
   </div>

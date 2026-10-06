@@ -40,6 +40,9 @@
     #pei-wizard .fuelux .wizard ul.steps > li { float: none; flex: 0 0 auto; }
     #pei-wizard .iep-locked-notice, #pei-wizard .iep-no-draft-notice,
     #pei-wizard .iep-save-error { margin: 15px 14px 0; }
+    /* Aviso com botão logo depois da frase: o botão é mais alto que a linha e centraliza nela. */
+    #pei-wizard .iep-notice-with-action .btn { margin: -4px 0 -4px 6px; vertical-align: middle; }
+    #pei-wizard .iep-save-error .btn-default { color: #b94a48; }
     #pei-wizard fieldset[disabled] textarea,
     #pei-wizard fieldset[disabled] input,
     #pei-wizard fieldset[disabled] select { background-color: #eee; cursor: not-allowed; }
@@ -67,15 +70,15 @@
 
     <% unless view_only %>
       <%# Sem plano gravado as etapas 2 a 6 ficam travadas (form.js): o aviso explica o motivo. %>
-      <div class="alert alert-warning iep-locked-notice" style="display: none;">
-        <i class="fa-fw fa fa-warning"></i> <%= t('.locked_notice') %>
-        <button type="button" class="btn btn-default btn-xs iep-go-to-identification">
-          <%= t('.go_to_identification') %>
+      <div class="alert alert-warning iep-notice-with-action iep-locked-notice" style="display: none;">
+        <i class="fa-fw fa fa-lock"></i> <strong><%= t('.locked_notice_lead') %></strong> <%= t('.locked_notice') %>
+        <button type="button" class="btn btn-warning btn-sm iep-go-to-identification">
+          <i class="fa fa-arrow-left"></i> <%= t('.go_to_identification') %>
         </button>
       </div>
       <%# Motivo de um rascunho que não foi salvo (draft_autosave.js). No topo da etapa porque o
           rodapé, onde fica o indicador, pode estar fora da tela. %>
-      <div class="alert alert-danger iep-save-error" role="alert" style="display: none;">
+      <div class="alert alert-danger iep-notice-with-action iep-save-error" role="alert" style="display: none;">
         <i class="fa-fw fa fa-times"></i> <span class="iep-save-error-text"></span>
         <a href="javascript:void(0)" class="iep-save-retry" style="display: none;"><%= t('.save_retry') %></a>
       </div>
