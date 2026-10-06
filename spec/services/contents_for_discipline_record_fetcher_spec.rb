@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ContentsForDisciplineRecordFetcher do
+RSpec.describe ContentsForDisciplineRecordFetcher, type: :service do
   let(:teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
   let(:school_term_type) { create(:school_term_type, description: 'Anual') }
@@ -80,5 +80,28 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
     subject = described_class.new(teacher, classroom, discipline, date)
 
     expect(subject.fetch).to match_array teaching_plan.contents
+  end
+
+  it 'fetches lesson plan contents in the plan order' do
+    contents = create_list(:content, 3)
+    plan_order = [contents[1], contents[0], contents[2]]
+    lesson_plan = create(
+      :lesson_plan,
+      classroom: classroom,
+      teacher: teacher,
+      teacher_id: teacher.id,
+      contents: contents.reverse
+    )
+    create(:discipline_lesson_plan, lesson_plan: lesson_plan, discipline: discipline, teacher_id: teacher.id)
+
+    # O UPDATE grava uma nova versão da linha no fim da tabela; atualizar de trás para frente deixa a
+    # ordem física oposta à de position, e um fetch sem ORDER BY não acerta por coincidência.
+    plan_order.each_with_index.to_a.reverse_each do |content, index|
+      lesson_plan.contents_lesson_plans.where(content_id: content.id).update_all(position: index)
+    end
+
+    subject = described_class.new(teacher, classroom, discipline, lesson_plan.start_at)
+
+    expect(subject.fetch).to eq plan_order
   end
 end
