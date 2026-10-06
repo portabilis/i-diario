@@ -80,7 +80,9 @@
           rodapé, onde fica o indicador, pode estar fora da tela. %>
       <div class="alert alert-danger iep-notice-with-action iep-save-error" role="alert" style="display: none;">
         <i class="fa-fw fa fa-times"></i> <span class="iep-save-error-text"></span>
-        <a href="javascript:void(0)" class="iep-save-retry" style="display: none;"><%= t('.save_retry') %></a>
+        <a href="javascript:void(0)" class="btn btn-default btn-sm iep-save-retry" style="display: none;">
+          <i class="fa fa-refresh"></i> <%= t('.save_retry') %>
+        </a>
       </div>
       <div class="alert alert-info iep-no-draft-notice"
            style="<%= 'display: none;' unless @draft_unavailable %>">
