@@ -131,6 +131,7 @@ function setup(html) {
     rehydrate: jest.fn(),
     onCreated: jest.fn((data) => $('#pei-wizard').data('plan-id', data.id)),
     onUnavailable: jest.fn(),
+    onAvailableAgain: jest.fn(),
     failureMessage: jest.fn(() => null)
   };
 
@@ -386,6 +387,16 @@ describe('when the server tells which field was refused', () => {
     expect(options.showStep).toHaveBeenCalledWith(0);
   });
 
+  // A data de elaboração já mostra o aviso de calendário da própria tela quando o dia não é letivo.
+  it('does not add a second message to a field that already shows one', () => {
+    group(`${PLAN}[elaborated_at]`).append('<span class="help-inline error">deve ser um dia letivo</span>');
+
+    refuseWith([{ attribute: 'elaborated_at', message: 'deve ser um dia letivo' }]);
+
+    expect(group(`${PLAN}[elaborated_at]`).hasClass('error')).toBe(true);
+    expect(group(`${PLAN}[elaborated_at]`).find('.help-inline')).toHaveLength(1);
+  });
+
   it('clears the mark when the user edits the field', () => {
     refuseWith([{ association: 'iep_medications', id: null, attribute: 'name', message: 'não pode ficar em branco' }]);
 
@@ -457,6 +468,37 @@ describe('while the plan does not exist yet', () => {
 
     expect(requests).toHaveLength(1);
     expect(options.showStep).toHaveBeenLastCalledWith(2);
+  });
+
+  // A recusa era do aluno anterior: com outro aluno o rascunho volta a ser tentado.
+  it('saves again, locked until then, once the student changes after the draft was refused', () => {
+    autosave.saveThenGo(1);
+    refused({ errors: ['Só será gravado ao finalizar.'], draft_unavailable: true });
+
+    autosave.studentChanged();
+
+    expect(options.onAvailableAgain).toHaveBeenCalled();
+    expect(autosave.isLocked()).toBe(true);
+
+    autosave.saveThenGo(2);
+
+    expect(requests).toHaveLength(2);
+  });
+
+  it('ignores a student change when the draft was not refused', () => {
+    autosave.studentChanged();
+
+    expect(options.onAvailableAgain).not.toHaveBeenCalled();
+  });
+
+  it('starts without saving when the form already says the draft does not apply', () => {
+    setup(formHtml({ planId: '', lines: '' }).replace('data-autosave="on"', 'data-autosave="on" data-draft-unavailable="on"'));
+
+    autosave.saveThenGo(1);
+
+    expect(requests).toHaveLength(0);
+    expect(autosave.isLocked()).toBe(false);
+    expect(options.showStep).toHaveBeenCalledWith(1);
   });
 });
 

@@ -255,6 +255,22 @@ describe('new plan, before it is saved', () => {
       expect([2, 3, 4, 5, 6].map(paneLocked)).toEqual([false, false, false, false, false]);
       expect(activeStep()).toBe(1);
     });
+
+    it('hides the warning, locks the sections again and retries the draft when the student changes', () => {
+      draftRequests()[0].deferred.reject(
+        { status: 422, responseJSON: { errors: ['Só será gravado ao finalizar.'], draft_unavailable: true } }, 'error'
+      );
+
+      $('input.iep-student-select').val('32').trigger('change');
+
+      expect($('.iep-no-draft-notice').css('display')).toBe('none');
+      expect([2, 3, 4, 5, 6].map(paneLocked)).toEqual([true, true, true, true, true]);
+
+      $('#pei-wizard .steps li').eq(0).trigger('click');
+      $('.pei-wizard-next').trigger('click');
+
+      expect(draftRequests()).toHaveLength(2);
+    });
   });
 });
 
