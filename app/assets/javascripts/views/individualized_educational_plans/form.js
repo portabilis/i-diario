@@ -58,6 +58,7 @@ $(function() {
     rehydrate: rehydrate,
     onCreated: planCreated,
     onUnavailable: draftUnavailable,
+    onAvailableAgain: draftAvailableAgain,
     failureMessage: sessionExpiredMessage
   });
 
@@ -108,6 +109,11 @@ $(function() {
   function draftUnavailable() {
     $('.iep-no-draft-notice').show();
     setPanesLocked(false);
+  }
+
+  function draftAvailableAgain() {
+    $('.iep-no-draft-notice').hide();
+    setPanesLocked(autosave.isLocked());
   }
 
   // Religa os widgets de uma região que o salvamento trocou pelo HTML vindo do servidor. Não usa
@@ -550,6 +556,7 @@ $(function() {
   }
 
   $studentSelect.on('change', function() {
+    autosave.studentChanged();
     clearMedicalReportError();
     discardPendingUploadsOnStudentChange();
     if (studentFetchEnabled) { fetchStudentData($(this).val()); }

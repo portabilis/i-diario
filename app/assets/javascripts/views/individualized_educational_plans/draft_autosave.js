@@ -12,6 +12,7 @@
 //   rehydrate($region)      - religa os widgets de uma região recém-trocada
 //   onCreated(data)         - o plano acabou de ser criado (data.id, data.update_url, data.edit_url)
 //   onUnavailable()         - o servidor recusou o rascunho para este aluno (só grava ao finalizar)
+//   onAvailableAgain()      - o aluno mudou depois de uma recusa; o rascunho volta a valer
 //   failureMessage(jqXHR, textStatus) - mensagem para falha de sessão/permissão, ou null
 window.IepDraftAutosave = function(options) {
   'use strict';
@@ -36,6 +37,9 @@ window.IepDraftAutosave = function(options) {
   var NAVIGATION = '.pei-wizard-next, .pei-wizard-prev, .pei-wizard-finish';
 
   var enabled = $wizard.data('autosave') === 'on';
+  // O rascunho não se aplica ao aluno escolhido (não cursa mais a turma); volta a valer quando o
+  // aluno muda.
+  var unavailable = $wizard.data('draft-unavailable') === 'on';
   var busy = false;
   var baseline = null;
 
@@ -279,7 +283,7 @@ window.IepDraftAutosave = function(options) {
   }
 
   // Resolve quando gravou. Rejeita com o motivo:
-  //   'unavailable' - o rascunho não se aplica a este aluno; dali em diante nada é enviado
+  //   'unavailable' - o rascunho não se aplica a este aluno; nada é enviado até trocar de aluno
   //   'refused'     - o servidor recusou os dados (validação, permissão, plano já existente)
   //   'failed'      - a requisição não completou (rede, sessão expirada, erro do servidor)
   function save() {
@@ -311,7 +315,7 @@ window.IepDraftAutosave = function(options) {
       var body = responseBody(jqXHR);
 
       if (body && body.draft_unavailable) {
-        enabled = false;
+        unavailable = true;
         setStatus('');
         options.onUnavailable();
         result.reject('unavailable');
@@ -328,7 +332,7 @@ window.IepDraftAutosave = function(options) {
   }
 
   function shouldSave() {
-    if (!enabled) { return false; }
+    if (!enabled || unavailable) { return false; }
 
     return hasPlan() ? formSignature() !== baseline : options.readyToCreate();
   }
@@ -381,7 +385,14 @@ window.IepDraftAutosave = function(options) {
     saveThenGo: saveThenGo,
     markBaseline: markBaseline,
     // Sem plano gravado as etapas 2 a 6 não podem ser preenchidas.
-    isLocked: function() { return enabled && !hasPlan(); },
+    isLocked: function() { return enabled && !unavailable && !hasPlan(); },
+    // Aluno trocado: a recusa do rascunho era do aluno anterior.
+    studentChanged: function() {
+      if (!unavailable) { return; }
+
+      unavailable = false;
+      options.onAvailableAgain();
+    },
     // Envio nativo do formulário (finalização): as linhas inalteradas das seções 4/5 também
     // ficam de fora, pelo mesmo motivo do rascunho.
     disableUnchangedLines: function() { unchangedLineInputs().prop('disabled', true); }

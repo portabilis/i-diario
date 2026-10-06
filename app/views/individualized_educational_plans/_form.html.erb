@@ -10,9 +10,8 @@
 <% student_fetch = local_assigns.fetch(:student_fetch, true) %>
 <% medical_reports_plan_id = local_assigns.fetch(:medical_reports_plan_id,
                                                  @individualized_educational_plan.id) %>
-<%# Salvamento automático do rascunho a cada troca de etapa (draft_autosave.js). Desligado em
-    leitura e quando o controller já sabe que o rascunho não se aplica a este aluno. %>
-<% autosave = !view_only && !@draft_unavailable %>
+<%# Salvamento automático do rascunho a cada troca de etapa (draft_autosave.js), desligado em
+    leitura. draft-unavailable: o controller já sabe que o rascunho não se aplica ao aluno escolhido. %>
 <%# Em modo leitura (view_only) o submit é bloqueado: campos disabled não seriam enviados
     e um submit acidental (Enter) apagaria o que já está preenchido. A tela é só visualização. %>
 <%= simple_form_for @individualized_educational_plan,
@@ -52,7 +51,8 @@
 
   <div id="pei-wizard" data-plan-id="<%= @individualized_educational_plan.id %>"
        data-student-fetch="<%= student_fetch ? 'on' : 'off' %>"
-       data-autosave="<%= autosave ? 'on' : 'off' %>"
+       data-autosave="<%= view_only ? 'off' : 'on' %>"
+       data-draft-unavailable="<%= @draft_unavailable ? 'on' : 'off' %>"
        data-medical-reports-plan-id="<%= medical_reports_plan_id %>">
     <div class="fuelux">
       <div class="wizard">
