@@ -28,8 +28,9 @@ RSpec.describe ContentsForKnowledgeAreaRecordFetcher, type: :service do
     allow_any_instance_of(TeachingPlan).to receive(:yearly?).and_return(true)
   end
 
-  # O UPDATE grava uma nova versão da linha no fim da tabela; atualizar de trás para frente deixa a
-  # ordem física oposta à de position, e um fetch sem ORDER BY não acerta por coincidência.
+  # O UPDATE grava uma nova versão da linha, que a varredura sequencial devolve depois das ainda não
+  # atualizadas; atualizar de trás para frente deixa essa ordem oposta à de position, e um fetch sem
+  # ORDER BY não acerta por coincidência.
   def reorder_positions(join_rows, ordered_contents)
     ordered_contents.each_with_index.to_a.reverse_each do |content, index|
       join_rows.where(content_id: content.id).update_all(position: index)

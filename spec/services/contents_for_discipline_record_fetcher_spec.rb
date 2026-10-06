@@ -94,8 +94,9 @@ RSpec.describe ContentsForDisciplineRecordFetcher, type: :service do
     )
     create(:discipline_lesson_plan, lesson_plan: lesson_plan, discipline: discipline, teacher_id: teacher.id)
 
-    # O UPDATE grava uma nova versão da linha no fim da tabela; atualizar de trás para frente deixa a
-    # ordem física oposta à de position, e um fetch sem ORDER BY não acerta por coincidência.
+    # O UPDATE grava uma nova versão da linha, que a varredura sequencial devolve depois das ainda não
+    # atualizadas; atualizar de trás para frente deixa essa ordem oposta à de position, e um fetch sem
+    # ORDER BY não acerta por coincidência.
     plan_order.each_with_index.to_a.reverse_each do |content, index|
       lesson_plan.contents_lesson_plans.where(content_id: content.id).update_all(position: index)
     end
