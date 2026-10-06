@@ -7,7 +7,7 @@ class ContentsRecordFetcher
             other_teacher_teaching_plans.presence ||
             []
 
-    plans.map(&:contents).uniq.flatten
+    plans.flat_map { |plan| plan.contents_ordered.to_a }.uniq
   end
 
   protected

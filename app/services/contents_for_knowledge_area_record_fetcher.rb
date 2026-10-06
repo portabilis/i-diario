@@ -9,14 +9,14 @@ class ContentsForKnowledgeAreaRecordFetcher < ContentsRecordFetcher
   private
 
   def lesson_plans
-    @lesson_plans ||= KnowledgeAreaLessonPlan.includes(lesson_plan: :contents)
+    @lesson_plans ||= KnowledgeAreaLessonPlan.includes(:lesson_plan)
                                              .by_classroom_id(@classroom.id)
                                              .by_knowledge_area_id(@knowledge_areas.map(&:id))
                                              .by_date(@date)
   end
 
   def teaching_plans
-    @teaching_plans ||= KnowledgeAreaTeachingPlan.includes(teaching_plan: :contents)
+    @teaching_plans ||= KnowledgeAreaTeachingPlan.includes(:teaching_plan)
                                                  .by_unity(@classroom.unity_id)
                                                  .by_grade(@classroom.grade_ids)
                                                  .by_knowledge_area(@knowledge_areas.map(&:id))
