@@ -156,8 +156,12 @@ window.IepDraftAutosave = function(options) {
         var $group = $(this).closest('.control-group');
         if ($group.length === 0 || $group.hasClass('error')) { return; }
 
-        $group.addClass('error ' + FIELD_ERROR)
-          .append($('<span class="help-inline">').addClass(FIELD_ERROR + '-message').text(fieldError.message));
+        $group.addClass('error ' + FIELD_ERROR);
+        // Campo que já mostra uma mensagem (o aviso de calendário da data de elaboração, por
+        // exemplo) não ganha uma segunda: uma por campo, como no simple_form.
+        if ($group.find('.help-inline').length) { return; }
+
+        $group.append($('<span class="help-inline">').addClass(FIELD_ERROR + '-message').text(fieldError.message));
       });
     });
 
