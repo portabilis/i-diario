@@ -432,7 +432,8 @@ describe('while the plan does not exist yet', () => {
 
     expect(options.showStep).not.toHaveBeenCalled();
     expect($('.iep-save-error-text a').attr('href')).toBe('/planos/3/editar');
-    expect($('.iep-save-error-text a').text()).toBe('Abrir o PEI existente');
+    expect($('.iep-save-error-text a').text().trim()).toBe('Abrir o PEI existente');
+    expect($('.iep-save-error-text a').hasClass('btn')).toBe(true);
   });
 
   // As demais etapas continuam travadas: navegar levaria a uma tela sem nada para preencher.
