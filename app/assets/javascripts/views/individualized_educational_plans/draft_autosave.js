@@ -197,6 +197,12 @@ window.IepDraftAutosave = function(options) {
     setStatus($status.data('saved-text') + ' ' + currentTime() + ' - ' + $status.data('unpublished-text'));
   }
 
+  // O servidor aceitou o envio mas não havia nada a gravar (campos fora da permissão do usuário são
+  // descartados lá): anunciar "Salvo às" daria a impressão de que o conteúdo foi lançado.
+  function showUnchanged() {
+    setStatus($status.data('unchanged-text'));
+  }
+
   function showRefused(body) {
     showFailure((body.errors || []).join(' '), false);
     showFieldErrors(body.field_errors);
@@ -309,7 +315,7 @@ window.IepDraftAutosave = function(options) {
 
       swapRegions(data.form_html);
       markBaseline();
-      showSaved();
+      if (data.changed === false) { showUnchanged(); } else { showSaved(); }
       result.resolve();
     }).fail(function(jqXHR, textStatus) {
       var body = responseBody(jqXHR);

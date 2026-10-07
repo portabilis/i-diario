@@ -26,6 +26,7 @@ pt-BR:
       save_status_saving: "Salvando..."
       save_status_saved: "Salvo às"
       save_status_unpublished: "alterações ainda não publicadas"
+      save_status_unchanged: "Nenhuma alteração para salvar"
       save_status_failed: "Não foi possível salvar."
       save_retry: "Tentar novamente"
       open_existing_plan: "Abrir o PEI existente"

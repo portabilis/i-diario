@@ -123,8 +123,15 @@ class IndividualizedEducationalPlan < ApplicationRecord
   # conteúdo muda de fato: um envio que não altera nada (campos que o strong parameters descartou,
   # ou só a diferença de representação do formulário) não tira o plano de finalizado.
   def save_draft
-    self.finalized_at = nil if draft_content_changed?
+    @draft_changed = draft_content_changed?
+    self.finalized_at = nil if @draft_changed
     save
+  end
+
+  # Se o último save_draft tinha conteúdo a gravar. É o que a tela usa para não anunciar como salvo
+  # um envio que não mudou nada.
+  def draft_changed?
+    @draft_changed == true
   end
 
   private

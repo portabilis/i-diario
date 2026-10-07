@@ -69,18 +69,22 @@ module IndividualizedEducationalPlanDrafting
   # Devolve o formulário do plano recarregado do banco: é dele que a tela tira os registros
   # filhos já com id, o que impede o salvamento seguinte de criá-los de novo.
   def render_draft_saved
+    changed = @individualized_educational_plan.draft_changed?
     @individualized_educational_plan = plan_with_components(@individualized_educational_plan.id)
     assign_display_fields
     build_default_review_dates
     set_form_options
 
     # .to_json (String) evita o wrapping com raiz do active_model_serializers no render json:.
-    render json: draft_saved_payload(@individualized_educational_plan).to_json
+    render json: draft_saved_payload(@individualized_educational_plan, changed).to_json
   end
 
-  def draft_saved_payload(plan)
+  # changed: false quando o envio não alterou nada no plano, como os campos que o strong parameters
+  # descartou por estarem fora da permissão do usuário.
+  def draft_saved_payload(plan, changed)
     {
       id: plan.id,
+      changed: changed,
       update_url: individualized_educational_plan_path(plan),
       edit_url: edit_individualized_educational_plan_path(plan),
       form_html: render_to_string(partial: 'form', formats: [:html])
