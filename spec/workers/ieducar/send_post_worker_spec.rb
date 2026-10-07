@@ -6,7 +6,7 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
   around(:each) { |example| entity.using_connection { example.run } }
 
   # Esta é a única linha do sistema que decide com qual das duas APIs do i-Educar um envio de
-  # faltas conversa. Faltas gerais e por componente vão para a API v2; jobs com o payload legado
+  # faltas ou de notas conversa. O payload achatado vai para a API v2; jobs com o payload legado
   # que ainda estejam na fila durante um deploy continuam na legada.
   describe '#api' do
     let(:posting) { create(:ieducar_api_exam_posting, post_type: post_type) }
@@ -74,12 +74,56 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
       end
     end
 
-    context 'with other posting types' do
-      let(:post_type) { ApiPostingTypes::NUMERICAL_EXAM }
-      let(:params) { { 'etapa' => 1, 'resource' => 'notas', 'notas' => {} } }
+    context 'when the payload is a flat score' do
+      let(:params) do
+        { 'etapa' => 1, 'turma_id' => '4502', 'aluno_id' => '1234', 'componente_id' => '9', 'nota' => '7.5' }
+      end
 
-      it 'is not affected by the absence routing' do
+      [
+        ApiPostingTypes::NUMERICAL_EXAM,
+        ApiPostingTypes::CONCEPTUAL_EXAM,
+        ApiPostingTypes::SCHOOL_TERM_RECOVERY,
+        ApiPostingTypes::FINAL_RECOVERY
+      ].each do |score_type|
+        context "for #{score_type}" do
+          let(:post_type) { score_type }
+
+          it 'uses the v2 scores client, built from the api configuration record' do
+            expect(IeducarApi::PostScores).to receive(:new)
+              .with(posting.ieducar_api_configuration)
+              .and_call_original
+
+            expect(subject.send(:api, posting, params)).to be_a(IeducarApi::PostScores)
+          end
+        end
+      end
+    end
+
+    context 'when a legacy score payload is still in the queue' do
+      let(:post_type) { ApiPostingTypes::NUMERICAL_EXAM }
+      let(:params) { { 'etapa' => 1, 'resource' => 'notas', 'notas' => { '4502' => {} } } }
+
+      it 'stays on the legacy client' do
         expect(subject.send(:api, posting, params)).to be_a(IeducarApi::PostExams)
+      end
+    end
+
+    # A recuperação final legada não leva `resource`: o que a separa da v2 é não ter `turma_id`.
+    context 'when a legacy final recovery payload is still in the queue' do
+      let(:post_type) { ApiPostingTypes::FINAL_RECOVERY }
+      let(:params) { { 'notas' => { '4502' => { '1234' => { '9' => { 'nota' => 6 } } } } } }
+
+      it 'stays on the legacy client' do
+        expect(subject.send(:api, posting, params)).to be_a(IeducarApi::FinalRecoveries)
+      end
+    end
+
+    context 'with descriptive exams' do
+      let(:post_type) { ApiPostingTypes::DESCRIPTIVE_EXAM }
+      let(:params) { { 'etapa' => 1, 'resource' => 'pareceres-por-etapa-e-componente', 'pareceres' => {} } }
+
+      it 'stays on the legacy client' do
+        expect(subject.send(:api, posting, params)).to be_a(IeducarApi::PostDescriptiveExams)
       end
     end
   end

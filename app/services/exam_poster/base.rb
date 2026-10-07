@@ -47,6 +47,21 @@ module ExamPoster
 
     attr_reader :worker_batch, :entity_id
 
+    # Payload de POST /api/v2/notas: uma nota de um aluno em um componente por requisição. O
+    # Ieducar::SendPostWorker manda para a API v2 o payload achatado, com `turma_id`. `fetch`
+    # porque os posters montam as notas em hash com default_proc: ler uma chave ausente criaria um
+    # hash vazio no lugar do nil, e ele iria no payload.
+    def score_request(step:, classroom_id:, student_id:, discipline_id:, score:)
+      {
+        etapa: step,
+        turma_id: classroom_id,
+        aluno_id: student_id,
+        componente_id: discipline_id,
+        nota: score.fetch('nota', nil),
+        recuperacao: score.fetch('recuperacao', nil)
+      }.compact
+    end
+
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)
 

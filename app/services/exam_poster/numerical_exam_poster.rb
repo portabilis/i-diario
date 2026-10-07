@@ -12,17 +12,13 @@ module ExamPoster
                 student: student_id,
                 discipline: discipline_id
               },
-              request: {
-                etapa: @post_data.step.to_number,
-                resource: 'notas',
-                notas: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_score
-                    }
-                  }
-                }
-              }
+              request: score_request(
+                step: @post_data.step.to_number,
+                classroom_id: classroom_id,
+                student_id: student_id,
+                discipline_id: discipline_id,
+                score: discipline_score
+              )
             }
           end
         end
