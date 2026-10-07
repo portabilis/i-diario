@@ -9,7 +9,8 @@ As datas previstas de revisão informadas na seção 1 definem os blocos das se�
 A versão do plano só é publicada no Finalizar da última etapa.
 
 Na listagem, o plano aparece como "Em elaboração" enquanto o conteúdo atual não foi publicado e como "Finalizado" depois da publicação.
-Um plano finalizado que recebe novo rascunho volta para "Em elaboração".
+Um plano finalizado que recebe rascunho com alguma alteração volta para "Em elaboração".
+Envio sem mudança efetiva, como campo fora da permissão do usuário descartado pelo servidor, mantém "Finalizado" e o rodapé informa "Nenhuma alteração para salvar".
 
 ## Pré-requisitos
 
@@ -115,6 +116,6 @@ Se um cenário intermediário falhar, o plano criado fica na listagem e precisa 
 
 Fora deste roteiro, por serem cobertos por testes de unidade ou por dependerem de condição que a tela não reproduz de forma determinística:
 
-- Falha de conexão com nova tentativa, recusa do servidor e linhas inalteradas fora do envio (Jest do módulo de rascunho).
+- Falha de conexão com nova tentativa, recusa do servidor, envio sem alteração efetiva e linhas inalteradas fora do envio (Jest do módulo de rascunho).
 - Confirmação ao remover data de revisão com conteúdo (Jest do formulário).
 - Aluno que já possui PEI, aluno que não cursa mais a turma e edição pelo professor (specs de controller).
