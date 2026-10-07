@@ -9,6 +9,7 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
     it { expect(subject).to have_many(:iep_curricular_plannings).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_periodic_evaluations).dependent(:destroy) }
     it { expect(subject).to have_many(:iep_versions).dependent(:destroy) }
+    it { expect(subject).to have_many(:iep_medications).dependent(:destroy) }
   end
 
   describe 'validations' do
@@ -99,6 +100,83 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
 
       expect { plan.save! }.not_to change(IepReviewDate, :count)
       expect(plan).to be_persisted
+    end
+  end
+
+  describe 'iep_medications_attributes' do
+    let(:required_message) do
+      I18n.t('activerecord.errors.models.individualized_educational_plan.medication_required')
+    end
+
+    it 'ignores completely blank medication rows' do
+      plan = build(:individualized_educational_plan, uses_medication: true)
+      plan.iep_medications_attributes = [
+        { name: 'Metilfenidato', dosage: '10 mg', schedule: '07h30' },
+        { name: '', dosage: '', schedule: '' }
+      ]
+
+      expect { plan.save! }.to change(IepMedication, :count).by(1)
+    end
+
+    it 'keeps the medications in the order they were added' do
+      plan = build(:individualized_educational_plan, uses_medication: true)
+      plan.iep_medications_attributes = [{ name: 'Risperidona' }, { name: 'Metilfenidato' }]
+      plan.save!
+
+      expect(described_class.find(plan.id).iep_medications.map(&:name)).to eq(%w[Risperidona Metilfenidato])
+    end
+
+    it 'requires a named medication when the answer is "yes"' do
+      plan = build(:individualized_educational_plan, uses_medication: true)
+      plan.iep_medications_attributes = [{ name: '', dosage: '', schedule: '' }]
+
+      expect(plan).not_to be_valid
+      expect(plan.errors[:base]).to include(required_message)
+      # A linha vazia é descartada; uma nova é montada para o formulário destacar o campo.
+      expect(plan.iep_medications.size).to eq(1)
+      expect(plan.iep_medications.first.errors[:name]).to be_present
+    end
+
+    it 'highlights the name of the existing row without a name' do
+      plan = build(:individualized_educational_plan, uses_medication: true)
+      plan.iep_medications_attributes = [{ name: '', dosage: '5 mg' }]
+
+      expect(plan).not_to be_valid
+      expect(plan.iep_medications.size).to eq(1)
+      expect(plan.iep_medications.first.errors[:name].size).to eq(1)
+    end
+
+    it 'rejects a row with dosage or schedule but no name' do
+      plan = build(:individualized_educational_plan, uses_medication: true)
+      plan.iep_medications_attributes = [{ name: 'Metilfenidato' }, { name: '', dosage: '5 mg' }]
+
+      expect(plan).not_to be_valid
+      expect(plan.errors[:'iep_medications.name']).to be_present
+    end
+
+    it 'does not check the medications when the medication section was not changed' do
+      plan = create(:individualized_educational_plan)
+      plan.update_column(:uses_medication, true)
+
+      expect(plan.reload.update(characterization: 'Novo perfil')).to eq(true)
+    end
+
+    it 'discards the medications on save unless the answer is "yes"' do
+      plan = create(:individualized_educational_plan, uses_medication: true,
+                                                      iep_medications_attributes: [{ name: 'Metilfenidato' }])
+
+      plan.reload.update!(uses_medication: nil)
+
+      expect(plan.reload.iep_medications).to be_empty
+    end
+
+    it 'keeps the medications when the plan is archived' do
+      plan = create(:individualized_educational_plan, uses_medication: false)
+      medication = create(:iep_medication, iep: plan)
+
+      plan.reload.discard
+
+      expect(plan.reload.iep_medications).to contain_exactly(medication)
     end
   end
 

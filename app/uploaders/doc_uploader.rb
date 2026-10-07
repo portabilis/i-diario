@@ -7,6 +7,13 @@ class DocUploader < CarrierWave::Uploader::Base
     %w[png jpeg jpg gif pdf odt doc docx ods xls xlsx odp ppt pptx odg xml csv]
   end
 
+  # Bloqueia conteúdo que o navegador executa (SVG/HTML), mesmo que a extensão seja permitida.
+  # O content-type é o declarado no upload e, na ausência dele, o detectado pelo conteúdo — então
+  # um SVG com script salvo como .xml (ou sem tipo declarado) também é barrado aqui.
+  def content_type_blacklist
+    [%r{image/svg}, %r{text/html}, %r{application/xhtml}]
+  end
+
   def filename
     path&.split('/')&.last
   end

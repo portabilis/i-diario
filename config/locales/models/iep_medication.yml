@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      iep_medication:
+        one: "Medicamento"
+        other: "Medicamentos"
+
+    attributes:
+      iep_medication:
+        name: "Nome do medicamento"
+        dosage: "Dosagem"
+        schedule: "Horário"
+        iep: "Plano Educacional Individualizado"

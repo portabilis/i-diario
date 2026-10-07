@@ -16,7 +16,12 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
   end
 
   def update_teacher_unifications(unifications)
-    preload_teachers(unifications.map(&:main_id).compact)
+    main_ids = unifications.map(&:main_id).compact
+    duplicate_ids = unifications.flat_map { |unification| convert_struct_to_array(unification) }.compact
+
+    preload_teachers(main_ids + duplicate_ids)
+
+    errors = []
 
     unifications.each do |unification|
       next if unification.main_id.blank?
@@ -25,40 +30,60 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
 
       next if teacher.blank?
 
-      update_teacher_unification(teacher, unification)
+      begin
+        ActiveRecord::Base.transaction { update_teacher_unification(teacher, unification) }
+      rescue StandardError => error
+        # Uma unificação com erro não impede as demais; o erro é relançado no fim para
+        # marcar a sincronização, e a próxima tenta de novo porque nada foi gravado.
+        Rails.logger.error(
+          "[TeacherUnificationsSynchronizer] falha ao unificar o professor #{unification.main_id} " \
+          "(entity_id: #{entity_id}): #{error.class}: #{error.message}"
+        )
+        errors << error
+      end
     end
+
+    raise errors.first if errors.any?
   end
 
   def update_teacher_unification(teacher, unification)
-    TeacherUnification.find_or_initialize_by(
-      teacher_id: teacher.id
-    ).tap do |teacher_unification|
-      teacher_unification.unified_at = unification.created_at
-      teacher_unification.active = unification.active
+    teacher_unification = TeacherUnification.find_or_initialize_by(teacher_id: teacher.id)
+    teacher_unification.unified_at = unification.created_at
+    teacher_unification.active = unification.active
 
-      if teacher_unification.changed?
-        new_record = teacher_unification.new_record?
+    secondary_teachers = convert_struct_to_array(unification).map { |api_code| teacher(api_code) }.compact
 
-        teacher_unification.save!
+    if teacher_unification.changed?
+      save_teacher_unification(
+        teacher_unification: teacher_unification,
+        unification: unification,
+        main_teacher: teacher,
+        secondary_teachers: secondary_teachers
+      )
+    elsif pending_unification?(teacher_unification, secondary_teachers)
+      TeacherUnification::UnificationService.new(teacher, secondary_teachers).run!
+    end
+  end
 
-        duplicates_ids = convert_struct_to_array(unification)
+  def save_teacher_unification(teacher_unification:, unification:, main_teacher:, secondary_teachers:)
+    new_record = teacher_unification.new_record?
 
-        secondary_teachers = duplicates_ids.map { |api_code|
-          teacher(api_code)
-        }.compact
+    teacher_unification.save!
 
-        if new_record
-          secondary_teachers.each do |secondary_teacher|
-            teacher_unification.unified_teachers.create!(
-              teacher: secondary_teacher
-            )
-          end
-        end
-        next if !unification.active && new_record
-
-        unify_or_revert(unification.active, teacher, secondary_teachers)
+    if new_record
+      secondary_teachers.each do |secondary_teacher|
+        teacher_unification.unified_teachers.create!(teacher: secondary_teacher)
       end
     end
+
+    return if !unification.active && new_record
+
+    unify_or_revert(unification.active, main_teacher, secondary_teachers)
+  end
+
+  # Unificação ativa com professor secundário ainda não descartado ficou pela metade.
+  def pending_unification?(teacher_unification, secondary_teachers)
+    teacher_unification.active && secondary_teachers.any?(&:kept?)
   end
 
   def convert_struct_to_array(unification)

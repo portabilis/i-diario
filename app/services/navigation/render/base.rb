@@ -17,7 +17,7 @@ module Navigation
 
       attr_reader :current_user, :routes, :helpers
 
-      delegate :raw, :content_tag, :link_to, :to => :helpers
+      delegate :raw, :content_tag, :link_to, :safe_join, :to => :helpers
 
       def can_show?(feature)
         # rubocop:todo Entender como melhorar esta questão das entidades nos testes

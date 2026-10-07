@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.6.6'
+ruby '2.7.8'
 
 gem 'active_model_serializers', '0.9.12'
 gem 'activerecord-connections', git: 'https://github.com/portabilis/activerecord-connections.git'
@@ -21,23 +21,33 @@ gem 'dalli', '2.7.10'
 gem 'decore', '0.1.0', git: 'https://github.com/matiasleidemer/decore'
 gem 'deferring', '0.5.0'
 gem 'devise', '>= 4.7.1'
+gem 'rack-attack', '~> 6.6'
 gem 'omniauth-oauth2'
 gem 'omniauth-rails_csrf_protection'
 gem 'discard', '1.0.0'
 gem 'ejs', '1.1.1'
 gem 'enumerate_it', '1.3.1'
+# Pin de efeito global: o Bundler resolve uma única versão por gem para todos os
+# grupos, então esta vale também fora do teste (listen/rb-inotify usam ffi).
+gem 'ffi', '1.15.5', require: false
 gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.7.2'
 gem 'honeybadger', '5.5.0'
 gem 'i18n_alchemy', '0.3.1'
 gem 'jbuilder', '2.9.1'
 gem 'js-routes', '1.4.9'
+# O json 3 recusa as opções quirks_mode e create_additions que o multi_json 1.15 (última
+# série para Ruby 2.7, carregada pelo gherkin do turnip) passa ao JSON.parse.
+gem 'json', '< 3'
 gem 'kaminari', '>= 1.2.1'
 gem 'loofah', '2.20.0'
 gem 'mask_validator', '0.2.1'
 gem 'momentjs-rails', '>= 2.9.0'
+# Última série compatível com Ruby 2.7 (a 1.16 exige >= 3.0). Pin de efeito global:
+# loofah, rails-dom-testing e mimemagic carregam nokogiri em runtime.
+gem 'nokogiri', '1.15.7', require: false
 gem 'non-stupid-digest-assets', '1.0.9'
-gem 'pg', '~> 0.18.0'
+gem 'pg', '~> 1.5.9'
 gem 'pg_query', '1.2.0'
 gem 'postgres-copy', '1.0.0'
 gem 'prawn', '2.1.2', git: 'https://github.com/portabilis/prawn.git', branch: 'master'
@@ -90,7 +100,6 @@ group :test do
   gem 'gherkin', '2.12.2'
   gem 'mock_redis', '0.36.0'
   gem 'net-http', '0.4.1'
-  gem 'nokogiri', '1.9.1'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
   gem 'rails-controller-testing', '~> 1.0.5'

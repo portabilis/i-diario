@@ -60,6 +60,35 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
     expect(select_html).not_to include('disabled')
   end
 
+  def medications_block
+    Nokogiri::HTML.fragment(rendered).at_css('#iep-medications-block')
+  end
+
+  it 'hides the medication list unless the answer is "yes"' do
+    plan = build(:individualized_educational_plan, uses_medication: false)
+    assign_form_options(plan)
+
+    render partial: 'individualized_educational_plans/form'
+
+    expect(medications_block['class']).to include('hidden')
+    expect(medications_block.at_css('.iep-add-medication')).to be_present
+  end
+
+  it 'renders one row per medication, in order, with the remove button' do
+    plan = create(:individualized_educational_plan, uses_medication: true,
+                                                    iep_medications_attributes: [{ name: 'Metilfenidato' },
+                                                                                 { name: 'Risperidona' }])
+    assign_form_options(plan.reload)
+
+    render partial: 'individualized_educational_plans/form'
+
+    rows = medications_block.css('.iep-medication-row')
+    expect(medications_block['class']).not_to include('hidden')
+    expect(rows.map { |row| row.at_css('input[name$="[name]"]')['value'] }).to eq(%w[Metilfenidato Risperidona])
+    expect(rows.map { |row| row.at_css('.remove_fields') }).to all(be_present)
+    expect(rendered).not_to include('translation_missing')
+  end
+
   it 'shows the filling instructions as placeholders while editing' do
     plan = build(:individualized_educational_plan)
     3.times { plan.iep_review_dates.build }
@@ -92,6 +121,28 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
       expect(rendered).not_to include('iep-add-component')
       # Em leitura o select de medicação inteiro fica desabilitado (o submit já é bloqueado).
       expect(rendered[%r{<select[^>]*uses_medication[^>]*>}]).to include('disabled')
+    end
+
+    it 'hides the medications of a plan answered "no"' do
+      plan = create(:individualized_educational_plan, uses_medication: false)
+      create(:iep_medication, iep: plan)
+      assign_form_options(plan.reload)
+
+      render partial: 'individualized_educational_plans/form', locals: { view_only: true }
+
+      expect(medications_block['class']).to include('hidden')
+    end
+
+    it 'lists the medications read-only, without add or remove buttons' do
+      plan = create(:individualized_educational_plan, uses_medication: true,
+                                                      iep_medications_attributes: [{ name: 'Metilfenidato' }])
+      assign_form_options(plan.reload)
+
+      render partial: 'individualized_educational_plans/form', locals: { view_only: true }
+
+      expect(medications_block.at_css('input[name$="[name]"]')['readonly']).to be_present
+      expect(medications_block.at_css('.remove_fields, .iep-add-medication')).to be_nil
+      expect(rendered).not_to include('iep-medications-discard-modal')
     end
 
     # Placeholder é instrução de preenchimento: em leitura passaria por resposta do usuário.

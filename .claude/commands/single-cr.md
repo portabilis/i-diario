@@ -162,7 +162,7 @@ Agrupe TODAS as perguntas acumuladas. Tudo em Docker, tudo read-only:
   SQL
   ```
 
-- `docker compose run --rm ruby bundle exec rspec <spec:linha>` / `npm test -- <arquivo>` quando a pergunta é sobre um teste específico. Suíte com comportamento estranho (0 exemplos, cassette regravado, `create` que persiste fora da transação) é armadilha conhecida do ambiente local — não confunda com defeito do PR.
+- `docker compose run --rm ruby bundle exec rspec <spec:linha>` / `npm test -- <arquivo>` quando a pergunta é sobre um teste específico. Suíte com comportamento estranho (0 exemplos, cassette regravado) é armadilha conhecida do ambiente local — não confunda com defeito do PR.
 - Shell script no diff: `bash -n` + leitura crítica (bash 3.2 do macOS: sem `mapfile`, `source <(...)`, `${var,,}`); **não execute script que fale com rede, com a API do i-Educar, ou que escreva no banco**.
 
 Registre cada output no ledger, ao lado da pergunta, e atualize o campo **Regra/Evidência:** dos candidatos que dependiam dele. Apague o `./tmp/cr_probe_<PR>.rb` ao fim da fase.

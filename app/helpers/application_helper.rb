@@ -229,6 +229,14 @@ module ApplicationHelper
     message.gsub(/\d+\.\d+/) { |match| format_error_number(match.to_f) }
   end
 
+  # URL completa, com o domínio da rede: com um caminho, o image_tag antepõe o asset_host
+  # (CDN), e a rota não acha a entidade pelo domínio do CDN.
+  def entity_logo_url_for(entity_configuration)
+    return if entity_configuration.try(:logo).blank?
+
+    entity_logo_url(v: entity_configuration.logo.identifier)
+  end
+
   private
 
   def cache_key_to_user
@@ -236,10 +244,8 @@ module ApplicationHelper
   end
 
   def logo_url
-    if Rails.env.production?
-      current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
-    else
-      DEFAULT_LOGO
-    end
+    return DEFAULT_LOGO unless Rails.env.production?
+
+    entity_logo_url_for(current_entity_configuration) || DEFAULT_LOGO
   end
 end
