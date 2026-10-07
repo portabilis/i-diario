@@ -22,6 +22,9 @@ class FinalRecoveryDiaryRecord < ApplicationRecord
   scope :by_discipline_id, lambda { |discipline_id| joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id }) }
   scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :by_recorded_at, lambda { |recorded_at| joins(:recovery_diary_record).where(recovery_diary_records: { recorded_at: recorded_at }) }
+  scope :by_recorded_at_after, lambda { |date|
+    joins(:recovery_diary_record).where('recovery_diary_records.recorded_at >= ?', date)
+  }
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
 
   validates :recovery_diary_record, presence: true

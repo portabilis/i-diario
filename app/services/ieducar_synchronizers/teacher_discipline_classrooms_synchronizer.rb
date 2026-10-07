@@ -45,6 +45,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         teacher_id = teacher.try(:id)
         classroom_id = classroom.try(:id)
 
+        discard_previous_teacher_links(teacher_discipline_classroom_record, teacher_id)
+
         teacher_discipline_classroom_record.disciplinas.each do |discipline_by_grade|
           discipline_api_code = discipline_by_grade.id
           score_type = discipline_by_grade.tipo_nota
@@ -168,6 +170,21 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classroom.discard_or_undiscard(false)
 
     teacher_discipline_classroom
+  end
+
+  # O i-Educar mantém o id do vínculo quando troca o servidor, inclusive ao unificar servidores:
+  # vínculo com o mesmo api_code em outro professor pertence ao servidor anterior.
+  def discard_previous_teacher_links(teacher_discipline_classroom_record, teacher_id)
+    previous_links = TeacherDisciplineClassroom.where(
+      api_code: teacher_discipline_classroom_record.id,
+      year: year
+    ).where.not(teacher_id: teacher_id).to_a
+
+    previous_links.each(&:discard)
+
+    previous_links.group_by(&:teacher_id).each do |previous_teacher_id, links|
+      destroy_grouped_links(links.map(&:classroom_id).uniq, previous_teacher_id)
+    end
   end
 
   def discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)

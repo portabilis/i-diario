@@ -52,6 +52,11 @@ $(function() {
   $steps.on('click', function() { showStep($steps.index(this)); });
   refreshButtons();
 
+  // Formulário devolvido com erro: abre a primeira etapa que tem campo destacado (o wizard
+  // sempre carrega na etapa 1, e o campo com erro pode estar em outra).
+  var $firstPaneWithError = $panes.has('.control-group.error').first();
+  if ($firstPaneWithError.length) { showStep($panes.index($firstPaneWithError)); }
+
   // ---- Laudos (seção 1): lista lida do cadastro do aluno no i-Educar ----
   // Identifica o aluno pelo plano (edição/visualização/versão) ou pelo aluno selecionado
   // (criação, quando o plano ainda não existe). Recebe o studentId de quem chama, em vez de
@@ -697,5 +702,82 @@ $(function() {
 
     var $firstPill = $pills.find('a').first();
     if ($firstPill.length) { $firstPill.trigger('click'); }
+  });
+
+  // ---- Seção 3: lista de medicamentos, visível só com "Faz uso de medicação?" = Sim ----
+  var $usesMedication = $('#individualized_educational_plan_uses_medication');
+  var $medicationsBlock = $('#iep-medications-block');
+  var $medications = $('#iep-medications');
+  var previousUsesMedication = $usesMedication.val();
+
+  // Linha removida já salva continua no DOM (o cocoon só esconde e marca _destroy); a
+  // visibilidade não serve de critério porque a etapa pode estar oculta no wizard.
+  function liveMedicationRows() {
+    return $medications.find('.iep-medication-row').filter(function() {
+      var destroy = $(this).find('input[name$="[_destroy]"]').val();
+      return destroy !== '1' && destroy !== 'true';
+    });
+  }
+
+  function filledMedicationRows() {
+    return liveMedicationRows().filter(function() {
+      return $(this).find('input[type="text"]').filter(function() {
+        return $.trim($(this).val()) !== '';
+      }).length > 0;
+    });
+  }
+
+  function toggleMedicationsHeader() {
+    $medicationsBlock.find('.iep-medications-header').toggleClass('hidden', liveMedicationRows().length === 0);
+  }
+
+  function showMedications() {
+    $medicationsBlock.removeClass('hidden');
+    if (liveMedicationRows().length === 0) {
+      $medicationsBlock.find('.iep-add-medication').trigger('click');
+    }
+  }
+
+  function discardMedications() {
+    liveMedicationRows().find('.remove_fields').trigger('click');
+    $medicationsBlock.addClass('hidden');
+  }
+
+  $usesMedication.on('change', function() {
+    var value = $(this).val();
+
+    if (value === 'true') {
+      showMedications();
+    } else if (filledMedicationRows().length > 0) {
+      $('#iep-medications-discard-modal').modal('show');
+      return; // a resposta só vale depois da confirmação
+    } else {
+      discardMedications();
+    }
+
+    previousUsesMedication = value;
+  });
+
+  $('#iep-medications-discard-confirm').on('click', function() {
+    previousUsesMedication = $usesMedication.val();
+    discardMedications();
+    $('#iep-medications-discard-modal').modal('hide');
+  });
+
+  // Fechou sem confirmar: a pergunta volta para "Sim" e os medicamentos ficam
+  $('#iep-medications-discard-modal').on('hidden.bs.modal', function() {
+    if ($usesMedication.val() !== previousUsesMedication) {
+      $usesMedication.val(previousUsesMedication);
+    }
+  });
+
+  $medications.on('cocoon:after-insert cocoon:after-remove', toggleMedicationsHeader);
+
+  // Nome preenchido depois do erro do servidor: tira o destaque do campo corrigido.
+  $medications.on('input', 'input[name$="[name]"]', function() {
+    if ($.trim($(this).val()) === '') { return; }
+
+    var $group = $(this).closest('.control-group.error');
+    $group.removeClass('error').find('.help-inline').remove();
   });
 });

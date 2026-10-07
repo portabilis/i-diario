@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe SchoolDayChecker, type: :service do
   let(:classroom) { create(:classroom) }

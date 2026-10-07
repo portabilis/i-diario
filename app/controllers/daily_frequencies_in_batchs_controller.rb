@@ -283,12 +283,26 @@ class DailyFrequenciesInBatchsController < ApplicationController
         }
       }
 
-      @daily_frequencies.each(&:destroy)
+      # Fora da janela de lançamento da etapa o model interrompe o destroy. A tela trabalha por
+      # intervalo de datas, que pode cruzar etapas, então a exclusão é tudo-ou-nada: bloqueado um
+      # registro, os demais voltam — exclusão parcial deixaria o consolidado de infrequência e o
+      # reenvio de faltas desatualizados nas datas apagadas.
+      destroyed = false
 
-      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
-      enqueue_frequency_hooks(worker_calls, force_posting: true)
+      ActiveRecord::Base.transaction do
+        destroyed = @daily_frequencies.map(&:destroy).all?
 
-      flash[:success] = t('.success')
+        raise ActiveRecord::Rollback unless destroyed
+      end
+
+      if destroyed
+        # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+        enqueue_frequency_hooks(worker_calls, force_posting: true)
+
+        flash[:success] = t('.success')
+      else
+        flash[:alert] = t('.out_of_posting_period')
+      end
 
       redirect_to new_daily_frequencies_in_batch_path
     else

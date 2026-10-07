@@ -21,7 +21,6 @@ RSpec.configure do |config|
   config.before(:suite) { DatabaseCleaner.clean_with(:truncation) }
 
   config.before(:each) { DatabaseCleaner.strategy = :transaction }
-  config.before(:each) { User.current = create(:user_with_user_role) }
   config.before(:each, js: true) { DatabaseCleaner.strategy = :truncation }
   config.include ConcurrentExampleGroup, concurrent: true
   config.before(:each, concurrent: true) { DatabaseCleaner.strategy = :deletion }
@@ -33,6 +32,12 @@ RSpec.configure do |config|
   config.before(:each, type: :query) { DatabaseCleaner.start }
   config.before(:each, type: :worker) { DatabaseCleaner.start }
   config.before(:each, type: :view) { DatabaseCleaner.start }
+
+  # `before(:each)` de configuração roda na ordem de registro: este precisa vir depois dos
+  # `DatabaseCleaner.start`. Sem isso, no spec que abre a conexão do tenant (`using_connection`) a
+  # transação do rspec-rails não alcança o pool criado dentro do exemplo, e o usuário do `User.current`
+  # fica commitado nesse banco.
+  config.before(:each) { User.current = create(:user_with_user_role) }
 
   config.after(:each, type: :model) { DatabaseCleaner.clean }
   config.after(:each, type: :form) { DatabaseCleaner.clean }

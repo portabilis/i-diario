@@ -49,7 +49,7 @@ class IeducarApiExamPostingsController < ApplicationController
 
   def steps
     @steps = steps_fetcher.steps
-    @steps = @steps.posting_date_after_and_before(Time.zone.today) unless current_user.can_change?('ieducar_api_exam_posting_without_restrictions')
+    @steps = steps_in_posting_window unless posting_without_restrictions?
 
     @steps.each do |step|
       ApiPostingTypes.each_value do |value|
@@ -84,14 +84,24 @@ class IeducarApiExamPostingsController < ApplicationController
   end
   helper_method :last_step_by_year
 
+  # A liberação da tela consulta as mesmas etapas da listagem: turma com calendário próprio tem as
+  # próprias janelas de lançamento, que substituem integralmente as da unidade.
   def require_current_posting_step
     return unless current_school_calendar
+    return if posting_without_restrictions?
+    return if steps_in_posting_window.exists?
 
-    unless current_user.can_change?('ieducar_api_exam_posting_without_restrictions') || current_school_calendar.posting_step(Time.zone.today)
-      flash[:alert] = t('errors.ieducar_api_exam_postings.require_current_posting_step')
+    flash[:alert] = t('errors.ieducar_api_exam_postings.require_current_posting_step')
 
-      redirect_to root_path
-    end
+    redirect_to root_path
+  end
+
+  def posting_without_restrictions?
+    current_user.can_change?(Features::IEDUCAR_API_EXAM_POSTING_WITHOUT_RESTRICTIONS)
+  end
+
+  def steps_in_posting_window
+    steps_fetcher.steps.posting_date_after_and_before(Time.zone.today)
   end
 
   def require_current_teacher_discipline_classrooms

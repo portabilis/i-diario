@@ -30,6 +30,10 @@ class IndividualizedEducationalPlanReportPresenter
     section('final_evaluation')
   end
 
+  def medications
+    IndividualizedEducationalPlanSnapshot.medications_from(support_team)
+  end
+
   # Linhas das seções 4/5 agrupadas por revisão (1ª, 2ª...), com os componentes em
   # ordem alfabética dentro de cada revisão (ordenação determinística).
   def curricular_plannings_by_review

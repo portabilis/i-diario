@@ -25,8 +25,11 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
       },
       'support_team' => {
         'family_guidelines' => 'Orientacoes', 'accompaniment' => ['Fonoaudiologia'], 'support_type' => [],
-        'uses_medication' => false, 'medication_name' => 'Medicamento A', 'medication_dosage' => '5mg',
-        'medication_schedule' => '08:00', 'medication_notes' => 'Apos o almoco',
+        'uses_medication' => true, 'medication_notes' => 'Apos o almoco',
+        'medications' => [
+          { 'iep_medication_id' => 11, 'name' => 'Metilfenidato', 'dosage' => '10 mg', 'schedule' => '07h30' },
+          { 'iep_medication_id' => 12, 'name' => 'Risperidona', 'dosage' => '1 mg', 'schedule' => '20h00' }
+        ],
         'family_environment_characteristics' => 'Rotina estruturada'
       },
       'curricular_plannings' => [
@@ -59,16 +62,33 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
     expect(plan.elaborated_at).to eq(Date.new(2026, 2, 1))
   end
 
-  # false congelado tem que voltar como false (resposta "Não"), não como campo vazio.
   it 'restores the medication and family environment frozen values' do
     plan = result.plan
 
-    expect(plan.uses_medication).to eq(false)
-    expect(plan.medication_name).to eq('Medicamento A')
-    expect(plan.medication_dosage).to eq('5mg')
-    expect(plan.medication_schedule).to eq('08:00')
+    expect(plan.uses_medication).to eq(true)
+    expect(plan.iep_medications.map { |medication| [medication.name, medication.dosage, medication.schedule] })
+      .to eq([['Metilfenidato', '10 mg', '07h30'], ['Risperidona', '1 mg', '20h00']])
+    expect(plan.iep_medications).to all(be_readonly)
+    expect(plan.iep_medications.map(&:id)).to all(be_negative)
     expect(plan.medication_notes).to eq('Apos o almoco')
     expect(plan.family_environment_characteristics).to eq('Rotina estruturada')
+  end
+
+  # false congelado tem que voltar como false (resposta "Não"), não como campo vazio.
+  it 'restores a frozen "no" medication answer' do
+    content['support_team'] = { 'uses_medication' => false }
+
+    expect(described_class.restore(content).plan.uses_medication).to eq(false)
+  end
+
+  it 'restores the single medication fields of an older snapshot as one medication' do
+    content['support_team'] = { 'uses_medication' => nil, 'medication_name' => 'Medicamento A',
+                                'medication_dosage' => '5mg', 'medication_schedule' => '08:00' }
+
+    medications = described_class.restore(content).plan.iep_medications
+
+    expect(medications.map { |medication| [medication.name, medication.dosage, medication.schedule] })
+      .to eq([['Medicamento A', '5mg', '08:00']])
   end
 
   # Versão publicada antes de os campos existirem: as chaves ausentes viram nil, sem erro.
@@ -78,9 +98,7 @@ RSpec.describe IndividualizedEducationalPlanSnapshotRestorer, type: :service do
     plan = described_class.restore(content).plan
 
     expect(plan.uses_medication).to be_nil
-    expect(plan.medication_name).to be_nil
-    expect(plan.medication_dosage).to be_nil
-    expect(plan.medication_schedule).to be_nil
+    expect(plan.iep_medications).to be_empty
     expect(plan.medication_notes).to be_nil
     expect(plan.family_environment_characteristics).to be_nil
     expect(plan.family_guidelines).to eq('Orientacoes')

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe PostingDateChecker, type: :service do
   let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
@@ -27,10 +27,6 @@ RSpec.describe PostingDateChecker, type: :service do
     end
 
     it { expect(subject.check).to be(true) }
-
-    after do
-      Thread.current[:origin_type] = nil
-    end
   end
 
   context 'current user is admin' do

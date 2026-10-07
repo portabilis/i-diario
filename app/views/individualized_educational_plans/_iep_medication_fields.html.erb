@@ -1,0 +1,26 @@
+<%# Linha da lista de medicamentos (etapa 3). Em telas pequenas os campos empilham e cada um
+    mostra o próprio rótulo; a partir de sm os rótulos ficam no cabeçalho único da lista.
+    Locals: f, view_only (opcional) %>
+<% view_only = local_assigns[:view_only] %>
+<div class="row nested-fields iep-medication-row">
+  <div class="col col-xs-12 col-sm-4">
+    <%# required: false: o nome é exigido só da linha que existe (validação no model); sem isso o
+        rótulo do celular ganha um * que o cabeçalho do desktop não tem. %>
+    <%= f.input :name, label: t('individualized_educational_plans.section_support_team.medication_name'),
+                required: false, label_html: { class: 'visible-xs-block' }, input_html: { readonly: view_only } %>
+  </div>
+  <div class="col col-xs-12 col-sm-3">
+    <%= f.input :dosage, label: t('individualized_educational_plans.section_support_team.medication_dosage'),
+                label_html: { class: 'visible-xs-block' }, input_html: { readonly: view_only } %>
+  </div>
+  <div class="col col-xs-10 col-sm-4">
+    <%= f.input :schedule, label: t('individualized_educational_plans.section_support_team.medication_schedule'),
+                label_html: { class: 'visible-xs-block' }, input_html: { readonly: view_only } %>
+  </div>
+  <% unless view_only %>
+    <div class="col col-xs-2 col-sm-1 iep-medication-actions">
+      <%= link_to_remove_association content_tag(:i, '', class: 'fa fa-trash'), f,
+            class: 'btn btn-danger btn-sm', title: t('individualized_educational_plans.section_support_team.remove_medication') %>
+    </div>
+  <% end %>
+</div>

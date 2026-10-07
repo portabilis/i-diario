@@ -97,7 +97,7 @@ Todas observadas nos relatórios daqui, não deduzidas.
 
 **O pluto quebra página entre quaisquer linhas de tabela**, com ou sem repetição. Linhas que precisam sair juntas (como Série e Turma no Registro de Frequência) vão numa **única célula**, empilhadas em `div` — o pluto não quebra dentro de uma linha. `break-inside: avoid` só tem efeito em bloco: envolver a tabela num `div` evita a quebra, mas empurra a tabela inteira para a página seguinte sempre que ela não cabe no espaço restante, e uma tabela maior que o espaço abaixo do cabeçalho deixa a primeira página praticamente vazia.
 
-**O pluto não converte JPEG CMYK.** A imagem sai com as cores trocadas, sem erro nem aviso; o chrome converte e mascara o problema. `EntityConfiguration#logo_base64_data_uri` repassa os bytes originais do brasão, sem normalizar o colorspace, e o `EntityLogoUploader` aceita JPEG — um brasão CMYK sai errado no pluto. É lacuna conhecida, a corrigir em `EntityConfiguration#fetch_logo_data` (normalizar para sRGB; o `mini_magick` já está no `Gemfile.lock`).
+**O pluto não converte JPEG CMYK.** A imagem sai com as cores trocadas, sem erro nem aviso; o chrome converte e mascara o problema. O `EntityLogoUploader` grava a versão `pdf` do brasão em PNG sRGB, e é ela que `EntityConfiguration#logo_base64_data_uri` entrega. Brasão gravado antes dessa versão existir ainda sai com os bytes originais, e um JPEG CMYK nesse caso sai errado até ser reprocessado com `rake entity_logo:optimize`.
 
 ## Conferir o motor de um PDF
 
