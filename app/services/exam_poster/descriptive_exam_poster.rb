@@ -2,6 +2,10 @@ module ExamPoster
   class DescriptiveExamPoster < Base
     private
 
+    # O formato do payload é contrato: o Ieducar::SendPostWorker manda para a API v2 o payload
+    # achatado, com `turma_id`, e o tipo de parecer sai dos campos (os anuais não têm etapa, e os
+    # gerais não têm componente). `fetch` porque o hash de pareceres tem default_proc: ler uma chave
+    # ausente criaria um hash vazio no lugar do nil.
     def generate_requests
       post_by_step.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
@@ -12,12 +16,9 @@ module ExamPoster
             },
             request: {
               etapa: @post_data.step.to_number,
-              resource: 'pareceres-por-etapa-geral',
-              pareceres: {
-                classroom_id => {
-                  student_id => descriptive_exam
-                }
-              }
+              turma_id: classroom_id,
+              aluno_id: student_id,
+              parecer: descriptive_exam.fetch('valor', nil)
             }
           }
         end
@@ -31,12 +32,9 @@ module ExamPoster
               student: student_id
             },
             request: {
-              resource: 'pareceres-anual-geral',
-              pareceres: {
-                classroom_id => {
-                  student_id => descriptive_exam
-                }
-              }
+              turma_id: classroom_id,
+              aluno_id: student_id,
+              parecer: descriptive_exam.fetch('valor', nil)
             }
           }
         end
@@ -52,14 +50,10 @@ module ExamPoster
                 discipline: discipline_id
               },
               request: {
-                resource: 'pareceres-anual-por-componente',
-                pareceres: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_descriptive_exam
-                    }
-                  }
-                }
+                turma_id: classroom_id,
+                aluno_id: student_id,
+                componente_id: discipline_id,
+                parecer: discipline_descriptive_exam.fetch('valor', nil)
               }
             }
           end
@@ -77,14 +71,10 @@ module ExamPoster
               },
               request: {
                 etapa: @post_data.step.to_number,
-                resource: 'pareceres-por-etapa-e-componente',
-                pareceres: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_descriptive_exam
-                    }
-                  }
-                }
+                turma_id: classroom_id,
+                aluno_id: student_id,
+                componente_id: discipline_id,
+                parecer: discipline_descriptive_exam.fetch('valor', nil)
               }
             }
           end

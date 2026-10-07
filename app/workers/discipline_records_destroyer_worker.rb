@@ -34,7 +34,7 @@ class DisciplineRecordsDestroyerWorker
   def send_callback(deletion, payload)
     return if deletion.operation_id.blank?
 
-    api = IeducarApi::PostComponentBatchCallback.new(IeducarApiConfiguration.current.to_api)
+    api = IeducarApi::PostComponentBatchCallback.new(IeducarApiConfiguration.current)
     api.send_post(payload.merge(operation_id: deletion.operation_id))
   rescue StandardError => e
     Rails.logger.error("Callback falhou para deletion##{deletion.id}: #{e.message}")

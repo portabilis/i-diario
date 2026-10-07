@@ -1,7 +1,8 @@
 module IeducarApi
-  # Base dos envios de faltas pelos endpoints da API v2 do i-Educar: um aluno por requisição,
-  # payload achatado em JSON. As subclasses definem POST_PATH, LOG_PREFIX e, quando o endpoint
-  # pede mais que turma, aluno, etapa e faltas, FIELDS e LOG_LABELS.
+  # Base dos envios de lançamentos do aluno pelos endpoints da API v2 do i-Educar: um aluno por
+  # requisição, payload achatado em JSON. As subclasses definem POST_PATH, LOG_PREFIX,
+  # SUCCESS_MESSAGE, FIELDS (obrigatórios, na ordem do payload) e LOG_LABELS, e sobrescrevem
+  # `payload_for` quando algum campo não é inteiro.
   #
   # Não herda de IeducarApi::Base: aquela fala com a API legada, que autentica por chaves na query
   # string e devolve erro de negócio dentro de um HTTP 200. Esta autentica pelo header `token` - o
@@ -10,6 +11,8 @@ module IeducarApi
   # A resposta é traduzida para o formato do IeducarResponseDecorator. As exceções continuam vindo
   # de Base porque o Ieducar::SendPostWorker decide o retry por Base::NetworkException.
   class V2Base
+    # Status de sucesso dos endpoints de lançamento; a subclasse declara outro quando o endpoint
+    # responde diferente.
     SAVED_STATUS = 201
     OPEN_TIMEOUT = 10
     READ_TIMEOUT = 240
@@ -23,20 +26,17 @@ module IeducarApi
       SocketError,
       SystemCallError
     ].freeze
-    # Campos obrigatórios comuns, na ordem do payload, com o complemento das mensagens de erro.
-    FIELDS = {
+    # Identificação comum a todo endpoint, com o complemento das mensagens de erro.
+    STUDENT_FIELDS = {
       turma_id: 'a turma',
       aluno_id: 'o aluno',
-      etapa: 'a etapa',
-      faltas: 'as faltas'
+      etapa: 'a etapa'
     }.freeze
-    LOG_LABELS = {
+    STUDENT_LOG_LABELS = {
       turma_id: 'turma',
       aluno_id: 'aluno',
-      etapa: 'etapa',
-      faltas: 'faltas'
+      etapa: 'etapa'
     }.freeze
-    SUCCESS_MESSAGE = 'Faltas postadas com sucesso!'.freeze
     UNAUTHORIZED_MESSAGE = 'Token de segurança divergente entre o i-Diário e o i-Educar.'.freeze
     UNRECOGNIZED_RESPONSE_MESSAGE = 'O i-Educar devolveu uma resposta não reconhecida.'.freeze
     MAX_LOGGED_BODY = 500
@@ -129,19 +129,22 @@ module IeducarApi
       "#{configuration.url}#{self.class::POST_PATH}"
     end
 
-    # Fora do 201, nenhuma resposta 2xx faz parte do contrato: pode ser um intermediário
-    # respondendo no lugar do i-Educar, e tratá-la como gravação esconderia a falta não gravada.
+    # Fora do status de sucesso do endpoint, nenhuma resposta 2xx faz parte do contrato: pode ser um
+    # intermediário respondendo no lugar do i-Educar, e tratá-la como sucesso esconderia o lançamento
+    # não gravado.
     def handle_success(response, params)
       parsed = parse_body(response.body)
 
       return unrecognized_response!(response.code, response.body, params) if
-        parsed.nil? || response.code != SAVED_STATUS
+        parsed.nil? || response.code != self.class::SAVED_STATUS
 
       message = message_from(parsed)
 
-      log_debug("Response: #{message || SUCCESS_MESSAGE}")
+      message ||= self.class::SUCCESS_MESSAGE
 
-      success(message || SUCCESS_MESSAGE)
+      log_debug("Response: #{message}")
+
+      success(message)
     end
 
     # Aluno sem matrícula ativa na turma - tipicamente o que deixou de frequentar. É desfecho

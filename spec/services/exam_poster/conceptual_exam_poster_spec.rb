@@ -59,16 +59,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           },
           request: {
             etapa: exam_posting.step.to_number,
-            resource: 'notas',
-            notas: {
-              classroom.api_code => {
-                conceptual_exam.student.api_code => {
-                  discipline.api_code => {
-                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                  }
-                }
-              }
-            }
+            turma_id: classroom.api_code,
+            aluno_id: conceptual_exam.student.api_code,
+            componente_id: discipline.api_code,
+            nota: conceptual_exam.conceptual_exam_values.first.value.to_s
           }
         }
 
@@ -116,16 +110,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           },
           request: {
             etapa: exam_posting.step.to_number,
-            resource: 'notas',
-            notas: {
-              classroom.api_code => {
-                conceptual_exam.student.api_code => {
-                  discipline.api_code => {
-                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                  }
-                }
-              }
-            }
+            turma_id: classroom.api_code,
+            aluno_id: conceptual_exam.student.api_code,
+            componente_id: discipline.api_code,
+            nota: conceptual_exam.conceptual_exam_values.first.value.to_s
           }
         }
 
@@ -159,16 +147,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           },
           request: {
             etapa: exam_posting.step.to_number,
-            resource: 'notas',
-            notas: {
-              classroom.api_code => {
-                conceptual_exam.student.api_code => {
-                  discipline.api_code => {
-                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                  }
-                }
-              }
-            }
+            turma_id: classroom.api_code,
+            aluno_id: conceptual_exam.student.api_code,
+            componente_id: discipline.api_code,
+            nota: conceptual_exam.conceptual_exam_values.first.value.to_s
           }
         }
 
@@ -204,16 +186,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           },
           request: {
             etapa: exam_posting.step.to_number,
-            resource: 'notas',
-            notas: {
-              classroom.api_code => {
-                conceptual_exam.student.api_code => {
-                  discipline.api_code => {
-                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                  }
-                }
-              }
-            }
+            turma_id: classroom.api_code,
+            aluno_id: conceptual_exam.student.api_code,
+            componente_id: discipline.api_code,
+            nota: conceptual_exam.conceptual_exam_values.first.value.to_s
           }
         }
 
@@ -249,16 +225,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: conceptual_exam.student.api_code,
+          componente_id: discipline.api_code,
+          nota: conceptual_exam.conceptual_exam_values.first.value.to_s
         }
       }
 
@@ -291,16 +261,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: conceptual_exam.student.api_code,
+          componente_id: discipline.api_code,
+          nota: conceptual_exam.conceptual_exam_values.first.value.to_s
         }
       }
 
@@ -343,16 +307,10 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: conceptual_exam.student.api_code,
+          componente_id: discipline.api_code,
+          nota: conceptual_exam.conceptual_exam_values.first.value.to_s
         }
       }
 
