@@ -58,6 +58,7 @@ function formHtml({ planId = '5', autosaveState = 'on', lines = linePanel(7, 'Me
       <input type="text" name="version_name" value="">
       <span class="iep-save-status" data-saving-text="Salvando..." data-saved-text="Salvo às"
             data-unpublished-text="alterações ainda não publicadas" data-failed-text="Não foi possível salvar."
+            data-unchanged-text="Nenhuma alteração para salvar"
             data-existing-plan-text="Abrir o PEI existente">
         <span class="iep-save-status-text"></span>
         <a class="iep-save-retry" style="display: none;">Tentar novamente</a>
@@ -234,6 +235,16 @@ describe('when the form changed', () => {
     // o que não é região trocada fica como o usuário deixou
     expect($(`[name="${PLAN}[characterization]"]`).val()).toBe('Perfil novo');
     expect(options.rehydrate).toHaveBeenCalledTimes(4);
+  });
+
+  // O servidor descarta o que o usuário não pode editar e responde sucesso mesmo assim.
+  it('does not announce a save when the server reports that nothing changed', () => {
+    autosave.saveThenGo(2);
+    saved({ changed: false });
+
+    expect(options.showStep).toHaveBeenCalledWith(2);
+    expect(statusText()).toBe('Nenhuma alteração para salvar');
+    expect(errorAlert().css('display')).toBe('none');
   });
 
   it('takes the saved state as the new baseline', () => {

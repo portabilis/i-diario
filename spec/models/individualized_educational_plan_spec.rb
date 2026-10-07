@@ -212,6 +212,7 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       plan.reload.characterization = 'Novo perfil'
 
       expect(plan.save_draft).to eq(true)
+      expect(plan.draft_changed?).to eq(true)
       expect(plan.reload.finalized?).to eq(false)
       expect(plan.active_version).to be_present
     end
@@ -221,6 +222,7 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       plan.reload
 
       expect(plan.save_draft).to eq(true)
+      expect(plan.draft_changed?).to eq(false)
       expect(plan.reload.finalized?).to eq(true)
     end
 
@@ -231,6 +233,7 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       plan.reload.assign_attributes(characterization: "linha 1\r\nlinha 2", school_history: '')
 
       expect(plan.save_draft).to eq(true)
+      expect(plan.draft_changed?).to eq(false)
       expect(plan.reload.finalized?).to eq(true)
     end
 

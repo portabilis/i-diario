@@ -283,6 +283,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       }
 
       expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['changed']).to eq(false)
       expect(plan.reload.finalized?).to eq(true)
       expect(plan.characterization).to eq('Original')
     end
@@ -1946,6 +1947,7 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         update_draft(plan, characterization: 'Alterado')
 
         expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['changed']).to eq(true)
         expect(plan.reload.characterization).to eq('Alterado')
         expect(plan.iep_versions.count).to eq(0)
       end
