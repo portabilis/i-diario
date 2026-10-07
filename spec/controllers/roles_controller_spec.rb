@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe RolesController, :type => :controller do
   let(:entity) { Entity.find_by(domain: 'test.host') }

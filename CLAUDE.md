@@ -13,7 +13,7 @@ i-Diário is a Brazilian educational management system that replaces physical te
 - **Comments can be written in Portuguese** when explaining business logic or Brazilian educational regulations
 - **Documentation should be in Portuguese** when needed for clarity about educational concepts
 - Issues, Pull Requests and Commits should be in Portuguese
-- Issues should be created in the GitHub repository portabilis/board
+- Issues are created in the project issue repository, not in this one, which carries code only; the GitHub MCP reaches them
 - To access issues and pull requests, use the GitHub MCP
 - Git commands should not be run inside Docker containers
 - Commits should not have co-authorship
@@ -300,6 +300,7 @@ Regras explícitas que os agentes de code review devem aplicar. Mudanças que vi
 - **Playwright** for E2E browser tests (`spec/e2e/`) — see [docs/testes-e2e.md](docs/testes-e2e.md)
 - **Spec verde isolado não prova que a suíte está verde.** Em `spec/support/database_cleaner.rb` a limpeza está atrelada a tipos declarados (`:model`, `:form`, `:service`, `:controller`, `:query`, `:worker`), e o `infer_spec_type_from_file_location!` do RSpec só infere os tipos padrão do Rails — `:service`, `:form`, `:query` e `:worker` são customizados e precisam ser declarados à mão. Spec em `spec/services/` sem `type: :service` roda sem limpeza e vaza registro para os exemplos seguintes: passa sozinho e quebra junto com os outros
 - Spec novo em `spec/services/`, `spec/forms/`, `spec/queries/` ou `spec/workers/` **deve declarar o `type:`** — sem isso ele entra para o conjunto que suja o banco
+- A conexão do tenant (`entity.using_connection`, e toda request de spec de controller) entra na transação do exemplo porque `spec/support/tenant_fixture_connections.rb` materializa o pool de cada Entity antes do `enlist` dos fixtures e, para a Entity criada durante o exemplo, assina a criação do pool e entra com a conexão nova na mesma transação
 - Por isso, o resultado de um arquivo isolado se reporta como tal ("spec do arquivo verde, suíte não rodou"), nunca como "testes passando". A suíte completa é o que vale antes do push, e leva ~12 minutos:
   `docker compose run --rm ruby bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'`
 - Um único banco de teste é compartilhado por todos os checkouts/worktrees — dois runs simultâneos travam um ao outro

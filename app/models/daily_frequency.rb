@@ -9,15 +9,8 @@ class DailyFrequency < ApplicationRecord
   audited
   has_associated_audits
 
-  before_destroy do
-    if valid_for_destruction?
-      Student.unscoped do
-        DailyFrequencyStudent.with_discarded
-                             .by_daily_frequency_id(id)
-                             .destroy_all
-      end
-    end
-  end
+  before_destroy :ensure_valid_for_destruction
+  before_destroy :destroy_students
 
   belongs_to :unity
   belongs_to :classroom
@@ -148,6 +141,21 @@ class DailyFrequency < ApplicationRecord
   end
 
   private
+
+  # A janela de lançamento da etapa também governa a exclusão. Sem interromper a cadeia aqui, o
+  # DELETE do pai chegaria ao banco com os daily_frequency_students no lugar e a chave estrangeira
+  # recusaria a operação.
+  def ensure_valid_for_destruction
+    throw(:abort) unless valid_for_destruction?
+  end
+
+  def destroy_students
+    Student.unscoped do
+      DailyFrequencyStudent.with_discarded
+                           .by_daily_frequency_id(id)
+                           .destroy_all
+    end
+  end
 
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)

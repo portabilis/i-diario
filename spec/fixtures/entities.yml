@@ -1,11 +1,14 @@
+# O banco das entidades é o banco de teste do database.yml, o mesmo da conexão principal: com um
+# nome fixo, todo `entity.using_connection` grava num banco que a suíte não trunca e que nenhuma
+# cópia de trabalho isola, e o rollback da transação do exemplo não o alcança.
 prefeitura:
   name: "Prefeitura"
   domain: "127.0.0.1"
   config:
-    database: "idiario_test"
+    database: "<%= ActiveRecord::Base.configurations[Rails.env]['database'] %>"
 
 prefeitura_controller:
   name: "Prefeitura para teste de controller"
   domain: "test.host"
   config:
-    database: "idiario_test"
+    database: "<%= ActiveRecord::Base.configurations[Rails.env]['database'] %>"

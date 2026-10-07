@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # CVE-2025-9109 / GHSA (VulnDB-320431)
 # O endpoint de recuperação de senha revelava se um e-mail existia: e-mail cadastrado redirecionava

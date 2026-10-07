@@ -103,7 +103,10 @@ RSpec.describe DisciplineRecordsDestroyerWorker, type: :worker do
       )
 
       api_instance = instance_double(IeducarApi::PostComponentBatchCallback)
-      allow(IeducarApi::PostComponentBatchCallback).to receive(:new).and_return(api_instance)
+      # A configuração vai inteira, e não o `to_api` legado: é dela que sai o token da API v2.
+      expect(IeducarApi::PostComponentBatchCallback).to receive(:new)
+        .with(IeducarApiConfiguration.current)
+        .and_return(api_instance)
 
       expect(api_instance).to receive(:send_post).with(
         hash_including(success: true, deleted: 0, operation_id: operation_id)

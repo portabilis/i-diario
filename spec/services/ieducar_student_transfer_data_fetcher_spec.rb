@@ -46,13 +46,33 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     end
   end
 
-  # As faltas gerais são enviadas pela API v2 do i-Educar, em endpoint e formato próprios. Ela
-  # responde 202 quando grava — 200 significaria que não havia matrícula elegível.
+  # Faltas, notas e pareceres são enviados pela API v2 do i-Educar, em endpoints e formato próprios.
+  # Ela responde 201 quando grava.
   before do
+    %w[por-etapa-geral por-etapa-e-componente anual-geral anual-por-componente].each do |opinion_path|
+      stub_request(:post, "http://test.ieducar.com.br/api/v2/pareceres-#{opinion_path}")
+        .to_return(
+          status: 201,
+          body: '{"message": "Parecer salvo com sucesso."}',
+          headers: { 'Content-Type' => 'application/json' }
+        )
+    end
+    stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
+      .to_return(
+        status: 201,
+        body: '{"message": "Nota salva com sucesso."}',
+        headers: { 'Content-Type' => 'application/json' }
+      )
     stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
       .to_return(
-        status: 202,
+        status: 201,
         body: '{"message": "Faltas gerais salvas com sucesso."}',
+        headers: { 'Content-Type' => 'application/json' }
+      )
+    stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+      .to_return(
+        status: 201,
+        body: '{"message": "Falta por componente salva com sucesso."}',
         headers: { 'Content-Type' => 'application/json' }
       )
   end
@@ -317,6 +337,44 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
   describe '#post_to_ieducar!' do
     let(:first_step) { classroom.calendar.classroom_steps.first }
+    # O cálculo da média busca a configuração de avaliação pelo ano da turma, e a :test_setting
+    # que a fábrica cria nasce em outro ano; sem o registro do ano da turma, a média quebra com nil.
+    # Só existe uma configuração geral por ano, e o banco da entidade de teste persiste entre
+    # execuções: a do ano da turma é reaproveitada quando já está gravada, com os atributos da
+    # factory reaplicados para não herdar os de uma execução anterior.
+    def test_setting_for_classroom_year
+      TestSetting.find_or_initialize_by(
+        year: classroom.year,
+        exam_setting_type: ExamSettingTypes::GENERAL
+      ).tap do |setting|
+        setting.update!(attributes_for(:test_setting).except(:year, :exam_setting_type))
+      end
+    end
+
+    let!(:test_setting) { test_setting_for_classroom_year }
+
+    context 'when the test database already holds a configuration for the classroom year' do
+      # Semeia o resíduo que outra execução deixa no banco compartilhado: sem reaplicar os atributos
+      # da factory, é este registro, e não o da factory, que o exemplo usaria.
+      # O resíduo pode já estar gravado, e um segundo registro geral do mesmo ano é recusado.
+      let!(:test_setting) do
+        TestSetting.find_or_initialize_by(
+          year: classroom.year,
+          exam_setting_type: ExamSettingTypes::GENERAL
+        ).update!(
+          maximum_score: 5,
+          number_of_decimal_places: 0,
+          average_calculation_type: AverageCalculationTypes::ARITHMETIC
+        )
+        test_setting_for_classroom_year
+      end
+
+      it 'reapplies the factory attributes over the stored configuration' do
+        expect(test_setting).to be_persisted
+        expect(test_setting.maximum_score).to eq(10)
+        expect(test_setting.number_of_decimal_places).to eq(2)
+      end
+    end
 
     before do
       stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})
@@ -354,16 +412,26 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       end
 
       it 'sends numerical scores to i-Educar' do
-        exam_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=notas.*})
+        exam_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'nota' => 8.5
+            )
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
-        )
+            status: 201,
+            body: '{"message": "Nota salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
 
         subject.post_to_ieducar!
 
-        expect(exam_stub).to have_been_requested.at_least_once
+        expect(exam_stub).to have_been_requested.once
       end
 
     end
@@ -408,16 +476,27 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       end
 
       it 'sends recovery scores to i-Educar' do
-        exam_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=notas.*})
+        exam_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'nota' => 5.0,
+              'recuperacao' => 7.0
+            )
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
-        )
+            status: 201,
+            body: '{"message": "Nota salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
 
         subject.post_to_ieducar!
 
-        expect(exam_stub).to have_been_requested.at_least_once
+        expect(exam_stub).to have_been_requested.once
       end
     end
 
@@ -443,16 +522,83 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       end
 
       it 'sends conceptual scores to i-Educar' do
-        exam_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=notas.*})
+        exam_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'nota' => a_kind_of(Numeric)
+            )
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
-        )
+            status: 201,
+            body: '{"message": "Nota salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
 
         subject.post_to_ieducar!
 
-        expect(exam_stub).to have_been_requested.at_least_once
+        expect(exam_stub).to have_been_requested.once
+      end
+    end
+
+    context 'with final recovery' do
+      let(:last_step) { classroom.calendar.classroom_steps.last }
+
+      # A recuperação final é registrada num dia letivo da última etapa e não pode ser futura: o
+      # relógio avança para depois da etapa só neste exemplo.
+      def create_final_recovery_diary_record
+        recorded_at = (last_step.start_at..last_step.end_at).find do |date|
+          date.on_weekday? && date > last_step.start_at + 5.days
+        end
+        recovery_record = build(
+          :recovery_diary_record,
+          :with_teacher_discipline_classroom,
+          unity: unity,
+          classroom: classroom,
+          discipline: discipline,
+          teacher_id: teacher.id,
+          recorded_at: recorded_at
+        )
+        recovery_record.students << build(
+          :recovery_diary_record_student, student: student, score: 6.0, recovery_diary_record: recovery_record
+        )
+        recovery_record.save!
+
+        create(
+          :final_recovery_diary_record,
+          recovery_diary_record: recovery_record,
+          school_calendar: classroom.calendar.school_calendar
+        )
+      end
+
+      it 'sends the final recovery score to i-Educar on the Rc step' do
+        final_recovery_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
+          .with(
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => 'Rc',
+              'nota' => 6.0
+            )
+          )
+          .to_return(
+            status: 201,
+            body: '{"message": "Nota salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        Timecop.travel(last_step.end_at + 1.day) do
+          create_final_recovery_diary_record
+
+          subject.post_to_ieducar!
+        end
+
+        expect(final_recovery_stub).to have_been_requested.once
       end
     end
 
@@ -487,7 +633,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
             )
           )
           .to_return(
-          status: 202,
+          status: 201,
           body: '{"message": "Faltas gerais salvas com sucesso."}',
           headers: { 'Content-Type' => 'application/json' }
         )
@@ -537,8 +683,11 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
       it 'keeps all_postings_sent as true when there was no eligible registration' do
         stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-geral')
           .to_return(
-            status: 200,
-            body: '{"message": "Matrícula não encontrada para o aluno e turma informados."}',
+            status: 422,
+            body: {
+              message: 'Matrícula não encontrada para o aluno e turma informados.',
+              errors: { aluno_id: ['Matrícula não encontrada para o aluno e turma informados.'] }
+            }.to_json,
             headers: { 'Content-Type' => 'application/json' }
           )
 
@@ -572,17 +721,56 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         classroom.first_exam_rule.update(frequency_type: FrequencyTypes::BY_DISCIPLINE)
       end
 
-      it 'sends absences grouped by discipline' do
-        absence_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=faltas-por-componente.*})
+      it 'sends absences by discipline to i-Educar' do
+        absence_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: hash_including(
+              'turma_id' => classroom.api_code.to_i,
+              'aluno_id' => student.api_code.to_i,
+              'componente_id' => discipline.api_code.to_i,
+              'etapa' => first_step.to_number,
+              'faltas' => 1
+            )
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
+            status: 201,
+            body: '{"message": "Falta por componente salva com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        subject.post_to_ieducar!
+
+        expect(absence_stub).to have_been_requested.once
+      end
+
+      it 'sends each discipline once even when it has more than one teacher in the classroom' do
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: ScoreTypes::NUMERIC
         )
 
         subject.post_to_ieducar!
 
-        expect(absence_stub).to have_been_requested.at_least_once
+        expect(a_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')).to have_been_made.once
+      end
+
+      it 'flips all_postings_sent to false when the i-Educar refuses the absences' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/falta-componente')
+          .to_return(
+            status: 422,
+            body: { message: "Componente curricular de código #{discipline.api_code} não existe na turma." }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Rails.logger).to receive(:warn)
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(false)
+        expect(Rails.logger).to have_received(:warn)
+          .with(/\[transferência\] falta por componente \(componente: #{discipline.api_code}\) não enviada/)
       end
     end
 
@@ -614,17 +802,43 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         classroom.first_exam_rule.update(opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
       end
 
-      it 'sends descriptive exams to i-Educar' do
-        descriptive_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=pareceres.*})
+      it 'sends the step and discipline opinion to i-Educar' do
+        opinion_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/pareceres-por-etapa-e-componente')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: {
+              turma_id: classroom.api_code.to_i,
+              aluno_id: student.api_code.to_i,
+              etapa: first_step.to_number,
+              componente_id: discipline.api_code.to_i,
+              parecer: 'Aluno demonstrou excelente desempenho'
+            }.to_json
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
-        )
+            status: 201,
+            body: '{"message": "Parecer salvo com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
 
         subject.post_to_ieducar!
 
-        expect(descriptive_stub).to have_been_requested.at_least_once
+        expect(opinion_stub).to have_been_requested.once
+      end
+
+      it 'flips all_postings_sent to false when the i-Educar refuses the opinion' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/pareceres-por-etapa-e-componente')
+          .to_return(
+            status: 422,
+            body: { message: 'A regra da turma não permite lançamento de pareceres por etapa e componente.' }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Rails.logger).to receive(:warn)
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(false)
+        expect(Rails.logger).to have_received(:warn)
+          .with(/\[transferência\] avaliação descritiva da etapa \(componente: #{discipline.api_code}\) não enviada/)
       end
     end
 
@@ -676,7 +890,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         end
       end
 
-      context 'when i-Educar returns a known error for at least one posting' do
+      context 'when i-Educar refuses at least one posting' do
         let!(:avaliation) do
           create(
             :avaliation,
@@ -695,22 +909,11 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
             note: 8.5
           )
         end
-        let(:known_error_response) do
-          {
-            error: {
-              code: IeducarErrorMessages::TEACHER_MUST_HAVE_SCORES_ON_PREVIOUS_STEPS,
-              message: 'Nota somente pode ser lançada após lançar notas nas etapas: 1 Trimestre'
-            },
-            msgs: [{ msg: 'Nota somente pode ser lançada após lançar notas nas etapas: 1 Trimestre', type: 'error' }],
-            any_error_msg: true
-          }.to_json
-        end
-
         before do
-          stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=notas.*})
+          stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
             .to_return(
-              status: 200,
-              body: known_error_response,
+              status: 422,
+              body: { message: 'Nota somente pode ser lançada após lançar notas nas etapas: 1 Trimestre' }.to_json,
               headers: { 'Content-Type' => 'application/json' }
             )
         end
@@ -721,7 +924,7 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
           expect(subject.all_postings_sent).to eq(false)
         end
 
-        it 'does not raise an exception (known error stays silent on IeducarApi::Base)' do
+        it 'does not raise an exception, so the other postings are still sent' do
           expect { subject.post_to_ieducar! }.not_to raise_error
         end
       end

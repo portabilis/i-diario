@@ -111,6 +111,20 @@ class Discipline < ApplicationRecord
     end
   end
 
+  # O agrupador de área do conhecimento só existe no i-Diário (api_code "grouper:<id>"). No envio
+  # de faltas por componente com a área, o i-Educar distribui a falta pelos componentes dela e
+  # ignora o componente informado, mas exige um código inteiro: vai o de um componente real da área.
+  def absence_posting_api_code
+    return api_code unless grouper?
+
+    @absence_posting_api_code ||= Discipline.not_grouper
+                                            .where(knowledge_area_id: knowledge_area_id)
+                                            .order(:id)
+                                            .limit(1)
+                                            .pluck(:api_code)
+                                            .first
+  end
+
   def self.grouped_by_knowledge_area
     joins(:knowledge_area)
       .select(

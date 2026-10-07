@@ -13,6 +13,12 @@ module Ieducar
     ].freeze
     IEDUCAR_ERRORS = ['Exception: SQLSTATE', '500 Internal Server Error'].freeze
     MAX_RETRY_COUNT = 10
+    SCORE_POSTING_TYPES = [
+      ApiPostingTypes::NUMERICAL_EXAM,
+      ApiPostingTypes::CONCEPTUAL_EXAM,
+      ApiPostingTypes::SCHOOL_TERM_RECOVERY,
+      ApiPostingTypes::FINAL_RECOVERY
+    ].freeze
 
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
@@ -141,30 +147,48 @@ module Ieducar
       params[:faltas] || params[:notas] || params[:pareceres]
     end
 
-    # Faltas por componente também chegam como ABSENCE, e os jobs enfileirados antes da migração
-    # ainda vão chegar até a fila drenar. Os dois carregam `resource`; só a v2 é achatada.
-    def general_absence_payload?(params)
+    def api(posting, params)
+      return v2_api(posting, params) if v2_payload?(params)
+
+      legacy_api(posting)
+    end
+
+    # Job com o payload legado (aninhado, sem `turma_id`) pode estar na fila durante um deploy e
+    # segue pela API legada; o payload da v2 é achatado, com `turma_id` e sem `resource`.
+    def v2_payload?(params)
       params = params.with_indifferent_access
 
       params[:resource].blank? && params[:turma_id].present?
     end
 
-    def api(posting, params)
+    # Recebe a configuration, e não o `to_api` dos clientes legados: o hash legado não expõe o
+    # api_security_token, que é como a API v2 autentica.
+    def v2_api(posting, params)
+      configuration = posting.ieducar_api_configuration
+
+      return IeducarApi::PostScores.new(configuration) if SCORE_POSTING_TYPES.include?(posting.post_type)
+      return IeducarApi::PostOpinions.for_payload(configuration, params) if descriptive_exam?(posting)
+      return unless posting.post_type == ApiPostingTypes::ABSENCE
+
+      if params.with_indifferent_access[:componente_id].present?
+        IeducarApi::PostDisciplineAbsences.new(configuration)
+      else
+        IeducarApi::PostGeneralAbsences.new(configuration)
+      end
+    end
+
+    def descriptive_exam?(posting)
+      posting.post_type == ApiPostingTypes::DESCRIPTIVE_EXAM
+    end
+
+    def legacy_api(posting)
       case posting.post_type
-      when ApiPostingTypes::NUMERICAL_EXAM
-        IeducarApi::PostExams.new(posting.to_api)
-      when ApiPostingTypes::CONCEPTUAL_EXAM
+      when ApiPostingTypes::NUMERICAL_EXAM, ApiPostingTypes::CONCEPTUAL_EXAM
         IeducarApi::PostExams.new(posting.to_api)
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         IeducarApi::PostDescriptiveExams.new(posting.to_api)
       when ApiPostingTypes::ABSENCE
-        if general_absence_payload?(params)
-          # Recebe a configuration, e não o `to_api` dos demais ramos: o hash legado não expõe o
-          # api_security_token, que é como a API v2 autentica.
-          IeducarApi::PostGeneralAbsences.new(posting.ieducar_api_configuration)
-        else
-          IeducarApi::PostAbsences.new(posting.to_api)
-        end
+        IeducarApi::PostAbsences.new(posting.to_api)
       when ApiPostingTypes::FINAL_RECOVERY
         IeducarApi::FinalRecoveries.new(posting.to_api)
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY

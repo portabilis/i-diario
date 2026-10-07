@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ExamPoster::FinalRecoveryPoster do
+RSpec.describe ExamPoster::FinalRecoveryPoster, type: :service do
   let(:current_user) { create(:user) }
   let!(:unity) { create(:unity) }
   let!(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity) }
@@ -65,6 +65,25 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
       )
 
       recovery_student.update(score: 7.0)
+    end
+  end
+
+  # Este é o formato do qual o Ieducar::SendPostWorker depende para rotear à API v2: achatado,
+  # com `turma_id`, e com a recuperação final na etapa `Rc`.
+  it 'builds flat requests on the final recovery step' do
+    subject.post!
+
+    expect(subject.requests).not_to be_empty
+
+    subject.requests.each do |request|
+      expect(request[:info]).to include(classroom: classroom.api_code)
+      expect(request[:request]).to eq(
+        etapa: 'Rc',
+        turma_id: classroom.api_code,
+        aluno_id: request[:info][:student],
+        componente_id: recovery_diary_record.discipline.api_code,
+        nota: 7.0
+      )
     end
   end
 
