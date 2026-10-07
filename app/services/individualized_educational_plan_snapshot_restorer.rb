@@ -33,6 +33,7 @@ class IndividualizedEducationalPlanSnapshotRestorer
 
     plan = build_plan
     build_review_dates(plan)
+    build_medications(plan)
     build_curricular_plannings(plan)
     build_periodic_evaluations(plan)
 
@@ -81,9 +82,6 @@ class IndividualizedEducationalPlanSnapshotRestorer
       family_guidelines: support_team['family_guidelines'],
       external_professionals_guidelines: support_team['external_professionals_guidelines'],
       uses_medication: support_team['uses_medication'],
-      medication_name: support_team['medication_name'],
-      medication_dosage: support_team['medication_dosage'],
-      medication_schedule: support_team['medication_schedule'],
       medication_notes: support_team['medication_notes'],
       family_environment_characteristics: support_team['family_environment_characteristics'],
       annual_report: final_evaluation['annual_report'],
@@ -145,6 +143,14 @@ class IndividualizedEducationalPlanSnapshotRestorer
       review.id = next_id
       review.readonly!
       @review_id_by_number[index + 1] = review.id
+    end
+  end
+
+  def build_medications(plan)
+    IndividualizedEducationalPlanSnapshot.medications_from(support_team).each do |row|
+      medication = plan.iep_medications.build(name: row['name'], dosage: row['dosage'], schedule: row['schedule'])
+      medication.id = next_id
+      medication.readonly!
     end
   end
 

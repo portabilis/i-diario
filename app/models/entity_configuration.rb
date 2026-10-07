@@ -1,4 +1,6 @@
 class EntityConfiguration < ApplicationRecord
+  LOGO_VARIANTS = %i[pdf web].freeze
+
   acts_as_copy_target
 
   audited except: [:logo]
@@ -25,12 +27,13 @@ class EntityConfiguration < ApplicationRecord
     self.first.presence || new
   end
 
-  def cached_logo_data
+  # :pdf é o arquivo que Prawn e o gerador de PDF conseguem ler; :web é o WebP da tela.
+  def cached_logo_data(variant = :pdf)
     return nil if logo.blank? || logo.url.blank?
     # Sem a rede corrente a chave não distingue tenant; lê direto do arquivo.
-    return fetch_logo_data if Entity.current.nil?
+    return fetch_logo_data(variant) if Entity.current.nil?
 
-    Rails.cache.fetch(logo_cache_key, expires_in: 1.day) { fetch_logo_data }
+    Rails.cache.fetch(logo_cache_key(variant), expires_in: 1.day) { fetch_logo_data(variant) }
   rescue StandardError => e
     Rails.logger.warn("Failed to cache logo: #{e.message}")
     nil
@@ -48,6 +51,16 @@ class EntityConfiguration < ApplicationRecord
     return nil unless cached
 
     "data:#{cached[:content_type]};base64,#{Base64.strict_encode64(cached[:data])}"
+  end
+
+  # O diretório do brasão não separa as redes e o arquivo legado guarda o nome enviado,
+  # então outra rede pode apontar para o mesmo arquivo: só o otimizado, cujo nome é único,
+  # é apagado na troca.
+  def remove_previously_stored_logo
+    previous_identifier = previous_changes.fetch('logo', []).first
+    return unless EntityLogoUploader.optimized_identifier?(previous_identifier)
+
+    super
   end
 
   def create_logo_audit
@@ -74,13 +87,14 @@ class EntityConfiguration < ApplicationRecord
   # O Rails.cache é um só para todas as redes e esta tabela tem uma linha por
   # banco, então o id é o mesmo em toda rede: a chave precisa da rede corrente,
   # senão redes com brasão de mesmo nome de arquivo recebem a imagem uma da outra.
-  def logo_cache_key(identifier = logo.identifier)
-    "entity_logo_data:#{Entity.current.id}:#{id}:#{identifier}"
+  def logo_cache_key(variant, identifier = logo.identifier)
+    "entity_logo_data:#{Entity.current.id}:#{id}:#{variant}:#{identifier}"
   end
 
-  def fetch_logo_data
-    image_data = logo.read
-    extension = File.extname(logo.identifier).delete('.')
+  def fetch_logo_data(variant)
+    file = variant == :web ? logo : logo.for_pdf
+    image_data = file.read
+    extension = File.extname(file.path.to_s).delete('.')
     content_type = Mime::Type.lookup_by_extension(extension).to_s
 
     { data: image_data, content_type: content_type }
@@ -90,7 +104,10 @@ class EntityConfiguration < ApplicationRecord
     return if Entity.current.nil?
 
     old_identifier = logo_was&.identifier
-    Rails.cache.delete(logo_cache_key(old_identifier)) if old_identifier
-    Rails.cache.delete(logo_cache_key) if logo.identifier
+
+    LOGO_VARIANTS.each do |variant|
+      Rails.cache.delete(logo_cache_key(variant, old_identifier)) if old_identifier
+      Rails.cache.delete(logo_cache_key(variant)) if logo.identifier
+    end
   end
 end

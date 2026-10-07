@@ -309,26 +309,29 @@ class DailyFrequenciesController < ApplicationController
         [daily_frequency.classroom_id, daily_frequency.frequency_date]
       }.uniq
 
-      @daily_frequencies.each(&:destroy)
+      # Fora da janela de lançamento da etapa o model interrompe o destroy; nada foi apagado, então
+      # não há consolidado a refazer nem reenvio a forçar. O erro de validação segue no registro e
+      # o responder o transforma no alerta da tela.
+      if @daily_frequencies.map(&:destroy).all?
+        classroom_dates.each do |classroom_id, frequency_date|
+          UniqueDailyFrequencyStudentsCreator.call_worker(
+            current_entity.id,
+            classroom_id,
+            frequency_date,
+            current_teacher_id
+          )
+        end
 
-      classroom_dates.each do |classroom_id, frequency_date|
-        UniqueDailyFrequencyStudentsCreator.call_worker(
-          current_entity.id,
-          classroom_id,
-          frequency_date,
-          current_teacher_id
-        )
-      end
-
-      # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
-      classroom_dates.group_by(&:first).each do |classroom_id, dates|
-        AutomaticAbsencePostingEnqueuer.call(
-          entity_id: current_entity.id,
-          classroom_id: classroom_id,
-          frequency_dates: dates.map(&:last),
-          teacher_id: current_teacher_id,
-          force_posting: true
-        )
+        # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+        classroom_dates.group_by(&:first).each do |classroom_id, dates|
+          AutomaticAbsencePostingEnqueuer.call(
+            entity_id: current_entity.id,
+            classroom_id: classroom_id,
+            frequency_dates: dates.map(&:last),
+            teacher_id: current_teacher_id,
+            force_posting: true
+          )
+        end
       end
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path

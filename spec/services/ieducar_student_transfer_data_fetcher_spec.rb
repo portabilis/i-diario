@@ -337,6 +337,44 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
 
   describe '#post_to_ieducar!' do
     let(:first_step) { classroom.calendar.classroom_steps.first }
+    # O cálculo da média busca a configuração de avaliação pelo ano da turma, e a :test_setting
+    # que a fábrica cria nasce em outro ano; sem o registro do ano da turma, a média quebra com nil.
+    # Só existe uma configuração geral por ano, e o banco da entidade de teste persiste entre
+    # execuções: a do ano da turma é reaproveitada quando já está gravada, com os atributos da
+    # factory reaplicados para não herdar os de uma execução anterior.
+    def test_setting_for_classroom_year
+      TestSetting.find_or_initialize_by(
+        year: classroom.year,
+        exam_setting_type: ExamSettingTypes::GENERAL
+      ).tap do |setting|
+        setting.update!(attributes_for(:test_setting).except(:year, :exam_setting_type))
+      end
+    end
+
+    let!(:test_setting) { test_setting_for_classroom_year }
+
+    context 'when the test database already holds a configuration for the classroom year' do
+      # Semeia o resíduo que outra execução deixa no banco compartilhado: sem reaplicar os atributos
+      # da factory, é este registro, e não o da factory, que o exemplo usaria.
+      # O resíduo pode já estar gravado, e um segundo registro geral do mesmo ano é recusado.
+      let!(:test_setting) do
+        TestSetting.find_or_initialize_by(
+          year: classroom.year,
+          exam_setting_type: ExamSettingTypes::GENERAL
+        ).update!(
+          maximum_score: 5,
+          number_of_decimal_places: 0,
+          average_calculation_type: AverageCalculationTypes::ARITHMETIC
+        )
+        test_setting_for_classroom_year
+      end
+
+      it 'reapplies the factory attributes over the stored configuration' do
+        expect(test_setting).to be_persisted
+        expect(test_setting.maximum_score).to eq(10)
+        expect(test_setting.number_of_decimal_places).to eq(2)
+      end
+    end
 
     before do
       stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario})

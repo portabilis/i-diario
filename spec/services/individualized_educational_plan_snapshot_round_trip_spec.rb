@@ -46,9 +46,7 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
   # perder o false em qualquer um dos lados apagaria a resposta do documento imutável.
   it 'restores the frozen support team fields including a "no" medication answer' do
     plan = create(:individualized_educational_plan,
-                  uses_medication: false, medication_name: 'Medicamento A',
-                  medication_dosage: '5mg', medication_schedule: '08:00',
-                  medication_notes: 'Apos o almoco',
+                  uses_medication: false, medication_notes: 'Apos o almoco',
                   family_environment_characteristics: 'Rotina estruturada')
 
     restored = publish_and_restore(plan)
@@ -59,11 +57,21 @@ RSpec.describe 'PEI snapshot round-trip', type: :service do
     expect(frozen).to eq(false)
 
     expect(restored.uses_medication).to eq(false)
-    expect(restored.medication_name).to eq('Medicamento A')
-    expect(restored.medication_dosage).to eq('5mg')
-    expect(restored.medication_schedule).to eq('08:00')
+    expect(restored.iep_medications).to be_empty
     expect(restored.medication_notes).to eq('Apos o almoco')
     expect(restored.family_environment_characteristics).to eq('Rotina estruturada')
+  end
+
+  it 'restores every frozen medication in the order they were added' do
+    plan = create(:individualized_educational_plan, uses_medication: true, iep_medications_attributes: [
+                    { name: 'Risperidona', dosage: '1 mg', schedule: '20h00' },
+                    { name: 'Metilfenidato', dosage: '10 mg', schedule: '07h30' }
+                  ])
+
+    restored = publish_and_restore(plan.reload)
+
+    expect(restored.iep_medications.map { |medication| [medication.name, medication.dosage, medication.schedule] })
+      .to eq([['Risperidona', '1 mg', '20h00'], ['Metilfenidato', '10 mg', '07h30']])
   end
 
   it 'keeps the frozen value even after the source discipline is renamed later' do

@@ -98,6 +98,18 @@
         text-align: justify;
       }
 
+      /* Tabela aninhada no .field da seção 3: ocupa a caixa inteira e não quebra uma linha
+         de medicamento entre páginas. */
+      .medications-table {
+        width: 100%;
+        margin: 0;
+      }
+
+      .medications-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
       .empty-message {
         font-style: italic;
         color: #666;
