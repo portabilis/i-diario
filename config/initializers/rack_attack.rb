@@ -16,6 +16,17 @@ class Rack::Attack
       post? && auth_route == controller_action
     end
 
+    # Lê um parâmetro de autenticação do corpo, seja ele form ou JSON. O throttle chaveia pela
+    # credencial informada; Rack::Request#params só parseia corpo form, então sem ler o JSON a
+    # chave ficaria nil num corpo application/json e a tentativa passaria sem limite.
+    def auth_param(*keys)
+      form_value = params.dig(*keys)
+      return form_value if form_value.present?
+
+      json = json_body
+      json.dig(*keys) if json.is_a?(Hash)
+    end
+
     private
 
     def auth_route
@@ -26,6 +37,19 @@ class Rack::Attack
     rescue ActionController::RoutingError
       @auth_route = nil
     end
+
+    # Rebobina o stream depois de ler para o Rails ainda parsear os params no controller.
+    def json_body
+      return @json_body if defined?(@json_body)
+
+      @json_body = if media_type =~ /json/i
+                     raw = body.read
+                     body.rewind
+                     JSON.parse(raw)
+                   end
+    rescue JSON::ParserError
+      @json_body = nil
+    end
   end
 
   # Recuperação de senha: no máximo 5 pedidos por e-mail a cada minuto. Como no login, o host
@@ -33,7 +57,7 @@ class Rack::Attack
   throttle('password-reset/email', limit: 5, period: 60) do |req|
     next unless req.routed_to?('users/passwords#create')
 
-    email = req.params.dig('user', 'email').to_s.downcase.strip.presence
+    email = req.auth_param('user', 'email').to_s.downcase.strip.presence
     "#{req.host}:#{email}" if email
   end
 
@@ -47,7 +71,7 @@ class Rack::Attack
   throttle('login/credential', limit: 10, period: 60) do |req|
     next unless req.routed_to?('users/sessions#create')
 
-    credentials = req.params.dig('user', 'credentials').to_s.downcase.strip.presence
+    credentials = req.auth_param('user', 'credentials').to_s.downcase.strip.presence
     "#{req.host}:#{credentials}" if credentials
   end
 
