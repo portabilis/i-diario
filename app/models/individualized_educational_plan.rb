@@ -119,13 +119,25 @@ class IndividualizedEducationalPlan < ApplicationRecord
   end
 
   # Grava o plano sem publicar versão. As validações são as mesmas da publicação: o rascunho nunca
-  # guarda um estado que a publicação recusaria.
+  # guarda um estado que a publicação recusaria. O plano só deixa de estar finalizado quando o
+  # conteúdo muda de fato: um envio que não altera nada (campos que o strong parameters descartou,
+  # ou só a diferença de representação do formulário) não tira o plano de finalizado.
   def save_draft
-    self.finalized_at = nil
+    self.finalized_at = nil if draft_content_changed?
     save
   end
 
   private
+
+  def draft_content_changed?
+    new_record? || attribute_content_changed? || nested_records_changed_for_autosave?
+  end
+
+  # Ignora o que o round-trip do formulário muda sem edição: nil vs "" e o \r\n que o navegador
+  # injeta em <textarea>.
+  def attribute_content_changed?
+    changes.except('finalized_at').any? { |_attribute, (was, now)| was.to_s.delete("\r") != now.to_s.delete("\r") }
+  end
 
   def elaborated_at_within_year
     return if elaborated_at.blank? || year.blank?
