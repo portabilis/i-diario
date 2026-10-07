@@ -237,6 +237,19 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       expect(plan.reload.finalized?).to eq(true)
     end
 
+    # O select2 reenvia os ids marcados como string separada por vírgula em todo salvamento.
+    it 'stays finalized when the multi-selects are sent back unchanged' do
+      options = create_list(:iep_option, 2, :communication_profile)
+      plan.update!(communication_profile_option_ids: options.map(&:id))
+      publish(plan)
+      plan.reload.communication_profile_option_ids = options.map(&:id).join(',')
+
+      expect(plan.save_draft).to eq(true)
+      expect(plan.draft_changed?).to eq(false)
+      expect(plan.reload.finalized?).to eq(true)
+      expect(plan.communication_profile_option_ids).to match_array(options.map(&:id))
+    end
+
     it 'goes back to in progress when a nested record changes' do
       publish(plan)
       plan.reload.iep_review_dates_attributes = { '0' => { review_date: Date.current } }
