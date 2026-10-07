@@ -216,6 +216,32 @@ RSpec.describe IndividualizedEducationalPlan, type: :model do
       expect(plan.active_version).to be_present
     end
 
+    it 'stays finalized when the draft changes nothing' do
+      publish(plan)
+      plan.reload
+
+      expect(plan.save_draft).to eq(true)
+      expect(plan.reload.finalized?).to eq(true)
+    end
+
+    # O navegador devolve o texto com \r\n e campo vazio como "": isso não é edição.
+    it 'stays finalized when the draft only differs by the form round-trip' do
+      plan.update!(characterization: "linha 1\nlinha 2", school_history: nil)
+      publish(plan)
+      plan.reload.assign_attributes(characterization: "linha 1\r\nlinha 2", school_history: '')
+
+      expect(plan.save_draft).to eq(true)
+      expect(plan.reload.finalized?).to eq(true)
+    end
+
+    it 'goes back to in progress when a nested record changes' do
+      publish(plan)
+      plan.reload.iep_review_dates_attributes = { '0' => { review_date: Date.current } }
+
+      expect(plan.save_draft).to eq(true)
+      expect(plan.reload.finalized?).to eq(false)
+    end
+
     it 'does not save a draft that the publication would refuse' do
       plan.elaborated_at = nil
 

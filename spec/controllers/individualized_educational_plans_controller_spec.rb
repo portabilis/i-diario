@@ -272,6 +272,21 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(other_line.reload.long_term_goal).to eq('De outro')
     end
 
+    # Campo de outra seção enviado à força (readonly removido pelo navegador) é descartado pelo
+    # strong parameters e não pode tirar o plano de finalizado.
+    it 'keeps a finalized plan finalized when the draft only carries fields the teacher cannot edit' do
+      plan.update_column(:finalized_at, Time.current)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, draft: '1',
+        individualized_educational_plan: { characterization: 'Invadido', annual_report: 'Invadido' }
+      }
+
+      expect(response).to have_http_status(:ok)
+      expect(plan.reload.finalized?).to eq(true)
+      expect(plan.characterization).to eq('Original')
+    end
+
     it 'saves a draft of the own line without publishing a version' do
       patch :update, params: {
         locale: 'pt-BR', id: plan.id, draft: '1',
