@@ -12,6 +12,10 @@ class Rack::Attack
   # (/usuarios/logar e /users/sign_in) e aceita extensão de formato. Comparar pela action
   # de destino cobre todas as variantes, inclusive idiomas adicionados depois.
   class Request < ::Rack::Request
+    # Credencial e e-mail de autenticação cabem de sobra aqui; ler só este prefixo evita
+    # bufferizar um corpo grande em memória num endpoint anônimo.
+    MAX_AUTH_BODY_BYTES = 64 * 1024
+
     def routed_to?(controller_action)
       post? && auth_route == controller_action
     end
@@ -43,7 +47,7 @@ class Rack::Attack
       return @json_body if defined?(@json_body)
 
       @json_body = if media_type =~ /json/i
-                     raw = body.read
+                     raw = body.read(MAX_AUTH_BODY_BYTES)
                      body.rewind
                      JSON.parse(raw)
                    end
