@@ -46,9 +46,17 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
     end
   end
 
-  # Faltas e notas são enviadas pela API v2 do i-Educar, em endpoints e formato próprios. Ela
-  # responde 201 quando grava.
+  # Faltas, notas e pareceres são enviados pela API v2 do i-Educar, em endpoints e formato próprios.
+  # Ela responde 201 quando grava.
   before do
+    %w[por-etapa-geral por-etapa-e-componente anual-geral anual-por-componente].each do |opinion_path|
+      stub_request(:post, "http://test.ieducar.com.br/api/v2/pareceres-#{opinion_path}")
+        .to_return(
+          status: 201,
+          body: '{"message": "Parecer salvo com sucesso."}',
+          headers: { 'Content-Type' => 'application/json' }
+        )
+    end
     stub_request(:post, 'http://test.ieducar.com.br/api/v2/notas')
       .to_return(
         status: 201,
@@ -794,17 +802,43 @@ RSpec.describe IeducarStudentTransferDataFetcher, type: :service do
         classroom.first_exam_rule.update(opinion_type: OpinionTypes::BY_STEP_AND_DISCIPLINE)
       end
 
-      it 'sends descriptive exams to i-Educar' do
-        descriptive_stub = stub_request(:post, %r{http://test.ieducar.com.br/module/Api/Diario\?.*action=pareceres.*})
+      it 'sends the step and discipline opinion to i-Educar' do
+        opinion_stub = stub_request(:post, 'http://test.ieducar.com.br/api/v2/pareceres-por-etapa-e-componente')
+          .with(
+            headers: { 'token' => ieducar_api_configuration.api_security_token },
+            body: {
+              turma_id: classroom.api_code.to_i,
+              aluno_id: student.api_code.to_i,
+              etapa: first_step.to_number,
+              componente_id: discipline.api_code.to_i,
+              parecer: 'Aluno demonstrou excelente desempenho'
+            }.to_json
+          )
           .to_return(
-          status: 200,
-          body: '{"msgs": [{"msg": "success", "type": "success"}], "any_error_msg": false}',
-          headers: { 'Content-Type' => 'application/json' }
-        )
+            status: 201,
+            body: '{"message": "Parecer salvo com sucesso."}',
+            headers: { 'Content-Type' => 'application/json' }
+          )
 
         subject.post_to_ieducar!
 
-        expect(descriptive_stub).to have_been_requested.at_least_once
+        expect(opinion_stub).to have_been_requested.once
+      end
+
+      it 'flips all_postings_sent to false when the i-Educar refuses the opinion' do
+        stub_request(:post, 'http://test.ieducar.com.br/api/v2/pareceres-por-etapa-e-componente')
+          .to_return(
+            status: 422,
+            body: { message: 'A regra da turma não permite lançamento de pareceres por etapa e componente.' }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        allow(Rails.logger).to receive(:warn)
+
+        subject.post_to_ieducar!
+
+        expect(subject.all_postings_sent).to eq(false)
+        expect(Rails.logger).to have_received(:warn)
+          .with(/\[transferência\] avaliação descritiva da etapa \(componente: #{discipline.api_code}\) não enviada/)
       end
     end
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ExamPoster::DescriptiveExamPoster do
+RSpec.describe ExamPoster::DescriptiveExamPoster, type: :service do
   let(:rule_without_descriptive) { create(:exam_rule, opinion_type: OpinionTypes::DONT_USE) }
 
   let(:exam_posting) do
@@ -63,16 +63,10 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'pareceres-por-etapa-e-componente',
-          pareceres: {
-            classroom.api_code => {
-              student.api_code => {
-                discipline.api_code => {
-                  'valor' => descriptive_exam_student.value
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          componente_id: discipline.api_code,
+          parecer: descriptive_exam_student.value
         }
       }
 
@@ -119,19 +113,100 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'pareceres-por-etapa-geral',
-          pareceres: {
-            classroom.api_code => {
-              student.api_code => {
-                'valor' => descriptive_exam_student.value
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          parecer: descriptive_exam_student.value
         }
       }
 
       expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
         Entity.first.id, exam_posting.id, request[:request], request[:info], 'critical', 0
+      )
+    end
+  end
+
+  # Os pareceres anuais não têm etapa: é a ausência de `etapa` no payload que leva o
+  # Ieducar::SendPostWorker aos endpoints anuais.
+  context 'when opinion type is by_year (general, without discipline)' do
+    let(:rule_with_descriptive) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_YEAR)
+    end
+
+    let!(:classroom) do
+      create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
+        create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_with_descriptive)
+      end
+    end
+
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: nil, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_YEAR)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'enqueues the yearly request without a step' do
+      subject.post!
+
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        { turma_id: classroom.api_code, aluno_id: student.api_code, parecer: descriptive_exam_student.value },
+        { classroom: classroom.api_code, student: student.api_code },
+        'critical',
+        0
+      )
+    end
+  end
+
+  context 'when opinion type is by_year_and_discipline' do
+    let(:discipline) { create(:discipline) }
+    let(:rule_with_descriptive) do
+      create(:exam_rule, :score_type_concept, opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE)
+    end
+
+    let!(:classroom) do
+      create(:classroom, :with_classroom_semester_steps).tap do |new_classroom|
+        create(:classrooms_grade, classroom: new_classroom, exam_rule: rule_with_descriptive)
+      end
+    end
+
+    let(:teacher) { create(:teacher) }
+    let!(:teacher_discipline_classroom) do
+      create(:teacher_discipline_classroom, classroom: classroom, discipline: discipline, teacher: teacher)
+    end
+
+    let(:student) { create(:student) }
+    let!(:descriptive_exam) do
+      create(:descriptive_exam, discipline: discipline, classroom: classroom, teacher_id: teacher.id,
+                                opinion_type: OpinionTypes::BY_YEAR_AND_DISCIPLINE)
+    end
+    let!(:descriptive_exam_student) do
+      create(:descriptive_exam_student, descriptive_exam: descriptive_exam, student: student)
+    end
+
+    it 'enqueues the yearly request with the discipline and without a step' do
+      subject.post!
+
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        {
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          componente_id: discipline.api_code,
+          parecer: descriptive_exam_student.value
+        },
+        { classroom: classroom.api_code, student: student.api_code, discipline: discipline.api_code },
+        'critical',
+        0
       )
     end
   end
@@ -178,16 +253,10 @@ RSpec.describe ExamPoster::DescriptiveExamPoster do
         },
         request: {
           etapa: exam_posting.step.to_number,
-          resource: 'pareceres-por-etapa-e-componente',
-          pareceres: {
-            classroom.api_code => {
-              student.api_code => {
-                discipline.api_code => {
-                  'valor' => descriptive_exam_student.value
-                }
-              }
-            }
-          }
+          turma_id: classroom.api_code,
+          aluno_id: student.api_code,
+          componente_id: discipline.api_code,
+          parecer: descriptive_exam_student.value
         }
       }
 

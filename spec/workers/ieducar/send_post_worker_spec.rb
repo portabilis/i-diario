@@ -6,7 +6,7 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
   around(:each) { |example| entity.using_connection { example.run } }
 
   # Esta é a única linha do sistema que decide com qual das duas APIs do i-Educar um envio de
-  # faltas ou de notas conversa. O payload achatado vai para a API v2; jobs com o payload legado
+  # faltas, notas ou pareceres conversa. O payload achatado vai para a API v2; jobs com o payload legado
   # que ainda estejam na fila durante um deploy continuam na legada.
   describe '#api' do
     let(:posting) { create(:ieducar_api_exam_posting, post_type: post_type) }
@@ -118,7 +118,25 @@ RSpec.describe Ieducar::SendPostWorker, type: :worker do
       end
     end
 
-    context 'with descriptive exams' do
+    context 'when the payload is a flat descriptive exam' do
+      let(:post_type) { ApiPostingTypes::DESCRIPTIVE_EXAM }
+
+      # O tipo de parecer sai dos campos: os anuais não têm etapa, e os gerais não têm componente.
+      {
+        { 'etapa' => 1 } => IeducarApi::PostOpinionsByStep,
+        { 'etapa' => 1, 'componente_id' => '9' } => IeducarApi::PostOpinionsByStepAndDiscipline,
+        {} => IeducarApi::PostOpinionsByYear,
+        { 'componente_id' => '9' } => IeducarApi::PostOpinionsByYearAndDiscipline
+      }.each do |fields, api_class|
+        it "uses #{api_class.name.demodulize} for #{fields.keys.inspect}" do
+          params = { 'turma_id' => '4502', 'aluno_id' => '1234', 'parecer' => 'Texto' }.merge(fields)
+
+          expect(subject.send(:api, posting, params)).to be_a(api_class)
+        end
+      end
+    end
+
+    context 'when a legacy descriptive exam payload is still in the queue' do
       let(:post_type) { ApiPostingTypes::DESCRIPTIVE_EXAM }
       let(:params) { { 'etapa' => 1, 'resource' => 'pareceres-por-etapa-e-componente', 'pareceres' => {} } }
 
