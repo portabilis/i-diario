@@ -7,6 +7,8 @@
 # tela de rede desativada, e os filtros do ApplicationController (autenticação,
 # troca de senha, papel atual) redirecionariam a requisição da imagem.
 class EntityLogosController < ActionController::Base
+  protect_from_forgery with: :exception
+
   around_action :use_entity_connection
 
   def show
