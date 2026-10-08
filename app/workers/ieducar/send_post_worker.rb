@@ -147,23 +147,9 @@ module Ieducar
       params[:faltas] || params[:notas] || params[:pareceres]
     end
 
-    def api(posting, params)
-      return v2_api(posting, params) if v2_payload?(params)
-
-      legacy_api(posting)
-    end
-
-    # Job com o payload legado (aninhado, sem `turma_id`) pode estar na fila durante um deploy e
-    # segue pela API legada; o payload da v2 é achatado, com `turma_id` e sem `resource`.
-    def v2_payload?(params)
-      params = params.with_indifferent_access
-
-      params[:resource].blank? && params[:turma_id].present?
-    end
-
-    # Recebe a configuration, e não o `to_api` dos clientes legados: o hash legado não expõe o
+    # Recebe a configuration, e não o `to_api` dos demais clientes: o hash legado não expõe o
     # api_security_token, que é como a API v2 autentica.
-    def v2_api(posting, params)
+    def api(posting, params)
       configuration = posting.ieducar_api_configuration
 
       return IeducarApi::PostScores.new(configuration) if SCORE_POSTING_TYPES.include?(posting.post_type)
@@ -179,21 +165,6 @@ module Ieducar
 
     def descriptive_exam?(posting)
       posting.post_type == ApiPostingTypes::DESCRIPTIVE_EXAM
-    end
-
-    def legacy_api(posting)
-      case posting.post_type
-      when ApiPostingTypes::NUMERICAL_EXAM, ApiPostingTypes::CONCEPTUAL_EXAM
-        IeducarApi::PostExams.new(posting.to_api)
-      when ApiPostingTypes::DESCRIPTIVE_EXAM
-        IeducarApi::PostDescriptiveExams.new(posting.to_api)
-      when ApiPostingTypes::ABSENCE
-        IeducarApi::PostAbsences.new(posting.to_api)
-      when ApiPostingTypes::FINAL_RECOVERY
-        IeducarApi::FinalRecoveries.new(posting.to_api)
-      when ApiPostingTypes::SCHOOL_TERM_RECOVERY
-        IeducarApi::PostRecoveries.new(posting.to_api)
-      end
     end
   end
 end
