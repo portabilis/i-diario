@@ -52,4 +52,18 @@ RSpec.describe TeachingPlan, type: :model do
       end
     end
   end
+
+  describe '#contents_ordered' do
+    it 'breaks position ties by the order the contents were linked' do
+      contents = create_list(:content, 3)
+      teaching_plan = create(:teaching_plan, :with_teacher_discipline_classroom, contents: contents.reverse)
+      join_ids = teaching_plan.contents_teaching_plans.order(:id).pluck(:id)
+
+      # Com a mesma position em todos os vínculos, só o desempate define a ordem. Os conteúdos são
+      # vinculados na ordem inversa à dos ids para a ordem de vínculo não coincidir com a dos conteúdos.
+      join_ids.reverse_each { |id| teaching_plan.contents_teaching_plans.where(id: id).update_all(position: 0) }
+
+      expect(teaching_plan.contents_ordered).to eq contents.reverse
+    end
+  end
 end
