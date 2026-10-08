@@ -23,6 +23,11 @@ RSpec.describe 'rack-attack throttling', type: :request do
     times.times { post path, params: { user: { credentials: credentials, password: 'errada' } } }
   end
 
+  def attempt_login_json(path, times, credentials: 'alvo@example.com')
+    body = { user: { credentials: credentials, password: 'errada' } }.to_json
+    times.times { post path, params: body, headers: { 'CONTENT_TYPE' => 'application/json' } }
+  end
+
   context 'with password reset' do
     %w[/usuarios/senha /users/password /usuarios/senha.html].each do |path|
       it "throttles #{path} by email after 5 per minute" do
@@ -95,6 +100,21 @@ RSpec.describe 'rack-attack throttling', type: :request do
       attempt_login('/usuarios/logar', 1, credentials: 'outro@example.com')
 
       expect(response).not_to have_http_status(:too_many_requests)
+    end
+  end
+
+  context 'with login through a JSON body' do
+    it 'throttles by credential after 10 per minute' do
+      attempt_login_json('/usuarios/logar', 11)
+
+      expect(response).to have_http_status(:too_many_requests)
+    end
+
+    it 'shares the counter with a form body of the same credential' do
+      attempt_login('/usuarios/logar', 10)
+      attempt_login_json('/usuarios/logar', 1)
+
+      expect(response).to have_http_status(:too_many_requests)
     end
   end
 
