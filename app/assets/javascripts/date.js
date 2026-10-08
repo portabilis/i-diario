@@ -24,8 +24,10 @@ function isValidDate(dateString) {
   return day > 0 && day <= monthLength[month - 1];
 };
 
-$(document).ready(function() {
-  $('.datepicker').on('change', function() {
+// Liga a validação de data nos campos informados. Exposta para telas que inserem campos de data
+// depois da carga da página, que o bind do ready não alcança.
+window.bindDateValidation = function($inputs) {
+  $inputs.on('change', function() {
     let value = $(this).val();
     let error_msg = "deve ser uma data válida";
     let error = '<span class="help-inline">' + error_msg + '</span>';
@@ -58,4 +60,8 @@ $(document).ready(function() {
       $(this).trigger('valid-date');
     }
   });
+};
+
+$(document).ready(function() {
+  window.bindDateValidation($('.datepicker'));
 });

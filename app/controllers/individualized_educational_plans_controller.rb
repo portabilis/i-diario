@@ -1,6 +1,7 @@
 class IndividualizedEducationalPlansController < ApplicationController
   include RendersIepPdf
   include IndividualizedEducationalPlanScoping
+  include IndividualizedEducationalPlanDrafting
 
   # Quantidade de campos de data de revisão exibidos por padrão no formulário.
   DEFAULT_REVIEW_DATES_COUNT = 3
@@ -201,6 +202,8 @@ class IndividualizedEducationalPlansController < ApplicationController
 
     authorize @individualized_educational_plan
 
+    return create_draft if draft_request?
+
     existing = accessible_plan_for_student(@individualized_educational_plan.student_id)
     return redirect_to_existing_plan(existing) if existing
 
@@ -233,7 +236,11 @@ class IndividualizedEducationalPlansController < ApplicationController
   def update
     @individualized_educational_plan = plan_with_components
     authorize @individualized_educational_plan
-    return read_only_transferred_redirect unless plan_editable?(@individualized_educational_plan)
+    unless plan_editable?(@individualized_educational_plan)
+      return draft_request? ? render_draft_read_only : read_only_transferred_redirect
+    end
+
+    return update_draft if draft_request?
 
     @individualized_educational_plan.assign_attributes(update_resource_params)
 
@@ -289,19 +296,7 @@ class IndividualizedEducationalPlansController < ApplicationController
       return false
     end
 
-    # Só valida o dia letivo quando a data de elaboração é definida/alterada. No update ela é
-    # readonly e não vem no submit do professor, então revalidar o valor armazenado (contra o
-    # calendário da turma atual, possivelmente outra escola) trancaria a escola que recebeu o aluno.
-    if @individualized_educational_plan.new_record? || @individualized_educational_plan.elaborated_at_changed?
-      calendar_error = IndividualizedEducationalPlanElaborationDayCheck.error_for(
-        current_classroom_for(@individualized_educational_plan), @individualized_educational_plan.elaborated_at,
-        year: @individualized_educational_plan.year
-      )
-      if calendar_error
-        @individualized_educational_plan.errors.add(:elaborated_at, calendar_error)
-        return false
-      end
-    end
+    return false unless elaboration_day_valid?
 
     # Busca externa (i-Educar, até 240s) fora da transação: dentro dela prenderia a conexão presa.
     prefetched_student_data = student_data_for_snapshot
@@ -322,6 +317,24 @@ class IndividualizedEducationalPlansController < ApplicationController
   rescue ActiveRecord::RecordNotUnique => e
     Honeybadger.notify(e, context: { plan_id: @individualized_educational_plan.id })
     @individualized_educational_plan.errors.add(:base, t('individualized_educational_plans.finalize.already_published'))
+    false
+  end
+
+  # Só valida o dia letivo quando a data de elaboração é definida/alterada. No update ela é
+  # readonly e não vem no submit do professor, então revalidar o valor armazenado (contra o
+  # calendário da turma atual, possivelmente outra escola) trancaria a escola que recebeu o aluno.
+  # O erro é registrado no plano: quem chama não pode salvar depois de um false, porque o save
+  # revalida e limpa os erros.
+  def elaboration_day_valid?
+    plan = @individualized_educational_plan
+    return true unless plan.new_record? || plan.elaborated_at_changed?
+
+    calendar_error = IndividualizedEducationalPlanElaborationDayCheck.error_for(
+      current_classroom_for(plan), plan.elaborated_at, year: plan.year
+    )
+    return true unless calendar_error
+
+    plan.errors.add(:elaborated_at, calendar_error)
     false
   end
 
@@ -354,17 +367,21 @@ class IndividualizedEducationalPlansController < ApplicationController
   def render_form(action)
     assign_display_fields
     set_form_options
+    plan = @individualized_educational_plan
+    # Plano novo que volta com aluno já escolhido e não cursando: o rascunho é recusado para ele
+    # (ver create_draft), então o formulário abre com o salvamento automático desligado.
+    @draft_unavailable = plan.new_record? && plan.student_id.present? && !plan_editable?(plan)
     render action
   end
 
   # Plano restrito às turmas do usuário (accessible_plans), com as seções 4/5 e suas opções
   # pré-carregadas para a tela e para o escopo do professor.
-  def plan_with_components
+  def plan_with_components(id = params[:id])
     accessible_plans.includes(
       iep_curricular_plannings: [:discipline, :knowledge_area, :iep_review_date,
                                  { iep_curricular_planning_options: :iep_option }],
       iep_periodic_evaluations: [:discipline, :knowledge_area, :iep_review_date]
-    ).find(params[:id])
+    ).find(id)
   end
 
   def current_classroom_for(plan)

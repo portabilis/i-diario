@@ -56,6 +56,15 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
         expect(assigns(:individualized_educational_plans)).to contain_exactly(target)
       end
 
+      it 'filters by status' do
+        in_progress = plan_enrolled_in(classroom)
+        plan_enrolled_in(classroom).update_column(:finalized_at, Time.current)
+
+        get :index, params: { locale: 'pt-BR', filter: { by_status: IepStatuses::IN_PROGRESS } }
+
+        expect(assigns(:individualized_educational_plans)).to contain_exactly(in_progress)
+      end
+
       it 'filters by student' do
         target = plan_enrolled_in(classroom)
         plan_enrolled_in(classroom)
@@ -260,6 +269,52 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       }
 
       expect(response).to redirect_to(root_path)
+      expect(other_line.reload.long_term_goal).to eq('De outro')
+    end
+
+    # Campo de outra seção enviado à força (readonly removido pelo navegador) é descartado pelo
+    # strong parameters e não pode tirar o plano de finalizado.
+    it 'keeps a finalized plan finalized when the draft only carries fields the teacher cannot edit' do
+      plan.update_column(:finalized_at, Time.current)
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, draft: '1',
+        individualized_educational_plan: { characterization: 'Invadido', annual_report: 'Invadido' }
+      }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['changed']).to eq(false)
+      expect(plan.reload.finalized?).to eq(true)
+      expect(plan.characterization).to eq('Original')
+    end
+
+    it 'saves a draft of the own line without publishing a version' do
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, draft: '1',
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => { id: own_line.id, long_term_goal: 'Meta revisada' } }
+        }
+      }
+
+      expect(response).to have_http_status(:ok)
+      expect(own_line.reload.long_term_goal).to eq('Meta revisada')
+      expect(plan.iep_versions.count).to eq(0)
+    end
+
+    it 'answers the draft of a line of another component with 403 in JSON and does not persist it' do
+      other_line = create(:iep_curricular_planning, iep: plan, iep_review_date: review,
+                                                    discipline: other_discipline, long_term_goal: 'De outro')
+
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, draft: '1',
+        individualized_educational_plan: {
+          iep_curricular_plannings_attributes: { '0' => { id: other_line.id, long_term_goal: 'Invadido' } }
+        }
+      }
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'])
+        .to include(I18n.t('individualized_educational_plans.draft.not_authorized'))
       expect(other_line.reload.long_term_goal).to eq('De outro')
     end
 
@@ -1743,6 +1798,272 @@ RSpec.describe IndividualizedEducationalPlansController, type: :controller do
       expect(assigns(:individualized_educational_plan).errors[:base])
         .to include(I18n.t('individualized_educational_plans.finalize.already_published'))
       expect(plan.reload.iep_versions.count).to eq(0)
+    end
+  end
+
+  describe 'draft save (create/update with draft, answered in JSON)' do
+    let(:student) { create(:student) }
+    let(:draft_params) { { student_id: student.id, elaborated_at: Date.current } }
+    let(:body) { JSON.parse(response.body) }
+
+    before do
+      allow(controller).to receive(:current_user_classroom).and_return(create(:classroom))
+      allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.kept)
+      allow(controller).to receive(:plan_editable?).and_return(true)
+      allow(controller).to receive(:student_permitted_for_creation?).and_return(true)
+      allow(controller).to receive(:current_school_year).and_return(Date.current.year)
+      allow(IeducarApiConfiguration).to receive(:current).and_return(double(to_api: {}))
+      allow(IeducarApi::Students).to receive(:new).and_return(double(fetch_by_id: {}))
+    end
+
+    def create_draft(attributes = draft_params)
+      post :create, params: { locale: 'pt-BR', draft: '1', individualized_educational_plan: attributes }
+    end
+
+    def update_draft(plan, attributes)
+      patch :update, params: {
+        locale: 'pt-BR', id: plan.id, draft: '1', individualized_educational_plan: attributes
+      }
+    end
+
+    describe 'POST #create' do
+      it 'creates the plan in progress, without publishing a version' do
+        create_draft(draft_params.merge(iep_review_dates_attributes: { '0' => { review_date: Date.current } }))
+
+        plan = IndividualizedEducationalPlan.last
+        expect(response).to have_http_status(:ok)
+        expect(plan.student).to eq(student)
+        expect(plan.iep_review_dates.count).to eq(1)
+        expect(plan.iep_versions.count).to eq(0)
+        expect(plan.finalized?).to eq(false)
+        expect(body).to include(
+          'id' => plan.id,
+          'update_url' => individualized_educational_plan_path(plan),
+          'edit_url' => edit_individualized_educational_plan_path(plan)
+        )
+      end
+
+      it 'points to the existing plan instead of creating another for the same student and year' do
+        existing = create(:individualized_educational_plan, student: student, year: Date.current.year)
+
+        expect { create_draft }.not_to change(IndividualizedEducationalPlan, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['existing_plan_url']).to eq(edit_individualized_educational_plan_path(existing))
+      end
+
+      it 'refuses a student that is not enrolled on the elaboration date' do
+        allow(controller).to receive(:student_permitted_for_creation?).and_return(false)
+
+        expect { create_draft }.not_to change(IndividualizedEducationalPlan, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.create.student_not_permitted'))
+      end
+
+      # Sem versão não há autoria: o rascunho de quem não cursa mais a turma não poderia ser reaberto.
+      it 'does not save a draft for a student that no longer attends the classroom' do
+        allow(controller).to receive(:plan_editable?).and_return(false)
+
+        expect { create_draft }.not_to change(IndividualizedEducationalPlan, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['draft_unavailable']).to eq(true)
+      end
+
+      it 'blocks an elaboration date that is not a school calendar day' do
+        allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for)
+          .and_return(I18n.t('errors.messages.is_not_between_steps'))
+
+        expect { create_draft }.not_to change(IndividualizedEducationalPlan, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['errors'].join).to include(I18n.t('errors.messages.is_not_between_steps'))
+      end
+
+      it 'answers a conflict message when the same plan is created twice at the same time' do
+        allow_any_instance_of(IndividualizedEducationalPlan).to receive(:save_draft)
+          .and_raise(ActiveRecord::RecordNotUnique.new('duplicate student and year'))
+
+        create_draft
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.draft.conflict'))
+      end
+
+      # Sem stub de acesso: a regra sai das enturmações reais do aluno na turma do perfil.
+      context 'with the real enrollments of the student' do
+        let(:classroom) { create(:classroom, year: Date.current.year) }
+        let(:elaborated_at) { Date.new(Date.current.year, 5, 15) }
+
+        around { |example| Timecop.freeze(Time.zone.local(Date.current.year, 6, 15, 12)) { example.run } }
+
+        before do
+          allow(controller).to receive(:current_user_classroom).and_return(classroom)
+          allow(controller).to receive(:accessible_plans).and_call_original
+          allow(controller).to receive(:plan_editable?).and_call_original
+          allow(controller).to receive(:student_permitted_for_creation?).and_call_original
+          allow(IndividualizedEducationalPlanElaborationDayCheck).to receive(:error_for).and_return(nil)
+        end
+
+        it 'saves the draft of a student attending the classroom' do
+          enroll(student, classroom)
+
+          expect { create_draft(draft_params.merge(elaborated_at: elaborated_at)) }
+            .to change(IndividualizedEducationalPlan, :count).by(1)
+
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'refuses the draft of a student enrolled on the elaboration date but transferred since' do
+          enrollment = create(:student_enrollment, student: student, status: StudentEnrollmentStatus::TRANSFERRED)
+          create(:student_enrollment_classroom,
+                 student_enrollment: enrollment, classrooms_grade: create(:classrooms_grade, classroom: classroom),
+                 joined_at: "#{Date.current.year}-02-01", left_at: "#{Date.current.year}-06-01")
+
+          expect { create_draft(draft_params.merge(elaborated_at: elaborated_at)) }
+            .not_to change(IndividualizedEducationalPlan, :count)
+
+          expect(body['draft_unavailable']).to eq(true)
+        end
+      end
+    end
+
+    # O formulário novo que volta com erro para um aluno sem rascunho abre com o salvamento
+    # automático desligado.
+    it 'flags the draft as unavailable when the new form is rendered again for such a student' do
+      allow(controller).to receive(:plan_editable?).and_return(false)
+
+      post :create, params: { locale: 'pt-BR', individualized_educational_plan: draft_params }
+
+      expect(response).to render_template(:new)
+      expect(assigns(:draft_unavailable)).to eq(true)
+    end
+
+    describe 'PATCH #update' do
+      let(:plan) { create(:individualized_educational_plan, student: student, characterization: 'Original') }
+
+      it 'saves without publishing a version' do
+        update_draft(plan, characterization: 'Alterado')
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['changed']).to eq(true)
+        expect(plan.reload.characterization).to eq('Alterado')
+        expect(plan.iep_versions.count).to eq(0)
+      end
+
+      it 'moves a finalized plan back to in progress, keeping the published version' do
+        patch :update, params: {
+          locale: 'pt-BR', id: plan.id, version_name: 'Versão 1',
+          individualized_educational_plan: { characterization: 'Publicado' }
+        }
+        expect(plan.reload.finalized?).to eq(true)
+
+        update_draft(plan, characterization: 'Alterado depois')
+
+        expect(plan.reload.finalized?).to eq(false)
+        expect(plan.iep_versions.count).to eq(1)
+        expect(plan.active_version.content['characterization']['characterization']).to eq('Publicado')
+      end
+
+      it 'does not duplicate the nested records sent back with their ids' do
+        review = create(:iep_review_date, iep: plan, review_date: Date.current)
+
+        update_draft(plan, iep_review_dates_attributes: {
+                       '0' => { id: review.id, review_date: Date.current },
+                       '1' => { review_date: '' }
+                     })
+
+        expect(plan.reload.iep_review_dates).to contain_exactly(review)
+      end
+
+      it 'returns the validation errors and saves nothing' do
+        update_draft(plan, characterization: 'Alterado', elaborated_at: nil)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['errors']).to be_present
+        expect(plan.reload.characterization).to eq('Original')
+      end
+
+      # A tela destaca o campo recusado, como a re-renderização da finalização faz.
+      it 'tells which field of the plan each validation error belongs to' do
+        update_draft(plan, elaborated_at: nil)
+
+        expect(body['field_errors']).to include(
+          'attribute' => 'elaborated_at', 'message' => I18n.t('errors.messages.blank')
+        )
+      end
+
+      it 'points to the medication name when the answer is "yes" without a named medication' do
+        update_draft(plan, uses_medication: 'true',
+                           iep_medications_attributes: { '0' => { name: '', dosage: '', schedule: '' } })
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(body['field_errors']).to contain_exactly(
+          'association' => 'iep_medications', 'id' => nil, 'attribute' => 'name',
+          'message' => I18n.t('errors.messages.blank')
+        )
+      end
+
+      it 'identifies a saved nested record with an error by its id' do
+        review = create(:iep_review_date, iep: plan, review_date: Date.current)
+
+        update_draft(plan, iep_review_dates_attributes: { '0' => { id: review.id, review_date: '' } })
+
+        expect(body['field_errors']).to include(
+          'association' => 'iep_review_dates', 'id' => review.id, 'attribute' => 'review_date',
+          'message' => I18n.t('errors.messages.blank')
+        )
+      end
+
+      # Outro usuário removeu a linha depois que esta tela foi carregada.
+      it 'answers a conflict, not a missing plan, when a line sent back was removed meanwhile' do
+        review = create(:iep_review_date, iep: plan, review_date: Date.current)
+        line = create(:iep_curricular_planning, iep: plan, iep_review_date: review, long_term_goal: 'Meta')
+        line.destroy
+
+        update_draft(plan, characterization: 'Alterado', iep_curricular_plannings_attributes: {
+                       '0' => { id: line.id, long_term_goal: 'Meta revisada' }
+                     })
+
+        expect(response).to have_http_status(:conflict)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.draft.stale_record'))
+        expect(plan.reload.characterization).to eq('Original')
+      end
+
+      it 'answers 403 in JSON, without redirecting, when the plan is read only' do
+        allow(controller).to receive(:plan_editable?).and_return(false)
+
+        update_draft(plan, characterization: 'Alterado')
+
+        expect(response).to have_http_status(:forbidden)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.flash.read_only_transferred'))
+        expect(plan.reload.characterization).to eq('Original')
+      end
+
+      it 'answers 404 in JSON, without redirecting, for a plan out of reach' do
+        allow(controller).to receive(:accessible_plans).and_return(IndividualizedEducationalPlan.none)
+
+        update_draft(plan, characterization: 'Alterado')
+
+        expect(response).to have_http_status(:not_found)
+        expect(body['errors']).to include(I18n.t('individualized_educational_plans.flash.not_found'))
+      end
+
+      context 'rendering the form' do
+        render_views
+
+        # É do formulário devolvido que a tela tira os ids dos filhos e as revisões das seções 4/5.
+        it 'returns the form with the saved review date available in sections 4 and 5' do
+          update_draft(plan, iep_review_dates_attributes: { '0' => { review_date: Date.current } })
+
+          review = plan.reload.iep_review_dates.first
+          form = Nokogiri::HTML.fragment(body['form_html'])
+          expect(form.at_css("#iep-review-dates input[name$='[id]'][value='#{review.id}']")).to be_present
+          expect(form.at_css("#pei-step-4 .iep-review-buttons button[data-review-id='#{review.id}']")).to be_present
+          expect(form.at_css("#pei-step-5 .iep-review-buttons button[data-review-id='#{review.id}']")).to be_present
+        end
+      end
     end
   end
 

@@ -4,6 +4,7 @@ $(function() {
   var $wizard = $('#pei-wizard');
   if ($wizard.length === 0) { return; }
 
+  var $form = $wizard.closest('form');
   var flashMessages = new FlashMessages();
 
   // Etapas do topo do wizard (fuelux steps); os painéis top-level ficam em .tab-content direto do wizard
@@ -35,6 +36,7 @@ $(function() {
     });
 
     $panes.removeClass('active').eq(index).addClass('active');
+    $('.iep-locked-notice').toggle(index > 0 && autosave.isLocked());
     refreshButtons();
   }
 
@@ -47,10 +49,103 @@ $(function() {
     $('.pei-wizard-finish').toggle(index === last);
   }
 
-  $('.pei-wizard-next').on('click', function() { showStep(currentIndex() + 1); });
-  $('.pei-wizard-prev').on('click', function() { showStep(currentIndex() - 1); });
-  $steps.on('click', function() { showStep($steps.index(this)); });
+  // ---- Rascunho: toda troca de etapa salva antes de navegar (draft_autosave.js) ----
+  var autosave = window.IepDraftAutosave({
+    $form: $form,
+    $wizard: $wizard,
+    showStep: showStep,
+    readyToCreate: readyToCreate,
+    rehydrate: rehydrate,
+    onCreated: planCreated,
+    onUnavailable: draftUnavailable,
+    onAvailableAgain: draftAvailableAgain,
+    failureMessage: sessionExpiredMessage
+  });
+
+  function readyToCreate() {
+    var studentId = $studentSelect.val();
+
+    return !!studentId && studentId !== 'empty' && isValidDate($elaboratedAt.val());
+  }
+
+  // Sem plano gravado as etapas 2 a 6 ficam travadas: o que fosse digitado nelas não teria onde
+  // ser salvo. O fieldset desabilitado cobre os campos nativos; o select2 tem estado próprio e
+  // só é religado aqui se foi desligado aqui, para não habilitar campo que nasceu em leitura.
+  function setPanesLocked(locked) {
+    $panes.slice(1).each(function() {
+      var $pane = $(this);
+
+      $pane.children('fieldset').prop('disabled', locked);
+
+      if (locked) {
+        $pane.find('input.select2').not(':disabled').select2('enable', false).data('iepLocked', true);
+      } else {
+        $pane.find('input.select2').filter(function() { return $(this).data('iepLocked'); })
+          .select2('enable', true).removeData('iepLocked');
+      }
+    });
+
+    $('.iep-locked-notice').toggle(locked && currentIndex() > 0);
+  }
+
+  // O plano acabou de ser criado: a tela passa a se comportar como a de edição, sem recarregar.
+  function planCreated(data) {
+    $wizard.data('plan-id', data.id);
+    if (!medicalReportsPlanId) { medicalReportsPlanId = data.id; }
+
+    $form.attr('action', data.update_url);
+    $form.prepend($('<input type="hidden" name="_method" value="patch">'));
+    $studentSelect.select2('enable', false);
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', data.edit_url);
+    }
+
+    setPanesLocked(false);
+  }
+
+  // O servidor recusou o rascunho para este aluno: o PEI só é gravado na finalização, então as
+  // etapas são liberadas e a navegação segue sem salvar.
+  function draftUnavailable() {
+    $('.iep-no-draft-notice').show();
+    setPanesLocked(false);
+  }
+
+  function draftAvailableAgain() {
+    $('.iep-no-draft-notice').hide();
+    setPanesLocked(autosave.isLocked());
+  }
+
+  // Religa os widgets de uma região que o salvamento trocou pelo HTML vindo do servidor. Não usa
+  // o cocoon:after-insert: o handler global dele reinicializa todos os select2 da página com
+  // outra configuração.
+  function rehydrate($region) {
+    $region.find('input.select2, input[class^=select2]').not('input.select2_remote').each(function() {
+      window.initSelect2(this);
+    });
+    $region.find('.datepicker:not([readonly]):not([disabled])').datepicker();
+    $region.find('input[data-mask]').on('focus', function() {
+      var $input = $(this);
+      $input.inputmask($input.attr('data-mask'));
+    });
+    window.bindDateValidation($region.find('.datepicker'));
+
+    if ($region.is($medications)) { toggleMedicationsHeader(); }
+  }
+
+  function goToStep(index) {
+    if (index === currentIndex()) { return; }
+
+    autosave.saveThenGo(index);
+  }
+
+  $('.pei-wizard-next').on('click', function() { goToStep(currentIndex() + 1); });
+  $('.pei-wizard-prev').on('click', function() { goToStep(currentIndex() - 1); });
+  $steps.on('click', function() { goToStep($steps.index(this)); });
+  // Delegado: o atalho também vive nas seções 4/5, cujo conteúdo é trocado a cada salvamento.
+  $(document).on('click', '.iep-go-to-identification', function() { goToStep(0); });
   refreshButtons();
+  setPanesLocked(autosave.isLocked());
 
   // Formulário devolvido com erro: abre a primeira etapa que tem campo destacado (o wizard
   // sempre carrega na etapa 1, e o campo com erro pode estar em outra).
@@ -376,6 +471,14 @@ $(function() {
   // abertura do modal de finalização (stopPropagation barra o data-toggle do Bootstrap,
   // delegado no document) e volta para a seção 1, onde está a pendência.
   $('.pei-wizard-finish').on('click', function(event) {
+    // Sem plano gravado não há o que finalizar: volta para a seção 1, onde o aluno é escolhido.
+    if (autosave.isLocked()) {
+      event.preventDefault();
+      event.stopPropagation();
+      showStep(0);
+      return;
+    }
+
     if (pendingUploads.length === 0) { return; }
 
     event.preventDefault();
@@ -453,6 +556,7 @@ $(function() {
   }
 
   $studentSelect.on('change', function() {
+    autosave.studentChanged();
     clearMedicalReportError();
     discardPendingUploadsOnStudentChange();
     if (studentFetchEnabled) { fetchStudentData($(this).val()); }
@@ -539,6 +643,9 @@ $(function() {
 
   if ($elaboratedAt.length && !$studentSelect.prop('disabled')) {
     $elaboratedAt.on('change', function() {
+      // Plano já gravado nesta tela: o aluno é fixo, como na edição.
+      if ($studentSelect.prop('disabled')) { return; }
+
       var value = $(this).val();
 
       // Data inválida (isValidDate global, date.js): não consulta o servidor e limpa só o aviso
@@ -575,6 +682,7 @@ $(function() {
     clearVersionNameError();
     finalizeConfirmed = true;
     $(this).prop('disabled', true);
+    autosave.disableUnchangedLines();
     $('.smart-form').submit();
   });
 
@@ -591,7 +699,8 @@ $(function() {
   });
 
   // ---- Seções 4/5: botões de revisão mostram o painel da revisão ----
-  $('.iep-review-buttons button').on('click', function() {
+  // Delegado: o conteúdo das seções 4/5 é trocado a cada salvamento de rascunho.
+  $(document).on('click', '.iep-review-buttons button', function() {
     var reviewId = $(this).data('review-id');
     var $fieldset = $(this).closest('fieldset');
 
@@ -704,6 +813,50 @@ $(function() {
     if ($firstPill.length) { $firstPill.trigger('click'); }
   });
 
+  // ---- Seção 1: remover revisão com conteúdo nas seções 4/5 pede confirmação ----
+  var $reviewRemovalModal = $('#iep-review-date-removal-modal');
+  var $pendingReviewRemoval = null;
+  var reviewRemovalConfirmed = false;
+
+  function reviewLines(reviewId) {
+    return $('.iep-component-panels').filter(function() {
+      return String($(this).data('review-id')) === String(reviewId);
+    }).find('.iep-component-panel').filter(function() {
+      var destroy = $(this).find('input[name$="[_destroy]"]').val();
+      return destroy !== '1' && destroy !== 'true';
+    });
+  }
+
+  $('#iep-review-dates').on('click', '.remove_fields', function(event) {
+    if (reviewRemovalConfirmed) {
+      reviewRemovalConfirmed = false;
+      return;
+    }
+
+    var reviewId = $(this).closest('.nested-fields').data('review-id');
+    if (!reviewId || reviewLines(reviewId).length === 0) { return; }
+
+    // stopPropagation: o cocoon escuta este clique delegado no document e removeria a data já.
+    event.preventDefault();
+    event.stopPropagation();
+    $pendingReviewRemoval = $(this);
+    $reviewRemovalModal.modal('show');
+  });
+
+  // As linhas da revisão saem junto com a data: o servidor recusa remover uma revisão que ainda
+  // tem conteúdo nas seções 4/5.
+  $('#iep-review-date-removal-confirm').on('click', function() {
+    if (!$pendingReviewRemoval) { return; }
+
+    reviewLines($pendingReviewRemoval.closest('.nested-fields').data('review-id'))
+      .find('.remove_fields').trigger('click');
+
+    reviewRemovalConfirmed = true;
+    $pendingReviewRemoval.trigger('click');
+    $pendingReviewRemoval = null;
+    $reviewRemovalModal.modal('hide');
+  });
+
   // ---- Seção 3: lista de medicamentos, visível só com "Faz uso de medicação?" = Sim ----
   var $usesMedication = $('#individualized_educational_plan_uses_medication');
   var $medicationsBlock = $('#iep-medications-block');
@@ -780,4 +933,8 @@ $(function() {
     var $group = $(this).closest('.control-group.error');
     $group.removeClass('error').find('.help-inline').remove();
   });
+
+  // Estado de carga do formulário, contra o qual o rascunho decide se há algo a salvar. Fica no
+  // fim: tudo acima que mexe em campo na carga (linha de medicamento automática) já rodou.
+  autosave.markBaseline();
 });

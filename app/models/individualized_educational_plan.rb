@@ -94,16 +94,57 @@ class IndividualizedEducationalPlan < ApplicationRecord
       .or(where(student_id: StudentEnrollmentClassroom.attending_student_ids(classroom_id)))
   }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  # Valor fora da enumeração não devolve nada: o filtro vem de params.
+  scope :by_status, lambda { |status|
+    case status.to_s
+    when IepStatuses::FINALIZED then where.not(finalized_at: nil)
+    when IepStatuses::IN_PROGRESS then where(finalized_at: nil)
+    else none
+    end
+  }
 
+  # finalized_at preenchido significa que o conteúdo atual do plano é o da versão ativa. Fica vazio
+  # enquanto o plano nunca foi publicado e volta a ficar vazio a cada rascunho gravado depois da
+  # publicação, então um plano pode ter versão ativa e não estar finalizado.
   def finalized?
-    active_version.present?
+    finalized_at.present?
+  end
+
+  def status
+    finalized? ? IepStatuses::FINALIZED : IepStatuses::IN_PROGRESS
   end
 
   def active_version
     iep_versions.find_by(active: true)
   end
 
+  # Grava o plano sem publicar versão. As validações são as mesmas da publicação: o rascunho nunca
+  # guarda um estado que a publicação recusaria. O plano só deixa de estar finalizado quando o
+  # conteúdo muda de fato: um envio que não altera nada (campos que o strong parameters descartou,
+  # ou só a diferença de representação do formulário) não tira o plano de finalizado.
+  def save_draft
+    @draft_changed = draft_content_changed?
+    self.finalized_at = nil if @draft_changed
+    save
+  end
+
+  # Se o último save_draft tinha conteúdo a gravar. É o que a tela usa para não anunciar como salvo
+  # um envio que não mudou nada.
+  def draft_changed?
+    @draft_changed == true
+  end
+
   private
+
+  def draft_content_changed?
+    new_record? || attribute_content_changed? || nested_records_changed_for_autosave?
+  end
+
+  # Ignora o que o round-trip do formulário muda sem edição: nil vs "" e o \r\n que o navegador
+  # injeta em <textarea>.
+  def attribute_content_changed?
+    changes.except('finalized_at').any? { |_attribute, (was, now)| was.to_s.delete("\r") != now.to_s.delete("\r") }
+  end
 
   def elaborated_at_within_year
     return if elaborated_at.blank? || year.blank?

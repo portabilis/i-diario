@@ -1,6 +1,7 @@
 <%# Mesmo JS do form: navegação do wizard. A busca de responsáveis fica desligada
     (student_fetch: false) — na versão os dados vêm congelados do snapshot. %>
 <% content_for :js do %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/draft_autosave' %>
   <%= javascript_include_tag 'views/individualized_educational_plans/form' %>
 <% end %>
 

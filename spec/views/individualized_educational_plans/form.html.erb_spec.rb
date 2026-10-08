@@ -101,6 +101,61 @@ RSpec.describe 'individualized_educational_plans/_form', type: :view do
   end
 
   # Modo leitura (view_only): mesmo formulário, sem controles de edição.
+  def wizard
+    Nokogiri::HTML.fragment(rendered).at_css('#pei-wizard')
+  end
+
+  describe 'draft autosave' do
+    it 'turns the autosave on while editing and offers the shortcut to section 1 without review dates' do
+      plan = create(:individualized_educational_plan)
+      assign_form_options(plan)
+
+      render partial: 'individualized_educational_plans/form'
+
+      expect(wizard['data-autosave']).to eq('on')
+      expect(wizard['data-draft-unavailable']).to eq('off')
+      expect(wizard.at_css('.iep-locked-notice')).to be_present
+      expect(wizard.at_css('.iep-save-error .iep-save-error-text')).to be_present
+      expect(wizard.css('#pei-step-4 .iep-go-to-identification').size).to eq(1)
+      expect(rendered).to include(I18n.t('individualized_educational_plans.form.no_reviews_hint'))
+    end
+
+    it 'flags the draft as unavailable and warns when it does not apply to the student' do
+      plan = build(:individualized_educational_plan)
+      assign_form_options(plan)
+      assign(:draft_unavailable, true)
+
+      render partial: 'individualized_educational_plans/form'
+
+      expect(wizard['data-autosave']).to eq('on')
+      expect(wizard['data-draft-unavailable']).to eq('on')
+      expect(wizard.at_css('.iep-no-draft-notice')['style']).not_to include('display: none')
+    end
+
+    # O professor não altera a seção 1: o atalho para ela não faz sentido no escopo de componente.
+    it 'hides the shortcut to section 1 for a teacher restricted to the own components' do
+      plan = create(:individualized_educational_plan)
+      assign_form_options(plan)
+      assign(:editable_component_scope, double(owns_line?: false))
+
+      render partial: 'individualized_educational_plans/form'
+
+      expect(wizard.css('#pei-step-4 .iep-go-to-identification')).to be_empty
+    end
+
+    it 'turns the autosave off in view_only mode' do
+      plan = create(:individualized_educational_plan)
+      assign_form_options(plan)
+
+      render partial: 'individualized_educational_plans/form', locals: { view_only: true }
+
+      expect(wizard['data-autosave']).to eq('off')
+      expect(wizard.at_css('.iep-locked-notice')).to be_nil
+      expect(wizard.at_css('.iep-save-error')).to be_nil
+      expect(rendered).not_to include('iep-save-status-text')
+    end
+  end
+
   context 'in view_only mode' do
     it 'renders read-only without edit controls and blocks submit' do
       plan = create(:individualized_educational_plan)
