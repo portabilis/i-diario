@@ -19,10 +19,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # O RubyGems que acompanha o Ruby 2.7.8 não substitui a default gem `uri` e quebra o boot
+      # do bundler; a versão fixada é a mesma do tests.yml e do Dockerfile.
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "2.6.6"
+          ruby-version: .ruby-version
+          rubygems: "3.3.22"
+          bundler: "2.4.22"
 
       - name: Install Brakeman
         run: gem install brakeman -v 5.4.1 --no-document
@@ -49,7 +53,9 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "2.6.6"
+          ruby-version: .ruby-version
+          rubygems: "3.3.22"
+          bundler: "2.4.22"
 
       - name: Install bundler-audit
         run: gem install bundler-audit --no-document
