@@ -9,18 +9,17 @@ module ExamPoster
           student_score.each do |discipline_id, discipline_score|
             requests << {
               info: {
+                classroom: classroom_id,
                 student: student_id,
                 discipline: discipline_id
               },
-              request: {
-                notas: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_score
-                    }
-                  }
-                }
-              }
+              request: score_request(
+                step: IeducarApi::PostScores::FINAL_RECOVERY_STEP,
+                classroom_id: classroom_id,
+                student_id: student_id,
+                discipline_id: discipline_id,
+                score: discipline_score
+              )
             }
           end
         end

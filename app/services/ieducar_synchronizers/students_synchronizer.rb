@@ -27,7 +27,7 @@ class StudentsSynchronizer < BaseSynchronizer
     students.each do |student_record|
       next if student_record.nome_aluno.blank?
 
-      begin
+      retrying_on_race_condition(:@students, student_record.aluno_id) do
         (
           student(student_record.aluno_id) || Student.new(api_code: student_record.aluno_id)
         ).tap do |student|
@@ -56,8 +56,6 @@ class StudentsSynchronizer < BaseSynchronizer
 
           create_users(student.id) if allow_create_users_for_students && student_user_new?(student) && !student.discarded?
         end
-      rescue ActiveRecord::RecordNotUnique
-        retry
       end
     end
   end

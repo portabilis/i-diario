@@ -9,7 +9,7 @@
           <%= f.input :entity_name %>
         </div>
         <div class="col col-sm-6">
-          <%= f.input :cnpj, input_html: { class: 'cnpj'} %>
+          <%= f.input :cnpj, input_html: { class: 'cnpj', data: { mask: '**.***.***/****-99', mask_casing: 'upper' } } %>
         </div>
       </div>
       <div class="row">
@@ -35,8 +35,8 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
-          <% if @entity_configuration.logo && @entity_configuration.logo.url %>
-            <%= image_tag @entity_configuration.logo_url, id: 'img-prev'%>
+          <% if (logo_path = entity_logo_url_for(@entity_configuration)) %>
+            <%= image_tag logo_path, id: 'img-prev', alt: 'Logo da instituição' %>
           <% else %>
             <img id='img-prev' alt="Logo da instituição" />
           <% end %>

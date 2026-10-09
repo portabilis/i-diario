@@ -14,7 +14,7 @@ class KnowledgeAreaTeachingPlan < ApplicationRecord
   has_many :knowledge_area_teaching_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_teaching_plan_knowledge_areas
 
-  delegate :contents, to: :teaching_plan
+  delegate :contents, :contents_ordered, to: :teaching_plan
   delegate :objectives, to: :teaching_plan
 
   accepts_nested_attributes_for :teaching_plan

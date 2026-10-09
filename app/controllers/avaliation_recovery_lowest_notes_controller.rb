@@ -1,4 +1,6 @@
 class AvaliationRecoveryLowestNotesController < ApplicationController
+  include DateValidation
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -47,7 +49,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
-      redirect_to(avaliation_recovery_lowest_note_path)
+      redirect_to(avaliation_recovery_lowest_notes_path)
     end
 
     return if performed?
@@ -68,8 +70,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     else
       set_options_by_user
       fetch_disciplines_by_classroom
-
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
+      fetch_data
 
       render :new
     end
@@ -108,8 +109,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     else
       set_options_by_user
       fetch_disciplines_by_classroom
-
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places if current_user.current_role_is_admin_or_employee?
+      fetch_data
 
       render :edit
     end
@@ -182,15 +182,15 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
   def fetch_data
     @students_lowest_note = StudentNotesInStepFetcher.new
+    @students = []
 
     reload_students_list
 
-    students = fetch_students
-    mark_exempted_disciplines(students)
-    add_missing_students(students)
+    add_missing_students(fetch_students || [])
 
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    StudentsDisplaySequencer.call(@students)
+
+    @number_of_decimal_places = current_test_setting&.number_of_decimal_places
   end
 
   def steps_fetcher
@@ -225,16 +225,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
   helper_method :decimal_places
 
-  def mark_exempted_disciplines(students_in_recovery)
-    @students.each do |student|
-      exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
-        student_in_recovery.id == student.student_id
-      end.try(:exempted_from_discipline)
-
-      student.exempted_from_discipline = exempted_from_discipline
-    end
-  end
-
   def add_missing_students(students_in_recovery)
     students_missing = students_in_recovery.select do |student_in_recovery|
       @students.none? do |student|
@@ -246,10 +236,6 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
       student = @lowest_note_recovery.recovery_diary_record.students.build(student: student_missing)
       @students << student
     end
-  end
-
-  def any_student_exempted_from_discipline?
-    @students.any?(&:exempted_from_discipline)
   end
 
   def api_configuration
@@ -289,27 +275,33 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
 
     return unless recovery_diary_record.recorded_at
 
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: recovery_diary_record.classroom,
+      discipline: recovery_diary_record.discipline,
+      step_number: @lowest_note_recovery.step&.to_number,
+      date: recovery_diary_record.recorded_at
+    )
+
+    existing_by_student_id = recovery_diary_record.students.index_by(&:student_id)
+
     @students = []
 
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by(id: student_enrollment.student_id))
 
-      note_student = recovery_diary_record.students.find_by(student_id: student.id) ||
+      note_student = existing_by_student_id[student.id] ||
         recovery_diary_record.students.build(student: student)
 
-      note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
+      note_student.active = situations[:active_on_date_ids].include?(student_enrollment.id)
+      note_student.dependence = situations[:dependencies][student_enrollment.id].present?
+      note_student.exempted_from_discipline = situations[:exemptions][student_enrollment.id].present?
+      note_student.in_active_search = situations[:enrollments_in_active_search].include?(student_enrollment.id)
 
       @students << note_student
     end
 
     @students
-  end
-
-  def student_active_on_date?(student_enrollment, recovery_diary_record)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(recovery_diary_record.classroom)
-                     .by_date(recovery_diary_record.recorded_at)
-                     .any?
   end
 
   def exists_recovery_on_step
@@ -324,12 +316,20 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
   end
 
   def recorded_at_in_selected_step
-    return render json: nil if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
+    if params[:step_id].blank? || params[:recorded_at].blank? || params[:classroom_id].blank?
+      return render json: nil
+    end
+
+    recorded_at = parse_date(params[:recorded_at])
+
+    # Data inexistente não é o mesmo que data fora da etapa. Responde erro para a tela não
+    # informar o motivo errado ao usuário.
+    return render json: nil, status: :unprocessable_entity if recorded_at.blank?
 
     classroom = Classroom.find(params[:classroom_id])
     steps_fetcher = StepsFetcher.new(classroom)
 
-    render json: steps_fetcher.step_belongs_to_date?(params[:step_id], params[:recorded_at])
+    render json: steps_fetcher.step_belongs_to_date?(params[:step_id], recorded_at)
   end
 
   def arithmetic_test_setting
@@ -338,7 +338,7 @@ class AvaliationRecoveryLowestNotesController < ApplicationController
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')
 
-      redirect_to root_path
+      return redirect_to(root_path)
     end
 
     return if current_test_setting.arithmetic_calculation_type?

@@ -25,7 +25,9 @@ class AttendanceRecordReportByStudentsController < ApplicationController
 
     if @attendance_record_report_by_student_form.valid?
       fetch_collections
-      response = ReportGenerator.call(render_to_string(action: :report, layout: "report"))
+      html_content = render_to_string(action: :report, layout: "report_pluto")
+
+      response = ReportGenerator.call(html_content, driver: :pluto)
       send_data response.body, filename: @attendance_record_report_by_student_form.filename,
         type: "application/pdf", disposition: "inline"
     else

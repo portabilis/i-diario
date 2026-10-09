@@ -9,6 +9,7 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
   }
   let(:steps) { classroom.calendar.classroom_steps }
   let(:student) { create(:student) }
+  let(:discipline) { create(:discipline) }
 
   before do
     steps.each do |step|
@@ -17,10 +18,12 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
         :with_one_value,
         classroom: classroom,
         student: student,
+        discipline: discipline,
         step_id: step.id,
         recorded_at: Date.current,
         step_number: step.step_number
       )
+      exam.conceptual_exam_values.first.value = 7
       exam.save(validate: false)
     end
   end
@@ -33,7 +36,11 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
     it 'return the two steps' do
       steps = subject.fetch
       expect(steps.count).to eq(2)
-      expect(steps.first[:values].count).to be(1)
+    end
+
+    it 'serializes the values keyed by discipline id' do
+      # Sem tabela de arredondamento vinculada, o valor é serializado como está
+      expect(subject.fetch.first[:values]).to eq(discipline.id.to_s => '7.0')
     end
   end
 
@@ -44,6 +51,19 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
 
     it 'dont return any step' do
       expect(subject.fetch.count).to eq(0)
+    end
+  end
+
+  context 'when current step is nil' do
+    # StepsFetcher#step_by_id devolve nil quando o step_id não existe, não
+    # pertence ao calendário da turma (ex: etapa vinda da lista de outra turma)
+    # ou quando a turma não possui calendário escolar no ano.
+    subject do
+      described_class.new(classroom, student, nil)
+    end
+
+    it 'returns an empty array without raising' do
+      expect(subject.fetch).to eq([])
     end
   end
 end

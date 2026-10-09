@@ -1,10 +1,24 @@
 class LessonsBoardsController < ApplicationController
+  # O adaptador do PostgreSQL embute o nome da constraint violada na mensagem do RecordNotUnique,
+  # e é por ele que a violação do quadro duplicado se distingue de qualquer outra. O mesmo nome é
+  # declarado literalmente na migration que cria o índice — migration não referencia constante de app/.
+  UNIQUE_INDEX_NAME = 'idx_lessons_boards_unique_kept'.freeze
+
+  before_action :require_current_year, only: :index
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
   def index
-    @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
-    @lessons_boards = apply_scopes(@lessons_boards).filter_from_params(filtering_params(params[:search]))
+    filters = filter_resolver.resolve
+
+    assign_filters(filters)
+
+    @lessons_boards = apply_scopes(fetcher.lesson_boards)
+                      .filter_from_params(filters.to_filter_params)
+                      .preload(classrooms_grade: [:grade, { classroom: :unity }])
+                      .order('classrooms.description', 'lessons_boards.id')
+
     authorize @lessons_boards
   end
 
@@ -28,6 +42,10 @@ class LessonsBoardsController < ApplicationController
     authorize resource
   end
 
+  # O quadro duplicado sai pela listagem, e não pelo formulário: o erro fica em `classrooms_grade_id`,
+  # que a view renderiza como hidden e o simple_form não acompanha de mensagem, e o `new.js` esvazia a
+  # grade e desabilita o Salvar ao recarregar. Como o quadro pedido já existe, o destino útil é a
+  # listagem, de onde ele é editado.
   def create
     resource.assign_attributes(resource_params.to_h)
 
@@ -35,9 +53,13 @@ class LessonsBoardsController < ApplicationController
 
     if resource.save
       respond_with resource, location: lessons_boards_path
+    elsif resource.duplicated?
+      redirect_to lessons_boards_path, alert: t('lessons_boards.form.already_exists')
     else
       render :new
     end
+  rescue ActiveRecord::RecordNotUnique => e
+    handle_duplicated_lessons_board(e)
   end
 
   def edit
@@ -56,9 +78,13 @@ class LessonsBoardsController < ApplicationController
 
     if resource.save
       respond_with resource, location: lessons_boards_path
+    elsif resource.duplicated?
+      redirect_to lessons_boards_path, alert: t('lessons_boards.form.already_exists')
     else
       render :edit
     end
+  rescue ActiveRecord::RecordNotUnique => e
+    handle_duplicated_lessons_board(e)
   end
 
   def destroy
@@ -69,50 +95,18 @@ class LessonsBoardsController < ApplicationController
     respond_with resource, location: lessons_boards_path
   end
 
-  def filtering_params(params)
-    params = {} unless params
-
-    params.slice(
-      :by_year,
-      :by_unity,
-      :by_grade,
-      :by_classroom
-    )
-  end
-
   def generate_lesson_board_pdf
     @lesson_board = LessonsBoard.find(params[:id])
     html_content = render_to_string(
-      action: :generate_lesson_board_pdf, layout: "pdf_lesson_board", formats: [:html]
+      action: :generate_lesson_board_pdf, layout: "report_pluto", formats: [:html]
     )
-    response = ReportGenerator.call(html_content)
+    response = ReportGenerator.call(html_content, driver: :pluto)
 
     send_data response.body,
               filename: "quadro_de_aulas_#{@lesson_board.id}.pdf",
               type: "application/pdf",
               disposition: "inline"
   end
-
-  def lesson_unities
-    lessons_unities = if user_role_administrator?
-                        LessonsBoard.by_unity(unities_id)
-                                    .map(&:unity_id)
-                                    .uniq
-                      elsif current_user.employee?
-                        roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
-                        unities_user = UserRole.where(user_id: current_user.id,
-role_id: roles_ids).pluck(:unity_id)
-
-                        LessonsBoard.by_unity(unities_user)
-                                    .map(&:unity_id)
-                                    .uniq
-                      else
-                        unities
-                      end
-
-    Unity.where(id: lessons_unities).ordered
-  end
-  helper_method :lesson_unities
 
   def user_role_administrator?
     @role_administrator ||= current_user.reload_current_user_role&.role&.administrator?
@@ -129,30 +123,6 @@ role_id: roles_ids).pluck(:unity_id)
          .where(school_calendars: { year: current_user_school_year })
          .ordered
   end
-
-  def unities_id
-    unities.map(&:id)
-  end
-
-  def lesson_grades
-    lessons_grades = LessonsBoard.by_unity(unities_id)
-                                 .map(&:grade_id)
-                                 .uniq
-
-    Grade.find(lessons_grades)
-  end
-
-  helper_method :lesson_grades
-
-  def lesson_classrooms
-    lessons_classrooms = LessonsBoard.by_unity(unities_id)
-                                     .map(&:classroom_id)
-                                     .uniq
-
-    Classroom.find(lessons_classrooms)
-  end
-
-  helper_method :lesson_classrooms
 
   def resource
     @lessons_board ||= case params[:action]
@@ -266,6 +236,44 @@ role_id: roles_ids).pluck(:unity_id)
   end
 
   private
+
+  def handle_duplicated_lessons_board(error)
+    raise error unless error.message.include?(UNIQUE_INDEX_NAME)
+
+    redirect_to lessons_boards_path, alert: t('lessons_boards.form.already_exists')
+  end
+
+  def fetcher
+    @fetcher ||= LessonBoardsFetcher.new(current_user)
+  end
+
+  def assign_filters(filters)
+    @filtering_params = filters.to_form_params
+    @unities_options = filters.unity_options
+    @grades_options = filters.grade_options
+    @classrooms_options = filters.classroom_options
+
+    log_unity_out_of_reach(filters.unity_id_out_of_reach)
+  end
+
+  def filter_resolver
+    LessonsBoardsFilterResolver.new(
+      params[:search],
+      fetcher: fetcher,
+      default_year: current_user_school_year
+    )
+  end
+
+  # Escola fora do acesso indica URL adulterada, favorito antigo ou defeito na cascata: registra
+  # para o descarte não sumir sem rastro.
+  def log_unity_out_of_reach(unity_id)
+    return if unity_id.blank?
+
+    Rails.logger.warn(
+      "[LessonsBoards#index] escola fora do acesso descartada do filtro: by_unity=#{unity_id.inspect} " \
+      "user_id=#{current_user&.id.inspect} user_role_id=#{current_user&.current_user_role_id.inspect}"
+    )
+  end
 
   def validate_lessons_number
     classroom_lessons = resource.classroom.number_of_classes

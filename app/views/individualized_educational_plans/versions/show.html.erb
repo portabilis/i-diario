@@ -1,0 +1,35 @@
+<%# Mesmo JS do form: navegação do wizard. A busca de responsáveis fica desligada
+    (student_fetch: false) — na versão os dados vêm congelados do snapshot. %>
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/draft_autosave' %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/form' %>
+<% end %>
+
+<div class="widget-body no-padding">
+  <div class="smart-form">
+    <fieldset>
+      <div class="pull-left">
+        <h4 style="margin: 5px 0;">
+          <%= @version.name %><br>
+          <% if @version.active? %>
+            <span class="label label-success"><%= t('.active') %></span><br>
+          <% end %>
+          <small>
+            <%= t('.published_info', date: l(@version.published_at, format: :short), author: @version.published_by.name) %>
+          </small>
+        </h4>
+      </div>
+      <div class="text-right">
+        <%= link_to t('.back'), individualized_educational_plan_versions_path(@version.iep),
+              class: 'btn btn-default' %>
+        <%= link_to t('helpers.links.print_html'),
+              individualized_educational_plan_version_path(@version.iep, @version, format: :pdf),
+              class: 'btn btn-info apply_tooltip', target: '_blank',
+              data: { original_title: t('.print') } %>
+      </div>
+    </fieldset>
+  </div>
+
+  <%= render 'individualized_educational_plans/form', view_only: true, student_fetch: false,
+        medical_reports_plan_id: @version.individualized_educational_plan_id %>
+</div>

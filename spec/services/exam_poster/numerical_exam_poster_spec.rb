@@ -79,11 +79,13 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     )
   }
 
-  let(:scores) { Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) } }
+  # Payload achatado de POST /api/v2/notas, com chaves em String como volta do JSON do Sidekiq.
   let(:request) {
     {
       'etapa' => avaliation.current_step.to_number,
-      'resource' => 'notas'
+      'turma_id' => classroom.api_code,
+      'aluno_id' => daily_note_student.student.api_code,
+      'componente_id' => avaliation.discipline.api_code
     }
   }
   let(:info) {
@@ -100,8 +102,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     context 'hasnt complementary exams' do
       it 'queued request score match to daily note student score' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
-        request['notas'] = scores
+        request['nota'] = daily_note_student.note.to_f
         expect(
           Ieducar::SendPostWorker.jobs.first["args"][2]
         ).to match(request)
@@ -115,8 +116,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
 
       it 'change score of queued request' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = (daily_note_student.note + complementary_exam_student.score).to_f
-        request['notas'] = scores
+        request['nota'] = (daily_note_student.note + complementary_exam_student.score).to_f
         expect(
           Ieducar::SendPostWorker.jobs.first["args"][2]
         ).to match(request)
@@ -162,9 +162,8 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     context 'hasnt complementary exams' do
       it 'queued request score match to recovery score' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score
-        request['notas'] = scores
+        request['nota'] = daily_note_student.note.to_f
+        request['recuperacao'] = recovery_student.score
 
         expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
           Entity.first.id,
@@ -184,9 +183,8 @@ RSpec.describe ExamPoster::NumericalExamPoster do
 
       it 'change score of queued request' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score + complementary_exam_student.score
-        request['notas'] = scores
+        request['nota'] = daily_note_student.note.to_f
+        request['recuperacao'] = recovery_student.score + complementary_exam_student.score
 
         expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
           Entity.first.id,
@@ -240,9 +238,8 @@ RSpec.describe ExamPoster::NumericalExamPoster do
 
     it 'does not enqueue the requests' do
       subject.post!
-      scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] =
+      request['nota'] =
         daily_note_student.note.to_f
-      request['notas'] = scores
 
       expect(Ieducar::SendPostWorker)
         .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)

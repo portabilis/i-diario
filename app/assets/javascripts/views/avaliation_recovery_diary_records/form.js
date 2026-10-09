@@ -6,6 +6,8 @@ $(function () {
   var $discipline = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $avaliation = $('#avaliation_recovery_diary_record_avaliation_id');
   var $recorded_at = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_recorded_at');
+  // Mapa student_id -> nota já salva, para pré-preencher ao trocar a data.
+  var existingScores = $('#recovery-diary-record-students').data('existingScores') || {};
 
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
@@ -95,8 +97,8 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    $('#recovery-diary-record-students').empty();
-
+    // Sem empty(): a reconciliação por id (existing_ids x fetched_ids) preserva as
+    // linhas já renderizadas (com o id) ao trocar a data.
     if (_.isEmpty(data)) {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -111,12 +113,18 @@ $(function () {
 
         hideNoItemMessage();
 
+        // Coleta apenas ids numéricos das linhas de aluno já renderizadas. Ignora a
+        // linha placeholder (no_item_found), cujo id não é numérico, sem depender da
+        // sua posição — antes um shift() assumia cegamente que era o primeiro <tr>.
         $('#recovery-diary-record-students').children('tr').each(function () {
-          if (!$(this).hasClass('destroy')) {
-            existing_ids.push(parseInt(this.id));
+          if ($(this).hasClass('destroy')) { return; }
+
+          var row_id = parseInt(this.id, 10);
+
+          if (!isNaN(row_id)) {
+            existing_ids.push(row_id);
           }
         });
-        existing_ids.shift();
 
         if (_.isEmpty(existing_ids)) {
           _.each(daily_note_students, function (daily_note_student) {
@@ -152,6 +160,8 @@ $(function () {
             }
           });
         }
+
+        updateStatusLegend();
       } else {
         $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -165,34 +175,28 @@ $(function () {
   };
 
   function buildStudentField(element_id, daily_note_student, index = null) {
-    var student_situation = 'multiline ';
-    var student_name;
+    var status_badge = '';
 
-    if (daily_note_student.exempted_from_discipline) {
-      student_situation = student_situation + 'exempted-student-from-discipline';
-      student_name = '****' + daily_note_student.name
+    if (daily_note_student.in_active_search) {
+      status_badge = renderStudentStatusBadge('active-search');
     } else if (!daily_note_student.active) {
-      student_situation = student_situation + 'inactive-student';
-      student_name = '***' + daily_note_student.name
+      status_badge = renderStudentStatusBadge('inactive');
     } else if (daily_note_student.dependence) {
-      student_situation = student_situation + 'dependence-student';
-      student_name = '*' + daily_note_student.name
-    } else if (daily_note_student.in_active_search) {
-      student_situation = student_situation + 'in-active-search';
-      student_name = '*****' + daily_note_student.name
-    } else {
-      student_name = daily_note_student.name
+      status_badge = renderStudentStatusBadge('dependence');
+    } else if (daily_note_student.exempted_from_discipline) {
+      status_badge = renderStudentStatusBadge('exempted-from-discipline');
     }
 
     var html = JST['templates/avaliation_recovery_diary_records/student_fields']({
       sequence: daily_note_student.sequence,
       id: daily_note_student.id,
-      name: student_name,
+      name: daily_note_student.name,
       note: daily_note_student.note,
-      student_situation: student_situation,
+      status_badge: status_badge,
       active: daily_note_student.active,
       element_id: element_id,
-      exempted_from_discipline: daily_note_student.exempted_from_discipline
+      exempted_from_discipline: daily_note_student.exempted_from_discipline,
+      in_active_search: daily_note_student.in_active_search
     });
 
     var $tbody = $('#recovery-diary-record-students');
@@ -201,6 +205,12 @@ $(function () {
       $(html).insertAfter($tbody.children('tr')[index]);
     } else {
       $tbody.append(html);
+    }
+
+    // Pré-preenche a nota já lançada desse aluno, se houver.
+    var existingScore = existingScores[daily_note_student.id];
+    if (existingScore !== undefined && existingScore !== null && existingScore !== '') {
+      $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_' + element_id + '_score').val(existingScore);
     }
   }
 
@@ -239,6 +249,19 @@ $(function () {
   function loadDecimalMasks() {
     var numberOfDecimalPlaces = parseInt($('#recovery-diary-record-students').data('scale')) || 0;
     $('.nested-fields input.decimal, .note').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
+  }
+
+  function updateStatusLegend() {
+    var statuses = ['inactive', 'dependence', 'exempted-from-discipline', 'active-search'];
+    var anyVisible = false;
+
+    statuses.forEach(function (status) {
+      var hasBadge = $('#recovery-diary-record-students .badge-status--' + status).length > 0;
+      $('.student-status-legend__item[data-status="' + status + '"]').toggle(hasBadge);
+      if (hasBadge) { anyVisible = true; }
+    });
+
+    $('.student-status-legend').toggle(anyVisible);
   }
 
   // On change
@@ -294,4 +317,5 @@ $(function () {
   // On load
   fetchAvaliations();
   loadDecimalMasks();
+  updateStatusLegend();
 });

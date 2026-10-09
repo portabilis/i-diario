@@ -3,6 +3,8 @@ module ExamPoster
     private
 
     def generate_requests
+      # O formato do payload é contrato: o Ieducar::SendPostWorker manda para a API v2 o payload
+      # achatado, com `turma_id`, e escolhe o endpoint de faltas por componente por `componente_id`.
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           requests << {
@@ -12,12 +14,9 @@ module ExamPoster
             },
             request: {
               etapa: @post_data.step.to_number,
-              resource: 'faltas-geral',
-              faltas: {
-                classroom_id => {
-                  student_id => student_absence
-                }
-              }
+              turma_id: classroom_id,
+              aluno_id: student_id,
+              faltas: student_absence
             }
           }
         end
@@ -34,15 +33,12 @@ module ExamPoster
               },
               request: {
                 etapa: @post_data.step.to_number,
-                resource: 'faltas-por-componente',
-                faltas: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_absence
-                    }
-                  }
-                }
-              }
+                turma_id: classroom_id,
+                aluno_id: student_id,
+                componente_id: discipline_absence[:componente_id],
+                faltas: discipline_absence[:faltas],
+                area_do_conhecimento_id: discipline_absence[:area_do_conhecimento_id]
+              }.compact
             }
           end
         end
@@ -58,7 +54,7 @@ module ExamPoster
         GeneralConfiguration.current.do_not_send_justified_absence
       )
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         next unless can_post?(classroom)
         next if frequency_by_discipline?(classroom)
 
@@ -76,7 +72,7 @@ module ExamPoster
 
           value = absence_count_service.count(student, classroom, start_date, end_date)
 
-          absences[classroom.api_code][student.api_code]['valor'] = value
+          absences[classroom.api_code][student.api_code] = value
         end
       end
 
@@ -90,7 +86,7 @@ module ExamPoster
         GeneralConfiguration.current.do_not_send_justified_absence
       )
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
@@ -120,8 +116,11 @@ module ExamPoster
             knowledge_area = discipline.grouper? ? discipline.knowledge_area.api_code.to_i : nil
             knowledge_area = knowledge_area.eql?(0) ? nil : knowledge_area
 
-            absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
-            absences[classroom.api_code][student.api_code][discipline.api_code]['area_do_conhecimento'] = knowledge_area
+            absences[classroom.api_code][student.api_code][discipline.api_code] = {
+              componente_id: discipline.absence_posting_api_code,
+              faltas: value,
+              area_do_conhecimento_id: knowledge_area
+            }
           end
         end
       end

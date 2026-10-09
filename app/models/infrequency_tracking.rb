@@ -18,4 +18,18 @@ class InfrequencyTracking < ActiveRecord::Base
   scope :by_notification_date, ->(notification_date) { where(notification_date: notification_date.to_date) }
   scope :by_notification_type, ->(notification_type) { where(notification_type: notification_type) }
   scope :ordered, -> { order(notification_date: :desc) }
+
+  # `notification_data` é JSON sem forma garantida pelo banco; o notifier grava
+  # `[{ teacher_id:, absences: ['AAAA-MM-DD', ...] }, ...]`, uma entrada por
+  # professor que registrou a falta. Devolve as datas distintas, ordenadas —
+  # o mesmo dia aparece uma vez por professor. Entrada fora da forma é
+  # ignorada: uma linha legada não pode derrubar a listagem inteira.
+  def absence_dates
+    Array.wrap(notification_data)
+         .select { |entry| entry.is_a?(Hash) }
+         .flat_map { |entry| Array.wrap(entry['absences'] || entry[:absences]) }
+         .map(&:to_s)
+         .uniq
+         .sort
+  end
 end

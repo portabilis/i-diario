@@ -9,14 +9,14 @@ class ContentsForDisciplineRecordFetcher < ContentsRecordFetcher
   private
 
   def lesson_plans
-    @lesson_plans ||= DisciplineLessonPlan.includes(lesson_plan: :contents)
+    @lesson_plans ||= DisciplineLessonPlan.includes(:lesson_plan)
                                           .by_classroom_id(@classroom.id)
                                           .by_discipline_id(@discipline.id)
                                           .by_date(@date)
   end
 
   def teaching_plans
-    @teaching_plans ||= DisciplineTeachingPlan.includes(teaching_plan: :contents)
+    @teaching_plans ||= DisciplineTeachingPlan.includes(:teaching_plan)
                                               .by_unity(@classroom.unity_id)
                                               .by_grade(@classroom.grade_ids)
                                               .by_discipline(@discipline.id)

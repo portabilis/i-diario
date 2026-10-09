@@ -1,0 +1,27 @@
+<div class="modal fade" id="last-step-absence-warning-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document" style="margin-top: 20vh;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa-fw fa fa-exclamation-circle txt-color-red"></i> <%= t('.title') %></h4>
+      </div>
+      <div class="modal-body">
+        <p><%= t('.intro_html') %></p>
+        <ul>
+          <li><%= t('.early_approval_html') %></li>
+          <li><%= t('.when_to_send') %></li>
+          <li><%= t('.transfer_html') %></li>
+        </ul>
+        <div class="alert alert-info">
+          <i class="fa-fw fa fa-info-circle"></i>
+          <%= t('.ask_secretary') %>
+        </div>
+        <p><%= t('.question') %></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('.cancel') %></button>
+        <button type="button" class="btn btn-danger" id="last-step-absence-warning-continue"><%= t('.continue') %></button>
+      </div>
+    </div>
+  </div>
+</div>

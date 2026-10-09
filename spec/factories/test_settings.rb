@@ -3,8 +3,15 @@ FactoryGirl.define do
     sequence(:year) { |n| 2020 + n }
     exam_setting_type ExamSettingTypes::GENERAL
     maximum_score 10
-    number_of_decimal_places { rand(0..2) }
+    number_of_decimal_places 2
     average_calculation_type AverageCalculationTypes::ARITHMETIC
+
+    trait :general_by_school do
+      exam_setting_type ExamSettingTypes::GENERAL_BY_SCHOOL
+      default_division_weight 1
+      unities { [create(:unity).id] }
+      grades { [create(:grade).id] }
+    end
 
     factory :test_setting_with_sum_calculation_type do |_test_setting|
       average_calculation_type AverageCalculationTypes::SUM

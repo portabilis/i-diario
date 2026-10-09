@@ -149,18 +149,12 @@ $(function() {
             format: "json"
           })
         ).done(function() {
-          var filter = {
-            classroom: classroom_id,
-            discipline: discipline_id,
-            score_type: "concept",
-            show_inactive: false,
-            date: recorded_at
-          };
-
           if (!_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
             $.ajax({
-              url: Routes.by_date_student_enrollments_lists_pt_br_path({
-                filter: filter,
+              url: Routes.fetch_students_conceptual_exams_pt_br_path({
+                classroom_id: classroom_id,
+                discipline_id: discipline_id,
+                date: recorded_at,
                 format: "json"
               }),
               success: handleFetchStudentsSuccess,
@@ -175,7 +169,7 @@ $(function() {
   function handleFetchStudentsSuccess(data) {
     var studentPreviouslySelectedExists = false;
 
-    var students = _.map(data.student_enrollments_lists, function(
+    var students = _.map(data.students, function(
       student_enrollment
     ) {
       if (student_enrollment.student_id == window.studentPreviouslySelected) {
@@ -184,11 +178,20 @@ $(function() {
 
       return {
         id: student_enrollment.student_id,
-        text: student_enrollment.student.name
+        // O 'text' deve ser apenas o nome puro — é por ele que o select2
+        // filtra a busca digitada. As situações vão em atributos próprios.
+        text: student_enrollment.student.name,
+        in_active_search: student_enrollment.in_active_search,
+        in_dependence: student_enrollment.in_dependence,
+        inactive: student_enrollment.inactive_on_date
       };
     });
 
-    $student.select2({ data: students });
+    $student.select2({
+      data: students,
+      formatResult: formatStudentOption,
+      formatSelection: formatStudentOption
+    });
 
     if (studentPreviouslySelectedExists) {
       $student.select2("val", window.studentPreviouslySelected);
@@ -201,6 +204,19 @@ $(function() {
     flashMessages.error(
       "Ocorreu um erro ao buscar os alunos da turma selecionada."
     );
+  }
+
+  function formatStudentOption(student) {
+    var html = _.escape(student.text);
+
+    if (student.in_active_search) {
+      html += renderStudentStatusBadge("active-search");
+    }
+    if (student.inactive) {
+      html += renderStudentStatusBadge("inactive");
+    }
+
+    return html;
   }
 
   function fetchDisciplines() {
@@ -314,6 +330,7 @@ $(function() {
 
       loadSelect2ForConceptualExamValues();
       disableDisciplinesAccordingToExemptedDisciplines();
+      markDependenceDisciplines();
     }
   }
 
@@ -343,16 +360,25 @@ $(function() {
     });
   }
 
+  function updateConceptualLegend() {
+    var hasExempted = $('#conceptual_exam_values .badge-status--exempted-from-discipline').length > 0;
+    var hasDependence = $('#conceptual_exam_values .badge-status--dependence').length > 0;
+
+    $('.exempted_students_from_discipline_legend').toggleClass('hidden', !hasExempted);
+    $('.dependence_students_legend').toggleClass('hidden', !hasDependence);
+    $('.student-status-legend').toggleClass('hidden', !(hasExempted || hasDependence));
+  }
+
   function removeDisciplines() {
     $(".knowledge-area-table-row").remove();
     $(".nested-fields.dynamic").remove();
     $(".nested-fields.existing").hide();
     $(".nested-fields.existing [id$=_destroy]").val(true);
-    $(".exempted_students_from_discipline_legend").addClass("hidden");
     $(".old_step_column").remove();
     setTableColspans(2);
 
     showNoItemMessage();
+    updateConceptualLegend();
   }
 
   function hideNoItemMessage() {
@@ -397,18 +423,65 @@ $(function() {
       ) {
         var item = $(this).closest("tr");
         var description = item.find(".discipline_description");
-        description.html("****" + description.html().trim());
-        description.addClass("exempted-student-from-discipline");
+        if (description.nextAll(".badge-status--exempted-from-discipline").length === 0) {
+          description.after(renderStudentStatusBadge('exempted-from-discipline'));
+        }
         item.find("input[id$=_value]").attr("readonly", "readonly");
         item.find("input[id$=_exempted_discipline]").val("true");
-        $(".exempted_students_from_discipline_legend").removeClass("hidden");
       }
     });
+
+    updateConceptualLegend();
   }
 
   function disableDisciplinesAccordingToExemptedDisciplinesError() {
     flashMessages.error(
       "Ocorreu um erro ao buscar as disciplinas dispensadas."
+    );
+  }
+
+  // Marca o badge de "Dependência" ao lado das disciplinas em que o aluno
+  // selecionado cursa dependência. A nota permanece editável — o aluno em
+  // dependência recebe nota normalmente na disciplina cursada.
+  function markDependenceDisciplines() {
+    var student_id = $student.select2("val");
+    var classroom_id = $classroom.select2("val");
+
+    if (_.isEmpty(student_id) || _.isEmpty(classroom_id)) { return; }
+
+    $.ajax({
+      url: Routes.dependence_disciplines_conceptual_exams_pt_br_path({
+        student_id: student_id,
+        classroom_id: classroom_id,
+        format: "json"
+      }),
+      success: markDependenceDisciplinesSuccess,
+      error: markDependenceDisciplinesError
+    });
+  }
+
+  function markDependenceDisciplinesSuccess(data) {
+    var dependence_ids = (data && data.discipline_ids) || [];
+
+    $("tr input[id$=discipline_id]").each(function() {
+      var discipline_id = parseInt($(this).val(), 10);
+
+      if (dependence_ids.indexOf(discipline_id) === -1) { return; }
+
+      var item = $(this).closest("tr");
+      var description = item.find(".discipline_description");
+
+      if (description.nextAll(".badge-status--dependence").length === 0) {
+        description.after(renderStudentStatusBadge('dependence'));
+      }
+    });
+
+    updateConceptualLegend();
+  }
+
+  function markDependenceDisciplinesError() {
+    flashMessages.error(
+      "Ocorreu um erro ao buscar as disciplinas em dependência."
     );
   }
 
@@ -436,7 +509,35 @@ $(function() {
     flashMessages.error(message);
   }
 
+  // Aluno em Busca Ativa ou Não enturmado não pode receber lançamentos: exibe a
+  // mensagem, não carrega as disciplinas e desabilita os botões de salvar.
+  function blockStudentForSituation(situation) {
+    var studentData = $student.select2("data");
+    var studentName = (studentData && studentData.text) || "";
+    var messages = {
+      active_search:
+        `O(a) aluno(a) ${studentName} está em situação de Busca Ativa e não pode receber lançamentos.`,
+      not_grouped:
+        `O(a) aluno(a) ${studentName} não está enturmado(a) na turma nesta data e não pode receber lançamentos.`
+    };
+
+    removeDisciplines();
+    $("#btn-save").attr("disabled", true);
+    $("#btn-save-and-next").attr("disabled", true);
+    flashMessages.error(messages[situation]);
+  }
+
   $student.on("change", function() {
+    var studentData = $student.select2("data");
+    updateConceptualLegend();
+
+    if (studentData && studentData.in_active_search) {
+      return blockStudentForSituation("active_search");
+    }
+    if (studentData && studentData.inactive) {
+      return blockStudentForSituation("not_grouped");
+    }
+
     $.get(
       Routes.find_conceptual_exam_by_student_conceptual_exams_pt_br_path({
         conceptual_exam: {

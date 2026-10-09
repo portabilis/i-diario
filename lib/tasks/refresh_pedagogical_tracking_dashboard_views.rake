@@ -1,11 +1,9 @@
-
-desc "Refreshes materialized views used in the pedagogical tracking dashboard"
+desc 'Enfileira a atualização das views materializadas do acompanhamento pedagógico'
 task refresh_pedagogical_tracking_views: :environment do
-  Entity.active.each do |entity|
-    entity.using_connection do
-      connection = ActiveRecord::Base.connection
-      connection.execute('REFRESH MATERIALIZED VIEW mvw_frequency_by_school_classroom_teachers')
-      connection.execute('REFRESH MATERIALIZED VIEW mvw_content_record_by_school_classroom_teachers')
-    end
-  end
+  # O enfileiramento pode não levantar erro com a fila indisponível: o job ficaria
+  # em memória e seria perdido no fim da rake, sem nenhum sinal. O ping falha alto.
+  Sidekiq.redis(&:ping)
+
+  # Um job por entidade, encadeados, para que a falha em uma base não impeça as demais.
+  RefreshPedagogicalTrackingViewsWorker.enqueue_next(Entity.active.order(:id).pluck(:id))
 end

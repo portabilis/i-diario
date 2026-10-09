@@ -1,0 +1,464 @@
+# frozen_string_literal: true
+
+class IeducarStudentTransferDataFetcher
+  class StudentNotEnrolledError < StandardError; end
+
+  attr_reader :all_postings_sent, :last_step_skipped
+
+  def initialize(student:, classroom:, transfer_date: nil)
+    @student = student
+    @classroom = classroom
+    @transfer_date = parse_transfer_date(transfer_date)
+    @all_postings_sent = true
+    @last_step_skipped = false
+  end
+
+  def post_to_ieducar!
+    unless exam_rule
+      Rails.logger.warn(
+        "IeducarStudentTransferDataFetcher: classroom #{classroom.id} sem exam_rule - notas e pareceres serão ignorados"
+      )
+      @all_postings_sent = false
+    end
+
+    steps.each do |step|
+      if skip_step?(step)
+        @last_step_skipped = true if step == steps.last
+        next
+      end
+
+      post_numerical_scores_for_step(step)
+      post_conceptual_scores_for_step(step)
+      post_absences_for_step(step)
+      post_descriptive_exams_for_step(step)
+    end
+
+    post_final_recovery
+  end
+
+  private
+
+  attr_reader :student, :classroom, :transfer_date
+
+  # Pula a etapa inteira: quando etapa ainda não começou (sem lançamentos), ou é a última
+  # etapa aberta de turma sem nota (enviá-la aprovaria o aluno).
+  def skip_step?(step)
+    future_step?(step) || skip_open_last_step?(step)
+  end
+
+  # Etapa não iniciada não tem lançamentos; sem esta guarda o i-Educar receberia
+  # faltas=0 (a contagem devolve 0) como se a frequência tivesse sido zerada.
+  def future_step?(step)
+    return false if step.start_at.blank?
+
+    step.start_at.to_date > reference_date
+  end
+
+  # transfer_date quando o i-Educar informa; senão hoje (webhook dispara na transferência).
+  def reference_date
+    @reference_date ||= transfer_date || Date.current
+  end
+
+  # Turma sem nota é aprovada no i-Educar ao receber a frequência da última etapa;
+  # se ela ainda está aberta na data de referência (reference_date < end_at),
+  # enviá-la aprovaria o aluno — por isso é retida por completo.
+  def skip_open_last_step?(step)
+    return false unless without_score_exam_rule?
+    return false unless step == steps.last
+
+    last_step_open_on_reference_date?(step)
+  end
+
+  def without_score_exam_rule?
+    exam_rule&.score_type == ScoreTypes::DONT_USE
+  end
+
+  def last_step_open_on_reference_date?(step)
+    return false if step.end_at.blank?
+
+    reference_date < step.end_at.to_date
+  end
+
+  def parse_transfer_date(value)
+    return value if value.is_a?(Date)
+    return if value.blank?
+
+    # Parse estrito ISO-8601 (o controller já valida o formato antes de enfileirar).
+    Date.iso8601(value.to_s)
+  rescue ArgumentError, TypeError => e
+    # Data inválida: notifica o Honeybadger e segue com nil (filtros passam a usar hoje).
+    Rails.logger.error(
+      "IeducarStudentTransferDataFetcher: transfer_date inválida (#{value.inspect}) " \
+      "student=#{student&.id} classroom=#{classroom&.id} - usando a data corrente como referência"
+    )
+    Honeybadger.notify(
+      e,
+      context: { student_id: student&.id, classroom_id: classroom&.id, transfer_date: value }
+    )
+    nil
+  end
+
+  def steps
+    @steps ||= StepsFetcher.new(classroom).steps
+  end
+
+  # A associação passa pelos vínculos de professor: um componente com mais de um professor na
+  # turma viria repetido, e cada nota, parecer e falta dele seria enviada mais de uma vez.
+  def disciplines
+    @disciplines ||= classroom.disciplines.distinct
+  end
+
+  def school_calendar
+    @school_calendar ||= StepsFetcher.new(classroom).school_calendar
+  end
+
+  def ieducar_api
+    @ieducar_api ||= IeducarApiConfiguration.current
+  end
+
+  def absence_count_service
+    @absence_count_service ||= AbsenceCountService.new(
+      GeneralConfiguration.current.do_not_send_justified_absence
+    )
+  end
+
+  def exam_rule
+    @exam_rule ||= begin
+      rule = student_classrooms_grade&.exam_rule || classroom.first_exam_rule
+      if student.uses_differentiated_exam_rule && rule&.differentiated_exam_rule.present?
+        rule.differentiated_exam_rule
+      else
+        rule
+      end
+    end
+  end
+
+  def student_classrooms_grade
+    @student_classrooms_grade ||= StudentEnrollmentClassroom
+      .joins(:student_enrollment, :classrooms_grade)
+      .where(student_enrollments: { student_id: student.id })
+      .where(classrooms_grades: { classroom_id: classroom.id })
+      .where("COALESCE(student_enrollment_classrooms.left_at, '') = ''")
+      .first
+      &.classrooms_grade
+  end
+
+  def frequency_by_discipline?
+    exam_rule&.frequency_type == FrequencyTypes::BY_DISCIPLINE
+  end
+
+  # Numerical scores
+  def post_numerical_scores_for_step(step)
+    return unless numerical_score_type?
+
+    disciplines.each do |discipline|
+      next if exempted_discipline?(discipline, step)
+
+      value = StudentAverageCalculator.new(student).calculate(classroom, discipline, step)
+      next if value.blank?
+
+      score_data = { 'nota' => value }
+
+      recovery_value = fetch_school_term_recovery_score(discipline, step)
+      score_data['recuperacao'] = recovery_value if recovery_value.present?
+
+      send_score_to_ieducar(step.to_number, discipline, score_data)
+    end
+  end
+
+  def fetch_school_term_recovery_score(discipline, step)
+    school_term_recovery = SchoolTermRecoveryDiaryRecord
+                           .by_classroom_id(classroom)
+                           .by_discipline_id(discipline)
+                           .by_step_id(classroom, step.id)
+                           .first
+
+    return unless school_term_recovery
+
+    recovery_student = school_term_recovery.recovery_diary_record
+                                           .students
+                                           .find_by(student_id: student.id)
+
+    return unless recovery_student&.score.present?
+
+    adjusted_score = ComplementaryExamCalculator.new(
+      [AffectedScoreTypes::STEP_RECOVERY_SCORE, AffectedScoreTypes::BOTH],
+      student,
+      discipline.id,
+      classroom.id,
+      step
+    ).calculate(recovery_student.score)
+
+    ScoreRounder.new(
+      classroom,
+      RoundedAvaliations::SCHOOL_TERM_RECOVERY,
+      step
+    ).round(adjusted_score)
+  end
+
+  def send_score_to_ieducar(step_number, discipline, score_data)
+    params = {
+      etapa: step_number,
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      componente_id: discipline.api_code,
+      nota: score_data['nota'],
+      recuperacao: score_data['recuperacao']
+    }.compact
+
+    send_v2_to_ieducar(IeducarApi::PostScores, params, "nota (componente: #{params[:componente_id]})")
+  end
+
+  # Conceptual scores
+  def post_conceptual_scores_for_step(step)
+    return unless conceptual_score_type?
+
+    conceptual_exam = ConceptualExam
+                      .by_classroom(classroom)
+                      .by_student_id(student.id)
+                      .by_step_id(classroom, step.id)
+                      .first
+
+    return unless conceptual_exam
+
+    conceptual_exam.conceptual_exam_values.each do |exam_value|
+      next if exam_value.value.blank?
+      next if exempted_discipline?(exam_value.discipline, step)
+
+      score_data = { 'nota' => exam_value.value }
+      send_score_to_ieducar(step.to_number, exam_value.discipline, score_data)
+    end
+  end
+
+  # Absences
+  def post_absences_for_step(step)
+    if frequency_by_discipline?
+      post_absences_by_discipline_for_step(step)
+    else
+      post_general_absences_for_step(step)
+    end
+  end
+
+  def post_general_absences_for_step(step)
+    value = absence_count_service.count(student, classroom, step.start_at, step.end_at)
+
+    params = {
+      etapa: step.to_number,
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      faltas: value
+    }
+
+    send_general_absences_to_ieducar(params)
+  end
+
+  def post_absences_by_discipline_for_step(step)
+    disciplines.each do |discipline|
+      value = absence_count_service.count(student, classroom, step.start_at, step.end_at, discipline)
+
+      knowledge_area = discipline.grouper? ? discipline.knowledge_area&.api_code.to_i : nil
+      knowledge_area = nil if knowledge_area&.zero?
+
+      params = {
+        etapa: step.to_number,
+        turma_id: classroom.api_code,
+        aluno_id: student.api_code,
+        componente_id: discipline.absence_posting_api_code,
+        faltas: value,
+        area_do_conhecimento_id: knowledge_area
+      }.compact
+
+      send_discipline_absences_to_ieducar(params)
+    end
+  end
+
+  # Descriptive exams
+  def post_descriptive_exams_for_step(step)
+    opinion_type = exam_rule&.opinion_type
+
+    case opinion_type
+    when OpinionTypes::BY_STEP
+      post_descriptive_by_step(step)
+    when OpinionTypes::BY_STEP_AND_DISCIPLINE
+      post_descriptive_by_step_and_discipline(step)
+    when OpinionTypes::BY_YEAR
+      post_descriptive_by_year if step == steps.last
+    when OpinionTypes::BY_YEAR_AND_DISCIPLINE
+      post_descriptive_by_year_and_discipline if step == steps.last
+    end
+  end
+
+  def post_descriptive_by_step(step)
+    exam = DescriptiveExamStudent
+           .joins(:descriptive_exam)
+           .by_student_id(student.id)
+           .merge(DescriptiveExam.by_classroom_id(classroom.id).by_step_id(classroom, step.id))
+           .where(descriptive_exams: { discipline_id: nil })
+           .first
+
+    return unless exam&.value.present?
+
+    params = {
+      etapa: step.to_number,
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      parecer: exam.value
+    }
+
+    send_v2_to_ieducar(IeducarApi::PostOpinionsByStep, params, 'avaliação descritiva da etapa')
+  end
+
+  def post_descriptive_by_step_and_discipline(step)
+    disciplines.each do |discipline|
+      next if exempted_discipline?(discipline, step)
+
+      exam = DescriptiveExamStudent
+             .joins(:descriptive_exam)
+             .by_student_id(student.id)
+             .merge(
+               DescriptiveExam.by_classroom_id(classroom.id)
+                              .by_discipline_id(discipline.id)
+                              .by_step_id(classroom, step.id)
+             )
+             .first
+
+      next unless exam&.value.present?
+
+      params = {
+        etapa: step.to_number,
+        turma_id: classroom.api_code,
+        aluno_id: student.api_code,
+        componente_id: discipline.api_code,
+        parecer: exam.value
+      }
+
+      send_v2_to_ieducar(
+        IeducarApi::PostOpinionsByStepAndDiscipline,
+        params,
+        "avaliação descritiva da etapa (componente: #{params[:componente_id]})"
+      )
+    end
+  end
+
+  def post_descriptive_by_year
+    exam = DescriptiveExamStudent
+           .joins(:descriptive_exam)
+           .by_student_id(student.id)
+           .merge(DescriptiveExam.by_classroom_id(classroom.id))
+           .where(descriptive_exams: { discipline_id: nil })
+           .first
+
+    return unless exam&.value.present?
+
+    params = {
+      turma_id: classroom.api_code,
+      aluno_id: student.api_code,
+      parecer: exam.value
+    }
+
+    send_v2_to_ieducar(IeducarApi::PostOpinionsByYear, params, 'avaliação descritiva anual')
+  end
+
+  def post_descriptive_by_year_and_discipline
+    disciplines.each do |discipline|
+      exam = DescriptiveExamStudent
+             .joins(:descriptive_exam)
+             .by_student_id(student.id)
+             .merge(
+               DescriptiveExam.by_classroom_id(classroom.id)
+                              .by_discipline_id(discipline.id)
+             )
+             .first
+
+      next unless exam&.value.present?
+
+      params = {
+        turma_id: classroom.api_code,
+        aluno_id: student.api_code,
+        componente_id: discipline.api_code,
+        parecer: exam.value
+      }
+
+      send_v2_to_ieducar(
+        IeducarApi::PostOpinionsByYearAndDiscipline,
+        params,
+        "avaliação descritiva anual (componente: #{params[:componente_id]})"
+      )
+    end
+  end
+
+  # Final recovery
+  def post_final_recovery
+    return unless numerical_score_type?
+
+    disciplines.each do |discipline|
+      final_recovery = FinalRecoveryDiaryRecord
+                       .by_school_calendar_id(school_calendar&.id)
+                       .by_classroom_id(classroom.id)
+                       .by_discipline_id(discipline.id)
+                       .first
+
+      next unless final_recovery
+
+      recovery_student = final_recovery.recovery_diary_record
+                                       .students
+                                       .find_by(student_id: student.id)
+
+      next unless recovery_student&.score.present?
+
+      step = steps.last
+      score_rounder = ScoreRounder.new(
+        classroom,
+        RoundedAvaliations::FINAL_RECOVERY,
+        step
+      )
+
+      value = score_rounder.round(recovery_student.score)
+      next if value.blank?
+
+      send_score_to_ieducar(IeducarApi::PostScores::FINAL_RECOVERY_STEP, discipline, 'nota' => value)
+    end
+  end
+
+  def numerical_score_type?
+    [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT].include?(exam_rule&.score_type)
+  end
+
+  def conceptual_score_type?
+    [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT].include?(exam_rule&.score_type)
+  end
+
+  def exempted_discipline?(discipline, step)
+    ExemptedDisciplinesInStep.discipline_ids(classroom.id, step.to_number).include?(discipline.id)
+  end
+
+  def send_general_absences_to_ieducar(params)
+    send_v2_to_ieducar(IeducarApi::PostGeneralAbsences, params, 'falta geral')
+  end
+
+  def send_discipline_absences_to_ieducar(params)
+    send_v2_to_ieducar(
+      IeducarApi::PostDisciplineAbsences,
+      params,
+      "falta por componente (componente: #{params[:componente_id]})"
+    )
+  end
+
+  # Recebe a configuration, e não o `to_api` dos métodos vizinhos: o hash legado não expõe o
+  # api_security_token, que é como a API v2 autentica.
+  def send_v2_to_ieducar(api_class, params, description)
+    api = api_class.new(ieducar_api)
+    response = IeducarResponseDecorator.new(api.send_post(params))
+
+    return unless response.any_error_message?
+
+    # Aqui não existe IeducarApiExamPosting para registrar o aviso: sem o log, o motivo da falha
+    # parcial não fica em lugar nenhum.
+    Rails.logger.warn(
+      "[transferência] #{description} não enviada - aluno: #{student.id}, turma: #{classroom.id}, " \
+      "etapa: #{params[:etapa]}: #{response.error.message}"
+    )
+
+    @all_postings_sent = false
+  end
+end

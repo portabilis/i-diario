@@ -56,7 +56,7 @@ class TeachingPlan < ApplicationRecord
   end
 
   def contents_ordered
-    contents.order('contents_teaching_plans.position')
+    contents.order('contents_teaching_plans.position, contents_teaching_plans.id')
   end
 
   def objectives_ordered

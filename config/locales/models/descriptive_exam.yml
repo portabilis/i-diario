@@ -18,6 +18,13 @@ pt-BR:
         recorded_at: "Data"
         opinion_type: "Tipo"
 
+    errors:
+      models:
+        descriptive_exam:
+          attributes:
+            step_id:
+              not_belongs_to_classroom: "não pertence à turma selecionada"
+
   errors:
     descriptive_exams:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

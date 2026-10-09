@@ -1,0 +1,54 @@
+<%# Painel de um tipo (Por Disciplina/Por Campo) dentro de uma revisão: pills dos
+    componentes já adicionados + botão que abre o modal de adição.
+    Locals: f, association, fields_partial, review_date, component_type (:discipline/:knowledge_area),
+            dom_id, view_only (opcional) %>
+<% view_only = local_assigns[:view_only] %>
+<%# @editable_component_scope: escopo do professor (ver IndividualizedEducationalPlanTeacherComponentPermission).
+    Presente => só as linhas do componente dele são editáveis. nil (admin/servidor e também a
+    versão publicada, onde quem trava é view_only) => nenhuma restrição por linha aqui. %>
+<% component_scope = @editable_component_scope %>
+<% lines = @individualized_educational_plan.send(association).select { |row|
+     row.iep_review_date_id == review_date.id && !row.marked_for_destruction? &&
+       row.public_send("#{component_type}_id").present?
+   } %>
+
+<%# Só mostra o botão de adicionar quando há componente daquele tipo (o professor vê só os seus). %>
+<% components_available = component_type == :discipline ? @disciplines.present? : @knowledge_areas.present? %>
+<% if !view_only && components_available %>
+  <div style="margin: 15px 0;">
+    <button type="button" class="btn btn-success btn-sm iep-add-component" data-panels="#<%= dom_id %>-panels">
+      <%= t("individualized_educational_plans.form.add_#{component_type}") %>
+    </button>
+  </div>
+<% end %>
+
+<ul class="nav nav-pills iep-component-pills" style="margin: 0 0 15px;">
+  <% lines.each_with_index do |line, index| %>
+    <li class="<%= 'active' if index.zero? %>">
+      <a href="javascript:void(0)" data-target-key="<%= line.id %>">
+        <%= line.public_send(component_type)&.description %>
+      </a>
+    </li>
+  <% end %>
+</ul>
+
+<div class="iep-component-panels" id="<%= dom_id %>-panels" data-review-id="<%= review_date.id %>"
+     data-component-type="<%= component_type %>">
+  <% lines.each_with_index do |line, index| %>
+    <%# child_index: line.id faz os name/id dos campos usarem o id real da linha (não o
+        índice sequencial), casando com a pill (data-target-key) e o hidden lido pelo JS. %>
+    <% line_view_only = view_only || (component_scope.present? && !component_scope.owns_line?(line)) %>
+    <%= f.simple_fields_for association, line, child_index: line.id do |line_form| %>
+      <%= render fields_partial, f: line_form, hidden: !index.zero?, view_only: line_view_only %>
+    <% end %>
+  <% end %>
+</div>
+
+<% unless view_only %>
+  <span class="hidden">
+    <%= link_to_add_association 'add', f, association,
+          partial: fields_partial,
+          class: 'iep-add-line',
+          data: { association_insertion_node: "##{dom_id}-panels", association_insertion_method: 'append' } %>
+  </span>
+<% end %>

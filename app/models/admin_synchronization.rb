@@ -11,7 +11,16 @@ class AdminSynchronization
       started = []
       finished = []
 
-      Entity.active.each do |entity|
+      # materializar antes de liberar a primária: a relation lazy reabriria a conexão no each
+      entities = Entity.active.to_a
+
+      # a conexão com o banco principal só serve para carregar a lista de entidades;
+      # dentro dos blocos using_connection todas as queries vão para o banco do tenant.
+      # Sem liberá-la aqui, a thread a segura pela vida inteira do processo
+      ActiveRecord::Base.clear_active_connections!
+      ActiveRecord::Base.connection_handler.flush_idle_connections!
+
+      entities.each do |entity|
         entity.using_connection do
           started << mount_started(entity)
           finished << mount_finished(entity)

@@ -18,7 +18,8 @@
         <div class="col col-sm-4">
           <%= f.association :test_setting, as: :select2, elements: @test_settings, hide_empty_element: true,
               input_html: {
-                data: { hide_empty_element: true }, value: @test_settings.first&.id
+                data: { hide_empty_element: true },
+                value: @avaliation.test_setting_id || @test_settings.first&.id
               }
           %>
         </div>
@@ -61,7 +62,9 @@
       <div class="col col-sm-4">
         <%= f.association :test_setting_test, as: :select2, elements: [] %>
       </div>
+    </div>
 
+    <div class="row">
       <div class="col col-sm-4">
         <%= f.input :weight, required: true, label_html: show_avaliation_weight,
             input_html: show_avaliation_weight.merge({
@@ -98,8 +101,8 @@
 
     <% if @allow_automatic_avaliation_recovery %>
       <div style="float: right; height: 31px; margin: 10px 10px 0 5px; line-height: 31px;">
-        <label class="checkbox" style="display: inline-block; margin: 0;">
-          <%= f.check_box :should_create_recovery %>
+        <label class="checkbox <%= 'state-disabled' if @force_recovery_creation %>" style="display: inline-block; margin: 0;">
+          <%= f.check_box :should_create_recovery, (@force_recovery_creation ? { checked: true, disabled: true } : {}) %>
           <i></i>
           <%= t('activerecord.attributes.avaliation.should_create_recovery') %>
         </label>

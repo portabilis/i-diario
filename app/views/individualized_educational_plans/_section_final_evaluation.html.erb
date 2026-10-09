@@ -1,0 +1,7 @@
+<% view_only = local_assigns[:view_only] %>
+<fieldset>
+  <% %i[annual_report overall_evolution next_year_recommendations referrals_made].each do |field| %>
+    <%= render 'textarea', f: f, attribute: field, label: t(".#{field}"), view_only: view_only,
+          placeholder: t(".#{field}_placeholder", default: '').presence %>
+  <% end %>
+</fieldset>

@@ -67,6 +67,7 @@ class ConceptualExam < ActiveRecord::Base
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
   validate :ensure_student_is_in_classroom
+  validate :ensure_student_is_not_in_active_search
 
   def self.active
     join_conceptual_exam_values.merge(ConceptualExamValue.active(false))
@@ -230,5 +231,15 @@ class ConceptualExam < ActiveRecord::Base
     return if StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
 
     errors.add(:base, :student_is_not_in_classroom)
+  end
+
+  def ensure_student_is_not_in_active_search
+    return if recorded_at.blank? || student_id.blank? || classroom_id.blank? || validation_type == :destroy
+
+    enrollment_ids = StudentEnrollment.by_student(student_id).by_classroom(classroom_id).pluck(:id)
+    return if enrollment_ids.blank?
+    return unless ActiveSearch.new.in_active_search?(enrollment_ids, recorded_at)
+
+    errors.add(:base, :student_in_active_search)
   end
 end

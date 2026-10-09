@@ -18,6 +18,7 @@ Para executar o projeto é necessário a utilização de alguns softwares.
 - [Postgres](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
 - [Git](https://git-scm.com/downloads)
+- [ImageMagick](https://imagemagick.org/) com suporte a WebP, que redimensiona e converte o brasão da instituição
 
 ### Docker
 
@@ -81,7 +82,7 @@ Instale as dependências:
 
 ```bash
 apt update
-apt install -y curl wget git build-essential libpq-dev shared-mime-info rbenv postgresql postgresql-contrib redis
+apt install -y curl wget git build-essential libpq-dev shared-mime-info imagemagick rbenv postgresql postgresql-contrib redis
 ```
 
 Instale e configure o OpenSSL, é necessária uma configuração especial devido a versão do Ruby:
@@ -232,3 +233,13 @@ Após configurada a integração, será exibido dois botões:
   Este botão apenas é exibido para o usuário `admin`.
 
 _Nota: é recomendada que a sincronização seja executada diariamente para manter o i-Diário atualizado com o i-Educar_
+
+### Brasão da instituição
+
+O brasão enviado em `Configurações > Entidade` é gravado em WebP, limitado a 400 px no maior lado, com uma versão PNG do mesmo tamanho para os relatórios em PDF.
+Brasões enviados antes dessa otimização continuam funcionando com o arquivo original; para convertê-los, rode:
+
+```bash
+bundle exec rake entity_logo:optimize             # todas as entidades
+bundle exec rake entity_logo:optimize TENANT=nome # só a entidade com esse nome
+```

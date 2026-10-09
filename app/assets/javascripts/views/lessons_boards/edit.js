@@ -21,6 +21,9 @@ $(function () {
         return
       }
     }
+    // O botão continua clicável enquanto a resposta do envio não chega, e cada clique
+    // dispara um envio próprio.
+    $('#btn-submit').attr('disabled', true);
     $('#form-submit').submit();
   })
 

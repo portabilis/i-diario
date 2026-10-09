@@ -5,7 +5,8 @@ class SchoolCalendarEventDays
     action_name,
     old_start_date = nil,
     old_end_date = nil,
-    event_type_changed = false
+    event_type_changed: false,
+    scope_changed: false
   )
     @school_calendars = school_calendars
     @events = events
@@ -13,6 +14,7 @@ class SchoolCalendarEventDays
     @old_start_date = old_start_date
     @old_end_date = old_end_date
     @event_type_changed = event_type_changed
+    @scope_changed = scope_changed
   end
 
   def self.update_school_days(
@@ -21,7 +23,8 @@ class SchoolCalendarEventDays
     action_name,
     old_start_date = nil,
     old_end_date = nil,
-    event_type_changed = false
+    event_type_changed: false,
+    scope_changed: false
   )
     new(
       school_calendars,
@@ -29,7 +32,8 @@ class SchoolCalendarEventDays
       action_name,
       old_start_date,
       old_end_date,
-      event_type_changed
+      event_type_changed: event_type_changed,
+      scope_changed: scope_changed
     ).update_school_days
   end
 
@@ -48,6 +52,10 @@ class SchoolCalendarEventDays
           process_school_days(event_type, days, :destroy)
         else
           update_school_days_for_event_type(event_type, days)
+
+          if @scope_changed && event_type_includes_no_school?
+            remove_frequencies_for_current_scope(days & old_event_days)
+          end
         end
       end
     end
@@ -97,6 +105,17 @@ class SchoolCalendarEventDays
     return false if creating && school_calendar.events.by_date(school_day).where.not(coverage: 'by_unity').exists?
 
     SchoolDayChecker.new(school_calendar, school_day, nil, nil, nil).school_day?
+  end
+
+  # Mudar o escopo (turno/série/turma/curso) só exige remover as frequências que
+  # passaram a ser cobertas — dias letivos não dependem do escopo. Por isso a remoção
+  # é direta, sem reprocessar dias nem mexer em UnitySchoolDay.
+  def remove_frequencies_for_current_scope(days)
+    update_daily_frequencies(@school_calendars.map(&:unity_id).uniq, days)
+  end
+
+  def old_event_days
+    (@old_start_date..@old_end_date).to_a
   end
 
   def update_daily_frequencies(unities_ids, days_to_process)

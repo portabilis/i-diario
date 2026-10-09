@@ -9,9 +9,10 @@
 
     <% present(f.object) do |recovery_diary_record_student| %>
       <%= f.input :student_id, as: :hidden %>
-      <span class="<%= recovery_diary_record_student.student_name_class %>">
-        <%= recovery_diary_record_student.student_name %>
-      </span>
+      <span class="multiline"><%= recovery_diary_record_student.student %></span>
+      <% if recovery_diary_record_student.status_badge %>
+        <%= student_status_badge(recovery_diary_record_student.status_badge) %>
+      <% end %>
     <% end %>
   </td>
 
@@ -30,7 +31,7 @@
   <td>
     <%= f.input :score, label: false, error: false,
         input_html: decimal_input_mask(decimal_places),
-        readonly: (!f.object.active && !f.object.active.nil?) || f.object.exempted_from_discipline %>
+        readonly: (!f.object.active && !f.object.active.nil?) || f.object.exempted_from_discipline || f.object.in_active_search %>
     <%= format_error_message(f.error(:score, class: 'error').to_s).html_safe %>
   </td>
 </tr>

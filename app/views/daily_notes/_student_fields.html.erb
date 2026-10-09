@@ -1,4 +1,5 @@
-<tr class="nested-fields student-tr" id=<%= "tr_student_#{f.object.student_id}"%>>
+<tr class="nested-fields student-tr" id="<%= "tr_student_#{f.object.student_id}" %>"
+    data-in-active-search="<%= !!f.object.in_active_search %>">
   <% present(f.object) do |student| %>
     <td>
      <div class="controls input">
@@ -18,8 +19,10 @@
 
     <td>
       <%= f.input :student_id, as: :hidden %>
-      <span id=<%= "student_name_#{student.student_id}"%>
-            class="<%= student.student_name_class %>"><%= student.student_name %></span>
+      <span id="student_name_<%= student.student_id %>" class="multiline"><%= student.student %></span>
+      <span class="student-status-badges" id="student_status_badges_<%= student.student_id %>">
+        <%= student_status_badge(student.status_badge) if student.status_badge %>
+      </span>
     </td>
 
     <td>

@@ -79,10 +79,11 @@ class DailyFrequenciesController < ApplicationController
 
     @students = []
     @students_list = []
+    @normal_students = []
+    @dependence_students = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
     @any_in_active_search = false
-    @dependence_students = false
     @absence_justification = AbsenceJustification.new
     @absence_justification.school_calendar = current_school_calendar
     @is_new_record = @daily_frequencies.first.new_record?
@@ -138,13 +139,12 @@ class DailyFrequenciesController < ApplicationController
 
       @any_exempted_from_discipline ||= has_exempted
       @any_in_active_search ||= in_active_search
-      @dependence_students ||= has_dependence
       @any_inactive_student ||= !activated_student
 
       next unless activated_student || show_inactive_enrollments
 
       @students_list << student
-      @students << {
+      student_data = {
         student: student,
         student_enrollment_id: student_enrollment_id,
         dependence: has_dependence,
@@ -154,6 +154,13 @@ class DailyFrequenciesController < ApplicationController
         absence_justification: absence_justification,
         sequence: sequence
       }
+      @students << student_data
+
+      if has_dependence
+        @dependence_students << student_data
+      else
+        @normal_students << student_data
+      end
     end
 
     all_inactive = @students.all? { |element| element[:active] == false }
@@ -169,7 +176,11 @@ class DailyFrequenciesController < ApplicationController
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
-    @students = @students.sort_by { |student| student[:sequence] } if show_inactive_enrollments
+    if show_inactive_enrollments
+      @normal_students = @normal_students.sort_by { |student| student[:sequence] }
+      @dependence_students = @dependence_students.sort_by { |student| student[:sequence] }
+      @students = @normal_students + @dependence_students
+    end
   end
 
   def create_or_update_multiple
@@ -264,6 +275,13 @@ class DailyFrequenciesController < ApplicationController
       current_teacher_id
     )
 
+    AutomaticAbsencePostingEnqueuer.call(
+      entity_id: current_entity.id,
+      classroom_id: daily_frequency_record.classroom_id,
+      frequency_dates: [daily_frequency_record.frequency_date],
+      teacher_id: current_teacher_id
+    )
+
     if receive_email_confirmation && valid_email_for_notification?(current_user.email)
       classroom = daily_frequency_record.classroom.description
       unity = daily_frequency_record.unity.name
@@ -285,20 +303,36 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
-      daily_frequency = @daily_frequencies.first
-      classroom_id = daily_frequency.classroom_id
-      frequency_date = daily_frequency.frequency_date
+      authorize @daily_frequencies.first
 
-      authorize daily_frequency
+      classroom_dates = @daily_frequencies.map { |daily_frequency|
+        [daily_frequency.classroom_id, daily_frequency.frequency_date]
+      }.uniq
 
-      @daily_frequencies.each(&:destroy)
+      # Fora da janela de lançamento da etapa o model interrompe o destroy; nada foi apagado, então
+      # não há consolidado a refazer nem reenvio a forçar. O erro de validação segue no registro e
+      # o responder o transforma no alerta da tela.
+      if @daily_frequencies.map(&:destroy).all?
+        classroom_dates.each do |classroom_id, frequency_date|
+          UniqueDailyFrequencyStudentsCreator.call_worker(
+            current_entity.id,
+            classroom_id,
+            frequency_date,
+            current_teacher_id
+          )
+        end
 
-      UniqueDailyFrequencyStudentsCreator.call_worker(
-        current_entity.id,
-        classroom_id,
-        frequency_date,
-        current_teacher_id
-      )
+        # Registro excluído não é visto pelo filtro incremental (updated_at); força o reenvio da turma.
+        classroom_dates.group_by(&:first).each do |classroom_id, dates|
+          AutomaticAbsencePostingEnqueuer.call(
+            entity_id: current_entity.id,
+            classroom_id: classroom_id,
+            frequency_dates: dates.map(&:last),
+            teacher_id: current_teacher_id,
+            force_posting: true
+          )
+        end
+      end
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path
     else

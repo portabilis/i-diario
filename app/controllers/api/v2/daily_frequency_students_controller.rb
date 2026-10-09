@@ -5,20 +5,40 @@ module Api
 
       def update
         daily_frequency_student = DailyFrequencyStudent.find(params[:id])
-        daily_frequency_student.update(present: params[:present], active: true)
+        updated = daily_frequency_student.update(
+          present: params[:present],
+          active: daily_frequency_student.enrolled_in_classroom?
+        )
+
+        daily_frequency = daily_frequency_student.daily_frequency
+
+        # Este endpoint não recebe o professor; o dono do diário responde pelo envio. A coluna é
+        # nullable: diário sem dono não tem envio automático, e o enqueuer registra isso no log.
+        if updated
+          AutomaticAbsencePostingEnqueuer.call(
+            entity_id: current_entity.id,
+            classroom_id: daily_frequency.classroom_id,
+            frequency_dates: [daily_frequency.frequency_date],
+            teacher_id: daily_frequency.owner_teacher_id
+          )
+        end
 
         respond_with daily_frequency_student
       end
 
       def update_or_create
+        # owner_teacher_id só é gravado na criação: sem ele aqui, o diário criado por este endpoint
+        # nasce sem dono e fica sem envio automático de faltas e fora dos ajustes de faltas, que
+        # casam o diário com o vínculo pelo professor dono.
         creator = DailyFrequenciesCreator.new(
-          unity: unity,
+          unity_id: unity.id,
           classroom_id: params[:classroom_id],
           frequency_date: params[:frequency_date],
           class_numbers: [params[:class_number]],
           discipline_id: params[:discipline_id],
           school_calendar: current_school_calendar,
-          period: period
+          period: period,
+          owner_teacher_id: params[:teacher_id] || current_user.teacher_id
         )
         creator.find_or_create!
 
@@ -51,7 +71,9 @@ module Api
               daily_frequency_student.present = params[:present]
             end
 
-            daily_frequency_student.active = true
+            # Antes de salvar busca o real status do aluno na turma, caso ele tenha saído
+            # da turma, o registro de frequência deve ser inativo
+            daily_frequency_student.active = daily_frequency_student.enrolled_in_classroom?
             daily_frequency_student.save
           rescue ActiveRecord::RecordNotUnique
             retry
@@ -62,6 +84,13 @@ module Api
             daily_frequency.classroom_id,
             daily_frequency.frequency_date,
             current_teacher_id || current_user.teacher_id
+          )
+
+          AutomaticAbsencePostingEnqueuer.call(
+            entity_id: current_entity.id,
+            classroom_id: daily_frequency.classroom_id,
+            frequency_dates: [daily_frequency.frequency_date],
+            teacher_id: current_teacher_id || current_user.teacher_id
           )
 
           respond_with daily_frequency_student

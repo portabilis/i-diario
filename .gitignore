@@ -80,3 +80,6 @@ spec/e2e/.auth/
 
 # Claude local configuration
 CLAUDE.local.md
+
+# Worktrees criados pelo Claude Code (--worktree / subagents)
+.claude/worktrees/

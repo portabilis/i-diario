@@ -85,6 +85,10 @@ class SchoolCalendarEvent < ApplicationRecord
     write_attribute(:periods, periods ? periods.split(',').sort : periods)
   end
 
+  def removes_frequency_records?
+    [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(event_type)
+  end
+
   def coverage_by_unity?
     coverage == EventCoverageType::BY_UNITY
   end

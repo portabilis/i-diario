@@ -1,4 +1,6 @@
 class ConceptualExamsController < ApplicationController
+  include DateValidation
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -13,7 +15,7 @@ class ConceptualExamsController < ApplicationController
     set_filters
     status = (params[:filter] || []).delete(:by_status)
 
-    fetch_conceptual_exams
+    fetch_conceptual_exams_by_user
     check_status(status)
 
     authorize @conceptual_exams
@@ -45,6 +47,7 @@ class ConceptualExamsController < ApplicationController
     ).localized
 
     @conceptual_exam.assign_attributes(resource_params) if params[:conceptual_exam].present?
+    @conceptual_exam.classroom ||= current_user_classroom
 
     authorize @conceptual_exam
 
@@ -149,6 +152,55 @@ class ConceptualExamsController < ApplicationController
     else
       render json: nil, :status => 422
     end
+  end
+
+  def dependence_disciplines
+    return if params[:classroom_id].blank? || params[:student_id].blank?
+
+    discipline_ids = StudentEnrollmentDependence.discipline_ids_for(params[:student_id], params[:classroom_id])
+
+    render json: { discipline_ids: discipline_ids }
+  end
+
+  def fetch_students
+    return if params[:classroom_id].blank? || params[:discipline_id].blank? || params[:date].blank?
+
+    date = parse_date(params[:date])
+
+    # Sem data não há como montar a lista. Responde erro para a tela avisar o usuário, em
+    # vez de devolver corpo vazio, que ela interpretaria como turma sem alunos.
+    return render json: { students: [] }, status: :unprocessable_entity if date.blank?
+
+    classroom = Classroom.find(params[:classroom_id])
+    discipline = Discipline.find(params[:discipline_id])
+
+    student_enrollments = StudentEnrollmentsList.new(
+      classroom: classroom,
+      discipline: discipline,
+      score_type: StudentEnrollmentScoreTypeFilters::CONCEPT,
+      date: date,
+      search_type: :by_date
+    ).student_enrollments
+
+    situations = StudentSituationsFetcher.call(
+      enrollment_ids: student_enrollments.map(&:id),
+      classroom: classroom,
+      discipline: discipline,
+      date: date
+    )
+
+    students = student_enrollments.map do |enrollment|
+      {
+        id: enrollment.id,
+        student_id: enrollment.student_id,
+        student: { id: enrollment.student_id, name: enrollment.student.name },
+        in_active_search: situations[:enrollments_in_active_search].include?(enrollment.id),
+        in_dependence: situations[:dependencies][enrollment.id].present?,
+        inactive_on_date: !situations[:active_on_date_ids].include?(enrollment.id)
+      }
+    end
+
+    render json: { students: students }
   end
 
   def find_conceptual_exam_by_student
@@ -378,7 +430,7 @@ class ConceptualExamsController < ApplicationController
   def fetch_collections
     if @conceptual_exam.step_id.present? && @conceptual_exam.student_id.present?
       fetch_unities_classrooms_disciplines_by_teacher
-      fetch_students
+      set_students
     end
   end
 
@@ -403,6 +455,11 @@ class ConceptualExamsController < ApplicationController
     @disciplines = @disciplines.not_grouper
       .where.not(id: exempted_discipline_ids)
       .where(id: disciplines_in_grade)
+
+    dependency_discipline_ids = StudentEnrollmentDependence.discipline_ids_for(
+      @conceptual_exam.student_id, @conceptual_exam.classroom_id
+    )
+    @disciplines = @disciplines.where(id: dependency_discipline_ids) if dependency_discipline_ids.present?
   end
 
   def disciplines_in_grade
@@ -440,7 +497,7 @@ class ConceptualExamsController < ApplicationController
     ).student_enrollments
   end
 
-  def fetch_students
+  def set_students
     @students = []
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present? && @conceptual_exam.step.present?
@@ -459,6 +516,8 @@ class ConceptualExamsController < ApplicationController
 
       @students = Student.where(id: @student_ids).ordered
     end
+
+    @students
   end
 
   def respond_to_save
@@ -507,7 +566,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_next_student
-    @students = fetch_students
+    @students = set_students
 
     if @students.present?
       next_student_index = @students.find_index(@conceptual_exam.student) + 1
@@ -523,6 +582,13 @@ class ConceptualExamsController < ApplicationController
     @old_values ||= OldStepsConceptualValuesFetcher.new(@conceptual_exam.classroom, @conceptual_exam.student, @conceptual_exam.step).fetch
   end
   helper_method :old_values
+
+  # Turma que o formulário usa para montar as etapas. É a turma do lançamento,
+  # que pode diferir da turma corrente quando a tela é carregada por parâmetros.
+  def form_classroom
+    @conceptual_exam.classroom || current_user_classroom
+  end
+  helper_method :form_classroom
 
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
     exempted_disciplines.by_discipline(discipline_id)
@@ -566,12 +632,16 @@ class ConceptualExamsController < ApplicationController
     params[:filter][:by_status] = status
   end
 
-  def fetch_conceptual_exams
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-      .by_unity(current_unity)
-      .by_classroom(@classrooms.map(&:id))
-      .by_teacher(current_teacher_id)
-      .ordered_by_date_and_student
+  def fetch_conceptual_exams_by_user
+    @conceptual_exams = apply_scopes(
+      ConceptualExamsFetcher.fetch!(
+        user: current_user,
+        teacher_id: current_teacher_id,
+        unity: current_unity,
+        classrooms: @classrooms,
+        disciplines: @disciplines
+      )
+    )
 
     @steps = SchoolCalendarDecorator.current_steps_for_select2_by_classrooms(
       current_school_calendar,

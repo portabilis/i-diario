@@ -1,0 +1,92 @@
+<% view_only = local_assigns[:view_only] %>
+<fieldset>
+  <%= render 'multi_select', f: f, attribute: :accompaniment, view_only: view_only,
+        kind: IepOptionKinds::ACCOMPANIMENT, label: t('.accompaniment') %>
+  <%= render 'multi_select', f: f, attribute: :support_type, view_only: view_only,
+        kind: IepOptionKinds::SUPPORT_TYPE, label: t('.support_type') %>
+
+  <%= render 'textarea', f: f, attribute: :family_guidelines, label: t('.family_guidelines'),
+        view_only: view_only, placeholder: t('.family_guidelines_placeholder') %>
+
+  <%# spaced-row: iguala o respiro desta linha ao das linhas de textarea (regra em educacao.scss). %>
+  <div class="row spaced-row">
+    <div class="col col-sm-3">
+      <%# Armadilha do input_field com :collection: ele repassa as opções ao collection_select,
+          onde :disabled significa "desabilite a option com ESTE value" — e Array(false) casa com
+          o value da option "Não". Por isso f.select, com o disabled do campo no 4º argumento
+          (html_options). include_blank é o terceiro estado do tri-state ("não respondido"):
+          removê-lo impede deixar/voltar a pergunta sem resposta. %>
+      <%# As classes reproduzem as que o patch do SimpleForm injeta nos selects de collection
+          (lib/portabilis/inputs/collection_select_input.rb) — form-control é o que dá a largura
+          total da coluna; sem elas o select encolhe à largura do texto. %>
+      <%= f.input :uses_medication, label: t('.uses_medication') do %>
+        <%= f.select :uses_medication,
+              [[t('boolean.yes'), true], [t('boolean.no'), false]],
+              { include_blank: true },
+              { disabled: view_only, class: 'form-control input-sm select optional' } %>
+        <i></i>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Lista de medicamentos: só aparece com "Sim". O JS (form.js) mostra/esconde o bloco ao trocar
+      a resposta; o servidor descarta as linhas de um plano salvo sem "Sim". %>
+  <% medications = f.object.iep_medications.reject(&:marked_for_destruction?) %>
+  <%# Em leitura a lista também aparece com a pergunta sem resposta: versão publicada antes da
+      lista pode ter medicamento sem resposta. Com "Não" nunca aparece. %>
+  <% show_medications = f.object.uses_medication ||
+                         (view_only && f.object.uses_medication.nil? && medications.any?) %>
+  <div id="iep-medications-block" class="<%= 'hidden' unless show_medications %>">
+    <div class="row hidden-xs iep-medications-header <%= 'hidden' if medications.empty? %>">
+      <div class="col col-sm-4"><label><%= t('.medication_name') %></label></div>
+      <div class="col col-sm-3"><label><%= t('.medication_dosage') %></label></div>
+      <div class="col col-sm-4"><label><%= t('.medication_schedule') %></label></div>
+    </div>
+
+    <div id="iep-medications">
+      <%= f.simple_fields_for :iep_medications do |medication| %>
+        <%= render 'iep_medication_fields', f: medication, view_only: view_only %>
+      <% end %>
+    </div>
+
+    <% unless view_only %>
+      <div class="row">
+        <div class="col col-sm-12">
+          <%= link_to_add_association t('.add_medication'), f, :iep_medications,
+                class: 'btn btn-success btn-sm iep-add-medication',
+                data: { association_insertion_node: '#iep-medications', association_insertion_method: 'append' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% unless view_only %>
+    <div class="modal fade" id="iep-medications-discard-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document" style="margin-top: 30vh;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            <h4 class="modal-title"><%= t('.discard_medications_title') %></h4>
+          </div>
+          <div class="modal-body">
+            <p><%= t('.discard_medications_text') %></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('individualized_educational_plans.form.modal_cancel') %></button>
+            <button type="button" class="btn btn-danger" id="iep-medications-discard-confirm"><%= t('.discard_medications_confirm') %></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render 'textarea', f: f, attribute: :medication_notes, label: t('.medication_notes'),
+        view_only: view_only %>
+
+  <%= render 'textarea', f: f, attribute: :family_environment_characteristics,
+        label: t('.family_environment_characteristics'), view_only: view_only,
+        placeholder: t('.family_environment_characteristics_placeholder') %>
+
+  <%= render 'textarea', f: f, attribute: :external_professionals_guidelines,
+        label: t('.external_professionals_guidelines'), view_only: view_only %>
+</fieldset>

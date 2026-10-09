@@ -8,6 +8,6 @@ class ActiveSearchFrequencyStudent
   end
 
   def to_s
-    'B'
+    StudentSituationMarkers::ACTIVE_SEARCH
   end
 end

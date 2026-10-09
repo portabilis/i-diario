@@ -31,6 +31,36 @@
 
     <%= f.error_notification %>
 
+    <% has_dependence = @dependence_students && @dependence_students.any? %>
+    <% if has_dependence || @any_student_inactive || @any_student_exempted_from_discipline || @any_student_in_active_search %>
+      <div class="student-status-legend">
+        <strong class="student-status-legend__label">Situação do aluno:</strong>
+        <% if has_dependence %>
+          <div class="student-status-legend__item">
+            <%= student_status_badge(:dependence) %><%= t('.dependence_students') %>
+          </div>
+        <% end %>
+
+        <% if @any_student_inactive %>
+          <div class="student-status-legend__item">
+            <%= student_status_badge(:inactive) %><%= t('.inactive_students_legend') %>
+          </div>
+        <% end %>
+
+        <% if @any_student_exempted_from_discipline %>
+          <div class="student-status-legend__item">
+            <%= student_status_badge(:exempted_from_discipline) %><%= t('.exempted_students_from_discipline_legend') %>
+          </div>
+        <% end %>
+
+        <% if @any_student_in_active_search %>
+          <div class="student-status-legend__item">
+            <%= student_status_badge(:active_search) %><%= t('.in_active_search') %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <colgroup>
         <col style="width: 65px;" />
@@ -56,22 +86,6 @@
             <% sequence += 1 %>
             <%= render 'student_fields', f: student, sequence: sequence %>
           <% end %>
-          <tr>
-            <td colspan="3">
-              <span class="descriptive-exam-student-legend">
-                <%= t('.dependence_students') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
-        <% if @any_student_exempted_from_discipline %>
-          <tr>
-            <td colspan="3">
-              <span class="descriptive-exam-student-legend">
-                <%= t('.exempted_students_from_discipline_legend') %>
-              </span>
-            </td>
-          </tr>
         <% end %>
       </tbody>
     </table>

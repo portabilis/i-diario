@@ -1,0 +1,67 @@
+<tbody id="resources-tbody">
+  <% if @individualized_educational_plans.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found') %></td>
+    </tr>
+  <% else %>
+    <%# edit?/destroy? dependem só da feature/perfil, não do registro — calcula uma vez fora do
+        loop para não repetir a query de permissão por linha (N+1). %>
+    <% can_edit_plan = policy(IndividualizedEducationalPlan.new).edit? %>
+    <% can_destroy_plan = policy(IndividualizedEducationalPlan.new).destroy? %>
+    <% @individualized_educational_plans.each do |plan| %>
+      <tr>
+        <% classrooms_entry = @display_classrooms[plan.student_id] %>
+        <td><%= plan.year %></td>
+        <td><%= classrooms_entry&.unities_label %></td>
+        <td><%= classrooms_entry&.classrooms_label %></td>
+        <td><%= plan.student %></td>
+        <td>
+          <span class="label <%= plan.finalized? ? 'label-success' : 'label-warning' %>">
+            <%= IepStatuses.t(plan.status) %>
+          </span>
+        </td>
+        <td><%= l(plan.updated_at, format: :short) %></td>
+        <td class="actions">
+          <%= link_to(
+                t('helpers.links.show_html'),
+                individualized_educational_plan_path(plan),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
+          <%# "Editar" fica visível mas DESABILITADO quando o aluno não cursa mais a turma %>
+          <% if can_edit_plan %>
+            <% edit_allowed = @editable_student_ids.include?(plan.student_id) %>
+            <%= link_to(
+                  t('helpers.links.edit_html'),
+                  edit_individualized_educational_plan_path(plan),
+                  class: "btn btn-success apply_tooltip#{' disabled' unless edit_allowed}",
+                  disabled: !edit_allowed,
+                  data: { original_title: edit_allowed ? t('views.index.tooltips.edit') : t('individualized_educational_plans.index.edit_disabled') }) %>
+          <% end %>
+          <%= link_to(
+                t('helpers.links.print_html'),
+                individualized_educational_plan_path(plan, format: :pdf),
+                class: 'btn btn-info apply_tooltip',
+                target: '_blank',
+                data: { original_title: t('views.index.tooltips.print') }) %>
+          <%= link_to(
+                individualized_educational_plan_versions_path(plan),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('individualized_educational_plans.index.history') }) do %>
+            <i class="fa fa-history"></i>
+          <% end %>
+          <% if can_destroy_plan %>
+            <%= link_to(
+                  t('helpers.links.destroy_html'),
+                  individualized_educational_plan_path(plan),
+                  class: 'btn btn-danger apply_tooltip',
+                  method: 'delete',
+                  data: {
+                    confirm: t('views.index.confirm_deletion'),
+                    original_title: t('views.index.tooltips.delete')
+                  }) %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

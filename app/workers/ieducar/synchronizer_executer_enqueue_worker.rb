@@ -44,16 +44,36 @@ class SynchronizerExecuterEnqueueWorker
   private
 
   def enqueue_job(params, synchronization)
-    worker_batch = WorkerBatch.find(params[:worker_batch_id])
-    orchestrator = SynchronizationOrchestrator.new(worker_batch, params[:klass], params)
+    # Atomicidade para garantir que o mesmo worker não será executado 2 vezes fazendo com que a sincronização seja
+    # finalizada precocemente
+    lock_key = enqueue_lock_key(params)
+    return unless $REDIS_DB.set(lock_key, '1', nx: true, ex: 30)
 
-    return unless orchestrator.can_synchronize?
+    begin
+      worker_batch = WorkerBatch.find(params[:worker_batch_id])
+      orchestrator = SynchronizationOrchestrator.new(worker_batch, params[:klass], params)
 
-    worker_state = create_worker_state(worker_state_params(params, worker_batch))
+      return unless orchestrator.can_synchronize?
 
-    SynchronizerExecuterWorker.set(
-      queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
-    ).perform_async(synchronizer_executer_params(params, worker_state.id))
+      worker_state = create_worker_state(worker_state_params(params, worker_batch))
+
+      SynchronizerExecuterWorker.set(
+        queue: synchronization.full_synchronization? ? :synchronizer_full : :synchronizer
+      ).perform_async(synchronizer_executer_params(params, worker_state.id))
+    ensure
+      $REDIS_DB.del(lock_key)
+    end
+  end
+
+  def enqueue_lock_key(params)
+    [
+      'synchronizer_enqueue_lock',
+      params[:entity_id],
+      params[:worker_batch_id],
+      params[:klass],
+      params[:year],
+      params[:unity_api_code]
+    ].join(':')
   end
 
   def create_worker_state(params)

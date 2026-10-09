@@ -1,4 +1,6 @@
 class AttendanceRecordReportController < ApplicationController
+  include DateValidation
+
   before_action :require_current_classroom
   before_action :require_current_teacher
 
@@ -94,8 +96,8 @@ class AttendanceRecordReportController < ApplicationController
     start_at = resource_params[:start_at]
     end_at = resource_params[:end_at]
 
-    @attendance_record_report_form.start_at = '' unless start_at.try(:to_date)
-    @attendance_record_report_form.end_at = '' unless end_at.try(:to_date)
+    @attendance_record_report_form.start_at = '' unless valid_date?(start_at)
+    @attendance_record_report_form.end_at = '' unless valid_date?(end_at)
   end
 
   def current_teacher_period

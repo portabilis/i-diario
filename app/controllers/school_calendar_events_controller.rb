@@ -1,4 +1,6 @@
 class SchoolCalendarEventsController < ApplicationController
+  include DateValidation
+
   has_scope :page, default: 1
   has_scope :per, default: 10
   respond_to :json, only: [:grades, :classrooms]
@@ -23,6 +25,8 @@ class SchoolCalendarEventsController < ApplicationController
     resource.assign_attributes resource_params
 
     authorize resource
+
+    return render :new if unconfirmed_frequency_deletion?(resource.removes_frequency_records?)
 
     ActiveRecord::Base.transaction do
       if resource.valid?
@@ -64,16 +68,27 @@ class SchoolCalendarEventsController < ApplicationController
 
     event_type_changed = resource.event_type_changed?
 
+    scope_changed = resource.periods_changed? ||
+                    resource.grade_id_changed? ||
+                    resource.classroom_id_changed? ||
+                    resource.course_id_changed?
+
+    deletion_will_run = resource.removes_frequency_records? &&
+                        (dates_changed || event_type_changed || scope_changed)
+
+    return render :edit if unconfirmed_frequency_deletion?(deletion_will_run)
+
     ActiveRecord::Base.transaction do
       if resource.save
-        if dates_changed || event_type_changed
+        if dates_changed || event_type_changed || scope_changed
           SchoolCalendarEventDays.update_school_days(
             [school_calendar],
             [resource],
             action_name,
             old_start_date || resource.start_date,
             old_end_date || resource.end_date,
-            event_type_changed
+            event_type_changed: event_type_changed,
+            scope_changed: scope_changed
           )
         end
       else
@@ -170,12 +185,26 @@ class SchoolCalendarEventsController < ApplicationController
     @school_calendar = SchoolCalendar.find(params[:school_calendar_id])
   end
 
+  def unconfirmed_frequency_deletion?(deletion_will_run)
+    return false unless deletion_will_run
+    return false if frequency_deletion_confirmed?
+
+    resource.errors.add(:base, I18n.t('school_calendar_events.frequency_deletion_not_confirmed'))
+    clear_invalid_dates
+
+    true
+  end
+
+  def frequency_deletion_confirmed?
+    params[:frequency_deletion_confirmed] == 'true'
+  end
+
   def clear_invalid_dates
     start_date = resource_params[:start_date]
     end_date = resource_params[:end_date]
 
-    @school_calendar_event.start_date = '' unless start_date.try(:to_date)
-    @school_calendar_event.end_date = '' unless end_date.try(:to_date)
+    @school_calendar_event.start_date = '' unless valid_date?(start_date)
+    @school_calendar_event.end_date = '' unless valid_date?(end_date)
   end
 
   def check_user_unity

@@ -117,6 +117,7 @@ $(function () {
       });
 
       loadDecimalMasks();
+      updateStatusLegend();
     } else {
       $recorded_at.val($recorded_at.data('oldDate'));
 
@@ -124,13 +125,29 @@ $(function () {
     }
 
     function buildStudentField(element_id, student, index = null) {
+      let status_badge = '';
+
+      if (student.in_active_search) {
+        status_badge = renderStudentStatusBadge('active-search');
+      } else if (!student.active) {
+        status_badge = renderStudentStatusBadge('inactive');
+      } else if (student.dependence) {
+        status_badge = renderStudentStatusBadge('dependence');
+      } else if (student.exempted_from_discipline) {
+        status_badge = renderStudentStatusBadge('exempted-from-discipline');
+      }
+
       let html = JST['templates/avaliation_recovery_lowest_notes/student_fields']({
+        sequence: student.sequence,
         id: student.id,
         name: student.name,
         lowest_note_in_step: student.lowest_note_in_step,
         scale: 2,
         element_id: element_id,
-        exempted_from_discipline: student.exempted_from_discipline
+        status_badge: status_badge,
+        active: student.active,
+        exempted_from_discipline: student.exempted_from_discipline,
+        in_active_search: student.in_active_search
       });
 
       let $tbody = $('#recovery-diary-record-students');
@@ -210,6 +227,19 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao validar a data');
   }
 
+  function updateStatusLegend() {
+    var statuses = ['inactive', 'dependence', 'exempted-from-discipline', 'active-search'];
+    var anyVisible = false;
+
+    statuses.forEach(function (status) {
+      var hasBadge = $('#recovery-diary-record-students .badge-status--' + status).length > 0;
+      $('.student-status-legend__item[data-status="' + status + '"]').toggle(hasBadge);
+      if (hasBadge) { anyVisible = true; }
+    });
+
+    $('.student-status-legend').toggle(anyVisible);
+  }
+
   $step.on('change', checkExistsRecoveryLowestNoteOnStep);
 
   $recorded_at.on('change', validDateOnStep);
@@ -232,6 +262,7 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
+  updateStatusLegend();
 
   $classroom.on('change', async function (e) {
     await getExamSetting();

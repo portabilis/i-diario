@@ -63,6 +63,17 @@ class RecoveryDiaryRecord < ActiveRecord::Base
     recorded_at
   end
 
+  def enrolled_student_ids_on_recorded_at
+    return Set.new if classroom_id.blank? || recorded_at.blank?
+
+    @enrolled_student_ids_on_recorded_at ||=
+      StudentEnrollment.by_classroom(classroom_id)
+                       .by_date(recorded_at)
+                       .joins(:student)
+                       .pluck('students.id')
+                       .to_set
+  end
+
   private
 
   def at_least_one_assigned_student

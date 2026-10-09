@@ -5,10 +5,14 @@ Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
+  get 'entity_logo', to: 'entity_logos#show', as: :entity_logo
+
+  devise_for :users, only: :omniauth_callbacks, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
 
   localized do
-    devise_for :users, controllers: {
+    devise_for :users, skip: :omniauth_callbacks, controllers: {
       sessions: 'users/sessions',
+      omniauth_callbacks: "users/omniauth_callbacks",
       passwords: 'users/passwords',
       unlocks: 'users/unlocks'
     }
@@ -22,7 +26,9 @@ Rails.application.routes.draw do
         get 'student_activity', to: 'student_activity#check'
         get 'student_classroom_attendances', to: 'student_classroom_attendances#index'
         get 'monthly_frequencies', to: 'monthly_frequencies#index'
+        get 'enrollment_daily_frequency_statuses', to: 'enrollment_daily_frequency_statuses#index'
         get 'school_calendar_events', to: 'school_calendar_events#index'
+        get 'scheduled_evaluations', to: 'scheduled_evaluations#index'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
@@ -47,7 +53,13 @@ Rails.application.routes.draw do
           end
         end
         resources :teaching_plans, only: [:index]
+        resources :infrequency_trackings, only: [:index]
+        resources :student_absences, only: [:index]
+        resource :general_configuration, only: [:show]
+        resources :unity_school_days, only: [:index]
+        resources :frequency_record_completeness, only: [:index]
         resources :daily_physical_frequencies, only: [:create, :index]
+        resources :ieducar_api_student_transfers, only: [:create]
         resources :discipline_records, only: [] do
           collection do
             post :count
@@ -196,6 +208,19 @@ Rails.application.routes.draw do
     resources :school_calendar_steps, only: [:show, :index]
     resources :school_calendar_classroom_steps, only: [:show, :index]
 
+    resources :individualized_educational_plans do
+      collection do
+        get :fetch_students_by_classroom
+        get :students_by_elaboration_date
+        get :student_data
+        get :medical_reports
+        get :open_medical_report
+        post :upload_medical_report
+      end
+
+      resources :versions, only: [:index, :show], controller: 'individualized_educational_plans/versions'
+    end
+
     resources :discipline_teaching_plans, concerns: :history
 
     get '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#copy'
@@ -298,6 +323,7 @@ Rails.application.routes.draw do
       collection do
         get :settings
         get :fetch_steps
+        get :fetch_students
       end
     end
     resources :teacher_avaliations, only: :index
@@ -328,6 +354,7 @@ Rails.application.routes.draw do
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
+        get :existing_transfer_note
         get :find_step_number_by_classroom
         get :fetch_steps
       end
@@ -346,8 +373,10 @@ Rails.application.routes.draw do
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines
+        get :dependence_disciplines
         get :find_conceptual_exam_by_student
         get :find_step_number_by_classroom
+        get :fetch_students
         get :fetch_students_by_classroom
         get :fetch_score_type
         get :fetch_steps
@@ -361,7 +390,7 @@ Rails.application.routes.draw do
         delete :destroy_multiple
       end
     end
-    resources :old_steps_conceptual_values, except: [:only]
+    resources :old_steps_conceptual_values, only: [:index]
     resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
         get :find
@@ -463,6 +492,8 @@ Rails.application.routes.draw do
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
     get '/reports/fetch_step', to: 'exam_record_report#fetch_step', as: 'fetch_step_exam_record_report'
+    get '/reports/exam_record/classrooms', to: 'exam_record_report#classrooms', as: 'exam_record_report_classrooms'
+    get '/reports/exam_record/disciplines', to: 'exam_record_report#disciplines', as: 'exam_record_report_disciplines'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
     get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'

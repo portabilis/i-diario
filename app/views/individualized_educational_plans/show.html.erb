@@ -1,0 +1,26 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/draft_autosave' %>
+  <%= javascript_include_tag 'views/individualized_educational_plans/form' %>
+<% end %>
+
+<div class="widget-body no-padding">
+  <div class="smart-form">
+    <fieldset>
+      <div class="text-right">
+        <%= link_to t('.back'), individualized_educational_plans_path, class: 'btn btn-default' %>
+        <%= link_to t('.history'), individualized_educational_plan_versions_path(@individualized_educational_plan),
+              class: 'btn btn-info' %>
+        <%= link_to t('helpers.links.print_html'),
+              individualized_educational_plan_path(@individualized_educational_plan, format: :pdf),
+              class: 'btn btn-info apply_tooltip', target: '_blank',
+              data: { original_title: t('.print') } %>
+        <% if policy(@individualized_educational_plan).edit? %>
+          <%= link_to t('.edit'), edit_individualized_educational_plan_path(@individualized_educational_plan),
+                class: 'btn btn-success' %>
+        <% end %>
+      </div>
+    </fieldset>
+  </div>
+
+  <%= render 'form', view_only: true %>
+</div>

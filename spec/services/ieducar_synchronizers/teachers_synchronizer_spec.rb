@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe TeachersSynchronizer, type: :service do
   let(:synchronization) { create(:ieducar_api_synchronization) }
@@ -160,38 +160,80 @@ RSpec.describe TeachersSynchronizer, type: :service do
     end
 
     it 'handles race condition when another process inserts the same teacher between SELECT and INSERT' do
+      collisions = 0
+
+      allow(Teacher).to receive(:with_discarded).and_return(Teacher)
+
+      # Simula a race: o preload não encontrou o professor, então tentamos criar
+      # via Teacher.new + save!. No primeiro INSERT, outro worker já comitou o
+      # mesmo api_code, fazendo o banco levantar RecordNotUnique.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |original|
+        # O primeiro save! é o INSERT do registro novo; nele simulamos o outro
+        # worker comitando antes e o banco levantando RecordNotUnique.
+        if collisions.zero?
+          collisions += 1
+          Teacher.create!(api_code: '12345', name: 'CRIADO POR OUTRO WORKER')
+
+          raise ActiveRecord::RecordNotUnique,
+                'PG::UniqueViolation: duplicate key value violates unique constraint ' \
+                '"index_teachers_on_api_code_unique"'
+        end
+
+        original.call
+      end
+
+      expect { synchronizer.send(:update_teachers, teachers_data) }.not_to raise_error
+
+      # Houve exatamente uma colisão antes do retry bem-sucedido
+      expect(collisions).to eq(1)
+      expect(Teacher.where(api_code: '12345').count).to eq(1)
+
+      # O retry encontrou o registro do outro worker e aplicou os dados da API
+      expect(Teacher.find_by(api_code: '12345').name).to eq('João Silva')
+    end
+
+    it 'reraises RecordNotUnique from a different constraint without retrying' do
       call_count = 0
 
       allow(Teacher).to receive(:with_discarded).and_return(Teacher)
 
-      allow(Teacher).to receive(:find_or_initialize_by)
-        .with(api_code: '12345')
-        .and_wrap_original do |method, *args|
-          call_count += 1
-          result = method.call(*args)
+      # Violação em outra constraint (não api_code): deve propagar de imediato,
+      # sem retry — o reset_record não resolveria e mascararia um bug real.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |_original|
+        call_count += 1
 
-          # Na primeira chamada, simula a race: o INSERT do nosso worker bate
-          # na constraint do banco (outro worker comitou antes), levantando
-          # RecordNotUnique. Em paralelo, cria o registro "concorrente" para
-          # que o retry encontre-o e apenas atualize.
-          if call_count == 1 && result.new_record?
-            allow(result).to receive(:save!).and_wrap_original do |_original|
-              Teacher.create!(api_code: '12345', name: 'Criado por outro worker')
-              raise ActiveRecord::RecordNotUnique,
-                    'PG::UniqueViolation: duplicate key value violates unique constraint ' \
-                    '"index_teachers_on_api_code_unique"'
-            end
-          end
+        raise ActiveRecord::RecordNotUnique,
+              'PG::UniqueViolation: duplicate key value violates unique constraint "index_teachers_on_some_other_column"'
+      end
 
-          result
-        end
+      expect {
+        synchronizer.send(:update_teachers, teachers_data)
+      }.to raise_error(ActiveRecord::RecordNotUnique, /some_other_column/)
 
-      expect { synchronizer.send(:update_teachers, teachers_data) }.not_to raise_error
+      # Sem retry: apenas a tentativa inicial
+      expect(call_count).to eq(1)
+    end
 
-      expect(Teacher.where(api_code: '12345').count).to eq(1)
+    it 'gives up after MAX_RECORD_RETRIES when the api_code collision persists' do
+      call_count = 0
 
-      # O retry deve ter sido executado (2 chamadas ao find_or_initialize_by)
-      expect(call_count).to eq(2)
+      allow(Teacher).to receive(:with_discarded).and_return(Teacher)
+
+      # Colisão de api_code que nunca se resolve: o retry deve esgotar o cap e
+      # então propagar o erro, em vez de entrar em laço infinito.
+      allow_any_instance_of(Teacher).to receive(:save!).and_wrap_original do |_original|
+        call_count += 1
+
+        raise ActiveRecord::RecordNotUnique,
+              'PG::UniqueViolation: duplicate key value violates unique constraint "index_teachers_on_api_code_unique"'
+      end
+
+      expect {
+        synchronizer.send(:update_teachers, teachers_data)
+      }.to raise_error(ActiveRecord::RecordNotUnique, /api_code/)
+
+      # Tentativa inicial + MAX_RECORD_RETRIES retries, e para
+      expect(call_count).to eq(TeachersSynchronizer::MAX_RECORD_RETRIES + 1)
     end
   end
 end

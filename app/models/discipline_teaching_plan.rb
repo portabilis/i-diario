@@ -15,7 +15,7 @@ class DisciplineTeachingPlan < ApplicationRecord
   belongs_to :teaching_plan, dependent: :destroy
   belongs_to :discipline
 
-  delegate :contents, to: :teaching_plan
+  delegate :contents, :contents_ordered, to: :teaching_plan
   delegate :objectives, to: :teaching_plan
 
   accepts_nested_attributes_for :teaching_plan

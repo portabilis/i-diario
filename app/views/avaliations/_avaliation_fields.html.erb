@@ -23,7 +23,10 @@
 
   <% if @allow_automatic_avaliation_recovery %>
     <td style="text-align: center;">
-      <%= f.input :should_create_recovery, as: :boolean, label: false %>
+      <label class="checkbox <%= 'state-disabled' if @force_recovery_creation %>">
+        <%= f.check_box :should_create_recovery, (@force_recovery_creation ? { checked: true, disabled: true } : {}) %>
+        <i></i>
+      </label>
     </td>
   <% end %>
 

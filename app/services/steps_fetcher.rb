@@ -12,7 +12,7 @@ class StepsFetcher
   end
 
   def step_by_date(date)
-    return if school_calendar.blank?
+    return if date.blank? || school_calendar.blank?
 
     # Memorização para evitar consultas repetidas ao banco
     @steps_by_date ||= {}

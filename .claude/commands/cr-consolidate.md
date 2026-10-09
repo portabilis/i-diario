@@ -7,8 +7,8 @@ PR_NUM="$ARGUMENTS"
 
 **Contexto:** os arquivos `./tmp/cr_1_$PR_NUM.md` e `./tmp/cr_2_$PR_NUM.md` contêm findings de code review de dois agents distintos. Cada arquivo começa com um header padronizado (PR/SHA/Branch/Timestamp/Skill ou Aspectos rodados) seguido do output literal da skill.
 
-- `cr_1`: skill `/code-review xhigh` (fan-out 5 agentes Sonnet em paralelo — CLAUDE.md compliance, shallow bug scan, git blame/history, PRs anteriores, code comments)
-- `cr_2`: plugin `/pr-review-toolkit:review-pr` (agentes especializados por aspecto: errors, tests, types, comments, code, simplify)
+- `cr_1`: skill `/code-review high` (fan-out 5 agentes Sonnet em paralelo — CLAUDE.md compliance, shallow bug scan, git blame/history, PRs anteriores, code comments)
+- `cr_2`: plugin `/pr-review-toolkit:review-pr` (agentes especializados por aspecto: code, tests, errors, comments, types — `simplify` fica de fora, o agente dele edita arquivos)
 
 **Sua tarefa:** ler os dois arquivos, deduplicar findings, categorizar por severidade e postar UM comment consolidado no PR via `gh pr comment $PR_NUM --body-file -` (passar o body via heredoc/stdin pra evitar problemas com backticks no body).
 
@@ -19,7 +19,7 @@ PR_NUM="$ARGUMENTS"
 ```markdown
 ## 🔍 Code Review consolidado — PR #<PR_NUM>
 
-**Fontes:** `/code-review xhigh` (5 agentes em paralelo) + `/pr-review-toolkit:review-pr` (agentes especializados por aspecto)
+**Fontes:** `/code-review high` (5 agentes em paralelo) + `/pr-review-toolkit:review-pr` (agentes especializados por aspecto)
 
 ### Resumo
 

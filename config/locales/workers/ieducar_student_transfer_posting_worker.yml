@@ -1,0 +1,7 @@
+pt-BR:
+  ieducar_student_transfer_posting_worker:
+    callback_messages:
+      success: 'Lançamentos do(a) aluno(a) %{name} foram enviados ao i-Educar com sucesso e já estão disponíveis no boletim.'
+      success_last_step_open: 'Lançamentos do(a) aluno(a) %{name} enviados ao i-Educar. A última etapa não foi enviada porque ainda não estava encerrada na data da transferência.'
+      partial_failure: 'Nem todos os lançamentos do(a) aluno(a) %{name} chegaram ao i-Educar. Verifique pendências no i-Diário e refaça a transferência.'
+      exception_failure: 'Falha ao enviar os lançamentos do(a) aluno(a) %{name} ao i-Educar. Tente novamente em alguns minutos. Se persistir, contate o suporte.'

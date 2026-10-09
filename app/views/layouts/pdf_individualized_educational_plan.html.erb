@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xml:lang="pt-BR">
+  <head>
+    <title>Plano Educacional Individualizado</title>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        width: 210mm;
+        margin: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 95%;
+        margin: 2%;
+      }
+
+      th,
+      td {
+        border: 1px solid #000000;
+        text-align: left;
+        padding: 8px;
+      }
+
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      /* O Chrome repete o <thead> a cada página: ele guarda só a régua, que fecha o topo do
+         fragmento na continuação. O título da seção fica no <tbody> para não repetir. */
+      .continuation-rule td {
+        height: 0;
+        padding: 0;
+        font-size: 0;
+        line-height: 0;
+        border: none;
+        border-bottom: 1px solid #000000;
+      }
+
+      /* box-decoration-break é ignorado em célula de tabela com borda colapsada, então padding
+         e linhas horizontais vão para o .field. Mantê-los na célula dobraria a linha. */
+      .field-cell {
+        padding: 0;
+        border-top: none;
+        border-bottom: none;
+      }
+
+      /* clone repete padding e borda em cada fragmento: a página que quebra fecha a caixa e a
+         continuação não encosta na margem. Sem borda de topo — com ela o Chrome inicia a caixa
+         mesmo sem caber uma linha, deixando um fragmento vazio no rodapé. */
+      .field {
+        padding: 8px;
+        border-bottom: 1px solid #000000;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+      }
+
+      /* Rótulo e valor são irmãos de nível de bloco e a quebra entre eles é livre: sem isto o
+         rótulo fecha a caixa sozinho no rodapé, com a cara de campo terminado, e o valor abre a
+         página seguinte sem identificação. Escopado em .field porque na seção 1 o mesmo rótulo é
+         inline, seguido de <br>, e não deve virar ponto de decisão de quebra. */
+      .field .field-label + p,
+      .field .field-label + ul {
+        page-break-before: avoid;
+        break-before: avoid;
+      }
+
+      /* O título é uma linha comum do <tbody> e não repete a cada página: sem o avoid ele pode
+         ficar sozinho no rodapé, com os campos abrindo a página seguinte sem identificação. */
+      .section-title {
+        text-align: center;
+        font-size: 15px;
+        background-color: #DEDEDE;
+        font-weight: bold;
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+
+      .field-label {
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      ul {
+        margin: 5px 0;
+        padding-left: 20px;
+      }
+
+      li {
+        margin: 5px 0;
+      }
+
+      p {
+        margin: 5px 0;
+        text-align: justify;
+      }
+
+      /* Tabela aninhada no .field da seção 3: ocupa a caixa inteira e não quebra uma linha
+         de medicamento entre páginas. */
+      .medications-table {
+        width: 100%;
+        margin: 0;
+      }
+
+      .medications-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      .empty-message {
+        font-style: italic;
+        color: #666;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

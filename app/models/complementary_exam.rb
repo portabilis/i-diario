@@ -23,7 +23,12 @@ class ComplementaryExam < ApplicationRecord
     class_name: 'ComplementaryExamStudent',
     dependent: :destroy
 
-  accepts_nested_attributes_for :students, allow_destroy: true
+  # A lista traz uma linha por matrícula e só a linha da matrícula enturmada na data grava, como no diário de
+  # avaliações numéricas. Linha marcada com _destroy não passa pelo reject_if (will_be_destroyed? do Rails): o
+  # aluno removido da lista é excluído mesmo com a linha fora da data.
+  accepts_nested_attributes_for :students, allow_destroy: true, reject_if: proc { |attributes|
+    !ActiveRecord::Type::Boolean.new.cast(attributes[:active])
+  }
 
   scope :by_teacher_id,
         lambda { |teacher_id|
@@ -63,7 +68,47 @@ class ComplementaryExam < ApplicationRecord
     !(new_record? || recorded_at != recorded_at_was)
   end
 
+  # A nota é uma por aluno (índice único em complementary_exam_students). Aluno com duas matrículas enturmadas
+  # na mesma data chega com duas linhas ativas e grava uma só: a do registro já salvo ou, sem ele, a primeira
+  # com nota.
+  def students_attributes=(attributes)
+    super(one_active_row_per_student(attributes))
+  end
+
   private
+
+  def one_active_row_per_student(attributes)
+    rows = nested_student_rows(attributes)
+    discarded_rows = rows.select { |row| active_student_row?(row) }
+                         .group_by { |row| row[:student_id].to_s }
+                         .values
+                         .flat_map { |student_rows| rows_besides_preferred(student_rows) }
+
+    rows.reject { |row| discarded_rows.any? { |discarded| discarded.equal?(row) } }
+  end
+
+  def nested_student_rows(attributes)
+    rows = attributes.is_a?(Hash) ? attributes.values : Array(attributes)
+
+    rows.map(&:with_indifferent_access)
+  end
+
+  # equal? e não ==: duas linhas em branco do mesmo aluno são hashes iguais
+  def rows_besides_preferred(student_rows)
+    preferred_row = preferred_student_row(student_rows)
+
+    student_rows.reject { |row| row.equal?(preferred_row) }
+  end
+
+  def preferred_student_row(student_rows)
+    student_rows.find { |row| row[:id].present? } ||
+      student_rows.find { |row| row[:score].present? } ||
+      student_rows.first
+  end
+
+  def active_student_row?(row)
+    ActiveRecord::Type::Boolean.new.cast(row[:active]) && !ActiveRecord::Type::Boolean.new.cast(row[:_destroy])
+  end
 
   def at_least_one_score
     errors.add(:students, :at_least_one_score) if students.reject(&:marked_for_destruction?).reject{|s| s.score.blank? }.empty?

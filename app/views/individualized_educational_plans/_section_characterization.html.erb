@@ -1,0 +1,15 @@
+<% view_only = local_assigns[:view_only] %>
+<fieldset>
+  <% %i[characterization clinical_diagnosis_justification school_history potentialities
+        difficulties preferences_interests effective_strategies].each do |field| %>
+    <%= render 'textarea', f: f, attribute: field, label: t(".#{field}"), view_only: view_only,
+          placeholder: t(".#{field}_placeholder", default: '').presence %>
+  <% end %>
+
+  <%= render 'multi_select', f: f, attribute: :communication_profile, view_only: view_only,
+        kind: IepOptionKinds::COMMUNICATION_PROFILE, label: t('.communication_profile') %>
+  <%= render 'multi_select', f: f, attribute: :social_interaction_profile, view_only: view_only,
+        kind: IepOptionKinds::SOCIAL_INTERACTION_PROFILE, label: t('.social_interaction_profile') %>
+  <%= render 'multi_select', f: f, attribute: :autonomy, view_only: view_only,
+        kind: IepOptionKinds::AUTONOMY, label: t('.autonomy') %>
+</fieldset>

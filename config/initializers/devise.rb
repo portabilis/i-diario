@@ -70,8 +70,8 @@ Devise.setup do |config|
 
   # It will change confirmation, password recovery and other workflows
   # to behave the same regardless if the e-mail provided was right or wrong.
-  # Does not affect registerable.
-  # config.paranoid = true
+  # Does not affect registerable. Evita enumeração de usuários pelo /usuarios/senha.
+  config.paranoid = true
 
   # By default Devise will store the user in session. You can skip storage for
   # particular strategies by setting this option.
@@ -232,6 +232,13 @@ Devise.setup do |config|
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
 
+  require Rails.root.join('lib/omniauth/strategies/passport')
+
+  config.omniauth :passport,
+    Rails.application.secrets.PASSPORT_CLIENT_ID,
+    Rails.application.secrets.PASSPORT_CLIENT_SECRET,
+    scope: Rails.application.secrets.PASSPORT_SCOPE
+
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.
@@ -255,3 +262,5 @@ Devise.setup do |config|
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 end
+
+OmniAuth.config.allowed_request_methods = %i[get post]

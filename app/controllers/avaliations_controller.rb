@@ -37,6 +37,7 @@ class AvaliationsController < ApplicationController
     @avaliation.classroom = current_user_classroom
     @avaliation.discipline = current_user_discipline
     @avaliation.test_date = Time.zone.today
+    @avaliation.should_create_recovery = @allow_automatic_avaliation_recovery
 
     fetch_disciplines_by_classroom
 
@@ -64,6 +65,12 @@ class AvaliationsController < ApplicationController
     @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
     @avaliation_multiple_creator_form.unity_id = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
+
+    return unless @allow_automatic_avaliation_recovery
+
+    @avaliation_multiple_creator_form.avaliations.each do |avaliation|
+      avaliation.should_create_recovery = true
+    end
   end
 
   def create_multiple_classrooms
@@ -73,6 +80,12 @@ class AvaliationsController < ApplicationController
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new(
       params_avaliation_multiple.merge(teacher_id: current_teacher_id)
     )
+
+    if @force_recovery_creation
+      @avaliation_multiple_creator_form.avaliations.each do |avaliation|
+        avaliation.should_create_recovery = true
+      end
+    end
 
     if @avaliation_multiple_creator_form.save
       has_recovery_flag = @avaliation_multiple_creator_form.avaliations.any? { |a|
@@ -84,8 +97,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
       test_settings
-      fetch_linked_by_teacher unless current_user.current_role_is_admin_or_employee?
-      fetch_disciplines_by_classroom
+      disciplines_for_multiple_classrooms
 
       render :multiple_classrooms
     end
@@ -93,6 +105,7 @@ class AvaliationsController < ApplicationController
 
   def create
     resource.localized.assign_attributes(resource_params)
+    resource.should_create_recovery = true if @force_recovery_creation
     resource.school_calendar = current_school_calendar
     resource.teacher_id = current_teacher_id
 
@@ -129,6 +142,7 @@ class AvaliationsController < ApplicationController
   def update
     @avaliation = resource
     @avaliation.localized.assign_attributes(resource_params)
+    @avaliation.should_create_recovery = true if @force_recovery_creation
     @avaliation.teacher_id = current_teacher_id
     @avaliation.current_user = current_user
 
@@ -404,6 +418,8 @@ class AvaliationsController < ApplicationController
 
   def set_allow_automatic_avaliation_recovery
     @allow_automatic_avaliation_recovery = GeneralConfiguration.current.allow_automatic_avaliation_recovery
+    # Professores não podem desabilitar a criação automática de recuperação
+    @force_recovery_creation = @allow_automatic_avaliation_recovery && current_user.teacher?
   end
 
   def resource

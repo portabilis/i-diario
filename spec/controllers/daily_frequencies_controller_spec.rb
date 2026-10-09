@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe DailyFrequenciesController, type: :controller do
   let(:entity) { Entity.find_by(domain: 'test.host') }
@@ -156,6 +156,80 @@ RSpec.describe DailyFrequenciesController, type: :controller do
       end
 
       it_behaves_like 'delete_all_frequencies'
+    end
+
+    it 'enqueues the automatic absence posting of the classroom forcing the resend' do
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        entity_id: entity.id,
+        classroom_id: daily_frequency_1.classroom_id,
+        frequency_dates: [daily_frequency_1.frequency_date],
+        teacher_id: current_teacher.id,
+        force_posting: true
+      )
+
+      delete :destroy_multiple, params: { locale: 'pt-BR', daily_frequencies_ids: [daily_frequency_1.id] }
+    end
+
+    it 'covers every classroom and date of the deleted frequencies' do
+      allow(UniqueDailyFrequencyStudentsCreator).to receive(:call_worker)
+
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        hash_including(
+          classroom_id: daily_frequency_1.classroom_id,
+          frequency_dates: [daily_frequency_1.frequency_date],
+          force_posting: true
+        )
+      )
+      expect(AutomaticAbsencePostingEnqueuer).to receive(:call).with(
+        hash_including(
+          classroom_id: daily_frequency_2.classroom_id,
+          frequency_dates: [daily_frequency_2.frequency_date],
+          force_posting: true
+        )
+      )
+
+      delete :destroy_multiple, params: {
+        locale: 'pt-BR',
+        daily_frequencies_ids: [daily_frequency_1.id, daily_frequency_2.id]
+      }
+    end
+
+    context 'when the posting period of the step is over' do
+      # A turma nasce com duas etapas semestrais; a data congelada cai na segunda, então a janela
+      # de lançamento da primeira já venceu.
+      let(:current_date) { Date.new(Date.current.year, 8, 15) }
+      let(:blocked_classroom) { create(:classroom, :with_classroom_semester_steps) }
+      let!(:blocked_daily_frequency) do
+        create(
+          :daily_frequency,
+          :with_students,
+          students_count: 2,
+          classroom: blocked_classroom,
+          frequency_date: Date.new(current_date.year, 5, 15)
+        )
+      end
+
+      around do |example|
+        Timecop.freeze(current_date) { example.run }
+      end
+
+      it 'keeps the daily frequency, skips the workers and warns the user' do
+        expect(UniqueDailyFrequencyStudentsCreator).to_not receive(:call_worker)
+        expect(AutomaticAbsencePostingEnqueuer).to_not receive(:call)
+
+        expect {
+          delete :destroy_multiple, params: {
+            locale: 'pt-BR',
+            daily_frequencies_ids: [blocked_daily_frequency.id]
+          }
+        }.to_not change(DailyFrequency, :count)
+
+        expect(
+          DailyFrequencyStudent.with_discarded.by_daily_frequency_id(blocked_daily_frequency.id).count
+        ).to eq(2)
+        expect(response).to redirect_to(new_daily_frequency_path)
+        expect(flash[:alert]).to eq('Não é possível apagar registros fora das datas de lançamento da etapa.')
+      end
     end
   end
 

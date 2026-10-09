@@ -182,13 +182,12 @@ class DescriptiveExamsController < ApplicationController
   def recorded_at_by_step
     @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
 
-    date = if @descriptive_exam.step_id.present?
-             steps_fetcher.step_by_id(@descriptive_exam.step_id).end_at
-           else
-             Date.current
-           end
+    step = steps_fetcher.step_by_id(@descriptive_exam.step_id) if @descriptive_exam.step_id.present?
 
-    Date.current > date ? date : Date.current
+    # Etapa em branco ou de outro calendário não tem data de fim; a validação do model barra o registro.
+    return Date.current if step.blank?
+
+    [Date.current, step.end_at].min
   end
 
   def fetch_dates_for_opinion_type_by_year
@@ -228,14 +227,19 @@ class DescriptiveExamsController < ApplicationController
       left_at = enrollment_classroom[:student_enrollment_classroom].left_at.to_date
       exam_student = @descriptive_exam.students.find_or_initialize_by(student_id: student.id)
       (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
-      exam_student.dependence = dependencies[:student_enrollment] ? true : false
+      exam_student.dependence = dependencies[student_enrollment.id] ? true : false
       exam_student.exempted_from_discipline = student_exempted[student_enrollment.id] ? true : false
       exam_student.inactive_student = left_at.present? && left_at < @descriptive_exam.step.try(:end_at)
+      exam_student.in_active_search = ActiveSearch.new.in_active_search?(
+        student_enrollment.id, @descriptive_exam.step.try(:end_at)
+      )
 
       @students << exam_student
     end
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @any_student_inactive                 = any_student_inactive?
+    @any_student_in_active_search         = any_student_in_active_search?
     @normal_students = []
     @dependence_students = []
 
@@ -286,8 +290,9 @@ class DescriptiveExamsController < ApplicationController
       end
     end
 
+    # A regra de avaliação é a da turma do formulário; sem turma informada, vale a turma do perfil.
     if action_name.eql?('new') || action_name.eql?('find') || action_name.eql?('create')
-      @exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+      @exam_rules ||= current_user_classroom.classrooms_grades.map(&:exam_rule)
     end
   end
 
@@ -337,6 +342,14 @@ class DescriptiveExamsController < ApplicationController
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def any_student_inactive?
+    (@students || []).any?(&:inactive_student)
+  end
+
+  def any_student_in_active_search?
+    (@students || []).any?(&:in_active_search)
   end
 
   def current_teacher_period(classroom_id, discipline_id)

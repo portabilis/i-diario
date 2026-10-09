@@ -54,6 +54,21 @@ RSpec.describe StepsFetcher, type: :service do
       end
     end
 
+    describe '#step_by_date' do
+      it 'returns the step of the informed date' do
+        expect(subject.step_by_date(step.start_at)).to eq(step)
+      end
+
+      # Uma data em branco chega aqui quando a avaliação é criada sem preencher a data.
+      # Antes o método quebrava com NoMethodError ao chamar to_date sobre nil.
+      context 'when the date is blank' do
+        it 'returns nil' do
+          expect(subject.step_by_date(nil)).to be_nil
+          expect(subject.step_by_date('')).to be_nil
+        end
+      end
+    end
+
     describe '#step_belongs_to_date?' do
       context 'when the step of the school calendar is on date' do
         it 'returns true' do

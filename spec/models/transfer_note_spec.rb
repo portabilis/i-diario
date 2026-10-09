@@ -81,5 +81,44 @@ RSpec.describe TransferNote, type: :model do
         end
       end
     end
+
+    context 'uniqueness per student, classroom, discipline and step' do
+      let!(:existing) { create(:transfer_note, :with_teacher_discipline_classroom) }
+
+      subject do
+        build(
+          :transfer_note,
+          classroom: existing.classroom,
+          discipline: existing.discipline,
+          student: existing.student,
+          teacher: existing.teacher,
+          step_number: existing.step_number,
+          recorded_at: existing.recorded_at
+        )
+      end
+
+      it 'is invalid when another transfer note already exists for the same scope' do
+        expected_message = I18n.t(
+          'activerecord.errors.models.transfer_note.attributes.base.transfer_note_already_exists'
+        )
+
+        expect(subject.valid?).to be false
+        expect(subject.errors[:base]).to include(expected_message)
+      end
+
+      it 'allows a transfer note for a different student in the same scope' do
+        other_student_note = build(
+          :transfer_note,
+          classroom: existing.classroom,
+          discipline: existing.discipline,
+          student: create(:student),
+          teacher: existing.teacher,
+          step_number: existing.step_number,
+          recorded_at: existing.recorded_at
+        )
+
+        expect(other_student_note.valid?).to be true
+      end
+    end
   end
 end

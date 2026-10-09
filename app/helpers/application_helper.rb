@@ -29,8 +29,14 @@ module ApplicationHelper
     transliterate(value).tr(' ', '_').underscore
   end
 
+  # Item do menu que a tela representa. Controllers aninhados (sem nó próprio no
+  # navigation.yml) definem @navigation_item com o type do menu correspondente.
+  def navigation_item
+    @navigation_item.presence || controller_name
+  end
+
   def breadcrumbs
-    Navigation.draw_breadcrumbs(controller_name, self)
+    Navigation.draw_breadcrumbs(navigation_item, self)
   end
 
   def menus
@@ -38,14 +44,14 @@ module ApplicationHelper
     user_role_cache = role&.cache_key.to_s + role&.id.to_s
     key = [
       'Menus',
-      controller_name,
+      navigation_item,
       user_role_cache || current_user.cache_key,
       Translation.cache_key,
       current_user.updated_at.to_i
     ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
-      Navigation.draw_menus(controller_name, current_user)
+      Navigation.draw_menus(navigation_item, current_user)
     end
   end
 
@@ -62,11 +68,11 @@ module ApplicationHelper
   end
 
   def title
-    Navigation.draw_title(controller_name, false, self)
+    Navigation.draw_title(navigation_item, false, self)
   end
 
   def title_with_icon
-    Navigation.draw_title(controller_name, true, self)
+    Navigation.draw_title(navigation_item, true, self)
   end
 
   def simple_form_for(object, *args, &block)
@@ -223,6 +229,14 @@ module ApplicationHelper
     message.gsub(/\d+\.\d+/) { |match| format_error_number(match.to_f) }
   end
 
+  # URL completa, com o domínio da rede: com um caminho, o image_tag antepõe o asset_host
+  # (CDN), e a rota não acha a entidade pelo domínio do CDN.
+  def entity_logo_url_for(entity_configuration)
+    return if entity_configuration.try(:logo).blank?
+
+    entity_logo_url(v: entity_configuration.logo.identifier)
+  end
+
   private
 
   def cache_key_to_user
@@ -230,10 +244,8 @@ module ApplicationHelper
   end
 
   def logo_url
-    if Rails.env.production?
-      current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
-    else
-      DEFAULT_LOGO
-    end
+    return DEFAULT_LOGO unless Rails.env.production?
+
+    entity_logo_url_for(current_entity_configuration) || DEFAULT_LOGO
   end
 end

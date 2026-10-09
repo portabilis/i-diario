@@ -1,0 +1,32 @@
+pt-BR:
+  activerecord:
+    models:
+      individualized_educational_plan:
+        one: "Plano Educacional Individualizado"
+        other: "Planos Educacionais Individualizados"
+
+    attributes:
+      individualized_educational_plan:
+        student: "Aluno"
+        student_id: "Aluno"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        teacher: "Professor regente"
+        teacher_id: "Professor regente"
+        aee_teacher: "Professor de AEE"
+        aee_teacher_id: "Professor de AEE"
+        year: "Ano"
+        support_professional: "Profissional de apoio / Cuidador"
+        elaborated_at: "Data de elaboração"
+        iep_medications/name: "Nome do medicamento"
+    errors:
+      models:
+        individualized_educational_plan:
+          medication_required: "Informe ao menos um medicamento com nome na etapa Equipe de Suporte, pois o aluno faz uso de medicação"
+          attributes:
+            student_id:
+              taken: "já possui um PEI para este ano letivo"
+            elaborated_at:
+              not_in_plan_year: "deve estar dentro do ano letivo do plano (%{year})"

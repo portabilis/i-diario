@@ -6,6 +6,7 @@ on:
       - main
       - tc-gh-actions
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   default:
@@ -14,7 +15,7 @@ jobs:
     if: "! github.event.pull_request.draft"
 
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     env:
       RAILS_ENV: test
@@ -42,12 +43,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "2.6.6"
+          ruby-version: .ruby-version
+          rubygems: "3.3.22"
           bundler: "2.4.22"
           bundler-cache: true
 
@@ -73,3 +78,26 @@ jobs:
       - name: Tests
         run: |
           RAILS_ENV=test bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'
+
+  javascript:
+    name: JavaScript
+
+    if: "! github.event.pull_request.draft"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Tests
+        run: npm test
