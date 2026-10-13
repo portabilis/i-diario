@@ -20,6 +20,17 @@ RSpec.describe Role, :type => :model do
 
       expect(subject.errors[:base]).to eq ["Funcionalidade Usuários não pertence ao nível de acesso Professor."]
     end
+
+    it "allows copy teaching plan permissions for teacher access level" do
+      subject.access_level = AccessLevel::TEACHER
+
+      subject.permissions.build(feature: Features::COPY_DISCIPLINE_TEACHING_PLAN, permission: Permissions::CHANGE)
+      subject.permissions.build(feature: Features::COPY_KNOWLEDGE_AREA_TEACHING_PLAN, permission: Permissions::CHANGE)
+
+      subject.valid?
+
+      expect(subject.errors[:base]).to be_empty
+    end
   end
 
   describe "#to_s" do
